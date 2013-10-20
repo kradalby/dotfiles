@@ -10,6 +10,9 @@
 
 set number
 
+set background=dark
+colorscheme solarized
+
 nnoremap å :tabnew<cr>
 nnoremap æ :tabnext<cr>
 nnoremap ø :tabprev<cr>
