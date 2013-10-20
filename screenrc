@@ -1,0 +1,16 @@
+shell "/bin/zsh"
+startup_message off
+setenv LC_CTYPE en_US.UTF-8
+defutf8 on
+setenv DISPLAY ':0'
+nonblock on
+vbell off
+msgwait 10
+
+
+hardstatus on
+hardstatus alwayslastline
+caption always '%{=  g}%?%-Lw%?%{r}(%{w}%n*%f %t%?(%u)%?%{r})%{g}%?%+Lw%?%?%= [ %{B}%Y-%m-%d %{W}%c %{g}]'
+#hardstatus string "%{.kW}%-w%{.W}%n %t%{-}%{=b kw}%?%+w%? %=%c %d/%m/%Y" #B&W & date&time
+#hardstatus string "%{.kW}%-w%{.W}%n %t%{-}%{=b kw}%?%+w%? %=%c %d/%m/%Y" #B&W & date&time
+sorendition kw
