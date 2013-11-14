@@ -19,7 +19,7 @@ if ($ARGV[2]) {
 
 
 &pubkey();
-system("cat $file | ssh -p $port $user\@$host 'mkdir .ssh; cat >> .ssh/authorized_keys'");
+system("cat $file | ssh -p $port $user\@$host 'mkdir -p .ssh; cat >> .ssh/authorized_keys'");
 
 
 sub pubkey
