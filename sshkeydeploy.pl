@@ -3,15 +3,23 @@ use strict;
 use warnings;
 
 # Usage:
-# sshkeydeploy.pl hostname username
+# sshkeydeploy.pl hostname username (port or blank for 22)
 
 
 my $host = $ARGV[0];
 my $user = $ARGV[1];
+my $port;
 my $file = $ENV{"HOME"} . "/.ssh/id_rsa.pub";
 
+if ($ARGV[2]) {
+    $port = $ARGV[2];
+} else {
+    $port = "22";
+}
+
+
 &pubkey();
-system("cat $file | ssh $user\@$host 'mkdir .ssh; cat >> .ssh/authorized_keys'");
+system("cat $file | ssh -p $port $user\@$host 'mkdir .ssh; cat >> .ssh/authorized_keys'");
 
 
 sub pubkey
@@ -23,3 +31,4 @@ sub pubkey
         system("ssh-keygen");
     }
 }
+
