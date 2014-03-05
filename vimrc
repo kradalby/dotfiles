@@ -13,9 +13,12 @@ set number
 set background=dark
 colorscheme solarized
 
-nnoremap å :tabnew<cr>
-nnoremap æ :tabnext<cr>
-nnoremap ø :tabprev<cr>
+nnoremap [ :tabnew<cr>
+nnoremap ; :tabnext<cr>
+nnoremap ' :tabprev<cr>
+
+set shell=/bin/zsh          " Set default shell to zsh 
+
 
 " Use Vim settings, rather then Vi settings (much better!).
 
@@ -53,20 +56,6 @@ set nobackup
 set nowritebackup
 set noswapfile
 
-" Set 52 lines for the display, 1 for the status line.
-" and other display options
-if has('gui_running')
-    " i like about 80 character width lines
-
-  set textwidth=78
-  "  2 for the command line
-  set lines=52
-  " add columns for the Project plugin
-
-  set columns=110
-  " enable use of mouse
-  set mouse=a
-endif
 
 " keep 50 lines of command line history
 set history=50
@@ -97,7 +86,7 @@ set scs
 " set gdefault
 
 " Set status line
-set statusline=[%02n]\ %f\ %(\[%M%R%H]%)%=\ %4l,%02c%2V\ %P%*
+set statusline=%t[%{strlen(&fenc)?&fenc:'none'},%{&ff}]%h%m%r%y%=%c,%l/%L\ %P
 
 
 " Always display a status line at the bottom of the window
@@ -139,20 +128,6 @@ let g:explStartRight=0  " new windows go to right of explorer window
 " for the TOhtml command
 let html_use_css=1
 
-if has("gui")
-
-  " set the gui options to:
-  "   g: grey inactive menu items
-  "   m: display menu bar
-  "   r: display scrollbar on right side of window
-  "   b: display scrollbar at bottom of window
-
-  "   t: enable tearoff menus on Win32
-  "   T: enable toolbar on Win32
-  set go=gmr
-  set guifont=Courier
-
-endif
 
 " Switch syntax highlighting on, when the terminal has colors
 " Also switch on highlighting the last used search pattern.
@@ -162,11 +137,6 @@ if &t_Co > 2 || has("gui_running")
   set hlsearch
 endif
 
-" for cygwin
-set shell=C:/cygwin/bin/bash
-
-set shellcmdflag=--login\ -c
-set shellxquote=\"
 
 
 " ************************************************************************
