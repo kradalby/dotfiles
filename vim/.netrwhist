@@ -1,8 +1,0 @@
-let g:netrw_dirhistmax  =10
-let g:netrw_dirhist_cnt =6
-let g:netrw_dirhist_1='/Users/kradalby/git/lanweb/apps'
-let g:netrw_dirhist_2='/Users/kradalby/git/lanweb/apps/userprofile'
-let g:netrw_dirhist_3='/Users/kradalby/git/lanweb/apps/userprofile/templatetags'
-let g:netrw_dirhist_4='/Users/kradalby/git/ntnu/ktn/o2'
-let g:netrw_dirhist_5='/Users/kradalby/git/fellesprosjekt/.git'
-let g:netrw_dirhist_6='/Users/kradalby/git/fellesprosjekt/pu3/img'

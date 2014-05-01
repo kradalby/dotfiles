@@ -11,7 +11,7 @@
 set number
 
 set background=dark
-colorscheme solarized
+" colorscheme solarized
 
 nnoremap [ :tabnew<cr>
 nnoremap ; :tabnext<cr>
