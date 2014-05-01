@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CURRENT=`pwd`
+CURRENT=~/git/dotfiles
 
 function deploy() {
     ls -1 $CURRENT/rc/ | while read FILE;
