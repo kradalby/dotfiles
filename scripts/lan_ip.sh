@@ -15,6 +15,7 @@ shell_is_osx()   { [[ $SHELL_PLATFORM == 'osx' ]]; }
 shell_is_bsd()   { [[ $SHELL_PLATFORM == 'bsd' || $SHELL_PLATFORM == 'osx' ]]; }
 
 
+
 function run() {
     if shell_is_bsd || shell_is_osx ; then
         all_nics=$(ifconfig 2>/dev/null | awk -F':' '/^[a-z]/ && !/^lo/ { print $1 }')
@@ -42,7 +43,15 @@ function run() {
         done
     fi
 
-    echo "${lan_ip-N/a}"
+    pupp=$(curl -s http://canihazip.com/s)
+
+    
+    if [ "${lan_ip}" == "$pupp" ]; then
+        echo "${lan_ip-N/a}"
+    else
+        echo "$pupp"/"${lan_ip-N/a}"
+    fi
+    
     return 0
 }
 
