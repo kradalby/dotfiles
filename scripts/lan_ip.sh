@@ -1,3 +1,5 @@
+#!/bin/bash
+
 ostype() { echo $OSTYPE | tr '[A-Z]' '[a-z]'; }
 
 export SHELL_PLATFORM='unknown'
