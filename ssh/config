@@ -22,6 +22,12 @@ Host zapdos
     Port 21337
     User kradalby
 
+Host jottatunnel
+    Hostname lame.no
+    Port 22
+    User kradalby
+    LocalForward 5000 127.0.0.1:5000
+
 
 # dotkom
 Host dworek
