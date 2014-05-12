@@ -1,0 +1,52 @@
+Host *
+     ServerAliveInterval 60
+     ServerAliveCountMax 30
+
+Host oddish
+    HostName fap.no
+    Port 22
+    User kradalby
+
+Host snorlax
+    HostName lame.no
+    Port 22
+    User kradalby
+
+Host onyx
+    HostName onyx.kradalby.no
+    Port 21337
+    User kradalby
+
+Host zapdos
+    HostName zapdos.kradalby.no
+    Port 21337
+    User kradalby
+
+
+# dotkom
+Host dworek
+    HostName dworek.onli.no
+    Port 22
+    User root
+
+Host xo
+    HostName xo.onli.no
+    Port 22
+    User root
+
+Host morgan
+    HostName morgan.onli.no
+    Port 22
+    User root
+
+Host vsop
+    HostName vsop.onli.no
+    Port 22
+    User root
+
+Host nansen
+    HostName nansen.onli.no
+    Port 22
+    User root
+
+

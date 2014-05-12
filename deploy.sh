@@ -10,6 +10,10 @@ function deploy() {
         done
 }
 
+function deploy_special() {
+    ln -s $CURRENT/ssh/config ~/.ssh/
+}
+
 function prepare_vim_dir() {
     rm -r ~/.vim
     mkdir ~/.vim
@@ -25,7 +29,8 @@ function install_vim_dhcpd() {
     wget https://raw.githubusercontent.com/vim-scripts/dhcpd.vim/master/syntax/dhcpd.vim -O ~/.vim/syntax/dhcpd.vim
 }
 
-deploy
-prepare_vim_dir
-install_vim_markdown
-install_vim_dhcpd
+#deploy
+#prepare_vim_dir
+#install_vim_markdown
+#install_vim_dhcpd
+deploy_special
