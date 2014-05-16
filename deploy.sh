@@ -11,6 +11,11 @@ function deploy() {
 }
 
 function deploy_special() {
+
+    if [ ! -d "~/.ssh" ]; then
+        mkdir ~/.ssh
+    fi
+
     ln -s $CURRENT/ssh/config ~/.ssh/
 }
 
