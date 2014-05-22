@@ -28,6 +28,16 @@ Host jottatunnel
     User kradalby
     LocalForward 5000 127.0.0.1:5000
 
+Host imac
+    Hostname th.kradalby.no
+    Port 22
+    User kradalby
+
+Host pi
+    Hostname th.kradalby.no
+    Port 22222
+    User root
+
 
 # dotkom
 Host dworek
