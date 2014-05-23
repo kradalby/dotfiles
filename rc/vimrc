@@ -14,8 +14,8 @@ set background=dark
 " colorscheme solarized
 
 nnoremap [ :tabnew<cr>
-nnoremap ; :tabnext<cr>
-nnoremap ' :tabprev<cr>
+nnoremap ' :tabnext<cr>
+nnoremap ; :tabprev<cr>
 
 set shell=/bin/zsh          " Set default shell to zsh 
 
