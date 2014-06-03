@@ -1,0 +1,16 @@
+ack
+git
+ipcalc
+mobile-shell
+ncdu
+netcat
+node
+openssl
+python
+python3
+tmux
+unrar
+vim
+wget
+xz
+zsh
