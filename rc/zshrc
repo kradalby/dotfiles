@@ -30,7 +30,7 @@ export UPDATE_ZSH_DAYS=13
 # DISABLE_CORRECTION="true"
 
 # Uncomment following line if you want red dots to be displayed while waiting for completion
-# COMPLETION_WAITING_DOTS="true"
+COMPLETION_WAITING_DOTS="true"
 
 # Uncomment following line if you want to disable marking untracked files under
 # VCS as dirty. This makes repository status check for large repositories much,
@@ -44,8 +44,12 @@ plugins=(git virtualenvwrapper vagrant tmux systemd sudo python pylint pip osx m
 
 
 # Aliases
-alias ql="qlmanage -p"
 alias update_dotfiles="cd ~/git/dotfiles; git pull; cd -"
+
+# Exports
+export WORKON_HOME=$HOME/.virtualenvs
+
+
 
 source $ZSH/oh-my-zsh.sh
 
@@ -53,4 +57,21 @@ export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
 
 # Customize to your needs...
-export PATH=/usr/local/bin:$PATH:/usr/bin:/bin:/usr/sbin:/sbin:/usr/texbin
+export PATH=$PATH:/usr/bin:/bin:/usr/sbin:/sbin:/usr/texbin
+
+if [[ `uname -s` == Darwin ]];
+then
+    alias ql="qlmanage -p"
+    export PATH=/usr/local/bin:$PATH
+    export VIRTUALENVWRAPPER_PYTHON=/usr/local/bin/python
+    export VIRTUALENVWRAPPER_VIRTUALENV=/usr/local/bin/virtualenv
+    export VIRTUALENV_PYTHON=/usr/local/bin/python
+    
+
+fi
+
+if [[ `uname -s` == Linux ]];
+then
+    export VIRTUALENVWRAPPER_PYTHON=/usr/bin/python
+    export VIRTUALENV_PYTHON=/usr/bin/python
+fi
