@@ -45,6 +45,7 @@ plugins=(git virtualenvwrapper vagrant tmux systemd sudo python pylint pip osx m
 
 # Aliases
 alias ql="qlmanage -p"
+alias update_dotfiles="cd ~/git/dotfiles; git pull; cd -"
 
 source $ZSH/oh-my-zsh.sh
 
