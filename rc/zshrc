@@ -40,7 +40,7 @@ COMPLETION_WAITING_DOTS="true"
 # Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
-plugins=(git virtualenvwrapper vagrant tmux systemd sudo python pylint pip osx mvn mosh django debian brew archlinux)
+plugins=(git vagrant tmux systemd sudo python pylint pip osx mvn mosh django debian brew archlinux)
 
 
 # Aliases
@@ -48,17 +48,11 @@ alias update_dotfiles="cd ~/git/dotfiles; git pull; cd -"
 
 # Exports
 export WORKON_HOME=$HOME/.virtualenvs
-
-
-
-source $ZSH/oh-my-zsh.sh
-
+export PATH=$PATH:/usr/bin:/bin:/usr/sbin:/sbin:/usr/texbin
 export LC_ALL=en_US.UTF-8  
 export LANG=en_US.UTF-8
 
-# Customize to your needs...
-export PATH=$PATH:/usr/bin:/bin:/usr/sbin:/sbin:/usr/texbin
-
+# OS spesific 
 if [[ `uname -s` == Darwin ]];
 then
     alias ql="qlmanage -p"
@@ -75,3 +69,14 @@ then
     export VIRTUALENVWRAPPER_PYTHON=/usr/bin/python
     export VIRTUALENV_PYTHON=/usr/bin/python
 fi
+
+
+source $ZSH/oh-my-zsh.sh
+
+
+# Load virtualenvwrapper
+if [ -f /usr/local/bin/virtualenvwrapper.sh ];
+then
+    source /usr/local/bin/virtualenvwrapper.sh
+fi
+
