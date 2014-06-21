@@ -38,6 +38,12 @@ Host pi
     Port 22222
     User root
 
+# Raspberry pi at barn
+Host caterpie
+    Hostname tw.fap.no
+    Port 21337
+    User root
+
 
 # dotkom
 Host dworek
