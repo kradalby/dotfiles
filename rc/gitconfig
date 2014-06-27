@@ -1,3 +1,6 @@
 [user]
 	name = Kristoffer Dalby
 	email = kradalby@kradalby.no
+
+[push]
+    default = simple
