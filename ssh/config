@@ -1,14 +1,14 @@
 Host *
      ServerAliveInterval 60
      ServerAliveCountMax 30
+     Compression yes
+     TCPKeepAlive no
+
+
+# Trondheim
 
 Host oddish
     HostName fap.no
-    Port 22
-    User kradalby
-
-Host snorlax
-    HostName lame.no
     Port 22
     User kradalby
 
@@ -22,12 +22,6 @@ Host zapdos
     Port 21337
     User kradalby
 
-Host jottatunnel
-    Hostname lame.no
-    Port 22
-    User kradalby
-    LocalForward 5000 127.0.0.1:5000
-
 Host imac
     Hostname th.kradalby.no
     Port 22
@@ -38,11 +32,64 @@ Host pi
     Port 22222
     User root
 
-# Raspberry pi at barn
-Host caterpie
-    Hostname tw.fap.no
+
+# Tjodalyng
+# HostKeyChecking disabled since the ip changes rapidly
+
+Host snorlax
+    HostName tw.fap.no
     Port 21337
-    User root
+    User kradalby
+    UserKnownHostsFile /dev/null 
+    StrictHostKeyChecking no
+
+Host jotta
+    HostName tw.fap.no
+    Port 21337
+    User kradalby
+    UserKnownHostsFile /dev/null 
+    StrictHostKeyChecking no
+    LocalForward 6000 127.0.0.1:6000
+
+Host tupo
+    HostName tw.fap.no
+    Port 21337
+    User kradalby
+    UserKnownHostsFile /dev/null 
+    StrictHostKeyChecking no
+    LocalForward 6001 127.0.0.1:6001
+
+Host kontor1
+    HostName tw.fap.no
+    Port 21337
+    User kradalby
+    UserKnownHostsFile /dev/null 
+    StrictHostKeyChecking no
+    LocalForward 5900 192.168.1.101:5900
+
+Host kontor2
+    HostName tw.fap.no
+    Port 21337
+    User kradalby
+    UserKnownHostsFile /dev/null 
+    StrictHostKeyChecking no
+    LocalForward 5900 192.168.1.102:5900
+
+Host kabuto
+    HostName tw.fap.no
+    Port 21337
+    User kradalby
+    UserKnownHostsFile /dev/null 
+    StrictHostKeyChecking no
+    LocalForward 5900 192.168.1.103:5900
+
+Host snorlax_http
+    HostName tw.fap.no
+    Port 21337
+    User kradalby
+    UserKnownHostsFile /dev/null 
+    StrictHostKeyChecking no
+    LocalForward 8080 127.0.0.1:80
 
 
 # dotkom
