@@ -42,55 +42,13 @@ Host snorlax
     User kradalby
     UserKnownHostsFile /dev/null 
     StrictHostKeyChecking no
-
-Host jotta
-    HostName tw.fap.no
-    Port 21337
-    User kradalby
-    UserKnownHostsFile /dev/null 
-    StrictHostKeyChecking no
     LocalForward 6000 127.0.0.1:6000
-
-Host tupo
-    HostName tw.fap.no
-    Port 21337
-    User kradalby
-    UserKnownHostsFile /dev/null 
-    StrictHostKeyChecking no
     LocalForward 6001 127.0.0.1:6001
-
-Host kontor1
-    HostName tw.fap.no
-    Port 21337
-    User kradalby
-    UserKnownHostsFile /dev/null 
-    StrictHostKeyChecking no
-    LocalForward 5900 192.168.1.101:5900
-
-Host kontor2
-    HostName tw.fap.no
-    Port 21337
-    User kradalby
-    UserKnownHostsFile /dev/null 
-    StrictHostKeyChecking no
-    LocalForward 5900 192.168.1.102:5900
-
-Host kabuto
-    HostName tw.fap.no
-    Port 21337
-    User kradalby
-    UserKnownHostsFile /dev/null 
-    StrictHostKeyChecking no
-    LocalForward 5900 192.168.1.103:5900
-
-Host snorlax_http
-    HostName tw.fap.no
-    Port 21337
-    User kradalby
-    UserKnownHostsFile /dev/null 
-    StrictHostKeyChecking no
-    LocalForward 8080 127.0.0.1:80
-
+    LocalForward 5901 192.168.1.101:5900
+    LocalForward 5902 192.168.1.102:5900
+    LocalForward 5903 192.168.1.103:5900
+    LocalForward 22003 192.168.1.5:22
+    LocalForward 8888 127.0.0.1:80
 
 # dotkom
 Host dworek
