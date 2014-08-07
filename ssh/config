@@ -13,22 +13,22 @@ Host oddish
     User kradalby
 
 Host onyx
-    HostName onyx.kradalby.no
+    HostName onyx.fap.no
     Port 21337
     User kradalby
 
 Host zapdos
-    HostName zapdos.kradalby.no
+    HostName zapdos.fap.no
     Port 21337
     User kradalby
 
 Host imac
-    Hostname th.kradalby.no
+    Hostname th.fap.no
     Port 22
     User kradalby
 
 Host pi
-    Hostname th.kradalby.no
+    Hostname th.fap.no
     Port 22222
     User root
 
