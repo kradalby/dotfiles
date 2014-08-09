@@ -22,15 +22,21 @@ Host zapdos
     Port 21337
     User kradalby
 
+Host butterfree
+    HostName butterfree.fap.no
+    Port 22222
+    User kradalby
+
 Host imac
-    Hostname th.fap.no
-    Port 22
+    Hostname trondheim.fap.no
+    Port 22223
     User kradalby
 
 Host pi
     Hostname th.fap.no
     Port 22222
     User root
+
 
 
 # Tjodalyng
