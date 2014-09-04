@@ -82,4 +82,20 @@ Host nansen
     Port 22
     User root
 
+Host bacardi
+    HostName bacardi.onli.no
+    Port 22
+    User root
+
+Host laphroaig
+    HostName laphroaig.onli.no
+    Port 22
+    User root
+
+Host kahlua
+    HostName kahlua.onli.no
+    Port 22
+    User root
+
+
 
