@@ -98,4 +98,8 @@ Host kahlua
     User root
 
 
-
+# Studdem
+Host vissel
+    HostName vissel.studdem.ntnu.no
+    Port 22
+    User kradalby
