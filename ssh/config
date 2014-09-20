@@ -97,6 +97,11 @@ Host kahlua
     Port 22
     User root
 
+Host moonshine
+    HostName moonshine.onli.no
+    Port 22
+    User root
+
 
 # Studdem
 Host vissel
