@@ -102,6 +102,16 @@ Host moonshine
     Port 22
     User root
 
+Host grouse
+    HostName grouse.onli.no
+    Port 22
+    User root
+
+Host passoa
+    HostName passoa.onli.no
+    Port 22
+    User root
+
 
 # Studdem
 Host vissel
