@@ -1,8 +1,9 @@
 [fap]
 b.fap.no:22222
 z.fap.no:21337
-tw.fap.no:21337
 o.fap.no:21337
+fap.no
+tw.fap.no:21337
 
 [dotkom]
 dworek.onli.no
@@ -13,6 +14,19 @@ nansen.onli.no
 bacardi.onli.no
 laphroaig.onli.no
 kahlua.onli.no
+moonshine.onli.no
+grouse.onli.no
+passoa.onli.no
+
+
+
+[dotkom-update]
+dworek.onli.no
+xo.onli.no
+vsop.onli.no
+nansen.onli.no
+bacardi.onli.no
+laphroaig.onli.no
 moonshine.onli.no
 grouse.onli.no
 passoa.onli.no
