@@ -16,6 +16,7 @@ Host onyx
     HostName onyx.fap.no
     Port 21337
     User kradalby
+    DynamicForward 9876
 
 Host zapdos
     HostName zapdos.fap.no
