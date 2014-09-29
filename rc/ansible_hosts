@@ -1,32 +1,33 @@
 [fap]
-b.fap.no:22222
-z.fap.no:21337
-o.fap.no:21337
-fap.no
-tw.fap.no:21337
+butterfree  ansible_ssh_host=b.fap.no ansible_ssh_port=22222
+zapdos      ansible_ssh_host=z.fap.no ansible_ssh_port=21337
+onyx        ansible_ssh_host=o.fap.no ansible_ssh_port=21337
+oddish      ansible_ssh_host=fap.no
+snorlax     ansible_ssh_host=tw.fap.no ansible_ssh_port=21337
 
 [dotkom]
-dworek.onli.no
-xo.onli.no
-morgan.onli.no
-vsop.onli.no
-nansen.onli.no
-bacardi.onli.no
-laphroaig.onli.no
-kahlua.onli.no
-moonshine.onli.no
-grouse.onli.no
-passoa.onli.no
+dworek      ansible_ssh_host=dworek.onli.no
+xo          ansible_ssh_host=xo.onli.no
+morgan      ansible_ssh_host=morgan.onli.no
+vsop        ansible_ssh_host=vsop.onli.no
+nansen      ansible_ssh_host=nansen.onli.no
+bacardi     ansible_ssh_host=bacardi.onli.no
+laphroaig   ansible_ssh_host=laphroaig.onli.no
+kahlua      ansible_ssh_host=kahlua.onli.no
+moonshine   ansible_ssh_host=moonshine.onli.no
+grouse      ansible_ssh_host=grouse.onli.no
+passoa      ansible_ssh_host=passoa.onli.no
 
 
 
 [dotkom-update]
-dworek.onli.no
-xo.onli.no
-vsop.onli.no
-nansen.onli.no
-bacardi.onli.no
-laphroaig.onli.no
-moonshine.onli.no
-grouse.onli.no
-passoa.onli.no
+dworek      ansible_ssh_host=dworek.onli.no
+xo          ansible_ssh_host=xo.onli.no
+vsop        ansible_ssh_host=vsop.onli.no
+nansen      ansible_ssh_host=nansen.onli.no
+bacardi     ansible_ssh_host=bacardi.onli.no
+laphroaig   ansible_ssh_host=laphroaig.onli.no
+kahlua      ansible_ssh_host=kahlua.onli.no
+moonshine   ansible_ssh_host=moonshine.onli.no
+grouse      ansible_ssh_host=grouse.onli.no
+passoa      ansible_ssh_host=passoa.onli.no
