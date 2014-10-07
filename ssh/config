@@ -11,6 +11,7 @@ Host oddish
     HostName fap.no
     Port 22
     User kradalby
+    DynamicForward 9876
 
 Host onyx
     HostName onyx.fap.no
@@ -22,11 +23,13 @@ Host zapdos
     HostName zapdos.fap.no
     Port 21337
     User kradalby
+    DynamicForward 9876
 
 Host butterfree
     HostName butterfree.fap.no
     Port 22222
     User kradalby
+    DynamicForward 9876
 
 Host imac
     Hostname trondheim.fap.no
@@ -67,6 +70,7 @@ Host xo
     HostName xo.onli.no
     Port 22
     User root
+    DynamicForward 9876
 
 Host morgan
     HostName morgan.onli.no
@@ -119,3 +123,4 @@ Host vissel
     HostName vissel.studdem.ntnu.no
     Port 22
     User kradalby
+    DynamicForward 9876

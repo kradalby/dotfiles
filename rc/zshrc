@@ -47,7 +47,7 @@ plugins=(git vagrant tmux systemd sudo python pylint pip osx mvn mosh django deb
 alias update_dotfiles="cd ~/git/dotfiles; git pull; cd -"
 alias tb="nc termbin.com 9999"
 alias cm="curl http://whatthecommit.com/index.txt"
-function commit {git commit -m '$(cm)'}
+function commit() {git commit -m "$(cm)"}
 
 # Exports
 export WORKON_HOME=$HOME/.virtualenvs
@@ -76,6 +76,29 @@ then
             open vnc://$1:$2
         fi
 
+    }
+
+    socks () {
+        help="Usage: eth or wlan, on or off"
+        if [[ $1 =  "eth" ]]; then
+            if [[ $2 = "on" ]]; then
+                sudo networksetup -setsocksfirewallproxystate "Thunderbolt Ethernet" on
+            elif [[ $2 = "off" ]]; then
+                sudo networksetup -setsocksfirewallproxystate "Thunderbolt Ethernet" off
+            else
+                echo $help
+            fi
+        elif [[ $1 = "wlan" ]]; then    
+            if [[ $2 = "on" ]]; then
+                sudo networksetup -setsocksfirewallproxystate "Wi-Fi" on
+            elif [[ $2 = "off" ]]; then
+                sudo networksetup -setsocksfirewallproxystate "Wi-Fi" off
+            else
+                echo $help
+            fi
+        else
+            echo $help
+        fi
     }
 
 fi
