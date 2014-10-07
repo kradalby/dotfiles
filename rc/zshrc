@@ -47,7 +47,11 @@ plugins=(git vagrant tmux systemd sudo python pylint pip osx mvn mosh django deb
 alias update_dotfiles="cd ~/git/dotfiles; git pull; cd -"
 alias tb="nc termbin.com 9999"
 alias cm="curl http://whatthecommit.com/index.txt"
-function commit() {git commit -m "$(cm)"}
+push() {
+    git add .
+    git commit -m "$(cm)"
+    git push
+}
 
 # Exports
 export WORKON_HOME=$HOME/.virtualenvs
