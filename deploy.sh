@@ -51,3 +51,4 @@ install_vim_markdown
 install_vim_dhcpd
 install_vim_less
 deploy_special
+get_prezto
