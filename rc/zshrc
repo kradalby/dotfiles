@@ -50,7 +50,7 @@ alias cm="curl http://whatthecommit.com/index.txt"
 push() {
     git add .
     git commit -m "$(cm)"
-    git push
+    git push origin $(git rev-parse --abbrev-ref HEAD)
 }
 
 # Exports
@@ -64,6 +64,7 @@ if [[ `uname -s` == Darwin ]];
 then
     alias ql="qlmanage -p"
     export PATH=/usr/local/bin:$PATH
+    export PATH="$(brew --prefix homebrew/php/php56)/bin:$PATH"
     export VIRTUALENVWRAPPER_PYTHON=/usr/local/bin/python
     export VIRTUALENVWRAPPER_VIRTUALENV=/usr/local/bin/virtualenv
     export VIRTUALENV_PYTHON=/usr/local/bin/python
