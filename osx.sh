@@ -658,6 +658,10 @@ defaults write org.m0k.transmission WarningLegal -bool false
 sudo defaults write /Library/Preferences/.GlobalPreferences AppleInterfaceTheme Dark
 ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 
+sudo networksetup -setsocksfirewallproxy "Ethernet" localhost 9876
+sudo networksetup -setsocksfirewallproxy "Thunderbolt Ethernet" localhost 9876
+sudo networksetup -setsocksfirewallproxy "Wi-Fi" localhost 9876
+
 
 
 ###############################################################################
