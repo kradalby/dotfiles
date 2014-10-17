@@ -1,0 +1,17 @@
+ack
+autossh
+nmap
+ncdu
+ipcalc
+mobile-shell
+maven
+node
+python
+python3
+zsh
+wget
+tmux
+unrar
+vim
+git
+dmd
