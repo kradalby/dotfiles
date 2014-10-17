@@ -1,0 +1,35 @@
+#
+# Defines environment variables.
+#
+# Authors:
+#   Sorin Ionescu <sorin.ionescu@gmail.com>
+#
+
+# Ensure that a non-login, non-interactive shell has a defined environment.
+if [[ "$SHLVL" -eq 1 && ! -o LOGIN && -s "${ZDOTDIR:-$HOME}/.zprofile" ]]; then
+  source "${ZDOTDIR:-$HOME}/.zprofile"
+fi
+
+export WORKON_HOME=$HOME/.virtualenvs
+export PATH=$PATH:/usr/bin:/bin:/usr/sbin:/sbin:/usr/texbin
+export LC_ALL=en_US.UTF-8  
+export LANG=en_US.UTF-8
+
+if [[ "$OSTYPE" == darwin* ]];
+then
+    export PATH=/usr/local/bin:$PATH
+    export VIRTUALENVWRAPPER_PYTHON=/usr/local/bin/python
+    export VIRTUALENVWRAPPER_VIRTUALENV=/usr/local/bin/virtualenv
+    export VIRTUALENV_PYTHON=/usr/local/bin/python
+    export ANSIBLE_HOSTS=~/.ansible_hosts
+    export ANSIBLE_HOST_KEY_CHECKING=False
+    #export JAVA_HOME="/Library/Java/JavaVirtualMachines/jdk1.7.0_45.jdk/Contents/Home"
+fi
+
+
+
+if [[ "$OSTYPE" == linux* ]];
+then
+    export VIRTUALENVWRAPPER_PYTHON=/usr/bin/python
+    export VIRTUALENV_PYTHON=/usr/bin/python
+fi
