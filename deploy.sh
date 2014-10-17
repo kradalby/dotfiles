@@ -40,10 +40,6 @@ function install_vim_less() {
     rm ~/.vim/vim_less.tar.gz
 }
 
-function get_prezto() {
-    zsh
-    git clone --recursive https://github.com/sorin-ionescu/prezto.git "${ZDOTDIR:-$HOME}/.zprezto"
-}
 
 deploy
 prepare_vim_dir
@@ -51,4 +47,3 @@ install_vim_markdown
 install_vim_dhcpd
 install_vim_less
 deploy_special
-get_prezto
