@@ -9,6 +9,7 @@ Plug 'plasticboy/vim-markdown'
 Plug 'ervandew/supertab'
 Plug 'vim-scripts/dhcpd.vim'
 Plug 'lunaru/vim-less'
+Plug 'ervandew/snipmate.vim'
 
 call plug#end()
 
@@ -67,7 +68,6 @@ nnoremap <C-n> :call NumberToggle()<cr>
 " support all three newline formats
 set fileformats=unix,dos,mac
 
-set paste
 
 " automagic indentation
 set autoindent
