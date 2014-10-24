@@ -1,28 +1,32 @@
-" File: _vimrc             
-" Version: 1
-" Author: Seth Mason
-" Created: 19 Nov 2003 10:20:19
+call plug#begin('~/.vim/plugged')
 
-" Last-modified: 05 Nov 2012 21:49:36
-" All my Vim commands for the taking
-" Works on cygwin but not very well on unix machines...still trying to figure
-" it out
+"Plug 'whatyouhide/vim-gotham'
+"Plug 'farseer90718/flattr.vim'
+Plug 'tomasr/molokai'
 
-set number
+call plug#end()
+
 
 set background=dark
-" colorscheme solarized
+colorscheme molokai
 
+syntax on
+
+
+" create convinient tab keys
 nnoremap [ :tabnew<cr>
 nnoremap ' :tabnext<cr>
 nnoremap ; :tabprev<cr>
 
-set shell=/bin/zsh          " Set default shell to zsh 
+" Set default shell to zsh
+set shell=/bin/zsh
 
 
 " Use Vim settings, rather then Vi settings (much better!).
-
 set nocompatible
+
+" cursorsline
+set cursorline
 
 " Turn on the verboseness to see everything vim is doing.
 "set verbose=9
@@ -30,23 +34,48 @@ set nocompatible
 " allow backspacing over everything in insert mode
 set backspace=indent,eol,start
 
+" set utf-8
+set encoding=utf-8
 
-" I like 4 spaces for indenting
-set shiftwidth=4
+autocmd FocusLost * :set number
+autocmd FocusGained * :set relativenumber
+autocmd InsertEnter * :set number
+autocmd InsertLeave * :set relativenumber
 
-" I like 4 stops
-set tabstop=4
+if version >= 703
+  set relativenumber " show relative numbers
+else
+  set number " show line numbers
+endif
 
-" Spaces instead of tabs
+function! NumberToggle()
+  if(&relativenumber == 1)
+    set number
+  else
+    set relativenumber
+  endif
+endfunc
 
-set expandtab
+nnoremap <C-n> :call NumberToggle()<cr>
 
-" Always  set auto indenting on
+" support all three newline formats
+set fileformats=unix,dos,mac
+
+set paste
+
+" automagic indentation
 set autoindent
+set nocindent
+set nosmartindent
 
-" select when using the mouse
-set selectmode=mouse
-
+" Whitespace stuff
+set nowrap        " don't soft wrap long lines
+set tabstop=4     " spaces per tab
+set shiftwidth=4  " characters to indent
+set softtabstop=4 " make spaces feel like tabs
+set expandtab     " insert space on tab
+set list          " show invisible characters
+set listchars=tab:>·,trail:· " ... but only show tabs and trailing whitespace
 
 " set the commandheight
 set cmdheight=2
@@ -63,23 +92,22 @@ set history=50
 " show the cursor position all the time
 set ruler
 
-" show (partial) commands
+" Shut up
+set noerrorbells visualbell t_vb= " don't whine
 
 set showcmd
 
-" do incremental searches (annoying but handy);
-set incsearch
+" Searching
+set hlsearch   " highlight searched expressions
+set incsearch  " incremental searching
+set ignorecase " case insensitive
+set smartcase  " ... unless there's a capital letter
 
-" Show  tab characters. Visual Whitespace.
-set list
+" Press Space to dismiss highlighting
+nnoremap <silent> <Space> :nohlsearch<Bar>:echo<CR>
 
-set listchars=tab:>.
-
-" Set ignorecase on
-set ignorecase
 
 " smart search (override 'ic' when pattern has uppers)
-
 set scs
 
 " Set 'g' substitute flag on
@@ -103,9 +131,6 @@ set joinspaces
 " showmatch: Show the matching bracket for the last ')'?
 set showmatch
 
-" allow tilde (~) to act as an operator -- ~w, etc.
-
-set notildeop
 
 
 " Java specific stuff
@@ -119,73 +144,8 @@ let java_mark_braces_in_parens_as_errors=1
 " highlight strings inside C comments
 let c_comment_strings=1
 
-" Commands for :Explore
-let g:explVertical=1    " open vertical split winow
-
-let g:explSplitRight=1  " Put new window to the right of the explorer
-let g:explStartRight=0  " new windows go to right of explorer window
-
 " for the TOhtml command
 let html_use_css=1
-
-
-" Switch syntax highlighting on, when the terminal has colors
-" Also switch on highlighting the last used search pattern.
-if &t_Co > 2 || has("gui_running")
-
-  syntax on
-  set hlsearch
-endif
-
-
-
-" ************************************************************************
-" C O M M A N D S
-
-"
-
-"switch to directory of current file
-command! CD cd %:p:h
-
-" ************************************************************************
-" K E Y   M A P P I N G S
-
-"
-map <Leader>e :Explore<cr>
-map <Leader>s :Sexplore<cr>
-
-" pressing < or > will let you indent/unident selected lines
-
-vnoremap < <gv
-vnoremap > >gv
-
-" Don't use Ex mode, use Q for formatting
-map Q gq
-
-" Make p in Visual mode replace the selected text with the "" register.
-
-vnoremap p <Esc>:let current_reg = @"<CR>gvs<C-R>=current_reg<CR><Esc>
-
-" Make tab in v mode work like I think it should (keep highlighting):
-vmap <tab> >gv
-vmap <s-tab> <gv
-
-" map ,L mz1G/Last modified:/e<Cr>CYDATETIME<Esc>`z
-
-map ,L    :let @z=TimeStamp()<Cr>"zpa
-map ,datetime :let @z=strftime("%d %b %Y %X")<Cr>"zpa
-
-map ,date :let @z=strftime("%d %b %Y")<Cr>"zpa
-
-" Map <c-s> to write current buffer.
-
-map <c-s> :w<cr>
-imap <c-s> <c-o><c-s>
-imap <c-s> <esc><c-s>
-
-" Buffer naviation
-map <M-Left> :bprevious<CR>
-map <M-Right> :bnext<CR>
 
 
 " Select all.
@@ -194,3 +154,17 @@ map <c-a> ggVG
 " Undo in insert mode.
 imap <c-z> <c-o>u
 
+" Removes trailing spaces
+function! <SID>StripTrailingWhitespaces()
+    " Preparation: save last search, and cursor position.
+    let _s=@/
+    let l = line(".")
+    let c = col(".")
+    " Do the business:
+    %s/\s\+$//e
+    " Clean up: restore previous search history, and cursor position
+    let @/=_s
+    call cursor(l, c)
+endfunction
+
+nnoremap <silent> <Leader>s :call <SID>StripTrailingWhitespaces()<CR>
