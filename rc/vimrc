@@ -44,24 +44,12 @@ set backspace=indent,eol,start
 " set utf-8
 set encoding=utf-8
 
-autocmd FocusLost * :set number
-autocmd FocusGained * :set relativenumber
-autocmd InsertEnter * :set number
-autocmd InsertLeave * :set relativenumber
+autocmd InsertEnter * :set nonumber 
+autocmd InsertEnter * :set relativenumber
+autocmd InsertLeave * :set nornu
+autocmd InsertLeave * :set number
 
-if version >= 703
-  set relativenumber " show relative numbers
-else
-  set number " show line numbers
-endif
-
-function! NumberToggle()
-  if(&relativenumber == 1)
-    set number
-  else
-    set relativenumber
-  endif
-endfunc
+set number
 
 nnoremap <C-n> :call NumberToggle()<cr>
 
