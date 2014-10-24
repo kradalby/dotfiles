@@ -22,4 +22,3 @@ if (( $+commands[fortune] )); then
   fi
 fi
 
-bindkey "^R" history-incremental-search-backward
