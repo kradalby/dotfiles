@@ -3,6 +3,12 @@ call plug#begin('~/.vim/plugged')
 "Plug 'whatyouhide/vim-gotham'
 "Plug 'farseer90718/flattr.vim'
 Plug 'tomasr/molokai'
+Plug 'hail2u/vim-css3-syntax'
+Plug 'pangloss/vim-javascript'
+Plug 'plasticboy/vim-markdown'
+Plug 'ervandew/supertab'
+Plug 'vim-scripts/dhcpd.vim'
+Plug 'lunaru/vim-less'
 
 call plug#end()
 
