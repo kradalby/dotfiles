@@ -31,3 +31,7 @@ kahlua      ansible_ssh_host=kahlua.onli.no
 moonshine   ansible_ssh_host=moonshine.onli.no
 grouse      ansible_ssh_host=grouse.onli.no
 passoa      ansible_ssh_host=passoa.onli.no
+
+[test]
+zapdos      ansible_ssh_host=z.fap.no ansible_ssh_port=21337
+
