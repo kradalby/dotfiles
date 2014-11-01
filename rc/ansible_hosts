@@ -1,37 +1,39 @@
 [fap]
-butterfree  ansible_ssh_host=b.fap.no ansible_ssh_port=22222
-zapdos      ansible_ssh_host=z.fap.no ansible_ssh_port=21337
-onyx        ansible_ssh_host=o.fap.no ansible_ssh_port=21337
-oddish      ansible_ssh_host=fap.no
-snorlax     ansible_ssh_host=tw.fap.no ansible_ssh_port=21337
+butterfree  ansible_ssh_host=b.fap.no ansible_ssh_port=22222    ansible_ssh_user=root
+zapdos      ansible_ssh_host=z.fap.no ansible_ssh_port=21337    ansible_ssh_user=root
+onyx        ansible_ssh_host=o.fap.no ansible_ssh_port=21337    ansible_ssh_user=root
+oddish      ansible_ssh_host=fap.no    ansible_ssh_user=root
+snorlax     ansible_ssh_host=tw.fap.no ansible_ssh_port=21337    ansible_ssh_user=root
 
 [dotkom]
-dworek      ansible_ssh_host=dworek.onli.no
-xo          ansible_ssh_host=xo.onli.no
-morgan      ansible_ssh_host=morgan.onli.no
-vsop        ansible_ssh_host=vsop.onli.no
-nansen      ansible_ssh_host=nansen.onli.no
-bacardi     ansible_ssh_host=bacardi.onli.no
-laphroaig   ansible_ssh_host=laphroaig.onli.no
-kahlua      ansible_ssh_host=kahlua.onli.no
-moonshine   ansible_ssh_host=moonshine.onli.no
-grouse      ansible_ssh_host=grouse.onli.no
-passoa      ansible_ssh_host=passoa.onli.no
-
-
+dworek      ansible_ssh_host=dworek.onli.no    ansible_ssh_user=root
+xo          ansible_ssh_host=xo.onli.no    ansible_ssh_user=root
+morgan      ansible_ssh_host=morgan.onli.no    ansible_ssh_user=root
+vsop        ansible_ssh_host=vsop.onli.no    ansible_ssh_user=root
+nansen      ansible_ssh_host=nansen.onli.no    ansible_ssh_user=root
+bacardi     ansible_ssh_host=bacardi.onli.no    ansible_ssh_user=root
+laphroaig   ansible_ssh_host=laphroaig.onli.no    ansible_ssh_user=root
+kahlua      ansible_ssh_host=kahlua.onli.no    ansible_ssh_user=root
+moonshine   ansible_ssh_host=moonshine.onli.no    ansible_ssh_user=root
+grouse      ansible_ssh_host=grouse.onli.no    ansible_ssh_user=root
+passoa      ansible_ssh_host=passoa.onli.no    ansible_ssh_user=root
 
 [dotkom-update]
-dworek      ansible_ssh_host=dworek.onli.no
-xo          ansible_ssh_host=xo.onli.no
-vsop        ansible_ssh_host=vsop.onli.no
-nansen      ansible_ssh_host=nansen.onli.no
-bacardi     ansible_ssh_host=bacardi.onli.no
-laphroaig   ansible_ssh_host=laphroaig.onli.no
-kahlua      ansible_ssh_host=kahlua.onli.no
-moonshine   ansible_ssh_host=moonshine.onli.no
-grouse      ansible_ssh_host=grouse.onli.no
-passoa      ansible_ssh_host=passoa.onli.no
+dworek      ansible_ssh_host=dworek.onli.no    ansible_ssh_user=root
+xo          ansible_ssh_host=xo.onli.no    ansible_ssh_user=root
+vsop        ansible_ssh_host=vsop.onli.no    ansible_ssh_user=root
+nansen      ansible_ssh_host=nansen.onli.no    ansible_ssh_user=root
+bacardi     ansible_ssh_host=bacardi.onli.no    ansible_ssh_user=root
+laphroaig   ansible_ssh_host=laphroaig.onli.no    ansible_ssh_user=root
+kahlua      ansible_ssh_host=kahlua.onli.no    ansible_ssh_user=root
+moonshine   ansible_ssh_host=moonshine.onli.no    ansible_ssh_user=root
+grouse      ansible_ssh_host=grouse.onli.no    ansible_ssh_user=root
+passoa      ansible_ssh_host=passoa.onli.no    ansible_ssh_user=root
 
 [test]
 zapdos      ansible_ssh_host=z.fap.no ansible_ssh_port=21337
 
+
+[studdem]
+vissel      ansible_ssh_host=vissel.studdem.ntnu.no    ansible_ssh_user=root
+kengu       ansible_ssh_host=kengu.studdem.ntnu.no    ansible_ssh_user=root
