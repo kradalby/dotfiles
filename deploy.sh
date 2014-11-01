@@ -12,11 +12,16 @@ function deploy() {
 
 function deploy_special() {
 
-    if [ ! -d "~/.ssh" ]; then
+    if [ ! -d $HOME/.ssh ]; then
         mkdir ~/.ssh
     fi
 
-    ln -s $CURRENT/ssh/config ~/.ssh/
+    if [ -f $HOME/.ssh/config ]; then
+        rm ~/.ssh/config
+        ln -s $CURRENT/ssh/config ~/.ssh/config
+    else
+        ln -s $CURRENT/ssh/config ~/.ssh/config
+    fi
 }
 
 function prepare_vim_dir() {
@@ -26,9 +31,8 @@ function prepare_vim_dir() {
 
 function install_vimplug() {
     mkdir -p ~/.vim/autoload
-    curl -fLo ~/.vim/autoload/plug.vim \
+    curl --silent -fLo ~/.vim/autoload/plug.vim \
         https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-    vim +PlugInstall
 }
 
 
