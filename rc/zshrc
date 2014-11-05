@@ -25,6 +25,13 @@ push() {
     git push origin $(git rev-parse --abbrev-ref HEAD)
 }
 
+ip() {
+    for i in $(seq 0 $(ifconfig | grep en.: | wc -l))
+    do
+        echo "en$i: $(ipconfig getifaddr en$i)"
+    done
+}
+
 if [[ "$OSTYPE" == darwin* ]];
 then
     
