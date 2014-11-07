@@ -122,8 +122,17 @@ Host passoa
 Host vissel
     HostName vissel.studdem.ntnu.no
     Port 22
-    User kradalby
-    DynamicForward 9876
+    User root
+
+Host tussi
+    HostName 129.241.197.245
+    Port 22
+    User root
+
+Host kengu
+    HostName kengu.studdem.ntnu.no
+    Port 22
+    User root
 
 # machamp
 Host diglett

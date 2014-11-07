@@ -30,14 +30,17 @@ moonshine   ansible_ssh_host=moonshine.onli.no    ansible_ssh_user=root
 grouse      ansible_ssh_host=grouse.onli.no    ansible_ssh_user=root
 passoa      ansible_ssh_host=passoa.onli.no    ansible_ssh_user=root
 
-[test]
+[xenserver]
 diglett     ansible_ssh_host=10.0.0.82 ansible_ssh_port=22222 ansible_ssh_user=root
 #XOA     ansible_ssh_host=10.0.0.82 ansible_ssh_port=22010 ansible_ssh_user=root
 metapod     ansible_ssh_host=10.0.0.82 ansible_ssh_port=22011 ansible_ssh_user=root
 gengar     ansible_ssh_host=10.0.0.82 ansible_ssh_port=22013 ansible_ssh_user=root
 weedle     ansible_ssh_host=10.0.0.82 ansible_ssh_port=22014 ansible_ssh_user=root
 
-
 [studdem]
+tussi      ansible_ssh_host=129.241.197.245    ansible_ssh_user=root
+
+
+[studdem-squeeze]
 vissel      ansible_ssh_host=vissel.studdem.ntnu.no    ansible_ssh_user=root
 kengu       ansible_ssh_host=kengu.studdem.ntnu.no    ansible_ssh_user=root
