@@ -42,12 +42,16 @@ set backspace=indent,eol,start
 " set utf-8
 set encoding=utf-8
 
-autocmd InsertEnter * :set nonumber 
-autocmd InsertEnter * :set relativenumber
-autocmd InsertLeave * :set nornu
-autocmd InsertLeave * :set number
+if version >= 703
+    autocmd InsertEnter * :set nornu
+    autocmd InsertEnter * :set number
+    autocmd InsertLeave * :set nonumber
+    autocmd InsertLeave * :set relativenumber
+    set relativenumber
+else
+    set number
+endif
 
-set number
 
 nnoremap <C-n> :call NumberToggle()<cr>
 
@@ -61,7 +65,7 @@ set nocindent
 set nosmartindent
 
 " Whitespace stuff
-set nowrap        " don't soft wrap long lines
+" set nowrap        " don't soft wrap long lines
 set tabstop=4     " spaces per tab
 set shiftwidth=4  " characters to indent
 set softtabstop=4 " make spaces feel like tabs
