@@ -140,7 +140,7 @@ Host diglett
     Port=22222 
     User=root
 
-Host XOA     
+Host xoa     
     HostName=10.0.0.82 
     Port=22010 
     User=root

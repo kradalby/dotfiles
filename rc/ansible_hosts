@@ -31,3 +31,7 @@ tussi              ansible_ssh_host=129.241.197.245         ansible_ssh_port=22 
 [studdem-squeeze]
 vissel             ansible_ssh_host=vissel.studdem.ntnu.no  ansible_ssh_port=22     ansible_ssh_user=root
 kengu              ansible_ssh_host=kengu.studdem.ntnu.no   ansible_ssh_port=22     ansible_ssh_user=root
+
+[mac]
+kramac             ansible_ssh_host=th.fap.no               ansible_ssh_port=22223  ansible_ssh_user=kradalby
+kramacbook         ansible_connection=local
