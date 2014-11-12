@@ -33,5 +33,5 @@ vissel             ansible_ssh_host=vissel.studdem.ntnu.no  ansible_ssh_port=22 
 kengu              ansible_ssh_host=kengu.studdem.ntnu.no   ansible_ssh_port=22     ansible_ssh_user=root
 
 [mac]
-kramac             ansible_ssh_host=th.fap.no               ansible_ssh_port=22223  ansible_ssh_user=kradalby
+kramac             ansible_ssh_host=trondheim.fap.no               ansible_ssh_port=22223  ansible_ssh_user=kradalby
 kramacbook         ansible_connection=local

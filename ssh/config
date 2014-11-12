@@ -31,7 +31,7 @@ Host butterfree
     User kradalby
     DynamicForward 9876
 
-Host imac
+Host kramac
     Hostname trondheim.fap.no
     Port 22223
     User kradalby
