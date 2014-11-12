@@ -6,14 +6,19 @@ Plug 'tomasr/molokai'
 Plug 'hail2u/vim-css3-syntax'
 Plug 'ervandew/supertab'
 Plug 'vim-scripts/dhcpd.vim'
-Plug 'ervandew/snipmate.vim'
+Plug 'kradalby/snipmate.vim'
 Plug 'sheerun/vim-polyglot'
 
 call plug#end()
 
 
 set background=dark
-colorscheme molokai
+
+try
+    colorscheme molokai
+catch /^Vim\%((\a\+)\)\=:E185/
+    colorscheme default
+endtry
 
 syntax on
 
