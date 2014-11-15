@@ -125,7 +125,7 @@ Host vissel
     User root
 
 Host tussi
-    HostName 129.241.197.245
+    HostName tussi.studdem.ntnu.no
     Port 22
     User root
 
