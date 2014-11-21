@@ -125,7 +125,7 @@ Host vissel
     User root
 
 Host tussi
-    HostName 129.241.197.245
+    HostName 129.241.78.136
     Port 22
     User root
 
