@@ -8,7 +8,7 @@ Host *
 # Trondheim
 
 Host oddish
-    HostName fap.no
+    HostName oddish.fap.no
     Port 22
     User kradalby
     DynamicForward 9876
