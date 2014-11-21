@@ -3,12 +3,12 @@ butterfree         ansible_ssh_host=b.fap.no                ansible_ssh_port=222
 zapdos             ansible_ssh_host=z.fap.no                ansible_ssh_port=21337  ansible_ssh_user=root
 onyx               ansible_ssh_host=o.fap.no                ansible_ssh_port=21337  ansible_ssh_user=root
 oddish             ansible_ssh_host=fap.no                  ansible_ssh_port=22     ansible_ssh_user=root
-snorlax            ansible_ssh_host=tw.fap.no               ansible_ssh_port=21337  ansible_ssh_user=root
+#snorlax            ansible_ssh_host=tw.fap.no               ansible_ssh_port=21337  ansible_ssh_user=root
 
 [dotkom]
 dworek             ansible_ssh_host=dworek.onli.no          ansible_ssh_port=22     ansible_ssh_user=root
 xo                 ansible_ssh_host=xo.onli.no              ansible_ssh_port=22     ansible_ssh_user=root
-morgan             ansible_ssh_host=morgan.onli.no          ansible_ssh_port=22     ansible_ssh_user=root
+#morgan             ansible_ssh_host=morgan.onli.no          ansible_ssh_port=22     ansible_ssh_user=root
 vsop               ansible_ssh_host=vsop.onli.no            ansible_ssh_port=22     ansible_ssh_user=root
 nansen             ansible_ssh_host=nansen.onli.no          ansible_ssh_port=22     ansible_ssh_user=root
 bacardi            ansible_ssh_host=bacardi.onli.no         ansible_ssh_port=22     ansible_ssh_user=root
@@ -18,15 +18,15 @@ moonshine          ansible_ssh_host=moonshine.onli.no       ansible_ssh_port=22 
 grouse             ansible_ssh_host=grouse.onli.no          ansible_ssh_port=22     ansible_ssh_user=root
 passoa             ansible_ssh_host=passoa.onli.no          ansible_ssh_port=22     ansible_ssh_user=root
 
-[xenserver]
-diglett            ansible_ssh_host=10.0.0.82               ansible_ssh_port=22222  ansible_ssh_user=root
-#XOA               ansible_ssh_host=10.0.0.82               ansible_ssh_port=22010  ansible_ssh_user=root
-metapod            ansible_ssh_host=10.0.0.82               ansible_ssh_port=22011  ansible_ssh_user=root
-gengar             ansible_ssh_host=10.0.0.82               ansible_ssh_port=22013  ansible_ssh_user=root
-weedle             ansible_ssh_host=10.0.0.82               ansible_ssh_port=22014  ansible_ssh_user=root
+#[xenserver]
+#diglett            ansible_ssh_host=10.0.0.82               ansible_ssh_port=22222  ansible_ssh_user=root
+##XOA               ansible_ssh_host=10.0.0.82               ansible_ssh_port=22010  ansible_ssh_user=root
+#metapod            ansible_ssh_host=10.0.0.82               ansible_ssh_port=22011  ansible_ssh_user=root
+#gengar             ansible_ssh_host=10.0.0.82               ansible_ssh_port=22013  ansible_ssh_user=root
+#weedle             ansible_ssh_host=10.0.0.82               ansible_ssh_port=22014  ansible_ssh_user=root
 
 [studdem]
-tussi              ansible_ssh_host=129.241.78.136         ansible_ssh_port=22     ansible_ssh_user=root
+tussi              ansible_ssh_host=tussi.studdem.ntnu.no   ansible_ssh_port=22     ansible_ssh_user=root
 
 [studdem-squeeze]
 vissel             ansible_ssh_host=vissel.studdem.ntnu.no  ansible_ssh_port=22     ansible_ssh_user=root
