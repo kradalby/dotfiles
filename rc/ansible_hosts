@@ -2,8 +2,8 @@
 butterfree         ansible_ssh_host=b.fap.no                ansible_ssh_port=22222  ansible_ssh_user=root
 zapdos             ansible_ssh_host=z.fap.no                ansible_ssh_port=21337  ansible_ssh_user=root
 onyx               ansible_ssh_host=o.fap.no                ansible_ssh_port=21337  ansible_ssh_user=root
-oddish             ansible_ssh_host=fap.no                  ansible_ssh_port=22     ansible_ssh_user=root
-#snorlax            ansible_ssh_host=tw.fap.no               ansible_ssh_port=21337  ansible_ssh_user=root
+oddish             ansible_ssh_host=od.fap.no               ansible_ssh_port=22     ansible_ssh_user=root
+#snorlax           ansible_ssh_host=tw.fap.no               ansible_ssh_port=21337  ansible_ssh_user=root
 
 [dotkom]
 dworek             ansible_ssh_host=dworek.onli.no          ansible_ssh_port=22     ansible_ssh_user=root
