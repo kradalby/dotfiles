@@ -9,6 +9,7 @@ Plug 'vim-scripts/dhcpd.vim'
 Plug 'kradalby/snipmate.vim'
 Plug 'sheerun/vim-polyglot'
 Plug 'evanmiller/nginx-vim-syntax'
+Plug 'godlygeek/tabular'
 
 call plug#end()
 
