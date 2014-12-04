@@ -24,7 +24,7 @@ then
     export VIRTUALENV_PYTHON=/usr/local/bin/python
     export ANSIBLE_HOSTS=~/.ansible_hosts
     export ANSIBLE_HOST_KEY_CHECKING=False
-    #export JAVA_HOME="/Library/Java/JavaVirtualMachines/jdk1.7.0_45.jdk/Contents/Home"
+    export JAVA_HOME="/Library/Java/JavaVirtualMachines/jdk1.8.0_25.jdk/Contents/Home"
 fi
 
 
