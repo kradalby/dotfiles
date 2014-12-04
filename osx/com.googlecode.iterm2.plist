@@ -1406,7 +1406,7 @@
 			<key>Normal Font</key>
 			<string>Monaco 10</string>
 			<key>Option Key Sends</key>
-			<integer>2</integer>
+			<integer>0</integer>
 			<key>Prompt Before Closing 2</key>
 			<integer>2</integer>
 			<key>Right Option Key Sends</key>
