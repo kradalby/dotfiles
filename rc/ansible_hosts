@@ -18,9 +18,9 @@ moonshine          ansible_ssh_host=moonshine.onli.no       ansible_ssh_port=22 
 grouse             ansible_ssh_host=grouse.onli.no          ansible_ssh_port=22     ansible_ssh_user=root
 passoa             ansible_ssh_host=passoa.onli.no          ansible_ssh_port=22     ansible_ssh_user=root
 
-#[xenserver]
+[xenserver]
 #diglett            ansible_ssh_host=10.0.0.82               ansible_ssh_port=22222  ansible_ssh_user=root
-##XOA               ansible_ssh_host=10.0.0.82               ansible_ssh_port=22010  ansible_ssh_user=root
+XOA               ansible_ssh_host=10.0.0.82               ansible_ssh_port=22010  ansible_ssh_user=root
 #metapod            ansible_ssh_host=10.0.0.82               ansible_ssh_port=22011  ansible_ssh_user=root
 #gengar             ansible_ssh_host=10.0.0.82               ansible_ssh_port=22013  ansible_ssh_user=root
 #weedle             ansible_ssh_host=10.0.0.82               ansible_ssh_port=22014  ansible_ssh_user=root
