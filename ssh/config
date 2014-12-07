@@ -155,27 +155,27 @@ Host brumm
 
 # machamp
 Host diglett
-    HostName=10.0.0.82 
+    HostName=10.0.0.91 
     Port=22222 
     User=root
 
 Host xoa     
-    HostName=10.0.0.82 
+    HostName=10.0.0.91 
     Port=22010 
     User=root
 
 Host metapod     
-    HostName=10.0.0.82 
+    HostName=10.0.0.91 
     Port=22011 
     User=root
 
 Host gengar     
-    HostName=10.0.0.82 
+    HostName=10.0.0.91 
     Port=22013 
     User=root
 
 Host weedle     
-    HostName=10.0.0.82 
+    HostName=10.0.0.91 
     Port=22014 
     User=root
 
