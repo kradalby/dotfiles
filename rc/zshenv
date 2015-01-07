@@ -18,13 +18,14 @@ export TERM="xterm-256color"
 
 if [[ "$OSTYPE" == darwin* ]];
 then
-    export PATH=/usr/local/bin:$PATH
     export VIRTUALENVWRAPPER_PYTHON=/usr/local/bin/python
     export VIRTUALENVWRAPPER_VIRTUALENV=/usr/local/bin/virtualenv
     export VIRTUALENV_PYTHON=/usr/local/bin/python
     export ANSIBLE_HOSTS=~/.ansible_hosts
     export ANSIBLE_HOST_KEY_CHECKING=False
     export JAVA_HOME="/Library/Java/JavaVirtualMachines/jdk1.8.0_25.jdk/Contents/Home"
+    export GOPATH=$HOME/go
+    export PATH=/usr/local/bin:$PATH:$GOPATH/bin
 fi
 
 

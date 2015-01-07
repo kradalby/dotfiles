@@ -3,7 +3,6 @@ butterfree         ansible_ssh_host=b.fap.no                ansible_ssh_port=222
 zapdos             ansible_ssh_host=z.fap.no                ansible_ssh_port=21337  ansible_ssh_user=root
 onyx               ansible_ssh_host=o.fap.no                ansible_ssh_port=21337  ansible_ssh_user=root
 oddish             ansible_ssh_host=od.fap.no               ansible_ssh_port=22     ansible_ssh_user=root
-snorlax           ansible_ssh_host=tw.fap.no               ansible_ssh_port=21337  ansible_ssh_user=root
 
 [dotkom]
 dworek             ansible_ssh_host=dworek.onli.no          ansible_ssh_port=22     ansible_ssh_user=root
@@ -24,6 +23,9 @@ XOA                ansible_ssh_host=m.fap.no               ansible_ssh_port=2201
 metapod            ansible_ssh_host=m.fap.no               ansible_ssh_port=22011  ansible_ssh_user=root
 gengar             ansible_ssh_host=m.fap.no               ansible_ssh_port=22013  ansible_ssh_user=root
 weedle             ansible_ssh_host=m.fap.no               ansible_ssh_port=22014  ansible_ssh_user=root
+ninetales             ansible_ssh_host=m.fap.no               ansible_ssh_port=22015  ansible_ssh_user=root
+alakazam             ansible_ssh_host=m.fap.no               ansible_ssh_port=22016  ansible_ssh_user=root
+slowbro             ansible_ssh_host=m.fap.no               ansible_ssh_port=22017  ansible_ssh_user=root
 
 [studdem]
 tussi              ansible_ssh_host=tussi.studdem.ntnu.no   ansible_ssh_port=22     ansible_ssh_user=root
@@ -35,3 +37,7 @@ kengu              ansible_ssh_host=kengu.studdem.ntnu.no   ansible_ssh_port=22 
 [mac]
 kramac             ansible_ssh_host=trondheim.fap.no               ansible_ssh_port=22223  ansible_ssh_user=kradalby
 kramacbook         ansible_connection=local
+
+[jessie]
+abra               ansible_ssh_host=192.168.1.1               ansible_ssh_port=22  ansible_ssh_user=root
+snorlax           ansible_ssh_host=192.168.1.10               ansible_ssh_port=22  ansible_ssh_user=root

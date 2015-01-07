@@ -60,6 +60,11 @@ Host snorlax
     LocalForward 22003 192.168.1.5:22
     LocalForward 8888 127.0.0.1:80
 
+Host abra
+    Hostname 192.168.1.1
+    Port 22
+    User root
+
 # dotkom
 Host dworek
     HostName dworek.onli.no
@@ -177,5 +182,20 @@ Host gengar
 Host weedle     
     HostName=129.241.210.115 
     Port=22014 
+    User=root
+
+Host ninetales
+    HostName=129.241.210.115 
+    Port=22015 
+    User=root
+
+Host alakazam
+    HostName=129.241.210.115 
+    Port=22016 
+    User=root
+
+Host slowbro
+    HostName=129.241.210.115
+    Port=22017
     User=root
 
