@@ -1,8 +1,22 @@
+# Github needs diffie-hellman-group-exchange-sha1 some of the time but not always.
+Host github.com
+    KexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256,diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1
+
+Host 192.168.1.3
+    Ciphers aes128-ctr,aes192-ctr,aes256-ctr,arcfour256,arcfour128,aes128-cbc,3des-cbc,blowfish-cbc,cast128-cbc,aes192-cbc,aes256-cbc,arcfour
+    KexAlgorithms ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1,diffie-hellman-group1-sha1
+    MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-ripemd160-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-512,hmac-sha2-256,hmac-ripemd160,umac-128@openssh.com
+
 Host *
-     ServerAliveInterval 60
-     ServerAliveCountMax 30
-     Compression yes
-     TCPKeepAlive no
+    ServerAliveInterval 60
+    ServerAliveCountMax 30
+    Compression yes
+    TCPKeepAlive no
+    KexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256
+    Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr
+    MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-ripemd160-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-512,hmac-sha2-256,hmac-ripemd160,umac-128@openssh.com
+
+
 
 
 # Trondheim
@@ -47,8 +61,8 @@ Host pi
 # HostKeyChecking disabled since the ip changes rapidly
 
 Host snorlax
-    HostName tw.fap.no
-    Port 21337
+    HostName tw2.fap.no
+    Port 22010
     User kradalby
     UserKnownHostsFile /dev/null 
     StrictHostKeyChecking no
@@ -61,8 +75,8 @@ Host snorlax
     LocalForward 8888 127.0.0.1:80
 
 Host abra
-    Hostname 192.168.1.1
-    Port 22
+    Hostname tw.fap.no
+    Port 22001
     User root
 
 # dotkom
@@ -197,5 +211,10 @@ Host alakazam
 Host slowbro
     HostName=129.241.210.115
     Port=22017
+    User=root
+
+Host arcanine
+    HostName=129.241.210.115
+    Port=22018
     User=root
 

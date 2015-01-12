@@ -26,6 +26,7 @@ weedle             ansible_ssh_host=m.fap.no               ansible_ssh_port=2201
 ninetales             ansible_ssh_host=m.fap.no               ansible_ssh_port=22015  ansible_ssh_user=root
 alakazam             ansible_ssh_host=m.fap.no               ansible_ssh_port=22016  ansible_ssh_user=root
 slowbro             ansible_ssh_host=m.fap.no               ansible_ssh_port=22017  ansible_ssh_user=root
+arcanine             ansible_ssh_host=m.fap.no               ansible_ssh_port=22018  ansible_ssh_user=root
 
 [studdem]
 tussi              ansible_ssh_host=tussi.studdem.ntnu.no   ansible_ssh_port=22     ansible_ssh_user=root
@@ -39,5 +40,5 @@ kramac             ansible_ssh_host=trondheim.fap.no               ansible_ssh_p
 kramacbook         ansible_connection=local
 
 [jessie]
-abra               ansible_ssh_host=192.168.1.1               ansible_ssh_port=22  ansible_ssh_user=root
-snorlax           ansible_ssh_host=192.168.1.10               ansible_ssh_port=22  ansible_ssh_user=root
+abra               ansible_ssh_host=tw.fap.no               ansible_ssh_port=22001  ansible_ssh_user=root
+snorlax           ansible_ssh_host=tw2.fap.no               ansible_ssh_port=22010  ansible_ssh_user=root
