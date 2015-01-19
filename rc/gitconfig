@@ -2,5 +2,8 @@
     name = Kristoffer Dalby
     email = kradalby@kradalby.no
 
-#[push]
-#    default = simple
+[push]
+    default = simple
+
+[url "git@github.com:"]
+    insteadOf = https://github.com/
