@@ -40,5 +40,5 @@ kramac             ansible_ssh_host=trondheim.fap.no               ansible_ssh_p
 kramacbook         ansible_connection=local
 
 [jessie]
-abra               ansible_ssh_host=tw.fap.no               ansible_ssh_port=22001  ansible_ssh_user=root
+abra               ansible_ssh_host=tw.fap.no               ansible_ssh_port=22  ansible_ssh_user=root
 snorlax           ansible_ssh_host=tw2.fap.no               ansible_ssh_port=22010  ansible_ssh_user=root
