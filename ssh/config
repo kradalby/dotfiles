@@ -195,7 +195,7 @@ Host brumm
 # machamp
 Host diglett
     HostName=129.241.210.115 
-    Port=22222 
+    Port=21337 
     User=root
 
 Host xoa     
