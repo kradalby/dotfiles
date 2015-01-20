@@ -5,18 +5,6 @@
 [push]
     default = simple
 
-[url "git@github.com:"]
-    insteadOf = https://github.com/
-
-[url "https://github.com/"]
-    insteadOf = gh:
-
-[url "https://gist.github.com/"]
-    insteadOf = gist:
-
-[url "https://bitbucket.org/"]
-    insteadOf = bb:
-
 [color]
     ui = true
 
