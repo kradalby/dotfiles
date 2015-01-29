@@ -27,6 +27,7 @@ ninetales             ansible_ssh_host=m.fap.no               ansible_ssh_port=2
 alakazam             ansible_ssh_host=m.fap.no               ansible_ssh_port=22016  ansible_ssh_user=root
 slowbro             ansible_ssh_host=m.fap.no               ansible_ssh_port=22017  ansible_ssh_user=root
 arcanine             ansible_ssh_host=m.fap.no               ansible_ssh_port=22018  ansible_ssh_user=root
+muk             ansible_ssh_host=m.fap.no               ansible_ssh_port=22019  ansible_ssh_user=root
 
 [studdem]
 tussi              ansible_ssh_host=tussi.studdem.ntnu.no   ansible_ssh_port=22     ansible_ssh_user=root
