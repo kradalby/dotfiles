@@ -34,4 +34,5 @@ if [[ "$OSTYPE" == linux* ]];
 then
     export VIRTUALENVWRAPPER_PYTHON=/usr/bin/python
     export VIRTUALENV_PYTHON=/usr/bin/python
+    export JAVA_HOME=$(dirname $(dirname $(readlink -f  /usr/bin/java)))
 fi
