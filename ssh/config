@@ -237,4 +237,6 @@ Host muk
     HostName=129.241.210.115
     Port=22019
     User=root
+    LocalForward 8888 127.0.0.1:61680
+    LocalForward 61613 127.0.0.1:61613
 
