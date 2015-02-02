@@ -81,7 +81,7 @@ Host snorlax
     LocalForward 8888 127.0.0.1:80
 
 Host abra
-    Hostname tw2.fap.no
+    Hostname tw.fap.no
     Port 22001
     User root
     UserKnownHostsFile /dev/null 
@@ -238,3 +238,7 @@ Host muk
     Port=22019
     User=root
 
+Host pidgey
+    HostName=129.241.210.115
+    Port=22020
+    User=root
