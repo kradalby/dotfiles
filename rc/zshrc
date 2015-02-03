@@ -44,6 +44,14 @@ cp_p()
          END { print "" }' total_size=$(stat -c '%s' "${1}") count=0
 }
 
+swap()
+{
+    tmp=`mktemp`
+    mv $1 $tmp
+    mv $2 $1
+    mv $tmp $2
+}
+
 if [[ "$OSTYPE" == darwin* ]];
 then
     
