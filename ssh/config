@@ -244,3 +244,8 @@ Host pidgey
     HostName=129.241.210.115
     Port=22020
     User=root
+
+Host weezing
+    HostName=129.241.210.115
+    Port=22021
+    User=root

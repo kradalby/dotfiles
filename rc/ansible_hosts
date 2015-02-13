@@ -17,6 +17,10 @@ moonshine          ansible_ssh_host=moonshine.onli.no       ansible_ssh_port=22 
 grouse             ansible_ssh_host=grouse.onli.no          ansible_ssh_port=22     ansible_ssh_user=root
 passoa             ansible_ssh_host=passoa.onli.no          ansible_ssh_port=22     ansible_ssh_user=root
 
+[dotkom_jessie]
+opland             ansible_ssh_host=opland.online.ntnu.no          ansible_ssh_port=22     ansible_ssh_user=root
+blacklabel             ansible_ssh_host=129.241.104.247          ansible_ssh_port=22     ansible_ssh_user=root
+
 [xenserver]
 diglett            ansible_ssh_host=m.fap.no               ansible_ssh_port=21337  ansible_ssh_user=root
 XOA                ansible_ssh_host=m.fap.no               ansible_ssh_port=22010  ansible_ssh_user=root
@@ -29,6 +33,7 @@ slowbro             ansible_ssh_host=m.fap.no               ansible_ssh_port=220
 arcanine             ansible_ssh_host=m.fap.no               ansible_ssh_port=22018  ansible_ssh_user=root
 muk             ansible_ssh_host=m.fap.no               ansible_ssh_port=22019  ansible_ssh_user=root
 pidgey             ansible_ssh_host=m.fap.no               ansible_ssh_port=22020  ansible_ssh_user=root
+weezing             ansible_ssh_host=m.fap.no               ansible_ssh_port=22021  ansible_ssh_user=root
 
 [studdem]
 tussi              ansible_ssh_host=tussi.studdem.ntnu.no   ansible_ssh_port=22     ansible_ssh_user=root
