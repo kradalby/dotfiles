@@ -4,24 +4,6 @@ zapdos             ansible_ssh_host=z.fap.no                ansible_ssh_port=213
 onyx               ansible_ssh_host=o.fap.no                ansible_ssh_port=21337  ansible_ssh_user=root
 oddish             ansible_ssh_host=od.fap.no               ansible_ssh_port=22     ansible_ssh_user=root
 
-[dotkom]
-dworek             ansible_ssh_host=dworek.onli.no          ansible_ssh_port=22     ansible_ssh_user=root
-xo                 ansible_ssh_host=xo.onli.no              ansible_ssh_port=22     ansible_ssh_user=root
-#morgan             ansible_ssh_host=morgan.onli.no          ansible_ssh_port=22     ansible_ssh_user=root
-vsop               ansible_ssh_host=vsop.onli.no            ansible_ssh_port=22     ansible_ssh_user=root
-nansen             ansible_ssh_host=nansen.onli.no          ansible_ssh_port=22     ansible_ssh_user=root
-bacardi            ansible_ssh_host=bacardi.onli.no         ansible_ssh_port=22     ansible_ssh_user=root
-laphroaig          ansible_ssh_host=laphroaig.onli.no       ansible_ssh_port=22     ansible_ssh_user=root
-kahlua             ansible_ssh_host=kahlua.onli.no          ansible_ssh_port=22     ansible_ssh_user=root
-moonshine          ansible_ssh_host=moonshine.onli.no       ansible_ssh_port=22     ansible_ssh_user=root
-grouse             ansible_ssh_host=grouse.onli.no          ansible_ssh_port=22     ansible_ssh_user=root
-passoa             ansible_ssh_host=passoa.onli.no          ansible_ssh_port=22     ansible_ssh_user=root
-
-[dotkom_jessie]
-opland             ansible_ssh_host=opland.online.ntnu.no          ansible_ssh_port=22     ansible_ssh_user=root
-blacklabel             ansible_ssh_host=129.241.104.247          ansible_ssh_port=22     ansible_ssh_user=root
-beefeater             ansible_ssh_host=129.241.104.247          ansible_ssh_port=22002     ansible_ssh_user=root
-
 [xenserver]
 diglett            ansible_ssh_host=m.fap.no               ansible_ssh_port=21337  ansible_ssh_user=root
 XOA                ansible_ssh_host=m.fap.no               ansible_ssh_port=22010  ansible_ssh_user=root
