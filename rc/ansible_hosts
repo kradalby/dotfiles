@@ -20,6 +20,7 @@ passoa             ansible_ssh_host=passoa.onli.no          ansible_ssh_port=22 
 [dotkom_jessie]
 opland             ansible_ssh_host=opland.online.ntnu.no          ansible_ssh_port=22     ansible_ssh_user=root
 blacklabel             ansible_ssh_host=129.241.104.247          ansible_ssh_port=22     ansible_ssh_user=root
+beefeater             ansible_ssh_host=129.241.104.247          ansible_ssh_port=22002     ansible_ssh_user=root
 
 [xenserver]
 diglett            ansible_ssh_host=m.fap.no               ansible_ssh_port=21337  ansible_ssh_user=root
