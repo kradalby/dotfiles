@@ -192,6 +192,21 @@ Host hudson
     Port 22006
     User root
 
+Host bombay
+    HostName 129.241.104.247
+    Port 22007
+    User root
+
+Host bulldog
+    HostName 129.241.104.247
+    Port 22008
+    User root
+
+Host bigboss
+    HostName 129.241.104.247
+    Port 22009
+    User root
+
 
 # Studdem
 Host vissel
