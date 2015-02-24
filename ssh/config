@@ -155,7 +155,7 @@ Host opland
     User root
 
 Host blacklabel
-    HostName 129.241.104.247
+    HostName heimert.online.ntnu.no
     Port 22
     User root
 
@@ -168,42 +168,42 @@ Host fireball
 
 # dotkom NAT
 Host beefeater
-    HostName 129.241.104.247
+    HostName heimert.online.ntnu.no
     Port 22002
     User root
 
 Host jb
-    HostName 129.241.104.247
+    HostName heimert.online.ntnu.no
     Port 22003
     User root
 
 Host oban
-    HostName 129.241.104.247
+    HostName heimert.online.ntnu.no
     Port 22004
     User root
 
 Host chita
-    HostName 129.241.104.247
+    HostName heimert.online.ntnu.no
     Port 22005
     User root
 
 Host hudson
-    HostName 129.241.104.247
+    HostName heimert.online.ntnu.no
     Port 22006
     User root
 
 Host bombay
-    HostName 129.241.104.247
+    HostName heimert.online.ntnu.no
     Port 22007
     User root
 
 Host bulldog
-    HostName 129.241.104.247
+    HostName heimert.online.ntnu.no
     Port 22008
     User root
 
 Host bigboss
-    HostName 129.241.104.247
+    HostName heimert.online.ntnu.no
     Port 22009
     User root
 
