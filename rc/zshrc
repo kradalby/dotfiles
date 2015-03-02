@@ -52,6 +52,15 @@ swap()
     mv $tmp $2
 }
 
+compile-ssh()
+{
+    SSH_CONFIG=~/git/dotfiles/ssh/config
+    SSH_MODULE_CONFIGS=~/git/dotfiles/ssh/config.d
+    rm -rf $SSH_CONFIG
+    cat $SSH_MODULE_CONFIGS/* > $SSH_CONFIG
+    cat $SSH_CONFIG
+}
+
 if [[ "$OSTYPE" == darwin* ]];
 then
     

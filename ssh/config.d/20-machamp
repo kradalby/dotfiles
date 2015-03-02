@@ -1,0 +1,67 @@
+# machamp
+Host diglett
+    HostName=m.fap.no
+    Port=21337
+    User=root
+
+Host xoa
+    HostName=m.fap.no
+    Port=22010
+    User=root
+
+Host metapod
+    HostName=m.fap.no
+    Port=22011
+    User=root
+
+Host gengar
+    HostName=m.fap.no
+    Port=22013
+    User=root
+
+Host weedle
+    HostName=m.fap.no
+    Port=22014
+    User=root
+
+Host ninetales
+    HostName=m.fap.no
+    Port=22015
+    User=root
+
+Host alakazam
+    HostName=m.fap.no
+    Port=22016
+    User=root
+
+Host slowbro
+    HostName=m.fap.no
+    Port=22017
+    User=root
+
+Host arcanine
+    HostName=m.fap.no
+    Port=22018
+    User=root
+
+Host muk
+    HostName=m.fap.no
+    Port=22019
+    User=root
+    LocalForward 8888 127.0.0.1:61680
+    LocalForward 61613 127.0.0.1:61613
+
+Host pidgey
+    HostName=m.fap.no
+    Port=22020
+    User=root
+
+Host weezing
+    HostName=m.fap.no
+    Port=22021
+    User=root
+
+Host magnemite
+    HostName=m.fap.no
+    Port=22022
+    User=root

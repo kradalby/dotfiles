@@ -1,4 +1,3 @@
-#
 #Github needs diffie-hellman-group-exchange-sha1 some of the time but not always.
 Host github.com
     KexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256,diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1
@@ -19,74 +18,6 @@ Host *
     KexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256
     Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr
     MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-ripemd160-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-512,hmac-sha2-256,hmac-ripemd160,umac-128@openssh.com
-
-
-
-
-
-# Trondheim
-
-Host oddish
-    HostName oddish.fap.no
-    Port 22
-    User kradalby
-    DynamicForward 9876
-
-Host onyx
-    HostName onyx.fap.no
-    Port 21337
-    User kradalby
-    DynamicForward 9876
-
-Host zapdos
-    HostName zapdos.fap.no
-    Port 21337
-    User kradalby
-    DynamicForward 9876
-
-Host butterfree
-    HostName butterfree.fap.no
-    Port 22222
-    User root
-    DynamicForward 9876
-
-Host kramac
-    Hostname trondheim.fap.no
-    Port 22223
-    User kradalby
-
-
-
-# Tjodalyng
-# HostKeyChecking disabled since the ip changes rapidly
-
-Host snorlax
-    HostName tw2.fap.no
-    Port 22010
-    User kradalby
-    UserKnownHostsFile /dev/null 
-    StrictHostKeyChecking no
-    LocalForward 6000 127.0.0.1:6000
-    LocalForward 6001 127.0.0.1:6001
-    LocalForward 5901 192.168.1.101:5900
-    LocalForward 5902 192.168.1.102:5900
-    LocalForward 5903 192.168.1.103:5900
-    LocalForward 22003 192.168.1.5:22
-    LocalForward 8888 127.0.0.1:80
-
-Host abra
-    Hostname tw.fap.no
-    Port 22001
-    User root
-    UserKnownHostsFile /dev/null 
-    StrictHostKeyChecking no
-    LocalForward 6000 192.168.1.10:6000
-    LocalForward 6001 192.168.1.10:6001
-    LocalForward 5901 192.168.1.101:5900
-    LocalForward 5902 192.168.1.102:5900
-    LocalForward 5903 192.168.1.103:5900
-    LocalForward 22003 192.168.1.5:22
-    LocalForward 8888 192.168.1.10:80
 
 # dotkom
 Host dworek
@@ -163,9 +94,6 @@ Host fireball
     HostName fireball.online.ntnu.no
     Port 22
     User root
-
-
-
 # dotkom NAT
 Host beefeater
     HostName blacklabel.online.ntnu.no
@@ -207,76 +135,53 @@ Host bigboss
     Port 22009
     User root
 
+# Trondheim IT-Bygget
+Host onyx
+    HostName onyx.fap.no
+    Port 21337
+    User kradalby
+    DynamicForward 9876
 
-# Studdem
-Host vissel
-    HostName vissel.studdem.ntnu.no
-    Port 22
-    User root
-
-Host tussi
-    HostName tussi.studdem.ntnu.no
-    Port 22
-    User root
-
-Host kengu
-    HostName kengu.studdem.ntnu.no
-    Port 22
-    User root
-
-Host nasse
-    HostName tussi.studdem.ntnu.no
-    Port 22
-    User root
-    LocalForward 80 nasse.studdem.ntnu.no:80
-    LocalForward 443 nasse.studdem.ntnu.no:443
-    LocalForward 902 nasse.studdem.ntnu.no:902
-    LocalForward 903 nasse.studdem.ntnu.no:903
-
-Host brumm
-    HostName tussi.studdem.ntnu.no
-    Port 22
-    User root
-    LocalForward 80 brumm.studdem.ntnu.no:80
-    LocalForward 443 brumm.studdem.ntnu.no:443
-    LocalForward 902 brumm.studdem.ntnu.no:902
-    LocalForward 903 brumm.studdem.ntnu.no:903
-
+Host zapdos
+    HostName zapdos.fap.no
+    Port 21337
+    User kradalby
+    DynamicForward 9876
 
 # machamp
 Host diglett
-    HostName=m.fap.no 
-    Port=21337 
+    HostName=m.fap.no
+    Port=21337
     User=root
 
-Host xoa     
-    HostName=m.fap.no 
-    Port=22010 
+Host xoa
+    HostName=m.fap.no
+    Port=22010
     User=root
 
-Host metapod     
-    HostName=m.fap.no 
-    Port=22011 
+Host metapod
+    HostName=m.fap.no
+    Port=22011
     User=root
 
-Host gengar     
-    HostName=m.fap.no 
-    Port=22013 
+Host gengar
+    HostName=m.fap.no
+    Port=22013
     User=root
 
-Host weedle     
-    HostName=m.fap.no 
-    Port=22014 
+Host weedle
+    HostName=m.fap.no
+    Port=22014
     User=root
 
 Host ninetales
-    HostName=m.fap.no 
-    Port=22015 
+    HostName=m.fap.no
+    Port=22015
     User=root
 
 Host alakazam
-    HostName=m.fap.no 
-    Port=22016 
+    HostName=m.fap.no
+    Port=22016
     User=root
 
 Host slowbro
@@ -310,3 +215,84 @@ Host magnemite
     HostName=m.fap.no
     Port=22022
     User=root
+# DO
+Host oddish
+    HostName oddish.fap.no
+    Port 22
+    User kradalby
+    DynamicForward 9876
+# Ole Aasveds veg
+
+Host butterfree
+    HostName butterfree.fap.no
+    Port 22222
+    User root
+    DynamicForward 9876
+
+Host kramac
+    Hostname trondheim.fap.no
+    Port 22223
+    User kradalby
+# Studdem
+Host vissel
+    HostName vissel.studdem.ntnu.no
+    Port 22
+    User root
+
+Host tussi
+    HostName tussi.studdem.ntnu.no
+    Port 22
+    User root
+
+Host kengu
+    HostName kengu.studdem.ntnu.no
+    Port 22
+    User root
+
+Host nasse
+    HostName tussi.studdem.ntnu.no
+    Port 22
+    User root
+    LocalForward 80 nasse.studdem.ntnu.no:80
+    LocalForward 443 nasse.studdem.ntnu.no:443
+    LocalForward 902 nasse.studdem.ntnu.no:902
+    LocalForward 903 nasse.studdem.ntnu.no:903
+
+Host brumm
+    HostName tussi.studdem.ntnu.no
+    Port 22
+    User root
+    LocalForward 80 brumm.studdem.ntnu.no:80
+    LocalForward 443 brumm.studdem.ntnu.no:443
+    LocalForward 902 brumm.studdem.ntnu.no:902
+    LocalForward 903 brumm.studdem.ntnu.no:903
+# Tjodalyng
+# HostKeyChecking disabled since the ip changes rapidly
+
+Host snorlax
+    HostName tw2.fap.no
+    Port 22010
+    User kradalby
+    UserKnownHostsFile /dev/null
+    StrictHostKeyChecking no
+    LocalForward 6000 127.0.0.1:6000
+    LocalForward 6001 127.0.0.1:6001
+    LocalForward 5901 192.168.1.101:5900
+    LocalForward 5902 192.168.1.102:5900
+    LocalForward 5903 192.168.1.103:5900
+    LocalForward 22003 192.168.1.5:22
+    LocalForward 8888 127.0.0.1:80
+
+Host abra
+    Hostname tw.fap.no
+    Port 22001
+    User root
+    UserKnownHostsFile /dev/null
+    StrictHostKeyChecking no
+    LocalForward 6000 192.168.1.10:6000
+    LocalForward 6001 192.168.1.10:6001
+    LocalForward 5901 192.168.1.101:5900
+    LocalForward 5902 192.168.1.102:5900
+    LocalForward 5903 192.168.1.103:5900
+    LocalForward 22003 192.168.1.5:22
+    LocalForward 8888 192.168.1.10:80

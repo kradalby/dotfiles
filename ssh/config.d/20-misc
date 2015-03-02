@@ -1,0 +1,6 @@
+# DO
+Host oddish
+    HostName oddish.fap.no
+    Port 22
+    User kradalby
+    DynamicForward 9876

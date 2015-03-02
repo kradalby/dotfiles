@@ -1,0 +1,75 @@
+# dotkom
+Host dworek
+    HostName dworek.online.ntnu.no
+    Port 22
+    User root
+
+Host ardbeg
+    HostName ardbeg.online.ntnu.no
+    Port 22
+    User root
+
+Host xo
+    HostName xo.online.ntnu.no
+    Port 22
+    User root
+
+Host morgan
+    HostName morgan.online.ntnu.no
+    Port 22
+    User root
+
+Host vsop
+    HostName vsop.online.ntnu.no
+    Port 22
+    User root
+
+Host nansen
+    HostName nansen.online.ntnu.no
+    Port 22
+    User root
+
+Host bacardi
+    HostName bacardi.online.ntnu.no
+    Port 22
+    User root
+
+Host laphroaig
+    HostName laphroaig.online.ntnu.no
+    Port 22
+    User root
+
+Host kahlua
+    HostName kahlua.online.ntnu.no
+    Port 22
+    User root
+
+Host moonshine
+    HostName moonshine.online.ntnu.no
+    Port 22
+    User root
+
+Host grouse
+    HostName grouse.online.ntnu.no
+    Port 22
+    User root
+
+Host passoa
+    HostName passoa.online.ntnu.no
+    Port 22
+    User root
+
+Host opland
+    HostName opland.online.ntnu.no
+    Port 22
+    User root
+
+Host blacklabel
+    HostName blacklabel.online.ntnu.no
+    Port 22
+    User root
+
+Host fireball
+    HostName fireball.online.ntnu.no
+    Port 22
+    User root

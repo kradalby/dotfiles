@@ -1,0 +1,30 @@
+# Tjodalyng
+# HostKeyChecking disabled since the ip changes rapidly
+
+Host snorlax
+    HostName tw2.fap.no
+    Port 22010
+    User kradalby
+    UserKnownHostsFile /dev/null
+    StrictHostKeyChecking no
+    LocalForward 6000 127.0.0.1:6000
+    LocalForward 6001 127.0.0.1:6001
+    LocalForward 5901 192.168.1.101:5900
+    LocalForward 5902 192.168.1.102:5900
+    LocalForward 5903 192.168.1.103:5900
+    LocalForward 22003 192.168.1.5:22
+    LocalForward 8888 127.0.0.1:80
+
+Host abra
+    Hostname tw.fap.no
+    Port 22001
+    User root
+    UserKnownHostsFile /dev/null
+    StrictHostKeyChecking no
+    LocalForward 6000 192.168.1.10:6000
+    LocalForward 6001 192.168.1.10:6001
+    LocalForward 5901 192.168.1.101:5900
+    LocalForward 5902 192.168.1.102:5900
+    LocalForward 5903 192.168.1.103:5900
+    LocalForward 22003 192.168.1.5:22
+    LocalForward 8888 192.168.1.10:80

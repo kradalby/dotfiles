@@ -1,0 +1,41 @@
+# dotkom NAT
+Host beefeater
+    HostName blacklabel.online.ntnu.no
+    Port 22002
+    User root
+
+Host jb
+    HostName blacklabel.online.ntnu.no
+    Port 22003
+    User root
+
+Host oban
+    HostName blacklabel.online.ntnu.no
+    Port 22004
+    User root
+
+Host chita
+    HostName blacklabel.online.ntnu.no
+    Port 22005
+    User root
+
+Host hudson
+    HostName blacklabel.online.ntnu.no
+    Port 22006
+    User root
+
+Host bombay
+    HostName blacklabel.online.ntnu.no
+    Port 22007
+    User root
+
+Host bulldog
+    HostName blacklabel.online.ntnu.no
+    Port 22008
+    User root
+
+Host bigboss
+    HostName blacklabel.online.ntnu.no
+    Port 22009
+    User root
+
