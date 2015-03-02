@@ -51,15 +51,16 @@ set backspace=indent,eol,start
 " set utf-8
 set encoding=utf-8
 
-if version >= 703
-    autocmd InsertEnter * :set nornu
-    autocmd InsertEnter * :set number
-    autocmd InsertLeave * :set nonumber
-    autocmd InsertLeave * :set relativenumber
-    set relativenumber
-else
-    set number
-endif
+set number
+"if version >= 703
+"    autocmd InsertEnter * :set nornu
+"    autocmd InsertEnter * :set number
+"    autocmd InsertLeave * :set nonumber
+"    autocmd InsertLeave * :set relativenumber
+"    set relativenumber
+"else
+"    set number
+"endif
 
 
 nnoremap <C-n> :call NumberToggle()<cr>
