@@ -65,3 +65,8 @@ Host magnemite
     HostName=m.fap.no
     Port=22022
     User=root
+
+Host porygon
+    HostName=m.fap.no
+    Port=22023
+    User=root
