@@ -25,7 +25,7 @@ then
     export ANSIBLE_HOST_KEY_CHECKING=False
     export JAVA_HOME="/Library/Java/JavaVirtualMachines/jdk1.8.0_25.jdk/Contents/Home"
     export GOPATH=$HOME/go
-    export PATH=/usr/local/bin:$PATH:$GOPATH/bin
+    export PATH=/usr/local/bin:$PATH:$GOPATH/bin:~/bin
 fi
 
 

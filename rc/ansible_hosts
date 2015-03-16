@@ -18,6 +18,7 @@ muk             ansible_ssh_host=m.fap.no               ansible_ssh_port=22019  
 pidgey             ansible_ssh_host=m.fap.no               ansible_ssh_port=22020  ansible_ssh_user=root
 weezing             ansible_ssh_host=m.fap.no               ansible_ssh_port=22021  ansible_ssh_user=root
 magnemite             ansible_ssh_host=m.fap.no               ansible_ssh_port=22022  ansible_ssh_user=root
+porygon             ansible_ssh_host=m.fap.no               ansible_ssh_port=22023  ansible_ssh_user=root
 
 [studdem]
 tussi              ansible_ssh_host=tussi.studdem.ntnu.no   ansible_ssh_port=22     ansible_ssh_user=root
