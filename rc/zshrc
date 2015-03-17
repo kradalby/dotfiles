@@ -25,6 +25,16 @@ push () {
     git push origin $(git rev-parse --abbrev-ref HEAD)
 }
 
+pullall () {
+    for dir in *
+    do
+        echo $dir
+        cd $dir
+        git pull origin $(git rev-parse --abbrev-ref HEAD)
+        cd ..
+    done
+}
+
 cp_p()
 {
    strace -q -ewrite cp -- "${1}" "${2}" 2>&1 \
