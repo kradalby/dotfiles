@@ -39,3 +39,22 @@ Host bigboss
     Port 22009
     User root
 
+# 22010 is Heimert, Windows
+
+Host korski
+    HostName blacklabel.online.ntnu.no
+    Port 22011
+    User root
+
+Host pyrat
+    HostName blacklabel.online.ntnu.no
+    Port 22012
+    User root
+
+# 22013 is Xan, Windows
+
+Host chivas
+    HostName blacklabel.online.ntnu.no
+    Port 22014
+    User root
+
