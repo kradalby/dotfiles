@@ -37,8 +37,7 @@ fi
 
 if [[ "$OSTYPE" == linux* ]];
 then
-    LESSPIPE=`which source-highlight`
-    export LESSOPEN="| ${LESSPIPE} %s"
+    export LESSOPEN="| /usr/share/source-highlight/src-hilite-lesspipe.sh %s"
     export VIRTUALENVWRAPPER_PYTHON=/usr/bin/python
     export VIRTUALENV_PYTHON=/usr/bin/python
     export JAVA_HOME=$(dirname $(dirname $(readlink -f  /usr/bin/java)))
