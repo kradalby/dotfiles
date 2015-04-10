@@ -10,7 +10,7 @@ if [[ "$SHLVL" -eq 1 && ! -o LOGIN && -s "${ZDOTDIR:-$HOME}/.zprofile" ]]; then
   source "${ZDOTDIR:-$HOME}/.zprofile"
 fi
 
-export LESS='-R'
+export LESS='-R -X -F'
 
 export WORKON_HOME=$HOME/.virtualenvs
 export PATH=$PATH:/usr/bin:/bin:/usr/sbin:/sbin:/usr/texbin
