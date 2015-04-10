@@ -10,8 +10,6 @@ if [[ "$SHLVL" -eq 1 && ! -o LOGIN && -s "${ZDOTDIR:-$HOME}/.zprofile" ]]; then
   source "${ZDOTDIR:-$HOME}/.zprofile"
 fi
 
-LESSPIPE=`which src-hilite-lesspipe.sh`
-export LESSOPEN="| ${LESSPIPE} %s"
 export LESS='-R'
 
 export WORKON_HOME=$HOME/.virtualenvs
@@ -23,6 +21,8 @@ export ANSIBLE_CONFIG=~/.ansible.cfg
 
 if [[ "$OSTYPE" == darwin* ]];
 then
+    LESSPIPE=`which src-hilite-lesspipe.sh`
+    export LESSOPEN="| ${LESSPIPE} %s"
     export VIRTUALENVWRAPPER_PYTHON=/usr/local/bin/python
     export VIRTUALENVWRAPPER_VIRTUALENV=/usr/local/bin/virtualenv
     export VIRTUALENV_PYTHON=/usr/local/bin/python
@@ -37,6 +37,8 @@ fi
 
 if [[ "$OSTYPE" == linux* ]];
 then
+    LESSPIPE=`which source-highlight`
+    export LESSOPEN="| ${LESSPIPE} %s"
     export VIRTUALENVWRAPPER_PYTHON=/usr/bin/python
     export VIRTUALENV_PYTHON=/usr/bin/python
     export JAVA_HOME=$(dirname $(dirname $(readlink -f  /usr/bin/java)))
