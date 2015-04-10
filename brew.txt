@@ -1,4 +1,5 @@
 ack
+source-highlight
 autossh
 nmap
 ncdu
