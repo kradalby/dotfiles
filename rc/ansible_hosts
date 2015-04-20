@@ -1,19 +1,18 @@
 [fap]
-butterfree         ansible_ssh_host=b.fap.no                ansible_ssh_port=22222  ansible_ssh_user=root
-zapdos             ansible_ssh_host=z.fap.no                ansible_ssh_port=21337  ansible_ssh_user=root
 #onyx               ansible_ssh_host=o.fap.no                ansible_ssh_port=21337  ansible_ssh_user=root
 oddish             ansible_ssh_host=od.fap.no               ansible_ssh_port=22     ansible_ssh_user=root
+zapdos             ansible_ssh_host=z.fap.no                ansible_ssh_port=21337  ansible_ssh_user=root
 
 [xenserver]
 diglett            ansible_ssh_host=m.fap.no               ansible_ssh_port=21337  ansible_ssh_user=root
 #XOA                ansible_ssh_host=m.fap.no               ansible_ssh_port=22010  ansible_ssh_user=root
-#metapod            ansible_ssh_host=m.fap.no               ansible_ssh_port=22011  ansible_ssh_user=root
+metapod            ansible_ssh_host=m.fap.no               ansible_ssh_port=22011  ansible_ssh_user=root
 gengar             ansible_ssh_host=m.fap.no               ansible_ssh_port=22013  ansible_ssh_user=root
 weedle             ansible_ssh_host=m.fap.no               ansible_ssh_port=22014  ansible_ssh_user=root
 ninetales             ansible_ssh_host=m.fap.no               ansible_ssh_port=22015  ansible_ssh_user=root
 #alakazam             ansible_ssh_host=m.fap.no               ansible_ssh_port=22016  ansible_ssh_user=root
 slowbro             ansible_ssh_host=m.fap.no               ansible_ssh_port=22017  ansible_ssh_user=root
-#arcanine             ansible_ssh_host=m.fap.no               ansible_ssh_port=22018  ansible_ssh_user=root
+arcanine             ansible_ssh_host=m.fap.no               ansible_ssh_port=22018  ansible_ssh_user=root
 muk             ansible_ssh_host=m.fap.no               ansible_ssh_port=22019  ansible_ssh_user=root
 #pidgey             ansible_ssh_host=m.fap.no               ansible_ssh_port=22020  ansible_ssh_user=root
 weezing             ansible_ssh_host=m.fap.no               ansible_ssh_port=22021  ansible_ssh_user=root
@@ -33,3 +32,4 @@ mac         ansible_connection=local
 [jessie]
 abra               ansible_ssh_host=tw.fap.no               ansible_ssh_port=22001  ansible_ssh_user=root
 snorlax           ansible_ssh_host=tw2.fap.no               ansible_ssh_port=22010  ansible_ssh_user=root
+butterfree         ansible_ssh_host=b.fap.no                ansible_ssh_port=22222  ansible_ssh_user=root
