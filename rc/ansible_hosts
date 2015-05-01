@@ -1,6 +1,6 @@
 [fap]
 #onyx               ansible_ssh_host=o.fap.no                ansible_ssh_port=21337  ansible_ssh_user=root
-oddish             ansible_ssh_host=od.fap.no               ansible_ssh_port=22     ansible_ssh_user=root
+#oddish             ansible_ssh_host=od.fap.no               ansible_ssh_port=22     ansible_ssh_user=root
 zapdos             ansible_ssh_host=z.fap.no                ansible_ssh_port=21337  ansible_ssh_user=root
 
 [xenserver]
