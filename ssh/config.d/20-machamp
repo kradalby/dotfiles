@@ -70,3 +70,8 @@ Host porygon
     HostName=m.fap.no
     Port=22023
     User=root
+
+Host grimer
+    HostName=m.fap.no
+    Port=22024
+    User=root

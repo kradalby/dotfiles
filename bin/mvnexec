@@ -27,6 +27,7 @@ SEARCH_MAIN="yes"
 SEARCH_TEST="yes"
 FILTER_NAME_PROG="cat -"
 AUTO="no"
+SEPARATOR=":"
 # }}}
 
 # functions {{{
@@ -48,6 +49,7 @@ Options:
    -T, --no-test         Don't search on src/test/java.
    -f, --filter-name     Name filter for classes.
    -a, --auto            If there is only one match launch it.
+       --win-separator   Use ; as classpath separator
 
 Examples:
 
@@ -95,8 +97,8 @@ function dependencyClasspath() {
    else
       for i in target/dependency/*.jar
       do 
-         echo -n $i:
-      done | sed 's/:$//'
+         echo -n $i$SEPARATOR
+      done | sed 's/'${SEPARATOR}'$//'
    fi
 }
 
@@ -118,12 +120,12 @@ function launch() {
    fi
    echo executing $CLASS
    mvn $QUIET exec:exec -Dexec.executable="$JAVA" -Dexec.workingdir="." \
-      -Dexec.args="-cp target/classes:target/test-classes:$(dependencyClasspath) ${CLASS}${ARGS} $*"
+      -Dexec.args="-cp target/classes${SEPARATOR}target/test-classes${SEPARATOR}$(dependencyClasspath) ${CLASS}${ARGS} $*"
 }
 # }}}
 
 # parse args {{{
-TEMP=$(getopt -o "PqBMTf:DaCh" -l no-parameters,quiet,no-build,no-main,no-test,filter-name:,auto,no-copy-deps,no-clean,help -n $(basename $0) -- "$@")
+TEMP=$(getopt -o "PqBMTf:DaCh" -l no-parameters,quiet,no-build,no-main,no-test,filter-name:,auto,no-copy-deps,no-clean,win-separator,help -n $(basename $0) -- "$@")
 
 EXIT=$?
 if [ $EXIT != 0 ]
@@ -168,6 +170,9 @@ do
       -a|--auto)
          AUTO="yes"
          ;;
+      --win-separator)
+         SEPARATOR=";"
+     ;;
       -h|--help)
          help
          exit
