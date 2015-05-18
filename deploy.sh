@@ -37,6 +37,6 @@ function install_vimplug() {
 
 
 deploy
-prepare_vim_dir
+#prepare_vim_dir
 install_vimplug
 deploy_special
