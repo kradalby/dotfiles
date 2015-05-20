@@ -244,6 +244,7 @@ Host grimer
     HostName=m.fap.no
     Port=22024
     User=root
+    RemoteForward 23053 127.0.0.1:23053
 # DO
 Host oddish
     HostName oddish.fap.no
