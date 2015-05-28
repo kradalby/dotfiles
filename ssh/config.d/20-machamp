@@ -70,9 +70,15 @@ Host porygon
     HostName=m.fap.no
     Port=22023
     User=root
+    LocalForward 27017 127.0.0.1:27017
 
 Host grimer
     HostName=m.fap.no
     Port=22024
     User=root
     RemoteForward 23053 127.0.0.1:23053
+
+Host golum
+    HostName=m.fap.no
+    Port=22025
+    User=root
