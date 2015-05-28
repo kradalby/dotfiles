@@ -12,8 +12,9 @@ fi
 
 export LESS='-R -X -F'
 
+export GOPATH=$HOME/go
 export WORKON_HOME=$HOME/.virtualenvs
-export PATH=$PATH:/usr/bin:/bin:/usr/sbin:/sbin:/usr/texbin:~/git/dotfiles/bin
+export PATH=$PATH:/usr/bin:/bin:/usr/sbin:/sbin:/usr/texbin:~/git/dotfiles/bin:$GOPATH/bin:~/bin
 export LC_ALL=en_US.UTF-8  
 export LANG=en_US.UTF-8
 export TERM="xterm-256color"
@@ -29,8 +30,7 @@ then
     export ANSIBLE_HOSTS=~/.ansible_hosts
     export ANSIBLE_HOST_KEY_CHECKING=False
     export JAVA_HOME="/Library/Java/JavaVirtualMachines/jdk1.8.0_25.jdk/Contents/Home"
-    export GOPATH=$HOME/go
-    export PATH=/usr/local/bin:$PATH:$GOPATH/bin:~/bin
+    export PATH=/usr/local/bin:$PATH
 fi
 
 
