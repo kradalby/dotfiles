@@ -72,6 +72,10 @@ compile-ssh()
     cat $SSH_CONFIG
 }
 
+rmkh () {
+    sed -i $1'd' ~/.ssh/known_hosts
+}
+
 if [[ "$OSTYPE" == darwin* ]];
 then
     

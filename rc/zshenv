@@ -31,6 +31,9 @@ then
     export ANSIBLE_HOST_KEY_CHECKING=False
     export JAVA_HOME="/Library/Java/JavaVirtualMachines/jdk1.8.0_25.jdk/Contents/Home"
     export PATH=/usr/local/bin:$PATH
+    export SPECIAL_PATH=/usr/local/opt/gnu-sed/libexec/gnubin
+
+    export PATH=$SPECIAL_PATH:$PATH
 fi
 
 
