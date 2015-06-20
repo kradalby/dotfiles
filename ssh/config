@@ -166,6 +166,15 @@ Host chivas
     Port 22014
     User root
 
+Host jose
+    HostName blacklabel.online.ntnu.no
+    Port 22018
+    User root
+
+Host gay
+    HostName blacklabel.online.ntnu.no
+    Port 22019
+    User root
 # Trondheim IT-Bygget
 Host onyx
     HostName onyx.fap.no
