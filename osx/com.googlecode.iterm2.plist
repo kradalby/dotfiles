@@ -87,7 +87,7 @@
 	<key>NSFontPanelAttributes</key>
 	<string>1, 0</string>
 	<key>NSNavLastRootDirectory</key>
-	<string>~/git/dotfiles/osx</string>
+	<string>~/Documents</string>
 	<key>NSQuotedKeystrokeBinding</key>
 	<string></string>
 	<key>NSRepeatCountBinding</key>
@@ -121,11 +121,11 @@
 	<key>NSWindow Frame UKCrashReporter</key>
 	<string>155 593 592 584 0 0 1920 1177 </string>
 	<key>NSWindow Frame iTerm Window 0</key>
-	<string>642 0 638 1177 0 0 1920 1177 </string>
+	<string>638 0 638 1177 0 0 1920 1177 </string>
 	<key>NSWindow Frame iTerm Window 1</key>
-	<string>642 0 638 1177 0 0 1920 1177 </string>
+	<string>642 798 490 376 0 0 1920 1177 </string>
 	<key>NSWindow Frame iTerm Window 2</key>
-	<string>4 22 958 1155 0 0 1920 1177 </string>
+	<string>958 2 958 1174 0 0 1920 1177 </string>
 	<key>New Bookmarks</key>
 	<array>
 		<dict>
@@ -382,6 +382,7 @@
 				<string>ssh</string>
 				<string>slogin</string>
 				<string>telnet</string>
+				<string>WeeChat</string>
 			</array>
 			<key>Keyboard Map</key>
 			<dict>
@@ -683,7 +684,7 @@
 			<key>Option Key Sends</key>
 			<integer>0</integer>
 			<key>Prompt Before Closing 2</key>
-			<integer>0</integer>
+			<integer>2</integer>
 			<key>Right Option Key Sends</key>
 			<integer>0</integer>
 			<key>Rows</key>
@@ -1109,6 +1110,8 @@
 				<string>telnet</string>
 				<string>tmux</string>
 				<string>mosh</string>
+				<string>screen</string>
+				<string>WeeChat</string>
 			</array>
 			<key>Keyboard Map</key>
 			<dict>
@@ -1583,6 +1586,10 @@
 	</array>
 	<key>NoSyncNeverRemindPrefsChangesCopy</key>
 	<true/>
+	<key>NoSyncTimeOfLastPromo</key>
+	<real>453545437.93149698</real>
+	<key>NoSyncTimeOfLastPromoDownload</key>
+	<real>455600927.64284301</real>
 	<key>OnlyWhenMoreTabs</key>
 	<true/>
 	<key>OpenArrangementAtStartup</key>
@@ -1647,7 +1654,7 @@
 	<key>SUHasLaunchedBefore</key>
 	<true/>
 	<key>SULastCheckTime</key>
-	<date>2015-01-23T13:15:49Z</date>
+	<date>2015-06-09T21:53:45Z</date>
 	<key>SavePasteHistory</key>
 	<false/>
 	<key>ShowBookmarkName</key>
@@ -1671,7 +1678,7 @@
 	<key>TripleClickSelectsFullWrappedLines</key>
 	<false/>
 	<key>UKCrashReporterLastCrashReportDate</key>
-	<real>1416300800</real>
+	<real>1431852672</real>
 	<key>URLHandlersByGuid</key>
 	<dict/>
 	<key>UseBorder</key>
@@ -3975,6 +3982,6 @@
 	<key>findRegex_iTerm</key>
 	<false/>
 	<key>iTerm Version</key>
-	<string>2.0.0.20141103</string>
+	<string>2.1.1</string>
 </dict>
 </plist>
