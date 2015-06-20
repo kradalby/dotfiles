@@ -19,6 +19,13 @@ Host *
     Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr
     MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-ripemd160-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-512,hmac-sha2-256,hmac-ripemd160,umac-128@openssh.com
 
+# Casual gaming
+
+Host goomba
+    HostName goomba.casualgaming.no
+    Port 22
+    User root
+
 # dotkom
 Host dworek
     HostName dworek.online.ntnu.no
