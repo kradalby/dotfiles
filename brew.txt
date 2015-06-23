@@ -1,4 +1,5 @@
 ack
+the_silver_searcher
 source-highlight
 autossh
 nmap
