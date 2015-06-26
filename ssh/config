@@ -355,11 +355,11 @@ Host abra
     LocalForward 8888 192.168.1.10:80
 # Uninett
 Host radius
-    HostName 158.38.212.120
+    HostName 158.38.212.123
     Port 22
     User root
 
 Host radius2
-    HostName 158.38.212.119
+    HostName 158.38.212.98
     Port 22
     User root
