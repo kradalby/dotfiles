@@ -1,6 +1,6 @@
 # Uninett
 Host radius
-    HostName 158.38.212.112
+    HostName 158.38.212.120
     Port 22
     User root
 
