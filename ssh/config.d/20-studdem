@@ -4,6 +4,16 @@ Host vissel
     Port 22
     User root
 
+Host vissel2
+    HostName 129.241.78.165
+    Port 22
+    User root
+
+Host heffalompen
+    HostName 129.241.78.142
+    Port 22
+    User root
+
 Host tussi
     HostName tussi.studdem.ntnu.no
     Port 22
