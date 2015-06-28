@@ -82,3 +82,8 @@ Host golum
     HostName=m.fap.no
     Port=22025
     User=root
+
+Host pidgeot
+    HostName=m.fap.no
+    Port=22026
+    User=root
