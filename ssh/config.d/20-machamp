@@ -87,3 +87,8 @@ Host pidgeot
     HostName=m.fap.no
     Port=22026
     User=root
+
+Host shellder
+    HostName=m.fap.no
+    Port=22027
+    User=root

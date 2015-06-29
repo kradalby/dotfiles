@@ -6,6 +6,12 @@ Host butterfree
     User root
     DynamicForward 9876
 
+Host paras
+    HostName butterfree.fap.no
+    Port 22222
+    User root
+    DynamicForward 9876
+
 Host kramac
     Hostname trondheim.fap.no
     Port 22223

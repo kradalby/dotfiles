@@ -277,6 +277,11 @@ Host pidgeot
     HostName=m.fap.no
     Port=22026
     User=root
+
+Host shellder
+    HostName=m.fap.no
+    Port=22027
+    User=root
 # DO
 Host oddish
     HostName oddish.fap.no
@@ -286,6 +291,12 @@ Host oddish
 # Ole Aasveds veg
 
 Host butterfree
+    HostName butterfree.fap.no
+    Port 22222
+    User root
+    DynamicForward 9876
+
+Host paras
     HostName butterfree.fap.no
     Port 22222
     User root
