@@ -13,3 +13,8 @@ Host moonshot
     HostName 158.38.212.112
     Port 22
     User root
+
+Host moonshot2
+    HostName 158.38.212.119
+    Port 22
+    User root
