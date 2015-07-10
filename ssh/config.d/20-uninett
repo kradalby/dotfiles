@@ -9,6 +9,11 @@ Host radius2
     Port 22
     User root
 
+Host radius3
+    HostName 158.38.212.127
+    Port 22
+    User root
+
 Host moonshot
     HostName 158.38.212.112
     Port 22
@@ -16,5 +21,10 @@ Host moonshot
 
 Host moonshot2
     HostName 158.38.212.119
+    Port 22
+    User root
+
+Host moonshot3
+    HostName 158.38.212.120
     Port 22
     User root
