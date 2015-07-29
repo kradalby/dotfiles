@@ -12,6 +12,7 @@ Plug 'evanmiller/nginx-vim-syntax'
 Plug 'godlygeek/tabular'
 Plug 'Townk/vim-autoclose'
 Plug 'vim-scripts/HTML-AutoCloseTag'
+Plug 'nvie/vim-flake8'
 
 call plug#end()
 
