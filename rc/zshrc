@@ -76,6 +76,10 @@ rmkh () {
     sed -i $1'd' ~/.ssh/known_hosts
 }
 
+senv () {
+    source env/bin/activate
+}
+
 if [[ "$OSTYPE" == darwin* ]];
 then
     
