@@ -9,6 +9,8 @@ maven
 node
 python
 python3
+pypy
+pypy3
 zsh
 wget
 tmux
