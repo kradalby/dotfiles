@@ -36,8 +36,11 @@ pullall () {
     done
 }
 
-cp_p()
-{
+gi () { 
+    curl -L -s https://www.gitignore.io/api/$@ ;
+}
+
+cp_p() {
    strace -q -ewrite cp -- "${1}" "${2}" 2>&1 \
       | awk '{
         count += $NF
@@ -55,16 +58,14 @@ cp_p()
          END { print "" }' total_size=$(stat -c '%s' "${1}") count=0
 }
 
-swap()
-{
+swap () {
     tmp=`mktemp`
     mv $1 $tmp
     mv $2 $1
     mv $tmp $2
 }
 
-compile-ssh()
-{
+compile-ssh () {
     SSH_CONFIG=~/git/dotfiles/ssh/config
     SSH_MODULE_CONFIGS=~/git/dotfiles/ssh/config.d
     rm -rf $SSH_CONFIG
