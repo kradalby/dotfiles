@@ -2,3 +2,4 @@ ansible
 flake8
 tox
 virtualenv
+pgcli

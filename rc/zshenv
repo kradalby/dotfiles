@@ -22,6 +22,7 @@ export ANSIBLE_CONFIG=~/.ansible.cfg
 
 if [[ "$OSTYPE" == darwin* ]];
 then
+    source ~/.iterm2_shell_integration.zsh
     LESSPIPE=`which src-hilite-lesspipe.sh`
     export LESSOPEN="| ${LESSPIPE} %s"
     export VIRTUALENVWRAPPER_PYTHON=/usr/local/bin/python
