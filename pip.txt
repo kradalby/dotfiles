@@ -3,3 +3,4 @@ flake8
 tox
 virtualenv
 pgcli
+mycli
