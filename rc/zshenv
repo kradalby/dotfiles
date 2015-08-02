@@ -24,6 +24,7 @@ if [[ "$OSTYPE" == darwin* ]];
 then
     source ~/.iterm2_shell_integration.zsh
     LESSPIPE=`which src-hilite-lesspipe.sh`
+    unset SSH_AUTH_SOCK
     export LESSOPEN="| ${LESSPIPE} %s"
     export VIRTUALENVWRAPPER_PYTHON=/usr/local/bin/python
     export VIRTUALENVWRAPPER_VIRTUALENV=/usr/local/bin/virtualenv
