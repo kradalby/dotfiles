@@ -18,6 +18,25 @@ alias tb="nc termbin.com 9999"
 alias cm="curl --silent http://whatthecommit.com/index.txt"
 alias fuck='sudo $(history -p \!\!)'
 
+# Git aliases
+
+alias ga='git add'
+alias gaa='git add .'
+alias gc='git commit'
+alias gcm='git commit -m'
+alias gco='git checkout'
+alias gcob='git checkout -b'
+alias gcom='git checkout master'
+alias gd='git diff'
+alias gb='git branch'
+alias gbd='git branch -d '
+alias gp='git pull'
+alias gss='git status -s'
+alias gst='git stash'
+
+gitalias () {
+    alias | ag git | ag '^g.*' --nocolor
+}
 
 #Functions
 push () {
