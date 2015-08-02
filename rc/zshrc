@@ -40,8 +40,6 @@ gitalias () {
 
 #Functions
 push () {
-    git add .
-    git commit -m "$(cm)"
     git push origin $(git rev-parse --abbrev-ref HEAD)
 }
 
