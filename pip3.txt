@@ -1,4 +1,5 @@
 ytfs
+ipython
 flake8
 flake8-debugger
 flake8-import-order
