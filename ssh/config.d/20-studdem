@@ -5,12 +5,12 @@ Host vissel
     User root
 
 Host vissel2
-    HostName 129.241.78.165
+    HostName vissel2.studdem.ntnu.no
     Port 22
     User root
 
 Host heffalompen
-    HostName 129.241.78.142
+    HostName heffalompen.studdem.ntnu.no
     Port 22
     User root
 
