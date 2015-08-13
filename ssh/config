@@ -298,7 +298,7 @@ Host butterfree
 
 Host paras
     HostName butterfree.fap.no
-    Port 22222
+    Port 22011
     User root
     DynamicForward 9876
 
