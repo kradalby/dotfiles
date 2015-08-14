@@ -317,6 +317,11 @@ Host vissel2
     Port 22
     User root
 
+Host arkiv
+    HostName arkiv.studdem.ntnu.no
+    Port 22
+    User root
+
 Host heffalompen
     HostName heffalompen.studdem.ntnu.no
     Port 22
