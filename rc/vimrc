@@ -7,12 +7,11 @@ Plug 'hail2u/vim-css3-syntax'
 Plug 'ervandew/supertab'
 Plug 'vim-scripts/dhcpd.vim'
 Plug 'kradalby/snipmate.vim'
-Plug 'sheerun/vim-polyglot'
-Plug 'evanmiller/nginx-vim-syntax'
 Plug 'godlygeek/tabular'
 Plug 'Townk/vim-autoclose'
 Plug 'vim-scripts/HTML-AutoCloseTag'
 Plug 'nvie/vim-flake8'
+Plug 'sheerun/vim-polyglot'
 
 call plug#end()
 
