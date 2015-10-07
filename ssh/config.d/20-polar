@@ -15,7 +15,7 @@ Host donald
     User root
 
 Host skrue
-    HostName 195.204.156.11
+    HostName 195.204.156.14
     Port 22
     User root
 
