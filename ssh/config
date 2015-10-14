@@ -77,11 +77,6 @@ Host kahlua
     Port 22
     User root
 
-Host moonshine
-    HostName moonshine.online.ntnu.no
-    Port 22
-    User root
-
 Host grouse
     HostName grouse.online.ntnu.no
     Port 22
