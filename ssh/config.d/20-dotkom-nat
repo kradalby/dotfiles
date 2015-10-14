@@ -67,3 +67,8 @@ Host gay
     HostName blacklabel.online.ntnu.no
     Port 22019
     User root
+
+Host moonshine
+    HostName blacklabel.online.ntnu.no
+    Port 22022
+    User root
