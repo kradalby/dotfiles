@@ -5,3 +5,4 @@ tox
 virtualenv
 pgcli
 mycli
+mitmproxy
