@@ -8,3 +8,7 @@ flake8-quotes
 pep8-naming
 fusepy
 requests
+virtualenv
+tox
+pgcli
+mycli
