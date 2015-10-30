@@ -12,6 +12,7 @@ Plug 'Townk/vim-autoclose'
 Plug 'vim-scripts/HTML-AutoCloseTag'
 Plug 'nvie/vim-flake8'
 Plug 'sheerun/vim-polyglot'
+Plug 'seveas/bind.vim'
 
 call plug#end()
 
