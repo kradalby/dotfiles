@@ -18,6 +18,7 @@ alias tb="nc termbin.com 9999"
 alias cm="curl --silent http://whatthecommit.com/index.txt"
 alias fuck='sudo $(history -p \!\!)'
 alias ehosts='sudo vim /etc/hosts'
+alias n='nvim'
 
 # Git aliases
 
@@ -154,8 +155,8 @@ then
 
 fi
 
-if [ -f /usr/local/bin/virtualenvwrapper.sh ];
-then
-    source /usr/local/bin/virtualenvwrapper.sh
-fi
+#if [ -f /usr/local/bin/virtualenvwrapper.sh ];
+#then
+#    source /usr/local/bin/virtualenvwrapper.sh
+#fi
 
