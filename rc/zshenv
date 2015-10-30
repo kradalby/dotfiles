@@ -22,7 +22,6 @@ export ANSIBLE_CONFIG=~/.ansible.cfg
 
 if [[ "$OSTYPE" == darwin* ]];
 then
-    source ~/.iterm2_shell_integration.zsh
     LESSPIPE=`which src-hilite-lesspipe.sh`
     unset SSH_AUTH_SOCK
     export LESSOPEN="| ${LESSPIPE} %s"
