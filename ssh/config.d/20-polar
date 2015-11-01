@@ -1,0 +1,31 @@
+
+Host fantonald
+    HostName 195.204.156.4
+    Port 22
+    User root
+
+Host dolly
+    HostName 195.204.156.9
+    Port 22
+    User root
+
+Host donald
+    HostName 195.204.156.10
+    Port 22
+    User root
+
+Host skrue
+    HostName 195.204.156.14
+    Port 22
+    User root
+
+Host pluto
+    HostName 195.204.156.12
+    Port 22
+    User root
+
+Host mikke
+    HostName 195.204.156.13
+    Port 22
+    User root
+

@@ -5,7 +5,7 @@ Host github.com
     User git
     IdentitiesOnly yes
 
-Host xo ardbeg kramac 10.0.2.2 10.0.0.52 nasse.studdem.ntnu.no brumm.studdem.ntnu.no don vilje.hpc.ntnu.no
+Host xo ardbeg kramac 10.0.2.2 10.0.0.52 nasse.studdem.ntnu.no brumm.studdem.ntnu.no don vilje.hpc.ntnu.no 195.204.156.4 hovedscenesw.pp24.polarparty.no
     Ciphers aes128-ctr,aes192-ctr,aes256-ctr,arcfour256,arcfour128,aes128-cbc,3des-cbc,blowfish-cbc,cast128-cbc,aes192-cbc,aes256-cbc,arcfour
     KexAlgorithms ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1,diffie-hellman-group1-sha1
     MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-ripemd160-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-512,hmac-sha2-256,hmac-ripemd160,umac-128@openssh.com
@@ -74,11 +74,6 @@ Host laphroaig
 
 Host kahlua
     HostName kahlua.online.ntnu.no
-    Port 22
-    User root
-
-Host moonshine
-    HostName moonshine.online.ntnu.no
     Port 22
     User root
 
@@ -175,6 +170,11 @@ Host gay
     HostName blacklabel.online.ntnu.no
     Port 22019
     User root
+
+Host moonshine
+    HostName blacklabel.online.ntnu.no
+    Port 22022
+    User root
 # Trondheim IT-Bygget
 Host zapdos
     HostName zapdos.fap.no
@@ -264,7 +264,7 @@ Host grimer
     User=root
     RemoteForward 23053 127.0.0.1:23053
 
-Host golum
+Host golem
     HostName=m.fap.no
     Port=22025
     User=root
@@ -307,6 +307,37 @@ Host kramac
     Hostname trondheim.fap.no
     Port 22223
     User kradalby
+
+Host fantonald
+    HostName 195.204.156.4
+    Port 22
+    User root
+
+Host dolly
+    HostName 195.204.156.9
+    Port 22
+    User root
+
+Host donald
+    HostName 195.204.156.10
+    Port 22
+    User root
+
+Host skrue
+    HostName 195.204.156.14
+    Port 22
+    User root
+
+Host pluto
+    HostName 195.204.156.12
+    Port 22
+    User root
+
+Host mikke
+    HostName 195.204.156.13
+    Port 22
+    User root
+
 # Studdem
 Host vissel
     HostName vissel.studdem.ntnu.no

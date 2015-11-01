@@ -1,7 +1,4 @@
 ansible
 ansible-lint
 ipython
-tox
-virtualenv
-pgcli
-mycli
+mitmproxy
