@@ -5,10 +5,10 @@ Host github.com
     User git
     IdentitiesOnly yes
 
-Host xo ardbeg kramac 10.0.2.2 10.0.0.52 nasse.studdem.ntnu.no brumm.studdem.ntnu.no don vilje.hpc.ntnu.no 195.204.156.4 hovedscenesw.pp24.polarparty.no 10.0.11.2
+Host xo ardbeg kramac 10.0.2.2 10.0.0.52 nasse.studdem.ntnu.no brumm.studdem.ntnu.no don vilje.hpc.ntnu.no 195.204.156.4 hovedscenesw.pp24.polarparty.no
     Ciphers aes128-ctr,aes192-ctr,aes256-ctr,arcfour256,arcfour128,aes128-cbc,3des-cbc,blowfish-cbc,cast128-cbc,aes192-cbc,aes256-cbc,arcfour
     KexAlgorithms ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1,diffie-hellman-group1-sha1
-    MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-ripemd160-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-512,hmac-sha2-256,hmac-ripemd160,umac-128@openssh.com,hmac-sha1
+    MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-ripemd160-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-512,hmac-sha2-256,hmac-ripemd160,umac-128@openssh.com
 
 Host *
     ServerAliveInterval 30
@@ -271,7 +271,7 @@ Host grimer
     User=root
     RemoteForward 23053 127.0.0.1:23053
 
-Host golum
+Host golem
     HostName=m.fap.no
     Port=22025
     User=root
