@@ -16,7 +16,7 @@ fi
 alias update_dotfiles="cd ~/git/dotfiles; git pull; cd -"
 alias tb="nc termbin.com 9999"
 alias cm="curl --silent http://whatthecommit.com/index.txt"
-alias fuck='sudo $(history -p \!\!)'
+alias fuck='sudo $(fc -ln -1)'
 alias ehosts='sudo vim /etc/hosts'
 alias n='nvim'
 
