@@ -176,8 +176,8 @@ Host moonshine
     Port 22022
     User root
 # Trondheim IT-Bygget
-Host zapdos
-    HostName zapdos.fap.no
+Host onyx
+    HostName onyx.fap.no
     Port 22
     User root
 

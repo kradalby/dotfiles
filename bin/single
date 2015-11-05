@@ -1,0 +1,5 @@
+#!/bin/bash
+
+killall nm-applet
+killall volumeicon
+xrandr --auto --output VGA1 --off
