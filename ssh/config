@@ -283,6 +283,11 @@ Host slowking
     HostName=m.fap.no
     Port=22028
     User=root
+
+Host olive
+    HostName=m.fap.no
+    Port=22070
+    User=root
 # DO
 Host oddish
     HostName oddish.fap.no
@@ -405,7 +410,7 @@ Host snorlax
 
 Host abra
     Hostname tw.fap.no
-    Port 22001
+    Port 22222
     User root
     UserKnownHostsFile /dev/null
     StrictHostKeyChecking no

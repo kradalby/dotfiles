@@ -17,7 +17,7 @@ Host snorlax
 
 Host abra
     Hostname tw.fap.no
-    Port 22001
+    Port 22222
     User root
     UserKnownHostsFile /dev/null
     StrictHostKeyChecking no

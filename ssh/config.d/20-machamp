@@ -100,3 +100,8 @@ Host slowking
     HostName=m.fap.no
     Port=22028
     User=root
+
+Host olive
+    HostName=m.fap.no
+    Port=22070
+    User=root
