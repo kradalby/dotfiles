@@ -12,3 +12,4 @@ virtualenv
 tox
 pgcli
 mycli
+markdown

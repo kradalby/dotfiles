@@ -13,6 +13,7 @@ Plug 'vim-scripts/HTML-AutoCloseTag'
 Plug 'nvie/vim-flake8'
 Plug 'sheerun/vim-polyglot'
 Plug 'seveas/bind.vim'
+Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 
 call plug#end()
 

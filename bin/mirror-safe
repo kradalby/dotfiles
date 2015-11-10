@@ -1,0 +1,6 @@
+#!/bin/bash
+
+killall nm-applet
+killall volumeicon
+xrandr --auto --output VGA1 --same-as LVDS1 --mode 800x600
+xrandr --auto --output LVDS1 --mode 800x600

@@ -16,9 +16,10 @@ fi
 alias update_dotfiles="cd ~/git/dotfiles; git pull; cd -"
 alias tb="nc termbin.com 9999"
 alias cm="curl --silent http://whatthecommit.com/index.txt"
-alias fuck='sudo $(history -p \!\!)'
+alias fuck='sudo $(fc -ln -1)'
 alias ehosts='sudo vim /etc/hosts'
 alias n='nvim'
+alias markdown='python3 -m markdown -x markdown.extensions.tables'
 
 # Git aliases
 
@@ -46,6 +47,16 @@ push () {
 }
 
 pullall () {
+    for dir in *
+    do
+        figlet $dir
+        cd $dir
+        git pull origin $(git rev-parse --abbrev-ref HEAD)
+        cd ..
+    done
+}
+
+pushall () {
     for dir in *
     do
         figlet $dir
@@ -160,3 +171,5 @@ fi
 #    source /usr/local/bin/virtualenvwrapper.sh
 #fi
 
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

@@ -178,15 +178,8 @@ Host moonshine
 # Trondheim IT-Bygget
 Host onyx
     HostName onyx.fap.no
-    Port 21337
-    User kradalby
-    DynamicForward 9876
-
-Host zapdos
-    HostName zapdos.fap.no
-    Port 21337
-    User kradalby
-    DynamicForward 9876
+    Port 22
+    User root
 
 # machamp
 Host diglett
@@ -289,6 +282,11 @@ Host shellder
 Host slowking
     HostName=m.fap.no
     Port=22028
+    User=root
+
+Host olive
+    HostName=m.fap.no
+    Port=22070
     User=root
 # DO
 Host oddish
@@ -412,7 +410,7 @@ Host snorlax
 
 Host abra
     Hostname tw.fap.no
-    Port 22001
+    Port 22222
     User root
     UserKnownHostsFile /dev/null
     StrictHostKeyChecking no
