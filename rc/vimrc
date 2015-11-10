@@ -34,7 +34,7 @@ nnoremap ' :tabnext<cr>
 nnoremap ; :tabprev<cr>
 
 " Set default shell to zsh
-set shell=/bin/zsh
+set shell=/bin/sh
 
 
 " Use Vim settings, rather then Vi settings (much better!).
