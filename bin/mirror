@@ -2,4 +2,6 @@
 
 killall nm-applet
 killall volumeicon
-xrandr --auto --output VGA1 --same-as LVDS1
+xrandr --addmode VGA1 1360x768
+xrandr --auto --output VGA1 --same-as LVDS1 --mode 1360x768
+xrandr --auto --output LVDS1 --mode 1366x768
