@@ -19,6 +19,7 @@ alias cm="curl --silent http://whatthecommit.com/index.txt"
 alias fuck='sudo $(fc -ln -1)'
 alias ehosts='sudo vim /etc/hosts'
 alias n='nvim'
+alias markdown='python3 -m markdown -x markdown.extensions.tables'
 
 # Git aliases
 
