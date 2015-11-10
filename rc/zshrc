@@ -170,3 +170,5 @@ fi
 #    source /usr/local/bin/virtualenvwrapper.sh
 #fi
 
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
