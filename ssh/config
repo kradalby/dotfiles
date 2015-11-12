@@ -281,7 +281,7 @@ Host shellder
 
 Host slowking
     HostName=m.fap.no
-    Port=22028
+    Port=22005
     User=root
 
 Host olive
