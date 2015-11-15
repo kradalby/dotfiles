@@ -2,7 +2,7 @@
 # HostKeyChecking disabled since the ip changes rapidly
 
 Host snorlax
-    HostName tw2.fap.no
+    HostName abra.fap.no
     Port 22010
     User kradalby
     UserKnownHostsFile /dev/null
@@ -16,7 +16,7 @@ Host snorlax
     LocalForward 8888 127.0.0.1:80
 
 Host abra
-    Hostname tw.fap.no
+    Hostname abra.fap.no
     Port 22222
     User root
     UserKnownHostsFile /dev/null
