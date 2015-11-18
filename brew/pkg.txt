@@ -1,4 +1,5 @@
 brew-cask
+jq
 carthage
 cowsay
 dmd

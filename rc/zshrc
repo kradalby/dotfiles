@@ -6,9 +6,63 @@
 #
 
 # Source Prezto.
-if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
-  source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
+#if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
+#  source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
+#fi
+#
+
+
+#source ~/git/dotfiles/antigen/antigen.zsh
+#
+#antigen bundle sorin-ionescu/prezto
+#antigen bundle zsh-users/zsh-syntax-highlighting
+#antigen bundle tarruda/zsh-autosuggestions
+#
+#antigen theme steeef
+#
+#antigen apply
+
+source "${HOME}/git/dotfiles/zgen/zgen.zsh"
+
+# check if there's no init script
+if ! zgen saved; then
+    echo "Creating a zgen save"
+
+    # prezto options
+    zgen prezto editor key-bindings 'emacs'
+    zgen prezto prompt theme 'steeef'
+
+    # prezto and modules
+    zgen prezto
+    zgen prezto git
+    zgen prezto command-not-found
+#    zgen prezto syntax-highlighting
+    zgen prezto environment
+    zgen prezto terminal
+#    zgen prezto editor
+    zgen prezto history
+    zgen prezto directory
+    zgen prezto spectrum
+    zgen prezto utility
+    zgen prezto completion
+    zgen prezto osx
+    #zgen prezto history-substring-search
+    zgen prezto prompt
+
+    zgen load jimmijj/zsh-syntax-highlighting
+    zgen load tarruda/zsh-autosuggestions
+    zgen load djui/alias-tips
+    zgen load b4b4r07/emoji-cli
+
+
+
+    # completions
+    zgen load zsh-users/zsh-completions src
+
+    # save all to init script
+    zgen save
 fi
+
 
 # Customize to your needs...
 
@@ -171,5 +225,9 @@ fi
 #    source /usr/local/bin/virtualenvwrapper.sh
 #fi
 
+zle-line-init() {
+    zle autosuggest-start
+}
+zle -N zle-line-init
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
