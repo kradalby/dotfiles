@@ -1,4 +1,5 @@
 betterzipql
+spectacle
 cuda
 qlcolorcode
 qlimagesize
@@ -7,5 +8,4 @@ qlprettypatch
 qlstephen
 quicklook-csv
 quicklook-json
-suspicious-package
 webpquicklook
