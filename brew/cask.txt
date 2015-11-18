@@ -1,6 +1,7 @@
 betterzipql
-spectacle
 cuda
+google-chrome
+java
 qlcolorcode
 qlimagesize
 qlmarkdown
@@ -8,4 +9,8 @@ qlprettypatch
 qlstephen
 quicklook-csv
 quicklook-json
+skype
+spectacle
+spotify
+teamviewer
 webpquicklook
