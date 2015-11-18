@@ -49,7 +49,8 @@ if ! zgen saved; then
     #zgen prezto history-substring-search
     zgen prezto prompt
 
-    zgen load jimmijj/zsh-syntax-highlighting
+    #zgen load jimmijj/zsh-syntax-highlighting
+    zgen load zsh-users/zsh-syntax-highlighting
     zgen load tarruda/zsh-autosuggestions
     zgen load djui/alias-tips
     zgen load b4b4r07/emoji-cli
