@@ -187,8 +187,8 @@ endfunction
 nnoremap <silent> <Leader>s :call <SID>StripTrailingWhitespaces()<CR>
 
 augroup configgroup
-    autocmd FileType bindzone setlocal tabstop=8
-    autocmd FileType bindzone setlocal shiftwidth=8
+    autocmd FileType bindzone setlocal tabstop=4
+    autocmd FileType bindzone setlocal shiftwidth=4
     autocmd FileType bindzone setlocal noexpandtab
 augroup END
 
