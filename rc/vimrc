@@ -64,6 +64,7 @@ set number
 "    set number
 "endif
 
+set wildmenu
 
 nnoremap <C-n> :call NumberToggle()<cr>
 
@@ -75,6 +76,7 @@ set fileformats=unix,dos,mac
 set autoindent
 set nocindent
 set nosmartindent
+filetype indent on
 
 " Whitespace stuff
 " set nowrap        " don't soft wrap long lines
@@ -89,9 +91,11 @@ set listchars=tab:>·,trail:· " ... but only show tabs and trailing whitespace
 set cmdheight=2
 
 " do not keep a backup files 
-set nobackup
-set nowritebackup
-set noswapfile
+set backup
+set backupdir=~/.vim-tmp,~/.tmp,~/tmp,/var/tmp,/tmp
+set backupskip=/tmp/*,/private/tmp/*
+set directory=~/.vim-tmp,~/.tmp,~/tmp,/var/tmp,/tmp
+set writebackup
 
 
 " keep 50 lines of command line history
@@ -140,6 +144,11 @@ set joinspaces
 set showmatch
 
 
+set foldenable
+set foldlevelstart=10
+set foldnestmax=10
+set foldmethod=indent
+
 
 " Java specific stuff
 let java_highlight_all=1
@@ -176,3 +185,10 @@ function! <SID>StripTrailingWhitespaces()
 endfunction
 
 nnoremap <silent> <Leader>s :call <SID>StripTrailingWhitespaces()<CR>
+
+augroup configgroup
+    autocmd FileType bindzone setlocal tabstop=8
+    autocmd FileType bindzone setlocal shiftwidth=8
+    autocmd FileType bindzone setlocal noexpandtab
+augroup END
+
