@@ -46,19 +46,18 @@ if ! zgen saved; then
     zgen prezto utility
     zgen prezto completion
     zgen prezto osx
-    #zgen prezto history-substring-search
     zgen prezto prompt
 
-    #zgen load jimmijj/zsh-syntax-highlighting
-    zgen load zsh-users/zsh-syntax-highlighting
-    zgen load tarruda/zsh-autosuggestions
-    zgen load djui/alias-tips
-    zgen load b4b4r07/emoji-cli
-
-
-
     # completions
+    zgen load tarruda/zsh-autosuggestions
+    zgen load zsh-users/zsh-syntax-highlighting
     zgen load zsh-users/zsh-completions src
+    zgen load djui/alias-tips
+
+
+    zgen prezto history-substring-search
+
+    zgen load b4b4r07/emoji-cli
 
     # save all to init script
     zgen save
@@ -226,9 +225,13 @@ fi
 #    source /usr/local/bin/virtualenvwrapper.sh
 #fi
 
-zle-line-init() {
-    zle autosuggest-start
-}
-zle -N zle-line-init
-
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+#zle-line-init() {
+#    zle autosuggest-start
+#}
+#zle -N zle-line-init
+#
+zle -N emoji::cli
+bindkey "^s" emoji::cli
+
