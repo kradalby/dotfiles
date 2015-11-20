@@ -58,6 +58,7 @@ if ! zgen saved; then
     zgen prezto history-substring-search
 
     zgen load b4b4r07/emoji-cli
+    zgen load uvaes/fzf-marks
 
     # save all to init script
     zgen save
