@@ -1,3 +1,4 @@
+cask_args appdir: '/Applications'
 tap 'caskroom/cask'
 tap 'grammarly/tap'
 tap 'homebrew/bundle'
