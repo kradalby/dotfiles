@@ -294,6 +294,18 @@ Host oddish
     Port 22
     User kradalby
     DynamicForward 9876
+# NTNU
+
+Host lynx
+    HostName lynx.stud.ntnu.no
+    Port 22
+    User kristoad
+
+Host theano
+    HostName theano.idi.ntnu.no
+    Port 22
+    User kristoad
+
 # Ole Aasveds veg
 
 Host butterfree

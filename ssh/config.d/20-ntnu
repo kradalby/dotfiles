@@ -1,0 +1,12 @@
+# NTNU
+
+Host lynx
+    HostName lynx.stud.ntnu.no
+    Port 22
+    User kristoad
+
+Host theano
+    HostName theano.idi.ntnu.no
+    Port 22
+    User kristoad
+
