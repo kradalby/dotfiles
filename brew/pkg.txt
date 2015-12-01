@@ -33,3 +33,4 @@ watch
 wget
 xz
 zsh
+opencv
