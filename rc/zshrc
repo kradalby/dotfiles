@@ -68,7 +68,6 @@ fi
 # Customize to your needs...
 
 #Aliases
-alias update_dotfiles="cd ~/git/dotfiles; git pull; cd -"
 alias tb="nc termbin.com 9999"
 alias cm="curl --silent http://whatthecommit.com/index.txt"
 alias fuck='sudo $(fc -ln -1)'
@@ -135,24 +134,6 @@ gi () {
     curl -L -s https://www.gitignore.io/api/$@ ;
 }
 
-cp_p() {
-   strace -q -ewrite cp -- "${1}" "${2}" 2>&1 \
-      | awk '{
-        count += $NF
-            if (count % 10 == 0) {
-               percent = count / total_size * 100
-               printf "%3d%% [", percent
-               for (i=0;i<=percent;i++)
-                  printf "="
-               printf ">"
-               for (i=percent;i<100;i++)
-                  printf " "
-               printf "]\r"
-            }
-         }
-         END { print "" }' total_size=$(stat -c '%s' "${1}") count=0
-}
-
 swap () {
     tmp=`mktemp`
     mv $1 $tmp
@@ -176,9 +157,23 @@ senv () {
     source env/bin/activate
 }
 
+states () {
+    echo "Pulling dotfiles update"
+    cd ~/git/dotfiles; git pull; cd -
+
+    if [[ "$OSTYPE" == darwin* ]];
+    then
+        echo "Running brew check to sync up software"
+        cd ~/git/dotfiles
+        brew bundle install
+        brew bundle check
+        cd -
+    fi
+}
+
 if [[ "$OSTYPE" == darwin* ]];
 then
-    
+
     vnc () {
         re='^[0-9]+$'
         if [[ $1 =~ $re ]] ; then
