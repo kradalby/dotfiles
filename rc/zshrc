@@ -165,8 +165,9 @@ states () {
     then
         echo "Running brew check to sync up software"
         cd ~/git/dotfiles
+        brew update
+        brew cask update
         brew bundle install
-        brew bundle check
         cd -
     fi
 }
