@@ -75,6 +75,9 @@ alias ehosts='sudo vim /etc/hosts'
 alias n='nvim'
 alias markdown='python3 -m markdown -x markdown.extensions.tables'
 
+alias rsakey='ssh-keygen -t rsa -b 4096 -o -a 100'
+alias ed25519key='ssh-keygen -t ed25519 -o -a 100'
+
 # Git aliases
 
 alias ga='git add'
