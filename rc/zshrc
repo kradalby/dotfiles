@@ -171,6 +171,7 @@ states () {
         brew update
         brew cask update
         brew bundle install
+        brew upgrade
         cd -
     fi
 }
