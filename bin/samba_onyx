@@ -1,0 +1,7 @@
+#!/bin/bash
+
+sudo ifconfig lo0 127.0.0.2 alias up
+
+sudo ssh -i .ssh/id_rsa -L 127.0.0.2:445:localhost:445 root@onyx.fap.no
+
+open smb://127.0.0.2
