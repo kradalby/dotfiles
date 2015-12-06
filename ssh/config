@@ -279,6 +279,11 @@ Host shellder
     Port=22027
     User=root
 
+Host spearow
+    HostName=m.fap.no
+    Port=22030
+    User=root
+
 Host slowking
     HostName=m.fap.no
     Port=22005
