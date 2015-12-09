@@ -89,7 +89,7 @@ set listchars=tab:>·,trail:· " ... but only show tabs and trailing whitespace
 " set the commandheight
 set cmdheight=2
 
-" do not keep a backup files 
+" do not keep a backup files
 set backup
 set backupdir=~/.vim-tmp,~/.tmp,~/tmp,/var/tmp,/tmp
 set backupskip=/tmp/*,/private/tmp/*
@@ -189,6 +189,8 @@ endfunction
 
 nnoremap <silent> <Leader>s :call <SID>StripTrailingWhitespaces()<CR>
 nnoremap <C-n> :call UpdateModifiedTimeMarkdown()<cr>
+command! DateTime call UpdateModifiedTimeMarkdown()
+command! StripTrail call <SID>StripTrailingWhitespaces()
 
 augroup configgroup
     autocmd FileType bindzone setlocal tabstop=4
