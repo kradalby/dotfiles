@@ -66,7 +66,6 @@ set number
 
 set wildmenu
 
-nnoremap <C-n> :call NumberToggle()<cr>
 
 " support all three newline formats
 set fileformats=unix,dos,mac
@@ -184,11 +183,15 @@ function! <SID>StripTrailingWhitespaces()
     call cursor(l, c)
 endfunction
 
+function! UpdateModifiedTimeMarkdown()
+    %s/Modified:.*/\='Modified: ' . strftime("%Y-%m-%d %H:%M")/g
+endfunction
+
 nnoremap <silent> <Leader>s :call <SID>StripTrailingWhitespaces()<CR>
+nnoremap <C-n> :call UpdateModifiedTimeMarkdown()<cr>
 
 augroup configgroup
     autocmd FileType bindzone setlocal tabstop=4
     autocmd FileType bindzone setlocal shiftwidth=4
     autocmd FileType bindzone setlocal noexpandtab
 augroup END
-
