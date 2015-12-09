@@ -96,6 +96,8 @@ set backupskip=/tmp/*,/private/tmp/*
 set directory=~/.vim-tmp,~/.tmp,~/tmp,/var/tmp,/tmp
 set writebackup
 
+" Ignore these files when completing names and in Explorer
+set wildignore=.svn,CVS,.git,.hg,*.o,*.a,*.class,*.mo,*.la,*.so,*.obj,*.swp,*.jpg,*.png,*.xpm,*.gif
 
 " keep 50 lines of command line history
 set history=50
@@ -191,6 +193,9 @@ nnoremap <silent> <Leader>s :call <SID>StripTrailingWhitespaces()<CR>
 nnoremap <C-n> :call UpdateModifiedTimeMarkdown()<cr>
 command! DateTime call UpdateModifiedTimeMarkdown()
 command! StripTrail call <SID>StripTrailingWhitespaces()
+
+autocmd BufWritePre * :call <SID>StripTrailingWhitespaces()
+autocmd BufWritePre *.md :call UpdateModifiedTimeMarkdown()
 
 augroup configgroup
     autocmd FileType bindzone setlocal tabstop=4
