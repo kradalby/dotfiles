@@ -134,7 +134,7 @@ statusall () {
     done
 }
 
-gi () { 
+gi () {
     curl -L -s https://www.gitignore.io/api/$@ ;
 }
 
@@ -200,7 +200,7 @@ then
             else
                 echo $help
             fi
-        elif [[ $1 = "wlan" ]]; then    
+        elif [[ $1 = "wlan" ]]; then
             if [[ $2 = "on" ]]; then
                 sudo networksetup -setsocksfirewallproxystate "Wi-Fi" on
             elif [[ $2 = "off" ]]; then
@@ -218,6 +218,17 @@ then
         do
             echo "en$i: $(ipconfig getifaddr en$i)"
         done
+    }
+
+    wifi () {
+        int=en0
+        int_status=$(networksetup -getairportpower $int)
+
+        if [ "$int_status" == "Wi-Fi Power ($int): On" ]; then
+            networksetup -setairportpower $int off
+        else
+            networksetup -setairportpower $int on
+        fi
     }
 
 fi
