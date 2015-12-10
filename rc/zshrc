@@ -224,7 +224,7 @@ then
         int=en0
         int_status=$(networksetup -getairportpower $int)
 
-        if [ "$int_status" == "Wi-Fi Power ($int): On" ]; then
+        if [ "$int_status" = "Wi-Fi Power ($int): On" ]; then
             networksetup -setairportpower $int off
         else
             networksetup -setairportpower $int on
