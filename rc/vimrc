@@ -187,7 +187,10 @@ function! <SID>StripTrailingWhitespaces()
 endfunction
 
 function! UpdateModifiedTimeMarkdown()
+    let l = line(".")
+    let c = col(".")
     %s/Modified:.*/\='Modified: ' . strftime("%Y-%m-%d %H:%M")/g
+    call cursor(l, c)
 endfunction
 
 nnoremap <silent> <Leader>s :call <SID>StripTrailingWhitespaces()<CR>
