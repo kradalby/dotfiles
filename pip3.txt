@@ -13,3 +13,4 @@ tox
 pgcli
 mycli
 markdown
+instantmusic
