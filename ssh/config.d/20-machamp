@@ -101,6 +101,11 @@ Host spearow
     Port=22030
     User=root
 
+Host swift
+    HostName=m.fap.no
+    Port=22031
+    User=root
+
 Host slowking
     HostName=m.fap.no
     Port=22005
