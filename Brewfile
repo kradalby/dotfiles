@@ -23,7 +23,9 @@ brew 'figlet'
 brew 'gdbm'
 brew 'go'
 brew 'git-lfs'
-brew 'gnu-sed'
+brew 'coreutils'
+brew 'gnu-sed', args: ['with-default-names']
+brew 'findutils', args: ['with-default-names']
 brew 'gradle'
 brew 'ipcalc'
 brew 'oniguruma'
