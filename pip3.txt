@@ -14,3 +14,4 @@ pgcli
 mycli
 markdown
 instantmusic
+speedtest-cli
