@@ -15,6 +15,7 @@ Plug 'sheerun/vim-polyglot'
 Plug 'seveas/bind.vim'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'jamessan/vim-gnupg'
+Plug 'PProvost/vim-ps1'
 
 call plug#end()
 
