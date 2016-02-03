@@ -2,3 +2,4 @@ ansible
 ansible-lint
 ipython
 mitmproxy
+exabgp

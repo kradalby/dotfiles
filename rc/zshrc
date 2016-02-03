@@ -34,12 +34,10 @@ if ! zgen saved; then
 
     # prezto and modules
     zgen prezto
+    zgen prezto environment
     zgen prezto git
     zgen prezto command-not-found
-#    zgen prezto syntax-highlighting
-    zgen prezto environment
     zgen prezto terminal
-#    zgen prezto editor
     zgen prezto history
     zgen prezto directory
     zgen prezto spectrum
@@ -47,6 +45,8 @@ if ! zgen saved; then
     zgen prezto completion
     zgen prezto osx
     zgen prezto prompt
+    zgen prezto python
+    zgen prezto gnu-utility
 
     # completions
     zgen load tarruda/zsh-autosuggestions
