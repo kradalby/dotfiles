@@ -248,3 +248,5 @@ fi
 zle -N emoji::cli
 bindkey "^s" emoji::cli
 
+# Disable filetypes for vim autocomplete
+zstyle ':completion::complete:vi(m|):*' ignored-patterns '*.beam'
