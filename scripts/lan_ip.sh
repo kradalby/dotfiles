@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 ostype() { echo $OSTYPE | tr '[A-Z]' '[a-z]'; }
 

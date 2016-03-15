@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # print_image filename inline base64contents
 #   filename: Filename to convey to client
