@@ -1,4 +1,5 @@
 packages: [
+  'atom-typescript'
   'autocomplete-erlang'
   'clipboard-plus'
   'file-type-icons'
