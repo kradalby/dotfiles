@@ -1,0 +1,51 @@
+"*":
+  "autocomplete-elixir":
+    elixirPath: "/usr/local/bin/elixir"
+    erlangHome: "/usr/local/lib/erlang/bin"
+  "autocomplete-erlang":
+    elixirPath: "/usr/local/bin/elixir"
+  "autocomplete-plus":
+    confirmCompletion: "tab"
+    defaultProvider: "Fuzzy"
+    scopeBlacklist: [
+      ".string"
+    ]
+  "clipboard-plus": {}
+  core:
+    audioBeep: false
+    ignoredNames: [
+      ".git"
+      ".hg"
+      ".svn"
+      ".DS_Store"
+      ".keep"
+      "._*"
+      "*.pyc"
+      "Thumbs.db"
+      "*.beam"
+    ]
+    projectHome: "/Users/kradalby/git"
+    themes: [
+      "one-dark-ui"
+      "monokai"
+    ]
+  editor:
+    fontFamily: "Source Code Pro"
+    fontSize: 12
+    invisibles:
+      cr: "↩"
+      eol: "·"
+      tab: "⇥"
+    showIndentGuide: true
+    showInvisible: false
+    tabLength: 4
+  "exception-reporting":
+    userId: "d136aa04-5f46-42da-6fe2-f180e3c78bf2"
+  "linter-erlang": {}
+  "linter-flake8": {}
+  "linter-tidy":
+    executablePath: "/usr/local/bin/tidy"
+  minimap: {}
+  "vim-mode-plus": {}
+  welcome:
+    showOnStartup: false
