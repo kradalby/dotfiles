@@ -43,6 +43,7 @@
     userId: "d136aa04-5f46-42da-6fe2-f180e3c78bf2"
   "linter-erlang": {}
   "linter-flake8": {}
+  "linter-flow": {}
   "linter-tidy":
     executablePath: "/usr/local/bin/tidy"
   minimap: {}

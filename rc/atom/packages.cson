@@ -12,6 +12,7 @@ packages: [
   'linter-csslint'
   'linter-erlang'
   'linter-flake8'
+  'linter-flow'
   'linter-less'
   'linter-scss-lint'
   'linter-shellcheck'
