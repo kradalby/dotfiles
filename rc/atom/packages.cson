@@ -16,6 +16,7 @@ packages: [
   'linter-less'
   'linter-scss-lint'
   'linter-shellcheck'
+  'linter-js-standard'
   'linter-swiftlint'
   'linter-tidy'
   'minimap'

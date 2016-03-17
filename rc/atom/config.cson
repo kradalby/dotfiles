@@ -1,4 +1,9 @@
 "*":
+  "":
+    js:
+      source:
+        editor:
+          tabLength: 2
   "atom-typescript": {}
   "autocomplete-elixir":
     elixirPath: "/usr/local/bin/elixir"
@@ -35,6 +40,7 @@
     invisibles:
       cr: "↩"
       tab: "⇥"
+    scrollPastEnd: true
     showIndentGuide: true
     showInvisible: false
     showInvisibles: true
@@ -44,6 +50,7 @@
   "linter-erlang": {}
   "linter-flake8": {}
   "linter-flow": {}
+  "linter-shellcheck": {}
   "linter-tidy":
     executablePath: "/usr/local/bin/tidy"
   minimap: {}
@@ -53,3 +60,9 @@
   "vim-mode-plus": {}
   welcome:
     showOnStartup: false
+".js.regexp.source":
+  editor:
+    tabLength: 2
+".js.source":
+  editor:
+    tabLength: 2
