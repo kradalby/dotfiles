@@ -6,7 +6,6 @@
   "autocomplete-erlang":
     elixirPath: "/usr/local/bin/elixir"
   "autocomplete-plus":
-    confirmCompletion: "tab"
     defaultProvider: "Fuzzy"
     scopeBlacklist: [
       ".string"
@@ -35,10 +34,10 @@
     fontSize: 12
     invisibles:
       cr: "↩"
-      eol: "·"
       tab: "⇥"
     showIndentGuide: true
     showInvisible: false
+    showInvisibles: true
     tabLength: 4
   "exception-reporting":
     userId: "d136aa04-5f46-42da-6fe2-f180e3c78bf2"
@@ -47,6 +46,9 @@
   "linter-tidy":
     executablePath: "/usr/local/bin/tidy"
   minimap: {}
+  "tree-view":
+    hideIgnoredNames: true
+    hideVcsIgnoredFiles: true
   "vim-mode-plus": {}
   welcome:
     showOnStartup: false
