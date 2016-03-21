@@ -127,7 +127,7 @@ senv () {
     source env/bin/activate
 }
 
-states () {
+mac-update () {
     echo "Pulling dotfiles update"
     cd ~/git/dotfiles; git pull; cd -
 
