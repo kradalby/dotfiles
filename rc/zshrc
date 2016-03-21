@@ -100,40 +100,6 @@ gitalias () {
 }
 
 #Functions
-push () {
-    git push origin $(git rev-parse --abbrev-ref HEAD)
-}
-
-pullall () {
-    for dir in *
-    do
-        figlet $dir
-        cd $dir
-        git pull origin $(git rev-parse --abbrev-ref HEAD)
-        cd ..
-    done
-}
-
-pushall () {
-    for dir in *
-    do
-        figlet $dir
-        cd $dir
-        git pull origin $(git rev-parse --abbrev-ref HEAD)
-        cd ..
-    done
-}
-
-statusall () {
-    for dir in *
-    do
-        figlet $dir
-        cd $dir
-        git status -s
-        cd ..
-    done
-}
-
 gi () {
     curl -L -s https://www.gitignore.io/api/$@ ;
 }

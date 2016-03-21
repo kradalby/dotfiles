@@ -29,6 +29,7 @@ brew 'swiftlint'
 ## Tools
 brew 'git'
 brew 'git-lfs'
+brew 'myrepos'
 brew 'gradle'
 brew 'maven'
 brew 'kylef/formulae/swiftenv'
