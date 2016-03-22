@@ -1,399 +1,36 @@
-#Github needs diffie-hellman-group-exchange-sha1 some of the time but not always.
-Host github.com
-    KexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256,diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1
-    HostName github.com
-    User git
-    IdentitiesOnly yes
-
-Host xo ardbeg kramac nasse.studdem.ntnu.no brumm.studdem.ntnu.no don vilje.hpc.ntnu.no 192.168.1.3
-    Ciphers aes128-ctr,aes192-ctr,aes256-ctr,arcfour256,arcfour128,aes128-cbc,3des-cbc,blowfish-cbc,cast128-cbc,aes192-cbc,aes256-cbc,arcfour
-    KexAlgorithms ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1,diffie-hellman-group1-sha1
-    MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-ripemd160-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-512,hmac-sha2-256,hmac-ripemd160,umac-128@openssh.com
-
-Host *
-    ServerAliveInterval 30
-    ServerAliveCountMax 30
-    Compression yes
-    TCPKeepAlive no
-    KexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256
-    Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr
-    MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-ripemd160-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-512,hmac-sha2-256,hmac-ripemd160,umac-128@openssh.com
-
-# Casual gaming
-
-Host goomba
-    HostName goomba.casualgaming.no
-    Port 22
-    User root
-
-# dotkom
-Host dworek
-    HostName dworek.online.ntnu.no
-    Port 22
-    User root
-
-Host ardbeg
-    HostName ardbeg.online.ntnu.no
-    Port 22
-    User root
-
-Host xo
-    HostName xo.online.ntnu.no
-    Port 22
-    User root
-
-Host don
-    HostName 129.241.105.217
-    Port 22
-    User root
-
-Host morgan
-    HostName morgan.online.ntnu.no
-    Port 22
-    User root
-
-Host vsop
-    HostName vsop.online.ntnu.no
-    Port 22
-    User root
-
-Host nansen
-    HostName nansen.online.ntnu.no
-    Port 22
-    User root
-
-Host bacardi
-    HostName bacardi.online.ntnu.no
-    Port 22
-    User root
-
-Host laphroaig
-    HostName laphroaig.online.ntnu.no
-    Port 22
-    User root
-
-Host kahlua
-    HostName kahlua.online.ntnu.no
-    Port 22
-    User root
-
-Host grouse
-    HostName grouse.online.ntnu.no
-    Port 22
-    User root
-
-Host passoa
-    HostName passoa.online.ntnu.no
-    Port 22
-    User root
-
-Host opland
-    HostName opland.online.ntnu.no
-    Port 22
-    User root
-
-Host blacklabel
-    HostName blacklabel.online.ntnu.no
-    Port 22
-    User root
-
-Host fireball
-    HostName fireball.online.ntnu.no
-    Port 22
-    User root
-# dotkom NAT
-Host beefeater
-    HostName blacklabel.online.ntnu.no
-    Port 22002
-    User root
-
-Host jb
-    HostName blacklabel.online.ntnu.no
-    Port 22003
-    User root
-
-Host oban
-    HostName blacklabel.online.ntnu.no
-    Port 22004
-    User root
-
-Host chita
-    HostName blacklabel.online.ntnu.no
-    Port 22005
-    User root
-
-Host hudson
-    HostName blacklabel.online.ntnu.no
-    Port 22006
-    User root
-
-Host bombay
-    HostName blacklabel.online.ntnu.no
-    Port 22007
-    User root
-
-Host bulldog
-    HostName blacklabel.online.ntnu.no
-    Port 22008
-    User root
-
-Host bigboss
-    HostName blacklabel.online.ntnu.no
-    Port 22009
-    User root
-
-# 22010 is Heimert, Windows
-
-Host korski
-    HostName blacklabel.online.ntnu.no
-    Port 22011
-    User root
-
-Host pyrat
-    HostName blacklabel.online.ntnu.no
-    Port 22012
-    User root
-
-# 22013 is Xan, Windows
-
-Host chivas
-    HostName blacklabel.online.ntnu.no
-    Port 22014
-    User root
-
-Host jose
-    HostName blacklabel.online.ntnu.no
-    Port 22018
-    User root
-
-Host gay
-    HostName blacklabel.online.ntnu.no
-    Port 22019
-    User root
-
-Host moonshine
-    HostName blacklabel.online.ntnu.no
-    Port 22022
-    User root
-# Trondheim IT-Bygget
-Host onyx
-    HostName onyx.fap.no
-    Port 22
-    User root
-
-# machamp
-Host diglett
-    HostName=m.fap.no
-    Port=21337
-    User=root
-
-Host xoa
-    HostName=m.fap.no
-    Port=22010
-    User=root
-
-Host metapod
-    HostName=m.fap.no
-    Port=22011
-    User=root
-
-Host gengar
-    HostName=m.fap.no
-    Port=22013
-    User=root
-
-Host weedle
-    HostName=m.fap.no
-    Port=22014
-    User=root
-
-Host ninetales
-    HostName=m.fap.no
-    Port=22015
-    User=root
-
-Host alakazam
-    HostName=m.fap.no
-    Port=22016
-    User=root
-
-Host slowbro
-    HostName=m.fap.no
-    Port=22017
-    User=root
-
 Host arcanine
-    HostName=m.fap.no
-    Port=22018
-    User=root
-    LocalForward 5000 127.0.0.1:5000
-    LocalForward 8000 127.0.0.1:8000
-    LocalForward 8080 127.0.0.1:8080
+    HostName m.fap.no
+    Port 10.0.1.18
+    ProxyCommand ssh -W %h:%p diglett
+    User root
 
-Host muk
-    HostName=m.fap.no
-    Port=22019
-    User=root
-    LocalForward 8888 127.0.0.1:61680
-    LocalForward 61613 127.0.0.1:61613
-
-Host pidgey
-    HostName=m.fap.no
-    Port=22020
-    User=root
-
-Host weezing
-    HostName=m.fap.no
-    Port=22021
-    User=root
-
-Host magnemite
-    HostName=m.fap.no
-    Port=22022
-    User=root
-
-Host porygon
-    HostName=m.fap.no
-    Port=22023
-    User=root
-    LocalForward 27017 127.0.0.1:27017
-
-Host grimer
-    HostName=m.fap.no
-    Port=22024
-    User=root
-    RemoteForward 23053 127.0.0.1:23053
-
-Host golem
-    HostName=m.fap.no
-    Port=22025
-    User=root
-
-Host pidgeot
-    HostName=m.fap.no
-    Port=22026
-    User=root
-
-Host shellder
-    HostName=m.fap.no
-    Port=22027
-    User=root
-
-Host spearow
-    HostName=m.fap.no
-    Port=22030
-    User=root
-
-Host swift
-    HostName=m.fap.no
-    Port=22031
-    User=root
-
-Host tentacool
-    HostName=m.fap.no
-    Port=22032
-    User=root
-
-Host slowking
-    HostName=m.fap.no
-    Port=22005
-    User=root
-
-Host olive
-    HostName=m.fap.no
-    Port=22070
-    User=root
-# DO
-Host oddish
-    HostName oddish.fap.no
+Host brumm
+    HostName tussi.studdem.ntnu.no
+    LocalForward 903 brumm.studdem.ntnu.no:903
     Port 22
-    User kradalby
-    DynamicForward 9876
-# NTNU
-
-Host lynx
-    HostName lynx.stud.ntnu.no
-    Port 22
-    User kristoad
-
-Host theano
-    HostName theano.idi.ntnu.no
-    Port 22
-    User kristoad
-
-# Ole Aasveds veg
+    User root
 
 Host butterfree
+    DynamicForward 9876
     HostName butterfree.fap.no
     Port 22222
     User root
-    DynamicForward 9876
 
-Host paras
-    HostName butterfree.fap.no
-    Port 22011
-    User root
-    DynamicForward 9876
-
-Host kramac
-    Hostname trondheim.fap.no
-    Port 22223
-    User kradalby
-
-Host fantonald
-    HostName 195.204.156.4
+Host diglett
+    HostName m.fap.no
     Port 22
     User root
 
-Host dolly
-    HostName 195.204.156.9
-    Port 22
-    User root
+Host github.com
+    HostName github.com
+    IdentitiesOnly yes
+    KexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256,diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1
+    User git
 
-Host donald
-    HostName 195.204.156.10
-    Port 22
-    User root
-
-Host skrue
-    HostName 195.204.156.14
-    Port 22
-    User root
-
-Host pluto
-    HostName 195.204.156.12
-    Port 22
-    User root
-
-Host mikke
-    HostName 195.204.156.13
-    Port 22
-    User root
-
-# Studdem
-Host vissel
-    HostName vissel.studdem.ntnu.no
-    Port 22
-    User root
-
-Host vissel2
-    HostName vissel2.studdem.ntnu.no
-    Port 22
-    User root
-
-Host arkiv
-    HostName arkiv.studdem.ntnu.no
-    Port 22
-    User root
-
-Host heffalompen
-    HostName heffalompen.studdem.ntnu.no
-    Port 22
-    User root
-
-Host tussi
-    HostName tussi.studdem.ntnu.no
-    Port 22
+Host golem
+    HostName m.fap.no
+    Port 10.0.1.25
+    ProxyCommand ssh -W %h:%p diglett
     User root
 
 Host kengu
@@ -401,80 +38,140 @@ Host kengu
     Port 22
     User root
 
+Host kramac
+    HostName 10.0.0.10
+    KexAlgorithms ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1,diffie-hellman-group1-sha1
+    Port 22
+    ProxyCommand ssh -W %h:%p butterfree
+    User kradalby
+
+Host lynx
+    HostName lynx.stud.ntnu.no
+    Port 22
+    User kristoad
+
+Host magnemite
+    HostName m.fap.no
+    Port 10.0.1.22
+    ProxyCommand ssh -W %h:%p diglett
+    User root
+
+Host metapod
+    HostName 10.0.1.11
+    Port 22
+    ProxyCommand ssh -W %h:%p diglett
+    User root
+
 Host nasse
     HostName tussi.studdem.ntnu.no
+    LocalForward 903 nasse.studdem.ntnu.no:903
     Port 22
     User root
-    LocalForward 80 nasse.studdem.ntnu.no:80
-    LocalForward 443 nasse.studdem.ntnu.no:443
-    LocalForward 902 nasse.studdem.ntnu.no:902
-    LocalForward 903 nasse.studdem.ntnu.no:903
 
-Host brumm
+Host ninetales
+    HostName m.fap.no
+    Port 10.0.1.15
+    ProxyCommand ssh -W %h:%p diglett
+    User root
+
+Host olive
+    HostName m.fap.no
+    Port 10.0.1.70
+    ProxyCommand ssh -W %h:%p diglett
+    User root
+
+Host onyx
+    HostName onyx.fap.no
+    Port 22
+    User root
+
+Host pidgeot
+    HostName m.fap.no
+    Port 10.0.1.26
+    ProxyCommand ssh -W %h:%p diglett
+    User root
+
+Host pidgey
+    HostName m.fap.no
+    Port 10.0.1.20
+    ProxyCommand ssh -W %h:%p diglett
+    User root
+
+Host porygon
+    HostName m.fap.no
+    Port 10.0.1.23
+    ProxyCommand ssh -W %h:%p diglett
+    User root
+
+Host shellder
+    HostName m.fap.no
+    Port 10.0.1.27
+    ProxyCommand ssh -W %h:%p diglett
+    User root
+
+Host slowking
+    HostName m.fap.no
+    Port 10.0.1.05
+    ProxyCommand ssh -W %h:%p diglett
+    User root
+
+Host snorlax
+    HostName tjodalyng.fap.no
+    LocalForward 5903 192.168.1.103:5900
+    Port 22010
+    StrictHostKeyChecking no
+    User root
+    UserKnownHostsFile /dev/null
+
+Host spearow
+    HostName m.fap.no
+    Port 10.0.1.30
+    ProxyCommand ssh -W %h:%p diglett
+    User root
+
+Host tupo
+    HostName 192.168.1.3
+    KexAlgorithms ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1,diffie-hellman-group1-sha1
+    Port 22
+    ProxyCommand ssh -W %h:%p snorlax
+    User root
+
+Host tussi
     HostName tussi.studdem.ntnu.no
     Port 22
     User root
-    LocalForward 80 brumm.studdem.ntnu.no:80
-    LocalForward 443 brumm.studdem.ntnu.no:443
-    LocalForward 902 brumm.studdem.ntnu.no:902
-    LocalForward 903 brumm.studdem.ntnu.no:903
-# Tjodalyng
-# HostKeyChecking disabled since the ip changes rapidly
 
-Host snorlax
-    HostName abra.fap.no
-    Port 22010
-    User kradalby
-    UserKnownHostsFile /dev/null
-    StrictHostKeyChecking no
-    LocalForward 6000 127.0.0.1:6000
-    LocalForward 6001 127.0.0.1:6001
-    LocalForward 5901 192.168.1.101:5900
-    LocalForward 5902 192.168.1.102:5900
-    LocalForward 5903 192.168.1.103:5900
-    LocalForward 22003 192.168.1.5:22
-    LocalForward 8888 127.0.0.1:80
-
-Host abra
-    Hostname abra.fap.no
-    Port 22222
-    User root
-    UserKnownHostsFile /dev/null
-    StrictHostKeyChecking no
-    LocalForward 6000 192.168.1.10:6000
-    LocalForward 6001 192.168.1.10:6001
-    LocalForward 5901 192.168.1.101:5900
-    LocalForward 5902 192.168.1.102:5900
-    LocalForward 5903 192.168.1.103:5900
-    LocalForward 22003 192.168.1.5:22
-    LocalForward 8888 192.168.1.10:80
-# Uninett
-Host radius
-    HostName 158.38.212.123
+Host vissel
+    HostName vissel.studdem.ntnu.no
     Port 22
     User root
 
-Host radius2
-    HostName 158.38.212.98
-    Port 22
+Host weedle
+    HostName m.fap.no
+    Port 10.0.1.14
+    ProxyCommand ssh -W %h:%p diglett
     User root
 
-Host radius3
-    HostName 158.38.212.127
-    Port 22
+Host weezing
+    HostName m.fap.no
+    Port 10.0.1.21
+    ProxyCommand ssh -W %h:%p diglett
     User root
 
-Host moonshot
-    HostName 158.38.212.112
-    Port 22
+Host xoa
+    HostName m.fap.no
+    Port 10.0.1.10
+    ProxyCommand ssh -W %h:%p diglett
     User root
 
-Host moonshot2
-    HostName 158.38.212.119
-    Port 22
-    User root
+Host *
+    Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr
+    Compression yes
+    CompressionLevel 9
+    KexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256
+    MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-ripemd160-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-512,hmac-sha2-256,hmac-ripemd160,umac-128@openssh.com
+    ServerAliveCountMax 30
+    ServerAliveInterval 30
+    TCPKeepAlive no
+    VisualHostKey yes
 
-Host moonshot3
-    HostName 158.38.212.120
-    Port 22
-    User root

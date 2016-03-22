@@ -1,0 +1,198 @@
+{% set kex_weak = 'ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1,diffie-hellman-group1-sha1'  %}
+{% set kex_github = 'curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256,diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1'  %}
+
+
+
+Compression yes
+CompressionLevel 9
+VisualHostKey=yes
+ServerAliveInterval 30
+ServerAliveCountMax 30
+TCPKeepAlive no
+KexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256
+Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr
+MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-ripemd160-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-512,hmac-sha2-256,hmac-ripemd160,umac-128@openssh.com
+
+# Other
+Host github.com
+    KexAlgorithms {{ kex_github }}
+    HostName github.com
+    User git
+    IdentitiesOnly yes
+
+
+# NTNU
+Host onyx
+    HostName onyx.fap.no
+    Port 22
+    User root
+
+Host lynx
+    HostName lynx.stud.ntnu.no
+    Port 22
+    User kristoad
+
+## Machamp
+Host diglett
+    HostName m.fap.no
+    Port 22
+    User root
+
+Host xoa
+    HostName m.fap.no
+    Port 10.0.1.10
+    User root
+    ViaJumpHost diglett
+
+Host metapod
+    HostName 10.0.1.11
+    Port 22
+    User root
+    ViaJumpHost diglett
+
+Host weedle
+    HostName m.fap.no
+    Port 10.0.1.14
+    User root
+    ViaJumpHost diglett
+
+Host ninetales
+    HostName m.fap.no
+    Port 10.0.1.15
+    User root
+    ViaJumpHost diglett
+
+Host arcanine
+    HostName m.fap.no
+    Port 10.0.1.18
+    User root
+    ViaJumpHost diglett
+
+Host pidgey
+    HostName m.fap.no
+    Port 10.0.1.20
+    User root
+    ViaJumpHost diglett
+
+Host weezing
+    HostName m.fap.no
+    Port 10.0.1.21
+    User root
+    ViaJumpHost diglett
+
+Host magnemite
+    HostName m.fap.no
+    Port 10.0.1.22
+    User root
+    ViaJumpHost diglett
+
+Host porygon
+    HostName m.fap.no
+    Port 10.0.1.23
+    User root
+    ViaJumpHost diglett
+
+Host golem
+    HostName m.fap.no
+    Port 10.0.1.25
+    User root
+    ViaJumpHost diglett
+
+Host pidgeot
+    HostName m.fap.no
+    Port 10.0.1.26
+    User root
+    ViaJumpHost diglett
+
+Host shellder
+    HostName m.fap.no
+    Port 10.0.1.27
+    User root
+    ViaJumpHost diglett
+
+Host spearow
+    HostName m.fap.no
+    Port 10.0.1.30
+    User root
+    ViaJumpHost diglett
+
+Host slowking
+    HostName m.fap.no
+    Port 10.0.1.05
+    User root
+    ViaJumpHost diglett
+
+Host olive
+    HostName m.fap.no
+    Port 10.0.1.70
+    User root
+    ViaJumpHost diglett
+
+## Studdem
+Host vissel
+    HostName vissel.studdem.ntnu.no
+    Port 22
+    User root
+
+Host tussi
+    HostName tussi.studdem.ntnu.no
+    Port 22
+    User root
+
+Host kengu
+    HostName kengu.studdem.ntnu.no
+    Port 22
+    User root
+
+Host nasse
+    HostName tussi.studdem.ntnu.no
+    Port 22
+    User root
+    LocalForward 80 nasse.studdem.ntnu.no:80
+    LocalForward 443 nasse.studdem.ntnu.no:443
+    LocalForward 902 nasse.studdem.ntnu.no:902
+    LocalForward 903 nasse.studdem.ntnu.no:903
+
+Host brumm
+    HostName tussi.studdem.ntnu.no
+    Port 22
+    User root
+    LocalForward 80 brumm.studdem.ntnu.no:80
+    LocalForward 443 brumm.studdem.ntnu.no:443
+    LocalForward 902 brumm.studdem.ntnu.no:902
+    LocalForward 903 brumm.studdem.ntnu.no:903
+
+# Tjodalyng
+
+Host snorlax
+    HostName tjodalyng.fap.no
+    Port 22010
+    User root
+    UserKnownHostsFile /dev/null
+    StrictHostKeyChecking no
+    LocalForward 5901 192.168.1.101:5900
+    LocalForward 5902 192.168.1.102:5900
+    LocalForward 5903 192.168.1.103:5900
+
+Host tupo
+    HostName 192.168.1.3
+    Port 22
+    User root
+    ViaJumpHost snorlax
+    KexAlgorithms {{ kex_weak }}
+
+
+# Ole Aasveds veg
+
+Host butterfree
+    HostName butterfree.fap.no
+    Port 22222
+    User root
+    DynamicForward 9876
+
+Host kramac
+    HostName 10.0.0.10
+    Port 22
+    User kradalby
+    ViaJumpHost butterfree
+    KexAlgorithms {{ kex_weak }}
