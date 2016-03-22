@@ -4,6 +4,22 @@ Host arcanine
     ProxyCommand ssh -W %h:%p diglett
     User root
 
+Host ardbeg
+    HostName ardbeg.online.ntnu.no
+    KexAlgorithms ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1,diffie-hellman-group1-sha1
+    Port 22
+    User root
+
+Host beefeater
+    HostName blacklabel.online.ntnu.no
+    Port 22002
+    User root
+
+Host blacklabel
+    HostName blacklabel.online.ntnu.no
+    Port 22
+    User root
+
 Host brumm
     HostName tussi.studdem.ntnu.no
     LocalForward 903 brumm.studdem.ntnu.no:903
@@ -21,6 +37,27 @@ Host diglett
     Port 22
     User root
 
+Host don
+    HostName don.online.ntnu.no
+    KexAlgorithms ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1,diffie-hellman-group1-sha1
+    Port 22
+    User root
+
+Host dworek
+    HostName dworek.online.ntnu.no
+    Port 22
+    User root
+
+Host fireball
+    HostName fireball.online.ntnu.no
+    Port 22
+    User root
+
+Host gay
+    HostName blacklabel.online.ntnu.no
+    Port 22019
+    User root
+
 Host github.com
     HostName github.com
     IdentitiesOnly yes
@@ -31,6 +68,16 @@ Host golem
     HostName m.fap.no
     Port 10.0.1.25
     ProxyCommand ssh -W %h:%p diglett
+    User root
+
+Host jb
+    HostName blacklabel.online.ntnu.no
+    Port 22003
+    User root
+
+Host kahlua
+    HostName kahlua.online.ntnu.no
+    Port 22
     User root
 
 Host kengu
@@ -62,6 +109,11 @@ Host metapod
     ProxyCommand ssh -W %h:%p diglett
     User root
 
+Host nansen
+    HostName nansen.online.ntnu.no
+    Port 22
+    User root
+
 Host nasse
     HostName tussi.studdem.ntnu.no
     LocalForward 903 nasse.studdem.ntnu.no:903
@@ -72,6 +124,11 @@ Host ninetales
     HostName m.fap.no
     Port 10.0.1.15
     ProxyCommand ssh -W %h:%p diglett
+    User root
+
+Host oban
+    HostName blacklabel.online.ntnu.no
+    Port 22004
     User root
 
 Host olive
@@ -146,6 +203,11 @@ Host vissel
     Port 22
     User root
 
+Host vsop
+    HostName vsop.online.ntnu.no
+    Port 22
+    User root
+
 Host weedle
     HostName m.fap.no
     Port 10.0.1.14
@@ -156,6 +218,12 @@ Host weezing
     HostName m.fap.no
     Port 10.0.1.21
     ProxyCommand ssh -W %h:%p diglett
+    User root
+
+Host xo
+    HostName xo.online.ntnu.no
+    KexAlgorithms ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1,diffie-hellman-group1-sha1
+    Port 22
     User root
 
 Host xoa

@@ -196,3 +196,73 @@ Host kramac
     User kradalby
     ViaJumpHost butterfree
     KexAlgorithms {{ kex_weak }}
+
+
+# dotkom
+Host ardbeg
+    HostName ardbeg.online.ntnu.no
+    Port 22
+    User root
+    KexAlgorithms {{ kex_weak }}
+
+Host xo
+    HostName xo.online.ntnu.no
+    Port 22
+    User root
+    KexAlgorithms {{ kex_weak }}
+
+Host don
+    HostName don.online.ntnu.no
+    Port 22
+    User root
+    KexAlgorithms {{ kex_weak }}
+
+Host dworek
+    HostName dworek.online.ntnu.no
+    Port 22
+    User root
+
+Host vsop
+    HostName vsop.online.ntnu.no
+    Port 22
+    User root
+
+Host nansen
+    HostName nansen.online.ntnu.no
+    Port 22
+    User root
+
+Host kahlua
+    HostName kahlua.online.ntnu.no
+    Port 22
+    User root
+
+Host blacklabel
+    HostName blacklabel.online.ntnu.no
+    Port 22
+    User root
+
+Host fireball
+    HostName fireball.online.ntnu.no
+    Port 22
+    User root
+
+# dotkom NAT
+Host beefeater
+    HostName blacklabel.online.ntnu.no
+    Port 22002
+    User root
+
+Host jb
+    HostName blacklabel.online.ntnu.no
+    Port 22003
+    User root
+
+Host oban
+    HostName blacklabel.online.ntnu.no
+    Port 22004
+    User root
+Host gay
+    HostName blacklabel.online.ntnu.no
+    Port 22019
+    User root
