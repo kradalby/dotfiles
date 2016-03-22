@@ -104,8 +104,8 @@ gi () {
 }
 
 push () {
-    git push origin $(git rev-parse --abbrev-ref HEAD)		
- }
+    git push origin $(git rev-parse --abbrev-ref HEAD)
+}
 
 swap () {
     tmp=`mktemp`
