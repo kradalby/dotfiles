@@ -103,6 +103,10 @@ gi () {
     curl -L -s https://www.gitignore.io/api/$@ ;
 }
 
+push () {
+    git push origin $(git rev-parse --abbrev-ref HEAD)		
+ }
+
 swap () {
     tmp=`mktemp`
     mv $1 $tmp
