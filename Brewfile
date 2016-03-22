@@ -25,6 +25,7 @@ brew 'scala'
 brew 'flow'
 brew 'tidy-html5'
 brew 'swiftlint'
+brew 'shellcheck'
 
 ## Tools
 brew 'git'
