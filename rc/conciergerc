@@ -2,7 +2,6 @@
 {% set kex_github = 'curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256,diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1'  %}
 
 
-
 Compression yes
 CompressionLevel 9
 VisualHostKey=yes
@@ -38,93 +37,83 @@ Host diglett
     Port 22
     User root
 
+Host slowking
+    HostName 10.0.1.5
+    User root
+    ViaJumpHost diglett
+
 Host xoa
-    HostName m.fap.no
-    Port 10.0.1.10
+    HostName 10.0.1.10
     User root
     ViaJumpHost diglett
 
 Host metapod
     HostName 10.0.1.11
-    Port 22
     User root
     ViaJumpHost diglett
 
 Host weedle
-    HostName m.fap.no
-    Port 10.0.1.14
+    HostName 10.0.1.14
     User root
     ViaJumpHost diglett
 
 Host ninetales
-    HostName m.fap.no
-    Port 10.0.1.15
+    HostName 10.0.1.15
     User root
     ViaJumpHost diglett
 
 Host arcanine
-    HostName m.fap.no
-    Port 10.0.1.18
+    HostName 10.0.1.18
     User root
     ViaJumpHost diglett
 
 Host pidgey
-    HostName m.fap.no
-    Port 10.0.1.20
+    HostName 10.0.1.20
     User root
     ViaJumpHost diglett
 
 Host weezing
-    HostName m.fap.no
-    Port 10.0.1.21
+    HostName 10.0.1.21
     User root
     ViaJumpHost diglett
 
 Host magnemite
-    HostName m.fap.no
-    Port 10.0.1.22
+    HostName 10.0.1.22
     User root
     ViaJumpHost diglett
 
 Host porygon
-    HostName m.fap.no
-    Port 10.0.1.23
+    HostName 10.0.1.23
     User root
     ViaJumpHost diglett
 
 Host golem
-    HostName m.fap.no
-    Port 10.0.1.25
+    HostName 10.0.1.25
     User root
     ViaJumpHost diglett
 
 Host pidgeot
-    HostName m.fap.no
-    Port 10.0.1.26
+    HostName 10.0.1.26
     User root
     ViaJumpHost diglett
 
 Host shellder
-    HostName m.fap.no
-    Port 10.0.1.27
+    HostName 10.0.1.27
     User root
     ViaJumpHost diglett
 
 Host spearow
-    HostName m.fap.no
-    Port 10.0.1.30
+    HostName 10.0.1.30
     User root
     ViaJumpHost diglett
 
-Host slowking
-    HostName m.fap.no
-    Port 10.0.1.05
+Host tentacool
+    HostName 10.0.1.32
     User root
     ViaJumpHost diglett
 
 Host olive
-    HostName m.fap.no
-    Port 10.0.1.70
+    HostName 10.0.1.70
     User root
     ViaJumpHost diglett
 

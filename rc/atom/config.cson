@@ -48,7 +48,10 @@
   "exception-reporting":
     userId: "d136aa04-5f46-42da-6fe2-f180e3c78bf2"
   "linter-erlang": {}
-  "linter-flake8": {}
+  "linter-flake8":
+    executablePath: "/usr/local/bin/flake8"
+    maxLineLength: 80
+    projectConfigFile: "tox.ini"
   "linter-flow": {}
   "linter-shellcheck": {}
   "linter-tidy":

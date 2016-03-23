@@ -34,6 +34,7 @@ brew 'myrepos'
 brew 'gradle'
 brew 'maven'
 brew 'kylef/formulae/swiftenv'
+brew 'watchman'
 
 ## Libs
 brew 'boost'

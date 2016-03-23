@@ -1,6 +1,5 @@
 Host arcanine
-    HostName m.fap.no
-    Port 10.0.1.18
+    HostName 10.0.1.18
     ProxyCommand ssh -W %h:%p diglett
     User root
 
@@ -65,8 +64,7 @@ Host github.com
     User git
 
 Host golem
-    HostName m.fap.no
-    Port 10.0.1.25
+    HostName 10.0.1.25
     ProxyCommand ssh -W %h:%p diglett
     User root
 
@@ -98,14 +96,12 @@ Host lynx
     User kristoad
 
 Host magnemite
-    HostName m.fap.no
-    Port 10.0.1.22
+    HostName 10.0.1.22
     ProxyCommand ssh -W %h:%p diglett
     User root
 
 Host metapod
     HostName 10.0.1.11
-    Port 22
     ProxyCommand ssh -W %h:%p diglett
     User root
 
@@ -121,8 +117,7 @@ Host nasse
     User root
 
 Host ninetales
-    HostName m.fap.no
-    Port 10.0.1.15
+    HostName 10.0.1.15
     ProxyCommand ssh -W %h:%p diglett
     User root
 
@@ -132,8 +127,7 @@ Host oban
     User root
 
 Host olive
-    HostName m.fap.no
-    Port 10.0.1.70
+    HostName 10.0.1.70
     ProxyCommand ssh -W %h:%p diglett
     User root
 
@@ -143,32 +137,27 @@ Host onyx
     User root
 
 Host pidgeot
-    HostName m.fap.no
-    Port 10.0.1.26
+    HostName 10.0.1.26
     ProxyCommand ssh -W %h:%p diglett
     User root
 
 Host pidgey
-    HostName m.fap.no
-    Port 10.0.1.20
+    HostName 10.0.1.20
     ProxyCommand ssh -W %h:%p diglett
     User root
 
 Host porygon
-    HostName m.fap.no
-    Port 10.0.1.23
+    HostName 10.0.1.23
     ProxyCommand ssh -W %h:%p diglett
     User root
 
 Host shellder
-    HostName m.fap.no
-    Port 10.0.1.27
+    HostName 10.0.1.27
     ProxyCommand ssh -W %h:%p diglett
     User root
 
 Host slowking
-    HostName m.fap.no
-    Port 10.0.1.05
+    HostName 10.0.1.5
     ProxyCommand ssh -W %h:%p diglett
     User root
 
@@ -181,8 +170,12 @@ Host snorlax
     UserKnownHostsFile /dev/null
 
 Host spearow
-    HostName m.fap.no
-    Port 10.0.1.30
+    HostName 10.0.1.30
+    ProxyCommand ssh -W %h:%p diglett
+    User root
+
+Host tentacool
+    HostName 10.0.1.32
     ProxyCommand ssh -W %h:%p diglett
     User root
 
@@ -209,14 +202,12 @@ Host vsop
     User root
 
 Host weedle
-    HostName m.fap.no
-    Port 10.0.1.14
+    HostName 10.0.1.14
     ProxyCommand ssh -W %h:%p diglett
     User root
 
 Host weezing
-    HostName m.fap.no
-    Port 10.0.1.21
+    HostName 10.0.1.21
     ProxyCommand ssh -W %h:%p diglett
     User root
 
@@ -227,8 +218,7 @@ Host xo
     User root
 
 Host xoa
-    HostName m.fap.no
-    Port 10.0.1.10
+    HostName 10.0.1.10
     ProxyCommand ssh -W %h:%p diglett
     User root
 
