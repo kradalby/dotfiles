@@ -121,5 +121,6 @@ cask 'sequel-pro'
 cask 'nimble'
 cask 'jumpcut'
 cask 'messenger'
+cask 'goofy'
 cask 'chitchat'
 
