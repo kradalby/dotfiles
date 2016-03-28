@@ -19,6 +19,7 @@ packages: [
   'linter-js-standard'
   'linter-swiftlint'
   'linter-tidy'
+  'linter-write-good'
   'minimap'
   'monokai'
   'package-sync'

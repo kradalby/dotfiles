@@ -2,4 +2,5 @@
 npm install -g \
 typescript \
 fluentcv \
-standard
+standard \
+write-good

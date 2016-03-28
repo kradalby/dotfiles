@@ -159,6 +159,7 @@ Host snorlax
     User root
     UserKnownHostsFile /dev/null
     StrictHostKeyChecking no
+    LocalForward 5900 localhost:5900
     LocalForward 5901 192.168.1.101:5900
     LocalForward 5902 192.168.1.102:5900
     LocalForward 5903 192.168.1.103:5900
