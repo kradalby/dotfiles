@@ -11,6 +11,7 @@ packages: [
   'linter-coffeelint'
   'linter-csslint'
   'linter-erlang'
+  'linter-erlang-dialyzer'
   'linter-flake8'
   'linter-flow'
   'linter-less'

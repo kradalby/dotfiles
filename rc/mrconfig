@@ -64,3 +64,6 @@ checkout = git clone 'git@github.com:kradalby/mailpimp.git' 'mailpimp'
 
 [git/tupy]
 checkout = git clone 'git@github.com:kradalby/tupy.git' 'tupy'
+
+[git/linter-erlang-dialyzer]
+checkout = git clone 'git@github.com:kradalby/linter-erlang-dialyzer.git' 'linter-erlang-dialyzer'
