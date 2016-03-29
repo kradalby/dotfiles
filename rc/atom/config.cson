@@ -64,6 +64,9 @@
   "linter-shellcheck": {}
   "linter-tidy":
     executablePath: "/usr/local/bin/tidy"
+  "linter-write-good":
+    nodePath: "/usr/local/bin/node"
+    writeGoodPath: "/usr/local/bin/write-good"
   minimap: {}
   "tree-view":
     hideIgnoredNames: true
