@@ -61,6 +61,8 @@
     maxLineLength: 80
     projectConfigFile: "tox.ini"
   "linter-flow": {}
+  "linter-rebar3":
+    rebar3Path: "/usr/local/bin/rebar3"
   "linter-shellcheck": {}
   "linter-tidy":
     executablePath: "/usr/local/bin/tidy"

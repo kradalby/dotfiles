@@ -12,6 +12,7 @@ packages: [
   'linter-csslint'
   'linter-erlang'
   'linter-erlang-dialyzer'
+  'linter-rebar3'
   'linter-flake8'
   'linter-flow'
   'linter-less'
