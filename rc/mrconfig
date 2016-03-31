@@ -70,3 +70,6 @@ checkout = git clone 'git@github.com:kradalby/linter-erlang-dialyzer.git' 'linte
 
 [git/erlsrcds]
 checkout = git clone 'git@github.com:kradalby/erlsrcds.git' 'erlsrcds'
+
+[git/erl_ip4_utils]
+checkout = git clone 'git@github.com:kradalby/erl_ip4_utils.git' 'erl_ip4_utils'

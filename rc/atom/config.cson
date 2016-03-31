@@ -47,6 +47,7 @@
     tabLength: 4
   "exception-reporting":
     userId: "d136aa04-5f46-42da-6fe2-f180e3c78bf2"
+  linter: {}
   "linter-erlang": {}
   "linter-erlang-dialyzer":
     pa: [
@@ -58,6 +59,7 @@
     pa: "./ebin"
   "linter-flake8":
     executablePath: "/usr/local/bin/flake8"
+    flakeErrors: true
     maxLineLength: 80
     projectConfigFile: "tox.ini"
   "linter-flow": {}
