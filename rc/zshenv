@@ -25,7 +25,7 @@ then
     export LESSOPEN="| ${LESSPIPE} %s"
     export VIRTUALENV_PYTHON=/usr/local/bin/python
     export ANSIBLE_HOST_KEY_CHECKING=False
-    export JAVA_HOME="/Library/Java/JavaVirtualMachines/jdk1.8.0_25.jdk/Contents/Home"
+    export JAVA_HOME=`/usr/libexec/java_home`
     export CUDA_BIN="/Developer/NVIDIA/CUDA-7.5/bin"
     export HOMEBREW_PATH=/usr/local/bin
     export SED_PATH=/usr/local/opt/gnu-sed/bin
