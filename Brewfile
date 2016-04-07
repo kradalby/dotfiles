@@ -46,7 +46,7 @@ brew 'libtiff'
 
 # Package manager
 brew 'carthage'
-brew 'homebrew/devel-only/rebar3', args: ['devel']
+brew 'rebar3'
 
 # Command
 brew 'xz'
