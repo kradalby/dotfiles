@@ -78,6 +78,7 @@ brew 'ipcalc'
 brew 'wrk'
 brew 'ptunnel'
 brew 'nmap'
+brew 'socat'
 
 ## Database
 brew 'sqlite'
