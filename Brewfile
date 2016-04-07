@@ -30,6 +30,7 @@ brew 'shellcheck'
 ## Tools
 brew 'git'
 brew 'git-lfs'
+brew 'git-extras'
 brew 'myrepos'
 brew 'gradle'
 brew 'maven'
