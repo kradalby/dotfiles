@@ -37,6 +37,14 @@ Host diglett
     Port 22
     User root
 
+Host machamp
+    HostName 10.0.2.2
+    # Forwards vnc for Raticate
+    LocalForward 5900 localhost:5904
+    User root
+    ViaJumpHost diglett
+    KexAlgorithms {{ kex_weak }}
+
 Host slowking
     HostName 10.0.1.5
     User root

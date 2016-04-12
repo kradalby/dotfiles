@@ -21,6 +21,9 @@ Host blacklabel
 
 Host brumm
     HostName tussi.studdem.ntnu.no
+    LocalForward 443 brumm.studdem.ntnu.no:443
+    LocalForward 80 brumm.studdem.ntnu.no:80
+    LocalForward 902 brumm.studdem.ntnu.no:902
     LocalForward 903 brumm.studdem.ntnu.no:903
     Port 22
     User root
@@ -95,6 +98,13 @@ Host lynx
     Port 22
     User kristoad
 
+Host machamp
+    HostName 10.0.2.2
+    KexAlgorithms ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1,diffie-hellman-group1-sha1
+    LocalForward 5900 localhost:5904
+    ProxyCommand ssh -W %h:%p diglett
+    User root
+
 Host magnemite
     HostName 10.0.1.22
     ProxyCommand ssh -W %h:%p diglett
@@ -112,6 +122,9 @@ Host nansen
 
 Host nasse
     HostName tussi.studdem.ntnu.no
+    LocalForward 443 nasse.studdem.ntnu.no:443
+    LocalForward 80 nasse.studdem.ntnu.no:80
+    LocalForward 902 nasse.studdem.ntnu.no:902
     LocalForward 903 nasse.studdem.ntnu.no:903
     Port 22
     User root
@@ -163,6 +176,9 @@ Host slowking
 
 Host snorlax
     HostName tjodalyng.fap.no
+    LocalForward 5900 localhost:5900
+    LocalForward 5901 192.168.1.101:5900
+    LocalForward 5902 192.168.1.102:5900
     LocalForward 5903 192.168.1.103:5900
     Port 22010
     StrictHostKeyChecking no
