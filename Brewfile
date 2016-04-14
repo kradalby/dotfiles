@@ -27,6 +27,7 @@ brew 'tidy-html5'
 brew 'swiftlint'
 brew 'shellcheck'
 
+
 ## Tools
 brew 'git'
 brew 'git-lfs'
@@ -69,6 +70,7 @@ brew 'tree'
 brew 'unar'
 brew 'unrar'
 brew 'vim'
+brew 'emacs', args: ['with-gnutls', 'with-imagemagick', 'with-cocoa', 'HEAD']
 brew 'watch'
 brew 'wget'
 brew 'zsh'
