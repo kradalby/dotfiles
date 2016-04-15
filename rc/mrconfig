@@ -76,3 +76,6 @@ checkout = git clone 'git@github.com:kradalby/erl_ip4_utils.git' 'erl_ip4_utils'
 
 [git/simple_snmp]
 checkout = git clone 'git@github.com:kradalby/simple_snmp.git' 'simple_snmp'
+
+[.emacs.d]
+checkout = git clone 'git@github.com:kradalby/emacs.d.git' 'emacs.d'
