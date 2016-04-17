@@ -5,4 +5,5 @@ fluentcv \
 standard \
 write-good \
 jsxhint \
-tern
+tern \
+npm-check
