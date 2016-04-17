@@ -4,4 +4,5 @@ typescript \
 fluentcv \
 standard \
 write-good \
-jsxhint
+jsxhint \
+tern
