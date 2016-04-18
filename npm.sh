@@ -4,7 +4,10 @@ typescript \
 fluentcv \
 standard \
 write-good \
-jsxhint \
 tern \
 npm-check \
-eslint
+eslint \
+eslint-config-standard \
+eslint-plugin-standard \
+eslint-plugin-promise \
+eslint-plugin-react
