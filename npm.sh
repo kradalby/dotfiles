@@ -6,4 +6,5 @@ standard \
 write-good \
 jsxhint \
 tern \
-npm-check
+npm-check \
+eslint
