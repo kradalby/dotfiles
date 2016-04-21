@@ -18,10 +18,7 @@ checkout = git clone 'git@github.com:kradalby/gso.git' 'gso'
 checkout = git clone 'git@github.com:kradalby/kradalby.no.git' 'kradalby.no'
 
 [git/tekniskbagasje]
-checkout = git clone 'git@github.com:Pr0jectX/tekniskbagasje.git' 'tekniskbagasje'
-
-[git/p0sX]
-checkout = git clone 'git@github.com:Pr0jectX/p0sX.git' 'p0sX'
+checkout = git clone 'git@github.com:nuxis/tekniskbagasje.git' 'tekniskbagasje'
 
 [git/plays]
 checkout = git clone 'git@github.com:kradalby/plays.git' 'plays'
@@ -79,3 +76,9 @@ checkout = git clone 'git@github.com:kradalby/simple_snmp.git' 'simple_snmp'
 
 [.emacs.d]
 checkout = git clone 'git@github.com:kradalby/emacs.d.git' 'emacs.d'
+
+[git/p0sX-server]
+checkout = git clone 'git@github.com:nuxis/p0sX-server.git' 'p0sX-server'
+
+[git/p0sX-client]
+checkout = git clone 'git@github.com:nuxis/p0sX-client.git' 'p0sX-client'
