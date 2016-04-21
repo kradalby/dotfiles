@@ -1,0 +1,19 @@
+{
+    "plugins": [
+        "react"
+    ],
+    "parserOptions": {
+        "ecmaFeatures": {
+            "jsx": true
+        }
+    },
+    "extends": [
+        "standard",
+        "plugin:react/recommended"
+    ],
+    "rules": {
+    },
+    "env": {
+        "jquery": true
+    }
+}

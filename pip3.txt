@@ -1,10 +1,5 @@
 ytfs
 ipython
-flake8
-flake8-import-order
-flake8-print
-flake8-quotes
-pep8-naming
 fusepy
 requests
 virtualenv
@@ -15,3 +10,13 @@ markdown
 instantmusic
 speedtest-cli
 concierge[jinja]
+
+jedi
+importmagic
+autopep8
+yapf
+flake8
+flake8-import-order
+flake8-print
+flake8-quotes
+pep8-naming
