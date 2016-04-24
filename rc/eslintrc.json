@@ -1,6 +1,8 @@
 {
     "plugins": [
-        "react"
+        "react",
+        "immutable",
+        "flowtype"
     ],
     "parserOptions": {
         "ecmaFeatures": {
