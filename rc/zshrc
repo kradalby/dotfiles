@@ -48,11 +48,12 @@ if ! zgen saved; then
     zgen prezto gnu-utility
 
     # completions
-    zgen load tarruda/zsh-autosuggestions
+    # zgen load tarruda/zsh-autosuggestions
     zgen load zsh-users/zsh-syntax-highlighting
     zgen load zsh-users/zsh-completions src
     zgen load djui/alias-tips
 
+    zgen load kradalby/zsh-plugins
 
     zgen prezto history-substring-search
 
