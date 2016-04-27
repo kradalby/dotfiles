@@ -23,3 +23,7 @@
     added = yellow
     changed = green
     untracked = red
+
+[include]
+    # For username / creds / etc
+    path = ~/.gitconfig.local
