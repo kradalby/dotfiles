@@ -127,4 +127,5 @@ cask 'jumpcut'
 cask 'messenger'
 cask 'goofy'
 cask 'chitchat'
+cask 'calibre'
 
