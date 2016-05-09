@@ -1,2 +1,5 @@
 *
+!*/
 !.gitignore
+!fish/config.fish
+!fish/functions/*
