@@ -37,6 +37,7 @@ brew 'gradle'
 brew 'maven'
 brew 'kylef/formulae/swiftenv'
 brew 'watchman'
+brew 'fzf'
 
 ## Libs
 brew 'boost'
@@ -48,6 +49,10 @@ brew 'libtiff'
 # Package manager
 brew 'carthage'
 brew 'rebar3'
+
+# Shells
+brew 'zsh'
+brew 'fish'
 
 # Command
 brew 'xz'
@@ -73,7 +78,6 @@ brew 'vim'
 brew 'emacs', args: ['with-gnutls', 'with-imagemagick', 'with-cocoa', 'HEAD']
 brew 'watch'
 brew 'wget'
-brew 'zsh'
 brew 'readline'
 
 ## Network
