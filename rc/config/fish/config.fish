@@ -8,6 +8,8 @@ set -x PATH "/usr/local/opt/gnu-sed/bin" $PATH
 # GNU coreutils
 set -x PATH "/usr/local/opt/coreutils/libexec/gnubin" $PATH
 
+set -x PATH "$HOME/git/dotfiles/bin" $PATH
+
 # OVFTool VMware
 set -x PATH $PATH "/Applications/VMware OVF Tool"
 
