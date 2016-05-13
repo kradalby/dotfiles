@@ -86,6 +86,8 @@ brew 'wrk'
 brew 'ptunnel'
 brew 'nmap'
 brew 'socat'
+brew 'netcat'
+brew 'netcat6'
 
 ## Database
 brew 'sqlite'
