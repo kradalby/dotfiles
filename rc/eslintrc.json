@@ -14,8 +14,11 @@
         "plugin:react/recommended"
     ],
     "rules": {
+        "camelcase": 0
     },
     "env": {
-        "jquery": true
+        "jquery": true,
+        "browser": true,
+        "node": true
     }
 }
