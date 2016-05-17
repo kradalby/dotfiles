@@ -135,3 +135,6 @@ cask 'goofy'
 cask 'chitchat'
 cask 'calibre'
 
+
+cask 'osxfuse'
+cask 'sshfs'
