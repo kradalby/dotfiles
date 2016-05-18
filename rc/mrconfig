@@ -85,3 +85,6 @@ checkout = git clone 'git@github.com:nuxis/p0sX-client.git' 'p0sX-client'
 
 [git/routersploit]
 checkout = git clone 'https://github.com/reverse-shell/routersploit' 'routersploit'
+
+[git/euler]
+checkout = git clone 'git@github.com:kradalby/euler.git' 'euler'
