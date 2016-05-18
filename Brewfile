@@ -19,6 +19,7 @@ brew 'pypy3'
 brew 'python'
 brew 'python3'
 brew 'scala'
+brew 'ocaml'
 
 
 ## Linting
@@ -49,6 +50,7 @@ brew 'libtiff'
 # Package manager
 brew 'carthage'
 brew 'rebar3'
+brew 'opam'
 
 # Shells
 brew 'zsh'
