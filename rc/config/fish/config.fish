@@ -89,4 +89,4 @@ alias gss 'git status -s'
 alias gst 'git stash'
 
 # OPAM configuration
-. $HOME/.opam/opam-init/init.fish > /dev/null 2> /dev/null or true
+source $HOME/.opam/opam-init/init.fish > /dev/null 2> /dev/null; or true
