@@ -8,6 +8,8 @@
 	<true/>
 	<key>AllowClipboardAccess</key>
 	<false/>
+	<key>AlternateMouseScroll</key>
+	<true/>
 	<key>AnimateDimming</key>
 	<false/>
 	<key>AppleAntiAliasingThreshold</key>
@@ -121,7 +123,7 @@
 		<integer>1</integer>
 	</dict>
 	<key>NSWindow Frame Preferences</key>
-	<string>519 610 606 456 0 0 1920 1177 </string>
+	<string>519 697 606 456 0 0 1920 1177 </string>
 	<key>NSWindow Frame SUAutomaticUpdateAlert</key>
 	<string>650 752 616 174 0 0 1920 1177 </string>
 	<key>NSWindow Frame SUUpdateAlert</key>
@@ -129,7 +131,7 @@
 	<key>NSWindow Frame iTerm Window 0</key>
 	<string>1280 5 634 1168 0 0 1920 1177 </string>
 	<key>NSWindow Frame iTerm Window 1</key>
-	<string>2560 584 634 1049 1920 580 1920 1057 </string>
+	<string>640 1 634 1175 0 0 1920 1177 </string>
 	<key>NSWindow Frame iTerm Window 2</key>
 	<string>2 799 490 377 0 0 1920 1177 </string>
 	<key>NSWindow Frame iTerm Window 3</key>
@@ -1589,6 +1591,8 @@
 			<string>/Users/kradalby</string>
 		</dict>
 	</array>
+	<key>NoSyncInstallationId</key>
+	<string>9625F03A-37C6-4EE1-B46A-C2DB4BD21D28</string>
 	<key>NoSyncPermissionToShowTip</key>
 	<false/>
 	<key>NoSyncSuppressAnnyoingBellOffer</key>
@@ -1647,7 +1651,7 @@
 	<key>QuitWhenAllWindowsClosed</key>
 	<false/>
 	<key>RawCameraSupportVersion</key>
-	<string>6180</string>
+	<string>6190</string>
 	<key>RightCommand</key>
 	<integer>8</integer>
 	<key>RightOption</key>
@@ -1659,11 +1663,11 @@
 	<key>SUFeedAlternateAppNameKey</key>
 	<string>iTerm</string>
 	<key>SUFeedURL</key>
-	<string>https://iterm2.com/appcasts/testing3.xml</string>
+	<string>https://iterm2.com/appcasts/testing3.xml?shard=88</string>
 	<key>SUHasLaunchedBefore</key>
 	<true/>
 	<key>SULastCheckTime</key>
-	<date>2016-02-10T13:24:25Z</date>
+	<date>2016-05-13T08:03:50Z</date>
 	<key>SUSendProfileInfo</key>
 	<false/>
 	<key>SavePasteHistory</key>
@@ -3991,7 +3995,7 @@
 	<key>findRegex_iTerm</key>
 	<false/>
 	<key>iTerm Version</key>
-	<string>2.9.20151111</string>
+	<string>2.9.20160426</string>
 	<key>kCommandHistoryHasEverBeenUsed</key>
 	<true/>
 </dict>
