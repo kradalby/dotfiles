@@ -190,6 +190,10 @@ Host spearow
     ProxyCommand ssh -W %h:%p diglett
     User root
 
+Host sprocket
+    HostName sprocket.nvg.ntnu.no
+    User kradalby
+
 Host tentacool
     HostName 10.0.1.32
     ProxyCommand ssh -W %h:%p diglett

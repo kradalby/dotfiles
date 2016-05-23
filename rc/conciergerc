@@ -125,6 +125,10 @@ Host olive
     User root
     ViaJumpHost diglett
 
+Host sprocket
+    HostName sprocket.nvg.ntnu.no
+    User kradalby
+
 ## Studdem
 Host vissel
     HostName vissel.studdem.ntnu.no
