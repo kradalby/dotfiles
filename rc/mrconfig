@@ -88,3 +88,6 @@ checkout = git clone 'https://github.com/reverse-shell/routersploit' 'routersplo
 
 [git/euler]
 checkout = git clone 'git@github.com:kradalby/euler.git' 'euler'
+
+[git/studlan]
+checkout = git clone 'git@github.com:CasualGaming/studlan.git' 'studlan'

@@ -16,12 +16,12 @@ set __fish_git_prompt_color_upstream_ahead green
 set __fish_git_prompt_color_upstream_behind red
 
 # # Status Chars
-set __fish_git_prompt_char_dirtystate 'æ'
-set __fish_git_prompt_char_stagedstate '→'
-set __fish_git_prompt_char_untrackedfiles 'ø'
-set __fish_git_prompt_char_stashstate '↩'
-set __fish_git_prompt_char_upstream_ahead '+'
-set __fish_git_prompt_char_upstream_behind '-'
+set __fish_git_prompt_char_dirtystate ' dirty '
+set __fish_git_prompt_char_stagedstate ' staged '
+set __fish_git_prompt_char_untrackedfiles ' untrack '
+set __fish_git_prompt_char_stashstate ' stash '
+set __fish_git_prompt_char_upstream_ahead ' ahead '
+set __fish_git_prompt_char_upstream_behind ' behind '
 
 
 # Homebrew
@@ -34,9 +34,6 @@ set -x PATH "/usr/local/opt/gnu-sed/bin" $PATH
 set -x PATH "/usr/local/opt/coreutils/libexec/gnubin" $PATH
 
 set -x PATH "$HOME/git/dotfiles/bin" $PATH
-
-# OVFTool VMware
-set -x PATH $PATH "/Applications/VMware OVF Tool"
 
 # Nvidia Cuda
 set -x PATH $PATH "/Developer/NVIDIA/CUDA-7.5/bin"
@@ -84,9 +81,13 @@ alias gcom 'git checkout master'
 alias gd 'git diff'
 alias gb 'git branch'
 alias gbd 'git branch -d '
-alias gp 'git pull'
+alias gp 'git pull --no-ff'
 alias gss 'git status -s'
 alias gst 'git stash'
+alias gm 'git merge --no-ff'
+alias gr 'git rebase'
+alias grc 'git rebase --continue'
+alias gra 'git rebase --abort'
 
 # OPAM configuration
 source $HOME/.opam/opam-init/init.fish > /dev/null 2> /dev/null; or true
