@@ -91,6 +91,7 @@ brew 'nmap'
 brew 'socat'
 brew 'netcat'
 brew 'netcat6'
+brew 'syncthing'
 
 ## Database
 brew 'sqlite'
