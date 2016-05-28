@@ -39,6 +39,7 @@ brew 'maven'
 brew 'kylef/formulae/swiftenv'
 brew 'watchman'
 brew 'fzf'
+brew 'cloc'
 
 ## Libs
 brew 'boost'
