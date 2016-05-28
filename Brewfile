@@ -136,6 +136,7 @@ cask 'messenger'
 cask 'goofy'
 cask 'chitchat'
 cask 'calibre'
+cask 'openra'
 
 
 cask 'osxfuse'
