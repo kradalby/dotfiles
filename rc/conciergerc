@@ -175,6 +175,7 @@ Host snorlax
     LocalForward 5901 192.168.1.101:5900
     LocalForward 5902 192.168.1.102:5900
     LocalForward 5903 192.168.1.103:5900
+    LocalForward 9384 localhost:8384
 
 Host tupo
     HostName 192.168.1.3
