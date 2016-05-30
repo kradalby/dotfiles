@@ -92,6 +92,7 @@ brew 'socat'
 brew 'netcat'
 brew 'netcat6'
 brew 'syncthing'
+brew 'syncthing-inotify'
 
 ## Database
 brew 'sqlite'
