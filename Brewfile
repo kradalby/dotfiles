@@ -140,7 +140,7 @@ cask 'goofy'
 cask 'chitchat'
 cask 'calibre'
 cask 'openra'
-
+# cask 'qsyncthingtray'
 
 cask 'osxfuse'
 cask 'sshfs'
