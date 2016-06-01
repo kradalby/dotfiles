@@ -26,9 +26,6 @@ set __fish_git_prompt_char_upstream_behind ' behind '
 # OSX spesific settings
 if test (uname) = "Darwin"
     source $HOME/.config/fish/osx.fish
-
-    # Sorce sensitive tokens
-    source $HOME/Sync/tokens.fish
 end
 
 # Python

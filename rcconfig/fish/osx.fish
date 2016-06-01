@@ -21,3 +21,6 @@ set -x JAVA_HOME (/usr/libexec/java_home)
 
 # Swiftenv root
 set -x SWIFTENV_ROOT "/usr/local/var/swiftenv"
+
+# Sorce sensitive tokens
+source $HOME/Sync/tokens.fish
