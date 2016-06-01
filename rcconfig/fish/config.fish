@@ -23,36 +23,20 @@ set __fish_git_prompt_char_stashstate ' stash '
 set __fish_git_prompt_char_upstream_ahead ' ahead '
 set __fish_git_prompt_char_upstream_behind ' behind '
 
+# OSX spesific settings
+if test (uname) = "Darwin"
+    source $HOME/.config/fish/osx.fish
 
-# Homebrew
-set -x PATH ""(brew --prefix)"/bin" $PATH
+    # Sorce sensitive tokens
+    source $HOME/Sync/tokens.fish
+end
 
-# GNU sed
-set -x PATH "/usr/local/opt/gnu-sed/bin" $PATH
-
-# GNU coreutils
-set -x PATH "/usr/local/opt/coreutils/libexec/gnubin" $PATH
-
-set -x PATH "$HOME/git/dotfiles/bin" $PATH
-
-# Nvidia Cuda
-set -x PATH $PATH "/Developer/NVIDIA/CUDA-7.5/bin"
-
-# Node
-set -x NODE_PATH "/usr/local/lib/node" "/usr/local/lib/node_modules" $NODE_PATH
-
-# Java home
-set -x JAVA_HOME (/usr/libexec/java_home)
-
-# Swiftenv root
-set -x SWIFTENV_ROOT "/usr/local/var/swiftenv"
+# Python
+set -x VIRTUALENV_PYTHON "/usr/local/bin/python"
 
 # Ansible
 set -x ANSIBLE_HOST_KEY_CHECKING "False"
 set -x ANSIBLE_CONFIG "~/.ansible.cfg"
-
-# Python
-set -x VIRTUALENV_PYTHON "/usr/local/bin/python"
 
 set -x EDITOR "vim"
 
@@ -92,6 +76,3 @@ alias gra 'git rebase --abort'
 # OPAM configuration
 source $HOME/.opam/opam-init/init.fish > /dev/null 2> /dev/null; or true
 
-
-# Sorce sensitive tokens
-source $HOME/Sync/tokens.fish

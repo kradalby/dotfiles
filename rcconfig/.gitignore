@@ -2,4 +2,5 @@
 !*/
 !.gitignore
 !fish/config.fish
+!fish/osx.fish
 !fish/functions/*
