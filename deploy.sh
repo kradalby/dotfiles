@@ -1,16 +1,17 @@
 #!/usr/bin/env bash
 
-CURRENT=~/git/dotfiles
+CURRENT=$HOME/git/dotfiles
 
 function deploy() {
     ls -1 $CURRENT/rc/ | while read FILE;
         do
+            echo "Linking $FILE"
             rm ~/.$FILE
             ln -s $CURRENT/rc/$FILE ~/.$FILE
         done
 }
 
-function deploy_special() {
+function deploy_ssh() {
 
     if [ ! -d $HOME/.ssh ]; then
         mkdir ~/.ssh
@@ -22,6 +23,19 @@ function deploy_special() {
     else
         ln -s $CURRENT/ssh/config ~/.ssh/config
     fi
+}
+
+function deploy_config() {
+    if [ ! -d $HOME/.config ]; then
+        mkdir ~/.config
+    fi
+
+    ls -1 $CURRENT/rcconfig/ | while read FILE;
+        do
+            echo "Linking $FILE"
+            rm -rf ~/.$FILE
+            ln -s $CURRENT/rcconfig/$FILE ~/.config/$FILE
+        done
 }
 
 function prepare_vim_dir() {
@@ -39,4 +53,5 @@ function install_vimplug() {
 deploy
 #prepare_vim_dir
 install_vimplug
-deploy_special
+deploy_ssh
+deploy_config
