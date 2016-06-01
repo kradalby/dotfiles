@@ -1,7 +1,7 @@
 function appgroup
     set comm Slack Discord Goofy Skype ChitChat Mail
 
-    set base Safari iTerm Spotify Stickies $comm
+    set base $comm "Safari Technology Preview" Spotify Stickies iTerm
 
     set group $$argv[1]
 
