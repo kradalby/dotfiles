@@ -91,3 +91,7 @@ alias gra 'git rebase --abort'
 
 # OPAM configuration
 source $HOME/.opam/opam-init/init.fish > /dev/null 2> /dev/null; or true
+
+
+# Sorce sensitive tokens
+source $HOME/Sync/tokens.fish
