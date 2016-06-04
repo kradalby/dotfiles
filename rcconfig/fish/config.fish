@@ -67,8 +67,10 @@ alias gss 'git status -s'
 alias gst 'git stash'
 alias gm 'git merge --no-ff'
 alias gr 'git rebase'
+alias grom 'git rebase origin/master'
 alias grc 'git rebase --continue'
 alias gra 'git rebase --abort'
+alias gfo 'git fetch origin'
 
 # OPAM configuration
 source $HOME/.opam/opam-init/init.fish > /dev/null 2> /dev/null; or true
