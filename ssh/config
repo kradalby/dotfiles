@@ -182,9 +182,18 @@ Host snorlax
     LocalForward 5903 192.168.1.103:5900
     LocalForward 9384 localhost:8384
     Port 22010
-    StrictHostKeyChecking no
     User root
-    UserKnownHostsFile /dev/null
+
+Host snorlax_onyx
+    HostName tjodalyng.fap.no
+    LocalForward 5900 localhost:5900
+    LocalForward 5901 192.168.1.101:5900
+    LocalForward 5902 192.168.1.102:5900
+    LocalForward 5903 192.168.1.103:5900
+    LocalForward 9384 localhost:8384
+    Port 22010
+    ProxyCommand ssh -W %h:%p onyx
+    User root
 
 Host spearow
     HostName 10.0.1.30

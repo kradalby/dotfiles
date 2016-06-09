@@ -169,13 +169,22 @@ Host snorlax
     HostName tjodalyng.fap.no
     Port 22010
     User root
-    UserKnownHostsFile /dev/null
-    StrictHostKeyChecking no
     LocalForward 5900 localhost:5900
     LocalForward 5901 192.168.1.101:5900
     LocalForward 5902 192.168.1.102:5900
     LocalForward 5903 192.168.1.103:5900
     LocalForward 9384 localhost:8384
+
+Host snorlax_onyx
+    HostName tjodalyng.fap.no
+    Port 22010
+    User root
+    LocalForward 5900 localhost:5900
+    LocalForward 5901 192.168.1.101:5900
+    LocalForward 5902 192.168.1.102:5900
+    LocalForward 5903 192.168.1.103:5900
+    LocalForward 9384 localhost:8384
+    ViaJumpHost onyx
 
 Host tupo
     HostName 192.168.1.3
