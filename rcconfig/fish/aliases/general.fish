@@ -9,3 +9,4 @@ alias rsakey 'ssh-keygen -t rsa -b 4096 -o -a 100'
 alias ed25519key 'ssh-keygen -t ed25519 -o -a 100'
 
 alias reload-fish 'source $HOME/.config/fish/config.fish'
+alias compile-ssh 'concierge-check -u jinja > ~/git/dotfiles/ssh/config'
