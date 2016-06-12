@@ -19,6 +19,10 @@ Host github.com
     User git
     IdentitiesOnly yes
 
+Host seel
+    HostName seel.fap.no
+    Port 22
+    User root
 
 # NTNU
 Host onyx

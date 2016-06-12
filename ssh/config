@@ -169,6 +169,11 @@ Host porygon
     ProxyCommand ssh -W %h:%p diglett
     User root
 
+Host seel
+    HostName seel.fap.no
+    Port 22
+    User root
+
 Host shellder
     HostName 10.0.1.27
     ProxyCommand ssh -W %h:%p diglett
