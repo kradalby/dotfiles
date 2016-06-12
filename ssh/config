@@ -232,6 +232,11 @@ Host vsop
     User root
 
 Host weedle
+    HostName 10.0.1.13
+    ProxyCommand ssh -W %h:%p diglett
+    User root
+
+Host weedle
     HostName 10.0.1.14
     ProxyCommand ssh -W %h:%p diglett
     User root

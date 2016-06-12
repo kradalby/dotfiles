@@ -61,6 +61,11 @@ Host metapod
     ViaJumpHost diglett
 
 Host weedle
+    HostName 10.0.1.13
+    User root
+    ViaJumpHost diglett
+
+Host weedle
     HostName 10.0.1.14
     User root
     ViaJumpHost diglett
