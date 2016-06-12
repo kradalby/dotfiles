@@ -38,7 +38,9 @@ set -x ANSIBLE_CONFIG "~/.ansible.cfg"
 set -x EDITOR "vim"
 
 # Source aliases
-source $HOME/.config/fish/aliases/*
+for file in $HOME/.config/fish/aliases/*
+    source $file
+end
 
 # OPAM configuration
 source $HOME/.opam/opam-init/init.fish > /dev/null 2> /dev/null; or true
