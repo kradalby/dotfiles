@@ -14,7 +14,7 @@ function deploy() {
 function deploy_ssh() {
 
     if [ ! -d $HOME/.ssh ]; then
-        mkdir ~/.ssh
+        mkdir -p ~/.ssh
     fi
 
     if [ -f $HOME/.ssh/config ]; then
@@ -27,13 +27,13 @@ function deploy_ssh() {
 
 function deploy_config() {
     if [ ! -d $HOME/.config ]; then
-        mkdir ~/.config
+        mkdir -p ~/.config
     fi
 
     ls -1 $CURRENT/rcconfig/ | while read FILE;
         do
             echo "Linking $FILE"
-            rm -rf ~/.$FILE
+            rm -rf ~/.config/$FILE
             ln -s $CURRENT/rcconfig/$FILE ~/.config/$FILE
         done
 }
