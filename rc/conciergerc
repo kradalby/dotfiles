@@ -60,7 +60,7 @@ Host metapod
     User root
     ViaJumpHost diglett
 
-Host weedle
+Host gengar
     HostName 10.0.1.13
     User root
     ViaJumpHost diglett

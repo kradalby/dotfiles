@@ -60,6 +60,11 @@ Host gay
     Port 22019
     User root
 
+Host gengar
+    HostName 10.0.1.13
+    ProxyCommand ssh -W %h:%p diglett
+    User root
+
 Host github.com
     HostName github.com
     IdentitiesOnly yes
@@ -229,11 +234,6 @@ Host vissel
 Host vsop
     HostName vsop.online.ntnu.no
     Port 22
-    User root
-
-Host weedle
-    HostName 10.0.1.13
-    ProxyCommand ssh -W %h:%p diglett
     User root
 
 Host weedle
