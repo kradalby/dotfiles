@@ -37,41 +37,10 @@ set -x ANSIBLE_CONFIG "~/.ansible.cfg"
 
 set -x EDITOR "vim"
 
-
-# Aliases
-alias tb 'nc termbin.com 9999'
-alias cm 'curl --silent http://whatthecommit.com/index.txt'
-alias fuck 'sudo (fc -ln -1)'
-alias ehosts 'sudo vim /etc/hosts'
-alias markdown 'python3 -m markdown -x markdown.extensions.tables'
-alias s 'xargs perl -pi -E'
-
-alias py python
-alias py3 python3
-
-alias rsakey 'ssh-keygen -t rsa -b 4096 -o -a 100'
-alias ed25519key 'ssh-keygen -t ed25519 -o -a 100'
-
-alias ga 'git add'
-alias gaa 'git add .'
-alias gc 'git commit'
-alias gcm 'git commit -m'
-alias gco 'git checkout'
-alias gcob 'git checkout -b'
-alias gcom 'git checkout master'
-alias gd 'git diff'
-alias gb 'git branch'
-alias gbd 'git branch -d '
-alias gp 'git pull'
-alias gss 'git status -s'
-alias gst 'git stash'
-alias gm 'git merge --no-ff'
-alias gr 'git rebase'
-alias grom 'git rebase origin/master'
-alias grc 'git rebase --continue'
-alias gra 'git rebase --abort'
-alias gfo 'git fetch origin'
+# Source aliases
+source $HOME/.config/fish/aliases/*
 
 # OPAM configuration
 source $HOME/.opam/opam-init/init.fish > /dev/null 2> /dev/null; or true
+
 
