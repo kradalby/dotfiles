@@ -1,7 +1,7 @@
 alias ga 'git add'
 alias gaa 'git add .'
 alias gc 'git commit'
-alias gcm 'git commit -m'
+# alias gcm 'git commit -m'
 alias gco 'git checkout'
 alias gcob 'git checkout -b'
 alias gcom 'git checkout master'
