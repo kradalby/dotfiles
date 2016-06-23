@@ -40,6 +40,7 @@ brew 'kylef/formulae/swiftenv'
 brew 'watchman'
 brew 'fzf'
 brew 'cloc'
+brew 'zinc' # Scala incremental build server
 
 ## Libs
 brew 'boost'
