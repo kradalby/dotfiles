@@ -27,3 +27,6 @@
 [include]
     # For username / creds / etc
     path = ~/.gitconfig.local
+[alias]
+	work = config user.email \"kristoffer.dalby@knowit.no\"
+	priv = config user.email \"kradalby@kradalby.no\"
