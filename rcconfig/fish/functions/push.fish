@@ -1,4 +1,4 @@
 function push
-    git push origin (git rev-parse --abbrev-ref HEAD)
+    git push origin -u (git rev-parse --abbrev-ref HEAD)
 end
 
