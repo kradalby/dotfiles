@@ -17,6 +17,7 @@ Plug 'seveas/bind.vim'
 Plug 'jamessan/vim-gnupg'
 Plug 'PProvost/vim-ps1'
 Plug 'dag/vim-fish'
+Plug 'maxbrunsfeld/vim-emacs-bindings'
 
 call plug#end()
 
