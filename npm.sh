@@ -6,7 +6,8 @@ standard \
 write-good \
 tern \
 npm-check \
-eslint \
+jsonlint \
+eslint-cli \
 eslint-config-standard \
 eslint-plugin-standard \
 eslint-plugin-promise \
