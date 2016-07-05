@@ -176,7 +176,7 @@ Host brumm
 
 Host snorlax
     HostName tjodalyng.fap.no
-    Port 22010
+    Port 22
     User root
     LocalForward 5900 localhost:5900
     LocalForward 5901 192.168.1.101:5900

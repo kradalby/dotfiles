@@ -191,7 +191,7 @@ Host snorlax
     LocalForward 5902 192.168.1.102:5900
     LocalForward 5903 192.168.1.103:5900
     LocalForward 9384 localhost:8384
-    Port 22010
+    Port 22
     User root
 
 Host snorlax_onyx
