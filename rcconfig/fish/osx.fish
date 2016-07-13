@@ -29,3 +29,30 @@ source $HOME/Sync/tokens.fish
 setenv SWIFTENV_ROOT "$HOME/.swiftenv"
 setenv PATH "$SWIFTENV_ROOT/bin" $PATH
 status --is-interactive; and . (swiftenv init -|psub)
+
+# Lapis OpenResty
+set -x LAPIS_OPENRESTY /usr/local/bin/openresty
+
+
+# Manpath
+# populate a local variable with directories from /etc/manpaths
+set --local etc_manpaths
+if test -f /etc/manpaths
+    for dir in (cat /etc/manpaths)
+        if test -d $dir
+            set etc_manpaths $etc_manpaths $dir
+        end
+    end
+end
+
+# populate a local variable with content of each file in /etc/manpaths.d/* (filesort order)
+set --local etc_manpathsd
+if test -d /etc/manpaths.d
+    for file in /etc/manpaths.d/*
+        if test -d (cat $file)
+            set etc_manpathsd $etc_manpathsd (cat $file)
+        end
+    end
+end
+
+set -x MANPATH $etc_manpaths $etc_manpathsd
