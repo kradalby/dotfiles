@@ -42,6 +42,7 @@ brew 'fzf'
 brew 'cloc'
 brew 'zinc' # Scala incremental build server
 brew 'ninja' # small build system
+brew 'diff-so-fancy'
 
 ## Libs
 brew 'boost'
@@ -142,6 +143,7 @@ cask 'goofy'
 cask 'chitchat'
 cask 'calibre'
 cask 'openra'
+cask 'beardedspice'
 # cask 'qsyncthingtray'
 
 cask 'osxfuse'
