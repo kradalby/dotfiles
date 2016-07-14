@@ -44,6 +44,3 @@ end
 
 # OPAM configuration
 source $HOME/.opam/opam-init/init.fish > /dev/null 2> /dev/null; or true
-
-# Keybindings
-bind . 'expand-dot-to-parent-directory-path'
