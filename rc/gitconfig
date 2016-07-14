@@ -30,3 +30,5 @@
 [alias]
 	work = config user.email \"kristoffer.dalby@knowit.no\"
 	priv = config user.email \"kradalby@kradalby.no\"
+[core]
+	pager = diff-so-fancy | less --tabs=4 -RFX
