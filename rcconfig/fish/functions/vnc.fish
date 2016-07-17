@@ -1,11 +1,11 @@
 function vnc -d "Connect to a VNC server"
     # Checking for TigerVNC instead of OSX builtin
-    if test -e "$HOME/Applications/TigerVNC Viewer 1.5.0.app/Contents/MacOS/TigerVNC Viewer"
+    if test -e "/Applications/TigerVNC Viewer 1.5.0.app/Contents/MacOS/TigerVNC Viewer"
         echo "Using TigerVNC"
-        set vnc_command "$HOME/Applications/TigerVNC\ Viewer\ 1.5.0.app/Contents/MacOS/TigerVNC\ Viewer "
-    else if test -e "$HOME/Applications/TigerVNC Viewer 1.6.0.app/Contents/MacOS/TigerVNC Viewer"
+        set vnc_command "/Applications/TigerVNC\ Viewer\ 1.5.0.app/Contents/MacOS/TigerVNC\ Viewer "
+    else if test -e "/Applications/TigerVNC Viewer 1.6.0.app/Contents/MacOS/TigerVNC Viewer"
         echo "Using TigerVNC"
-        set vnc_command "$HOME/Applications/TigerVNC\ Viewer\ 1.6.0.app/Contents/MacOS/TigerVNC\ Viewer "
+        set vnc_command "/Applications/TigerVNC\ Viewer\ 1.6.0.app/Contents/MacOS/TigerVNC\ Viewer "
     else
         set vnc_command "open vnc://"
     end
