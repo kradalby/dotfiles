@@ -43,6 +43,7 @@ brew 'cloc'
 brew 'zinc' # Scala incremental build server
 brew 'ninja' # small build system
 brew 'diff-so-fancy'
+brew 'tig'
 
 ## Libs
 brew 'boost'
