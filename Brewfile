@@ -144,6 +144,7 @@ cask 'chitchat'
 cask 'calibre'
 cask 'openra'
 cask 'beardedspice'
+cask 'free-ruler'
 # cask 'qsyncthingtray'
 
 cask 'osxfuse'
