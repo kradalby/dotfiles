@@ -1,3 +1,5 @@
+alias python ipython
+alias python3 ipython3
 alias py python
 alias py3 python3
 
