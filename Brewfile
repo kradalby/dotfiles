@@ -20,6 +20,7 @@ brew 'python'
 brew 'python3'
 brew 'scala'
 brew 'ocaml'
+brew 'rlwrap'
 
 
 ## Linting
@@ -89,6 +90,7 @@ brew 'readline'
 
 ## Network
 brew 'ipcalc'
+brew 'ipv6calc'
 brew 'wrk'
 brew 'ptunnel'
 brew 'nmap'
@@ -145,6 +147,7 @@ cask 'chitchat'
 cask 'calibre'
 cask 'openra'
 cask 'beardedspice'
+cask 'tunnelblick'
 cask 'free-ruler'
 # cask 'qsyncthingtray'
 
