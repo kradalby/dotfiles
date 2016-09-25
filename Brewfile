@@ -5,6 +5,7 @@ tap 'grammarly/tap'
 tap 'homebrew/bundle'
 tap 'homebrew/games'
 tap 'homebrew/devel-only'
+tap 'homebrew/versions'
 cask 'java'
 
 # Development
@@ -54,7 +55,7 @@ brew 'libtiff'
 
 # Package manager
 brew 'carthage'
-brew 'rebar3'
+brew 'homebrew/versions/rebar3'
 brew 'opam'
 
 # Shells
@@ -102,7 +103,7 @@ brew 'syncthing-inotify'
 brew 'sqlite'
 brew 'postgresql'
 
-brew 'caskroom/cask/brew-cask'
+brew 'cask'
 cask 'wireshark'
 cask 'iterm2-beta'
 cask 'tigervnc-viewer'
