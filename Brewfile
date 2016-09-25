@@ -21,6 +21,7 @@ brew 'python'
 brew 'python3'
 brew 'scala'
 brew 'ocaml'
+brew 'rlwrap'
 
 
 ## Linting
@@ -45,6 +46,8 @@ brew 'zinc' # Scala incremental build server
 brew 'ninja' # small build system
 brew 'diff-so-fancy'
 brew 'tig'
+brew 'docker'
+brew 'docker-compose'
 
 ## Libs
 brew 'boost'
@@ -90,6 +93,7 @@ brew 'readline'
 
 ## Network
 brew 'ipcalc'
+brew 'ipv6calc'
 brew 'wrk'
 brew 'ptunnel'
 brew 'nmap'
@@ -146,6 +150,7 @@ cask 'chitchat'
 cask 'calibre'
 cask 'openra'
 cask 'beardedspice'
+cask 'tunnelblick'
 cask 'free-ruler'
 # cask 'qsyncthingtray'
 

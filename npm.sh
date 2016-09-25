@@ -14,4 +14,5 @@ eslint-plugin-promise \
 eslint-plugin-react \
 eslint-plugin-flowtype \
 eslint-plugin-new-with-error \
-eslint-plugin-immutable
+eslint-plugin-immutable \
+git-open
