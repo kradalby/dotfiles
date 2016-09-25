@@ -120,6 +120,16 @@ Host metapod
     ProxyCommand ssh -W %h:%p diglett
     User root
 
+Host miic
+    HostName miic.idi.ntnu.no
+    Port 22
+    User kristoad
+
+Host miig
+    HostName miig.idi.ntnu.no
+    Port 22
+    User kristoad
+
 Host nansen
     HostName nansen.online.ntnu.no
     Port 22

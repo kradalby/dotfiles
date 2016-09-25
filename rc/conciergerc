@@ -287,3 +287,14 @@ Host gay
     HostName blacklabel.online.ntnu.no
     Port 22019
     User root
+
+# Master
+Host miic
+    HostName miic.idi.ntnu.no
+    Port 22
+    User kristoad
+
+Host miig
+    HostName miig.idi.ntnu.no
+    Port 22
+    User kristoad
