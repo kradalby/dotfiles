@@ -45,8 +45,6 @@ brew 'zinc' # Scala incremental build server
 brew 'ninja' # small build system
 brew 'diff-so-fancy'
 brew 'tig'
-brew 'docker'
-brew 'docker-compose'
 
 ## Libs
 brew 'boost'
@@ -152,6 +150,7 @@ cask 'beardedspice'
 cask 'tunnelblick'
 cask 'free-ruler'
 # cask 'qsyncthingtray'
+cask 'docker'
 
 cask 'osxfuse'
 cask 'sshfs'
