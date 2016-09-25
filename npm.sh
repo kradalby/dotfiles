@@ -15,4 +15,5 @@ eslint-plugin-react \
 eslint-plugin-flowtype \
 eslint-plugin-new-with-error \
 eslint-plugin-immutable \
-git-open
+git-open \
+typings
