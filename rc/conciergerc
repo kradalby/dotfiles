@@ -24,6 +24,11 @@ Host seel
     Port 22
     User root
 
+Host primeape
+    HostName 10.60.0.10
+    User root
+    ViaJumpHost seel
+
 # NTNU
 Host onyx
     HostName onyx.fap.no
