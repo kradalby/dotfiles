@@ -6,6 +6,7 @@ tap 'homebrew/bundle'
 tap 'homebrew/games'
 tap 'homebrew/devel-only'
 tap 'homebrew/versions'
+tap 'drone/drone'
 cask 'java'
 
 # Development
@@ -46,6 +47,7 @@ brew 'zinc' # Scala incremental build server
 brew 'ninja' # small build system
 brew 'diff-so-fancy'
 brew 'tig'
+brew 'drone'
 
 ## Libs
 brew 'boost'
