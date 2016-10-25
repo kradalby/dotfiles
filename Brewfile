@@ -48,6 +48,7 @@ brew 'ninja' # small build system
 brew 'diff-so-fancy'
 brew 'tig'
 brew 'drone'
+brew 'nload'
 
 ## Libs
 brew 'boost'
@@ -154,6 +155,7 @@ cask 'tunnelblick'
 cask 'free-ruler'
 # cask 'qsyncthingtray'
 cask 'docker'
+cask 'duet'
 
 cask 'osxfuse'
 cask 'sshfs'
