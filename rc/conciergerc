@@ -29,6 +29,11 @@ Host primeape
     User root
     ViaJumpHost seel
 
+Host porygon2
+    HostName 10.60.0.13
+    User root
+    ViaJumpHost seel
+
 # NTNU
 Host onyx
     HostName onyx.fap.no
@@ -54,88 +59,18 @@ Host machamp
     ViaJumpHost diglett
     KexAlgorithms {{ kex_weak }}
 
-Host slowking
-    HostName 10.0.1.5
-    User root
-    ViaJumpHost diglett
-
-Host xoa
-    HostName 10.0.1.10
-    User root
-    ViaJumpHost diglett
-
-Host metapod
-    HostName 10.0.1.11
-    User root
-    ViaJumpHost diglett
-
-Host gengar
-    HostName 10.0.1.13
-    User root
-    ViaJumpHost diglett
-
-Host weedle
-    HostName 10.0.1.14
-    User root
-    ViaJumpHost diglett
-
-Host ninetales
-    HostName 10.0.1.15
-    User root
-    ViaJumpHost diglett
-
-Host arcanine
-    HostName 10.0.1.18
+Host slowpoke
+    HostName 10.60.10.5
     User root
     ViaJumpHost diglett
 
 Host pidgey
-    HostName 10.0.1.20
+    HostName 10.60.10.6
     User root
     ViaJumpHost diglett
 
-Host weezing
-    HostName 10.0.1.21
-    User root
-    ViaJumpHost diglett
-
-Host magnemite
-    HostName 10.0.1.22
-    User root
-    ViaJumpHost diglett
-
-Host porygon
-    HostName 10.0.1.23
-    User root
-    ViaJumpHost diglett
-
-Host golem
-    HostName 10.0.1.25
-    User root
-    ViaJumpHost diglett
-
-Host pidgeot
-    HostName 10.0.1.26
-    User root
-    ViaJumpHost diglett
-
-Host shellder
-    HostName 10.0.1.27
-    User root
-    ViaJumpHost diglett
-
-Host spearow
-    HostName 10.0.1.30
-    User root
-    ViaJumpHost diglett
-
-Host tentacool
-    HostName 10.0.1.32
-    User root
-    ViaJumpHost diglett
-
-Host olive
-    HostName 10.0.1.70
+Host mankey
+    HostName 10.60.10.10
     User root
     ViaJumpHost diglett
 
@@ -224,75 +159,6 @@ Host kramac
     KexAlgorithms {{ kex_weak }}
 
 
-# dotkom
-Host ardbeg
-    HostName ardbeg.online.ntnu.no
-    Port 22
-    User root
-    KexAlgorithms {{ kex_weak }}
-
-Host xo
-    HostName xo.online.ntnu.no
-    Port 22
-    User root
-    KexAlgorithms {{ kex_weak }}
-
-Host don
-    HostName don.online.ntnu.no
-    Port 22
-    User root
-    KexAlgorithms {{ kex_weak }}
-
-Host dworek
-    HostName dworek.online.ntnu.no
-    Port 22
-    User root
-
-Host vsop
-    HostName vsop.online.ntnu.no
-    Port 22
-    User root
-
-Host nansen
-    HostName nansen.online.ntnu.no
-    Port 22
-    User root
-
-Host kahlua
-    HostName kahlua.online.ntnu.no
-    Port 22
-    User root
-
-Host blacklabel
-    HostName blacklabel.online.ntnu.no
-    Port 22
-    User root
-
-Host fireball
-    HostName fireball.online.ntnu.no
-    Port 22
-    User root
-
-# dotkom NAT
-Host beefeater
-    HostName blacklabel.online.ntnu.no
-    Port 22002
-    User root
-
-Host jb
-    HostName blacklabel.online.ntnu.no
-    Port 22003
-    User root
-
-Host oban
-    HostName blacklabel.online.ntnu.no
-    Port 22004
-    User root
-Host gay
-    HostName blacklabel.online.ntnu.no
-    Port 22019
-    User root
-
 # Master
 Host miic
     HostName miic.idi.ntnu.no
@@ -303,3 +169,65 @@ Host miig
     HostName miig.idi.ntnu.no
     Port 22
     User kristoad
+
+
+# Dotkom
+###################
+# Public IP hosts #
+###################
+
+# Ardbeg, Don og Xo har ancient SSH versjon, og støtter ikke mer moderne key exchange algs
+Host ardbeg don xo
+    KexAlgorithms diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1,diffie-hellman-group1-sha1
+
+Host ardbeg bacardi blacklabel don duncan fireball kahlua passoa vsop xo
+    HostName %h.online.ntnu.no
+    User root
+    Port 22
+
+###################
+# NAT             #
+###################
+
+Host beefeater jb chita hudson jose gay moonshine jagermeister
+    HostName blacklabel.online.ntnu.no
+    User root
+
+Host beefeater
+    Port 22002
+
+Host jb
+    Port 22003
+
+Host chita
+    Port 22005
+
+Host hudson
+    Port 22006
+
+Host korski
+    Port 22011
+
+Host jose
+    Port 22018
+
+Host gay
+    Port 22019
+
+Host moonshine
+    Port 22022
+
+Host jagermeister
+    Port 22023
+
+###################
+# Local options   #
+# #################
+
+
+###################
+# Globals         #
+# #################
+
+Host *.online.ntnu.no
+    User root
