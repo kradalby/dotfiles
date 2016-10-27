@@ -1,0 +1,25 @@
+// Place your settings in this file to overwrite the default settings
+{
+    "editor.wrappingColumn": 0,
+    // Controls the font size in pixels.
+    "editor.fontSize": 11,
+    // When enabled, will open files in a new window instead of reusing an existing instance.
+    "window.openFilesInNewWindow": false,
+    // Configure file associations to languages (e.g. "*.extension": "html"). These have precedence over the default associations of the languages installed.
+    "files.associations": {
+        "*.djhtml": "html"
+    },
+
+    "python.pythonPath": "${workspaceRoot}/env/bin/python3",
+    // Whether to lint Python files using prospector.
+    "python.linting.prospectorEnabled": false,
+    // Whether to lint Python files using flake8
+    "python.linting.flake8Enabled": true,
+    // Path to flake8, you can use a custom version of flake8 by modifying this setting to include the full path.
+    "python.linting.flake8Path": "${workspaceRoot}/env/bin/flake8",
+    // Path to autopep8, you can use a custom version of autopep8 by modifying this setting to include the full path.
+    "python.formatting.autopep8Path": "/usr/local/bin/autopep8",
+    // Format the document upon saving.
+    "python.formatting.formatOnSave": true,
+    "typescript.check.tscVersion": false
+}
