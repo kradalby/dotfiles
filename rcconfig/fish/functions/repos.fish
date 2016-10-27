@@ -23,17 +23,14 @@ function execute
     set command $argv[1]
     for dir in ./*/
         cd $dir
+        figlet $dir
         git status -sb 2>/dev/null
         if [ $status -eq 0 ]
             set_color red
             echo "Updating $dir…"
             set_color normal
-            figlet $dir
             eval $command
-            echo
-            echo
-            echo
-            echo
+            echo "\n\n\n\n"
         end
         cd ..
     end
