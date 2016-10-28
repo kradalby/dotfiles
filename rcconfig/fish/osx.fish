@@ -11,7 +11,7 @@ set -x PATH "/usr/local/opt/coreutils/libexec/gnubin" $PATH
 set -x PATH "$HOME/git/dotfiles/bin" $PATH
 
 # Nvidia Cuda
-set -x PATH $PATH "/Developer/NVIDIA/CUDA-7.5/bin"
+# set -x PATH $PATH "/Developer/NVIDIA/CUDA-7.5/bin"
 
 # Node
 set -x NODE_PATH "/usr/local/lib/node" "/usr/local/lib/node_modules" $NODE_PATH
@@ -20,7 +20,7 @@ set -x NODE_PATH "/usr/local/lib/node" "/usr/local/lib/node_modules" $NODE_PATH
 set -x JAVA_HOME (/usr/libexec/java_home)
 
 # Swiftenv root
-set -x SWIFTENV_ROOT "/usr/local/var/swiftenv"
+# set -x SWIFTENV_ROOT "/usr/local/var/swiftenv"
 
 # Sorce sensitive tokens
 source $HOME/Sync/tokens.fish
