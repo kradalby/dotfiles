@@ -99,7 +99,7 @@ Host slowpoke
 ###################
 
 Host mankey pidgey diglett
-    ProxyCommand ssh -W %h:%p seel
+    ProxyCommand ssh -W %h:%p slowpoke
     User root
     Port 22
 
