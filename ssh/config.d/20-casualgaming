@@ -1,7 +1,0 @@
-# Casual gaming
-
-Host goomba
-    HostName goomba.casualgaming.no
-    Port 22
-    User root
-

@@ -2,8 +2,8 @@
 # Public IP hosts #
 ###################
 
-Host slowpoke
-    HostName diglett.ntnu.fap.no
+Host seel
+    HostName horse.terra.fap.no
     User root
     Port 22
 
@@ -12,16 +12,16 @@ Host slowpoke
 # Bastions        #
 ###################
 
-Host mankey pidgey diglett
+Host primeape porygon horse
     ProxyCommand ssh -W %h:%p seel
     User root
     Port 22
 
-Host mankey
-    HostName 10.60.10.10
+Host primeape
+    HostName 10.60.0.10
 
-Host pidgey
-    HostName 10.60.10.6
+Host porygon
+    HostName 10.60.0.13
 
-Host diglett
-    HostName 10.60.10.6
+Host horse
+    HostName 10.60.0.1

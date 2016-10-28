@@ -1,75 +1,59 @@
-# dotkom
-Host dworek
-    HostName dworek.online.ntnu.no
-    Port 22
-    User root
+###################
+# Public IP hosts #
+###################
 
-Host ardbeg
-    HostName ardbeg.online.ntnu.no
-    Port 22
-    User root
+# Ardbeg, Don og Xo har ancient SSH versjon, og støtter ikke mer moderne key exchange algs
+Host ardbeg don xo
+    KexAlgorithms diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1,diffie-hellman-group1-sha1
 
-Host xo
-    HostName xo.online.ntnu.no
-    Port 22
+Host ardbeg bacardi blacklabel don duncan fireball kahlua passoa vsop xo
+    HostName %h.online.ntnu.no
     User root
-
-Host don
-    HostName 129.241.105.217
     Port 22
-    User root
 
-Host morgan
-    HostName morgan.online.ntnu.no
-    Port 22
-    User root
+###################
+# NAT             #
+###################
 
-Host vsop
-    HostName vsop.online.ntnu.no
-    Port 22
-    User root
-
-Host nansen
-    HostName nansen.online.ntnu.no
-    Port 22
-    User root
-
-Host bacardi
-    HostName bacardi.online.ntnu.no
-    Port 22
-    User root
-
-Host laphroaig
-    HostName laphroaig.online.ntnu.no
-    Port 22
-    User root
-
-Host kahlua
-    HostName kahlua.online.ntnu.no
-    Port 22
-    User root
-
-Host grouse
-    HostName grouse.online.ntnu.no
-    Port 22
-    User root
-
-Host passoa
-    HostName passoa.online.ntnu.no
-    Port 22
-    User root
-
-Host opland
-    HostName opland.online.ntnu.no
-    Port 22
-    User root
-
-Host blacklabel
+Host beefeater jb chita hudson jose gay moonshine jagermeister
     HostName blacklabel.online.ntnu.no
-    Port 22
     User root
 
-Host fireball
-    HostName fireball.online.ntnu.no
-    Port 22
+Host beefeater
+    Port 22002
+
+Host jb
+    Port 22003
+
+Host chita
+    Port 22005
+
+Host hudson
+    Port 22006
+
+Host korski
+    Port 22011
+
+Host jose
+    Port 22018
+
+Host gay
+    Port 22019
+
+Host moonshine
+    Port 22022
+
+Host jagermeister
+    Port 22023
+
+###################
+# Local options   #
+# #################
+
+
+###################
+# Globals         #
+# #################
+
+Host *.online.ntnu.no
     User root

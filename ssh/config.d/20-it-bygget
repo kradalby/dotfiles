@@ -1,6 +1,0 @@
-# Trondheim IT-Bygget
-Host onyx
-    HostName onyx.fap.no
-    Port 22
-    User root
-
