@@ -9,16 +9,3 @@ pgcli
 mycli
 markdown
 instantmusic
-speedtest-cli
-concierge[jinja]
-
-jedi
-importmagic
-autopep8
-yapf
-flake8
-flake8-import-order
-flake8-print
-flake8-quotes
-pep8-naming
-flake8-pep3101
