@@ -93,6 +93,11 @@ Host slowpoke
     User root
     Port 22
 
+Host sprocket
+    HostName sprocket.nvg.ntnu.no
+    User kradalby
+    Port 22
+
 
 ###################
 # Bastions        #
