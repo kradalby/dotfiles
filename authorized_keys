@@ -4,3 +4,5 @@ ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJMng8yXY/pQTyB5VqKdwL//Lb7bbA0LI2bg1vvNFsCy
 # kramacbook
 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBV4ZjlUvRDs70qHD/Ldi6OTkFpDEFgfbXbqSnaL2Qup kradalby@Kristoffers-MacBook-Pro.local
 
+# seel
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILu95tuyDPVVSVUGRgBlvPlL1Q7COHCqkpZN9Xp36w0w root@seel
