@@ -26,9 +26,9 @@ set -x JAVA_HOME (/usr/libexec/java_home)
 source $HOME/Sync/tokens.fish
 
 # Swiftenv
-setenv SWIFTENV_ROOT "$HOME/.swiftenv"
-setenv PATH "$SWIFTENV_ROOT/bin" $PATH
-status --is-interactive; and . (swiftenv init -|psub)
+# setenv SWIFTENV_ROOT "$HOME/.swiftenv"
+# setenv PATH "$SWIFTENV_ROOT/bin" $PATH
+# status --is-interactive; and . (swiftenv init -|psub)
 
 # Lapis OpenResty
 set -x LAPIS_OPENRESTY /usr/local/bin/openresty
