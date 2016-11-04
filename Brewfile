@@ -103,6 +103,7 @@ brew 'sqlite'
 brew 'postgresql'
 
 brew 'cask'
+cask 'safari-technology-preview'
 cask 'wireshark'
 cask 'iterm2-beta'
 cask 'tigervnc-viewer'
