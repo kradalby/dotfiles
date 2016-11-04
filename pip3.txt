@@ -9,3 +9,5 @@ pgcli
 mycli
 markdown
 instantmusic
+autopep8
+yapf
