@@ -3,8 +3,6 @@ npm install -g \
 typescript \
 fluentcv \
 standard \
-write-good \
-tern \
 npm-check \
 jsonlint \
 eslint-cli \
@@ -15,5 +13,4 @@ eslint-plugin-react \
 eslint-plugin-flowtype \
 eslint-plugin-new-with-error \
 eslint-plugin-immutable \
-git-open \
-typings
+git-open
