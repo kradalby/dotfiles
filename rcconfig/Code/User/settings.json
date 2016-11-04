@@ -1,5 +1,6 @@
 // Place your settings in this file to overwrite the default settings
 {
+    "editor.formatOnSave": true,
     "editor.wrappingColumn": 0,
     // Controls the font size in pixels.
     "editor.fontSize": 11,
@@ -9,7 +10,6 @@
     "files.associations": {
         "*.djhtml": "html"
     },
-
     "python.pythonPath": "${workspaceRoot}/env/bin/python3",
     // Whether to lint Python files using prospector.
     "python.linting.prospectorEnabled": false,
@@ -19,7 +19,15 @@
     "python.linting.flake8Path": "${workspaceRoot}/env/bin/flake8",
     // Path to autopep8, you can use a custom version of autopep8 by modifying this setting to include the full path.
     "python.formatting.autopep8Path": "/usr/local/bin/autopep8",
+
+    "python.formatting.yapfPath": "/usr/local/bin/yapf",
+
+    "python.formatting.provider": "yapf",
+
     // Format the document upon saving.
-    "python.formatting.formatOnSave": true,
-    "typescript.check.tscVersion": false
+    "typescript.check.tscVersion": false,
+
+
+    "eslint.autoFixOnSave": true,
+    "tslint.autoFixOnSave": true
 }
