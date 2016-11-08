@@ -6,10 +6,6 @@
     "editor.fontSize": 11,
     // When enabled, will open files in a new window instead of reusing an existing instance.
     "window.openFilesInNewWindow": false,
-    // Configure file associations to languages (e.g. "*.extension": "html"). These have precedence over the default associations of the languages installed.
-    "files.associations": {
-        "*.djhtml": "html"
-    },
     "python.pythonPath": "${workspaceRoot}/env/bin/python3",
     // Whether to lint Python files using prospector.
     "python.linting.prospectorEnabled": false,
@@ -19,15 +15,13 @@
     "python.linting.flake8Path": "${workspaceRoot}/env/bin/flake8",
     // Path to autopep8, you can use a custom version of autopep8 by modifying this setting to include the full path.
     "python.formatting.autopep8Path": "/usr/local/bin/autopep8",
-
     "python.formatting.yapfPath": "/usr/local/bin/yapf",
-
     "python.formatting.provider": "yapf",
-
     // Format the document upon saving.
     "typescript.check.tscVersion": false,
-
-
     "eslint.autoFixOnSave": true,
-    "tslint.autoFixOnSave": true
+    "tslint.autoFixOnSave": true,
+    "stylelint.enable": true,
+    "stylefmt.useStylelintConfigOverrides": true,
+    "docker.defaultRegistry": "registry.fap.no"
 }
