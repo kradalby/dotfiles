@@ -13,4 +13,5 @@ eslint-plugin-react \
 eslint-plugin-flowtype \
 eslint-plugin-new-with-error \
 eslint-plugin-immutable \
+stylelint \
 git-open
