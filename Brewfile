@@ -145,6 +145,7 @@ cask 'duet'
 cask 'slack-beta'
 cask 'visual-studio-code'
 cask 'yujitach-menumeters'
+cask 'steam'
 
 cask 'osxfuse'
 cask 'sshfs'
@@ -153,3 +154,4 @@ cask 'intellij-idea'
 cask 'pycharm'
 cask 'microsoft-office'
 cask 'openra'
+
