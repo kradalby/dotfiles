@@ -68,3 +68,9 @@ tags
 # Environments #
 ################
 env
+
+
+# Minified #
+############
+**.min.js
+**.min.css
