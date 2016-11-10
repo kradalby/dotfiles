@@ -30,7 +30,7 @@ function execute
             echo "Updating $dir…"
             set_color normal
             eval $command
-            echo "\n\n\n\n"
+            echo \n\n\n\n
         end
         cd ..
     end
