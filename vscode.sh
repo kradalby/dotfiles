@@ -14,7 +14,7 @@ ms-vscode.csharp
 msjsdiag.debugger-for-chrome
 rbbit.typescript-hero
 robertohuertasm.vscode-icons
-sbrink.vscode-elm
+sbrink.elm
 shinnn.stylelint"
 
 for ext in $extensions
