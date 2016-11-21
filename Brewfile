@@ -23,6 +23,7 @@ brew 'python3'
 brew 'scala'
 brew 'ocaml'
 brew 'rlwrap'
+brew 'elm'
 
 
 ## Linting
@@ -30,6 +31,7 @@ brew 'flow'
 brew 'tidy-html5'
 brew 'swiftlint'
 brew 'shellcheck'
+brew 'elm-format', args: ['devel']
 
 
 ## Tools
