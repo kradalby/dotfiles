@@ -13,6 +13,7 @@
     "python.linting.flake8Enabled": true,
     // Path to flake8, you can use a custom version of flake8 by modifying this setting to include the full path.
     "python.linting.flake8Path": "${workspaceRoot}/env/bin/flake8",
+    "python.linting.pylintPath": "${workspaceRoot}/env/bin/pylint",
     // Path to autopep8, you can use a custom version of autopep8 by modifying this setting to include the full path.
     "python.formatting.autopep8Path": "/usr/local/bin/autopep8",
     "python.formatting.yapfPath": "/usr/local/bin/yapf",
@@ -23,5 +24,7 @@
     "tslint.autoFixOnSave": true,
     "stylelint.enable": true,
     "stylefmt.useStylelintConfigOverrides": true,
-    "docker.defaultRegistry": "registry.fap.no"
+    "docker.defaultRegistry": "registry.fap.no",
+    "files.associations": {},
+    "html.format.enable": false
 }
