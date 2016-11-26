@@ -17,7 +17,7 @@ Host sprocket
 # Bastions        #
 ###################
 
-Host mankey pidgey diglett
+Host mankey pidgey diglett grimer
     ProxyCommand ssh -W %h:%p slowpoke
     User root
     Port 22
@@ -29,4 +29,7 @@ Host pidgey
     HostName 10.60.10.6
 
 Host diglett
-    HostName 10.60.10.6
+    HostName 10.60.10.1
+
+Host grimer
+    HostName grimer.ntnu.fap.no
