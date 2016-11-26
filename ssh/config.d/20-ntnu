@@ -33,3 +33,6 @@ Host diglett
 
 Host grimer
     HostName grimer.ntnu.fap.no
+
+Host muk
+    HostName muk.ntnu.fap.no
