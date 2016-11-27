@@ -122,6 +122,12 @@ Host grimer
 
 Host muk
     HostName muk.ntnu.fap.no
+
+Host venonat
+    HostName venonat.ntnu.fap.no
+
+Host venomoth
+    HostName venomoth.ntnu.fap.no
 ###################
 # Public IP hosts #
 ###################
@@ -136,7 +142,7 @@ Host seel
 # Bastions        #
 ###################
 
-Host primeape porygon horse
+Host primeape porygon horse abra
     ProxyCommand ssh -W %h:%p seel
     User root
     Port 22
@@ -149,3 +155,6 @@ Host porygon
 
 Host horse
     HostName 10.60.0.1
+
+Host abra
+    HostName 10.60.0.14

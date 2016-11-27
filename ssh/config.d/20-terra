@@ -12,7 +12,7 @@ Host seel
 # Bastions        #
 ###################
 
-Host primeape porygon horse
+Host primeape porygon horse abra
     ProxyCommand ssh -W %h:%p seel
     User root
     Port 22
@@ -25,3 +25,6 @@ Host porygon
 
 Host horse
     HostName 10.60.0.1
+
+Host abra
+    HostName 10.60.0.14

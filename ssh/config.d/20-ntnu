@@ -36,3 +36,9 @@ Host grimer
 
 Host muk
     HostName muk.ntnu.fap.no
+
+Host venonat
+    HostName venonat.ntnu.fap.no
+
+Host venomoth
+    HostName venomoth.ntnu.fap.no
