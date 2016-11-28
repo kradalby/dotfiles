@@ -50,6 +50,10 @@ brew 'tig'
 brew 'drone'
 brew 'nload'
 
+## DevOps
+brew 'terraform'
+brew 'packer'
+
 ## Libs
 brew 'boost'
 brew 'openssl'
