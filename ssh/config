@@ -132,6 +132,18 @@ Host venomoth
 # Public IP hosts #
 ###################
 
+
+###################
+# Bastions        #
+###################
+
+Host kramac
+    User kradalby
+    HostName 10.60.30.20
+###################
+# Public IP hosts #
+###################
+
 Host seel
     HostName horse.terra.fap.no
     User root
