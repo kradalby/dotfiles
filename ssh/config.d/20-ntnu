@@ -2,11 +2,6 @@
 # Public IP hosts #
 ###################
 
-Host slowpoke
-    HostName diglett.ntnu.fap.no
-    User root
-    Port 22
-
 Host sprocket
     HostName sprocket.nvg.ntnu.no
     User kradalby
@@ -17,28 +12,8 @@ Host sprocket
 # Bastions        #
 ###################
 
-Host mankey pidgey diglett grimer
-    ProxyCommand ssh -W %h:%p slowpoke
+Host slowpoke mankey pidgey diglett grimer muk venonat venomoth
+    # ProxyCommand ssh -W %h:%p slowpoke
+    HostName %h.ntnu.fap.no
     User root
     Port 22
-
-Host mankey
-    HostName 10.60.10.10
-
-Host pidgey
-    HostName 10.60.10.6
-
-Host diglett
-    HostName 10.60.10.1
-
-Host grimer
-    HostName grimer.ntnu.fap.no
-
-Host muk
-    HostName muk.ntnu.fap.no
-
-Host venonat
-    HostName venonat.ntnu.fap.no
-
-Host venomoth
-    HostName venomoth.ntnu.fap.no

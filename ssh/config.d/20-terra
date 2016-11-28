@@ -2,29 +2,18 @@
 # Public IP hosts #
 ###################
 
-Host seel
-    HostName horse.terra.fap.no
-    User root
-    Port 22
+# Host seel
+#     HostName horse.terra.fap.no
+#     User root
+#     Port 22
 
 
 ###################
 # Bastions        #
 ###################
 
-Host primeape porygon horse abra
-    ProxyCommand ssh -W %h:%p seel
+Host seel primeape porygon horse abra
+#    ProxyCommand ssh -W %h:%p seel
+    HostName %h.terra.fap.no
     User root
     Port 22
-
-Host primeape
-    HostName 10.60.0.10
-
-Host porygon
-    HostName 10.60.0.13
-
-Host horse
-    HostName 10.60.0.1
-
-Host abra
-    HostName 10.60.0.14
