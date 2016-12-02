@@ -49,6 +49,7 @@ brew 'diff-so-fancy'
 brew 'tig'
 brew 'drone'
 brew 'nload'
+brew 'lastpass-cli', args: ['with-pinentry', 'with-doc']
 
 ## DevOps
 brew 'terraform'
@@ -153,6 +154,7 @@ cask 'visual-studio-code'
 cask 'yujitach-menumeters'
 cask 'steam'
 cask 'franz'
+cask 'lastpass'
 
 cask 'osxfuse'
 cask 'sshfs'
