@@ -15,6 +15,10 @@ msjsdiag.debugger-for-chrome
 rbbit.typescript-hero
 robertohuertasm.vscode-icons
 sbrink.elm
+bibhasdn.django-html
+donjayamanne.javadebugger
+haaaad.ansible
+seanmcbreen.Spell
 shinnn.stylelint"
 
 for ext in $extensions
