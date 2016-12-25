@@ -24,6 +24,7 @@ brew 'scala'
 brew 'ocaml'
 brew 'rlwrap'
 brew 'elm'
+brew 'mono'
 
 
 ## Linting
@@ -65,6 +66,7 @@ brew 'libtiff'
 # Package manager
 brew 'homebrew/versions/rebar3'
 brew 'opam'
+brew 'nuget'
 
 # Shells
 brew 'fish'
@@ -163,4 +165,6 @@ cask 'intellij-idea'
 cask 'pycharm'
 cask 'microsoft-office'
 cask 'openra'
+cask 'vmware-fusion'
+cask 'mailbutler'
 
