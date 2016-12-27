@@ -12,7 +12,7 @@
 # Bastions        #
 ###################
 
-Host seel primeape porygon horse abra
+Host seel primeape porygon horse abra dewgong
 #    ProxyCommand ssh -W %h:%p seel
     HostName %h.terra.fap.no
     User root

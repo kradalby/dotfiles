@@ -98,7 +98,7 @@ Host sprocket
 # Bastions        #
 ###################
 
-Host slowpoke mankey pidgey diglett grimer muk venonat venomoth
+Host machamp slowpoke mankey pidgey diglett grimer muk venonat venomoth
     # ProxyCommand ssh -W %h:%p slowpoke
     HostName %h.ntnu.fap.no
     User root
@@ -129,7 +129,7 @@ Host kramac
 # Bastions        #
 ###################
 
-Host seel primeape porygon horse abra
+Host seel primeape porygon horse abra dewgong
 #    ProxyCommand ssh -W %h:%p seel
     HostName %h.terra.fap.no
     User root

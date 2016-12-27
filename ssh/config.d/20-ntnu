@@ -12,7 +12,7 @@ Host sprocket
 # Bastions        #
 ###################
 
-Host slowpoke mankey pidgey diglett grimer muk venonat venomoth
+Host machamp slowpoke mankey pidgey diglett grimer muk venonat venomoth
     # ProxyCommand ssh -W %h:%p slowpoke
     HostName %h.ntnu.fap.no
     User root
