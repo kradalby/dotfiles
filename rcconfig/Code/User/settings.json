@@ -25,6 +25,9 @@
     "stylelint.enable": true,
     "stylefmt.useStylelintConfigOverrides": true,
     "docker.defaultRegistry": "registry.fap.no",
-    "files.associations": {},
+    "files.associations": {
+        "*.ml": "ocaml",
+        "*.mli": "ocaml"
+    },
     "html.format.enable": false
 }
