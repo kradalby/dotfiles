@@ -19,6 +19,7 @@ bibhasdn.django-html
 donjayamanne.javadebugger
 haaaad.ansible
 seanmcbreen.Spell
+hackwaly.ocaml
 shinnn.stylelint"
 
 for ext in $extensions
