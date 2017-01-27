@@ -1,26 +1,51 @@
 function update-pkg
-    echo "Updating macOS"
-    sudo softwareupdate -i -a
+    command --search apt-get >/dev/null; and begin
+        echo "Updating apt"
+        sudo apt-get update
+        sudo apt-get upgrade -y
+    end
 
-    echo "Updating brew"
-    brew update
-    brew upgrade --all
-    brew cleanup
-    brew cask cleanup
-    brew prune
+    command --search softwareupdate >/dev/null; and begin
+        echo "Updating macOS"
+        sudo softwareupdate -i -a
+    end
 
-    echo "Updating npm"
-    npm update -g npm
-    npm update -g
+    command --search brew >/dev/null; and begin
+        echo "Updating brew"
+        brew update
+        brew upgrade
+        brew cleanup
+        brew cask cleanup
+        brew prune
+    end
 
-    echo "Updating gem/ruby"
-    sudo gem update --system
-    gem update
-    gem cleanup
+    command --search npm >/dev/null; and begin
+        echo "Updating npm"
+        npm update -g npm
+        npm update -g
+    end
 
-    echo "Updating pip2/python2"
-    pip2 freeze --local | grep -v '^\-e' | cut -d = -f 1  | xargs -n1 pip2 install -U
+    command --search gem >/dev/null; and begin
+        echo "Updating gem/ruby"
+        sudo gem update --system
+        gem update
+        gem cleanup
+    end
 
-    echo "Updating pip3/python3"
-    pip3 freeze --local | grep -v '^\-e' | cut -d = -f 1  | xargs -n1 pip3 install -U
+    command --search pip2 >/dev/null; and begin
+        echo "Updating pip2/python2"
+        pip2 freeze --local | grep -v '^\-e' | cut -d = -f 1  | xargs -n1 pip2 install -U
+    end
+
+    command --search pip3 >/dev/null; and begin
+        echo "Updating pip3/python3"
+        pip3 freeze --local | grep -v '^\-e' | cut -d = -f 1  | xargs -n1 pip3 install -U
+    end
+
+    command --search opam >/dev/null; and begin
+        echo "Updating ocaml/opam"
+        opam update
+        opam upgrade -y
+    end
+
 end
