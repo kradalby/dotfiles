@@ -5,4 +5,5 @@
 !fish/osx.fish
 !fish/functions/*
 !fish/aliases/*
+!fish/completions/*
 !Code/User/settings.json
