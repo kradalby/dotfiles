@@ -36,5 +36,6 @@
         "**/bower_components": true,
         "**/tmp": true,
         "**/dist": true
-    }
+    },
+    "vsicons.projectDetection.autoReload": true
 }
