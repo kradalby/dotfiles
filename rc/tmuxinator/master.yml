@@ -31,15 +31,12 @@ root: ~/git
 # post: tmux -CC attach -t master
 
 windows:
-    - supersonic:
+    - docker:
         root: ~/git/supersonic-enigma
-        layout: main-horizontal
         panes:
-          - npm run dev
-          - ls
+          - dc up
     - turbo:
         root: ~/git/turbo-enigma
-        layout: main-horizontal
-        panes:
-          - ./env/bin/python src/manage.py runserver
-          - ls
+    - supersonic:
+        root: ~/git/supersonic-enigma
+
