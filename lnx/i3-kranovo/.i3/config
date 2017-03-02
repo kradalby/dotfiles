@@ -9,7 +9,7 @@
 #
 # Please see http://i3wm.org/docs/userguide.html for a complete reference!
 
-set $mod Mod4
+set $mod Mod1
 
 # Font for window titles. Will also be used by the bar unless a different font
 # is used in the bar {} block below.
@@ -26,6 +26,8 @@ font pango:DejaVu Sans Mono 8
 exec --no-startup-id nm-applet
 exec --no-startup-id gnome-keyring-daemon --start
 exec --no-startup-id dunst
+exec --no-startup-id xmodmap ~/.Xmodmap
+exec --no-startup-id sleep 3 && xfce4-power-manager
 
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
@@ -200,5 +202,6 @@ bar {
 
 
 
-# exec --no-startup-id google-chrome
+exec --no-startup-id sleep 5 && google-chrome
+exec --no-startup-id sleep 5 && slack
 # exec --no-startup-id spotify
