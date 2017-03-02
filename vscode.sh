@@ -5,8 +5,12 @@ PeterJausovec.vscode-docker
 abusaidm.html-snippets
 bibhasdn.django-html
 dbaeumer.vscode-eslint
+donjayamanne.javadebugger
 donjayamanne.python
 eg2.tslint
+eg2.vscode-npm-script
+haaaad.ansible
+hackwaly.ocaml
 mrmlnc.vscode-stylefmt
 ms-vscode.PowerShell
 ms-vscode.cpptools
@@ -15,11 +19,7 @@ msjsdiag.debugger-for-chrome
 rbbit.typescript-hero
 robertohuertasm.vscode-icons
 sbrink.elm
-bibhasdn.django-html
-donjayamanne.javadebugger
-haaaad.ansible
 seanmcbreen.Spell
-hackwaly.ocaml
 shinnn.stylelint"
 
 for ext in $extensions

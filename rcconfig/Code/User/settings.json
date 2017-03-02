@@ -1,11 +1,12 @@
 // Place your settings in this file to overwrite the default settings
 {
     "editor.formatOnSave": true,
-    "editor.wrappingColumn": 0,
+    "editor.wordWrap": "on",
     // Controls the font size in pixels.
     "editor.fontSize": 11,
+    "editor.minimap.enabled": true,
     // When enabled, will open files in a new window instead of reusing an existing instance.
-    "window.openFilesInNewWindow": false,
+    "window.openFilesInNewWindow": "on",
     "python.pythonPath": "${workspaceRoot}/env/bin/python3",
     // Whether to lint Python files using prospector.
     "python.linting.prospectorEnabled": false,
@@ -37,5 +38,6 @@
         "**/tmp": true,
         "**/dist": true
     },
-    "vsicons.projectDetection.autoReload": true
+    "vsicons.projectDetection.autoReload": true,
+    "workbench.iconTheme": "vscode-icons"
 }
