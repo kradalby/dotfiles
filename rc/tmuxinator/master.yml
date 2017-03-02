@@ -32,11 +32,13 @@ root: ~/git
 
 windows:
     - docker:
-        root: ~/git/supersonic-enigma
+        root: ~/git/turbo-enigma
         panes:
           - dc up
     - turbo:
         root: ~/git/turbo-enigma
+    - elm:
+        root: ~/git/elm-enigma
     - supersonic:
         root: ~/git/supersonic-enigma
 
