@@ -26,7 +26,7 @@ font pango:DejaVu Sans Mono 8
 exec --no-startup-id nm-applet
 exec --no-startup-id gnome-keyring-daemon --start
 exec --no-startup-id dunst
-exec --no-startup-id xmodmap ~/.Xmodmap
+exec --no-startup-id setxkbmap -layout no; xmodmap ~/.Xmodmap
 exec --no-startup-id sleep 3 && xfce4-power-manager
 
 # Use Mouse+$mod to drag floating windows to their wanted position
