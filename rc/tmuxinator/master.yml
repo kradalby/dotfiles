@@ -37,8 +37,14 @@ windows:
           - dc up
     - turbo:
         root: ~/git/turbo-enigma
+        panes:
+          - git pull
     - elm:
         root: ~/git/elm-enigma
+        panes:
+          - git pull
     - supersonic:
         root: ~/git/supersonic-enigma
+        panes:
+          - git pull
 
