@@ -7,9 +7,6 @@ set -x PATH "/usr/local/opt/gnu-sed/bin" $PATH
 # GNU coreutils
 set -x PATH "/usr/local/opt/coreutils/libexec/gnubin" $PATH
 
-# dotfiles bin
-set -x PATH "$HOME/git/dotfiles/bin" $PATH
-
 # Nvidia Cuda
 # set -x PATH $PATH "/Developer/NVIDIA/CUDA-7.5/bin"
 
@@ -21,9 +18,6 @@ set -x JAVA_HOME (/usr/libexec/java_home)
 
 # Swiftenv root
 # set -x SWIFTENV_ROOT "/usr/local/var/swiftenv"
-
-# Sorce sensitive tokens
-source $HOME/Sync/tokens.fish
 
 # Swiftenv
 # setenv SWIFTENV_ROOT "$HOME/.swiftenv"

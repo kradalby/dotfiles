@@ -40,6 +40,12 @@ set -x ANSIBLE_CONFIG "~/.ansible.cfg"
 
 set -x EDITOR "vim"
 
+# Sorce sensitive tokens
+source $HOME/Sync/tokens.fish
+
+# dotfiles bin
+set -x PATH "$HOME/git/dotfiles/bin" $PATH
+
 # Source aliases
 for file in $HOME/.config/fish/aliases/*
     source $file
