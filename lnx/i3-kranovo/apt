@@ -39,7 +39,7 @@ python3-pip
 python-imobiledevice
 python-pip
 python-plist
-rdesktop
+freerdp-x11
 ristretto
 rsync
 sakura
