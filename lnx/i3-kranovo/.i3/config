@@ -104,7 +104,7 @@ bindsym $mod+5 workspace number 5 term
 bindsym $mod+6 workspace number 6 term
 bindsym $mod+7 workspace number 7 term
 bindsym $mod+8 workspace 8
-bindsym $mod+9 workspace 9
+bindsym $mod+9 workspace number 9 rdp
 bindsym $mod+0 workspace 10
 
 # force a window on a named workspace
@@ -112,6 +112,9 @@ assign [class="Spotify"] 1 spot
 assign [class="Slack"] 2 slack
 assign [class="Google-chrome"] 3 www
 assign [class="Code"] 4 code
+assign [class="xfreerdp"] 9 rdp
+
+for_window [class="xfreerdp"]   floating disable
 
 # move focused container to workspace
 bindsym $mod+Shift+1 move container to workspace 1
