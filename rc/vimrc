@@ -202,7 +202,7 @@ command! DateTime call UpdateModifiedTimeMarkdown()
 command! StripTrail call <SID>StripTrailingWhitespaces()
 
 autocmd BufWritePre * :call <SID>StripTrailingWhitespaces()
-autocmd BufWritePre *.md :call UpdateModifiedTimeMarkdown()
+" autocmd BufWritePre *.md :call UpdateModifiedTimeMarkdown()
 
 augroup configgroup
     autocmd FileType bindzone setlocal tabstop=4
