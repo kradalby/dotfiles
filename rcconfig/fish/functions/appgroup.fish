@@ -1,5 +1,5 @@
 function appgroup
-    set comm Slack Franz
+    set comm Slack
 
     set base $comm "Safari Technology Preview" Spotify Stickies iTerm Mail
 
