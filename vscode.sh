@@ -20,6 +20,7 @@ rbbit.typescript-hero
 robertohuertasm.vscode-icons
 sbrink.elm
 seanmcbreen.Spell
+akmittal.hugofy
 shinnn.stylelint"
 
 for ext in $extensions
