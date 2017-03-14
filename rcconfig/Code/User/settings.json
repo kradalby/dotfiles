@@ -39,5 +39,9 @@
         "**/dist": true
     },
     "vsicons.projectDetection.autoReload": true,
-    "workbench.iconTheme": "vscode-icons"
+    "workbench.iconTheme": "vscode-icons",
+    // Turn on/off autoformatting file on save
+    "rust.formatOnSave": false,
+    // Turn on/off autochecking file on save using cargo check
+    "rust.checkOnSave": false
 }
