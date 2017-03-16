@@ -34,7 +34,7 @@ windows:
     - docker:
         root: ~/git/turbo-enigma
         panes:
-          - dc up
+          - dc stop; dc up
     - turbo:
         root: ~/git/turbo-enigma
         panes:
