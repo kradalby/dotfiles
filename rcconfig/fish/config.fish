@@ -46,6 +46,9 @@ source $HOME/Sync/tokens.fish
 # dotfiles bin
 set -x PATH "$HOME/git/dotfiles/bin" $PATH
 
+# rust in path
+set -x PATH "$HOME/.cargo/bin" $PATH
+
 # Source aliases
 for file in $HOME/.config/fish/aliases/*
     source $file

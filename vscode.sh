@@ -21,6 +21,7 @@ robertohuertasm.vscode-icons
 sbrink.elm
 seanmcbreen.Spell
 akmittal.hugofy
+saviorisdead.RustyCode
 shinnn.stylelint"
 
 for ext in $extensions
