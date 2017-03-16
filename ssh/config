@@ -29,6 +29,56 @@ Host *
 # Public IP hosts #
 ###################
 
+Host sprocket
+    HostName sprocket.nvg.ntnu.no
+    User kradalby
+    Port 22
+
+
+###################
+# Bastions        #
+###################
+
+Host machamp slowpoke mankey pidgey diglett grimer muk venonat venomoth
+    # ProxyCommand ssh -W %h:%p slowpoke
+    HostName %h.ntnu.fap.no
+    User root
+    Port 22
+###################
+# Public IP hosts #
+###################
+
+
+###################
+# Bastions        #
+###################
+
+Host kramac
+    User kradalby
+    HostName 10.60.30.20
+###################
+# Public IP hosts #
+###################
+
+# Host seel
+#     HostName horse.terra.fap.no
+#     User root
+#     Port 22
+
+
+###################
+# Bastions        #
+###################
+
+Host seel primeape porygon horse abra dewgong
+#    ProxyCommand ssh -W %h:%p seel
+    HostName %h.terra.fap.no
+    User root
+    Port 22
+###################
+# Public IP hosts #
+###################
+
 # Ardbeg, Don og Xo har ancient SSH versjon, og støtter ikke mer moderne key exchange algs
 Host ardbeg don xo
     KexAlgorithms diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1,diffie-hellman-group1-sha1
@@ -84,53 +134,13 @@ Host jagermeister
 
 Host *.online.ntnu.no
     User root
-###################
-# Public IP hosts #
-###################
-
-Host sprocket
-    HostName sprocket.nvg.ntnu.no
-    User kradalby
-    Port 22
-
 
 ###################
-# Bastions        #
+# Hosts           #
 ###################
 
-Host machamp slowpoke mankey pidgey diglett grimer muk venonat venomoth
+Host vissel vissel2 tussi kengu nasse brumm
     # ProxyCommand ssh -W %h:%p slowpoke
-    HostName %h.ntnu.fap.no
-    User root
-    Port 22
-###################
-# Public IP hosts #
-###################
-
-
-###################
-# Bastions        #
-###################
-
-Host kramac
-    User kradalby
-    HostName 10.60.30.20
-###################
-# Public IP hosts #
-###################
-
-# Host seel
-#     HostName horse.terra.fap.no
-#     User root
-#     Port 22
-
-
-###################
-# Bastions        #
-###################
-
-Host seel primeape porygon horse abra dewgong
-#    ProxyCommand ssh -W %h:%p seel
-    HostName %h.terra.fap.no
+    HostName %h.studdem.ntnu.no
     User root
     Port 22
