@@ -15,6 +15,15 @@
     // Path to flake8, you can use a custom version of flake8 by modifying this setting to include the full path.
     "python.linting.flake8Path": "${workspaceRoot}/env/bin/flake8",
     "python.linting.pylintPath": "${workspaceRoot}/env/bin/pylint",
+    // Whether to lint Python files using mypy.
+    "python.linting.mypyEnabled": true,
+    // Path to mypy, you can use a custom version of mypy by modifying this setting to include the full path.
+    "python.linting.mypyPath": "${workspaceRoot}/env/bin/mypy",
+    // Arguments passed in. Each argument is a separate item in the array.
+    "python.linting.mypyArgs": [
+        "--ignore-missing-imports",
+        "--follow-imports=silent"
+    ],
     // Path to autopep8, you can use a custom version of autopep8 by modifying this setting to include the full path.
     "python.formatting.autopep8Path": "/usr/local/bin/autopep8",
     "python.formatting.yapfPath": "/usr/local/bin/yapf",
@@ -43,5 +52,11 @@
     // Turn on/off autoformatting file on save
     "rust.formatOnSave": false,
     // Turn on/off autochecking file on save using cargo check
-    "rust.checkOnSave": false
+    "rust.checkOnSave": false,
+    // Specifies path to Racer binary if it's not in PATH
+    "rust.racerPath": "${home}/.cargo/bin/racer",
+    // Specifies path to Rustfmt binary if it's not in PATH
+    "rust.rustfmtPath": "${home}/.cargo/bin/rustfmt",
+    // Specifies path to Rustsym binary if it's not in PATH
+    "rust.rustsymPath": "${home}/.cargo/bin/rustsym"
 }
