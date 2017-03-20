@@ -39,6 +39,8 @@
         "*.ml": "ocaml",
         "*.mli": "ocaml"
     },
+    "ocaml.merlinPath": "${home}/.opam/system/bin/ocamlmerlin",
+    "ocaml.ocpIndentPath": "${home}/.opam/system/bin/ocp-indent",
     "html.format.enable": false,
     "search.exclude": {
         "**/.git": true,
