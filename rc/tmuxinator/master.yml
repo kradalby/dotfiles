@@ -38,11 +38,11 @@ windows:
     - turbo:
         root: ~/git/turbo-enigma
         panes:
-          - git pull
+          - git pull; code .
     - elm:
         root: ~/git/elm-enigma
         panes:
-          - git pull
+          - git pull; code .
     - supersonic:
         root: ~/git/supersonic-enigma
         panes:
