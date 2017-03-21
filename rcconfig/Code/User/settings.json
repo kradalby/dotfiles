@@ -1,19 +1,68 @@
 // Place your settings in this file to overwrite the default settings
 {
+    //---------------------------------------------------------
+    //
+    // Editor
+    //
     "editor.formatOnSave": true,
     "editor.wordWrap": "on",
     // Controls the font size in pixels.
     "editor.fontSize": 11,
     "editor.minimap.enabled": true,
+    //
+    // end Editor
+    //
+    //---------------------------------------------------------
+    //
+    // Extensions
+    //
+    "extensions.autoUpdate": false,
+    //
+    // end Extensions
+    //
+    //---------------------------------------------------------
+    //
+    // Window
+    //
     // When enabled, will open files in a new window instead of reusing an existing instance.
     "window.openFilesInNewWindow": "on",
+    //
+    // end Window
+    //
+    //---------------------------------------------------------
+    //
+    // Files
+    //
     "files.associations": {
         "*.ml": "ocaml",
         "*.mli": "ocaml"
     },
-    "ocaml.merlinPath": "${home}/.opam/system/bin/ocamlmerlin",
-    "ocaml.ocpIndentPath": "${home}/.opam/system/bin/ocp-indent",
+    //
+    // end Files
+    //
+    //---------------------------------------------------------
+    //
+    // Terminal
+    //
+    // Customizes which terminal application to run on OS X.
+    "terminal.external.osxExec": "iTerm.app",
+    // Customizes which terminal to run on Linux.
+    "terminal.external.linuxExec": "sakura",
+    //
+    // end Terminal
+    //
+    //---------------------------------------------------------
+    //
+    // HTML
+    //
     "html.format.enable": false,
+    //
+    // end HTML
+    //
+    //---------------------------------------------------------
+    //
+    // Search
+    //
     "search.exclude": {
         "**/.git": true,
         "**/node_modules": true,
@@ -21,8 +70,18 @@
         "**/tmp": true,
         "**/dist": true
     },
+    //
+    // end Search
+    //
+    //---------------------------------------------------------
+    //
+    // vscode icons
+    //
     "vsicons.projectDetection.autoReload": true,
     "workbench.iconTheme": "vscode-icons",
+    //
+    // end vscode icons
+    //
     //---------------------------------------------------------
     //
     // Python
@@ -45,6 +104,15 @@
     "python.formatting.formatOnSave": true,
     //
     // end Python
+    //
+    //---------------------------------------------------------
+    //
+    // OCaml
+    //
+    "ocaml.merlinPath": "${home}/.opam/system/bin/ocamlmerlin",
+    "ocaml.ocpIndentPath": "${home}/.opam/system/bin/ocp-indent",
+    //
+    // OCaml end
     //
     //---------------------------------------------------------
     //
@@ -94,8 +162,17 @@
     // Specifies path to Rustfmt binary if it's not in PATH
     "rust.rustfmtPath": "${home}/.cargo/bin/rustfmt",
     // Specifies path to Rustsym binary if it's not in PATH
-    "rust.rustsymPath": "${home}/.cargo/bin/rustsym"
+    "rust.rustsymPath": "${home}/.cargo/bin/rustsym",
     //
     // end rust
+    //
+    //---------------------------------------------------------
+    //
+    // elm
+    //
+    // Runs elm-format on the file every time it is saved
+    "elm.formatOnSave": true
+    //
+    // end elm
     //
 }
