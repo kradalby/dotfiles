@@ -112,8 +112,8 @@
     //
     // OCaml
     //
-    "ocaml.merlinPath": "${home}/.opam/system/bin/ocamlmerlin",
-    "ocaml.ocpIndentPath": "${home}/.opam/system/bin/ocp-indent",
+    "ocaml.merlinPath": "ocamlmerlin",
+    "ocaml.ocpIndentPath": "ocp-indent",
     // Do lint when save document.
     "ocaml.lintOnSave": true,
     //
