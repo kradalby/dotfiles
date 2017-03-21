@@ -7,34 +7,6 @@
     "editor.minimap.enabled": true,
     // When enabled, will open files in a new window instead of reusing an existing instance.
     "window.openFilesInNewWindow": "on",
-    "python.pythonPath": "${workspaceRoot}/env/bin/python3",
-    // Whether to lint Python files using prospector.
-    "python.linting.prospectorEnabled": false,
-    // Whether to lint Python files using flake8
-    "python.linting.flake8Enabled": true,
-    // Path to flake8, you can use a custom version of flake8 by modifying this setting to include the full path.
-    "python.linting.flake8Path": "${workspaceRoot}/env/bin/flake8",
-    "python.linting.pylintPath": "${workspaceRoot}/env/bin/pylint",
-    // Whether to lint Python files using mypy.
-    "python.linting.mypyEnabled": true,
-    // Path to mypy, you can use a custom version of mypy by modifying this setting to include the full path.
-    "python.linting.mypyPath": "${workspaceRoot}/env/bin/mypy",
-    // Arguments passed in. Each argument is a separate item in the array.
-    "python.linting.mypyArgs": [
-        "--ignore-missing-imports",
-        "--follow-imports=silent"
-    ],
-    // Path to autopep8, you can use a custom version of autopep8 by modifying this setting to include the full path.
-    "python.formatting.autopep8Path": "/usr/local/bin/autopep8",
-    "python.formatting.yapfPath": "/usr/local/bin/yapf",
-    "python.formatting.provider": "yapf",
-    // Format the document upon saving.
-    "typescript.check.tscVersion": false,
-    "eslint.autoFixOnSave": true,
-    "tslint.autoFixOnSave": true,
-    "stylelint.enable": true,
-    "stylefmt.useStylelintConfigOverrides": true,
-    "docker.defaultRegistry": "registry.fap.no",
     "files.associations": {
         "*.ml": "ocaml",
         "*.mli": "ocaml"
@@ -49,6 +21,68 @@
     },
     "vsicons.projectDetection.autoReload": true,
     "workbench.iconTheme": "vscode-icons",
+    //---------------------------------------------------------
+    //
+    // Python
+    //
+    // Whether to lint Python files.
+    "python.linting.enabled": true,
+    // Whether to lint Python files using pylint.
+    "python.linting.pylintEnabled": false,
+    // Whether to lint Python files using flake8
+    "python.linting.flake8Enabled": true,
+    // Whether to lint Python files using mypy.
+    "python.linting.mypyEnabled": false,
+    // Whether to lint Python files when modified.
+    "python.linting.lintOnTextChange": true,
+    // Whether to lint Python files when saved.
+    "python.linting.lintOnSave": true,
+    // Provider for formatting. Possible options include 'autopep8' and 'yapf'.
+    "python.formatting.provider": "yapf",
+    // Format the document upon saving.
+    "python.formatting.formatOnSave": true,
+    //
+    // end Python
+    //
+    //---------------------------------------------------------
+    //
+    // Typescript
+    //
+    // Format the document upon saving.
+    "typescript.check.tscVersion": false,
+    "tslint.autoFixOnSave": true,
+    //
+    // end Typescript
+    //
+    //---------------------------------------------------------
+    //
+    // Javascript
+    //
+    "eslint.autoFixOnSave": true,
+    //
+    // end Javascript
+    //
+    //---------------------------------------------------------
+    //
+    // Stylelint
+    //
+    "stylelint.enable": true,
+    "stylefmt.useStylelintConfigOverrides": true,
+    //
+    // end Stylelint
+    //
+    //---------------------------------------------------------
+    //
+    // Docker
+    //
+    "docker.defaultRegistry": "registry.fap.no",
+    //
+    // end Docker
+    //
+    //---------------------------------------------------------
+    //
+    // rust
+    //
     // Turn on/off autoformatting file on save
     "rust.formatOnSave": false,
     // Turn on/off autochecking file on save using cargo check
@@ -59,4 +93,7 @@
     "rust.rustfmtPath": "${home}/.cargo/bin/rustfmt",
     // Specifies path to Rustsym binary if it's not in PATH
     "rust.rustsymPath": "${home}/.cargo/bin/rustsym"
+    //
+    // end rust
+    //
 }
