@@ -31,9 +31,6 @@ if test (uname) = "Darwin"
     source $HOME/.config/fish/osx.fish
 end
 
-# Python
-set -x VIRTUALENV_PYTHON "/usr/local/bin/python"
-
 # Ansible
 set -x ANSIBLE_HOST_KEY_CHECKING "False"
 set -x ANSIBLE_CONFIG "~/.ansible.cfg"
@@ -44,10 +41,14 @@ set -x EDITOR "vim"
 source $HOME/Sync/tokens.fish
 
 # dotfiles bin
-set -x PATH "$HOME/git/dotfiles/bin" $PATH
+if test -d $HOME/git/dotfiles/bin
+    set -x PATH $PATH "$HOME/git/dotfiles/bin"
+end
 
 # rust in path
-set -x PATH "$HOME/.cargo/bin" $PATH
+if test -d $HOME/.cargo/bin
+    set -x PATH $PATH "$HOME/.cargo/bin"
+end
 
 # Source aliases
 for file in $HOME/.config/fish/aliases/*
@@ -55,4 +56,6 @@ for file in $HOME/.config/fish/aliases/*
 end
 
 # OPAM configuration
-source $HOME/.opam/opam-init/init.fish > /dev/null 2> /dev/null; or true
+if test -d $HOME/.opam/opam-init
+    source $HOME/.opam/opam-init/init.fish > /dev/null 2> /dev/null; or true
+end

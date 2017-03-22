@@ -5,6 +5,8 @@
     // Editor
     //
     "editor.formatOnSave": true,
+    "editor.formatOnType": true,
+    "editor.formatOnPaste": true,
     "editor.wordWrap": "on",
     // Controls the font size in pixels.
     "editor.fontSize": 11,
@@ -78,6 +80,7 @@
     // vscode icons
     //
     "vsicons.projectDetection.autoReload": true,
+    "vsicons.dontShowNewVersionMessage": true,
     "workbench.iconTheme": "vscode-icons",
     //
     // end vscode icons
@@ -109,8 +112,10 @@
     //
     // OCaml
     //
-    "ocaml.merlinPath": "${home}/.opam/system/bin/ocamlmerlin",
-    "ocaml.ocpIndentPath": "${home}/.opam/system/bin/ocp-indent",
+    "ocaml.merlinPath": "ocamlmerlin",
+    "ocaml.ocpIndentPath": "ocp-indent",
+    // Do lint when save document.
+    "ocaml.lintOnSave": true,
     //
     // OCaml end
     //
