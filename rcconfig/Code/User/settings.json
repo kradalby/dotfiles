@@ -99,7 +99,7 @@
     // Whether to lint Python files when saved.
     "python.linting.lintOnSave": true,
     // Provider for formatting. Possible options include 'autopep8' and 'yapf'.
-    "python.formatting.provider": "yapf",
+    "python.formatting.provider": "autopep8",
     // Format the document upon saving.
     "python.formatting.formatOnSave": true,
     //
