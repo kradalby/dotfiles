@@ -13,6 +13,11 @@ function update-pkg
         sudo softwareupdate -i -a
     end
 
+    command --search mas >/dev/null; and begin
+        echo "Updating Mac App Store"
+        mas upgrade
+    end
+
     command --search brew >/dev/null; and begin
         sudo -v
         echo "Updating brew"
