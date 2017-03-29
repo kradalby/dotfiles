@@ -162,6 +162,9 @@ cask 'lastpass'
 cask 'osxfuse'
 cask 'sshfs'
 
+cask 'xquartz'
+cask 'inkscape'
+
 cask 'intellij-idea'
 cask 'pycharm'
 cask 'microsoft-office'
