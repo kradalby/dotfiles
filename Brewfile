@@ -169,3 +169,9 @@ cask 'openra'
 cask 'vmware-fusion'
 cask 'mailbutler'
 
+brew 'mas'
+mas 'LastPass', id: 926036361
+mas 'Microsoft Remote Desktop', id: 715768417
+mas 'Pixelmator', id: 407963104
+mas 'Twitter', id: 409789998
+mas 'Xcode', id: 497799835
