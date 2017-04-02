@@ -171,6 +171,7 @@ cask 'microsoft-office'
 cask 'openra'
 cask 'vmware-fusion'
 cask 'mailbutler'
+cask 'real-vnc'
 
 brew 'mas'
 mas 'LastPass', id: 926036361
