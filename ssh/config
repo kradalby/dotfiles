@@ -144,3 +144,13 @@ Host vissel vissel2 tussi kengu nasse brumm
     HostName %h.studdem.ntnu.no
     User root
     Port 22
+
+###################
+# Public IP hosts #
+###################
+
+Host enigma hv-6068
+    HostName hv-6068.idi.ntnu.no
+    User kristoad
+    Port 22
+
