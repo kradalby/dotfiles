@@ -1,0 +1,14 @@
+
+###################
+# Public IP hosts #
+###################
+
+Host enigma hv-6068
+    HostName hv-6068.idi.ntnu.no
+    User root
+    Port 22
+
+Host miig miic
+    HostName %h.idi.ntnu.no
+    User kristoad
+    Port 22
