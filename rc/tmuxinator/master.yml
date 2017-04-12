@@ -1,7 +1,7 @@
 # ~/.tmuxinator/master.yml
 
 name: master
-root: ~/git
+root: ~/git/enigma
 
 # Optional tmux socket
 # socket_name: foo
@@ -32,19 +32,14 @@ root: ~/git
 
 windows:
     - docker:
-        root: ~/git/turbo-enigma
+        root: ~/git/enigma
         panes:
-          - dc stop; dc up
-    - turbo:
-        root: ~/git/turbo-enigma
-        panes:
-          - git pull; code .
-    - elm:
-        root: ~/git/elm-enigma
+          - make start
+    - miic:
+        root: ~/git/enigma/miic
         panes:
           - git pull; code .
-    - supersonic:
-        root: ~/git/supersonic-enigma
+    - enigma:
+        root: ~/git/enigma/enigma
         panes:
-          - git pull
-
+          - git pull; code .
