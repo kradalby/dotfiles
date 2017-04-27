@@ -5,7 +5,7 @@ fluentcv \
 standard \
 npm-check \
 jsonlint \
-eslint-cli \
+eslint \
 eslint-config-standard \
 eslint-plugin-standard \
 eslint-plugin-promise \
