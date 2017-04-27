@@ -57,6 +57,9 @@
     //
     // HTML
     //
+    "[html]": {
+        "editor.tabSize": 2
+    },
     "html.format.enable": false,
     //
     // end HTML
@@ -124,6 +127,9 @@
     // Typescript
     //
     // Format the document upon saving.
+    "[typescript]": {
+        "editor.tabSize": 2
+    },
     "typescript.check.tscVersion": false,
     "tslint.autoFixOnSave": true,
     //
@@ -133,6 +139,9 @@
     //
     // Javascript
     //
+    "[javascript]": {
+        "editor.tabSize": 2
+    },
     "eslint.autoFixOnSave": true,
     //
     // end Javascript
