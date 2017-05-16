@@ -16,6 +16,9 @@ set -x NODE_PATH "/usr/local/lib/node" "/usr/local/lib/node_modules" $NODE_PATH
 # Java home
 set -x JAVA_HOME (/usr/libexec/java_home)
 
+# MacTex
+set -x PATH $PATH "/Library/TeX/Distributions/.DefaultTeX/Contents/Programs/texbin"
+
 # Swiftenv root
 # set -x SWIFTENV_ROOT "/usr/local/var/swiftenv"
 

@@ -192,7 +192,16 @@
     "[c]": {
         "editor.quickSuggestions": false
     },
-    "spell.StopAsking": true
+    "spell.StopAsking": true,
+    //
+    // end elm
+    //
+    //---------------------------------------------------------
+    //
+    // latex
+    //
+    // Runs elm-format on the file every time it is saved
+    "latex-workshop.chktex.enabled": true
     //
     // end elm
     //
