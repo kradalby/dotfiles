@@ -51,6 +51,7 @@ brew 'tig'
 brew 'drone'
 brew 'nload'
 brew 'lastpass-cli', args: ['with-pinentry', 'with-doc']
+brew 'fdupes'
 
 ## DevOps
 brew 'terraform'
