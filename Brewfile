@@ -159,6 +159,9 @@ cask 'yujitach-menumeters'
 cask 'steam'
 cask 'franz'
 cask 'lastpass'
+cask 'transmit'
+cask 'transmit-disk'
+
 
 cask 'osxfuse'
 cask 'sshfs'
