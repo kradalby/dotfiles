@@ -113,7 +113,7 @@ brew 'sqlite'
 brew 'postgresql'
 
 brew 'cask'
-cask 'safari-technology-preview'
+# cask 'safari-technology-preview'
 cask 'wireshark'
 cask 'iterm2-beta'
 cask 'tigervnc-viewer'
@@ -144,9 +144,9 @@ cask 'discord'
 cask 'sequel-pro'
 cask 'nimble'
 cask 'jumpcut'
-cask 'messenger'
-#cask 'goofy'
-#cask 'chitchat'
+# cask 'messenger'
+# cask 'goofy'
+# cask 'chitchat'
 cask 'calibre'
 cask 'beardedspice'
 cask 'tunnelblick'
@@ -157,7 +157,7 @@ cask 'slack-beta'
 cask 'visual-studio-code'
 cask 'yujitach-menumeters'
 cask 'steam'
-cask 'franz'
+# cask 'franz'
 cask 'lastpass'
 cask 'transmit'
 cask 'transmit-disk'
@@ -166,8 +166,8 @@ cask 'transmit-disk'
 cask 'osxfuse'
 cask 'sshfs'
 
-cask 'xquartz'
-cask 'inkscape'
+# cask 'xquartz'
+# cask 'inkscape'
 
 cask 'intellij-idea'
 cask 'pycharm'
@@ -176,6 +176,7 @@ cask 'openra'
 cask 'vmware-fusion'
 cask 'mailbutler'
 cask 'real-vnc'
+cask "dotnet"
 
 brew 'mas'
 mas 'LastPass', id: 926036361
@@ -183,3 +184,4 @@ mas 'Microsoft Remote Desktop', id: 715768417
 mas 'Pixelmator', id: 407963104
 mas 'Twitter', id: 409789998
 mas 'Xcode', id: 497799835
+mas 'Trello', id: 1278508951
