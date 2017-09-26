@@ -1,4 +1,6 @@
 alsa-utils
+thunderbird
+shotwell
 build-essential
 curl
 docker-engine

@@ -100,8 +100,8 @@ bindsym $mod+1 workspace number 1 spot
 bindsym $mod+2 workspace number 2 slack
 bindsym $mod+3 workspace number 3 www
 bindsym $mod+4 workspace number 4 code
-bindsym $mod+5 workspace number 5 term
-bindsym $mod+6 workspace number 6 term
+bindsym $mod+5 workspace number 5 thun
+bindsym $mod+6 workspace number 6 shot
 bindsym $mod+7 workspace number 7 term
 bindsym $mod+8 workspace 8
 bindsym $mod+9 workspace number 9 rdp
@@ -112,6 +112,8 @@ assign [class="Spotify"] 1 spot
 assign [class="Slack"] 2 slack
 assign [class="Google-chrome"] 3 www
 assign [class="Code"] 4 code
+assign [class="Thunderbird"] 5 thun
+assign [class="Shotwell"] 6 shot
 assign [class="xfreerdp"] 9 rdp
 
 for_window [class="xfreerdp"]   floating disable
