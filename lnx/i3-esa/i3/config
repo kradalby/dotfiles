@@ -185,7 +185,7 @@ bar {
 exec --no-startup-id setxkbmap -layout us -variant altgr-intl; xmodmap ~/.Xmodmap
 # exec --no-startup-id setxkbmap -layout us,no -option grp:alt_shift_toggle,ctrl:nocaps
 exec --no-startup-id nm-applet
-# exec --no-startup-id gnome-keyring-daemon --start
+exec --no-startup-id gnome-keyring-daemon --start
 # exec --no-startup-id dunst
 # exec --no-startup-id sleep 3 && xfce4-power-manager
 
