@@ -1,0 +1,9 @@
+! Based on US International with altgr
+! setxkbmap -layout us -variant altgr-intl; xmodmap ~/.Xmodmap
+
+clear lock
+keycode 66 = Escape NoSymbol Escape
+
+keycode  32 = o O o O oslash Oslash
+keycode  38 = a A a A aring Aring
+keycode  47 = semicolon colon semicolon colon ae AE
