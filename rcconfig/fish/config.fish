@@ -45,6 +45,11 @@ if test -d $HOME/git/dotfiles/bin
     set -x PATH $PATH "$HOME/git/dotfiles/bin"
 end
 
+# homedir bin
+if test -d $HOME/bin
+    set -x PATH $PATH "$HOME/bin"
+end
+
 # rust in path
 if test -d $HOME/.cargo/bin
     set -x PATH $PATH "$HOME/.cargo/bin"
