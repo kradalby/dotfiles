@@ -42,6 +42,10 @@ bindsym Print exec --no-startup-id scrot -e 'mv $f ~/Pictures/Screenshots/'
 # scrot - select window or rectangle
 bindsym Mod4+Print exec --no-startup-id scrot -s -e 'mv $f ~/Pictures/Screenshots/'
 
+# move workspace to another monitor
+bindsym $mod+Shift+n move workspace to output left
+bindsym $mod+Shift+m move workspace to output right
+
 # change focus
 bindsym $mod+h focus left
 bindsym $mod+j focus down
