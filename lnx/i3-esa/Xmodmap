@@ -4,6 +4,9 @@
 clear lock
 keycode 66 = Escape NoSymbol Escape
 
-keycode  32 = o O o O oslash Oslash
-keycode  38 = a A a A aring Aring
-keycode  47 = semicolon colon semicolon colon ae AE
+! Remap right Alt to AltGr on Apple UK? keyboard
+! keycode 108 = ISO_Level3_Shift ISO_Level3_Shift ISO_Level3_Shift ISO_Level3_Shift
+
+keycode  32 = o O o O oslash Oslash oslash Oslash
+keycode  38 = a A a A aring Aring aring Aring
+keycode  47 = semicolon colon semicolon colon ae AE ae AE
