@@ -6,6 +6,13 @@ keycode 66 = Escape NoSymbol Escape
 
 ! Remap right Alt to AltGr on Apple UK? keyboard
 ! keycode 108 = ISO_Level3_Shift ISO_Level3_Shift ISO_Level3_Shift ISO_Level3_Shift
+!keycode 108 = Mode_switch
+! keysym Alt_R = Mode_switch Mode_switch Mode_switch Mode_switch
+!
+! Swap Mod1 and Mod5
+! !
+! remove Mod1 = Alt_R
+! add Mod5 = Alt_R
 
 keycode  32 = o O o O oslash Oslash oslash Oslash
 keycode  38 = a A a A aring Aring aring Aring
