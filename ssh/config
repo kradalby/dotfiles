@@ -76,6 +76,12 @@ Host seel primeape porygon horse abra dewgong
     User root
     Port 22
 ###################
+# esa.int         #
+###################
+
+Host *.esa.int
+    User root
+###################
 # Public IP hosts #
 ###################
 
