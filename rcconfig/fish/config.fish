@@ -55,6 +55,14 @@ if test -d $HOME/.cargo/bin
     set -x PATH $PATH "$HOME/.cargo/bin"
 end
 
+# GO
+
+set -x GOPATH "$HOME/go"
+
+if test -d "$GOPATH"
+    set -x PATH $PATH "$GOPATH/bin"
+end
+
 # Source aliases
 for file in $HOME/.config/fish/aliases/*
     source $file
