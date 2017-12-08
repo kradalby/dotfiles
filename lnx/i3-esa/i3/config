@@ -10,7 +10,7 @@ floating_modifier $mod
 
 # start a terminal
 # bindsym $mod+Return exec sakura # i3-sensible-terminal
-bindsym $mod+Return exec termite # i3-sensible-terminal
+bindsym $mod+Return exec termite
 
 # kill focused window
 bindsym $mod+Shift+q kill
@@ -25,10 +25,10 @@ bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT
 bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ toggle # mute sound
 
 # Media player controls
-bindsym XF86AudioPlay exec playerctl play
-bindsym XF86AudioPause exec playerctl pause
-bindsym XF86AudioNext exec playerctl next
-bindsym XF86AudioPrev exec playerctl previous
+bindsym XF86AudioPlay exec playerctl play --player=spotify
+bindsym XF86AudioPause exec playerctl pause --player=spotify
+bindsym XF86AudioNext exec playerctl next --player=spotify
+bindsym XF86AudioPrev exec playerctl previous --player=spotify
 
 
 # # # # # # # # # # # # # # # # # # #
@@ -163,6 +163,8 @@ mode "resize" {
         bindsym Escape mode "default"
 }
 
+
+
 bindsym $mod+r mode "resize"
 
 # Start i3bar to display a workspace bar (plus the system information i3status
@@ -180,7 +182,7 @@ bar {
   colors {
       background #30363b
       statusline #eae9da
-      separator  #eae9ada
+      separator  #eae9ad
 
       focused_workspace  #30363b #30363b #4e9ab7
       active_workspace   #30363b #30363b #4e9ab7
@@ -196,7 +198,7 @@ exec --no-startup-id setxkbmap -layout uk -variant mac; xmodmap ~/.Xmodmap
 exec --no-startup-id nm-applet
 exec --no-startup-id gnome-keyring-daemon --start
 # exec --no-startup-id dunst
-# exec --no-startup-id sleep 3 && xfce4-power-manager
+exec --no-startup-id sleep 3 && xfce4-power-manager
 
 ## Debian wallaper
 exec_always --no-startup-id feh --bg-fill $wallpaper
@@ -223,3 +225,11 @@ client.unfocused        #000000 #30363b #888888 #30363b
 client.urgent           #000000 #9b6465 #ffffff #9b6465
 client.placeholder      #000000 #ffffff #ffffff #000000
 
+
+# Assign stuff
+assign [class="Spotify"] 0
+assign [class="Firefox"] 1
+assign [class="Code"] 2
+# assign [class=""] 7
+assign [class="Keybase"] 8
+assign [class="Slack"] 9

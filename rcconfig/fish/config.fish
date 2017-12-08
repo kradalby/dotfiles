@@ -26,9 +26,14 @@ set __fish_git_prompt_char_stashstate ' stash '
 set __fish_git_prompt_char_upstream_ahead ' ahead '
 set __fish_git_prompt_char_upstream_behind ' behind '
 
-# OSX spesific settings
+# macOS spesific settings
 if test (uname) = "Darwin"
     source $HOME/.config/fish/osx.fish
+end
+
+# Linux spesific settings
+if test (uname) = "Linux"
+    source $HOME/.config/fish/linux.fish
 end
 
 # Ansible
@@ -50,6 +55,11 @@ if test -d $HOME/bin
     set -x PATH $PATH "$HOME/bin"
 end
 
+# npm global bin
+if test -d $HOME/bin
+    set -x PATH $PATH "$HOME/.npm-global/bin"
+end
+
 # rust in path
 if test -d $HOME/.cargo/bin
     set -x PATH $PATH "$HOME/.cargo/bin"
@@ -62,6 +72,8 @@ set -x GOPATH "$HOME/go"
 if test -d "$GOPATH"
     set -x PATH $PATH "$GOPATH/bin"
 end
+
+
 
 # Source aliases
 for file in $HOME/.config/fish/aliases/*
