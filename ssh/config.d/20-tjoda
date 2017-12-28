@@ -1,0 +1,9 @@
+
+###################
+# Tjodalyng       #
+###################
+
+Host tupo
+    HostName %h.tjoda.fap.no
+    User root
+    Port 22

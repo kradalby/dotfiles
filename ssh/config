@@ -75,6 +75,15 @@ Host seel primeape porygon horse abra dewgong
     HostName %h.terra.fap.no
     User root
     Port 22
+
+###################
+# Tjodalyng       #
+###################
+
+Host tupo
+    HostName %h.tjoda.fap.no
+    User root
+    Port 22
 ###################
 # esa.int         #
 ###################
