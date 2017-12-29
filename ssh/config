@@ -1,3 +1,18 @@
+
+###################
+# Tjodalyng       #
+###################
+
+Host tupo
+    HostName %h.tjoda.fap.no
+    User root
+    Port 22
+    KexAlgorithms +diffie-hellman-group1-sha1
+
+Host 192.168.1.3
+    User root
+    Port 22
+    KexAlgorithms +diffie-hellman-group1-sha1
 #Github needs diffie-hellman-group-exchange-sha1 some of the time but not always.
 Host github.com
     KexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256,diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1
@@ -66,16 +81,6 @@ Host seel primeape porygon horse abra dewgong
     HostName %h.terra.fap.no
     User root
     Port 22
-
-###################
-# Tjodalyng       #
-###################
-
-Host tupo
-    HostName %h.tjoda.fap.no
-    User root
-    Port 22
-    KexAlgorithms diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1,diffie-hellman-group1-sha1
 ###################
 # esa.int         #
 ###################
