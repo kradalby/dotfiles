@@ -25,8 +25,8 @@ bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT
 bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ toggle # mute sound
 
 # Media player controls
-bindsym XF86AudioPlay exec playerctl play --player=spotify
-bindsym XF86AudioPause exec playerctl pause --player=spotify
+bindsym XF86AudioPlay exec playerctl play-pause --player=spotify
+bindsym XF86AudioPause exec playerctl play-pause --player=spotify
 bindsym XF86AudioNext exec playerctl next --player=spotify
 bindsym XF86AudioPrev exec playerctl previous --player=spotify
 
