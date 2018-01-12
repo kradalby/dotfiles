@@ -1,5 +1,5 @@
 set $mod Mod4
-set $wallpaper "/home/kradalby/Pictures/angel.jpg"
+# set $wallpaper "/home/kradalby/Pictures/angel.jpg"
 
 # Font for window titles. Will also be used by the bar unless a different font
 # is used in the bar {} block below.
@@ -103,7 +103,7 @@ set $workspace3 "3 Code"
 set $workspace4 "4 Web Dev"
 set $workspace5 "5 Terminal Dev"
 set $workspace6 "6 Web Coin"
-set $workspace7 "7 Web Mail"
+set $workspace7 "7 Mail"
 set $workspace8 "8 Keybase"
 set $workspace9 "9 Slack"
 set $workspace10 "0 Spotify"
@@ -119,6 +119,9 @@ bindsym $mod+7 workspace $workspace7
 bindsym $mod+8 workspace $workspace8
 bindsym $mod+9 workspace $workspace9
 bindsym $mod+0 workspace $workspace10
+
+# New workspace
+bindsym $mod+Shift+g exec --no-startup-id i3-new-workspace
 
 # Boss is comming
 bindsym XF86Tools workspace $workspace2; workspace $workspace5; workspace $workspace10
@@ -193,13 +196,13 @@ bar {
 
   colors {
       background #30363b
-      statusline #eae9da
+      statusline #ff99cc
       separator  #eae9ad
 
       focused_workspace  #30363b #30363b #4e9ab7
       active_workspace   #30363b #30363b #4e9ab7
-      inactive_workspace #30363b #30363b #eae9da
-      urgent_workspace   #9b6465 #30363b #eae9da
+      inactive_workspace #30363b #30363b #ff99cc
+      urgent_workspace   #9b6465 #30363b #ff99cc
    }
 }
 
@@ -208,12 +211,13 @@ bar {
 exec --no-startup-id setxkbmap -layout us -variant mac; xmodmap ~/.Xmodmap
 # exec --no-startup-id setxkbmap -layout us,no -option grp:alt_shift_toggle,ctrl:nocaps
 exec --no-startup-id nm-applet
+exec --no-startup-id variety
 exec --no-startup-id gnome-keyring-daemon --start
 # exec --no-startup-id dunst
 exec --no-startup-id sleep 3 && xfce4-power-manager
 
 ## Debian wallaper
-exec_always --no-startup-id feh --bg-fill $wallpaper
+# exec_always --no-startup-id feh --bg-fill $wallpaper
 exec_always --no-startup-id compton --config ~/.config/compton/config -f
 
 ## Makes i3gaps play more nicely
@@ -242,6 +246,7 @@ client.placeholder      #000000 #ffffff #ffffff #000000
 assign [class="Spotify"] $workspace10
 assign [class="Firefox"] $workspace1
 assign [class="Code"] $workspace2
-assign [class="anbox"] $workspace7
+assign [class="IBM Notes"] $workspace7
+assign [class="Google-chrome"] $workspace6
 assign [class="Keybase"] $workspace8
 assign [class="Slack"] $workspace9
