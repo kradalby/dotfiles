@@ -1,26 +1,95 @@
+let s:darwin = has('mac')
+
 call plug#begin('~/.vim/plugged')
 
-"Plug 'whatyouhide/vim-gotham'
-"Plug 'farseer90718/flattr.vim'
 Plug 'tomasr/molokai'
-Plug 'hail2u/vim-css3-syntax'
-Plug 'ervandew/supertab'
-Plug 'vim-scripts/dhcpd.vim'
-Plug 'kradalby/snipmate.vim'
-Plug 'godlygeek/tabular'
-Plug 'Townk/vim-autoclose'
-Plug 'vim-scripts/HTML-AutoCloseTag'
-Plug 'nvie/vim-flake8'
-Plug 'sheerun/vim-polyglot'
-Plug 'seveas/bind.vim'
-"Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-Plug 'jamessan/vim-gnupg'
-Plug 'PProvost/vim-ps1'
+
+Plug 'autozimu/LanguageClient-neovim', {
+            \ 'branch': 'next',
+            \ 'do': 'bash install.sh',
+            \ }
+
+Plug 'junegunn/fzf', { 'do': './install --all' }
+Plug 'junegunn/fzf.vim'
+
+function! BuildYCM(info)
+    if a:info.status == 'installed' || a:info.force
+        !./install.py --clang-completer --gocode-completer
+    endif
+endfunction
+Plug 'Valloric/YouCompleteMe', { 'for': ['c', 'cpp'], 'do': function('BuildYCM') }
+
+
+" Languages
+Plug 'fatih/vim-go', { 'do': ':GoInstallBinaries' }
+Plug 'elmcast/elm-vim'
+Plug 'groenewege/vim-less'
+Plug 'pangloss/vim-javascript'
+Plug 'mxw/vim-jsx'
+Plug 'Glench/Vim-Jinja2-Syntax'
+Plug 'derekwyatt/vim-scala'
+Plug 'honza/dockerfile.vim'
 Plug 'dag/vim-fish'
-Plug 'maxbrunsfeld/vim-emacs-bindings'
+
+
+" Lint
+Plug 'w0rp/ale'
+
+
+" Plug 'roxma/python-support.nvim'
+" Plug 'roxma/nvim-completion-manager'
+
+" if !has('nvim')
+"     Plug 'roxma/vim-hug-neovim-rpc'
+" endif
+
+""Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+"Plug 'hail2u/vim-css3-syntax'
+"Plug 'ervandew/supertab'
+"Plug 'vim-scripts/dhcpd.vim'
+"Plug 'kradalby/snipmate.vim'
+"Plug 'godlygeek/tabular'
+"Plug 'Townk/vim-autoclose'
+"Plug 'vim-scripts/HTML-AutoCloseTag'
+"Plug 'nvie/vim-flake8'
+"Plug 'sheerun/vim-polyglot'
+"Plug 'seveas/bind.vim'
+"Plug 'jamessan/vim-gnupg'
+"Plug 'PProvost/vim-ps1'
+"Plug 'dag/vim-fish'
+"Plug 'maxbrunsfeld/vim-emacs-bindings'
 
 call plug#end()
 
+set hidden
+
+" Language server
+let g:LanguageClient_serverCommands = {
+            \ 'rust': ['rustup', 'run', 'nightly', 'rls'],
+            \ 'javascript': ['javascript-typescript-stdio'],
+            \ 'javascript.jsx': ['javascript-typescript-stdio'],
+            \ 'go': ['go-langserver'],
+            \ }
+
+
+" Language completion
+let g:ycm_semantic_triggers = {
+     \ 'elm' : ['.'],
+     \}
+
+
+" Linter
+let g:ale_fixers = {
+            \   'javascript': ['eslint'],
+            \   'elm': ['elm-format-0.18'],
+            \}
+
+let g:ale_fix_on_save = 1
+
+
+nnoremap <silent> K :call LanguageClient_textDocument_hover()<CR>
+nnoremap <silent> gd :call LanguageClient_textDocument_definition()<CR>
+nnoremap <silent> <F2> :call LanguageClient_textDocument_rename()<CR>
 
 set background=dark
 
@@ -131,7 +200,18 @@ set scs
 " set gdefault
 
 " Set status line
-set statusline=%t[%{strlen(&fenc)?&fenc:'none'},%{&ff}]%h%m%r%y%=%c,%l/%L\ %P
+" set statusline=%t[%{strlen(&fenc)?&fenc:'none'},%{&ff}]%h%m%r%y%=%c,%l/%L\ %P
+set statusline=%t       "tail of the filename
+set statusline+=[%{strlen(&fenc)?&fenc:'none'}, "file encoding
+set statusline+=%{&ff}] "file format
+set statusline+=%h      "help file flag
+set statusline+=%m      "modified flag
+set statusline+=%r      "read only flag
+set statusline+=%y      "filetype
+set statusline+=%=      "left/right separator
+set statusline+=%c,     "cursor column
+set statusline+=%l/%L   "cursor line/total lines
+set statusline+=\ %P    "percent through file
 
 
 " Always display a status line at the bottom of the window
@@ -155,21 +235,6 @@ set foldnestmax=10
 set foldmethod=indent
 
 
-" Java specific stuff
-let java_highlight_all=1
-let java_highlight_debug=1
-
-let java_ignore_javadoc=1
-let java_highlight_functions=1
-let java_mark_braces_in_parens_as_errors=1
-
-" highlight strings inside C comments
-let c_comment_strings=1
-
-" for the TOhtml command
-let html_use_css=1
-
-
 " Select all.
 map <c-a> ggVG
 
@@ -188,24 +253,3 @@ function! <SID>StripTrailingWhitespaces()
     let @/=_s
     call cursor(l, c)
 endfunction
-
-function! UpdateModifiedTimeMarkdown()
-    let l = line(".")
-    let c = col(".")
-    %s/Modified:.*/\='Modified: ' . strftime("%Y-%m-%d %H:%M")/g
-    call cursor(l, c)
-endfunction
-
-nnoremap <silent> <Leader>s :call <SID>StripTrailingWhitespaces()<CR>
-nnoremap <C-n> :call UpdateModifiedTimeMarkdown()<cr>
-command! DateTime call UpdateModifiedTimeMarkdown()
-command! StripTrail call <SID>StripTrailingWhitespaces()
-
-autocmd BufWritePre * :call <SID>StripTrailingWhitespaces()
-" autocmd BufWritePre *.md :call UpdateModifiedTimeMarkdown()
-
-augroup configgroup
-    autocmd FileType bindzone setlocal tabstop=4
-    autocmd FileType bindzone setlocal shiftwidth=4
-    autocmd FileType bindzone setlocal noexpandtab
-augroup END
