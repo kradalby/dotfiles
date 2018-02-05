@@ -1,6 +1,10 @@
 set -x LC_ALL "en_US.UTF-8"
 set -x LANG "en_US.UTF-8"
 
+if not set -q TMPDIR
+    set -gx TMPDIR /tmp
+end
+
 # Configure fish
 set normal (set_color normal)
 set magenta (set_color magenta)
@@ -63,6 +67,11 @@ end
 # rust in path
 if test -d $HOME/.cargo/bin
     set -x PATH $PATH "$HOME/.cargo/bin"
+end
+
+# python local in path
+if test -d $HOME/.local/bin
+    set -x PATH $PATH "$HOME/.local/bin"
 end
 
 # GO

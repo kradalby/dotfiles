@@ -1,3 +1,8 @@
+let mapleader      = ' '
+let maplocalleader = ' '
+
+filetype plugin on
+
 let s:darwin = has('mac')
 
 call plug#begin('~/.vim/plugged')
@@ -12,28 +17,50 @@ Plug 'autozimu/LanguageClient-neovim', {
 Plug 'junegunn/fzf', { 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 
-function! BuildYCM(info)
-    if a:info.status == 'installed' || a:info.force
-        !./install.py --clang-completer --gocode-completer
-    endif
-endfunction
-Plug 'Valloric/YouCompleteMe', { 'for': ['c', 'cpp'], 'do': function('BuildYCM') }
 
 
 " Languages
+"
+function! BuildYCM(info)
+    if a:info.status == 'installed' || a:info.force
+        !./install.py --all
+    endif
+endfunction
+Plug 'Valloric/YouCompleteMe', { 'for': ['c', 'cpp', 'elm'], 'do': function('BuildYCM') }
+
+
+if has('nvim')
+  Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins', 'for': ['go'] }
+else
+  Plug 'Shougo/deoplete.nvim', { 'for': ['go'] }
+  Plug 'roxma/nvim-yarp'
+  Plug 'roxma/vim-hug-neovim-rpc'
+endif
+let g:deoplete#enable_at_startup = 1
+Plug 'zchee/deoplete-go', { 'for': ['go'], 'do': 'make'}
+
 Plug 'fatih/vim-go', { 'do': ':GoInstallBinaries' }
+
 Plug 'elmcast/elm-vim'
 Plug 'groenewege/vim-less'
 Plug 'pangloss/vim-javascript'
 Plug 'mxw/vim-jsx'
 Plug 'Glench/Vim-Jinja2-Syntax'
 Plug 'derekwyatt/vim-scala'
-Plug 'honza/dockerfile.vim'
 Plug 'dag/vim-fish'
 
+Plug 'hashivim/vim-hashicorp-tools'
+Plug 'fatih/vim-hclfmt'
+
+Plug 'fatih/vim-nginx' , {'for' : 'nginx'}
+Plug 'elzr/vim-json', {'for' : 'json'}
+Plug 'ekalinin/Dockerfile.vim', {'for' : 'Dockerfile'}
 
 " Lint
 Plug 'w0rp/ale'
+
+" Browsing
+Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
 
 
 " Plug 'roxma/python-support.nvim'
@@ -78,19 +105,31 @@ let g:ycm_semantic_triggers = {
      \}
 
 
+" Go settings
+let g:go_highlight_types = 1
+let g:go_highlight_fields = 1
+let g:go_highlight_functions = 1
+let g:go_highlight_methods = 1
+let g:go_highlight_extra_types = 1
+let g:go_highlight_build_constraints = 1
+
+
+
 " Linter
 let g:ale_fixers = {
             \   'javascript': ['eslint'],
-            \   'elm': ['elm-format-0.18'],
+            \   'elm': ['format'],
             \}
 
 let g:ale_fix_on_save = 1
 
 
-nnoremap <silent> K :call LanguageClient_textDocument_hover()<CR>
-nnoremap <silent> gd :call LanguageClient_textDocument_definition()<CR>
-nnoremap <silent> <F2> :call LanguageClient_textDocument_rename()<CR>
 
+" <F10> | NERD Tree
+nnoremap <C-n> :NERDTreeToggle<cr>
+
+
+" Colors
 set background=dark
 
 try
@@ -101,11 +140,134 @@ endtry
 
 syntax on
 
+" nnoremap <silent> K :call LanguageClient_textDocument_hover()<CR>
+" nnoremap <silent> gd :call LanguageClient_textDocument_definition()<CR>
+" nnoremap <silent> <F2> :call LanguageClient_textDocument_rename()<CR>
 
-" create convinient tab keys
-nnoremap [ :tabnew<cr>
-nnoremap ' :tabnext<cr>
-nnoremap ; :tabprev<cr>
+" ----------------------------------------------------------------------------
+" Tabs and splits
+" ----------------------------------------------------------------------------
+set splitbelow
+set splitright
+
+nmap <silent> <A-S-Up> :wincmd k<CR>
+nmap <silent> <A-S-Down> :wincmd j<CR>
+nmap <silent> <A-S-Left> :wincmd h<CR>
+nmap <silent> <A-S-Right> :wincmd l<CR>
+
+nmap <silent> <A-Up> :tabnew<CR>
+nmap <silent> <A-Down> :tabclose<CR>
+nmap <silent> <A-Left> :tabprev<CR>
+nmap <silent> <A-Right> :tabnext<CR>
+
+" ----------------------------------------------------------------------------
+" <tab> / <s-tab> | Circular windows navigation
+" ----------------------------------------------------------------------------
+nnoremap <tab>   <c-w>w
+nnoremap <S-tab> <c-w>W
+
+" ----------------------------------------------------------------------------
+" #!! | Shebang
+" ----------------------------------------------------------------------------
+inoreabbrev <expr> #!! "#!/usr/bin/env" . (empty(&filetype) ? '' : ' '.&filetype)
+
+" " ----------------------------------------------------------------------------
+" " ack.vim
+" " ----------------------------------------------------------------------------
+" if executable('ag')
+"   let &grepprg = 'ag --nogroup --nocolor --column'
+" else
+"   let &grepprg = 'grep -rn $* *'
+" endif
+" command! -nargs=1 -bar Grep execute 'silent! grep! <q-args>' | redraw! | copen
+
+" ============================================================================
+" FZF {{{
+" ============================================================================
+
+if has('nvim') || has('gui_running')
+  let $FZF_DEFAULT_OPTS .= ' --inline-info'
+endif
+
+" Hide statusline of terminal buffer
+autocmd! FileType fzf
+autocmd  FileType fzf set laststatus=0 noshowmode noruler
+  \| autocmd BufLeave <buffer> set laststatus=2 showmode ruler
+
+let g:fzf_colors =
+\ { 'fg':      ['fg', 'Normal'],
+  \ 'bg':      ['bg', 'Normal'],
+  \ 'hl':      ['fg', 'Comment'],
+  \ 'fg+':     ['fg', 'CursorLine', 'CursorColumn', 'Normal'],
+  \ 'bg+':     ['bg', 'CursorLine', 'CursorColumn'],
+  \ 'hl+':     ['fg', 'Statement'],
+  \ 'info':    ['fg', 'PreProc'],
+  \ 'border':  ['fg', 'Ignore'],
+  \ 'prompt':  ['fg', 'Conditional'],
+  \ 'pointer': ['fg', 'Exception'],
+  \ 'marker':  ['fg', 'Keyword'],
+  \ 'spinner': ['fg', 'Label'],
+  \ 'header':  ['fg', 'Comment'] }
+
+command! -bang -nargs=? -complete=dir Files
+  \ call fzf#vim#files(<q-args>, fzf#vim#with_preview(), <bang>0)
+
+" nnoremap <silent> <Leader><Leader> :Files<CR>
+nnoremap <silent> <expr> <Leader><Leader> (expand('%') =~ 'NERD_tree' ? "\<c-w>\<c-w>" : '').":Files\<cr>"
+nnoremap <silent> <Leader>C        :Colors<CR>
+nnoremap <silent> <Leader><Enter>  :Buffers<CR>
+nnoremap <silent> <Leader>l        :Lines<CR>
+nnoremap <silent> <Leader>ag       :Ag <C-R><C-W><CR>
+nnoremap <silent> <Leader>AG       :Ag <C-R><C-A><CR>
+xnoremap <silent> <Leader>ag       y:Ag <C-R>"<CR>
+nnoremap <silent> <Leader>`        :Marks<CR>
+" nnoremap <silent> q: :History:<CR>
+" nnoremap <silent> q/ :History/<CR>
+
+" inoremap <expr> <c-x><c-t> fzf#complete('tmuxwords.rb --all-but-current --scroll 500 --min 5')
+" imap <c-x><c-k> <plug>(fzf-complete-word)
+" imap <c-x><c-f> <plug>(fzf-complete-path)
+" inoremap <expr> <c-x><c-d> fzf#vim#complete#path('blsd')
+" imap <c-x><c-j> <plug>(fzf-complete-file-ag)
+" imap <c-x><c-l> <plug>(fzf-complete-line)
+
+nmap <leader><tab> <plug>(fzf-maps-n)
+xmap <leader><tab> <plug>(fzf-maps-x)
+omap <leader><tab> <plug>(fzf-maps-o)
+
+function! s:plug_help_sink(line)
+  let dir = g:plugs[a:line].dir
+  for pat in ['doc/*.txt', 'README.md']
+    let match = get(split(globpath(dir, pat), "\n"), 0, '')
+    if len(match)
+      execute 'tabedit' match
+      return
+    endif
+  endfor
+  tabnew
+  execute 'Explore' dir
+endfunction
+
+command! PlugHelp call fzf#run(fzf#wrap({
+  \ 'source': sort(keys(g:plugs)),
+  \ 'sink':   function('s:plug_help_sink')}))
+
+" }}}
+
+" Annoying temporary files
+set backupdir=/tmp//,.
+set directory=/tmp//,.
+if v:version >= 703
+  set undodir=/tmp//,.
+endif
+
+
+" 80 chars/line
+set textwidth=0
+if exists('&colorcolumn')
+  set colorcolumn=80
+endif
+
 
 " Set default shell to zsh
 set shell=/bin/sh
