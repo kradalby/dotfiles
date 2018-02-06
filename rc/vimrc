@@ -56,6 +56,9 @@ Plug 'fatih/vim-nginx' , {'for' : 'nginx'}
 Plug 'elzr/vim-json', {'for' : 'json'}
 Plug 'ekalinin/Dockerfile.vim', {'for' : 'Dockerfile'}
 
+Plug 'SirVer/ultisnips'
+Plug 'honza/vim-snippets'
+
 " Lint
 Plug 'w0rp/ale'
 
@@ -63,28 +66,6 @@ Plug 'w0rp/ale'
 Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
 
 
-" Plug 'roxma/python-support.nvim'
-" Plug 'roxma/nvim-completion-manager'
-
-" if !has('nvim')
-"     Plug 'roxma/vim-hug-neovim-rpc'
-" endif
-
-""Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-"Plug 'hail2u/vim-css3-syntax'
-"Plug 'ervandew/supertab'
-"Plug 'vim-scripts/dhcpd.vim'
-"Plug 'kradalby/snipmate.vim'
-"Plug 'godlygeek/tabular'
-"Plug 'Townk/vim-autoclose'
-"Plug 'vim-scripts/HTML-AutoCloseTag'
-"Plug 'nvie/vim-flake8'
-"Plug 'sheerun/vim-polyglot'
-"Plug 'seveas/bind.vim'
-"Plug 'jamessan/vim-gnupg'
-"Plug 'PProvost/vim-ps1'
-"Plug 'dag/vim-fish'
-"Plug 'maxbrunsfeld/vim-emacs-bindings'
 
 call plug#end()
 
@@ -217,9 +198,12 @@ nnoremap <silent> <expr> <Leader><Leader> (expand('%') =~ 'NERD_tree' ? "\<c-w>\
 nnoremap <silent> <Leader>C        :Colors<CR>
 nnoremap <silent> <Leader><Enter>  :Buffers<CR>
 nnoremap <silent> <Leader>l        :Lines<CR>
-nnoremap <silent> <Leader>ag       :Ag <C-R><C-W><CR>
-nnoremap <silent> <Leader>AG       :Ag <C-R><C-A><CR>
-xnoremap <silent> <Leader>ag       y:Ag <C-R>"<CR>
+nnoremap <silent> <Leader>s        :Snippets<CR>
+nnoremap <silent> <Leader>f        :Filetypes<CR>
+nnoremap <silent> <Leader>ag       :Ag<CR>
+" nnoremap <silent> <Leader>ag       :Ag <C-R><C-W><CR>
+" nnoremap <silent> <Leader>AG       :Ag <C-R><C-A><CR>
+" xnoremap <silent> <Leader>ag       y:Ag <C-R>"<CR>
 nnoremap <silent> <Leader>`        :Marks<CR>
 " nnoremap <silent> q: :History:<CR>
 " nnoremap <silent> q/ :History/<CR>
