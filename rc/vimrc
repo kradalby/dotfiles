@@ -100,9 +100,11 @@ let g:go_highlight_build_constraints = 1
 let g:ale_fixers = {
             \   'javascript': ['eslint'],
             \   'elm': ['format'],
+            \   'sh': ['shfmt'],
             \}
 
 let g:ale_fix_on_save = 1
+let g:ale_sign_column_always = 1
 
 
 
@@ -302,8 +304,8 @@ set tabstop=4     " spaces per tab
 set shiftwidth=4  " characters to indent
 set softtabstop=4 " make spaces feel like tabs
 set expandtab     " insert space on tab
-set list          " show invisible characters
-set listchars=tab:>·,trail:· " ... but only show tabs and trailing whitespace
+" set list          " show invisible characters
+" set listchars=tab:>·,trail:· " ... but only show tabs and trailing whitespace
 
 " set the commandheight
 set cmdheight=2
