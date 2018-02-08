@@ -48,6 +48,7 @@ Plug 'mxw/vim-jsx'
 Plug 'Glench/Vim-Jinja2-Syntax'
 Plug 'derekwyatt/vim-scala'
 Plug 'dag/vim-fish'
+Plug 'pearofducks/ansible-vim'
 
 Plug 'hashivim/vim-hashicorp-tools'
 Plug 'fatih/vim-hclfmt'
