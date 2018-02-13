@@ -7,3 +7,4 @@
 !fish/aliases/*
 !fish/completions/*
 !Code/User/settings.json
+!kitty/kitty.conf
