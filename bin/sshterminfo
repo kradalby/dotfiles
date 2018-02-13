@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+ssh $1 mkdir -p \~/.terminfo
+infocmp xterm-kitty | ssh $1 "cat > /tmp/kitty.terminfo"
+ssh $1 tic -x -o \~/.terminfo /tmp/kitty.terminfo
