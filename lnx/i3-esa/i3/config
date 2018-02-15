@@ -248,9 +248,14 @@ assign [class="Spotify"] $workspace10
 assign [class="Firefox"] $workspace1
 assign [class="Code"] $workspace2
 assign [class="IBM Notes"] $workspace7
+assign [class="Slack"] $workspace7
+assign [class="Keybase"] $workspace7
+assign [class="Slack"] $workspace7
+assign [class="WhatsApp"] $workspace7
+
 assign [class="Google-chrome"] $workspace6
-assign [class="Keybase"] $workspace8
-assign [class="Slack"] $workspace9
+# assign [class="Keybase"] $workspace8
+# assign [class="Slack"] $workspace9
 
 
 workspace $workspace1 output DP-2-2
