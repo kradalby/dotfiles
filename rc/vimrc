@@ -8,6 +8,7 @@ let s:darwin = has('mac')
 call plug#begin('~/.vim/plugged')
 
 Plug 'tomasr/molokai'
+Plug 'junegunn/goyo.vim'
 
 Plug 'autozimu/LanguageClient-neovim', {
             \ 'branch': 'next',
@@ -21,23 +22,24 @@ Plug 'junegunn/fzf.vim'
 
 " Languages
 "
-function! BuildYCM(info)
-    if a:info.status == 'installed' || a:info.force
-        !./install.py --all
-    endif
-endfunction
-Plug 'Valloric/YouCompleteMe', { 'for': ['c', 'cpp', 'elm'], 'do': function('BuildYCM') }
+" function! BuildYCM(info)
+"     if a:info.status == 'installed' || a:info.force
+"         !./install.py --all
+"     endif
+" endfunction
+" Plug 'Valloric/YouCompleteMe', { 'for': ['c', 'cpp', 'elm'], 'do': function('BuildYCM') }
 
 
 if has('nvim')
-  Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins', 'for': ['go'] }
+  Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins', 'for': ['go', 'python'] }
 else
-  Plug 'Shougo/deoplete.nvim', { 'for': ['go'] }
+  Plug 'Shougo/deoplete.nvim', { 'for': ['go', 'python'] }
   Plug 'roxma/nvim-yarp'
   Plug 'roxma/vim-hug-neovim-rpc'
 endif
 let g:deoplete#enable_at_startup = 1
 Plug 'zchee/deoplete-go', { 'for': ['go'], 'do': 'make'}
+Plug 'zchee/deoplete-jedi', {'for': ['python']}
 
 Plug 'fatih/vim-go', { 'do': ':GoInstallBinaries' }
 
@@ -49,9 +51,12 @@ Plug 'Glench/Vim-Jinja2-Syntax'
 Plug 'derekwyatt/vim-scala'
 Plug 'dag/vim-fish'
 Plug 'pearofducks/ansible-vim'
+Plug 'junegunn/rainbow_parentheses.vim'
 
 Plug 'hashivim/vim-hashicorp-tools'
 Plug 'fatih/vim-hclfmt'
+
+Plug 'lifepillar/pgsql.vim'
 
 Plug 'fatih/vim-nginx' , {'for' : 'nginx'}
 Plug 'elzr/vim-json', {'for' : 'json'}
@@ -82,9 +87,11 @@ let g:LanguageClient_serverCommands = {
 
 
 " Language completion
-let g:ycm_semantic_triggers = {
-     \ 'elm' : ['.'],
-     \}
+" let g:ycm_semantic_triggers = {
+"      \ 'elm' : ['.'],
+"      \}
+
+let g:ycm_autoclose_preview_window_after_completion=1
 
 
 " Go settings
@@ -95,7 +102,11 @@ let g:go_highlight_methods = 1
 let g:go_highlight_extra_types = 1
 let g:go_highlight_build_constraints = 1
 
+" Python settings
+let g:ycm_python_binary_path = '/usr/bin/python3'
 
+" PGSQL
+let g:sql_type_default = 'pgsql'
 
 " Linter
 let g:ale_fixers = {
@@ -134,15 +145,31 @@ syntax on
 set splitbelow
 set splitright
 
-nmap <silent> <A-S-Up> :wincmd k<CR>
-nmap <silent> <A-S-Down> :wincmd j<CR>
-nmap <silent> <A-S-Left> :wincmd h<CR>
-nmap <silent> <A-S-Right> :wincmd l<CR>
+" nmap <silent> <A-S-Up> :wincmd k<CR>
+" nmap <silent> <A-S-Down> :wincmd j<CR>
+" nmap <silent> <A-S-Left> :wincmd h<CR>
+" nmap <silent> <A-S-Right> :wincmd l<CR>
 
 nmap <silent> <A-Up> :tabnew<CR>
 nmap <silent> <A-Down> :tabclose<CR>
 nmap <silent> <A-Left> :tabprev<CR>
 nmap <silent> <A-Right> :tabnext<CR>
+
+nmap <silent> <A-S-Left> :exec PrevSlide()<CR>
+nmap <silent> <A-S-Right> :exec NextSlide()<CR>
+
+
+function! PrevSlide()
+    :Goyo!
+    :tabprev
+    :Goyo
+endfunction
+
+function! NextSlide()
+    :Goyo!
+    :tabnext
+    :Goyo
+endfunction
 
 " ----------------------------------------------------------------------------
 " <tab> / <s-tab> | Circular windows navigation
@@ -308,6 +335,12 @@ set expandtab     " insert space on tab
 " set list          " show invisible characters
 " set listchars=tab:>·,trail:· " ... but only show tabs and trailing whitespace
 
+" Paste settings
+set pastetoggle=<C-x>
+set showmode
+
+
+
 " set the commandheight
 set cmdheight=2
 
@@ -402,3 +435,22 @@ function! <SID>StripTrailingWhitespaces()
     let @/=_s
     call cursor(l, c)
 endfunction
+
+
+
+"
+" Language section
+"
+
+" Elm
+augroup elm_files
+    autocmd!
+    autocmd FileType elm setlocal tabstop=4     " spaces per tab
+    autocmd FileType elm setlocal shiftwidth=4  " characters to indent
+    autocmd FileType elm setlocal softtabstop=4 " make spaces feel like tabs
+    autocmd FileType elm setlocal expandtab     " insert space on tab
+augroup END
+augroup rainbow_lisp
+      autocmd!
+      autocmd FileType lisp,clojure,scheme,elm,go,javascript RainbowParentheses
+augroup END
