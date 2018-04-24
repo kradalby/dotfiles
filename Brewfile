@@ -175,7 +175,10 @@ cask 'transmit-disk'
 cask 'vmware-fusion'
 cask 'mailbutler'
 cask 'real-vnc'
-cask "dotnet"
+cask 'dotnet'
+
+cask 'menubar-colors'
+cask 'gas-mask'
 
 brew 'mas'
 mas 'LastPass', id: 926036361
