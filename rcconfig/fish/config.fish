@@ -69,6 +69,11 @@ if test -d $HOME/.cargo/bin
     set -x PATH $PATH "$HOME/.cargo/bin"
 end
 
+# npm in path
+if test -d $HOME/.npm-packages/bin
+    set -x PATH $PATH "$HOME/.npm-packages/bin"
+end
+
 # python local in path
 if test -d $HOME/.local/bin
     set -x PATH $PATH "$HOME/.local/bin"
