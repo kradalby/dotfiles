@@ -269,11 +269,11 @@ command! PlugHelp call fzf#run(fzf#wrap({
 " }}}
 
 " Annoying temporary files
-set backupdir=/tmp//,.
-set directory=/tmp//,.
-if v:version >= 703
-  set undodir=/tmp//,.
-endif
+" set backupdir=/tmp//,.
+" set directory=/tmp//,.
+" if v:version >= 703
+"   set undodir=/tmp//,.
+" endif
 
 
 " 80 chars/line
