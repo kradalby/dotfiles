@@ -79,6 +79,11 @@ if test -d $HOME/.local/bin
     set -x PATH $PATH "$HOME/.local/bin"
 end
 
+# PHP composer in path
+if test -d $HOME/.config/composer/vendor/bin
+    set -x PATH $PATH "$HOME/.config/composer/vendor/bin"
+end
+
 # GO
 
 set -x GOPATH "$HOME/go"
