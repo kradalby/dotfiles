@@ -9,4 +9,5 @@ Host *.esa.int
 Host kradev
     HostName kradev.it.esa.int
     User kradalby
-    LocalForward 3000 localhost:3000
+    LocalForward 43000 localhost:3000
+    LocalForward 48384 localhost:8384
