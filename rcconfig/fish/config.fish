@@ -92,7 +92,9 @@ if test -d "$GOPATH"
     set -x PATH $PATH "$GOPATH/bin"
 end
 
-
+if test -d "$HOME/.gem/ruby/2.5.0/bin"
+    set -x PATH $PATH "$HOME/.gem/ruby/2.5.0/bin"
+end
 
 # Source aliases
 for file in $HOME/.config/fish/aliases/*
