@@ -3,6 +3,7 @@
 !.gitignore
 !fish/config.fish
 !fish/osx.fish
+!fish/linux.fish
 !fish/functions/*
 !fish/aliases/*
 !fish/completions/*
