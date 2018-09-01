@@ -2,7 +2,7 @@ set -x LC_ALL "en_US.UTF-8"
 set -x LANG "en_US.UTF-8"
 
 if not set -q TMPDIR
-    set -gx TMPDIR /tmp
+    set -g x TMPDIR /tmp
 end
 
 # Configure fish
@@ -41,60 +41,36 @@ if test (uname) = "Linux"
 end
 
 # Ansible
-set -x ANSIBLE_HOST_KEY_CHECKING "False"
-set -x ANSIBLE_CONFIG "~/.ansible.cfg"
+if test -d $HOME/.ansible.cfg
+    set -x ANSIBLE_HOST_KEY_CHECKING "False"
+    set -x ANSIBLE_CONFIG "$HOME/.ansible.cfg"
+end
 
 set -x EDITOR "vim"
-
-# Sorce sensitive tokens
-source $HOME/Sync/tokens.fish
-
-# dotfiles bin
-if test -d $HOME/git/dotfiles/bin
-    set -x PATH $PATH "$HOME/git/dotfiles/bin"
-end
-
-# homedir bin
-if test -d $HOME/bin
-    set -x PATH $PATH "$HOME/bin"
-end
-
-# npm global bin
-if test -d $HOME/bin
-    set -x PATH $PATH "$HOME/.npm-global/bin"
-end
-
-# rust in path
-if test -d $HOME/.cargo/bin
-    set -x PATH $PATH "$HOME/.cargo/bin"
-end
-
-# npm in path
-if test -d $HOME/.npm-packages/bin
-    set -x PATH $PATH "$HOME/.npm-packages/bin"
-end
-
-# python local in path
-if test -d $HOME/.local/bin
-    set -x PATH $PATH "$HOME/.local/bin"
-end
-
-# PHP composer in path
-if test -d $HOME/.config/composer/vendor/bin
-    set -x PATH $PATH "$HOME/.config/composer/vendor/bin"
-end
-
-# GO
-
 set -x GOPATH "$HOME/go"
 
-if test -d "$GOPATH"
-    set -x PATH $PATH "$GOPATH/bin"
+# Sorce sensitive tokens
+if test -f $HOME/Sync/tokens.fish
+    source $HOME/Sync/tokens.fish
 end
 
-if test -d "$HOME/.gem/ruby/2.5.0/bin"
-    set -x PATH $PATH "$HOME/.gem/ruby/2.5.0/bin"
+# Add directories to path if they exist
+set BINDIRS = "$HOME/.npm-global/bin" \
+    "$HOME/.npm-packages/bin" \
+    "$HOME/.cargo/bin" \
+    "$HOME/git/dotfiles/bin" \
+    "$HOME/bin" \
+    "$HOME/.local/bin" \
+    "$HOME/.config/composer/vendor/bin" \
+    "$GOPATH/bin" \
+    "$HOME/.gem/ruby/2.5.0/bin"
+
+for bindir in $BINDIRS
+    if test -d $bindir
+         set -x PATH $PATH $bindir 
+    end
 end
+
 
 # Source aliases
 for file in $HOME/.config/fish/aliases/*

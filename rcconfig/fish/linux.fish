@@ -1,14 +1,15 @@
 
 # Go 1.10 Ubuntu
 # https://github.com/golang/go/wiki/Ubuntu
-if test -d "/usr/lib/go-1.10/bin"
-    set -x PATH $PATH "/usr/lib/go-1.10/bin"
-end
 
-if test -d "/opt/ibm/notes"
-    set -x PATH $PATH "/opt/ibm/notes"
-end
+# Add directories to path if they exist
+set BINDIRS = \
+    "/usr/lib/go-1.10/bin" \
+    "/opt/ibm/notes" \
+    "$HOME/git/kitty/linux-package/bin"
 
-if test -d "$HOME/git/kitty/linux-package/bin"
-    set -x PATH $PATH "$HOME/git/kitty/linux-package/bin"
+for bindir in $BINDIRS
+    if test -d $bindir
+         set -x PATH $PATH $bindir 
+    end
 end
