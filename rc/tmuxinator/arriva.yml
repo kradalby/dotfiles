@@ -1,7 +1,7 @@
 # ~/.tmuxinator/virtus.yml
 
-name: hugin
-root: ~/git/hugin
+name: arriva
+root: ~/git/arrivaplease
 
 # Optional tmux socket
 # socket_name: foo
@@ -42,6 +42,3 @@ windows:
             - #empty
           - npm-run:
             - npm run dev
-          - serve:
-            - cd ~/git/munin/content
-            - python3 -m http.server 3000
