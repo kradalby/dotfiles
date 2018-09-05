@@ -81,3 +81,12 @@ end
 if test -d $HOME/.opam/opam-init
     source $HOME/.opam/opam-init/init.fish > /dev/null 2> /dev/null; or true
 end
+
+
+if type -q prettyping
+    alias ping prettyping
+end
+
+if type -q bat
+    alias cat bat
+end

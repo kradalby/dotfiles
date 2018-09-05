@@ -52,6 +52,9 @@ brew 'drone'
 brew 'nload'
 brew 'lastpass-cli', args: ['with-pinentry', 'with-doc']
 brew 'fdupes'
+brew 'fd'
+brew 'bat'
+brew 'prettyping'
 
 ## DevOps
 brew 'terraform'
