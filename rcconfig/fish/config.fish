@@ -48,6 +48,7 @@ end
 
 set -x EDITOR "vim"
 set -x GOPATH "$HOME/go"
+set -x GO111MODULE on
 
 # Sorce sensitive tokens
 if test -f $HOME/Sync/tokens.fish
