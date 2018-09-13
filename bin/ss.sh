@@ -10,10 +10,10 @@
 # Paste path to script ( make sure it is executable )
 # Save and add a shortcut to it under System Preferences > Keyboard > Shortcuts
 
-url=https://kradalby.no/ss/
+url=https://screenshots.kradalby.no/
 filename=`date '+%Y%m%d%H%M%S'`.png
 path=~/Pictures/ss/
 mkdir -p $path
 screencapture -o -i $path$filename
-scp -v $path$filename seel:/usr/local/www/kradalby.no/ss/
+scp -v $path$filename seel:/storage/nfs/k8s/screenshots/.
 printf $url$filename | pbcopy
