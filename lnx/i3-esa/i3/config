@@ -30,6 +30,8 @@ bindsym XF86AudioPause exec playerctl play-pause --player=spotify
 bindsym XF86AudioNext exec playerctl next --player=spotify
 bindsym XF86AudioPrev exec playerctl previous --player=spotify
 
+# Screenshots
+bindsym $mod+Shift+4 exec /home/kradalby/git/dotfiles/bin/ss_linux.sh
 
 # # # # # # # # # # # # # # # # # # #
 #
@@ -143,7 +145,7 @@ bindsym XF86Launch7 workspace $workspace6
 bindsym $mod+Shift+1 move container to workspace $workspace1
 bindsym $mod+Shift+2 move container to workspace $workspace2
 bindsym $mod+Shift+3 move container to workspace $workspace3
-bindsym $mod+Shift+4 move container to workspace $workspace4
+# bindsym $mod+Shift+4 move container to workspace $workspace4
 bindsym $mod+Shift+5 move container to workspace $workspace5
 bindsym $mod+Shift+6 move container to workspace $workspace6
 bindsym $mod+Shift+7 move container to workspace $workspace7

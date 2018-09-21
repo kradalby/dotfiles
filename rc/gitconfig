@@ -32,7 +32,7 @@
 	priv = config user.email \"kradalby@kradalby.no\"
 [core]
 	pager = diff-so-fancy | less --tabs=4 -RFX
-[credential]
-	helper = /usr/share/doc/git/contrib/credential/gnome-keyring/git-credential-gnome-keyring
 [url "ssh://git@gitlab.esa.int/"]
   insteadOf = https://gitlab.esa.int/
+[credential]
+	helper = store --file ~/.git-credentials
