@@ -73,6 +73,8 @@ Plug 'ekalinin/Dockerfile.vim', {'for' : 'Dockerfile'}
 Plug 'SirVer/ultisnips'
 Plug 'honza/vim-snippets'
 
+Plug 'ambv/black',
+
 " Lint
 Plug 'w0rp/ale'
 
@@ -112,6 +114,7 @@ let g:go_highlight_build_constraints = 1
 
 " Python settings
 " let g:ycm_python_binary_path = '/usr/bin/python3'
+autocmd BufWritePre *.py execute ':Black'
 
 " PGSQL
 let g:sql_type_default = 'pgsql'
