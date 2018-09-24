@@ -10,10 +10,10 @@ call plug#begin('~/.vim/plugged')
 Plug 'tomasr/molokai'
 Plug 'junegunn/goyo.vim'
 
-Plug 'autozimu/LanguageClient-neovim', {
-            \ 'branch': 'next',
-            \ 'do': 'bash install.sh',
-            \ }
+" Plug 'autozimu/LanguageClient-neovim', {
+"             \ 'branch': 'next',
+"             \ 'do': 'bash install.sh',
+"             \ }
 
 Plug 'junegunn/fzf', { 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
@@ -29,21 +29,29 @@ Plug 'junegunn/fzf.vim'
 " endfunction
 " Plug 'Valloric/YouCompleteMe', { 'for': ['c', 'cpp', 'elm'], 'do': function('BuildYCM') }
 
+function! InstallDeopleteDeps(info)
+    " call UpdateRemotePlugins()
+    if a:info.status == 'installed' || a:info.force
+        ! pip3 install --user neovim
+    endif
+endfunction
 
-if has('nvim')
-  Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins', 'for': ['go', 'python'] }
-else
-  Plug 'Shougo/deoplete.nvim', { 'for': ['go', 'python'] }
+Plug 'Shougo/deoplete.nvim', { 'do': function('InstallDeopleteDeps') }
+if !has('nvim')
   Plug 'roxma/nvim-yarp'
   Plug 'roxma/vim-hug-neovim-rpc'
 endif
+
+
 let g:deoplete#enable_at_startup = 1
-Plug 'zchee/deoplete-go', { 'for': ['go'], 'do': 'make'}
 Plug 'zchee/deoplete-jedi', {'for': ['python']}
 
+Plug 'zchee/deoplete-go', { 'for': ['go'], 'do': 'make'}
 Plug 'fatih/vim-go', { 'do': ':GoInstallBinaries' }
 
-Plug 'elmcast/elm-vim'
+Plug 'elmcast/elm-vim', {'for': ['elm'], 'do': 'npm install elm-oracle'}
+Plug 'pbogut/deoplete-elm', {'for': ['elm']}
+
 Plug 'groenewege/vim-less'
 Plug 'pangloss/vim-javascript'
 Plug 'mxw/vim-jsx'
@@ -80,20 +88,20 @@ call plug#end()
 set hidden
 
 " Language server
-let g:LanguageClient_serverCommands = {
-            \ 'rust': ['rustup', 'run', 'nightly', 'rls'],
-            \ 'javascript': ['javascript-typescript-stdio'],
-            \ 'javascript.jsx': ['javascript-typescript-stdio'],
-            \ 'go': ['go-langserver'],
-            \ }
-
+" let g:LanguageClient_serverCommands = {
+"             \ 'rust': ['rustup', 'run', 'nightly', 'rls'],
+"             \ 'javascript': ['javascript-typescript-stdio'],
+"             \ 'javascript.jsx': ['javascript-typescript-stdio'],
+"             \ }
+" 
+"             " \ 'go': ['go-langserver'],
 
 " Language completion
 " let g:ycm_semantic_triggers = {
 "      \ 'elm' : ['.'],
 "      \}
 
-let g:ycm_autoclose_preview_window_after_completion=1
+" let g:ycm_autoclose_preview_window_after_completion=1
 
 
 " Go settings
@@ -105,7 +113,7 @@ let g:go_highlight_extra_types = 1
 let g:go_highlight_build_constraints = 1
 
 " Python settings
-let g:ycm_python_binary_path = '/usr/bin/python3'
+" let g:ycm_python_binary_path = '/usr/bin/python3'
 autocmd BufWritePre *.py execute ':Black'
 
 " PGSQL
