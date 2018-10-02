@@ -11,3 +11,5 @@ Host kradev
     User kradalby
     LocalForward 43000 localhost:3000
     LocalForward 48384 localhost:8384
+    LocalForward 48000 localhost:8000
+    LocalForward 49000 localhost:9000
