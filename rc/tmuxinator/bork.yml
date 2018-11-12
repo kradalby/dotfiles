@@ -1,7 +1,7 @@
 # ~/.tmuxinator/virtus.yml
 
-name: kproj
-root: ~/go/src/github.com/kradalby/kproj
+name: bork
+root: ~/go/src/github.com/kradalby/bork
 
 # Optional tmux socket
 # socket_name: foo

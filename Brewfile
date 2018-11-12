@@ -181,6 +181,7 @@ cask 'minikube'
 cask 'mailbutler'
 cask 'real-vnc'
 cask 'dotnet'
+cask 'syncthing-app'
 
 cask 'menubar-colors'
 cask 'gas-mask'
