@@ -2,7 +2,7 @@ set -x LC_ALL "en_US.UTF-8"
 set -x LANG "en_US.UTF-8"
 
 if not set -q TMPDIR
-    set -g x TMPDIR /tmp
+    set -g -x TMPDIR /tmp
 end
 
 # Configure fish

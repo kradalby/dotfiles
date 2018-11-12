@@ -1,7 +1,7 @@
 # ~/.tmuxinator/virtus.yml
 
 name: kubespace
-root: ~/go/src/github.com/kradalby/kubespace
+root: ~/git/kubespace
 
 # Optional tmux socket
 # socket_name: foo
