@@ -8,6 +8,7 @@ set -x JAVA_HOME (/usr/libexec/java_home)
 set BINDIRS = \
     ""(brew --prefix)"/bin" \
     "/usr/local/opt/gnu-sed/bin" \
+    "$HOME/bin/flutter/bin" \
     "/Library/TeX/Distributions/.DefaultTeX/Contents/Programs/texbin" \
     "/usr/local/opt/coreutils/libexec/gnubin" 
 
