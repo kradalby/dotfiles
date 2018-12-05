@@ -18,6 +18,12 @@ for bindir in $BINDIRS
     end
 end
 
+# QT
+if test -d "/usr/local/opt/qt/bin"
+  set -x PATH $PATH "/usr/local/opt/qt/bin"
+  set -gx LDFLAGS "-L/usr/local/opt/qt/lib"
+  set -gx CPPFLAGS "-I/usr/local/opt/qt/include"
+end 
 # Swiftenv root
 # set -x SWIFTENV_ROOT "/usr/local/var/swiftenv"
 
