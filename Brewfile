@@ -30,6 +30,7 @@ brew 'tidy-html5'
 brew 'swiftlint'
 brew 'shellcheck'
 brew 'elm-format', args: ['devel']
+brew 'golangci/tap/golangci-lint'
 
 
 ## Tools
