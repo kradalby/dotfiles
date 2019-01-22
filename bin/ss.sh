@@ -15,5 +15,5 @@ filename=`date '+%Y%m%d%H%M%S'`.png
 path=~/Pictures/ss/
 mkdir -p $path
 screencapture -o -i $path$filename
-scp -v $path$filename seel:/storage/nfs/k8s/screenshots/.
+scp -v $path$filename root@storage.terra.fap.no:/storage/nfs/k8s/screenshots/.
 printf $url$filename | pbcopy
