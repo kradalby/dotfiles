@@ -129,17 +129,16 @@
 	</data>
 	<key>NSTableView Supports v2 KeyBingingTable</key>
 	<true/>
-	<key>NSToolbar Configuration com.apple.NSColorPanel</key>
-	<dict>
-		<key>TB Is Shown</key>
-		<integer>1</integer>
-	</dict>
 	<key>NSWindow Frame SUUpdateAlert</key>
-	<string>650 589 620 392 0 0 1920 1178 </string>
+	<string>650 498 620 392 0 0 1920 1057 </string>
 	<key>NSWindow Frame SharedPreferences</key>
-	<string>269 164 796 473 0 0 1920 1178 </string>
+	<string>750 216 796 486 0 0 1920 1057 </string>
 	<key>NSWindow Frame iTerm Window 0</key>
-	<string>640 0 640 1178 0 0 1920 1178 </string>
+	<string>640 0 640 1057 0 0 1920 1057 </string>
+	<key>NSWindow Frame iTerm Window 1</key>
+	<string>640 0 640 1057 0 0 1920 1057 </string>
+	<key>NSWindow Frame iTerm Window 2</key>
+	<string>0 703 490 354 0 0 1920 1057 </string>
 	<key>New Bookmarks</key>
 	<array>
 		<dict>
@@ -1206,9 +1205,9 @@
 				<key>0xf700-0x280000</key>
 				<dict>
 					<key>Action</key>
-					<integer>11</integer>
+					<integer>10</integer>
 					<key>Text</key>
-					<string>0x1b 0x1b 0x5b 0x41</string>
+					<string>[1;3A</string>
 				</dict>
 				<key>0xf701-0x220000</key>
 				<dict>
@@ -1262,9 +1261,9 @@
 				<key>0xf702-0x280000</key>
 				<dict>
 					<key>Action</key>
-					<integer>11</integer>
+					<integer>10</integer>
 					<key>Text</key>
-					<string>0x1b 0x1b 0x5b 0x44</string>
+					<string>[1;3D</string>
 				</dict>
 				<key>0xf703-0x220000</key>
 				<dict>
@@ -1290,9 +1289,9 @@
 				<key>0xf703-0x280000</key>
 				<dict>
 					<key>Action</key>
-					<integer>11</integer>
+					<integer>10</integer>
 					<key>Text</key>
-					<string>0x1b 0x1b 0x5b 0x43</string>
+					<string>[1;3C</string>
 				</dict>
 				<key>0xf704-0x20000</key>
 				<dict>
@@ -1600,25 +1599,11 @@
 	<key>NoSyncHaveWarnedAboutPasteConfirmationChange</key>
 	<true/>
 	<key>NoSyncInstallationId</key>
-	<string>21399085-C452-4D81-B2FF-13CB07BE5320</string>
-	<key>NoSyncLastTipTime</key>
-	<real>528916142.16361898</real>
-	<key>NoSyncNeverRemindPrefsChangesLostForFile</key>
-	<true/>
-	<key>NoSyncNeverRemindPrefsChangesLostForFile_selection</key>
-	<integer>1</integer>
+	<string>52AC13C1-6368-436A-BF93-860C5FD0FEEB</string>
 	<key>NoSyncPermissionToShowTip</key>
-	<true/>
+	<false/>
 	<key>NoSyncTimeOfFirstLaunchOfVersionWithTip</key>
-	<real>528556560.85741299</real>
-	<key>NoSyncTipsDisabled</key>
-	<true/>
-	<key>NoSyncTipsToNotShow</key>
-	<array>
-		<string>000</string>
-	</array>
-	<key>NoSyncTurnOffBracketedPasteOnHostChange</key>
-	<true/>
+	<real>563787292.70246506</real>
 	<key>OnlyWhenMoreTabs</key>
 	<true/>
 	<key>OpenArrangementAtStartup</key>
@@ -1629,6 +1614,8 @@
 	<false/>
 	<key>OpenTmuxWindowsIn</key>
 	<integer>0</integer>
+	<key>OptionIsMetaForSpecialChars</key>
+	<true/>
 	<key>PassOnControlClick</key>
 	<false/>
 	<key>PasteFromClipboard</key>
@@ -1693,15 +1680,15 @@
 	<key>SUFeedAlternateAppNameKey</key>
 	<string>iTerm</string>
 	<key>SUFeedURL</key>
-	<string>https://iterm2.com/appcasts/testing.xml?shard=82</string>
+	<string>https://iterm2.com/appcasts/testing.xml?shard=91</string>
 	<key>SUHasLaunchedBefore</key>
 	<true/>
 	<key>SULastCheckTime</key>
-	<date>2018-03-17T02:04:37Z</date>
+	<date>2019-01-14T09:27:32Z</date>
 	<key>SUSendProfileInfo</key>
 	<false/>
 	<key>SUSkippedVersion</key>
-	<string>3.1.6beta4</string>
+	<string>3.2.7beta3</string>
 	<key>SavePasteHistory</key>
 	<false/>
 	<key>ShowBookmarkName</key>
@@ -5992,10 +5979,12 @@
 	<string>/-+\~_.</string>
 	<key>findIgnoreCase_iTerm</key>
 	<true/>
+	<key>findMode_iTerm</key>
+	<integer>0</integer>
 	<key>findRegex_iTerm</key>
 	<false/>
 	<key>iTerm Version</key>
-	<string>3.1.6beta3</string>
+	<string>3.2.5</string>
 	<key>kCommandHistoryHasEverBeenUsed</key>
 	<true/>
 </dict>
