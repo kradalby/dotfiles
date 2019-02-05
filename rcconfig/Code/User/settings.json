@@ -207,7 +207,7 @@
     "go.useLanguageServer": true,
     "extensions.ignoreRecommendations": true,
     "window.zoomLevel": 0,
-    "docker.defaultRegistryPath": "registry.fap.no/registry.fap.no"
+    "docker.defaultRegistryPath": "registry.fap.no/registry.fap.no/registry.fap.no"
     //
     // end elm
     //
