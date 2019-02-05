@@ -1,17 +1,9 @@
-
-if test -e (which ipython)
-    #     alias python ipython
-    #     alias python3 ipython3
-    alias py python
-    alias py3 python3
-    alias pyt (which python)
-    alias pyt3 (which python3)
-else
-    alias py python
-    alias py3 python3
-end
-
-alias pp pypy
-alias pp3 pypy3
-
 alias ve virtualenv
+
+alias python "env PYTHONUSERBASE=$PYTHON3USERBASE python3"
+alias python2 "env PYTHONUSERBASE=$PYTHON2USERBASE python2"
+alias python3 "env PYTHONUSERBASE=$PYTHON3USERBASE python3"
+
+alias pip "echo 'use pip2 or pip3'"
+alias pip2 "env PYTHONUSERBASE=$PYTHON2USERBASE pip2"
+alias pip3 "env PYTHONUSERBASE=$PYTHON3USERBASE pip3"

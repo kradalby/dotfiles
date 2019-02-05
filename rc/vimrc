@@ -5,53 +5,51 @@ filetype plugin on
 
 let s:darwin = has('mac')
 
+
 call plug#begin('~/.vim/plugged')
 
+"""""""""""""""""""""""""
+" COLORS
+"""""""""""""""""""""""""
 Plug 'tomasr/molokai'
 Plug 'junegunn/goyo.vim'
 
-" Plug 'autozimu/LanguageClient-neovim', {
-"             \ 'branch': 'next',
-"             \ 'do': 'bash install.sh',
-"             \ }
 
+"""""""""""""""""""""""""
+" UTILITY
+"""""""""""""""""""""""""
+Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
 Plug 'junegunn/fzf', { 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 
 
 
-" Languages
-"
-" function! BuildYCM(info)
+" function! InstallDeopleteDeps(info)
+"     " call UpdateRemotePlugins()
 "     if a:info.status == 'installed' || a:info.force
-"         !./install.py --all
+"         ! pip3 install --user neovim
 "     endif
 " endfunction
-" Plug 'Valloric/YouCompleteMe', { 'for': ['c', 'cpp', 'elm'], 'do': function('BuildYCM') }
+"
+" Plug 'Shougo/deoplete.nvim', { 'do': function('InstallDeopleteDeps') }
+" if !has('nvim')
+"   Plug 'roxma/nvim-yarp'
+"   Plug 'roxma/vim-hug-neovim-rpc'
+" endif
+"
+"
+" let g:deoplete#enable_at_startup = 1
+" Plug 'zchee/deoplete-jedi', {'for': ['python']}
 
-function! InstallDeopleteDeps(info)
-    " call UpdateRemotePlugins()
-    if a:info.status == 'installed' || a:info.force
-        ! pip3 install --user neovim
-    endif
-endfunction
+" Plug 'zchee/deoplete-go', { 'for': ['go'], 'do': 'make'}
+" Plug 'fatih/vim-go', { 'do': ':GoInstallBinaries' }
 
-Plug 'Shougo/deoplete.nvim', { 'do': function('InstallDeopleteDeps') }
-if !has('nvim')
-  Plug 'roxma/nvim-yarp'
-  Plug 'roxma/vim-hug-neovim-rpc'
-endif
+" Plug 'elmcast/elm-vim', {'for': ['elm'], 'do': 'npm install elm-oracle'}
+" Plug 'pbogut/deoplete-elm', {'for': ['elm']}
 
-
-let g:deoplete#enable_at_startup = 1
-Plug 'zchee/deoplete-jedi', {'for': ['python']}
-
-Plug 'zchee/deoplete-go', { 'for': ['go'], 'do': 'make'}
-Plug 'fatih/vim-go', { 'do': ':GoInstallBinaries' }
-
-Plug 'elmcast/elm-vim', {'for': ['elm'], 'do': 'npm install elm-oracle'}
-Plug 'pbogut/deoplete-elm', {'for': ['elm']}
-
+"""""""""""""""""""""""""
+" SYNTAX
+"""""""""""""""""""""""""
 Plug 'groenewege/vim-less'
 Plug 'pangloss/vim-javascript'
 Plug 'mxw/vim-jsx'
@@ -60,27 +58,25 @@ Plug 'derekwyatt/vim-scala'
 Plug 'dag/vim-fish'
 Plug 'pearofducks/ansible-vim'
 Plug 'junegunn/rainbow_parentheses.vim'
-
-Plug 'hashivim/vim-hashicorp-tools'
-Plug 'fatih/vim-hclfmt'
-
-Plug 'lifepillar/pgsql.vim'
-
 Plug 'fatih/vim-nginx' , {'for' : 'nginx'}
 Plug 'elzr/vim-json', {'for' : 'json'}
 Plug 'ekalinin/Dockerfile.vim', {'for' : 'Dockerfile'}
 
-Plug 'SirVer/ultisnips'
-Plug 'honza/vim-snippets'
+"""""""""""""""""""""""""
+" FORMAT
+"""""""""""""""""""""""""
+Plug 'hashivim/vim-hashicorp-tools'
+Plug 'fatih/vim-hclfmt'
 
-Plug 'ambv/black',
 
-" Lint
+" Plug 'ambv/black',
+
+
+"""""""""""""""""""""""""
+" EVERYTHING
+"""""""""""""""""""""""""
 Plug 'w0rp/ale'
-
-" Browsing
-Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
-
+Plug 'lifepillar/pgsql.vim'
 
 
 call plug#end()
@@ -88,13 +84,18 @@ call plug#end()
 set hidden
 
 " Language server
-" let g:LanguageClient_serverCommands = {
-"             \ 'rust': ['rustup', 'run', 'nightly', 'rls'],
-"             \ 'javascript': ['javascript-typescript-stdio'],
-"             \ 'javascript.jsx': ['javascript-typescript-stdio'],
-"             \ }
-" 
-"             " \ 'go': ['go-langserver'],
+let g:LanguageClient_serverCommands = {
+            \ 'rust': ['rustup', 'run', 'nightly', 'rls'],
+            \ 'javascript': ['javascript-typescript-stdio'],
+            \ 'javascript.jsx': ['javascript-typescript-stdio'],
+            \ 'go': ['bingo'],
+            \ 'css' : ['css-languageserver'],
+            \ 'scss' : ['css-languageserver'],
+            \ 'python' : ['pyls'],
+            \ 'python2' : ['pyls'],
+            \ 'python3' : ['pyls'],
+            \ }
+
 
 " Language completion
 " let g:ycm_semantic_triggers = {
@@ -103,6 +104,22 @@ set hidden
 
 " let g:ycm_autoclose_preview_window_after_completion=1
 
+" Ale
+let g:ale_fixers = {
+            \   '*': ['remove_trailing_lines', 'trim_whitespace'],
+            \   'javascript': ['eslint'],
+            \   'elm': ['format'],
+            \   'sh': ['shfmt'],
+            \}
+
+" let g:ale_linters = {
+"             \   'go': ['gometalinter'],
+"             \}
+
+let g:ale_fix_on_save = 1
+let g:ale_lint_on_save = 1
+let g:ale_completion_enabled = 0
+let g:ale_sign_column_always = 1
 
 " Go settings
 let g:go_highlight_types = 1
@@ -114,25 +131,10 @@ let g:go_highlight_build_constraints = 1
 
 " Python settings
 " let g:ycm_python_binary_path = '/usr/bin/python3'
-autocmd BufWritePre *.py execute ':Black'
+" autocmd BufWritePre *.py execute ':Black'
 
 " PGSQL
 let g:sql_type_default = 'pgsql'
-
-" Linter
-let g:ale_fixers = {
-            \   'javascript': ['eslint'],
-            \   'elm': ['format'],
-            \   'sh': ['shfmt'],
-            \}
-
-let g:ale_linters = {
-            \   'go': ['gometalinter'],
-            \}
-
-let g:ale_fix_on_save = 1
-let g:ale_lint_on_save = 1
-let g:ale_sign_column_always = 1
 
 
 
@@ -166,8 +168,17 @@ set splitright
 " nmap <silent> <A-S-Left> :wincmd h<CR>
 " nmap <silent> <A-S-Right> :wincmd l<CR>
 
+" iTerm backup
+" alt left 0x1b 0x1b 0x5b 0x44
+" alt right 0x1b 0x1b 0x5b 0x43
+"
+
+" iTerm needs update:
+" ALT UP: [1;3A
+" ALT LEFT: [1;3D
+" ALT RIGHT: [1;3C
 nmap <silent> <A-Up> :tabnew<CR>
-nmap <silent> <A-Down> :tabclose<CR>
+" nmap <silent> <A-Down> :tabclose<CR>
 nmap <silent> <A-Left> :tabprev<CR>
 nmap <silent> <A-Right> :tabnext<CR>
 

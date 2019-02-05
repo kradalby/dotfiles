@@ -1,13 +1,11 @@
 pip
-ytfs
-ipython
-fusepy
-requests
+ansible
 virtualenv
 tox
-pgcli
-mycli
-markdown
-instantmusic
-autopep8
-yapf
+black
+
+# https://github.com/palantir/python-language-server
+python-language-server
+pyls-mypy
+pyls-isort
+pyls-black

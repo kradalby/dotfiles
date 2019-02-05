@@ -49,6 +49,11 @@ end
 set -x EDITOR "vim"
 set -x GOPATH "$HOME/go"
 set -x GO111MODULE on
+set -x PYTHON3USERBASE "$HOME/.pip3"
+set -x PYTHON2USERBASE "$HOME/.pip2"
+set -x PYTHONUSERBASE $PYTHON3USERBASE
+set -x PIP_USER 1
+set -x NODE_PATH "$HOME/.npm-packages/lib/node_modules"
 
 # Sorce sensitive tokens
 if test -f $HOME/Sync/tokens.fish
@@ -56,7 +61,9 @@ if test -f $HOME/Sync/tokens.fish
 end
 
 # Add directories to path if they exist
-set BINDIRS = "$HOME/.npm-global/bin" \
+set BINDIRS = \
+    "$PYTHON3USERBASE/bin" \
+    "$PYTHON2USERBASE/bin" \
     "$HOME/.npm-packages/bin" \
     "$HOME/.cargo/bin" \
     "$HOME/git/dotfiles/bin" \
@@ -68,7 +75,7 @@ set BINDIRS = "$HOME/.npm-global/bin" \
 
 for bindir in $BINDIRS
     if test -d $bindir
-         set -x PATH $PATH $bindir 
+         set -x PATH $bindir $PATH 
     end
 end
 

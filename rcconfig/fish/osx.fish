@@ -1,6 +1,3 @@
-# Node
-set -x NODE_PATH "$HOME/.npm-packages/lib/node_modules" $NODE_PATH
-
 # Java home
 set -x JAVA_HOME (/usr/libexec/java_home)
 
