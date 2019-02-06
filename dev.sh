@@ -20,8 +20,11 @@ javascript-typescript-langserver
 ####################
 # GO
 ####################
+set -x GO111MODULE off
+
 go install github.com/saibing/bingo
-rm go.mod go.sum
+
+set -x GO111MODULE on
 
 
 ####################
