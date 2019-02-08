@@ -23,6 +23,18 @@ Plug 'junegunn/fzf', { 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 
 
+Plug 'autozimu/LanguageClient-neovim', {
+    \ 'branch': 'next',
+    \ 'do': 'bash install.sh',
+    \ }
+
+if has('nvim')
+  Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+else
+  Plug 'Shougo/deoplete.nvim'
+  Plug 'roxma/nvim-yarp'
+  Plug 'roxma/vim-hug-neovim-rpc'
+endif
 
 " function! InstallDeopleteDeps(info)
 "     " call UpdateRemotePlugins()
@@ -96,6 +108,7 @@ let g:LanguageClient_serverCommands = {
             \ 'python3' : ['pyls'],
             \ }
 
+let g:deoplete#enable_at_startup = 1
 
 " Language completion
 " let g:ycm_semantic_triggers = {
