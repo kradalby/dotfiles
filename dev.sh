@@ -13,6 +13,8 @@ typescript \
 npm-check \
 eslint \
 git-open \
+diff-so-fancy \
+yarn \
 vscode-css-languageserver-bin \
 yaml-language-server \
 javascript-typescript-langserver
@@ -27,10 +29,11 @@ go get -u -v github.com/gobuffalo/buffalo/buffalo
 go get github.com/gobuffalo/pop/...
 go install github.com/gobuffalo/pop/soda
 
+set -x GO111MODULE on
+
 # Go Language Server
 go install github.com/saibing/bingo
-
-set -x GO111MODULE on
+rm go.mod go.sum
 
 
 ####################
