@@ -3,6 +3,7 @@ ansible
 virtualenv
 tox
 black
+pynvim
 
 # https://github.com/palantir/python-language-server
 python-language-server
