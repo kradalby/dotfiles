@@ -11,6 +11,7 @@
 npm update --global \
 typescript \
 npm-check \
+elm-format \
 eslint \
 git-open \
 diff-so-fancy \
