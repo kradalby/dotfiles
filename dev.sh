@@ -8,11 +8,14 @@
 ####################
 # NODE
 ####################
-npm update --global \
+npm install --global \
 typescript \
 npm-check \
+elm-format \
 eslint \
 git-open \
+diff-so-fancy \
+yarn \
 vscode-css-languageserver-bin \
 yaml-language-server \
 javascript-typescript-langserver
@@ -20,20 +23,26 @@ javascript-typescript-langserver
 ####################
 # GO
 ####################
-set -x GO111MODULE off
+set -gx GO111MODULE off
 
 # Go buffalo
 go get -u -v github.com/gobuffalo/buffalo/buffalo
 go get github.com/gobuffalo/pop/...
 go install github.com/gobuffalo/pop/soda
 
+set -gx GO111MODULE on
+
 # Go Language Server
 go install github.com/saibing/bingo
-
-set -x GO111MODULE on
+rm go.mod go.sum
 
 
 ####################
 # PIP
 ####################
 pip3 install -U -r pip3.txt
+
+####################
+#  GEM
+####################
+gem install --user-install tmuxinator

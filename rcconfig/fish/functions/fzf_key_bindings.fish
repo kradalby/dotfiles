@@ -1,1 +1,1 @@
-/Users/kradalby/.vim/plugged/fzf/shell/key-bindings.fish
+/home/kradalby/.vim/plugged/fzf/shell/key-bindings.fish

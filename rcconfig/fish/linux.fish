@@ -13,3 +13,7 @@ for bindir in $BINDIRS
          set -x PATH $PATH $bindir 
     end
 end
+
+if grep -q Microsoft /proc/version
+    set -x DOCKER_HOST "tcp://localhost:2375"
+  end
