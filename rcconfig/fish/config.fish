@@ -98,3 +98,7 @@ end
 if type -q bat
     alias cat bat
 end
+
+if type -q nvim
+    alias vim nvim
+end
