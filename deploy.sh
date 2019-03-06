@@ -9,6 +9,8 @@ function deploy() {
             rm ~/.$FILE
             ln -s $CURRENT/rc/$FILE ~/.$FILE
         done
+    echo "Linking vimrc to neovim"
+    ln -s $CURRENT/rc/vimrc $HOME/.config/nvim/init.vim
 }
 
 function deploy_ssh() {
@@ -44,8 +46,12 @@ function prepare_vim_dir() {
 }
 
 function install_vimplug() {
-    mkdir -p ~/.vim/autoload
-    curl --silent -fLo ~/.vim/autoload/plug.vim \
+    # Vim
+    curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+
+    # Neovim
+    curl -fLo ~/.local/share/nvim/site/autoload/plug.vim --create-dirs \
         https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 }
 
