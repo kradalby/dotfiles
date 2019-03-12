@@ -10,8 +10,6 @@ function deploy() {
             ln -s $CURRENT/rc/$FILE ~/.$FILE
         done
     echo "Linking vimrc to neovim"
-    mkdir -p $HOME/.config/nvim
-    ln -s $CURRENT/rc/vimrc $HOME/.config/nvim/init.vim
 }
 
 function deploy_ssh() {
