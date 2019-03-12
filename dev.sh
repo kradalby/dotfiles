@@ -18,6 +18,7 @@ diff-so-fancy \
 yarn \
 vscode-css-languageserver-bin \
 yaml-language-server \
+dockerfile-language-server-nodejs \
 javascript-typescript-langserver
 
 ####################
