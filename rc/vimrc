@@ -22,19 +22,20 @@ Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
 Plug 'junegunn/fzf', { 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 
+Plug 'neoclide/coc.nvim', {'tag': '*', 'do': { -> coc#util#install()}}
 
-Plug 'autozimu/LanguageClient-neovim', {
-    \ 'branch': 'next',
-    \ 'do': 'bash install.sh',
-    \ }
+" Plug 'autozimu/LanguageClient-neovim', {
+"     \ 'branch': 'next',
+"     \ 'do': 'bash install.sh',
+"     \ }
 
-if has('nvim')
-  Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-else
-  Plug 'Shougo/deoplete.nvim'
-  Plug 'roxma/nvim-yarp'
-  Plug 'roxma/vim-hug-neovim-rpc'
-endif
+" if has('nvim')
+"   Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+" else
+"   Plug 'Shougo/deoplete.nvim'
+"   Plug 'roxma/nvim-yarp'
+"   Plug 'roxma/vim-hug-neovim-rpc'
+" endif
 
 " function! InstallDeopleteDeps(info)
 "     " call UpdateRemotePlugins()
@@ -95,21 +96,25 @@ call plug#end()
 
 set hidden
 
-" Language server
-let g:LanguageClient_serverCommands = {
-            \ 'rust': ['rustup', 'run', 'nightly', 'rls'],
-            \ 'javascript': ['javascript-typescript-stdio'],
-            \ 'javascript.jsx': ['javascript-typescript-stdio'],
-            \ 'go': ['bingo'],
-            \ 'css' : ['css-languageserver'],
-            \ 'scss' : ['css-languageserver'],
-            \ 'python' : ['pyls'],
-            \ 'python2' : ['pyls'],
-            \ 'python3' : ['pyls'],
-            \ 'elm' : ['elm-language-server-exe'],
-            \ }
-
-let g:deoplete#enable_at_startup = 1
+" " Language server
+" let g:LanguageClient_serverCommands = {
+"             \ 'rust': ['rustup', 'run', 'nightly', 'rls'],
+"             \ 'javascript': ['javascript-typescript-stdio'],
+"             \ 'javascript.jsx': ['javascript-typescript-stdio'],
+"             \ 'go': ['bingo'],
+"             \ 'css' : ['css-languageserver'],
+"             \ 'scss' : ['css-languageserver'],
+"             \ 'python' : ['pyls'],
+"             \ 'python2' : ['pyls'],
+"             \ 'python3' : ['pyls'],
+"             \ 'elm' : ['elm-language-server-exe'],
+"             \ }
+" 
+" let g:LanguageClient_rootMarkers = {
+"         \ 'go': ['.git', 'go.mod'],
+"         \ }
+" 
+" let g:deoplete#enable_at_startup = 1
 
 " Language completion
 " let g:ycm_semantic_triggers = {
@@ -124,6 +129,7 @@ let g:ale_fixers = {
             \   'javascript': ['eslint'],
             \   'elm': ['format'],
             \   'sh': ['shfmt'],
+            \   'go': ['gofmt'],
             \}
 
 " let g:ale_linters = {
