@@ -75,7 +75,7 @@ set BINDIRS = \
 
 for bindir in $BINDIRS
     if test -d $bindir
-         set -x PATH $bindir $PATH 
+         set -x PATH $bindir $PATH
     end
 end
 
@@ -101,4 +101,8 @@ end
 
 if type -q nvim
     alias vim nvim
+end
+
+if type -q ag
+    set -xg FZF_DEFAULT_COMMAND 'ag -g ""'
 end
