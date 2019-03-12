@@ -9,7 +9,6 @@ function deploy() {
             rm ~/.$FILE
             ln -s $CURRENT/rc/$FILE ~/.$FILE
         done
-    echo "Linking vimrc to neovim"
 }
 
 function deploy_ssh() {
