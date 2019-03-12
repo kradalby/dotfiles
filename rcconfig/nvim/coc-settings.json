@@ -6,6 +6,12 @@
         "rootPatterns": ["go.mod", ".vim/", ".git/", ".hg/"],
         "filetypes": ["go"]
       },
+      "elm": {
+        "command": "elm-language-server-exe",
+        "args": [""],
+        "rootPatterns": ["elm.json", "elm-stuff/", ".git/"],
+        "filetypes": ["elm"]
+      },
       "dockerfile": {
           "command": "docker-langserver",
           "filetypes": ["dockerfile"],
