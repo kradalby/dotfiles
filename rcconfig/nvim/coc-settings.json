@@ -1,0 +1,19 @@
+{
+    "languageserver": {
+      "golang": {
+        "command": "bingo",
+        "args": ["--diagnostics-style=instant"],
+        "rootPatterns": ["go.mod", ".vim/", ".git/", ".hg/"],
+        "filetypes": ["go"]
+      },
+      "dockerfile": {
+          "command": "docker-langserver",
+          "filetypes": ["dockerfile"],
+          "args": ["--stdio"]
+        }
+    },
+    "yaml.schemas": {
+        "kubernetes": "**.yaml",
+        "Kubernetes": "**.yaml"
+    }
+}
