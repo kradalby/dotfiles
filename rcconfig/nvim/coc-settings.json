@@ -1,21 +1,32 @@
 {
     "languageserver": {
-      "golang": {
-        "command": "bingo",
-        "args": ["--diagnostics-style=instant"],
-        "rootPatterns": ["go.mod", ".vim/", ".git/", ".hg/"],
-        "filetypes": ["go"]
-      },
-      "elm": {
-        "command": "elm-language-server-exe",
-        "args": [""],
-        "rootPatterns": ["elm.json", "elm-stuff/", ".git/"],
-        "filetypes": ["elm"]
-      },
-      "dockerfile": {
-          "command": "docker-langserver",
-          "filetypes": ["dockerfile"],
-          "args": ["--stdio"]
+        "golang": {
+            "command": "bingo",
+            "args": ["--diagnostics-style=instant"],
+            "rootPatterns": ["go.mod", ".vim/", ".git/", ".hg/"],
+            "filetypes": ["go"]
+        },
+        "elm": {
+            "command": "elm-language-server-exe",
+            "args": [""],
+            "rootPatterns": ["elm.json", "elm-stuff/", ".git/"],
+            "filetypes": ["elm"]
+        },
+        "dockerfile": {
+            "command": "docker-langserver",
+            "filetypes": ["dockerfile"],
+            "args": ["--stdio"]
+        },
+        "bash": {
+            "command": "bash-language-server",
+            "args": ["start"],
+            "filetypes": ["sh"],
+            "ignoredRootPaths": ["~"]
+        },
+        "ocaml": {
+            "command": "ocaml-language-server",
+            "args": ["--stdio"],
+            "filetypes": ["ocaml", "reason"]
         }
     },
     "yaml.schemas": {
