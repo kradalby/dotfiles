@@ -24,7 +24,9 @@ bash-language-server \
 stylelint \
 stylelint-config-standard \
 prettier \
-javascript-typescript-langserver
+esy \
+bsb-native \
+bs-platform
 
 ####################
 # GO
