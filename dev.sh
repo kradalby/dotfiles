@@ -21,6 +21,9 @@ yaml-language-server \
 dockerfile-language-server-nodejs \
 ocaml-language-server \
 bash-language-server \
+stylelint \
+stylelint-config-standard \
+prettier \
 javascript-typescript-langserver
 
 ####################
