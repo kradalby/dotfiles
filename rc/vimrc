@@ -109,11 +109,11 @@ set hidden
 "             \ 'python3' : ['pyls'],
 "             \ 'elm' : ['elm-language-server-exe'],
 "             \ }
-" 
+"
 " let g:LanguageClient_rootMarkers = {
 "         \ 'go': ['.git', 'go.mod'],
 "         \ }
-" 
+"
 " let g:deoplete#enable_at_startup = 1
 
 " Language completion
@@ -130,11 +130,12 @@ let g:ale_fixers = {
             \   'elm': ['format'],
             \   'sh': ['shfmt'],
             \   'go': ['gofmt'],
+            \   'terraform': ['terraform'],
             \}
 
-" let g:ale_linters = {
-"             \   'go': ['gometalinter'],
-"             \}
+let g:ale_linters = {
+            \   'go': ['golangci-lint'],
+            \}
 
 let g:ale_fix_on_save = 1
 let g:ale_lint_on_save = 1
@@ -142,16 +143,7 @@ let g:ale_completion_enabled = 0
 let g:ale_sign_column_always = 1
 
 " Go settings
-let g:go_highlight_types = 1
-let g:go_highlight_fields = 1
-let g:go_highlight_functions = 1
-let g:go_highlight_methods = 1
-let g:go_highlight_extra_types = 1
-let g:go_highlight_build_constraints = 1
-
-" Python settings
-" let g:ycm_python_binary_path = '/usr/bin/python3'
-" autocmd BufWritePre *.py execute ':Black'
+let g:ale_go_golangci_lint_package = 1
 
 " PGSQL
 let g:sql_type_default = 'pgsql'

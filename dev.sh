@@ -40,6 +40,11 @@ set -gx GO111MODULE on
 
 # Go Language Server
 go install github.com/saibing/bingo
+
+# Go multi linter
+go get github.com/golangci/golangci-lint/cmd/golangci-lint
+go get -u honnef.co/go/tools/cmd/staticcheck
+
 rm go.mod go.sum
 
 
