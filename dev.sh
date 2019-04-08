@@ -21,7 +21,9 @@ yaml-language-server \
 dockerfile-language-server-nodejs \
 ocaml-language-server \
 bash-language-server \
-javascript-typescript-langserver \
+stylelint \
+stylelint-config-standard \
+prettier \
 esy \
 bsb-native \
 bs-platform

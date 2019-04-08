@@ -106,3 +106,5 @@ end
 if type -q ag
     set -xg FZF_DEFAULT_COMMAND 'ag -g ""'
 end
+
+export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"

@@ -126,11 +126,13 @@ set hidden
 " Ale
 let g:ale_fixers = {
             \   '*': ['remove_trailing_lines', 'trim_whitespace'],
-            \   'javascript': ['eslint'],
+            \   'javascript': ['prettier', 'eslint'],
             \   'elm': ['format'],
             \   'sh': ['shfmt'],
             \   'go': ['gofmt'],
             \   'terraform': ['terraform'],
+            \   'css': ['prettier'],
+            \   'scss': ['prettier'],
             \}
 
 let g:ale_linters = {
