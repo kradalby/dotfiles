@@ -1,6 +1,6 @@
 *
 !*/
-!/nvim/*
+!/nvim/coc-settings.json
 !.gitignore
 !fish/config.fish
 !fish/osx.fish
