@@ -74,6 +74,7 @@ Plug 'junegunn/rainbow_parentheses.vim'
 Plug 'fatih/vim-nginx' , {'for' : 'nginx'}
 Plug 'elzr/vim-json', {'for' : 'json'}
 Plug 'ekalinin/Dockerfile.vim', {'for' : 'Dockerfile'}
+Plug 'posva/vim-vue', {'for': 'vue'}
 
 """""""""""""""""""""""""
 " FORMAT
@@ -109,11 +110,11 @@ set hidden
 "             \ 'python3' : ['pyls'],
 "             \ 'elm' : ['elm-language-server-exe'],
 "             \ }
-" 
+"
 " let g:LanguageClient_rootMarkers = {
 "         \ 'go': ['.git', 'go.mod'],
 "         \ }
-" 
+"
 " let g:deoplete#enable_at_startup = 1
 
 " Language completion
@@ -132,6 +133,7 @@ let g:ale_fixers = {
             \   'go': ['gofmt'],
             \   'css': ['prettier'],
             \   'scss': ['prettier'],
+            \   'json': ['prettier'],
             \}
 
 " let g:ale_linters = {

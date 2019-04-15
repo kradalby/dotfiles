@@ -6,6 +6,7 @@
 set BINDIRS = \
     "/usr/lib/go-1.10/bin" \
     "/opt/ibm/notes" \
+    "/usr/share/swift/usr/bin" \
     "$HOME/git/kitty/linux-package/bin"
 
 for bindir in $BINDIRS
