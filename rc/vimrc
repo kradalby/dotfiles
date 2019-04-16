@@ -75,6 +75,7 @@ Plug 'fatih/vim-nginx' , {'for' : 'nginx'}
 Plug 'elzr/vim-json', {'for' : 'json'}
 Plug 'ekalinin/Dockerfile.vim', {'for' : 'Dockerfile'}
 Plug 'posva/vim-vue', {'for': 'vue'}
+Plug 'leafgarland/typescript-vim', {'for': 'typescript'}
 
 """""""""""""""""""""""""
 " FORMAT
@@ -128,6 +129,7 @@ set hidden
 let g:ale_fixers = {
             \   '*': ['remove_trailing_lines', 'trim_whitespace'],
             \   'javascript': ['prettier', 'eslint'],
+            \   'typescript': ['prettier'],
             \   'elm': ['format'],
             \   'sh': ['shfmt'],
             \   'go': ['gofmt'],

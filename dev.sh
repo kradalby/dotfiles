@@ -13,6 +13,8 @@ typescript \
 npm-check \
 elm-format \
 eslint \
+eslint-config-prettier \
+eslint-plugin-prettier \
 git-open \
 diff-so-fancy \
 yarn \
@@ -22,7 +24,7 @@ dockerfile-language-server-nodejs \
 ocaml-language-server \
 bash-language-server \
 stylelint \
-stylelint-config-standard \
+stylelint-config-prettier \
 prettier \
 esy \
 bsb-native \
