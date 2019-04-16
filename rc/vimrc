@@ -75,6 +75,7 @@ Plug 'fatih/vim-nginx' , {'for' : 'nginx'}
 Plug 'elzr/vim-json', {'for' : 'json'}
 Plug 'ekalinin/Dockerfile.vim', {'for' : 'Dockerfile'}
 Plug 'posva/vim-vue', {'for': 'vue'}
+Plug 'keith/swift.vim', {'for': 'swift'}
 
 """""""""""""""""""""""""
 " FORMAT

@@ -4,6 +4,7 @@ virtualenv
 tox
 black
 pynvim
+flake8
 
 # https://github.com/palantir/python-language-server
 python-language-server
