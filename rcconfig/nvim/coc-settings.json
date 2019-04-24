@@ -2,8 +2,8 @@
     "suggest.timeout": 5000,
     "languageserver": {
         "golang": {
-            "command": "bingo",
-            "args": ["--diagnostics-style=instant"],
+            "command": "gopls",
+            "args": [""],
             "rootPatterns": ["go.mod", ".vim/", ".git/", ".hg/"],
             "filetypes": ["go"]
         },

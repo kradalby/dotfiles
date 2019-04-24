@@ -43,7 +43,8 @@ go install github.com/gobuffalo/pop/soda
 set -gx GO111MODULE on
 
 # Go Language Server
-go install github.com/saibing/bingo
+# go install github.com/saibing/bingo
+go get -u golang.org/x/tools/cmd/gopls
 
 # Go multi linter
 go get github.com/golangci/golangci-lint/cmd/golangci-lint
