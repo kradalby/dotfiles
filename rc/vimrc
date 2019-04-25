@@ -132,7 +132,7 @@ set hidden
 let g:ale_fixers = {
             \   '*': ['remove_trailing_lines', 'trim_whitespace'],
             \   'javascript': ['prettier', 'eslint'],
-            \   'typescript': ['prettier'],
+            \   'typescript': ['prettier', 'eslint'],
             \   'elm': ['format'],
             \   'sh': ['shfmt'],
             \   'go': ['gofmt'],
