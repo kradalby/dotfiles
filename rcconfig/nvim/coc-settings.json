@@ -1,37 +1,45 @@
 {
-    "suggest.timeout": 5000,
-    "languageserver": {
-        "golang": {
-            "command": "gopls",
-            "args": [""],
-            "rootPatterns": ["go.mod", ".vim/", ".git/", ".hg/"],
-            "filetypes": ["go"]
-        },
-        "elm": {
-            "command": "elm-language-server-exe",
-            "args": [""],
-            "rootPatterns": ["elm.json", "elm-stuff/", ".git/"],
-            "filetypes": ["elm"]
-        },
-        "dockerfile": {
-            "command": "docker-langserver",
-            "filetypes": ["dockerfile"],
-            "args": ["--stdio"]
-        },
-        "bash": {
-            "command": "bash-language-server",
-            "args": ["start"],
-            "filetypes": ["sh"],
-            "ignoredRootPaths": ["~"]
-        },
-        "ocaml": {
-            "command": "ocaml-language-server",
-            "args": ["--stdio"],
-            "filetypes": ["ocaml", "reason"]
-        }
+  "suggest.timeout": 5000,
+  "languageserver": {
+    "golang": {
+      "command": "gopls",
+      "args": [""],
+      "rootPatterns": ["go.mod", ".vim/", ".git/", ".hg/"],
+      "filetypes": ["go"]
     },
-    "yaml.schemas": {
-        "kubernetes": "**.yaml",
-        "Kubernetes": "**.yaml"
+    "elm": {
+      "command": "elm-language-server-exe",
+      "args": [""],
+      "rootPatterns": ["elm.json", "elm-stuff/", ".git/"],
+      "filetypes": ["elm"]
+    },
+    "dockerfile": {
+      "command": "docker-langserver",
+      "filetypes": ["dockerfile"],
+      "args": ["--stdio"]
+    },
+    "bash": {
+      "command": "bash-language-server",
+      "args": ["start"],
+      "filetypes": ["sh"],
+      "ignoredRootPaths": ["~"]
+    },
+    "fsharp": {
+      "command": "dotnet",
+      "args": [
+        "/home/kradalby/git/fsharp-language-server/src/FSharpLanguageServer/bin/Release/netcoreapp2.0/FSharpLanguageServer.dll"
+      ],
+      "rootPatterns": ["paket.dependencies", "build.fsx", ".git/", ".hg/"],
+      "filetypes": ["fsharp"]
+    },
+    "ocaml": {
+      "command": "ocaml-language-server",
+      "args": ["--stdio"],
+      "filetypes": ["ocaml", "reason"]
     }
+  },
+  "yaml.schemas": {
+    "kubernetes": "**.yaml",
+    "Kubernetes": "**.yaml"
+  }
 }

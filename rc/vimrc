@@ -60,6 +60,10 @@ Plug 'neoclide/coc.nvim', {'tag': '*', 'do': { -> coc#util#install()}}
 " Plug 'fatih/vim-go', { 'do': ':GoInstallBinaries' }
 
 Plug 'elmcast/elm-vim', {'for': ['elm']}
+Plug 'fsharp/vim-fsharp', {
+      \ 'for': 'fsharp',
+      \ 'do':  'make fsautocomplete',
+      \}
 " Plug 'pbogut/deoplete-elm', {'for': ['elm']}
 
 """""""""""""""""""""""""
@@ -140,10 +144,12 @@ let g:ale_fixers = {
             \   'css': ['prettier'],
             \   'scss': ['prettier'],
             \   'json': ['prettier'],
+            \   'fsharp': ['fantomas'],
             \}
 
 let g:ale_linters = {
             \   'go': ['golangci-lint'],
+            \   'fsharp': ['dotnet-fsharplint -sf'],
             \}
 
 let g:ale_fix_on_save = 1
