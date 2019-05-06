@@ -50,6 +50,8 @@ go get -u golang.org/x/tools/cmd/gopls
 go get github.com/golangci/golangci-lint/cmd/golangci-lint
 go get -u honnef.co/go/tools/cmd/staticcheck
 
+go get github.com/mitchellh/gox
+
 rm go.mod go.sum
 
 
