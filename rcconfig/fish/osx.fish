@@ -6,6 +6,8 @@ set BINDIRS = \
     ""(brew --prefix)"/bin" \
     "/usr/local/opt/gnu-sed/bin" \
     "$HOME/bin/flutter/bin" \
+    "/usr/local/opt/ruby/bin" \
+    "/usr/local/lib/ruby/gems/2.6.0/bin" \
     "/Library/TeX/Distributions/.DefaultTeX/Contents/Programs/texbin" \
     "/usr/local/opt/coreutils/libexec/gnubin" 
 
