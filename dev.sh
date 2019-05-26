@@ -52,6 +52,8 @@ go get -u honnef.co/go/tools/cmd/staticcheck
 
 go get github.com/mitchellh/gox
 
+go get sigs.k8s.io/kind
+
 rm go.mod go.sum
 
 
