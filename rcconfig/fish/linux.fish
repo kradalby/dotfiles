@@ -7,11 +7,12 @@ set BINDIRS = \
     "/usr/lib/go-1.10/bin" \
     "/opt/ibm/notes" \
     "/usr/share/swift/usr/bin" \
-    "$HOME/git/kitty/linux-package/bin"
+    "$HOME/git/kitty/linux-package/bin" \
+    "$HOME/dotnet"
 
 for bindir in $BINDIRS
     if test -d $bindir
-         set -x PATH $PATH $bindir 
+         set -x PATH $bindir $PATH
     end
 end
 
