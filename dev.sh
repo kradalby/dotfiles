@@ -55,6 +55,8 @@ go get github.com/mitchellh/gox
 
 go install github.com/lopezator/cmd/sqlfmt
 
+go get sigs.k8s.io/kind
+
 rm go.mod go.sum
 
 

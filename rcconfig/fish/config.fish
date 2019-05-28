@@ -71,7 +71,8 @@ set BINDIRS = \
     "$HOME/.local/bin" \
     "$HOME/.config/composer/vendor/bin" \
     "$GOPATH/bin" \
-    "$HOME/.gem/ruby/2.5.0/bin"
+    "$HOME/.dotnet/tools" \
+    "$HOME/.gem/ruby/2.6.0/bin"
 
 for bindir in $BINDIRS
     if test -d $bindir
@@ -97,6 +98,10 @@ end
 
 if type -q bat
     alias cat bat
+end
+
+if type -q lsd
+    alias ls "lsd --icon never"
 end
 
 if type -q nvim
