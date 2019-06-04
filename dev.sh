@@ -40,6 +40,7 @@ go get -u -v github.com/gobuffalo/buffalo/buffalo
 go get github.com/gobuffalo/pop/...
 go install github.com/gobuffalo/pop/soda
 
+
 set -gx GO111MODULE on
 
 # Go Language Server
@@ -51,6 +52,8 @@ go get github.com/golangci/golangci-lint/cmd/golangci-lint
 go get -u honnef.co/go/tools/cmd/staticcheck
 
 go get github.com/mitchellh/gox
+
+go install github.com/lopezator/cmd/sqlfmt
 
 go get sigs.k8s.io/kind
 
@@ -66,3 +69,4 @@ pip3 install -U -r pip3.txt
 #  GEM
 ####################
 gem install --user-install tmuxinator
+gem install --user-install sqlint

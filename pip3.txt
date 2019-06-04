@@ -5,6 +5,9 @@ tox
 black
 pynvim
 flake8
+pylint
+pyre-check
+autopep8
 
 # https://github.com/palantir/python-language-server
 python-language-server
