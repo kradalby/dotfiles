@@ -1,18 +1,3 @@
-
-###################
-# Tjodalyng       #
-###################
-
-Host tupo
-    HostName %h.tjoda.fap.no
-    User root
-    Port 22
-    KexAlgorithms +diffie-hellman-group1-sha1
-
-Host 192.168.1.3
-    User root
-    Port 22
-    KexAlgorithms +diffie-hellman-group1-sha1
 #Github needs diffie-hellman-group-exchange-sha1 some of the time but not always.
 Host github.com
     KexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256,diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1
@@ -32,7 +17,7 @@ Host *
     KexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256
 
 ###################
-# Public IP hosts #
+# NVG             #
 ###################
 
 Host sprocket
@@ -41,46 +26,17 @@ Host sprocket
     Port 22
 
 
+
 ###################
-# Bastions        #
+# fap             #
 ###################
 
-Host machamp slowpoke mankey pidgey diglett grimer muk venonat venomoth
-    # ProxyCommand ssh -W %h:%p slowpoke
-    HostName %h.ntnu.fap.no
+Host database.terra dewgong.terra diglett.ntnu esxi.leiden esxi.ntnu esxi.terra esxi.tjoda gateway.tjoda ingress.terra ingress.tjoda leiden machamp.ntnu mail.terra node01.terra node02.terra node03.terra node04.terra ntnu porygon.terra rancher.terra storage.leiden storage.terra storage.tjoda terra tjoda tupo.tjoda unifi.tjoda win.terra ingress.terra ntnu terra 
+    HostName %h.fap.no
     User root
     Port 22
-###################
-# Public IP hosts #
-###################
 
 
-###################
-# Bastions        #
-###################
-
-Host kramac
-    User kradalby
-    HostName 10.60.30.20
-###################
-# Public IP hosts #
-###################
-
-# Host seel
-#     HostName horse.terra.fap.no
-#     User root
-#     Port 22
-
-
-###################
-# Bastions        #
-###################
-
-Host seel primeape porygon horse abra dewgong
-#    ProxyCommand ssh -W %h:%p seel
-    HostName %h.terra.fap.no
-    User root
-    Port 22
 ###################
 # esa.int         #
 ###################
@@ -88,65 +44,15 @@ Host seel primeape porygon horse abra dewgong
 Host *.esa.int
     User root
 
-
-Host kradev
-    HostName kradev.it.esa.int
-    User kradalby
-    LocalForward 43000 localhost:3000
-    LocalForward 48384 localhost:8384
-    LocalForward 48000 localhost:8000
-    LocalForward 49000 localhost:9000
 ###################
 # Public IP hosts #
 ###################
-
-# Ardbeg, Don og Xo har ancient SSH versjon, og støtter ikke mer moderne key exchange algs
-Host ardbeg don xo
-    KexAlgorithms diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1,diffie-hellman-group1-sha1
 
 Host ardbeg bacardi blacklabel don duncan fireball kahlua passoa vsop xo
     HostName %h.online.ntnu.no
     User root
     Port 22
 
-###################
-# NAT             #
-###################
-
-Host beefeater jb chita hudson jose gay moonshine jagermeister
-    HostName blacklabel.online.ntnu.no
-    User root
-
-Host beefeater
-    Port 22002
-
-Host jb
-    Port 22003
-
-Host chita
-    Port 22005
-
-Host hudson
-    Port 22006
-
-Host korski
-    Port 22011
-
-Host jose
-    Port 22018
-
-Host gay
-    Port 22019
-
-Host moonshine
-    Port 22022
-
-Host jagermeister
-    Port 22023
-
-###################
-# Local options   #
-# #################
 
 
 ###################
@@ -157,25 +63,16 @@ Host *.online.ntnu.no
     User root
 
 ###################
-# Hosts           #
+# Tjodalyng       #
 ###################
 
-Host vissel vissel2 tussi kengu nasse brumm
-    # ProxyCommand ssh -W %h:%p slowpoke
-    HostName %h.studdem.ntnu.no
+Host tupo
+    HostName %h.tjoda.fap.no
     User root
     Port 22
+    KexAlgorithms +diffie-hellman-group1-sha1
 
-###################
-# Public IP hosts #
-###################
-
-Host enigma hv-6068
-    HostName hv-6068.idi.ntnu.no
+Host 192.168.1.3
     User root
     Port 22
-
-Host miig miic
-    HostName %h.idi.ntnu.no
-    User kristoad
-    Port 22
+    KexAlgorithms +diffie-hellman-group1-sha1
