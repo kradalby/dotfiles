@@ -24,7 +24,7 @@ steps:
     - curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
     - cp ~/git/dotfiles/rc/vimrc ~/.vimrc
     - vim +'PlugInstall --sync' +qa
-    - tar -vcJf dotfiles.tar.xz .vim git
+    - tar -vcJf /home/ubuntu/dotfiles.tar.xz .vim git
 
 - name: deploy
   pull: if-not-exists
@@ -35,7 +35,7 @@ steps:
     source:
     - /home/ubuntu/dotfiles.tar.xz
     strip_components: 1
-    target: /storage/nfs/k8s/builds/dotfiles
+    target: /storage/nfs/k8s/builds/dotfiles/.
     username: deploy
   environment:
     SSH_KEY:
