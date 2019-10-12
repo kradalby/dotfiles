@@ -56,8 +56,8 @@ set -x PIP_USER 1
 set -x NODE_PATH "$HOME/.npm-packages/lib/node_modules"
 
 # Sorce sensitive tokens
-if test -f $HOME/Sync/tokens.fish
-    source $HOME/Sync/tokens.fish
+if test -f $HOME/Sync/fish/tokens.fish
+    source $HOME/Sync/fish/tokens.fish
 end
 
 # Add directories to path if they exist
