@@ -12,9 +12,11 @@ steps:
   commands:
     - apt update
     - apt install -y vim git
+    - ln -s rc/vimrc ~/.vimrc
     - vim +PlugInstall +qall
     - ls
-    - ls .vim
+    - ls ~/
+    - ls ~/.vim
   when:
     branch:
     - master
@@ -34,18 +36,18 @@ steps:
       #      SSH_KEY:
       #        from_secret: ssh_key
 
-- name: notify
-  pull: if-not-exists
-  image: drillster/drone-email
-  settings:
-    from: drone@drone.fap.no
-    host: smtp.fap.no
-    port: 25
-    recipients:
-    - kradalby@kradalby.no
-    skip_verify: true
-  when:
-    status:
-    - success
-    - changed
-    - failure
+      # - name: notify
+      #   pull: if-not-exists
+      #   image: drillster/drone-email
+      #   settings:
+      #     from: drone@drone.fap.no
+      #     host: smtp.fap.no
+      #     port: 25
+      #     recipients:
+      #     - kradalby@kradalby.no
+      #     skip_verify: true
+      #   when:
+      #     status:
+      #     - success
+      #     - changed
+      #     - failure
