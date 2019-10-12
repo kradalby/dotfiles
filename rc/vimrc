@@ -26,45 +26,11 @@ Plug 'editorconfig/editorconfig-vim'
 
 Plug 'neoclide/coc.nvim', {'tag': '*', 'do': { -> coc#util#install()}}
 
-" Plug 'autozimu/LanguageClient-neovim', {
-"     \ 'branch': 'next',
-"     \ 'do': 'bash install.sh',
-"     \ }
-
-" if has('nvim')
-"   Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-" else
-"   Plug 'Shougo/deoplete.nvim'
-"   Plug 'roxma/nvim-yarp'
-"   Plug 'roxma/vim-hug-neovim-rpc'
-" endif
-
-" function! InstallDeopleteDeps(info)
-"     " call UpdateRemotePlugins()
-"     if a:info.status == 'installed' || a:info.force
-"         ! pip3 install --user neovim
-"     endif
-" endfunction
-"
-" Plug 'Shougo/deoplete.nvim', { 'do': function('InstallDeopleteDeps') }
-" if !has('nvim')
-"   Plug 'roxma/nvim-yarp'
-"   Plug 'roxma/vim-hug-neovim-rpc'
-" endif
-"
-"
-" let g:deoplete#enable_at_startup = 1
-" Plug 'zchee/deoplete-jedi', {'for': ['python']}
-
-" Plug 'zchee/deoplete-go', { 'for': ['go'], 'do': 'make'}
-" Plug 'fatih/vim-go', { 'do': ':GoInstallBinaries' }
-
 Plug 'elmcast/elm-vim', {'for': ['elm']}
 Plug 'fsharp/vim-fsharp', {
       \ 'for': 'fsharp',
       \ 'do':  'make fsautocomplete',
       \}
-" Plug 'pbogut/deoplete-elm', {'for': ['elm']}
 
 """""""""""""""""""""""""
 " SYNTAX
@@ -91,46 +57,18 @@ Plug 'hashivim/vim-hashicorp-tools'
 Plug 'fatih/vim-hclfmt'
 
 
-" Plug 'ambv/black',
-
 
 """""""""""""""""""""""""
 " EVERYTHING
 """""""""""""""""""""""""
 Plug 'w0rp/ale'
 Plug 'lifepillar/pgsql.vim'
+Plug 'tpope/vim-sensible'
 
 
 call plug#end()
 
 set hidden
-
-" " Language server
-" let g:LanguageClient_serverCommands = {
-"             \ 'rust': ['rustup', 'run', 'nightly', 'rls'],
-"             \ 'javascript': ['javascript-typescript-stdio'],
-"             \ 'javascript.jsx': ['javascript-typescript-stdio'],
-"             \ 'go': ['bingo'],
-"             \ 'css' : ['css-languageserver'],
-"             \ 'scss' : ['css-languageserver'],
-"             \ 'python' : ['pyls'],
-"             \ 'python2' : ['pyls'],
-"             \ 'python3' : ['pyls'],
-"             \ 'elm' : ['elm-language-server-exe'],
-"             \ }
-"
-" let g:LanguageClient_rootMarkers = {
-"         \ 'go': ['.git', 'go.mod'],
-"         \ }
-"
-" let g:deoplete#enable_at_startup = 1
-
-" Language completion
-" let g:ycm_semantic_triggers = {
-"      \ 'elm' : ['.'],
-"      \}
-
-" let g:ycm_autoclose_preview_window_after_completion=1
 
 " Ale
 let g:ale_fixers = {
@@ -152,7 +90,10 @@ let g:ale_linters = {
             \   'go': ['golangci-lint'],
             \   'fsharp': ['dotnet-fsharplint -sf'],
             \   'python': ['pyre', 'flake8', 'pylint'],
+            \   'terraform': ['terraform', 'tflint'],
             \}
+
+
 
 let g:ale_fix_on_save = 1
 let g:ale_lint_on_save = 1
@@ -166,11 +107,6 @@ let g:ale_go_golangci_lint_package = 1
 let g:sql_type_default = 'pgsql'
 
 
-
-" <F10> | NERD Tree
-nnoremap <C-n> :NERDTreeToggle<cr>
-
-
 " Colors
 set background=dark
 
@@ -182,25 +118,12 @@ endtry
 
 syntax on
 
-" nnoremap <silent> K :call LanguageClient_textDocument_hover()<CR>
-" nnoremap <silent> gd :call LanguageClient_textDocument_definition()<CR>
-" nnoremap <silent> <F2> :call LanguageClient_textDocument_rename()<CR>
-
 " ----------------------------------------------------------------------------
 " Tabs and splits
 " ----------------------------------------------------------------------------
 set splitbelow
 set splitright
 
-" nmap <silent> <A-S-Up> :wincmd k<CR>
-" nmap <silent> <A-S-Down> :wincmd j<CR>
-" nmap <silent> <A-S-Left> :wincmd h<CR>
-" nmap <silent> <A-S-Right> :wincmd l<CR>
-
-" iTerm backup
-" alt left 0x1b 0x1b 0x5b 0x44
-" alt right 0x1b 0x1b 0x5b 0x43
-"
 
 " iTerm needs update:
 " ALT UP: [1;3A
@@ -238,16 +161,6 @@ nnoremap <S-tab> <c-w>W
 " ----------------------------------------------------------------------------
 inoreabbrev <expr> #!! "#!/usr/bin/env" . (empty(&filetype) ? '' : ' '.&filetype)
 
-" " ----------------------------------------------------------------------------
-" " ack.vim
-" " ----------------------------------------------------------------------------
-" if executable('ag')
-"   let &grepprg = 'ag --nogroup --nocolor --column'
-" else
-"   let &grepprg = 'grep -rn $* *'
-" endif
-" command! -nargs=1 -bar Grep execute 'silent! grep! <q-args>' | redraw! | copen
-
 " ============================================================================
 " FZF {{{
 " ============================================================================
@@ -281,46 +194,35 @@ command! -bang -nargs=? -complete=dir Files
 
 " nnoremap <silent> <Leader><Leader> :Files<CR>
 nnoremap <silent> <expr> <Leader><Leader> (expand('%') =~ 'NERD_tree' ? "\<c-w>\<c-w>" : '').":Files\<cr>"
-nnoremap <silent> <Leader>C        :Colors<CR>
+" nnoremap <silent> <Leader>C        :Colors<CR>
 nnoremap <silent> <Leader><Enter>  :Buffers<CR>
 nnoremap <silent> <Leader>l        :Lines<CR>
-nnoremap <silent> <Leader>s        :Snippets<CR>
+" nnoremap <silent> <Leader>s        :Snippets<CR>
 nnoremap <silent> <Leader>f        :Filetypes<CR>
 nnoremap <silent> <Leader>ag       :Ag<CR>
-" nnoremap <silent> <Leader>ag       :Ag <C-R><C-W><CR>
-" nnoremap <silent> <Leader>AG       :Ag <C-R><C-A><CR>
-" xnoremap <silent> <Leader>ag       y:Ag <C-R>"<CR>
 nnoremap <silent> <Leader>`        :Marks<CR>
-" nnoremap <silent> q: :History:<CR>
-" nnoremap <silent> q/ :History/<CR>
-
-" inoremap <expr> <c-x><c-t> fzf#complete('tmuxwords.rb --all-but-current --scroll 500 --min 5')
-" imap <c-x><c-k> <plug>(fzf-complete-word)
-" imap <c-x><c-f> <plug>(fzf-complete-path)
-" inoremap <expr> <c-x><c-d> fzf#vim#complete#path('blsd')
-" imap <c-x><c-j> <plug>(fzf-complete-file-ag)
-" imap <c-x><c-l> <plug>(fzf-complete-line)
 
 nmap <leader><tab> <plug>(fzf-maps-n)
 xmap <leader><tab> <plug>(fzf-maps-x)
 omap <leader><tab> <plug>(fzf-maps-o)
 
-function! s:plug_help_sink(line)
-  let dir = g:plugs[a:line].dir
-  for pat in ['doc/*.txt', 'README.md']
-    let match = get(split(globpath(dir, pat), "\n"), 0, '')
-    if len(match)
-      execute 'tabedit' match
-      return
-    endif
-  endfor
-  tabnew
-  execute 'Explore' dir
-endfunction
-
-command! PlugHelp call fzf#run(fzf#wrap({
-  \ 'source': sort(keys(g:plugs)),
-  \ 'sink':   function('s:plug_help_sink')}))
+" Maybe remove this?
+" function! s:plug_help_sink(line)
+"   let dir = g:plugs[a:line].dir
+"   for pat in ['doc/*.txt', 'README.md']
+"     let match = get(split(globpath(dir, pat), "\n"), 0, '')
+"     if len(match)
+"       execute 'tabedit' match
+"       return
+"     endif
+"   endfor
+"   tabnew
+"   execute 'Explore' dir
+" endfunction
+"
+" command! PlugHelp call fzf#run(fzf#wrap({
+"   \ 'source': sort(keys(g:plugs)),
+"   \ 'sink':   function('s:plug_help_sink')}))
 
 " }}}
 
@@ -339,45 +241,17 @@ if exists('&colorcolumn')
 endif
 
 
-" Set default shell to zsh
-set shell=/bin/sh
-
 
 " Use Vim settings, rather then Vi settings (much better!).
 set nocompatible
-
-" cursorsline
 set cursorline
-
-" Turn on the verboseness to see everything vim is doing.
-"set verbose=9
-
-" allow backspacing over everything in insert mode
-set backspace=indent,eol,start
-
-" set utf-8
 set encoding=utf-8
-
 set number
-"if version >= 703
-"    autocmd InsertEnter * :set nornu
-"    autocmd InsertEnter * :set number
-"    autocmd InsertLeave * :set nonumber
-"    autocmd InsertLeave * :set relativenumber
-"    set relativenumber
-"else
-"    set number
-"endif
-
-set wildmenu
-
 
 " support all three newline formats
 set fileformats=unix,dos,mac
 
-
 " automagic indentation
-set autoindent
 set nocindent
 set nosmartindent
 filetype indent on
@@ -388,8 +262,6 @@ set tabstop=4     " spaces per tab
 set shiftwidth=4  " characters to indent
 set softtabstop=4 " make spaces feel like tabs
 set expandtab     " insert space on tab
-" set list          " show invisible characters
-" set listchars=tab:>·,trail:· " ... but only show tabs and trailing whitespace
 
 " Paste settings
 set pastetoggle=<C-x>
@@ -413,9 +285,6 @@ set wildignore=.svn,CVS,.git,.hg,*.o,*.a,*.class,*.mo,*.la,*.so,*.obj,*.swp,*.jp
 " keep 50 lines of command line history
 set history=50
 
-" show the cursor position all the time
-set ruler
-
 " Shut up
 set noerrorbells visualbell t_vb= " don't whine
 
@@ -423,19 +292,14 @@ set showcmd
 
 " Searching
 set hlsearch   " highlight searched expressions
-set incsearch  " incremental searching
 set ignorecase " case insensitive
 set smartcase  " ... unless there's a capital letter
 
 " Press Space to dismiss highlighting
 nnoremap <silent> <Space> :nohlsearch<Bar>:echo<CR>
 
-
 " smart search (override 'ic' when pattern has uppers)
 set scs
-
-" Set 'g' substitute flag on
-" set gdefault
 
 " Set status line
 " set statusline=%t[%{strlen(&fenc)?&fenc:'none'},%{&ff}]%h%m%r%y%=%c,%l/%L\ %P
@@ -455,12 +319,6 @@ set statusline+=\ %P    "percent through file
 " Always display a status line at the bottom of the window
 set laststatus=2
 
-" Set vim to use 'short messages'.
-" set shortmess=a
-
-" Insert two spaces after a period with every joining of lines.
-
-" I like this as it makes reading texts easier (for me, at least).
 set joinspaces
 
 " showmatch: Show the matching bracket for the last ')'?
@@ -473,24 +331,18 @@ set foldnestmax=10
 set foldmethod=indent
 
 
-" Select all.
-map <c-a> ggVG
-
-" Undo in insert mode.
-imap <c-z> <c-o>u
-
 " Removes trailing spaces
-function! <SID>StripTrailingWhitespaces()
-    " Preparation: save last search, and cursor position.
-    let _s=@/
-    let l = line(".")
-    let c = col(".")
-    " Do the business:
-    %s/\s\+$//e
-    " Clean up: restore previous search history, and cursor position
-    let @/=_s
-    call cursor(l, c)
-endfunction
+" function! <SID>StripTrailingWhitespaces()
+"     " Preparation: save last search, and cursor position.
+"     let _s=@/
+"     let l = line(".")
+"     let c = col(".")
+"     " Do the business:
+"     %s/\s\+$//e
+"     " Clean up: restore previous search history, and cursor position
+"     let @/=_s
+"     call cursor(l, c)
+" endfunction
 
 
 
@@ -498,14 +350,6 @@ endfunction
 " Language section
 "
 
-" Elm
-augroup elm_files
-    autocmd!
-    autocmd FileType elm setlocal tabstop=4     " spaces per tab
-    autocmd FileType elm setlocal shiftwidth=4  " characters to indent
-    autocmd FileType elm setlocal softtabstop=4 " make spaces feel like tabs
-    autocmd FileType elm setlocal expandtab     " insert space on tab
-augroup END
 augroup rainbow_lisp
       autocmd!
       autocmd FileType lisp,clojure,scheme,elm,go,javascript RainbowParentheses
