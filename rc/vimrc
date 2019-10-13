@@ -49,6 +49,7 @@ Plug 'ekalinin/Dockerfile.vim', {'for' : 'Dockerfile'}
 Plug 'posva/vim-vue', {'for': 'vue'}
 Plug 'keith/swift.vim', {'for': 'swift'}
 Plug 'leafgarland/typescript-vim', {'for': 'typescript'}
+Plug 'towolf/vim-helm'
 
 """""""""""""""""""""""""
 " FORMAT
