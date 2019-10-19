@@ -10,10 +10,12 @@
             }
         }
     },
+    "yaml.format.enable": true,
     "yaml.schemas": {
-        "kubernetes": "**.yaml",
-        "Kubernetes": "**.yaml"
+        "http://json.schemastore.org/drone": "/.drone.yml",
+        "http://json.schemastore.org/gitlab-ci": "/.gitlab-ci.yml"
     },
+    "yaml.trace.server": "verbose",
     "python.jediEnabled": false,
     "codeLens.enable": true
 }

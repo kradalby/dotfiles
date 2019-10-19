@@ -1,3 +1,4 @@
+---
 kind: pipeline
 name: default
 
@@ -10,8 +11,9 @@ steps:
   pull: always
   image: ubuntu:latest
   commands:
+    - curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
     - apt update
-    - apt install -y vim git curl tar xz-utils
+    - apt install -y vim git curl tar xz-utils nodejs
     - useradd -m ubuntu
     - mkdir -p /home/ubuntu/git/dotfiles
     - cp -r ./ /home/ubuntu/git/dotfiles/
@@ -21,6 +23,7 @@ steps:
     - curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
     - cp ~/git/dotfiles/rc/vimrc ~/.vimrc
     - vim +'PlugInstall --sync' +qa > /dev/null
+    - ls ~/.config/coc
     - mkdir -p /drone/src/dist
     - tar -cJf /drone/src/dist/dotfiles.tar.xz .vim git
 
