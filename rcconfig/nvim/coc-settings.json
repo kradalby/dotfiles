@@ -1,56 +1,19 @@
 {
-  "suggest.timeout": 5000,
-  "languageserver": {
-    "golang": {
-      "command": "gopls",
-      "args": ["serve"],
-      "rootPatterns": ["go.mod", ".vim/", ".git/", ".hg/"],
-      "filetypes": ["go"]
+    "suggest.timeout": 5000,
+    "languageserver": {
+        "elmLS": {
+            "command": "elm-language-server",
+            "filetypes": ["elm"],
+            "rootPatterns": ["elm.json"],
+            "initializationOptions": {
+                "elmAnalyseTrigger": "change"
+            }
+        }
     },
-    "elm": {
-      "command": "elm-language-server",
-      "args": ["--stdio"],
-      "filetypes": ["elm"],
-      "rootPatterns": ["elm.json"],
-      "initializationOptions": {
-        "runtime": "node",
-        "elmPath": "elm",
-        "elmFormatPath": "elm-format"
-      }
+    "yaml.schemas": {
+        "kubernetes": "**.yaml",
+        "Kubernetes": "**.yaml"
     },
-    "dockerfile": {
-      "command": "docker-langserver",
-      "filetypes": ["dockerfile"],
-      "args": ["--stdio"]
-    },
-    "bash": {
-      "command": "bash-language-server",
-      "args": ["start"],
-      "filetypes": ["sh"],
-      "ignoredRootPaths": ["~"]
-    },
-    "fsharp": {
-      "command": "dotnet",
-      "args": [
-        "/home/kradalby/git/fsharp-language-server/src/FSharpLanguageServer/bin/Release/netcoreapp2.0/FSharpLanguageServer.dll"
-      ],
-      "rootPatterns": ["paket.dependencies", "build.fsx", ".git/", ".hg/"],
-      "filetypes": ["fsharp"]
-    },
-    "ocaml": {
-      "command": "ocaml-language-server",
-      "args": ["--stdio"],
-      "filetypes": ["ocaml", "reason"]
-    },
-    "tex": {
-      "command": "java",
-      "args": ["-jar", "/home/kradalby/bin/texlab.jar"],
-      "rootPatterns": [".git/", ".hg/"],
-      "filetypes": ["tex"]
-    }
-  },
-  "yaml.schemas": {
-    "kubernetes": "**.yaml",
-    "Kubernetes": "**.yaml"
-  }
+    "python.jediEnabled": false,
+    "codeLens.enable": true
 }

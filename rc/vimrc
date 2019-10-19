@@ -26,7 +26,7 @@ Plug 'junegunn/fzf.vim'
 
 Plug 'editorconfig/editorconfig-vim'
 
-Plug 'neoclide/coc.nvim', {'tag': '*', 'do': { -> coc#util#install()}}
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
 Plug 'elmcast/elm-vim', {'for': ['elm']}
 Plug 'fsharp/vim-fsharp', {
@@ -53,6 +53,7 @@ Plug 'keith/swift.vim', {'for': 'swift'}
 Plug 'leafgarland/typescript-vim', {'for': 'typescript'}
 Plug 'towolf/vim-helm'
 Plug 'norcalli/nvim-colorizer.lua'
+" Plug 'fatih/vim-go'
 
 """""""""""""""""""""""""
 " FORMAT
@@ -73,6 +74,39 @@ Plug 'tpope/vim-sensible'
 call plug#end()
 
 set hidden
+
+" Conquer of Completion
+
+let g:coc_global_extensions= [
+            \   'coc-powershell-patched',
+            \   'coc-go',
+            \   'coc-gitignore',
+            \   'coc-tsserver',
+            \   'coc-python ',
+            \   'coc-json',
+            \   'coc-html',
+            \   'coc-css',
+            \   'coc-stylelint',
+            \   'coc-yaml',
+            \   'coc-fish',
+            \   'coc-webpack',
+            \   'coc-docker',
+            \   'coc-sh',
+            \   'coc-fsharp',
+            \   'coc-omnisharp',
+            \   'coc-vimlsp',
+            \   'coc-vetur',
+            \]
+
+set updatetime=300
+set shortmess+=c
+set signcolumn=yes
+
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
+nmap <leader>rn <Plug>(coc-rename)
 
 " Ale
 let g:ale_fixers = {
@@ -106,6 +140,10 @@ let g:ale_sign_column_always = 1
 
 " Go settings
 let g:ale_go_golangci_lint_package = 1
+let g:go_def_mapping_enabled = 0
+let g:go_code_completion_enabled = 0
+let g:go_fmt_autosave = 0
+let g:go_mod_fmt_autosav = 0
 
 " PGSQL
 let g:sql_type_default = 'pgsql'
