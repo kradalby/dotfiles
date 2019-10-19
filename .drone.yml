@@ -11,9 +11,10 @@ steps:
   pull: always
   image: ubuntu:latest
   commands:
-    - curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
     - apt update
-    - apt install -y vim git curl tar xz-utils nodejs
+    - apt install -y vim git curl tar xz-utils
+    - curl -sL https://deb.nodesource.com/setup_10.x | bash -
+    - apt install -y nodejs
     - useradd -m ubuntu
     - mkdir -p /home/ubuntu/git/dotfiles
     - cp -r ./ /home/ubuntu/git/dotfiles/
