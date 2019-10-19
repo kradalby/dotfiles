@@ -9,10 +9,12 @@ let s:darwin = has('mac')
 call plug#begin('~/.vim/plugged')
 
 """""""""""""""""""""""""
-" COLORS
+" Style
 """""""""""""""""""""""""
 Plug 'tomasr/molokai'
 Plug 'junegunn/goyo.vim'
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
 
 
 """""""""""""""""""""""""
@@ -50,6 +52,7 @@ Plug 'posva/vim-vue', {'for': 'vue'}
 Plug 'keith/swift.vim', {'for': 'swift'}
 Plug 'leafgarland/typescript-vim', {'for': 'typescript'}
 Plug 'towolf/vim-helm'
+Plug 'norcalli/nvim-colorizer.lua'
 
 """""""""""""""""""""""""
 " FORMAT
@@ -108,7 +111,7 @@ let g:ale_go_golangci_lint_package = 1
 let g:sql_type_default = 'pgsql'
 
 
-" Colors
+" Style
 set background=dark
 
 try
@@ -117,7 +120,14 @@ catch /^Vim\%((\a\+)\)\=:E185/
     colorscheme default
 endtry
 
+let g:airline_theme='wombat'
+let g:airline#extensions#tabline#enabled = 1
+let g:airline#extensions#tabline#formatter = 'unique_tail'
+
 syntax on
+
+" lua require'colorizer'.setup()
+
 
 " ----------------------------------------------------------------------------
 " Tabs and splits
@@ -245,7 +255,7 @@ endif
 
 " Use Vim settings, rather then Vi settings (much better!).
 set nocompatible
-set cursorline
+set nocursorline
 set encoding=utf-8
 set number
 
