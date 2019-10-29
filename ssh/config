@@ -31,11 +31,15 @@ Host sprocket
 # fap             #
 ###################
 
+Host vmac
+    HostName vmac.terra.fap.no
+    User kradalby
+    Port 22
+
 Host database.terra dewgong.terra diglett.ntnu esxi.leiden esxi.ntnu esxi.terra esxi.tjoda gateway.tjoda ingress.terra ingress.tjoda leiden machamp.ntnu mail.terra node01.terra node02.terra node03.terra node04.terra ntnu porygon.terra rancher.terra storage.leiden storage.terra storage.tjoda terra tjoda tupo.tjoda unifi.tjoda win.terra ingress.terra ntnu terra 
     HostName %h.fap.no
     User root
     Port 22
-
 
 ###################
 # esa.int         #
