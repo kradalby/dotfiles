@@ -140,8 +140,8 @@ let g:ale_sign_column_always = 1
 " Python settings
 " C0330: Disable wrong hanging indentation
 " https://github.com/psf/black/issues/48
-" C0116: Disable missing docstring
-let g:ale_python_pylint_options = '--disable=C0330,C0116'
+" C0114 C0115 C0116: Disable missing docstring
+let g:ale_python_pylint_options = '--disable=C0330,C0114,C0115,C0116'
 " Use linelength 88 (what black uses)
 let g:ale_python_flake8_options = '--max-line-length=88'
 
