@@ -127,7 +127,6 @@ let g:ale_fixers = {
 let g:ale_linters = {
             \   'go': ['golangci-lint'],
             \   'fsharp': ['dotnet-fsharplint -sf'],
-            \   'python': ['pyre', 'flake8', 'pylint'],
             \   'terraform': ['terraform', 'tflint'],
             \}
 
@@ -137,6 +136,14 @@ let g:ale_fix_on_save = 1
 let g:ale_lint_on_save = 1
 let g:ale_completion_enabled = 0
 let g:ale_sign_column_always = 1
+
+" Python settings
+" C0330: Disable wrong hanging indentation
+" https://github.com/psf/black/issues/48
+" C0116: Disable missing docstring
+let g:ale_python_pylint_options = '--disable=C0330,C0116'
+" Use linelength 88 (what black uses)
+let g:ale_python_flake8_options = '--max-line-length=88'
 
 " Go settings
 let g:ale_go_golangci_lint_package = 1
