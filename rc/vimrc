@@ -53,6 +53,7 @@ Plug 'keith/swift.vim', {'for': 'swift'}
 Plug 'leafgarland/typescript-vim', {'for': 'typescript'}
 Plug 'towolf/vim-helm'
 Plug 'norcalli/nvim-colorizer.lua'
+Plug 'google/vim-jsonnet'
 " Plug 'fatih/vim-go'
 
 """""""""""""""""""""""""
@@ -96,6 +97,7 @@ let g:coc_global_extensions= [
             \   'coc-omnisharp',
             \   'coc-vimlsp',
             \   'coc-vetur',
+            \   'coc-pyright',
             \]
 
 set updatetime=300
@@ -121,14 +123,17 @@ let g:ale_fixers = {
             \   'scss': ['prettier'],
             \   'json': ['prettier'],
             \   'fsharp': ['fantomas'],
-            \   'python': ['autopep8', 'black'],
+            \   'python': ['autopep8', 'isort', 'black'],
             \}
 
 let g:ale_linters = {
             \   'go': ['golangci-lint'],
             \   'fsharp': ['dotnet-fsharplint -sf'],
             \   'terraform': ['terraform', 'tflint'],
+            \   'python': ["pylint", "flake8", "pyre", "mypy"],
             \}
+
+
 
 
 
@@ -136,14 +141,18 @@ let g:ale_fix_on_save = 1
 let g:ale_lint_on_save = 1
 let g:ale_completion_enabled = 0
 let g:ale_sign_column_always = 1
+let g:ale_linters_explicit = 0
 
 " Python settings
 " C0330: Disable wrong hanging indentation
 " https://github.com/psf/black/issues/48
 " C0114 C0115 C0116: Disable missing docstring
-let g:ale_python_pylint_options = '--disable=C0330,C0114,C0115,C0116'
+" E0401: Pylint does not respect venv, so ignore imports
+let g:ale_python_pylint_options = '--disable=C0330,C0114,C0115,C0116,E0401'
 " Use linelength 88 (what black uses)
 let g:ale_python_flake8_options = '--max-line-length=88'
+" Use Global pyre executable
+let g:ale_python_pyre_use_global = 1
 
 " Go settings
 let g:ale_go_golangci_lint_package = 1
