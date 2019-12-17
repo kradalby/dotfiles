@@ -8,6 +8,11 @@
             "initializationOptions": {
                 "elmAnalyseTrigger": "change"
             }
+        },
+        "terraform": {
+            "command": "terraform-lsp",
+            "filetypes": ["terraform"],
+            "rootPatterns": [".terraform/"]
         }
     },
     "yaml.format.enable": true,
@@ -17,5 +22,6 @@
         "http://json.schemastore.org/gitlab-ci": "/.gitlab-ci.yml"
     },
     "python.jediEnabled": false,
+    "python.venvPath": ".venv",
     "codeLens.enable": true
 }
