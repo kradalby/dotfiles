@@ -117,11 +117,12 @@ let g:ale_fixers = {
             \   'typescript': ['prettier', 'eslint'],
             \   'elm': ['format'],
             \   'sh': ['shfmt'],
-            \   'go': ['gofmt'],
+            \   'go': ['goimports'],
             \   'terraform': ['terraform'],
             \   'css': ['prettier'],
             \   'scss': ['prettier'],
             \   'json': ['prettier'],
+            \   'yaml': ['prettier'],
             \   'fsharp': ['fantomas'],
             \   'python': ['autopep8', 'isort', 'black'],
             \}

@@ -6,4 +6,5 @@ alias ke 'kubectl edit'
 alias kaf 'kubectl apply -f'
 alias kdf 'kubectl delete -f'
 alias kshell 'kubectl run --generator=run-pod/v1 ubuntu-shell --rm -i --tty --image ubuntu -- bash'
+alias kbusy 'kubectl run --generator=run-pod/v1 busybox-shell --rm -i --tty --image busybox -- sh'
 

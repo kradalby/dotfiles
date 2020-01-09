@@ -7,7 +7,7 @@ function repos -d 'Do stuff in all the repos'
     if test $stuff = "pull"
         execute "pull"
     else if test $stuff = "status"
-        execute "git status"
+        git_status
     else if test $stuff = "push"
         execute "git push"
     end
@@ -30,6 +30,22 @@ function execute
             echo "Updating $dir…"
             set_color normal
             eval $command
+            echo \n\n\n\n
+        end
+        cd ..
+    end
+end
+
+function git_status
+    for dir in ./*/
+        cd $dir
+        git status --porcelain
+        if [ $status -eq 0 ]
+            figlet $dir
+            set_color red
+            echo "Updating $dir…"
+            set_color normal
+            git status
             echo \n\n\n\n
         end
         cd ..
