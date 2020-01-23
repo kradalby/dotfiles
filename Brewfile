@@ -12,6 +12,7 @@ brew 'python3'
 brew 'ocaml'
 brew 'elm'
 brew 'mono'
+brew "haskell-stack"
 
 
 ## Linting
@@ -23,6 +24,7 @@ brew 'golangci/tap/golangci-lint'
 
 
 ## Tools
+brew "aria2"
 brew 'git'
 brew 'git-extras'
 brew 'gradle'
@@ -38,9 +40,17 @@ brew 'fd'
 brew 'bat'
 brew 'prettyping'
 
-## DevOps
+## Frameworks
+brew "ibm-swift/kitura/kitura"
+
+
+## IaaS
 brew 'terraform'
 brew 'packer'
+brew "jsonnet"
+brew "kompose"
+brew "kubernetes-cli"
+brew "helm"
 
 # Package manager
 brew 'opam'
@@ -79,7 +89,13 @@ brew 'netcat6'
 brew 'sqlite'
 brew 'postgresql'
 
+
+## Desktop apps
 brew 'cask'
+cask "1password"
+cask "1password-cli"
+cask "adobe-creative-cloud"
+cask "balenaetcher"
 cask 'iterm2'
 cask 'firefox'
 cask 'google-chrome'
@@ -96,6 +112,7 @@ cask 'discord'
 cask 'sequel-pro'
 cask 'jumpcut'
 cask 'calibre'
+cask "caprine"
 cask 'beardedspice'
 cask 'tunnelblick'
 cask 'free-ruler'
@@ -105,13 +122,17 @@ cask 'visual-studio-code'
 cask 'menumeters'
 cask 'steam'
 cask 'transmit'
-cask 'transmit-disk'
+cask "tripmode"
+cask "signal"
+# cask "flash-npapi"
+# cask "flash-ppapi"
+cask 'dotnet'
+cask "dotnet-sdk-preview"
+cask 'syncthing'
 
-# cask 'osxfuse'
-# cask 'sshfs'
+cask 'menubar-colors'
+cask 'gas-mask'
 
-# cask 'xquartz'
-# cask 'inkscape'
 
 # cask 'intellij-idea'
 # cask 'pycharm'
@@ -120,14 +141,13 @@ cask 'transmit-disk'
 # cask 'minikube'
 # cask 'mailbutler'
 # cask 'real-vnc'
-cask 'dotnet'
-cask 'syncthing'
-
-cask 'menubar-colors'
-cask 'gas-mask'
 
 brew 'mas'
-mas 'LastPass', id: 926036361
 mas 'Microsoft Remote Desktop', id: 715768417
 mas 'Pixelmator', id: 407963104
 mas 'Xcode', id: 497799835
+mas "Patterns", id: 429449079
+mas "Telegram", id: 747648890
+mas "WhatsApp", id: 1147396723
+mas "WireGuard", id: 1451685025
+mas "Pages", id: 409201541
