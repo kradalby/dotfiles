@@ -1,6 +1,0 @@
-merlin
-core
-core_extended
-jbuilder
-ocp-indent
-utop
