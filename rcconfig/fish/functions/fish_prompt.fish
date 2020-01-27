@@ -1,9 +1,8 @@
 function fish_prompt
-	set d (date "+%m/%d/%y %H:%M:%S")
+    set d (date "+%d/%m/%y %H:%M:%S")
     set brmagenta FF55FF
     set bryellow FFFF55
     set brgreen 55FF55
-    # kradalby@kramacbook ~/g/dotfiles (master=)
     echo
     set_color $brmagenta
     printf '%s ' $d
@@ -21,4 +20,15 @@ function fish_prompt
     set_color $brmagenta
     echo
     echo "> "
+end
+
+function fish_right_prompt
+    if type -q kubectl
+        set kubecontext (kubectl config current-context)
+    end
+
+    if set -q kubecontext
+        set_color brblue
+        printf '❄️ [%s]' $kubecontext
+    end
 end
