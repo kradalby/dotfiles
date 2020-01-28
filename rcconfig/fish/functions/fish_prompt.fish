@@ -12,8 +12,12 @@ function fish_prompt
     printf "@"
     set_color $brgreen
     printf (hostname)
-    set_color brcyan
+    if set -q WORKING_ENV
+        set_color $bryellow
+        printf " [ %s ]" $WORKING_ENV
+    end
     echo
+    set_color brcyan
     printf '%s' (pwd)
     set_color normal
     printf '%s' (__fish_git_prompt)
