@@ -29,6 +29,6 @@ function fish_right_prompt
 
     if set -q kubecontext
         set_color brblue
-        printf '❄️ [%s]' $kubecontext
+        printf '❄️  [ %s ]' $kubecontext
     end
 end
