@@ -18,8 +18,8 @@
     "yaml.format.enable": true,
     "yaml.validate": false,
     "yaml.schemas": {
-        "http://json.schemastore.org/drone": "/.drone.yml",
-        "http://json.schemastore.org/gitlab-ci": "/.gitlab-ci.yml"
+        "http://json.schemastore.org/drone": "**/.drone.yml",
+        "http://json.schemastore.org/gitlab-ci": "**/.gitlab-ci.yml"
     },
     "python.jediEnabled": false,
     "python.venvPath": ".venv",
