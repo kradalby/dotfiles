@@ -53,9 +53,16 @@ function install_vimplug() {
         https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 }
 
+function link_neovim() {
+    mkdir -p $HOME/.config/nvim
+    rm -rf $HOME/.config/nvim/init.vim
+    ln -s $CURRENT/rc/vimrc $HOME/.config/nvim/init.vim 
+}
+
 
 deploy
 #prepare_vim_dir
 install_vimplug
+link_neovim
 deploy_ssh
 deploy_config
