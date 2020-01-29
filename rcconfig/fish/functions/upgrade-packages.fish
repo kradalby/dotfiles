@@ -13,17 +13,13 @@ function upgrade-packages
     end
 
     command --search brew >/dev/null; and begin
-        sudo -v
         echo "Updating brew"
         brew update
         brew upgrade
         brew cleanup
-        brew cask cleanup
-        brew prune
     end
 
     command --search yarn >/dev/null; and begin
-        sudo -v
         echo "Updating yarn"
         yarn global upgrade
     end
@@ -38,13 +34,19 @@ function upgrade-packages
     # end
 
     command --search pipx >/dev/null; and begin
-        sudo -v
         echo "Updating pipx"
         pipx upgrade-all
     end
 
-    # TODO: Go
+    command --search go >/dev/null; and begin
+        echo "Updating go"
+        $HOME/git/dotfiles/go.sh
+    end
 
-    poetry self update
+
+    command --search go >/dev/null; and begin
+        echo "Updating poetry"
+        poetry self update
+    end
 
 end
