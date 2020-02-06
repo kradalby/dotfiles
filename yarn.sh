@@ -8,4 +8,5 @@ yarn global add \
     dockerfile-language-server-nodejs \
     ocaml-language-server \
     bash-language-server \
+    git-open \
     prettier
