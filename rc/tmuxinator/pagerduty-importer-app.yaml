@@ -1,7 +1,7 @@
 # ~/.tmuxinator/virtus.yml
 
 name: pagerduty-importer-app
-root: ~/git/GR/pagerduty-importer-app
+root: ~/grit/PagerDutyImporter
 
 windows:
     - dev:
