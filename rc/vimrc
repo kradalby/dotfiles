@@ -55,6 +55,7 @@ Plug 'towolf/vim-helm'
 Plug 'norcalli/nvim-colorizer.lua'
 Plug 'google/vim-jsonnet'
 Plug 'jjo/vim-cue'
+Plug 'martinda/Jenkinsfile-vim-syntax'
 " Plug 'fatih/vim-go'
 
 """""""""""""""""""""""""
