@@ -100,6 +100,7 @@ let g:coc_global_extensions= [
             \   'coc-vimlsp',
             \   'coc-vetur',
             \   'coc-pyright',
+            \   'coc-sourcekit',
             \]
 
 set updatetime=300
