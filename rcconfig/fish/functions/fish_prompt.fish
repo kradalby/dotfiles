@@ -27,12 +27,14 @@ function fish_prompt
 end
 
 function fish_right_prompt
-    if type -q kubectl
-        set kubecontext (kubectl config current-context)
+    if not set -q KUBECONTEXT
+        if type -q kubectl
+            set -xg KUBECONTEXT (kubectl config current-context)
+        end
     end
 
-    if set -q kubecontext
+    if set -q KUBECONTEXT
         set_color brblue
-        printf '❄️  [ %s ]' $kubecontext
+        printf '❄️  [ %s ]' $KUBECONTEXT
     end
 end
