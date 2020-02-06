@@ -49,4 +49,10 @@ function upgrade-packages
         poetry self update
     end
 
+    command --search nvim >/dev/null; and begin
+        echo "Updating vim plugins"
+        nvim +'PlugUpgrade' +qa
+        nvim +'PlugUpdate' +qa
+    end
+
 end
