@@ -54,6 +54,7 @@ Plug 'leafgarland/typescript-vim', {'for': 'typescript'}
 Plug 'towolf/vim-helm'
 Plug 'norcalli/nvim-colorizer.lua'
 Plug 'google/vim-jsonnet'
+Plug 'jjo/vim-cue'
 " Plug 'fatih/vim-go'
 
 """""""""""""""""""""""""
