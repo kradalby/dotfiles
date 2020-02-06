@@ -1,5 +1,6 @@
 cask_args appdir: '/Applications'
 tap 'drone/drone'
+tap 'jotta/cli'
 cask 'java'
 
 # Development
@@ -19,7 +20,7 @@ brew 'haskell-stack'
 brew 'tidy-html5'
 brew 'swiftlint'
 brew 'shellcheck'
-brew 'elm-format', args: ['devel']
+brew 'elm-format'
 brew 'golangci/tap/golangci-lint'
 
 
@@ -27,11 +28,11 @@ brew 'golangci/tap/golangci-lint'
 brew 'aria2'
 brew 'git'
 brew 'git-extras'
-brew 'gradle'
-brew 'maven'
+# brew 'gradle'
+# brew 'maven'
 brew 'fzf'
 brew 'cloc'
-brew 'ninja' # small build system
+brew 'ninja'
 brew 'diff-so-fancy'
 brew 'drone'
 brew 'nload'
@@ -39,6 +40,7 @@ brew 'fdupes'
 brew 'fd'
 brew 'bat'
 brew 'prettyping'
+brew 'jotta-cli'
 
 ## Frameworks
 brew 'ibm-swift/kitura/kitura'
@@ -54,6 +56,8 @@ brew 'helm'
 
 # Package manager
 brew 'opam'
+brew 'pipx'
+brew 'yarn'
 
 # Shells
 brew 'fish'
@@ -63,16 +67,18 @@ brew 'mosh'
 brew 'xz'
 brew 'htop'
 brew 'dos2unix'
-brew 'gnu-sed', args: ['with-default-names']
-brew 'findutils', args: ['with-default-names']
+brew 'gnu-sed'
+brew 'findutils'
 brew 'coreutils'
 brew 'jq'
 brew 'ncdu'
 brew 'the_silver_searcher'
 brew 'tmux'
+brew 'tmuxinator'
 brew 'tree'
 brew 'unrar'
 brew 'vim'
+brew 'neovim'
 # brew 'emacs', args: ['with-gnutls', 'with-imagemagick', 'with-cocoa', 'HEAD']
 brew 'watch'
 brew 'wget'
@@ -88,6 +94,7 @@ brew 'netcat6'
 ## Database
 brew 'sqlite'
 brew 'postgresql'
+brew 'redis'
 
 
 ## Desktop apps
@@ -106,7 +113,6 @@ cask 'spotify'
 cask 'teamviewer'
 cask 'transmission'
 cask 'vlc'
-cask 'jotta'
 cask 'the-unarchiver'
 cask 'discord'
 cask 'sequel-pro'
@@ -122,18 +128,20 @@ cask 'visual-studio-code'
 cask 'menumeters'
 cask 'steam'
 cask 'transmit'
-cask 'adguard'
 cask 'little-snitch'
 cask 'tripmode'
 cask 'signal'
 # cask 'flash-npapi'
 # cask 'flash-ppapi'
 cask 'dotnet'
-cask 'dotnet-sdk-preview'
+cask 'dotnet-sdk'
 cask 'syncthing'
 
 cask 'menubar-colors'
 cask 'gas-mask'
+
+cask 'turbo-boost-switcher'
+cask 'steveschow-gfxcardstatus'
 
 
 # cask 'intellij-idea'
