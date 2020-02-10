@@ -15,7 +15,15 @@ function upgrade-packages
     command --search brew >/dev/null; and begin
         echo "Updating brew"
         brew update
-        brew upgrade
+        # brew upgrade
+
+        set current (pwd)
+        cd $HOME/git/dotfiles
+        brew bundle check --verbose
+        brew bundle cleanup --force
+        brew bundle install
+        cd $current
+
         brew cleanup
     end
 
@@ -51,8 +59,8 @@ function upgrade-packages
 
     command --search nvim >/dev/null; and begin
         echo "Updating vim plugins"
-        nvim +'PlugUpgrade' +qa
         nvim +'PlugUpdate' +qa
+        nvim +'PlugUpgrade' +qa
     end
 
 end
