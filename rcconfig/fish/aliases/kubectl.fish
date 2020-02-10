@@ -9,4 +9,4 @@ alias kgc 'kubectl config get-contexts'
 alias kshell 'kubectl run --generator=run-pod/v1 ubuntu-shell --rm -i --tty --image ubuntu -- bash'
 alias kbusy 'kubectl run --generator=run-pod/v1 busybox-shell --rm -i --tty --image busybox -- sh'
 
-alias kc 'set -xg KUBECONTEXT $argv[1]; kubectl config use-context'
+alias kc 'set --universal -x KUBECONTEXT $argv[1]; kubectl config use-context'

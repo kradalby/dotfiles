@@ -29,7 +29,7 @@ end
 function fish_right_prompt
     if not set -q KUBECONTEXT
         if type -q kubectl
-            set -xg KUBECONTEXT (kubectl config current-context)
+            set --universal -x KUBECONTEXT (kubectl config current-context)
         end
     end
 
