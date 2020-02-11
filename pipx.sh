@@ -1,5 +1,6 @@
 #!/usr/bin/env sh
 
+pipx install poetry
 pipx install ansible
 pipx install gitlint
 pipx install tox
