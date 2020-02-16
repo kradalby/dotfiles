@@ -133,7 +133,7 @@ cask 'tripmode'
 cask 'signal'
 # cask 'flash-npapi'
 # cask 'flash-ppapi'
-cask 'dotnet'
+# cask 'dotnet'
 cask 'dotnet-sdk'
 cask 'syncthing'
 
