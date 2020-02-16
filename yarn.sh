@@ -9,4 +9,5 @@ yarn global add \
     ocaml-language-server \
     bash-language-server \
     git-open \
+    elm-json \
     prettier
