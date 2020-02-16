@@ -51,12 +51,6 @@ function upgrade-packages
         $HOME/git/dotfiles/go.sh
     end
 
-
-    command --search go >/dev/null; and begin
-        echo "Updating poetry"
-        poetry self update
-    end
-
     command --search nvim >/dev/null; and begin
         echo "Updating vim plugins"
         nvim +'PlugUpdate' +qa
