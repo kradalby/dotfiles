@@ -41,6 +41,7 @@ brew 'fd'
 brew 'bat'
 brew 'prettyping'
 brew 'jotta-cli'
+brew 'sleepwatcher'
 
 ## Frameworks
 brew 'ibm-swift/kitura/kitura'
