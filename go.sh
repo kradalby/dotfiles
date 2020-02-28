@@ -9,7 +9,6 @@ go get -u cuelang.org/go/cmd/cue
 go get -u github.com/prometheus-community/promql-langserver/cmd/promql-langserver
 
 # Tools for vscode-go
-go get -u golang.org/x/tools/gopls
 go get -u golang.org/x/tools/cmd/goimports
 go get -u github.com/godoctor/godoctor
 go get -u github.com/golangci/golangci-lint/cmd/golangci-lint

@@ -22,6 +22,7 @@ brew 'swiftlint'
 brew 'shellcheck'
 brew 'elm-format'
 brew 'golangci/tap/golangci-lint'
+brew 'tflint'
 
 
 ## Tools
