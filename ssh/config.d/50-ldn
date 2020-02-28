@@ -1,0 +1,9 @@
+
+###################
+# LDN             #
+###################
+
+Host rpi.ldn
+    HostName rpi.ldn.fap.no
+    User root
+    Port 22
