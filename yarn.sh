@@ -10,4 +10,6 @@ yarn global add \
     bash-language-server \
     git-open \
     elm-json \
+    elm-test \
+    @elm-tooling/elm-language-server \
     prettier
