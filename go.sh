@@ -8,6 +8,7 @@ go get -u github.com/kradalby/kubespace
 go get -u cuelang.org/go/cmd/cue
 go get -u github.com/prometheus-community/promql-langserver/cmd/promql-langserver
 go get -u github.com/juliosueiras/terraform-lsp
+go get -u github.com/oligot/go-mod-upgrade
 
 # Tools for vscode-go
 go get -u golang.org/x/tools/cmd/goimports
