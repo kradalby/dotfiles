@@ -54,6 +54,7 @@ function upgrade-packages
     command --search nvim >/dev/null; and begin
         echo "Updating vim plugins"
         nvim +'PlugUpdate' +qa
+        nvim -c 'CocUpdateSync|q'
         nvim +'PlugUpgrade' +qa
     end
 

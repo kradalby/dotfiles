@@ -43,6 +43,7 @@ brew 'bat'
 brew 'prettyping'
 brew 'jotta-cli'
 brew 'sleepwatcher'
+brew 'openapi-generator'
 
 ## Frameworks
 brew 'ibm-swift/kitura/kitura'
