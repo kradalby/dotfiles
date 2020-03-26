@@ -3,27 +3,37 @@ set -x JAVA_HOME (/usr/libexec/java_home)
 
 
 set BINDIRS = \
-    ""(brew --prefix)"/bin" \
+    "/usr/local/bin" \
     "/usr/local/opt/gnu-sed/bin" \
     "$HOME/bin/flutter/bin" \
     "/usr/local/opt/ruby/bin" \
     "/usr/local/lib/ruby/gems/2.6.0/bin" \
     "/Library/TeX/Distributions/.DefaultTeX/Contents/Programs/texbin" \
     "/Users/kradalby/Library/Python/3.7/bin" \
-    "/usr/local/opt/coreutils/libexec/gnubin" 
+    "/usr/local/opt/coreutils/libexec/gnubin"
 
 for bindir in $BINDIRS
-    if test -d $bindir
+    if test -d $bindir; and not contains $bindir $PATH
          set -x PATH $bindir $PATH
     end
 end
 
+if type -q brew
+    set brew_path ""(brew --prefix)"/bin"
+    if not contains $brew_path $PATH
+        set -x $brew_path PATH  $PATH
+    end
+end
+
 # QT
-if test -d "/usr/local/opt/qt/bin"
-  set -x PATH $PATH "/usr/local/opt/qt/bin"
+set qt_path "/usr/local/opt/qt/bin"
+if test -d $qt_path
+    if not contains $qt_path $PATH
+  set -x PATH $PATH $qt_path
+    end
   set -gx LDFLAGS "-L/usr/local/opt/qt/lib"
   set -gx CPPFLAGS "-I/usr/local/opt/qt/include"
-end 
+end
 # Swiftenv root
 # set -x SWIFTENV_ROOT "/usr/local/var/swiftenv"
 

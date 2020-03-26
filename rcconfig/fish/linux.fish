@@ -11,7 +11,7 @@ set BINDIRS = \
     "$HOME/dotnet"
 
 for bindir in $BINDIRS
-    if test -d $bindir
+    if test -d $bindir; and not contains $bindir $PATH
          set -x PATH $bindir $PATH
     end
 end

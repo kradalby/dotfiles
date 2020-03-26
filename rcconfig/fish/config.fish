@@ -65,6 +65,8 @@ set BINDIRS = \
 # "$PYTHON3USERBASE/bin" \
 # "$PYTHON2USERBASE/bin" \
     "$HOME/.npm-packages/bin" \
+    "$HOME/.config/yarn/global/node_modules/.bin" \
+    "$HOME/.yarn/bin" \
     "$HOME/.cargo/bin" \
     "$HOME/git/dotfiles/bin" \
     "$HOME/bin" \
@@ -75,7 +77,7 @@ set BINDIRS = \
     "$HOME/.gem/ruby/2.6.0/bin"
 
 for bindir in $BINDIRS
-    if test -d $bindir
+    if test -d $bindir; and not contains $bindir $PATH
          set -x PATH $bindir $PATH
     end
 end
@@ -111,5 +113,3 @@ end
 if type -q ag
     set -xg FZF_DEFAULT_COMMAND 'ag -g ""'
 end
-
-export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
