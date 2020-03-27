@@ -144,7 +144,7 @@ cask 'webex-meetings'
 # cask 'dotnet'
 cask 'dotnet-sdk'
 cask 'syncthing'
-bask 'barrier'
+cask 'barrier'
 
 cask 'menubar-colors'
 cask 'gas-mask'
