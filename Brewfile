@@ -85,6 +85,7 @@ brew 'vim'
 brew 'neovim'
 # brew 'emacs', args: ['with-gnutls', 'with-imagemagick', 'with-cocoa', 'HEAD']
 brew 'watch'
+brew 'wireguard-go'
 brew 'wget'
 brew 'readline'
 
@@ -123,7 +124,7 @@ cask 'sequel-pro'
 cask 'psequel'
 cask 'jumpcut'
 cask 'calibre'
-cask 'caprine'
+# cask 'caprine'
 cask 'beardedspice'
 cask 'tunnelblick'
 cask 'free-ruler'
@@ -170,3 +171,5 @@ mas 'Telegram', id: 747648890
 mas 'WhatsApp', id: 1147396723
 mas 'WireGuard', id: 1451685025
 mas 'Pages', id: 409201541
+mas 'Amphetamine', id: 937984704
+mas 'Messenger', id: 1480068668
