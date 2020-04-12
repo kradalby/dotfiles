@@ -163,7 +163,7 @@ cask 'steveschow-gfxcardstatus'
 # cask 'real-vnc'
 
 brew 'mas'
-mas 'Microsoft Remote Desktop', id: 715768417
+mas 'Microsoft Remote Desktop', id: 1295203466
 mas 'Pixelmator', id: 407963104
 mas 'Xcode', id: 497799835
 mas 'Patterns', id: 429449079
