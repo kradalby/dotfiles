@@ -1,6 +1,11 @@
 cask_args appdir: '/Applications'
+tap 'homebrew/services'
 tap 'drone/drone'
 tap 'jotta/cli'
+tap 'kradalby/tap'
+tap 'golangci/tap'
+tap 'ibm-swift/kitura'
+tap 'homebrew/cask'
 cask 'java'
 
 # Development
@@ -21,7 +26,7 @@ brew 'tidy-html5'
 brew 'swiftlint'
 brew 'shellcheck'
 brew 'elm-format'
-brew 'golangci/tap/golangci-lint'
+brew 'golangci-lint'
 brew 'tflint'
 
 
@@ -46,13 +51,14 @@ brew 'sleepwatcher'
 brew 'openapi-generator'
 
 ## Frameworks
-brew 'ibm-swift/kitura/kitura'
+brew 'kitura'
 
 
 ## IaaS
 brew 'terraform'
 brew 'packer'
-brew 'jsonnet'
+brew 'go-jsonnet'
+brew 'jsonnet' # needed for jsonnetfmt
 brew 'kompose'
 brew 'kubernetes-cli'
 brew 'helm'
@@ -95,6 +101,7 @@ brew 'nmap'
 brew 'socat'
 brew 'netcat'
 brew 'netcat6'
+brew 'mdns-repeater'
 
 ## Database
 brew 'sqlite'
@@ -146,6 +153,7 @@ cask 'webex-meetings'
 cask 'dotnet-sdk'
 cask 'syncthing'
 cask 'barrier'
+cask 'altserver'
 
 cask 'menubar-colors'
 cask 'gas-mask'
