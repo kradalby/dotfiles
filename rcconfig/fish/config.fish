@@ -113,3 +113,8 @@ end
 if type -q ag
     set -xg FZF_DEFAULT_COMMAND 'ag -g ""'
 end
+
+# Prompt
+if type -q starship
+    starship init fish | source
+end
