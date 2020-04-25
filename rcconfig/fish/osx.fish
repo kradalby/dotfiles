@@ -10,6 +10,7 @@ set BINDIRS = \
     "/usr/local/lib/ruby/gems/2.6.0/bin" \
     "/Library/TeX/Distributions/.DefaultTeX/Contents/Programs/texbin" \
     "/Users/kradalby/Library/Python/3.7/bin" \
+    "/Applications/VMware OVF Tool" \
     "/Applications/VMware Fusion.app/Contents/Library/VMware OVF Tool" \
     "/usr/local/opt/coreutils/libexec/gnubin"
 
