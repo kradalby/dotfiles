@@ -10,6 +10,7 @@ go get -u github.com/prometheus-community/promql-langserver/cmd/promql-langserve
 go get -u github.com/juliosueiras/terraform-lsp
 go get -u github.com/oligot/go-mod-upgrade
 go get -u github.com/jessfraz/dockfmt
+go get -u sigs.k8s.io/kind@latest
 
 # Tools for vscode-go
 go get -u golang.org/x/tools/cmd/goimports
