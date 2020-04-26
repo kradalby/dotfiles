@@ -10,6 +10,8 @@ steps:
   - name: build
     pull: always
     image: ubuntu:latest
+    environment:
+      DEBIAN_FRONTEND: noninteractive
     commands:
       - pwd
       - apt update
