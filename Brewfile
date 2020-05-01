@@ -69,6 +69,7 @@ brew 'pipx'
 brew 'yarn'
 
 # Shells
+brew 'starship'
 brew 'fish'
 brew 'mosh'
 
