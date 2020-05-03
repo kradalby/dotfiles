@@ -5,6 +5,7 @@ set -x JAVA_HOME (/usr/libexec/java_home)
 set BINDIRS = \
     "/usr/local/bin" \
     "/usr/local/opt/gnu-sed/bin" \
+    "/usr/local/opt/gnu-tar/libexec/gnubin" \
     "$HOME/bin/flutter/bin" \
     "/usr/local/opt/ruby/bin" \
     "/usr/local/lib/ruby/gems/2.6.0/bin" \
