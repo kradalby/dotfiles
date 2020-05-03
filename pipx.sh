@@ -2,6 +2,7 @@
 
 pipx install poetry
 pipx install ansible
+pipx install ansible-lint
 pipx install gitlint
 pipx install tox
 pipx install black
