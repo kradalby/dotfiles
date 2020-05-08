@@ -11,6 +11,7 @@ go get -u github.com/juliosueiras/terraform-lsp
 go get -u github.com/oligot/go-mod-upgrade
 go get -u github.com/jessfraz/dockfmt
 go get -u sigs.k8s.io/kind@latest
+go get -u github.com/caddyserver/xcaddy/cmd/xcaddy
 
 # Tools for vscode-go
 go get -u golang.org/x/tools/cmd/goimports
