@@ -24,3 +24,4 @@ vscode-icons-team.vscode-icons
 vscodevim.vim
 vscoss.vscode-ansible
 xrc-inc.jsonnet-formatter
+NicolasVuillamy.vscode-groovy-lint
