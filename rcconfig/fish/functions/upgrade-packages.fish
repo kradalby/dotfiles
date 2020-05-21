@@ -15,14 +15,14 @@ function upgrade-packages
     command --search brew >/dev/null; and begin
         echo "Updating brew"
         brew update
-        # brew upgrade
+        brew upgrade
 
-        set current (pwd)
-        cd $HOME/git/dotfiles
-        brew bundle check --verbose
-        brew bundle cleanup --force
-        brew bundle install
-        cd $current
+        # set current (pwd)
+        # cd $HOME/git/dotfiles
+        # brew bundle check --verbose
+        # brew bundle cleanup --force
+        # brew bundle install
+        # cd $current
 
         brew cleanup
     end
