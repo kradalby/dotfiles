@@ -74,34 +74,47 @@ Plug 'lifepillar/pgsql.vim'
 Plug 'tpope/vim-sensible'
 
 
+"""""""""""""""""""""""""
+" CoC extensions
+"""""""""""""""""""""""""
+let coc_extensions= [
+            \   'dansomething/coc-groovy',
+            \   'fannheyward/coc-pyright',
+            \   'fannheyward/coc-markdownlint',
+            \   'fannheyward/coc-xml',
+            \   'iamcco/coc-gitignore',
+            \   'iamcco/coc-vimlsp',
+            \   'iamcco/coc-webpack',
+            \   'josa42/coc-docker',
+            \   'josa42/coc-go',
+            \   'josa42/coc-sh',
+            \   'klaaspieter/coc-sourcekit',
+            \   'neoclide/coc-css',
+            \   'neoclide/coc-git',
+            \   'neoclide/coc-highlight',
+            \   'neoclide/coc-html',
+            \   'neoclide/coc-json',
+            \   'neoclide/coc-pairs',
+            \   'neoclide/coc-python',
+            \   'neoclide/coc-rls',
+            \   'neoclide/coc-sources',
+            \   'neoclide/coc-stylelint',
+            \   'neoclide/coc-tsserver',
+            \   'neoclide/coc-vetur',
+            \   'neoclide/coc-yaml',
+            \   'oncomouse/coc-fish',
+            \   'yatli/coc-fsharp',
+            \   'yatli/coc-omnisharp',
+            \   'coc-extensions/coc-powershell',
+            \]
+for ext in coc_extensions
+Plug ext, {'do': 'yarn install --frozen-lockfile'}
+endfor
+
 call plug#end()
 
 set hidden
 
-" Conquer of Completion
-
-let g:coc_global_extensions= [
-            \   'coc-powershell-patched',
-            \   'coc-go',
-            \   'coc-gitignore',
-            \   'coc-tsserver',
-            \   'coc-python ',
-            \   'coc-json',
-            \   'coc-html',
-            \   'coc-css',
-            \   'coc-stylelint',
-            \   'coc-yaml',
-            \   'coc-fish',
-            \   'coc-webpack',
-            \   'coc-docker',
-            \   'coc-sh',
-            \   'coc-fsharp',
-            \   'coc-omnisharp',
-            \   'coc-vimlsp',
-            \   'coc-vetur',
-            \   'coc-pyright',
-            \   'coc-sourcekit',
-            \]
 
 set updatetime=300
 set shortmess+=c
