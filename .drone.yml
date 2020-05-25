@@ -17,7 +17,7 @@ steps:
       - apt update
       - apt install -y vim git curl tar xz-utils
       - curl -sL https://deb.nodesource.com/setup_10.x | bash -
-      - apt install -y nodejs
+      - apt install -y nodejs yarnpkg
 
       # Install VS Code
       - curl -o vscode.deb -J -L https://vscode-update.azurewebsites.net/latest/linux-deb-x64/stable
