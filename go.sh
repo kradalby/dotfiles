@@ -13,8 +13,10 @@ go get -u github.com/jessfraz/dockfmt
 go get -u sigs.k8s.io/kind@latest
 go get -u github.com/caddyserver/xcaddy/cmd/xcaddy
 
-go get github.com/google/go-jsonnet/cmd/jsonnetfmt
-go get github.com/google/go-jsonnet/cmd/jsonnet
+go get -u github.com/google/go-jsonnet/cmd/jsonnetfmt
+go get -u github.com/google/go-jsonnet/cmd/jsonnet
+go get -u github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb
+go get -u github.com/brancz/gojsontoyaml
 
 # Tools for vscode-go
 go get -u golang.org/x/tools/cmd/goimports
