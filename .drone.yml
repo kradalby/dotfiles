@@ -1,7 +1,7 @@
 ---
 {
    "kind": "pipeline",
-   "name": "default",
+   "name": "Kubernetes",
    "node_selector": {
       "drone": true
    },
