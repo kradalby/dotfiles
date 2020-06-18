@@ -41,3 +41,5 @@
 # For macos ~/.gitconfig.local
 # [credential]
 #     helper = osxkeychain
+[pull]
+	rebase = false
