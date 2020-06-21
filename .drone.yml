@@ -79,7 +79,7 @@
                "from_secret": "discord_webhook_token"
             }
          },
-         "when": {
+         "trigger": {
             "status": [
                "success",
                "failure"
