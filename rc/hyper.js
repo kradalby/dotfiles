@@ -138,9 +138,20 @@ module.exports = {
     // rendering (slower, but supports transparent backgrounds)
     webGLRenderer: true,
 
-    webLinksActivationKey: 'meta'
+    webLinksActivationKey: 'meta',
 
     // for advanced config flags please refer to https://hyper.is/#cfg
+    //
+    hyperTabs: {
+      trafficButtons: false,
+      border: true,
+      tabIconsColored: true
+    },
+
+    hyperTabsMove: {
+      moveLeft: 'command+shift+left',
+      moveRight: 'command+shift+right'
+    }
   },
 
   // a list of plugins to fetch and install from npm
@@ -149,7 +160,7 @@ module.exports = {
   //   `hyperpower`
   //   `@company/project`
   //   `project#1.0.1`
-  plugins: ['hyper-quit'],
+  plugins: ['hyper-tabs-enhanced', 'hyper-quit'],
 
   // in development, you can create a directory under
   // `~/.hyper_plugins/local/` and include it here
