@@ -1,0 +1,119 @@
+---
+{
+   "kind": "pipeline",
+   "name": "Kubernetes",
+   "node_selector": {
+      "drone": true
+   },
+   "steps": [
+      {
+         "commands": [
+            "pwd",
+            "apt update",
+            "apt install -y neovim git curl tar xz-utils",
+            "curl -sL https://deb.nodesource.com/setup_10.x | bash -",
+            "apt install -y nodejs yarnpkg",
+            "curl -o vscode.deb -J -L https://vscode-update.azurewebsites.net/latest/linux-deb-x64/stable",
+            "apt install -y libnotify4 libnss3 libxkbfile1 libsecret-1-0 libgtk-3-0 libxss1 libx11-xcb1 libasound2 libice6 libsm6 libxaw7 libxft2 libxmu6 libxpm4 libxt6 x11-apps xbitmaps",
+            "dpkg -i vscode.deb && rm -f vscode.deb",
+            "useradd -m ubuntu",
+            "mkdir -p /home/ubuntu/git/dotfiles",
+            "cp -r ./ /home/ubuntu/git/dotfiles/",
+            "su \"ubuntu\"",
+            "cd ~",
+            "sh -c 'curl -fLo \"${XDG_DATA_HOME:-$HOME/.local/share}\"/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'",
+            "mkdir -p ~/.config/nvim",
+            "cp ~/git/dotfiles/rc/vimrc ~/.config/nvim/init.vim",
+            "nvim +\"PlugInstall --sync\" +qa > /dev/null",
+            "cat /drone/src/vscode.txt | xargs -L1 code --user-data-dir $HOME --install-extension",
+            "mkdir -p /drone/src/dist",
+            "tar -cJf /drone/src/dist/dotfiles.tar.xz .vim git .vscode/extensions"
+         ],
+         "environment": {
+            "DEBIAN_FRONTEND": "noninteractive",
+            "DISPLAY": ":9.0",
+            "HOME": "/home/ubuntu"
+         },
+         "image": "ubuntu:latest",
+         "name": "Build",
+         "pull": "always"
+      },
+      {
+         "environment": {
+            "SSH_KEY": {
+               "from_secret": "ssh_key"
+            }
+         },
+         "image": "appleboy/drone-scp",
+         "name": "Deploy to builds",
+         "pull": "always",
+         "settings": {
+            "host": "storage.terra.fap.no",
+            "rm": true,
+            "source": [
+               "dist/*"
+            ],
+            "strip_components": 1,
+            "target": "/storage/nfs/k8s/builds/dotfiles",
+            "username": "deploy"
+         },
+         "when": {
+            "branch": [
+               "master"
+            ],
+            "event": [
+               "push"
+            ]
+         }
+      },
+      {
+         "image": "appleboy/drone-discord",
+         "name": "Notify Discord",
+         "pull": "always",
+         "settings": {
+            "message": "{{#success build.status}} ✅  Build #{{build.number}} of `{{repo.name}}` succeeded.\n\n📝 Commit by {{commit.author}} on `{{commit.branch}}`:\n``` {{commit.message}} ```\n🌐 {{ build.link }}\n\n ✅ duration: {{duration build.started build.finished}} \n\n ✅ started: {{datetime build.started \"2006/01/02 15:04\" \"UTC\"}} \n\n ✅ finished: {{datetime build.finished \"2006/01/02 15:04\" \"UTC\"}} {{else}} ❌  Build #{{build.number}} of `{{repo.name}}` failed.\n\n📝 Commit by {{commit.author}} on `{{commit.branch}}`:\n``` {{commit.message}} ```\n🌐 {{ build.link }}\n\n ✅ duration: {{duration build.started build.finished}} \n\n ✅ started: {{datetime build.started \"2006/01/02 15:04\" \"UTC\"}} \n\n ✅ finished: {{datetime build.finished \"2006/01/02 15:04\" \"UTC\"}}{{/success}}\n",
+            "webhook_id": {
+               "from_secret": "discord_webhook_id"
+            },
+            "webhook_token": {
+               "from_secret": "discord_webhook_token"
+            }
+         },
+         "when": {
+            "status": [
+               "success",
+               "failure"
+            ]
+         }
+      }
+   ],
+   "type": "kubernetes"
+}
+---
+{
+   "get": {
+      "name": "id",
+      "path": "discord-build"
+   },
+   "kind": "secret",
+   "name": "discord_webhook_id"
+}
+---
+{
+   "get": {
+      "name": "token",
+      "path": "discord-build"
+   },
+   "kind": "secret",
+   "name": "discord_webhook_token"
+}
+---
+{
+   "get": {
+      "name": "deploy",
+      "path": "ssh"
+   },
+   "kind": "secret",
+   "name": "ssh_key"
+}
+...
