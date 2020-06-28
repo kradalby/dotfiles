@@ -22,6 +22,6 @@ vscjava.vscode-java-test
 vscjava.vscode-maven
 vscode-icons-team.vscode-icons
 vscodevim.vim
+NicolasVuillamy.vscode-groovy-lint
 vscoss.vscode-ansible
 xrc-inc.jsonnet-formatter
-NicolasVuillamy.vscode-groovy-lint
