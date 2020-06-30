@@ -63,3 +63,6 @@ indent_style = tab
 
 [*.md]
 indent_size = 4
+
+[*.swift]
+indent_size = 2
