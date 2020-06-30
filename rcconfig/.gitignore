@@ -2,6 +2,7 @@
 !*/
 !/nvim/coc-settings.json
 !.gitignore
+!starship.toml
 !fish/config.fish
 !fish/osx.fish
 !fish/linux.fish
