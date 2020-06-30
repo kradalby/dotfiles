@@ -1,0 +1,12 @@
+[time]
+disabled = false
+
+
+[kubernetes]
+style = "purple"
+symbol = "⛵ "
+disabled = false
+
+[env_var]
+variable = "WORKING_ENV"
+style = "purple"
