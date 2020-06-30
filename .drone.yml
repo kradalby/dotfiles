@@ -31,7 +31,9 @@
             "cp ~/git/dotfiles/rc/vimrc ~/.config/nvim/init.vim",
             "nvim --headless +\"PlugInstall --sync\" +qa",
             "mkdir -p /drone/src/dist",
-            "tar -cJf /drone/src/dist/dotfiles.tar.xz .vim git .vscode/extensions"
+            "tar -cJf /drone/src/dist/dotfiles.tar.xz git",
+            "tar -cJf /drone/src/dist/vim.tar.xz .vim",
+            "tar -cJf /drone/src/dist/vscode_extensions.tar.xz .vscode/extensions"
          ],
          "environment": {
             "DEBIAN_FRONTEND": "noninteractive",
