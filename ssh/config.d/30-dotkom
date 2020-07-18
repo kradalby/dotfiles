@@ -11,49 +11,5 @@ Host ardbeg bacardi blacklabel don duncan fireball kahlua passoa vsop xo
     User root
     Port 22
 
-###################
-# NAT             #
-###################
-
-Host beefeater jb chita hudson jose gay moonshine jagermeister
-    HostName blacklabel.online.ntnu.no
-    User root
-
-Host beefeater
-    Port 22002
-
-Host jb
-    Port 22003
-
-Host chita
-    Port 22005
-
-Host hudson
-    Port 22006
-
-Host korski
-    Port 22011
-
-Host jose
-    Port 22018
-
-Host gay
-    Port 22019
-
-Host moonshine
-    Port 22022
-
-Host jagermeister
-    Port 22023
-
-###################
-# Local options   #
-# #################
-
-
-###################
-# Globals         #
-# #################
-
 Host *.online.ntnu.no
     User root
