@@ -60,7 +60,7 @@
                "dist/*"
             ],
             "strip_components": 1,
-            "target": "/storage/nfs/k8s/builds/dotfiles",
+            "target": "/storage/serve/builds/dotfiles",
             "username": "deploy"
          },
          "when": {
