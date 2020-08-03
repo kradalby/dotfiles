@@ -22,7 +22,7 @@ go get -u github.com/brancz/gojsontoyaml
 # Tools for vscode-go
 go get -u golang.org/x/tools/cmd/goimports
 go get -u github.com/godoctor/godoctor
-go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
+# go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
 go get -u honnef.co/go/tools/...
 go get -u golang.org/x/tools/cmd/guru
 go get -u golang.org/x/tools/cmd/gorename
