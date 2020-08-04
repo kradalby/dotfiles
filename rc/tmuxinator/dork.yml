@@ -31,15 +31,15 @@ root: ~/go/src/github.com/kradalby/dork
 # post: tmux -CC attach -t master
 
 windows:
-    - dev:
-        layout: a133,318x84,0,0{196x84,0,0,0,121x84,197,0[121x42,197,0,2,121x41,197,43,4]}
-        panes:
-          - vim:
+  - dev:
+      layout: a133,318x84,0,0{196x84,0,0,0,121x84,197,0[121x42,197,0,2,121x41,197,43,4]}
+      panes:
+        - vim:
             - gp
-          - git:
-            - #none
-          - run:
-            - #none
+        - git:
+            -  #none
+        - run:
+            -  #none
               # - db:
               #         panes:
               #           - server:

@@ -31,15 +31,15 @@ root: ~/git/enigma
 # post: tmux -CC attach -t master
 
 windows:
-    - docker:
-        root: ~/git/enigma
-        panes:
-          - make start
-    - miic:
-        root: ~/git/enigma/miic
-        panes:
-          - git pull; code .
-    - enigma:
-        root: ~/git/enigma/enigma
-        panes:
-          - git pull; code .
+  - docker:
+      root: ~/git/enigma
+      panes:
+        - make start
+  - miic:
+      root: ~/git/enigma/miic
+      panes:
+        - git pull; code .
+  - enigma:
+      root: ~/git/enigma/enigma
+      panes:
+        - git pull; code .
