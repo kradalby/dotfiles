@@ -31,22 +31,22 @@ root: ~/go/src/github.com/vCloud/terraform-provider-vcd
 # post: tmux -CC attach -t master
 
 windows:
-    - terraform:
-        layout: 7a3b,318x84,0,0{255x84,0,0,32,62x84,256,0[62x50,256,0,33,62x33,256,51,34]}
-        panes:
-          - vim:
-            - #empty
-          - git:
-            - #empty
-          - derp:
-            - #empty
-    - govcd:
-        root: ~/go/src/github.com/vCloud/govcloudair
-        layout: 7a3b,318x84,0,0{255x84,0,0,32,62x84,256,0[62x50,256,0,33,62x33,256,51,34]}
-        panes:
-          - vim:
-            - #empty
-          - git:
-            - #empty
-          - derp:
-            - #empty
+  - terraform:
+      layout: 7a3b,318x84,0,0{255x84,0,0,32,62x84,256,0[62x50,256,0,33,62x33,256,51,34]}
+      panes:
+        - vim:
+            -  #empty
+        - git:
+            -  #empty
+        - derp:
+            -  #empty
+  - govcd:
+      root: ~/go/src/github.com/vCloud/govcloudair
+      layout: 7a3b,318x84,0,0{255x84,0,0,32,62x84,256,0[62x50,256,0,33,62x33,256,51,34]}
+      panes:
+        - vim:
+            -  #empty
+        - git:
+            -  #empty
+        - derp:
+            -  #empty

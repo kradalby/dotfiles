@@ -35,7 +35,7 @@ windows:
       root: ~/Sync/vpn
       layout: main-horizontal
       panes:
-        - sudo openvpn ~/Sync/vpn/diglett-TCP-443-config-limited.ovpn 
+        - sudo openvpn ~/Sync/vpn/diglett-TCP-443-config-limited.ovpn
   - kube:
       panes:
         - kubectl proxy
