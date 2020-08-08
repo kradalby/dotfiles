@@ -5,7 +5,7 @@ if not set -q TMPDIR
     set -g -x TMPDIR /tmp
 end
 
-set -xg GPG_TTY `tty`
+set -xg GPG_TTY (tty)
 
 # Configure fish
 set normal (set_color normal)
