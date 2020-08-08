@@ -5,7 +5,10 @@ if not set -q TMPDIR
     set -g -x TMPDIR /tmp
 end
 
-set -xg GPG_TTY (tty)
+if gpg --list-keys 09F62DC067465735 >/dev/null 2>&1
+    set -xg GPG_TTY (tty)
+    set -xg GPG_FINGERPRINT 09F62DC067465735
+end
 
 # Configure fish
 set normal (set_color normal)
