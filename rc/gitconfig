@@ -1,6 +1,7 @@
 [user]
     name = Kristoffer Dalby
     email = kradalby@kradalby.no
+	signingkey = 09F62DC067465735
 
 [push]
     default = simple
