@@ -35,6 +35,16 @@ Host *.or
     User root
     Port 22
 
+Host *.v
+    HostName %hpn.fap.no
+    User root
+    Port 22
+
+Host kramacbook.v
+    HostName %hpn.fap.no
+    User kradalby
+    Port 22
+
 ###################
 # Tjodalyng       #
 ###################
