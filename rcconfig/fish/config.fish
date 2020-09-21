@@ -113,6 +113,7 @@ end
 
 if type -q nvim
     alias vim nvim
+    set -x EDITOR "nvim"
 end
 
 if type -q ag
