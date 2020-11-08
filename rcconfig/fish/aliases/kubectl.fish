@@ -1,6 +1,6 @@
 alias k 'kubectl'
 alias kg 'kubectl get'
-alias kga 'kubectl get pods --all-namespaces'
+alias kga 'kubectl get pods -o wide --all-namespaces --sort-by=.spec.nodeName'
 alias kd 'kubectl describe'
 alias kdel 'kubectl delete'
 alias ke 'kubectl edit'
