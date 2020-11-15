@@ -1,5 +1,7 @@
+
 Brewfile.lock.json
 
+.pyre/
 # Created by https://www.gitignore.io
 
 ### OSX ###
