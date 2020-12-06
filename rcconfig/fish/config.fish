@@ -116,6 +116,10 @@ if type -q nvim
     set -x EDITOR "nvim"
 end
 
+# if type -q dog
+#     alias dig dog
+# end
+
 if type -q ag
     set -xg FZF_DEFAULT_COMMAND 'ag -g ""'
 end
