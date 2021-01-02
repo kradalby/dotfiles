@@ -17,3 +17,6 @@ alias getsms 'curl https://api.smstore.kradalby.no/sms -s | jq --raw-output \'.[
 
 alias v 'vim'
 alias c 'code'
+
+
+alias mp 'multipass'
