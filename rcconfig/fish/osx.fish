@@ -3,6 +3,7 @@ set -x JAVA_HOME (/usr/libexec/java_home)
 
 
 set BINDIRS = \
+    "/Library/Developer/CommandLineTools/usr/bin" \
     "/usr/local/bin" \
     "/usr/local/opt/gnu-sed/bin" \
     "/usr/local/opt/gnu-tar/libexec/gnubin" \
@@ -13,6 +14,7 @@ set BINDIRS = \
     "/Users/kradalby/Library/Python/3.7/bin" \
     "/Applications/VMware OVF Tool" \
     "/Applications/VMware Fusion.app/Contents/Library/VMware OVF Tool" \
+    "$HOME/Library/Application Support/Syncthing-macOS" \
     "/usr/local/opt/coreutils/libexec/gnubin"
 
 for bindir in $BINDIRS
