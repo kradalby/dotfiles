@@ -1,0 +1,12 @@
+name: kramacbook
+root: ~/git
+startup_window: plays
+
+windows:
+  - -:
+  - plays:
+      root: ~/git/plays
+  - dotfiles:
+      root: ~/git/dotfiles
+  - core.te: mosh core.te
+  - core.tj: mosh core.tj
