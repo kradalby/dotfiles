@@ -88,6 +88,7 @@ selection:
 key_bindings:
   - { key: N, mods: Control, mode: Search, action: None }
   - { key: N, mods: Control, action: None }
+  # \x02 means CTRL + b
   - { key: Right, mods: Command, chars: "\x02n" }
   - { key: Left, mods: Command, chars: "\x02b" }
   - { key: T, mods: Command, chars: "\x02c" }
