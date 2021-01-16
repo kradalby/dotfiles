@@ -40,7 +40,8 @@ function deploy_config() {
 
 function prepare_vim_dir() {
     rm -rf ~/.vim
-    mkdir ~/.vim
+    mkdir -p ~/.vim
+    mkdir -p ~/.vim-tmp
 }
 
 function install_vimplug() {
@@ -53,16 +54,22 @@ function install_vimplug() {
         https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 }
 
+function install_tmuxpm() {
+    mkdir -p $HOME/.tmux/plugins
+    git clone https://github.com/tmux-plugins/tpm $HOME/.tmux/plugins/tpm
+}
+
 function link_neovim() {
     mkdir -p $HOME/.config/nvim
     rm -rf $HOME/.config/nvim/init.vim
-    ln -s $CURRENT/rc/vimrc $HOME/.config/nvim/init.vim 
+    ln -s $CURRENT/rc/vimrc $HOME/.config/nvim/init.vim
 }
 
 
 deploy
 #prepare_vim_dir
 install_vimplug
+install_tmuxpm
 link_neovim
 deploy_ssh
 deploy_config
