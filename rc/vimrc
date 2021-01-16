@@ -100,13 +100,14 @@ let coc_extensions= [
             \   'neoclide/coc-sources',
             \   'neoclide/coc-stylelint',
             \   'neoclide/coc-tsserver',
-            \   'neoclide/coc-vetur',
             \   'neoclide/coc-yaml',
             \   'oncomouse/coc-fish',
             \   'yatli/coc-fsharp',
-            \   'yatli/coc-omnisharp',
-            \   'coc-extensions/coc-powershell',
             \]
+
+            " \   'yatli/coc-omnisharp',
+            " \   'coc-extensions/coc-powershell',
+            " \   'neoclide/coc-vetur',
 for ext in coc_extensions
 Plug ext, {'do': 'yarn install --frozen-lockfile'}
 endfor
