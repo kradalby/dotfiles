@@ -2,11 +2,17 @@ name: kramacbook
 root: ~/git
 startup_window: plays
 
+# tmux_command: set-option mouse on
+
 windows:
   - -:
   - plays:
       root: ~/git/plays
   - dotfiles:
       root: ~/git/dotfiles
+  - infra:
+      root: ~/git/infrastructure
+  - kubes:
+      root: ~/git/kubes
   - core.te: mosh core.te
   - core.tj: mosh core.tj
