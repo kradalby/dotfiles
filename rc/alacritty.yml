@@ -90,7 +90,9 @@ key_bindings:
   - { key: N, mods: Control, action: None }
   # \x02 means CTRL + b
   - { key: Right, mods: Command, chars: "\x02n" }
-  - { key: Left, mods: Command, chars: "\x02b" }
+  - { key: Left, mods: Command, chars: "\x02p" }
+  - { key: Up, mods: Command, chars: "\x02\x7e" }
+  - { key: Down, mods: Command, chars: "\x02\x7d" }
   - { key: T, mods: Command, chars: "\x02c" }
   - { key: W, mods: Command, chars: "\x02x" }
   - { key: Key0, mods: Command, chars: "\x020" }
