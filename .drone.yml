@@ -60,15 +60,15 @@
       {
         "environment": { "SSH_KEY": { "from_secret": "ssh_key" } },
         "image": "appleboy/drone-scp",
-        "name": "Deploy to builds",
+        "name": "Deploy with scp",
         "pull": "always",
         "settings":
           {
-            "host": "storage.terra.fap.no",
+            "host": "core.terra.fap.no",
             "rm": true,
             "source": ["dist/*"],
             "strip_components": 1,
-            "target": "/storage/serve/builds/dotfiles",
+            "target": "/fastest/serve/builds",
             "username": "deploy",
           },
         "when": { "branch": ["master"], "event": ["push"] },
@@ -87,22 +87,4 @@
       },
     ],
   "type": "kubernetes",
-}
----
-{
-  "get": { "name": "id", "path": "discord-build" },
-  "kind": "secret",
-  "name": "discord_webhook_id",
-}
----
-{
-  "get": { "name": "token", "path": "discord-build" },
-  "kind": "secret",
-  "name": "discord_webhook_token",
-}
----
-{
-  "get": { "name": "deploy", "path": "ssh" },
-  "kind": "secret",
-  "name": "ssh_key",
 }
