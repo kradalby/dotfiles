@@ -22,4 +22,3 @@ function vnc -d "Connect to a VNC server"
         eval "$vnc_command$argv[1]:$argv[2]"
     end
 end
-

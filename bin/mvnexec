@@ -43,7 +43,7 @@ Options:
    -P, --no-parameters   Don't ask for parameters.
    -C, --no-clean        Don't clean compilation
    -q, --quiet           Be quiet. Don't show [INFO] messages.
-   -B, --no-build        Avoid building. 
+   -B, --no-build        Avoid building.
    -D, --no-copy-deps    Avoid copy dependencies
    -M, --no-main         Don't search on src/main/java.
    -T, --no-test         Don't search on src/test/java.
@@ -96,7 +96,7 @@ function dependencyClasspath() {
       echo 'target/dependency/*'
    else
       for i in target/dependency/*.jar
-      do 
+      do
          echo -n $i$SEPARATOR
       done | sed 's/'${SEPARATOR}'$//'
    fi
@@ -143,17 +143,17 @@ do
       -P|--no-parameters)
          SET_PARAMS=
          ;;
-      -B|--no-build) 
-         BUILD="no" 
+      -B|--no-build)
+         BUILD="no"
          ;;
-      -C|--no-clean) 
-         CLEAN="no" 
+      -C|--no-clean)
+         CLEAN="no"
          ;;
-      -D|--no-copy-deps) 
-         COPY_DEP="no" 
+      -D|--no-copy-deps)
+         COPY_DEP="no"
          ;;
-      -q|--quiet) 
-         QUIET="-q" 
+      -q|--quiet)
+         QUIET="-q"
          ;;
       -M|--no-main)
          SEARCH_MAIN="no"
@@ -264,7 +264,7 @@ do
       echo set parameters:
       read -e ARGS
       if [ -n "$ARGS" ]
-      then 
+      then
          ARGS=" $ARGS"
       fi
    fi

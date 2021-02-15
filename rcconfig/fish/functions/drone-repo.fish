@@ -24,4 +24,3 @@ function drone-repo -d 'Initiate drone repo with secrets'
         drone-ssh-secrets $repo
     end
 end
-

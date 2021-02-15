@@ -1,215 +1,215 @@
 // Place your settings in this file to overwrite the default settings
 {
-    //---------------------------------------------------------
-    //
-    // Editor
-    //
-    "editor.formatOnSave": true,
-    "editor.formatOnType": true,
-    "editor.formatOnPaste": true,
-    "editor.wordWrap": "on",
-    // Controls the font size in pixels.
-    "editor.fontSize": 11,
-    "editor.minimap.enabled": true,
-    //
-    // end Editor
-    //
-    //---------------------------------------------------------
-    //
-    // Extensions
-    //
-    "extensions.autoUpdate": false,
-    //
-    // end Extensions
-    //
-    //---------------------------------------------------------
-    //
-    // Window
-    //
-    // When enabled, will open files in a new window instead of reusing an existing instance.
-    "window.openFilesInNewWindow": "on",
-    //
-    // end Window
-    //
-    //---------------------------------------------------------
-    //
-    // Files
-    //
-    "files.associations": {
-        "*.ml": "ocaml",
-        "*.mli": "ocaml"
-    },
-    //
-    // end Files
-    //
-    //---------------------------------------------------------
-    //
-    // Terminal
-    //
-    // Customizes which terminal application to run on OS X.
-    "terminal.external.osxExec": "iTerm.app",
-    // Customizes which terminal to run on Linux.
-    "terminal.external.linuxExec": "sakura",
-    //
-    // end Terminal
-    //
-    //---------------------------------------------------------
-    //
-    // HTML
-    //
-    "[html]": {
-        "editor.tabSize": 2
-    },
-    "html.format.enable": false,
-    //
-    // end HTML
-    //
-    //---------------------------------------------------------
-    //
-    // Search
-    //
-    "search.exclude": {
-        "**/.git": true,
-        "**/node_modules": true,
-        "**/bower_components": true,
-        "**/tmp": true,
-        "**/dist": true
-    },
-    //
-    // end Search
-    //
-    //---------------------------------------------------------
-    //
-    // vscode icons
-    //
-    "vsicons.projectDetection.autoReload": true,
-    "vsicons.dontShowNewVersionMessage": true,
-    "workbench.iconTheme": "vscode-icons",
-    //
-    // end vscode icons
-    //
-    //---------------------------------------------------------
-    //
-    // Python
-    //
-    // Whether to lint Python files.
-    "python.linting.enabled": true,
-    // Whether to lint Python files using pylint.
-    "python.linting.pylintEnabled": false,
-    // Whether to lint Python files using flake8
-    "python.linting.flake8Enabled": true,
-    // Whether to lint Python files using mypy.
-    "python.linting.mypyEnabled": false,
-    // Whether to lint Python files when modified.
-    "python.linting.lintOnTextChange": true,
-    // Whether to lint Python files when saved.
-    "python.linting.lintOnSave": true,
-    // Provider for formatting. Possible options include 'autopep8' and 'yapf'.
-    "python.formatting.provider": "autopep8",
-    // Format the document upon saving.
-    "python.formatting.formatOnSave": true,
-    //
-    // end Python
-    //
-    //---------------------------------------------------------
-    //
-    // OCaml
-    //
-    "ocaml.merlinPath": "ocamlmerlin",
-    "ocaml.ocpIndentPath": "ocp-indent",
-    // Do lint when save document.
-    "ocaml.lintOnSave": true,
-    //
-    // OCaml end
-    //
-    //---------------------------------------------------------
-    //
-    // Typescript
-    //
-    // Format the document upon saving.
-    "[typescript]": {
-        "editor.tabSize": 2
-    },
-    "typescript.check.tscVersion": false,
-    "tslint.autoFixOnSave": true,
-    //
-    // end Typescript
-    //
-    //---------------------------------------------------------
-    //
-    // Javascript
-    //
-    "[javascript]": {
-        "editor.tabSize": 2
-    },
-    "eslint.autoFixOnSave": true,
-    //
-    // end Javascript
-    //
-    //---------------------------------------------------------
-    //
-    // Stylelint
-    //
-    "stylelint.enable": true,
-    "stylefmt.useStylelintConfigOverrides": true,
-    //
-    // end Stylelint
-    //
-    //---------------------------------------------------------
-    //
-    // Docker
-    //
-    "docker.defaultRegistry": "registry.fap.no",
-    //
-    // end Docker
-    //
-    //---------------------------------------------------------
-    //
-    // rust
-    //
-    // Turn on/off autoformatting file on save
-    "rust.formatOnSave": false,
-    // Turn on/off autochecking file on save using cargo check
-    "rust.checkOnSave": false,
-    // Specifies path to Racer binary if it's not in PATH
-    "rust.racerPath": "${home}/.cargo/bin/racer",
-    // Specifies path to Rustfmt binary if it's not in PATH
-    "rust.rustfmtPath": "${home}/.cargo/bin/rustfmt",
-    // Specifies path to Rustsym binary if it's not in PATH
-    "rust.rustsymPath": "${home}/.cargo/bin/rustsym",
-    //
-    // end rust
-    //
-    //---------------------------------------------------------
-    //
-    // elm
-    //
-    // Runs elm-format on the file every time it is saved
-    "elm.formatOnSave": true,
-    "elm.formatCommand": "elm-format-0.18",
-    //
-    // end elm
-    //
-    //---------------------------------------------------------
-    //
-    // latex
-    //
-    // Runs elm-format on the file every time it is saved
-    "latex-workshop.chktex.enabled": true,
-    //
-    // end latex
-    //
-    //---------------------------------------------------------
-    //
-    // elm
-    //
-    // Runs elm-format on the file every time it is saved
-    "go.useLanguageServer": true,
-    "extensions.ignoreRecommendations": true,
-    "window.zoomLevel": 0,
-    "docker.defaultRegistryPath": "registry.fap.no/registry.fap.no/registry.fap.no"
-    //
-    // end elm
-    //
-    //---------------------------------------------------------
+  //---------------------------------------------------------
+  //
+  // Editor
+  //
+  "editor.formatOnSave": true,
+  "editor.formatOnType": true,
+  "editor.formatOnPaste": true,
+  "editor.wordWrap": "on",
+  // Controls the font size in pixels.
+  "editor.fontSize": 11,
+  "editor.minimap.enabled": true,
+  //
+  // end Editor
+  //
+  //---------------------------------------------------------
+  //
+  // Extensions
+  //
+  "extensions.autoUpdate": false,
+  //
+  // end Extensions
+  //
+  //---------------------------------------------------------
+  //
+  // Window
+  //
+  // When enabled, will open files in a new window instead of reusing an existing instance.
+  "window.openFilesInNewWindow": "on",
+  //
+  // end Window
+  //
+  //---------------------------------------------------------
+  //
+  // Files
+  //
+  "files.associations": {
+    "*.ml": "ocaml",
+    "*.mli": "ocaml"
+  },
+  //
+  // end Files
+  //
+  //---------------------------------------------------------
+  //
+  // Terminal
+  //
+  // Customizes which terminal application to run on OS X.
+  "terminal.external.osxExec": "iTerm.app",
+  // Customizes which terminal to run on Linux.
+  "terminal.external.linuxExec": "sakura",
+  //
+  // end Terminal
+  //
+  //---------------------------------------------------------
+  //
+  // HTML
+  //
+  "[html]": {
+    "editor.tabSize": 2
+  },
+  "html.format.enable": false,
+  //
+  // end HTML
+  //
+  //---------------------------------------------------------
+  //
+  // Search
+  //
+  "search.exclude": {
+    "**/.git": true,
+    "**/node_modules": true,
+    "**/bower_components": true,
+    "**/tmp": true,
+    "**/dist": true
+  },
+  //
+  // end Search
+  //
+  //---------------------------------------------------------
+  //
+  // vscode icons
+  //
+  "vsicons.projectDetection.autoReload": true,
+  "vsicons.dontShowNewVersionMessage": true,
+  "workbench.iconTheme": "vscode-icons",
+  //
+  // end vscode icons
+  //
+  //---------------------------------------------------------
+  //
+  // Python
+  //
+  // Whether to lint Python files.
+  "python.linting.enabled": true,
+  // Whether to lint Python files using pylint.
+  "python.linting.pylintEnabled": false,
+  // Whether to lint Python files using flake8
+  "python.linting.flake8Enabled": true,
+  // Whether to lint Python files using mypy.
+  "python.linting.mypyEnabled": false,
+  // Whether to lint Python files when modified.
+  "python.linting.lintOnTextChange": true,
+  // Whether to lint Python files when saved.
+  "python.linting.lintOnSave": true,
+  // Provider for formatting. Possible options include 'autopep8' and 'yapf'.
+  "python.formatting.provider": "autopep8",
+  // Format the document upon saving.
+  "python.formatting.formatOnSave": true,
+  //
+  // end Python
+  //
+  //---------------------------------------------------------
+  //
+  // OCaml
+  //
+  "ocaml.merlinPath": "ocamlmerlin",
+  "ocaml.ocpIndentPath": "ocp-indent",
+  // Do lint when save document.
+  "ocaml.lintOnSave": true,
+  //
+  // OCaml end
+  //
+  //---------------------------------------------------------
+  //
+  // Typescript
+  //
+  // Format the document upon saving.
+  "[typescript]": {
+    "editor.tabSize": 2
+  },
+  "typescript.check.tscVersion": false,
+  "tslint.autoFixOnSave": true,
+  //
+  // end Typescript
+  //
+  //---------------------------------------------------------
+  //
+  // Javascript
+  //
+  "[javascript]": {
+    "editor.tabSize": 2
+  },
+  "eslint.autoFixOnSave": true,
+  //
+  // end Javascript
+  //
+  //---------------------------------------------------------
+  //
+  // Stylelint
+  //
+  "stylelint.enable": true,
+  "stylefmt.useStylelintConfigOverrides": true,
+  //
+  // end Stylelint
+  //
+  //---------------------------------------------------------
+  //
+  // Docker
+  //
+  "docker.defaultRegistry": "registry.fap.no",
+  //
+  // end Docker
+  //
+  //---------------------------------------------------------
+  //
+  // rust
+  //
+  // Turn on/off autoformatting file on save
+  "rust.formatOnSave": false,
+  // Turn on/off autochecking file on save using cargo check
+  "rust.checkOnSave": false,
+  // Specifies path to Racer binary if it's not in PATH
+  "rust.racerPath": "${home}/.cargo/bin/racer",
+  // Specifies path to Rustfmt binary if it's not in PATH
+  "rust.rustfmtPath": "${home}/.cargo/bin/rustfmt",
+  // Specifies path to Rustsym binary if it's not in PATH
+  "rust.rustsymPath": "${home}/.cargo/bin/rustsym",
+  //
+  // end rust
+  //
+  //---------------------------------------------------------
+  //
+  // elm
+  //
+  // Runs elm-format on the file every time it is saved
+  "elm.formatOnSave": true,
+  "elm.formatCommand": "elm-format-0.18",
+  //
+  // end elm
+  //
+  //---------------------------------------------------------
+  //
+  // latex
+  //
+  // Runs elm-format on the file every time it is saved
+  "latex-workshop.chktex.enabled": true,
+  //
+  // end latex
+  //
+  //---------------------------------------------------------
+  //
+  // elm
+  //
+  // Runs elm-format on the file every time it is saved
+  "go.useLanguageServer": true,
+  "extensions.ignoreRecommendations": true,
+  "window.zoomLevel": 0,
+  "docker.defaultRegistryPath": "registry.fap.no/registry.fap.no/registry.fap.no"
+  //
+  // end elm
+  //
+  //---------------------------------------------------------
 }

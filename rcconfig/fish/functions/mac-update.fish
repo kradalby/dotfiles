@@ -8,4 +8,3 @@ function mac-update
     brew upgrade
     cd - or exit
 end
-

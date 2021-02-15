@@ -1,14 +1,14 @@
 Install
 =======
 Install this awesome theme as normal. Place the nice-and-clean-theme directory
-in your themes directory, such as ~/.config/awesome/themes, and update your 
+in your themes directory, such as ~/.config/awesome/themes, and update your
 rc.lua file::
 
     beautiful.init("path/to/themes/nice-and-clean-theme/theme.lua")
 
-There is an optional conky component of this theme as well - the date/time and 
+There is an optional conky component of this theme as well - the date/time and
 system info displays. Install conky from your distro's repositories, and then
-start up conky with the configuration files from the included conky 
+start up conky with the configuration files from the included conky
 subdirectory::
 
     cd conky
@@ -17,7 +17,7 @@ subdirectory::
     conky -c conkymin &
     conky -c conkystats &
 
-Make sure you change your location code in the conkystats config 
+Make sure you change your location code in the conkystats config
 to get accurate weather reports. The location code uses Accuweather's
 system. For people in the US it is your zipcode.
 For people in other location please find the location code in below link.

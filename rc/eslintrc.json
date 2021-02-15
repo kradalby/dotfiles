@@ -1,24 +1,17 @@
 {
-    "plugins": [
-        "react",
-        "immutable",
-        "flowtype"
-    ],
-    "parserOptions": {
-        "ecmaFeatures": {
-            "jsx": true
-        }
-    },
-    "extends": [
-        "standard",
-        "plugin:react/recommended"
-    ],
-    "rules": {
-        "camelcase": 0
-    },
-    "env": {
-        "jquery": true,
-        "browser": true,
-        "node": true
+  "plugins": ["react", "immutable", "flowtype"],
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
     }
+  },
+  "extends": ["standard", "plugin:react/recommended"],
+  "rules": {
+    "camelcase": 0
+  },
+  "env": {
+    "jquery": true,
+    "browser": true,
+    "node": true
+  }
 }
