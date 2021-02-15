@@ -11,4 +11,3 @@ function rdp -d "Connect to a RDP server"
         eval $command$password
     end
 end
-

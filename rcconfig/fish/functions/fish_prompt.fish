@@ -25,14 +25,14 @@
 #     echo
 #     echo "> "
 # end
-# 
+#
 # function __fish_right_prompt
 #     if not set -q KUBECONTEXT
 #         if type -q kubectl
 #             set --universal -x KUBECONTEXT (kubectl config current-context)
 #         end
 #     end
-# 
+#
 #     if set -q KUBECONTEXT
 #         set_color brblue
 #         printf '❄️  [ %s ]' $KUBECONTEXT

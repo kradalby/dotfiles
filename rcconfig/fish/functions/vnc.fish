@@ -8,4 +8,3 @@ function vnc -d "Connect to a VNC server"
         eval "open vnc://$argv[1]:$argv[2]"
     end
 end
-

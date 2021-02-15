@@ -1,10 +1,9 @@
 #!/usr/bin/env python3 -B
-
-from github import Github  # https://github.com/PyGithub/PyGithub
-import requests
 import json
-import sys
 import os
+
+import requests
+from github import Github  # https://github.com/PyGithub/PyGithub
 
 gitea_url = "https://git.kradalby.no/api/v1"
 gitea_token = os.environ["GITEA_MIRROR_TOKEN"]
@@ -18,11 +17,11 @@ session = requests.Session()  # Gitea
 session.headers.update(
     {
         "Content-type": "application/json",
-        "Authorization": "token {0}".format(gitea_token),
-    }
+        "Authorization": f"token {gitea_token}",
+    },
 )
 
-r = session.get("{0}/user".format(gitea_url))
+r = session.get(f"{gitea_url}/user")
 if r.status_code != 200:
     print("Cannot get user details")
     exit(1)
@@ -57,11 +56,11 @@ for repo in gh.get_user().get_repos():
 
         if repo.private:
             m["auth_username"] = github_username
-            m["auth_password"] = "{0}".format(github_token)
+            m["auth_password"] = f"{github_token}"
 
         jsonstring = json.dumps(m)
 
-        r = session.post("{0}/repos/migrate".format(gitea_url), data=jsonstring)
+        r = session.post(f"{gitea_url}/repos/migrate", data=jsonstring)
         if r.status_code != 201:  # if not CREATED
             if r.status_code == 409:  # repository exists
                 continue

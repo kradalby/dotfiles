@@ -15,4 +15,3 @@ Host *
     Compression yes
     TCPKeepAlive no
     KexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256
-

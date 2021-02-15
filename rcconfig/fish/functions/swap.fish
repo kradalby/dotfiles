@@ -4,4 +4,3 @@ function swap
     mv $2 $1
     mv $tmp $2
 end
-
