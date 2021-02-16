@@ -3,4 +3,5 @@ function fmt
     golangci-lint run --fix
     black .
     terraform fmt -recursive
+    jsonnetfmt **/**.jsonnet -i
 end
