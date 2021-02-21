@@ -43,12 +43,16 @@ repos:
     rev: master
     hooks:
       - id: jsonnet-format
-        args: ["--indent 2", "--max-blank-lines 2", "--sort-imports", "--string-style s", "--comment-style s"]
+        args:
+          - "--indent 2"
+          - "--max-blank-lines 2"
+          - "--sort-imports"
+          - "--string-style s"
+          - "--comment-style s"
   - repo: https://github.com/ansible-community/ansible-lint
     rev: v5.0.1
     hooks:
       - id: ansible-lint
-  # Python -------------------------
   - repo: https://gitlab.com/pycqa/flake8
     rev: 3.8.4
     hooks:
