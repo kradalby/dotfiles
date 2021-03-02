@@ -34,6 +34,8 @@ repos:
     rev: v1.0.3
     hooks:
       - id: detect-secrets
+        args:
+          - --exclude-files .drone.yml
 
   - repo: https://github.com/hadolint/hadolint
     rev: v1.22.1
@@ -49,10 +51,6 @@ repos:
           - "--sort-imports"
           - "--string-style s"
           - "--comment-style s"
-  - repo: https://github.com/ansible-community/ansible-lint
-    rev: v5.0.1
-    hooks:
-      - id: ansible-lint
   - repo: https://gitlab.com/pycqa/flake8
     rev: 3.8.4
     hooks:
