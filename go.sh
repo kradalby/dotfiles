@@ -17,6 +17,7 @@ go get -u github.com/caddyserver/xcaddy/cmd/xcaddy
 go get -u github.com/google/go-jsonnet/cmd/jsonnetfmt
 go get -u github.com/google/go-jsonnet/cmd/jsonnet
 go get -u github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb
+go get -u github.com/monitoring-mixins/mixtool/cmd/mixtool
 go get -u github.com/brancz/gojsontoyaml
 
 # Tools for vscode-go
