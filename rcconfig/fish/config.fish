@@ -65,6 +65,11 @@ if test -f $HOME/Sync/fish/tokens.fish
     source $HOME/Sync/fish/tokens.fish
 end
 
+# GR config
+if test -f $HOME/git/dotfiles-gr/config.fish
+    source $HOME/git/dotfiles-gr/config.fish
+end
+
 # Add directories to path if they exist
 set BINDIRS = \
 # "$PYTHON3USERBASE/bin" \
