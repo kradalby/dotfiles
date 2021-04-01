@@ -15,3 +15,5 @@ alias kcn 'kubectl config set-context --current --namespace'
 
 alias kl 'kubectl logs'
 alias klf 'kubectl logs -f'
+
+set -xg ans '--all-namespaces'

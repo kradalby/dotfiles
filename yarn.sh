@@ -12,4 +12,5 @@ yarn global add \
     elm-json \
     elm-test \
     @elm-tooling/elm-language-server \
+    bash-language-server \
     prettier
