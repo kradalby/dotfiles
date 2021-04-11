@@ -92,6 +92,9 @@ for bindir in $BINDIRS
     end
 end
 
+# Feature flags
+set -xg TF_X_HELM_MANIFEST 1
+
 
 # Source aliases
 for file in $HOME/.config/fish/aliases/*
