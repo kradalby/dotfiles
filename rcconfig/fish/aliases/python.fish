@@ -8,3 +8,5 @@ alias ve virtualenv
 # alias pip "echo 'use pip2 or pip3'"
 # alias pip2 "env PYTHONUSERBASE=$PYTHON2USERBASE pip2"
 # alias pip3 "env PYTHONUSERBASE=$PYTHON3USERBASE pip3"
+#
+alias yaml2json "python3 -c 'import sys, yaml, json; json.dump(yaml.safe_load(sys.stdin), sys.stdout)' | jq"
