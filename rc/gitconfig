@@ -31,7 +31,7 @@
 	work = config user.email \"kristoffer.dalby@knowit.no\"
 	priv = config user.email \"kradalby@kradalby.no\"
 [core]
-	pager = diff-so-fancy | less --tabs=4 -RFX
+	pager = git-split-diffs --color | less -RFX
 [url "ssh://git@gitlab.esa.int/"]
   insteadOf = https://gitlab.esa.int/
 # For linux ~/.gitconfig.local
