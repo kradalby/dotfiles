@@ -3,6 +3,7 @@
 yarn global add \
     typescript \
     diff-so-fancy \
+    git-split-diffs \
     vscode-css-languageserver-bin \
     yaml-language-server \
     dockerfile-language-server-nodejs \
