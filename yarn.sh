@@ -14,4 +14,6 @@ yarn global add \
     elm-test \
     @elm-tooling/elm-language-server \
     bash-language-server \
+    tailwindcss \
+    browser-sync \
     prettier

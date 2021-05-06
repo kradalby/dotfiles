@@ -11,5 +11,6 @@ pipx install black
 # pipx install flake8
 pipx install pylint
 pipx install pyre-check
+pipx install pygments
 # pipx install autopep8
 # :pipx install awscli
