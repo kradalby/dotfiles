@@ -35,8 +35,8 @@
             "apt install -y ninja-build gettext libtool libtool-bin autoconf automake cmake g++ pkg-config unzip",
             "git clone https://github.com/neovim/neovim.git",
             "cd neovim",
-            "make",
-            "make install",
+            "make CMAKE_BUILD_TYPE=Release",
+            "make CMAKE_INSTALL_PREFIX=$HOME/local/nvim install",
             "ls -lah /home/ubuntu/local/nvim",
             'su "ubuntu"',
             "cd ~",
@@ -53,8 +53,6 @@
           ],
         "environment":
           {
-            "CMAKE_BUILD_TYPE": "Release",
-            "CMAKE_INSTALL_PREFIX": "/home/ubuntu/local/nvim",
             "DEBIAN_FRONTEND": "noninteractive",
             "DISPLAY": ":9.0",
             "HOME": "/home/ubuntu",
