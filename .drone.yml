@@ -23,7 +23,8 @@
             "pwd",
             "echo $PATH",
             "apt update",
-            "apt install -y git curl tar xz-utils apt-transport-https wget",
+            "apt install -y git curl tar xz-utils apt-transport-https wget luajit",
+            "apt build-dep -y neovim",
             "curl -sL https://deb.nodesource.com/setup_16.x | bash -",
             "curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -",
             'echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list',
@@ -46,7 +47,7 @@
             "tar -cJf /drone/src/dist/dotfiles.tar.xz git",
             "tar -cJf /drone/src/dist/vim.tar.xz .vim",
             "tar -cJf /drone/src/dist/vscode_extensions.tar.xz .vscode/extensions",
-            "tar -cJf /drone/src/dist/nvim.tar.xz .config/nvim .local/share/nvim",
+            "tar -cJf /drone/src/dist/nvim.tar.xz .config/nvim .local/share/nvim /usr/local/bin/nvim",
           ],
         "environment":
           {
