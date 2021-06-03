@@ -31,7 +31,10 @@
             "apt install -y nodejs yarn",
             "wget -q https://github.com/neovim/neovim/releases/download/nightly/nvim-linux64.tar.gz -O nvim.tar.gz",
             "tar xzf nvim.tar.gz",
-            "mv nvim-linux64/bin/nvim /usr/local/bin/nvim",
+            "mkdir -p ~/.local",
+            "cp -r nvim-linux64/bin/nvim /usr/local/bin/nvim",
+            "cp -r nvim-linux64/share ~/.local",
+            "cp -r nvim-linux64/lib/nvim /lib/nvim",
             "useradd -m ubuntu",
             "mkdir -p /home/ubuntu/git/dotfiles",
             "cp -r ./ /home/ubuntu/git/dotfiles/",
@@ -46,7 +49,7 @@
             "tar -cJf /drone/src/dist/dotfiles.tar.xz git",
             "tar -cJf /drone/src/dist/vim.tar.xz .vim",
             "tar -cJf /drone/src/dist/vscode_extensions.tar.xz .vscode/extensions",
-            "tar -cJf /drone/src/dist/nvim.tar.xz .config/nvim .local/share/nvim /usr/local/bin/nvim",
+            "tar -cJf /drone/src/dist/nvim.tar.xz .config/nvim .local/share/nvim /drone/src/nvim-linux64",
           ],
         "environment":
           {
