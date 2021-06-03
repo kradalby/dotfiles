@@ -16,4 +16,5 @@ yarn global add \
     bash-language-server \
     tailwindcss \
     browser-sync \
+    lua-fmt \
     prettier
