@@ -52,8 +52,8 @@ function install_vim_plugin_manager() {
     # Neovim
     # curl -fLo ~/.local/share/nvim/site/autoload/plug.vim --create-dirs \
     #     https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-    git clone --depth=1 https://github.com/savq/paq-nvim.git \
-        "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/pack/paqs/start/paq-nvim
+    # git clone --depth=1 https://github.com/savq/paq-nvim.git \
+    #     "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/pack/paqs/start/paq-nvim
 }
 
 function install_tmuxpm() {
@@ -61,18 +61,10 @@ function install_tmuxpm() {
     git clone https://github.com/tmux-plugins/tpm $HOME/.tmux/plugins/tpm
 }
 
-function link_neovim() {
-    mkdir -p $HOME/.config/nvim
-    rm -rf $HOME/.config/nvim/init.vim
-    rm -rf $HOME/.config/nvim/init.lua
-    ln -s $CURRENT/rc/neovim.lua $HOME/.config/nvim/init.lua
-}
-
 
 deploy
 #prepare_vim_dir
 install_vim_plugin_manager
 install_tmuxpm
-link_neovim
 deploy_ssh
 deploy_config
