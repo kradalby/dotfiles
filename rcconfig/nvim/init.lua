@@ -176,4 +176,12 @@ if vim.fn.empty(vim.fn.glob(vim.fn.stdpath("data") .. "/site/pack/packer/start")
     opt("o", "completeopt", "menuone,noselect")
 
     require "lsp_signature".on_attach()
+
+    require "nvim-treesitter.configs".setup {
+        rainbow = {
+            enable = true,
+            extended_mode = true,
+            max_file_lines = 1000
+        }
+    }
 end
