@@ -1,26 +1,11 @@
+require('plugins')
+
 local cmd = vim.cmd -- to execute Vim commands e.g. cmd('pwd')
 local fn = vim.fn -- to call Vim functions e.g. fn.bufnr()
 local g = vim.g -- a table to access global variables))
 
 g.mapleader = ","
 
-cmd "packadd paq-nvim" -- load the package manager
-local paq = require("paq-nvim").paq -- a convenient alias
-paq {"savq/paq-nvim", opt = true} -- paq-nvim manages itself
-
-paq {"nvim-treesitter/nvim-treesitter"}
-paq {"neovim/nvim-lspconfig"}
-paq {"kabouzeid/nvim-lspinstall"}
-paq {"hrsh7th/nvim-compe"}
-paq {"ray-x/lsp_signature.nvim"}
-paq {"dense-analysis/ale"} -- TODO: Replace with Lua based plugin
--- paq {'ojroques/nvim-lspfuzzy'}
-
-paq {"tanvirtin/monokai.nvim"}
-
-paq {"nvim-lua/popup.nvim"}
-paq {"nvim-lua/plenary.nvim"}
-paq {"nvim-telescope/telescope.nvim"}
 
 local scopes = {o = vim.o, b = vim.bo, w = vim.wo}
 
@@ -118,6 +103,9 @@ g.ale_sign_column_always = 1
 g.ale_linters_explicit = 0
 g.ale_python_flake8_options = "--max-line-length=88"
 
+if vim.fn.empty(vim.fn.glob(vim.fn.stdpath('data') .. '/site/pack/packer/start')) > 0 then
+
+
 local ts = require "nvim-treesitter.configs"
 ts.setup {ensure_installed = "maintained", highlight = {enable = true}}
 
@@ -190,3 +178,5 @@ require "compe".setup {
 opt("o", "completeopt", "menuone,noselect")
 
 require "lsp_signature".on_attach()
+
+end 
