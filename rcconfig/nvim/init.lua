@@ -1,11 +1,10 @@
-require('plugins')
+require("plugins")
 
 local cmd = vim.cmd -- to execute Vim commands e.g. cmd('pwd')
 local fn = vim.fn -- to call Vim functions e.g. fn.bufnr()
 local g = vim.g -- a table to access global variables))
 
 g.mapleader = ","
-
 
 local scopes = {o = vim.o, b = vim.bo, w = vim.wo}
 
@@ -103,80 +102,78 @@ g.ale_sign_column_always = 1
 g.ale_linters_explicit = 0
 g.ale_python_flake8_options = "--max-line-length=88"
 
-if vim.fn.empty(vim.fn.glob(vim.fn.stdpath('data') .. '/site/pack/packer/start')) > 0 then
+-- Are plugins installed? If they are, set up stuff
+if vim.fn.empty(vim.fn.glob(vim.fn.stdpath("data") .. "/site/pack/packer/start")) > 0 then
+    local ts = require "nvim-treesitter.configs"
+    ts.setup {ensure_installed = "maintained", highlight = {enable = true}}
 
+    local lsp = require "lspconfig"
+    -- local lspfuzzy = require 'lspfuzzy' -- TODO: Use fuzzer, telescope?
 
-local ts = require "nvim-treesitter.configs"
-ts.setup {ensure_installed = "maintained", highlight = {enable = true}}
+    -- lsp.sourcekit.setup {}
+    -- lsp.dockerls.setup {}
+    -- lsp.gopls.setup {}
+    -- lsp.html.setup {}
+    -- lsp.cssls.setup {}
+    -- lsp.elmls.setup {}
+    -- lsp.jsonls.setup {}
+    -- lsp.terraformls.setup {}
+    -- lsp.tflint.setup {}
+    -- lsp.yamlls.setup {}
+    -- lsp.groovyls.setup {}
+    -- lsp.pyright.setup {
+    --     root_dir = lsp.util.root_pattern(".git", fn.getcwd())
+    -- }
+    -- lsp.pyls.setup {
+    --     root_dir = lsp.util.root_pattern(".git", fn.getcwd())
+    -- }
 
-local lsp = require "lspconfig"
--- local lspfuzzy = require 'lspfuzzy' -- TODO: Use fuzzer, telescope?
+    -- lsp-install
+    -- Servers available in:
+    -- ~/.local/share/nvim/site/pack/paqs/start/nvim-lspinstall/lua/lspinstall/servers.lua
+    local function setup_servers()
+        require "lspinstall".setup()
 
--- lsp.sourcekit.setup {}
--- lsp.dockerls.setup {}
--- lsp.gopls.setup {}
--- lsp.html.setup {}
--- lsp.cssls.setup {}
--- lsp.elmls.setup {}
--- lsp.jsonls.setup {}
--- lsp.terraformls.setup {}
--- lsp.tflint.setup {}
--- lsp.yamlls.setup {}
--- lsp.groovyls.setup {}
--- lsp.pyright.setup {
---     root_dir = lsp.util.root_pattern(".git", fn.getcwd())
--- }
--- lsp.pyls.setup {
---     root_dir = lsp.util.root_pattern(".git", fn.getcwd())
--- }
+        -- get all installed servers
+        local servers = require "lspinstall".installed_servers()
+        -- ... and add manually installed servers
+        table.insert(servers, "clangd")
+        table.insert(servers, "sourcekit")
 
--- lsp-install
--- Servers available in: 
--- ~/.local/share/nvim/site/pack/paqs/start/nvim-lspinstall/lua/lspinstall/servers.lua
-local function setup_servers()
-    require "lspinstall".setup()
+        for _, server in pairs(servers) do
+            local config = {capabilities = vim.lsp.protocol.make_client_capabilities()}
 
-    -- get all installed servers
-    local servers = require "lspinstall".installed_servers()
-    -- ... and add manually installed servers
-    table.insert(servers, "clangd")
-    table.insert(servers, "sourcekit")
+            -- language specific config
+            if server == "sourcekit" then
+                config.filetypes = {"swift", "objective-c", "objective-cpp"} -- we don't want c and cpp!
+            end
+            if server == "clangd" then
+                config.filetypes = {"c", "cpp"} -- we don't want objective-c and objective-cpp!
+            end
 
-    for _, server in pairs(servers) do
-        local config = {capabilities = vim.lsp.protocol.make_client_capabilities()}
-
-        -- language specific config
-        if server == "sourcekit" then
-            config.filetypes = {"swift", "objective-c", "objective-cpp"} -- we don't want c and cpp!
+            require "lspconfig"[server].setup(config)
         end
-        if server == "clangd" then
-            config.filetypes = {"c", "cpp"} -- we don't want objective-c and objective-cpp!
-        end
-
-        require "lspconfig"[server].setup(config)
     end
-end
 
-setup_servers()
+    setup_servers()
 
--- Automatically reload after `:LspInstall <server>` so we don't have to restart neovim
-require "lspinstall".post_install_hook = function()
-    setup_servers() -- reload installed servers
-    vim.cmd("bufdo e") -- this triggers the FileType autocmd that starts the server
-end
+    -- Automatically reload after `:LspInstall <server>` so we don't have to restart neovim
+    require "lspinstall".post_install_hook = function()
+        setup_servers() -- reload installed servers
+        vim.cmd("bufdo e") -- this triggers the FileType autocmd that starts the server
+    end
 
-require "compe".setup {
-    source = {
-        path = true,
-        buffer = true,
-        calc = true,
-        nvim_lsp = true,
-        nvim_lua = true,
-        treesitter = true
+    require "compe".setup {
+        source = {
+            path = true,
+            buffer = true,
+            calc = true,
+            nvim_lsp = true,
+            nvim_lua = true,
+            treesitter = true
+        }
     }
-}
-opt("o", "completeopt", "menuone,noselect")
+    opt("o", "completeopt", "menuone,noselect")
 
-require "lsp_signature".on_attach()
-
-end 
+    require "lsp_signature".on_attach()
+end

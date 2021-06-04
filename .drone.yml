@@ -1,34 +1,32 @@
 ---
 {
-   "kind": "pipeline",
-   "name": "Kubernetes",
-   "node_selector": {
-      "drone": true
-   },
-   "platform": {
-      "arch": "amd64",
-      "os": "linux"
-   },
-   "steps": [
+  "kind": "pipeline",
+  "name": "Kubernetes",
+  "node_selector": { "drone": true },
+  "platform": { "arch": "amd64", "os": "linux" },
+  "steps":
+    [
       {
-         "commands": [
+        "commands":
+          [
             "npm install prettier",
             "echo .pre-commit-config.yaml >> .prettierignore",
-            "npx prettier --check \"**/*.{ts,js,md,yaml,yml,sass,css,scss,html,htm}\""
-         ],
-         "image": "node:lts-buster",
-         "name": "Prettier lint",
-         "pull": "always"
+            'npx prettier --check "**/*.{ts,js,md,yaml,yml,sass,css,scss,html,htm}"',
+          ],
+        "image": "node:lts-buster",
+        "name": "Prettier lint",
+        "pull": "always",
       },
       {
-         "commands": [
+        "commands":
+          [
             "pwd",
             "echo $PATH",
             "apt update",
             "apt install -y git curl tar xz-utils apt-transport-https wget",
             "curl -sL https://deb.nodesource.com/setup_16.x | bash -",
             "curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -",
-            "echo \"deb https://dl.yarnpkg.com/debian/ stable main\" | tee /etc/apt/sources.list.d/yarn.list",
+            'echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list',
             "apt update",
             "apt install -y nodejs yarn",
             "useradd -m ubuntu",
@@ -39,83 +37,61 @@
             "cd neovim",
             "make CMAKE_BUILD_TYPE=Release",
             "make CMAKE_INSTALL_PREFIX=$HOME/local/nvim install",
-            "su \"ubuntu\"",
+            'su "ubuntu"',
             "cd ~",
-            "sh -c 'git clone --depth=1 https://github.com/savq/paq-nvim.git \"${XDG_DATA_HOME:-$HOME/.local/share}\"/nvim/site/pack/paqs/start/paq-nvim'",
+            'sh -c ''git clone --depth=1 https://github.com/savq/paq-nvim.git "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/pack/paqs/start/paq-nvim''',
             "mkdir -p ~/.config",
             "cp -r ~/git/dotfiles/rcconfig/nvim ~/.config/nvim",
-            "$HOME/local/nvim/bin/nvim --headless +\"autocmd User PackerComplete sleep 100m | qall\" +PackerSync",
-            "$HOME/local/nvim/bin/nvim --headless +\"TSInstallSync maintained\" +qa",
+            '$HOME/local/nvim/bin/nvim --headless +"autocmd User PackerComplete sleep 100m | qall" +PackerSync',
+            '$HOME/local/nvim/bin/nvim --headless +"TSInstallSync maintained" +qa',
             "mkdir -p /drone/src/dist",
             "tar -cJf /drone/src/dist/dotfiles.tar.xz git",
-            "tar -cJf /drone/src/dist/vim.tar.xz .vim",
             "tar -cJf /drone/src/dist/vscode_extensions.tar.xz .vscode/extensions",
-            "tar -cJf /drone/src/dist/nvim.tar.xz .config/nvim .local/share/nvim local/nvim"
-         ],
-         "environment": {
+            "tar -cJf /drone/src/dist/nvim.tar.xz .config/nvim .local/share/nvim local/nvim",
+          ],
+        "environment":
+          {
             "DEBIAN_FRONTEND": "noninteractive",
             "DISPLAY": ":9.0",
-            "HOME": "/home/ubuntu"
-         },
-         "image": "ubuntu:latest",
-         "name": "Build",
-         "pull": "always"
+            "HOME": "/home/ubuntu",
+          },
+        "image": "ubuntu:latest",
+        "name": "Build",
+        "pull": "always",
       },
       {
-         "environment": {
-            "SSH_KEY": {
-               "from_secret": "ssh_key"
-            }
-         },
-         "image": "appleboy/drone-scp",
-         "name": "Deploy with scp",
-         "pull": "always",
-         "settings": {
+        "environment": { "SSH_KEY": { "from_secret": "ssh_key" } },
+        "image": "appleboy/drone-scp",
+        "name": "Deploy with scp",
+        "pull": "always",
+        "settings":
+          {
             "host": "core.terra.fap.no",
             "rm": true,
-            "source": [
-               "dist/*"
-            ],
+            "source": ["dist/*"],
             "strip_components": 1,
             "target": "/fastest/serve/builds/dotfiles",
-            "username": "deploy"
-         },
-         "when": {
-            "branch": [
-               "master"
-            ],
-            "event": [
-               "push"
-            ]
-         }
+            "username": "deploy",
+          },
+        "when": { "branch": ["master"], "event": ["push"] },
       },
       {
-         "image": "appleboy/drone-discord",
-         "name": "Notify Discord",
-         "pull": "always",
-         "settings": {
+        "image": "appleboy/drone-discord",
+        "name": "Notify Discord",
+        "pull": "always",
+        "settings":
+          {
             "message": "{{#success build.status}}\n✅  Build #{{build.number}} of `{{repo.name}}` succeeded.\n\n📝  Commit by {{commit.author}} on `{{commit.branch}}`:\n``` {{commit.message}} ```\n🌐  {{ build.link }}\n\n✅  duration: {{duration build.started build.finished}}\n✅  started: {{datetime build.started \"2006/01/02 15:04\" \"UTC\"}}\n✅  finished: {{datetime build.finished \"2006/01/02 15:04\" \"UTC\"}}\n\n{{else}}\n@everyone\n❌  Build #{{build.number}} of `{{repo.name}}` failed.\n\n📝  Commit by {{commit.author}} on `{{commit.branch}}`:\n``` {{commit.message}} ```\n🌐  {{ build.link }}\n\n✅  duration: {{duration build.started build.finished}}\n✅  started: {{datetime build.started \"2006/01/02 15:04\" \"UTC\"}}\n✅  finished: {{datetime build.finished \"2006/01/02 15:04\" \"UTC\"}}\n\n{{/success}}\n",
-            "webhook_id": {
-               "from_secret": "discord_webhook_id"
-            },
-            "webhook_token": {
-               "from_secret": "discord_webhook_token"
-            }
-         },
-         "when": {
-            "branch": [
-               "master"
-            ],
-            "event": [
-               "push"
-            ],
-            "status": [
-               "success",
-               "failure"
-            ]
-         }
-      }
-   ],
-   "type": "kubernetes"
+            "webhook_id": { "from_secret": "discord_webhook_id" },
+            "webhook_token": { "from_secret": "discord_webhook_token" },
+          },
+        "when":
+          {
+            "branch": ["master"],
+            "event": ["push"],
+            "status": ["success", "failure"],
+          },
+      },
+    ],
+  "type": "kubernetes",
 }
-...
