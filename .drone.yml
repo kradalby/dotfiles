@@ -42,7 +42,7 @@
             'sh -c ''git clone --depth=1 https://github.com/savq/paq-nvim.git "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/pack/paqs/start/paq-nvim''',
             "mkdir -p ~/.config/nvim",
             "cp ~/git/dotfiles/rc/neovim.lua ~/.config/nvim/init.lua",
-            '$HOME/local/nvim/bin/nvim --headless +"silent! PaqInstall" +qa',
+            '$HOME/local/nvim/bin/nvim --headless +"autocmd User PackerComplete sleep 100m | qall" +PackerSync',
             '$HOME/local/nvim/bin/nvim --headless +"TSInstallSync maintained" +qa',
             "mkdir -p /drone/src/dist",
             "tar -cJf /drone/src/dist/dotfiles.tar.xz git",
