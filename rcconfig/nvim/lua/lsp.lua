@@ -63,6 +63,21 @@ local function setup_servers()
         }
 
         -- language specific config
+        if server == "tailwindcss" then
+            local override = {
+                filetypes = {"swift"},
+                settings = {
+                    tailwindCSS = {
+                        experimental = {
+                            classRegex = {
+                                {"\\.class\\(([^)]*)\\)", '"([^\']*)"', '"([^\']*)"'}
+                            }
+                        }
+                    }
+                }
+            }
+            config = vim.tbl_deep_extend("keep", config, override)
+        end
         -- if server == "sourcekit" then
         --     config.filetypes = {"swift", "objective-c", "objective-cpp"} -- we don't want c and cpp!
         -- end
