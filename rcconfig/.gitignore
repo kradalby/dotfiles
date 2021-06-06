@@ -3,6 +3,7 @@
 !/nvim/coc-settings.json
 !/nvim/*.lua
 !/nvim/lua/*.lua
+!/nvim/plugin/statusline.vim
 !.gitignore
 !starship.toml
 !fish/config.fish
