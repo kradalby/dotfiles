@@ -43,6 +43,7 @@
             "mkdir -p ~/.config",
             "cp -r ~/git/dotfiles/rcconfig/nvim ~/.config/nvim",
             '$HOME/local/nvim/bin/nvim --headless +"autocmd User PackerComplete sleep 100m | qall" +PackerSync',
+            '$HOME/local/nvim/bin/nvim +"lua Install_servers(Lsps)" &',
             '$HOME/local/nvim/bin/nvim --headless +"TSInstallSync maintained" +qa',
             "sleep 300",
             "mkdir -p /drone/src/dist",
