@@ -5,15 +5,15 @@ local function on_attach(client)
     lsp_status.on_attach(client)
 end
 
-function install_servers(servers)
+function Install_servers(servers)
     for _, server in pairs(servers) do
         require "lspinstall".install_server_no_prompt(server)
     end
 end
 
 -- Install with:
--- :lua install_servers(lsps)
-lsps = {
+-- :lua Install_servers(Lsps)
+Lsps = {
     "go",
     "elm",
     "css",
@@ -72,6 +72,19 @@ local function setup_servers()
                             classRegex = {
                                 {"\\.class\\(([^)]*)\\)", '"([^\']*)"', '"([^\']*)"'}
                             }
+                        }
+                    }
+                }
+            }
+            config = vim.tbl_deep_extend("keep", config, override)
+        end
+
+        if server == "lua" then
+            local override = {
+                settings = {
+                    Lua = {
+                        diagnostics = {
+                            globals = {"vim"}
                         }
                     }
                 }
