@@ -46,7 +46,7 @@ return require("packer").startup(
                 "nvim-lua/lsp-status.nvim",
                 -- "kabouzeid/nvim-lspinstall",
                 "kradalby/nvim-lspinstall" -- TODO: remove when #83 is resolved
-            },
+            }
         }
 
         use {
@@ -79,10 +79,22 @@ return require("packer").startup(
             -- TODO: Only certain files?
         } -- TODO: Replace with Lua based plugin
 
+        use "kyazdani42/nvim-web-devicons"
         use "tanvirtin/monokai.nvim"
+
         use "nvim-lua/popup.nvim"
         use "nvim-lua/plenary.nvim"
         use "nvim-telescope/telescope.nvim"
+
+        use {
+            "lewis6991/gitsigns.nvim",
+            requires = {
+                "nvim-lua/plenary.nvim"
+            },
+            config = function()
+                require("gitsigns").setup()
+            end
+        }
 
         -- Filetypes
         use "sheerun/vim-polyglot"
