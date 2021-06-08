@@ -39,7 +39,7 @@
             "make CMAKE_INSTALL_PREFIX=$HOME/local/nvim install",
             'su "ubuntu"',
             "cd ~",
-            "wget -q https://github.com/Kethku/neovide/releases/download/0.7.0/neovide.exe -O local/neovide.exe",
+            "wget -q https://github.com/Kethku/neovide/releases/download/0.7.0/neovide.exe -O local/nvim/neovide.exe",
             "mkdir -p ~/.config",
             "cp -r ~/git/dotfiles/rcconfig/nvim ~/.config/nvim",
             '$HOME/local/nvim/bin/nvim --headless +"autocmd User PackerComplete sleep 100m | qall" +PackerSync',
