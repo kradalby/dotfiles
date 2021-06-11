@@ -73,9 +73,6 @@ return require("packer").startup(
 
         use {
             "dense-analysis/ale",
-            config = function()
-                require("ale")
-            end
             -- TODO: Only certain files?
         } -- TODO: Replace with Lua based plugin
 
