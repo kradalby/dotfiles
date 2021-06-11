@@ -18,6 +18,7 @@ g.ale_fixers = {
     terraform = {"terraform"},
     html = {"prettier"},
     css = {"prettier"},
+    markdown = {"prettier"},
     scss = {"prettier"},
     json = {"prettier"},
     yaml = {"prettier"},

@@ -1,11 +1,14 @@
 require("plugins")
 require("statusline")
+require("ale")
 
 local cmd = vim.cmd -- to execute Vim commands e.g. cmd('pwd')
 local fn = vim.fn -- to call Vim functions e.g. fn.bufnr()
 local g = vim.g -- a table to access global variables))
 
 g.mapleader = ","
+
+cmd "set guifont=Jetbrains\\ Mono:h11" -- Set neovide font
 
 local scopes = {o = vim.o, b = vim.bo, w = vim.wo}
 
@@ -70,7 +73,6 @@ map("n", "<tab>", "<c-w>w") -- tab, circular window shifting
 map("n", "<S-tab>", "<c-w>W") -- shift tab
 
 -- Ensure plugins are installed before we load LSP
-if #vim.fn.readdir(fn.stdpath('data') .. '/site/pack/packer/start') > 1 then
-  require("lsp")
+if #vim.fn.readdir(fn.stdpath("data") .. "/site/pack/packer/start") > 1 then
+    require("lsp")
 end
-
