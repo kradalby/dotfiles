@@ -21,6 +21,7 @@ end
 
 local indent = 4
 cmd "silent! colorscheme monokai" -- Put your favorite colorscheme here
+cmd "set signcolumn=yes" -- Put your favorite colorscheme here
 
 opt("b", "expandtab", true) -- Use spaces instead of tabs
 opt("b", "shiftwidth", indent) -- Size of an indent
