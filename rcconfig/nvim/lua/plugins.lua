@@ -72,7 +72,7 @@ return require("packer").startup(
         }
 
         use {
-            "dense-analysis/ale",
+            "dense-analysis/ale"
             -- TODO: Only certain files?
         } -- TODO: Replace with Lua based plugin
 
@@ -106,6 +106,17 @@ return require("packer").startup(
             requires = "kyazdani42/nvim-web-devicons",
             config = function()
                 require("trouble").setup {}
+            end
+        }
+
+        use {
+            "andweeb/presence.nvim",
+            config = function()
+                require "presence".setup(
+                    {
+                        auto_update = true
+                    }
+                )
             end
         }
     end
