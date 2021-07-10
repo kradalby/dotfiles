@@ -6,7 +6,7 @@ local cmd = vim.cmd -- to execute Vim commands e.g. cmd('pwd')
 local fn = vim.fn -- to call Vim functions e.g. fn.bufnr()
 local g = vim.g -- a table to access global variables))
 
-g.mapleader = ","
+g.mapleader = " "
 
 cmd "set guifont=Jetbrains\\ Mono:h11" -- Set neovide font
 
@@ -55,17 +55,19 @@ end
 
 map("n", "<leader>o", "m`o<Esc>``") -- Insert a newline in normal mode
 
-map("n", "<leader>ff", '<cmd>lua require("telescope.builtin").find_files()<cr>') -- Insert a newline in normal mode
-map("n", "<leader>fg", '<cmd>lua require("telescope.builtin").live_grep()<cr>') -- Insert a newline in normal mode
-map("n", "<leader>fb", '<cmd>lua require("telescope.builtin").file_browser()<cr>') -- Insert a newline in normal mode
-map("n", "<leader>ft", '<cmd>lua require("telescope.builtin").filetypes()<cr>') -- Insert a newline in normal mode
+map("n", "<leader><leader>", '<cmd>lua require("telescope.builtin").find_files()<cr>')
+map("n", "<leader>ag", '<cmd>lua require("telescope.builtin").live_grep()<cr>')
+map("n", "<leader>fb", '<cmd>lua require("telescope.builtin").file_browser()<cr>')
+map("n", "<leader>ft", '<cmd>lua require("telescope.builtin").filetypes()<cr>')
 
 map("n", "<leader>tt", "<cmd>:TroubleToggle<cr>") -- Toggle trouble
 
-map("n", "<leader>ts", '<cmd>lua require("telescope.builtin").treesitter()<cr>') -- Insert a newline in normal mode
+map("n", "<leader>ts", '<cmd>lua require("telescope.builtin").treesitter()<cr>')
 
-map("n", "<leader>li", '<cmd>lua require("telescope.builtin").lsp_implementations()<cr>') -- Insert a newline in normal mode
-map("n", "<leader>ld", '<cmd>lua require("telescope.builtin").lsp_definitions()<cr>') -- Insert a newline in normal mode
+map("n", "<leader>li", '<cmd>lua require("telescope.builtin").lsp_implementations()<cr>')
+map("n", "<leader>ld", '<cmd>lua require("telescope.builtin").lsp_definitions()<cr>')
+
+map("n", "<leader>b", '<cmd>lua require("telescope.builtin").buffers()<cr>')
 
 map("n", "<A-Up>", "<cmd>:tabnew<cr>") -- Alt + Arrow Up, new tab
 map("n", "<A-Left>", "<cmd>:tabprev<cr>") -- Alt + Arrow Left, tab left
