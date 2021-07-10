@@ -45,7 +45,8 @@ return require("packer").startup(
             requires = {
                 "nvim-lua/lsp-status.nvim",
                 -- "kabouzeid/nvim-lspinstall",
-                "kradalby/nvim-lspinstall" -- TODO: remove when #83 is resolved
+                -- "kradalby/nvim-lspinstall" -- TODO: remove when #83 is resolved
+                "williamboman/nvim-lsp-installer"
             }
         }
 
@@ -112,9 +113,10 @@ return require("packer").startup(
         use {
             "andweeb/presence.nvim",
             config = function()
-                require "presence".setup(
+                require "presence":setup(
                     {
-                        auto_update = true
+                        auto_update = true,
+                        log_level = nil
                     }
                 )
             end
