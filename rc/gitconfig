@@ -30,8 +30,6 @@
 [alias]
 	work = config user.email \"kristoffer.dalby@knowit.no\"
 	priv = config user.email \"kradalby@kradalby.no\"
-[core]
-	pager = git-split-diffs --color | less -RFX
 [url "ssh://git@gitlab.esa.int/"]
   insteadOf = https://gitlab.esa.int/
 # For linux ~/.gitconfig.local
@@ -45,3 +43,19 @@
 	rebase = false
 [init]
 	defaultBranch = main
+
+[pager]
+    diff = delta
+    log = delta
+    reflog = delta
+    show = delta
+
+[delta]
+    side-by-side = true
+    plus-style = "syntax #012800"
+    minus-style = "syntax #340001"
+    syntax-theme = Monokai Extended
+    navigate = true
+
+[interactive]
+    diffFilter = delta --color-only

@@ -115,8 +115,8 @@ if type -q bat
     alias cat bat
 end
 
-if type -q lsd
-    alias ls "lsd --icon never"
+if type -q exa
+    alias ls "exa"
 end
 
 if type -q nvim
