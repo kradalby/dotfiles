@@ -17,4 +17,5 @@ yarn global add \
     tailwindcss \
     browser-sync \
     lua-fmt \
+    zx \
     prettier
