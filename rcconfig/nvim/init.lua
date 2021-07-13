@@ -8,7 +8,9 @@ local g = vim.g -- a table to access global variables))
 
 g.mapleader = " "
 
-cmd "set guifont=Jetbrains\\ Mono:h11" -- Set neovide font
+cmd "set guifont=JetbrainsMono\\ Nerd\\ Font:h11" -- Set neovide font
+g.neovide_refresh_rate = 60
+g.neovide_fullscreen = false
 
 local scopes = {o = vim.o, b = vim.bo, w = vim.wo}
 
@@ -42,7 +44,7 @@ opt("o", "wildmode", "list:longest") -- Command-line completion mode
 opt("w", "list", true) -- Show some invisible characters (tabs...)
 opt("w", "listchars", "tab:>·,trail:·,extends:>,precedes:<") -- Show some invisible characters (tabs...)
 opt("w", "number", true) -- Print line number
-opt("w", "relativenumber", true) -- Relative line numbers
+opt("w", "relativenumber", false) -- Relative line numbers
 opt("w", "wrap", true) -- Disable line wrap
 
 local function map(mode, lhs, rhs, opts)

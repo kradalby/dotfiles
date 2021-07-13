@@ -13,5 +13,6 @@ pipx install pylint
 pipx install pyre-check
 pipx install pygments
 pipx install diffoscope
+pipx install tldr
 # pipx install autopep8
 # :pipx install awscli
