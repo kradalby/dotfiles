@@ -35,6 +35,7 @@
             "mkdir -p $HOME/local/nvim",
             "wget https://github.com/neovim/neovim/releases/download/v0.5.0/nvim-linux64.tar.gz -o nvim.tar.gz",
             "tar xzvf nvim-linux64.tar.gz --directory=$HOME/local/nvim --strip-components=1",
+            "apt install -y ninja-build gettext libtool libtool-bin autoconf automake cmake g++ pkg-config unzip",
             'su "ubuntu"',
             "cd ~",
             "wget -q https://github.com/Kethku/neovide/releases/download/0.7.0/neovide.exe -O local/nvim/neovide.exe",
