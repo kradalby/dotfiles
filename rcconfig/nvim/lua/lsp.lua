@@ -14,7 +14,6 @@ local function install_missing_servers()
         "dockerls",
         "elmls",
         "eslintls",
-        "gopls",
         "html",
         "jsonls",
         "omnisharp",
@@ -25,7 +24,8 @@ local function install_missing_servers()
         "terraformls",
         "tsserver",
         "vimls",
-        "yamlls"
+        "yamlls",
+        "gopls"
     }
 
     for _, lsp_name in ipairs(lsps) do
