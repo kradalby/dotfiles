@@ -23,7 +23,7 @@
             "pwd",
             "echo $PATH",
             "apt update",
-            "apt install -y git curl tar xz-utils apt-transport-https wget ninja-build gettext libtool libtool-bin autoconf automake cmake g++ pkg-config unzip",
+            "apt install -y git curl tar xz-utils apt-transport-https wget ninja-build gettext libtool libtool-bin autoconf automake cmake g++ pkg-config unzip software-properties-common",
             "curl -sL https://deb.nodesource.com/setup_16.x | bash -",
             "curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -",
             'echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list',
