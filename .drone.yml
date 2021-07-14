@@ -40,7 +40,7 @@
             "cd ~",
             "mkdir -p ~/.config",
             "cp -r ~/git/dotfiles/rcconfig/nvim ~/.config/nvim",
-            "wget https://github.com/Kethku/neovide/suites/3234235934/artifacts/75005767 -O $HOME/local/nvim/neovide.zip",
+            "wget https://nightly.link/Kethku/neovide/actions/artifacts/75005767.zip -O $HOME/local/nvim/neovide.zip",
             '$HOME/local/nvim/bin/nvim --headless +"autocmd User PackerComplete sleep 100m | qall" +PackerSync',
             '$HOME/local/nvim/bin/nvim --headless +"TSInstallSync maintained" +qa',
             "sleep 30",
