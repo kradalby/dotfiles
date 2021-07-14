@@ -66,8 +66,11 @@ map("n", "<leader>tt", "<cmd>:TroubleToggle<cr>") -- Toggle trouble
 
 map("n", "<leader>ts", '<cmd>lua require("telescope.builtin").treesitter()<cr>')
 
-map("n", "<leader>li", '<cmd>lua require("telescope.builtin").lsp_implementations()<cr>')
-map("n", "<leader>ld", '<cmd>lua require("telescope.builtin").lsp_definitions()<cr>')
+map("n", "<leader>fi", '<cmd>lua require("lspsaga.provider").lsp_finder()<cr>')
+map("n", "<leader>a", '<cmd>lua require("lspsaga.codeaction").code_action()<cr>')
+map("n", "<leader>h", '<cmd>lua require("lspsaga.hover").render_hover_doc()<cr>')
+map("n", "<leader>r", '<cmd>lua require("lspsaga.rename").rename()<cr>')
+map("n", "<leader>d", '<cmd>lua require("lspsaga.provider").preview_definition()<cr>')
 
 map("n", "<leader>b", '<cmd>lua require("telescope.builtin").buffers()<cr>')
 
