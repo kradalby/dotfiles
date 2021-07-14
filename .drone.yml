@@ -32,7 +32,7 @@
             "npm install --global zx",
             "add-apt-repository ppa:longsleep/golang-backports",
             "apt update",
-            "apt install golang-go",
+            "apt install -y golang-go",
             "useradd -m ubuntu",
             "mkdir -p /home/ubuntu/git/dotfiles",
             "cp -r ./ /home/ubuntu/git/dotfiles/",
