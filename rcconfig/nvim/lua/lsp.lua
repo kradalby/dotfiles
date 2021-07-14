@@ -49,7 +49,8 @@ local installed_servers = lsp_installer.get_installed_servers()
 table.insert(installed_servers, lspconfig["sourcekit"])
 table.insert(installed_servers, lspconfig["groovyls"])
 table.insert(installed_servers, lspconfig["tflint"])
-table.insert(installed_servers, lspconfig["pyls"])
+table.insert(installed_servers, lspconfig["pylsp"])
+table.insert(installed_servers, lspconfig["jedi_language_server"])
 
 for _, server in pairs(installed_servers) do
     local capabilities =

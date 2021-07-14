@@ -16,3 +16,8 @@ pipx install diffoscope
 pipx install tldr
 # pipx install autopep8
 # :pipx install awscli
+
+pipx install 'python-lsp-server[all]'
+pipx inject python-lsp-server pyls-flake8 mypy-ls pyls-isort python-lsp-black pyls-memestra
+
+pipx install jedi-language-server
