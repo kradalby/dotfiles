@@ -67,9 +67,9 @@ for _, server in pairs(installed_servers) do
     }
 
     -- (optional) Customize the options passed to the server
-    -- if server.name == "tsserver" then
-    --     opts.root_dir = function() ... end
-    -- end
+    if server.name == "yamlls" then
+        opts.filetypes = {'yaml', 'yaml.ansible', 'ansible'}
+    end
 
     server:setup(opts)
 end
