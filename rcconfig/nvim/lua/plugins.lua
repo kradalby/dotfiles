@@ -88,6 +88,7 @@ return require("packer").startup(
         use "kyazdani42/nvim-web-devicons"
         use "tanvirtin/monokai.nvim"
         use "folke/tokyonight.nvim"
+        use "sainnhe/sonokai"
 
         use "nvim-lua/popup.nvim"
         use "nvim-lua/plenary.nvim"
