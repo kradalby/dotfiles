@@ -57,7 +57,7 @@
             '$HOME/local/nvim/bin/nvim +"LspInstall terraformls" &',
             "sleep 180",
             "mkdir -p $HOME/apps",
-            "wget https://nightly.link/Kethku/neovide/workflows/build/main/neovide-windows.exe -O $HOME/apps/neovide.exe",
+            "wget https://nightly.link/Kethku/neovide/workflows/build/main/neovide-windows.exe.zip -O $HOME/apps/neovide.exe.zip",
             "wget https://github.com/alacritty/alacritty/releases/download/v0.8.0/Alacritty-v0.8.0-portable.exe -O $HOME/apps/alacritty.exe",
             "mkdir -p /drone/src/dist",
             "tar -cJf /drone/src/dist/dotfiles.tar.xz git",
