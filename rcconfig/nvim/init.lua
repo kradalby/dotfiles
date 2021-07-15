@@ -5,6 +5,7 @@ require("ale")
 local cmd = vim.cmd -- to execute Vim commands e.g. cmd('pwd')
 local fn = vim.fn -- to call Vim functions e.g. fn.bufnr()
 local g = vim.g -- a table to access global variables))
+local opt = vim.opt
 
 g.mapleader = " "
 
@@ -14,38 +15,32 @@ g.neovide_fullscreen = false
 
 local scopes = {o = vim.o, b = vim.bo, w = vim.wo}
 
-local function opt(scope, key, value)
-    scopes[scope][key] = value
-    if scope ~= "o" then
-        scopes["o"][key] = value
-    end
-end
-
 local indent = 4
 cmd "silent! colorscheme monokai" -- Put your favorite colorscheme here
 cmd "set signcolumn=yes" -- Put your favorite colorscheme here
+cmd "au BufRead,BufNewFile */bootstrap/*.yml set filetype=yaml.ansible"
 
-opt("b", "expandtab", true) -- Use spaces instead of tabs
-opt("b", "shiftwidth", indent) -- Size of an indent
-opt("b", "smartindent", true) -- Insert indents automatically
-opt("b", "tabstop", indent) -- Number of spaces tabs count for
-opt("o", "completeopt", "menuone,noselect")
-opt("o", "hidden", true) -- Enable modified buffers in background
-opt("o", "ignorecase", true) -- Ignore case
-opt("o", "joinspaces", false) -- No double spaces with join after a dot
-opt("o", "scrolloff", 4) -- Lines of context
-opt("o", "shiftround", true) -- Round indent
-opt("o", "sidescrolloff", 8) -- Columns of context
-opt("o", "smartcase", true) -- Don't ignore case with capitals
-opt("o", "splitbelow", true) -- Put new windows below current
-opt("o", "splitright", true) -- Put new windows right of current
-opt("o", "termguicolors", true) -- True color support
-opt("o", "wildmode", "list:longest") -- Command-line completion mode
-opt("w", "list", true) -- Show some invisible characters (tabs...)
-opt("w", "listchars", "tab:>·,trail:·,extends:>,precedes:<") -- Show some invisible characters (tabs...)
-opt("w", "number", true) -- Print line number
-opt("w", "relativenumber", false) -- Relative line numbers
-opt("w", "wrap", true) -- Disable line wrap
+opt.expandtab = true -- Use spaces instead of tabs
+opt.shiftwidth = indent -- Size of an indent
+opt.smartindent = true -- Insert indents automatically
+opt.tabstop = indent -- Number of spaces tabs count for
+opt.completeopt = {"menuone", "noinsert", "noselect"}
+opt.hidden = true -- Enable modified buffers in background
+opt.ignorecase = true -- Ignore case
+opt.joinspaces = false -- No double spaces with join after a dot
+opt.scrolloff = 4 -- Lines of context
+opt.shiftround = true -- Round indent
+opt.sidescrolloff = 8 -- Columns of context
+opt.smartcase = true -- Don't ignore case with capitals
+opt.splitbelow = true -- Put new windows below current
+opt.splitright = true -- Put new windows right of current
+opt.termguicolors = true -- True color support
+opt.wildmode = {"list", "longest"} -- Command-line completion mode
+opt.list = true -- Show some invisible characters (tabs...
+opt.listchars = {tab = ">·", trail = "·", extends = ">", precedes = "<"} -- Show some invisible characters (tabs...
+opt.number = true -- Print line number
+opt.relativenumber = false -- Relative line numbers
+opt.wrap = true -- Disable line wrap
 
 local function map(mode, lhs, rhs, opts)
     local options = {noremap = true}
