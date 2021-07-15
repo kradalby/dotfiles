@@ -20,6 +20,7 @@ cmd "silent! colorscheme tokyonight" -- Put your favorite colorscheme here
 cmd "set signcolumn=yes" -- Put your favorite colorscheme here
 
 g.tokyonight_style = "night"
+g.tokyonight_transparent = true
 
 opt.expandtab = true -- Use spaces instead of tabs
 opt.shiftwidth = indent -- Size of an indent
