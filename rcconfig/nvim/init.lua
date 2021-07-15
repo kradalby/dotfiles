@@ -18,7 +18,6 @@ local scopes = {o = vim.o, b = vim.bo, w = vim.wo}
 local indent = 4
 cmd "silent! colorscheme monokai" -- Put your favorite colorscheme here
 cmd "set signcolumn=yes" -- Put your favorite colorscheme here
-cmd "au BufRead,BufNewFile */bootstrap/*.yml set filetype=yaml.ansible"
 
 opt.expandtab = true -- Use spaces instead of tabs
 opt.shiftwidth = indent -- Size of an indent
