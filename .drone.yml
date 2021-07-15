@@ -41,7 +41,6 @@
             "tar xzvf nvim.tar.gz --directory=$HOME/local/nvim --strip-components=1",
             'su "ubuntu"',
             "cd ~",
-            "wget https://nightly.link/Kethku/neovide/workflows/build/main/neovide-windows.exe -O $HOME/local/nvim/neovide.exe",
             "mkdir -p ~/.config",
             "mkdir -p $HOME/.local/share/nvim/lsp_servers/.zx",
             "cd $HOME/.local/share/nvim/lsp_servers/.zx; npm install zx; cd -",
@@ -57,9 +56,13 @@
             '$HOME/local/nvim/bin/nvim --headless +"TSInstallSync maintained" +qa',
             '$HOME/local/nvim/bin/nvim +"LspInstall terraformls" &',
             "sleep 180",
+            "mkdir -p $HOME/apps",
+            "wget https://nightly.link/Kethku/neovide/workflows/build/main/neovide-windows.exe -O $HOME/apps/neovide.exe",
+            "wget https://github.com/alacritty/alacritty/releases/download/v0.8.0/Alacritty-v0.8.0-portable.exe -O $HOME/apps/alacritty.exe",
             "mkdir -p /drone/src/dist",
             "tar -cJf /drone/src/dist/dotfiles.tar.xz git",
             "tar -cJf /drone/src/dist/nvim.tar.xz .config/nvim .local/share/nvim local/nvim",
+            "tar -cJf /drone/src/dist/terminal.tar.xz apps",
           ],
         "environment":
           {
