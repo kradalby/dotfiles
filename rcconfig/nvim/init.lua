@@ -16,8 +16,10 @@ g.neovide_fullscreen = false
 local scopes = {o = vim.o, b = vim.bo, w = vim.wo}
 
 local indent = 4
-cmd "silent! colorscheme monokai" -- Put your favorite colorscheme here
+cmd "silent! colorscheme tokyonight" -- Put your favorite colorscheme here
 cmd "set signcolumn=yes" -- Put your favorite colorscheme here
+
+g.tokyonight_style = "night"
 
 opt.expandtab = true -- Use spaces instead of tabs
 opt.shiftwidth = indent -- Size of an indent
