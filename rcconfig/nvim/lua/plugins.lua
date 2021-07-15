@@ -89,6 +89,7 @@ return require("packer").startup(
         use "tanvirtin/monokai.nvim"
         use "folke/tokyonight.nvim"
         use "sainnhe/sonokai"
+        use "savq/melange"
 
         use "nvim-lua/popup.nvim"
         use "nvim-lua/plenary.nvim"
