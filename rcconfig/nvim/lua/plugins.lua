@@ -80,6 +80,8 @@ return require("packer").startup(
             end
         }
 
+        use "folke/lua-dev.nvim"
+
         use {
             "dense-analysis/ale"
             -- TODO: Only certain files?
