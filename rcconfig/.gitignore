@@ -11,7 +11,7 @@
 !fish/linux.fish
 !fish/functions/*
 !fish/aliases/*
-!fish/completions/*
+# !fish/completions/*
 !Code/User/settings.json
 !kitty/kitty.conf
 fish/functions/fzf_key_bindings.fish

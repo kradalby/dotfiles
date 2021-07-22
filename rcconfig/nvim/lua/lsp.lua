@@ -68,7 +68,11 @@ for _, server in pairs(installed_servers) do
 
     -- (optional) Customize the options passed to the server
     if server.name == "yamlls" then
-        opts.filetypes = {'yaml', 'yaml.ansible', 'ansible'}
+        opts.filetypes = {"yaml", "yaml.ansible", "ansible"}
+    end
+
+    if server.name == "sumneko_lua" then
+        opts = vim.tbl_deep_extend("keep", opts, require("lua-dev").setup({}))
     end
 
     server:setup(opts)

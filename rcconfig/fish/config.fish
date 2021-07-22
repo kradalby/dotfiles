@@ -1,6 +1,8 @@
 set -x LC_ALL "en_US.UTF-8"
 set -x LANG "en_US.UTF-8"
 
+set completions $HOME/.config/fish/completions
+
 if not set -q TMPDIR
     set -g -x TMPDIR /tmp
 end
@@ -119,6 +121,14 @@ if type -q exa
     alias ls "exa"
 end
 
+if type -q procs
+    if not test -f $completions/procs.fish
+        cd $completions
+        procs --completion fish
+        cd -
+    end
+end
+
 if type -q nvim
     alias vim nvim
     set -x EDITOR "nvim"
@@ -141,3 +151,5 @@ end
 if type -q starship
     starship init fish | source
 end
+
+
