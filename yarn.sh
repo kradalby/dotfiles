@@ -14,8 +14,10 @@ yarn global add \
     elm-test \
     @elm-tooling/elm-language-server \
     bash-language-server \
+    ansible-language-server \
     tailwindcss \
     browser-sync \
     lua-fmt \
     zx \
+    pyright \
     prettier

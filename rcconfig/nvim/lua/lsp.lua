@@ -1,5 +1,6 @@
 local lsp_installer = require "nvim-lsp-installer"
 local lspconfig = require "lspconfig"
+local util = require "lspconfig/util"
 local lsp_status = require "lsp-status"
 lsp_status.register_progress()
 
@@ -25,6 +26,10 @@ local function install_missing_servers()
         "tsserver",
         "vimls",
         "yamlls",
+        "pyright",
+        "sqlls",
+        "sqls",
+        "vuels",
         "gopls"
     }
 
@@ -51,6 +56,7 @@ table.insert(installed_servers, lspconfig["groovyls"])
 table.insert(installed_servers, lspconfig["tflint"])
 table.insert(installed_servers, lspconfig["pylsp"])
 table.insert(installed_servers, lspconfig["jedi_language_server"])
+table.insert(installed_servers, lspconfig["ansiblels"])
 
 for _, server in pairs(installed_servers) do
     local capabilities =
@@ -67,6 +73,15 @@ for _, server in pairs(installed_servers) do
     }
 
     -- (optional) Customize the options passed to the server
+    if server.name == "ansiblels" then
+        opts.filetypes = {"yaml", "yaml.ansible", "ansible"}
+        opts.root_dir = function(fname)
+            -- return util.root_pattern {"requirements.yaml", "inventory", "*.yml", "*.yaml"}(fname)
+            return util.root_pattern {"requirements.yaml", "inventory"}(fname)
+        end
+        server.setup(opts)
+    end
+
     if server.name == "yamlls" then
         opts.filetypes = {"yaml", "yaml.ansible", "ansible"}
     end

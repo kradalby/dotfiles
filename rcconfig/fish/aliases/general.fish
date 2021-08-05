@@ -20,3 +20,5 @@ alias c 'code'
 
 
 alias mp 'multipass'
+
+alias hm 'history merge'
