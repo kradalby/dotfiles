@@ -81,6 +81,7 @@ return require("packer").startup(
         }
 
         use "folke/lua-dev.nvim"
+        use "darfink/vim-plist"
 
         use {
             "dense-analysis/ale"
@@ -96,6 +97,13 @@ return require("packer").startup(
         use "nvim-lua/popup.nvim"
         use "nvim-lua/plenary.nvim"
         use "nvim-telescope/telescope.nvim"
+
+        -- use {
+        --     "b3nj5m1n/kommentary",
+        --     config = function()
+        --         require("kommentary.config")
+        --     end
+        -- }
 
         use {
             "lewis6991/gitsigns.nvim",
