@@ -30,7 +30,11 @@ local function install_missing_servers()
         "sqlls",
         "sqls",
         "vuels",
-        "gopls"
+        "gopls",
+        "ansiblels",
+        "jedi_language_server",
+        "pylsp",
+        "groovyls"
     }
 
     for _, lsp_name in ipairs(lsps) do
@@ -51,12 +55,12 @@ install_missing_servers()
 local installed_servers = lsp_installer.get_installed_servers()
 
 -- Servers not controlled by lsp_installer
-table.insert(installed_servers, lspconfig["sourcekit"])
-table.insert(installed_servers, lspconfig["groovyls"])
 table.insert(installed_servers, lspconfig["tflint"])
-table.insert(installed_servers, lspconfig["pylsp"])
-table.insert(installed_servers, lspconfig["jedi_language_server"])
-table.insert(installed_servers, lspconfig["ansiblels"])
+table.insert(installed_servers, lspconfig["sourcekit"])
+-- table.insert(installed_servers, lspconfig["groovyls"])
+-- table.insert(installed_servers, lspconfig["pylsp"])
+-- table.insert(installed_servers, lspconfig["jedi_language_server"])
+-- table.insert(installed_servers, lspconfig["ansiblels"])
 
 for _, server in pairs(installed_servers) do
     local capabilities =

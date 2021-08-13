@@ -76,7 +76,16 @@ return require("packer").startup(
         use {
             "glepnir/lspsaga.nvim",
             config = function()
-                require "lspsaga".init_lsp_saga()
+                require "lspsaga".init_lsp_saga {
+                    finder_action_keys = {
+                        open = "o",
+                        vsplit = "v",
+                        -- split = "i",
+                        quit = "q",
+                        scroll_down = "<C-f>",
+                        scroll_up = "<C-b>"
+                    }
+                }
             end
         }
 
