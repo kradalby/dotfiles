@@ -40,6 +40,9 @@ return require("packer").startup(
             end
         }
 
+        use {"ms-jpq/coq_nvim", branch = "coq"}
+        use {"ms-jpq/coq.artifacts", branch = "artifacts"}
+
         use {
             "neovim/nvim-lspconfig",
             requires = {
@@ -105,7 +108,17 @@ return require("packer").startup(
 
         use "nvim-lua/popup.nvim"
         use "nvim-lua/plenary.nvim"
-        use "nvim-telescope/telescope.nvim"
+        use {
+            "nvim-telescope/telescope.nvim",
+            requires = {
+                {
+                    "AckslD/nvim-neoclip.lua",
+                    config = function()
+                        require("neoclip").setup()
+                    end
+                }
+            }
+        }
 
         -- use {
         --     "b3nj5m1n/kommentary",

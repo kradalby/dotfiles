@@ -2,6 +2,7 @@ local lsp_installer = require "nvim-lsp-installer"
 local lspconfig = require "lspconfig"
 local util = require "lspconfig/util"
 local lsp_status = require "lsp-status"
+local coq = require "coq"
 lsp_status.register_progress()
 
 local snippet_capabilities = {
@@ -33,8 +34,8 @@ local function install_missing_servers()
         "gopls",
         "ansiblels",
         "jedi_language_server",
-        "pylsp",
-        "groovyls"
+        "pylsp"
+        -- "groovyls"
     }
 
     for _, lsp_name in ipairs(lsps) do
@@ -83,7 +84,7 @@ for _, server in pairs(installed_servers) do
             -- return util.root_pattern {"requirements.yaml", "inventory", "*.yml", "*.yaml"}(fname)
             return util.root_pattern {"requirements.yaml", "inventory"}(fname)
         end
-        server.setup(opts)
+    -- server.setup(opts)
     end
 
     if server.name == "yamlls" then
@@ -93,6 +94,8 @@ for _, server in pairs(installed_servers) do
     if server.name == "sumneko_lua" then
         opts = vim.tbl_deep_extend("keep", opts, require("lua-dev").setup({}))
     end
+
+    opts = coq.lsp_ensure_capabilities(opts)
 
     server:setup(opts)
 end
