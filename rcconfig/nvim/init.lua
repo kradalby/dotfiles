@@ -58,6 +58,7 @@ map("n", "<leader><leader>", '<cmd>lua require("telescope.builtin").find_files()
 map("n", "<leader>ag", '<cmd>lua require("telescope.builtin").live_grep()<cr>')
 map("n", "<leader>fb", '<cmd>lua require("telescope.builtin").file_browser()<cr>')
 map("n", "<leader>ft", '<cmd>lua require("telescope.builtin").filetypes()<cr>')
+map("n", "<leader>p", "<cmd>lua require('telescope').extensions.neoclip.default()<cr>")
 
 map("n", "<leader>tt", "<cmd>:TroubleToggle<cr>") -- Toggle trouble
 
