@@ -34,6 +34,8 @@ local function install_missing_servers()
         "gopls",
         "ansiblels",
         "jedi_language_server",
+        "tflint",
+        "efm",
         "pylsp"
         -- "groovyls"
     }
@@ -56,12 +58,12 @@ install_missing_servers()
 local installed_servers = lsp_installer.get_installed_servers()
 
 -- Servers not controlled by lsp_installer
-table.insert(installed_servers, lspconfig["tflint"])
 table.insert(installed_servers, lspconfig["sourcekit"])
 -- table.insert(installed_servers, lspconfig["groovyls"])
 -- table.insert(installed_servers, lspconfig["pylsp"])
 -- table.insert(installed_servers, lspconfig["jedi_language_server"])
 -- table.insert(installed_servers, lspconfig["ansiblels"])
+-- table.insert(installed_servers, lspconfig["tflint"])
 
 for _, server in pairs(installed_servers) do
     local capabilities =
