@@ -121,6 +121,10 @@ if type -q exa
     alias ls "exa"
 end
 
+if type -q viddy
+    alias watch "viddy --differences"
+end
+
 if type -q procs
     if not test -f $completions/procs.fish
         cd $completions
