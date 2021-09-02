@@ -14,5 +14,5 @@ windows:
       root: ~/git/infrastructure
   - kubes:
       root: ~/git/kubes
-  - core.te: mosh core.te
-  - core.tj: mosh core.tj
+  - core.te: eb -- mosh core.te
+  - core.tj: eb -- mosh core.tj
