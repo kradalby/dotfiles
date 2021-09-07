@@ -59,7 +59,7 @@
             "mkdir -p $HOME/apps",
             "wget https://nightly.link/neovide/neovide/workflows/build/main/neovide-windows.zip.zip -O $HOME/apps/neovide.zip.zip",
             "wget https://nightly.link/rohit-px2/nvui/workflows/build/main/nvui-win64.zip -O $HOME/apps/nvui-win64.zip",
-            "wget https://github.com/alacritty/alacritty/releases/download/v0.8.0/Alacritty-v0.9.0-portable.exe -O $HOME/apps/alacritty.exe",
+            "wget https://github.com/alacritty/alacritty/releases/download/v0.9.0/Alacritty-v0.9.0-portable.exe -O $HOME/apps/alacritty.exe",
             "mkdir -p /drone/src/dist",
             "tar -cJf /drone/src/dist/dotfiles.tar.xz git",
             "tar -cJf /drone/src/dist/nvim.tar.xz .config/nvim .local/share/nvim local/nvim",
