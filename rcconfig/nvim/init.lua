@@ -1,6 +1,7 @@
 require("plugins")
 require("statusline")
-require("ale")
+-- require("ale")
+-- require("lint")
 
 local cmd = vim.cmd -- to execute Vim commands e.g. cmd('pwd')
 local fn = vim.fn -- to call Vim functions e.g. fn.bufnr()
@@ -12,8 +13,6 @@ g.mapleader = " "
 cmd "set guifont=JetbrainsMono\\ Nerd\\ Font:h11" -- Set neovide font
 g.neovide_refresh_rate = 60
 g.neovide_fullscreen = false
-
-local scopes = {o = vim.o, b = vim.bo, w = vim.wo}
 
 local indent = 4
 cmd "silent! colorscheme tokyonight" -- Put your favorite colorscheme here
