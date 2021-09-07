@@ -95,10 +95,10 @@ return require("packer").startup(
         use "folke/lua-dev.nvim"
         use "darfink/vim-plist"
 
-        use {
-            "dense-analysis/ale"
-            -- TODO: Only certain files?
-        } -- TODO: Replace with Lua based plugin
+        -- use {
+        --     "dense-analysis/ale"
+        --     -- TODO: Only certain files?
+        -- } -- TODO: Replace with Lua based plugin
 
         use "kyazdani42/nvim-web-devicons"
         use "tanvirtin/monokai.nvim"
