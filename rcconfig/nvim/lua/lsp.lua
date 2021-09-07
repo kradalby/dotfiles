@@ -72,11 +72,6 @@ local installed_servers = lsp_installer.get_installed_servers()
 
 -- Servers not controlled by lsp_installer
 table.insert(installed_servers, lspconfig["sourcekit"])
--- table.insert(installed_servers, lspconfig["groovyls"])
--- table.insert(installed_servers, lspconfig["pylsp"])
--- table.insert(installed_servers, lspconfig["jedi_language_server"])
--- table.insert(installed_servers, lspconfig["ansiblels"])
--- table.insert(installed_servers, lspconfig["tflint"])
 
 lsp_installer.on_server_ready(
     function(server)
@@ -105,10 +100,10 @@ lsp_installer.on_server_ready(
 
         if server.name == "efm" then
             local home = os.getenv("HOME")
-            local installed_server = require "nvim-lsp-installer.server"
+            local installer_server = require "nvim-lsp-installer.server"
             local go = require "nvim-lsp-installer.installers.go"
 
-            local root_dir = installed_server.get_server_root_path "efm"
+            local root_dir = installer_server.get_server_root_path "efm"
 
             opts.cmd = {
                 go.executable(root_dir, "efm-langserver"),
