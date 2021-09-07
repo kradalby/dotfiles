@@ -77,5 +77,6 @@ M.languages = {
     go = {M.gofumpt},
     sh = {M.shfmt, M.shellcheck}
 }
+M.languages["yaml.ansible"] = {M.yamllint, M.prettier}
 
 return M
