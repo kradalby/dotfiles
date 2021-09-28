@@ -44,3 +44,4 @@ go get -u github.com/davidrjenni/reftools/cmd/fillstruct
 go get -u github.com/uudashr/gopkgs/cmd/gopkgs
 go get -u github.com/ramya-rao-a/go-outline
 go get -u github.com/acroca/go-symbols
+go install github.com/bitnami/bcrypt-cli@latest
