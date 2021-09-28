@@ -2,7 +2,8 @@
 
 pipx install poetry
 # https://github.com/pipxproject/pipx/issues/20#issuecomment-705683989
-pipx install ansible-base
+pipx install ansible-core
+pipx inject ansible-core toml
 pipx install ansible-lint
 pipx inject pipx ansible
 # pipx install gitlint
