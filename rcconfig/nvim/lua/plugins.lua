@@ -92,6 +92,13 @@ return require("packer").startup(
             end
         }
 
+        use {
+            "cappyzawa/trim.nvim",
+            config = function()
+                require("trim").setup()
+            end
+        }
+
         use "folke/lua-dev.nvim"
         use "darfink/vim-plist"
 

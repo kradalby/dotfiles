@@ -72,6 +72,7 @@ M.languages = {
     yaml = {M.yamllint, M.prettier},
     json = {M.jq, M.prettier},
     html = {M.prettier},
+    xml = {M.prettier},
     css = {M.prettier},
     markdown = {M.prettier},
     go = {M.gofumpt},
