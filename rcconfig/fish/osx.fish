@@ -1,5 +1,7 @@
 # Java home
-set -x JAVA_HOME (/usr/libexec/java_home)
+set -xg JAVA_HOME (/usr/libexec/java_home)
+
+set -xg DOCKER_HOST $HOME/run/docker.sock
 
 
 set BINDIRS = \
@@ -77,3 +79,5 @@ set -x MANPATH $etc_manpaths $etc_manpathsd
 if test -f /Applications/Tailscale.app/Contents/MacOS/Tailscale
     alias tailscale /Applications/Tailscale.app/Contents/MacOS/Tailscale
 end
+
+

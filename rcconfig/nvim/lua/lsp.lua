@@ -29,8 +29,6 @@ local function install_missing_servers()
         "vimls",
         "yamlls",
         "pyright",
-        "sqlls",
-        "sqls",
         "vuels",
         "gopls",
         "ansiblels",
@@ -43,6 +41,8 @@ local function install_missing_servers()
         "pylsp",
         "diagnosticls"
         -- "groovyls"
+        -- "sqlls",
+        -- "sqls",
     }
 
     for _, lsp_name in ipairs(lsps) do
