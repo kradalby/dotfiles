@@ -68,74 +68,74 @@ local function common_on_attach(client)
     lsp_status.on_attach(client)
 end
 
-local installed_servers = lsp_installer.get_installed_servers()
+local function common_lsp(server)
+    local capabilities =
+        vim.tbl_deep_extend(
+        "keep",
+        vim.lsp.protocol.make_client_capabilities(),
+        lsp_status.capabilities,
+        snippet_capabilities
+    )
 
--- Servers not controlled by lsp_installer
-table.insert(installed_servers, lspconfig["sourcekit"])
+    local opts = {
+        on_attach = common_on_attach,
+        capabilities = capabilities
+    }
 
-lsp_installer.on_server_ready(
-    function(server)
-        local capabilities =
-            vim.tbl_deep_extend(
-            "keep",
-            vim.lsp.protocol.make_client_capabilities(),
-            lsp_status.capabilities,
-            snippet_capabilities
-        )
-
-        local opts = {
-            on_attach = common_on_attach,
-            capabilities = capabilities
-        }
-
-        -- (optional) Customize the options passed to the server
-        if server.name == "ansiblels" then
-            opts.filetypes = {"yaml", "yaml.ansible", "ansible"}
-            opts.root_dir = function(fname)
-                -- return util.root_pattern {"requirements.yaml", "inventory", "*.yml", "*.yaml"}(fname)
-                return util.root_pattern {"requirements.yaml", "inventory"}(fname)
-            end
-        -- server.setup(opts)
+    -- (optional) Customize the options passed to the server
+    if server.name == "ansiblels" then
+        opts.filetypes = {"yaml", "yaml.ansible", "ansible"}
+        opts.root_dir = function(fname)
+            -- return util.root_pattern {"requirements.yaml", "inventory", "*.yml", "*.yaml"}(fname)
+            return util.root_pattern {"requirements.yaml", "inventory"}(fname)
         end
-
-        if server.name == "efm" then
-            local home = os.getenv("HOME")
-            local installer_server = require "nvim-lsp-installer.server"
-            local go = require "nvim-lsp-installer.installers.go"
-
-            local root_dir = installer_server.get_server_root_path "efm"
-
-            opts.cmd = {
-                go.executable(root_dir, "efm-langserver"),
-                "-logfile",
-                home .. "/.config/efm-langserver/efm.log",
-                "-loglevel",
-                "1"
-            }
-            opts.root_dir = lspconfig.util.root_pattern(".git", ".")
-            opts.filetypes = vim.tbl_keys(efm.languages)
-            opts.init_options = {
-                documentFormatting = true,
-                codeAction = true,
-                documentSymbol = true
-            }
-            opts.settings = {
-                rootMarkers = {".git/"},
-                languages = efm.languages
-            }
-        end
-
-        if server.name == "yamlls" then
-            opts.filetypes = {"yaml", "yaml.ansible", "ansible"}
-        end
-
-        if server.name == "sumneko_lua" then
-            opts = vim.tbl_deep_extend("keep", opts, require("lua-dev").setup({}))
-        end
-
-        opts = coq.lsp_ensure_capabilities(opts)
-
-        server:setup(opts)
-        vim.cmd [[ do User LspAttachBuffers ]]
+    -- server.setup(opts)
     end
-)
+
+    if server.name == "efm" then
+        local home = os.getenv("HOME")
+        local installer_server = require "nvim-lsp-installer.server"
+        local go = require "nvim-lsp-installer.installers.go"
+
+        local root_dir = installer_server.get_server_root_path "efm"
+
+        opts.cmd = {
+            go.executable(root_dir, "efm-langserver"),
+            "-logfile",
+            home .. "/.config/efm-langserver/efm.log",
+            "-loglevel",
+            "1"
+        }
+        opts.root_dir = lspconfig.util.root_pattern(".git", ".")
+        opts.filetypes = vim.tbl_keys(efm.languages)
+        opts.init_options = {
+            documentFormatting = true,
+            codeAction = true,
+            documentSymbol = true
+        }
+        opts.settings = {
+            rootMarkers = {".git/"},
+            languages = efm.languages
+        }
+    end
+
+    if server.name == "yamlls" then
+        opts.filetypes = {"yaml", "yaml.ansible", "ansible"}
+    end
+
+    if server.name == "sumneko_lua" then
+        opts = vim.tbl_deep_extend("keep", opts, require("lua-dev").setup({}))
+    end
+
+    opts = coq.lsp_ensure_capabilities(opts)
+
+    server:setup(opts)
+    vim.cmd [[ do User LspAttachBuffers ]]
+end
+
+lsp_installer.on_server_ready(common_lsp)
+
+local servers = {"sourcekit"}
+for _, lsp in ipairs(servers) do
+    common_lsp(lspconfig[lsp])
+end
