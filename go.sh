@@ -1,49 +1,46 @@
 #!/usr/bin/env sh
 
-go get -u golang.org/x/tools/gopls@latest
-go get -u github.com/mitchellh/gox
-go get -u mvdan.cc/sh/cmd/shfmt
-go get -u mvdan.cc/gofumpt
-go get -u github.com/fatih/hclfmt
-go get -u github.com/kradalby/kubespace
-go get -u cuelang.org/go/cmd/cue
-# go get -u github.com/prometheus-community/promql-langserver/cmd/promql-langserver
-# go get -u github.com/juliosueiras/terraform-lsp
-go get -u github.com/hashicorp/terraform-ls
-go get -u github.com/oligot/go-mod-upgrade
-go get -u github.com/jessfraz/dockfmt
-go get -u sigs.k8s.io/kind@latest
-go get -u github.com/caddyserver/xcaddy/cmd/xcaddy
+go install golang.org/x/tools/gopls@latest@latest
+go install github.com/mitchellh/gox@latest
+go install mvdan.cc/sh/cmd/shfmt@latest
+go install mvdan.cc/gofumpt@latest
+go install github.com/fatih/hclfmt@latest
+go install github.com/kradalby/kubespace@latest
+go install cuelang.org/go/cmd/cue@latest
+go install github.com/hashicorp/terraform-ls@latest
+go install github.com/oligot/go-mod-upgrade@latest
+go install github.com/jessfraz/dockfmt@latest
+go install sigs.k8s.io/kind@latest@latest
+go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest
 
-go get -u github.com/google/go-jsonnet/cmd/jsonnetfmt
-go get -u github.com/google/go-jsonnet/cmd/jsonnet
-go get -u github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb
-go get -u github.com/monitoring-mixins/mixtool/cmd/mixtool
-go get -u github.com/brancz/gojsontoyaml
+go install github.com/google/go-jsonnet/cmd/jsonnetfmt@latest
+go install github.com/google/go-jsonnet/cmd/jsonnet@latest
+go install github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb@latest
+go install github.com/monitoring-mixins/mixtool/cmd/mixtool@latest
+go install github.com/brancz/gojsontoyaml@latest
 
 # Tools for vscode-go
-go get -u golang.org/x/tools/cmd/goimports
-go get -u github.com/godoctor/godoctor
-# go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
-go get -u honnef.co/go/tools/...
-go get -u golang.org/x/tools/cmd/guru
-go get -u golang.org/x/tools/cmd/gorename
-go get -u github.com/fatih/gomodifytags
-go get -u github.com/haya14busa/goplay/cmd/goplay
-go get -u github.com/josharian/impl
-go get -u github.com/tylerb/gotype-live
-go get -u github.com/rogpeppe/godef
-go get -u github.com/zmb3/gogetdoc
-go get -u github.com/sqs/goreturns
-go get -u winterdrache.de/goformat/goformat
-go get -u golang.org/x/lint/golint
-go get -u github.com/cweill/gotests/...
-go get -u github.com/mgechev/revive
-go get -u github.com/go-delve/delve/cmd/dlv
-go get -u github.com/davidrjenni/reftools/cmd/fillstruct
-go get -u github.com/uudashr/gopkgs/cmd/gopkgs
-go get -u github.com/ramya-rao-a/go-outline
-go get -u github.com/acroca/go-symbols
+go install golang.org/x/tools/cmd/goimports@latest
+go install github.com/godoctor/godoctor@latest
+go install honnef.co/go/tools/...@latest
+go install golang.org/x/tools/cmd/guru@latest
+go install golang.org/x/tools/cmd/gorename@latest
+go install github.com/fatih/gomodifytags@latest
+go install github.com/haya14busa/goplay/cmd/goplay@latest
+go install github.com/josharian/impl@latest
+go install github.com/tylerb/gotype-live@latest
+go install github.com/rogpeppe/godef@latest
+go install github.com/zmb3/gogetdoc@latest
+go install github.com/sqs/goreturns@latest
+go install winterdrache.de/goformat/goformat@latest
+go install golang.org/x/lint/golint@latest
+go install github.com/cweill/gotests/...@latest
+go install github.com/mgechev/revive@latest
+go install github.com/go-delve/delve/cmd/dlv@latest
+go install github.com/davidrjenni/reftools/cmd/fillstruct@latest
+go install github.com/uudashr/gopkgs/cmd/gopkgs@latest
+go install github.com/ramya-rao-a/go-outline@latest
+go install github.com/acroca/go-symbols@latest
 
 go install github.com/bitnami/bcrypt-cli@latest
 go install github.com/homeport/dyff/cmd/dyff@latest
