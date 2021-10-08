@@ -18,3 +18,8 @@ alias grom 'git rebase origin/master'
 alias grc 'git rebase --continue'
 alias gra 'git rebase --abort'
 alias gfo 'git fetch origin'
+
+
+alias gfu 'git fetch upstream'
+alias gcum 'git checkout upstream/main'
+alias gmum 'gfu; git merge upstream/master'
