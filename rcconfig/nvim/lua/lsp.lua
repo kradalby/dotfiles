@@ -72,7 +72,7 @@ local function common_lsp(server)
     local capabilities =
         vim.tbl_deep_extend(
         "keep",
-        vim.lsp.protocol.make_client_capabilities(),
+        require("cmp_nvim_lsp").update_capabilities(vim.lsp.protocol.make_client_capabilities()),
         lsp_status.capabilities,
         snippet_capabilities
     )

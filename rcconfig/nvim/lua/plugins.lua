@@ -54,19 +54,27 @@ return require("packer").startup(
         }
 
         use {
-            "hrsh7th/nvim-compe",
+            "hrsh7th/nvim-cmp",
             config = function()
-                require "compe".setup {
-                    source = {
-                        path = true,
-                        buffer = true,
-                        calc = true,
-                        nvim_lsp = true,
-                        nvim_lua = true,
-                        treesitter = true
+                require "cmp".setup {
+                    sources = {
+                        {name = "nvim_lsp"},
+                        {name = "buffer"},
+                        {name = "treesitter"},
+                        {name = "path"}
+                    },
+                    formatting = {
+                        format = require("lspkind").cmp_format({with_text = false, maxwidth = 50})
                     }
                 }
-            end
+            end,
+            requires = {
+                "hrsh7th/cmp-nvim-lsp",
+                "hrsh7th/cmp-buffer",
+                "ray-x/cmp-treesitter",
+                "hrsh7th/cmp-path",
+                "onsails/lspkind-nvim"
+            }
         }
 
         use {
@@ -89,13 +97,6 @@ return require("packer").startup(
                         scroll_up = "<C-b>"
                     }
                 }
-            end
-        }
-
-        use {
-            "cappyzawa/trim.nvim",
-            config = function()
-                require("trim").setup()
             end
         }
 
