@@ -56,15 +56,30 @@ return require("packer").startup(
         use {
             "hrsh7th/nvim-cmp",
             config = function()
-                require "cmp".setup {
+                local cmp = require "cmp"
+                cmp.setup {
+                    snippet = {
+                        expand = function(args)
+                            vim.fn["vsnip#anonymous"](args.body)
+                        end
+                    },
                     sources = {
                         {name = "nvim_lsp"},
                         {name = "buffer"},
                         {name = "treesitter"},
-                        {name = "path"}
+                        {name = "path"},
+                        {name = "vsnip"}
                     },
                     formatting = {
                         format = require("lspkind").cmp_format({with_text = false, maxwidth = 50})
+                    },
+                    mapping = {
+                        ["<CR>"] = cmp.mapping.confirm(
+                            {
+                                behavior = cmp.ConfirmBehavior.Replace,
+                                select = true
+                            }
+                        )
                     }
                 }
             end,
@@ -73,7 +88,9 @@ return require("packer").startup(
                 "hrsh7th/cmp-buffer",
                 "ray-x/cmp-treesitter",
                 "hrsh7th/cmp-path",
-                "onsails/lspkind-nvim"
+                "onsails/lspkind-nvim",
+                "hrsh7th/cmp-vsnip",
+                "hrsh7th/vim-vsnip"
             }
         }
 
