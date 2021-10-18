@@ -22,4 +22,4 @@ alias gfo 'git fetch origin'
 
 alias gfu 'git fetch upstream'
 alias gcum 'git checkout upstream/main'
-alias gmum 'gfu; git merge upstream/master'
+alias gmum 'gfu; git merge upstream/main'
