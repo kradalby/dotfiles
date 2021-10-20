@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 
-go install golang.org/x/tools/gopls@latest@latest
+go install golang.org/x/tools/gopls@latest
 go install github.com/mitchellh/gox@latest
 go install mvdan.cc/sh/cmd/shfmt@latest
 go install mvdan.cc/gofumpt@latest
@@ -10,7 +10,7 @@ go install cuelang.org/go/cmd/cue@latest
 go install github.com/hashicorp/terraform-ls@latest
 go install github.com/oligot/go-mod-upgrade@latest
 go install github.com/jessfraz/dockfmt@latest
-go install sigs.k8s.io/kind@latest@latest
+go install sigs.k8s.io/kind@latest
 go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest
 
 go install github.com/google/go-jsonnet/cmd/jsonnetfmt@latest
@@ -19,7 +19,6 @@ go install github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb@latest
 go install github.com/monitoring-mixins/mixtool/cmd/mixtool@latest
 go install github.com/brancz/gojsontoyaml@latest
 
-# Tools for vscode-go
 go install golang.org/x/tools/cmd/goimports@latest
 go install github.com/godoctor/godoctor@latest
 go install honnef.co/go/tools/...@latest
@@ -41,6 +40,9 @@ go install github.com/davidrjenni/reftools/cmd/fillstruct@latest
 go install github.com/uudashr/gopkgs/cmd/gopkgs@latest
 go install github.com/ramya-rao-a/go-outline@latest
 go install github.com/acroca/go-symbols@latest
+
+go install github.com/segmentio/golines@latest
+go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.42.1
 
 go install github.com/bitnami/bcrypt-cli@latest
 go install github.com/homeport/dyff/cmd/dyff@latest
