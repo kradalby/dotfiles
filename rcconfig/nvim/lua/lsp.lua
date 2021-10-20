@@ -8,34 +8,34 @@ lsp_status.register_progress()
 
 local function install_missing_servers()
     local lsps = {
+        "ansiblels",
         "bashls",
         "cssls",
+        "diagnosticls",
         "dockerls",
+        "dotls",
+        "efm",
         "elmls",
-        "eslintls",
+        "gopls",
+        "graphql",
         "html",
+        "jedi_language_server",
         "jsonls",
+        "kotlin_language_server",
         "omnisharp",
+        "pylsp",
         "pyright",
+        "rescriptls",
         "rust_analyzer",
         "sumneko_lua",
         "tailwindcss",
         "terraformls",
+        "tflint",
         "tsserver",
         "vimls",
-        "yamlls",
-        "pyright",
+        "vscode-langservers-extracted",
         "vuels",
-        "gopls",
-        "ansiblels",
-        "jedi_language_server",
-        "tflint",
-        "efm",
-        "omnisharp",
-        "rescriptls",
-        "kotlin_language_server",
-        "pylsp",
-        "diagnosticls"
+        "yamlls"
         -- "groovyls"
         -- "sqlls",
         -- "sqls",
@@ -103,8 +103,9 @@ local function common_lsp(server)
         opts.filetypes = vim.tbl_keys(efm.languages)
         opts.init_options = {
             documentFormatting = true,
-            codeAction = true,
-            documentSymbol = true
+            document_formatting = true,
+            documentSymbol = true,
+            codeAction = false
         }
         opts.settings = {
             rootMarkers = {".git/"},
