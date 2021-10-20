@@ -18,7 +18,7 @@ local function install_missing_servers()
         "elmls",
         "gopls",
         "graphql",
-        "html",
+        -- "html",
         "jedi_language_server",
         "jsonls",
         "kotlin_language_server",
