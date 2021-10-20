@@ -42,6 +42,15 @@ M.gofumpt = {
     formatStdin = true
 }
 
+M.golines = {
+    formatCommand = "golines --max-len=120 --base-formatter=gofumpt",
+    formatStdin = true
+}
+
+M.golangci = {
+    lintCommand = "golangci-lint run --fast"
+}
+
 M.shfmt = {
     formatCommand = "shfmt -ci -s -bn",
     formatStdin = true
@@ -75,7 +84,7 @@ M.languages = {
     xml = {M.prettier},
     css = {M.prettier},
     markdown = {M.prettier},
-    go = {M.gofumpt},
+    go = {M.golines, M.golangci},
     sh = {M.shfmt, M.shellcheck}
 }
 M.languages["yaml.ansible"] = {M.yamllint, M.prettier}
