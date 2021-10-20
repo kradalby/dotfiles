@@ -20,5 +20,8 @@ yarn global add \
 	lua-fmt \
 	zx \
 	pyright \
+	stylelint \
+	stylelint-config-standard \
+	eslint_d \
 	prettier \
 	@prettier/plugin-xml
