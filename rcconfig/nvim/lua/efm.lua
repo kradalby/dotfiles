@@ -75,18 +75,55 @@ M.jq = {
     lintCommand = "jq ."
 }
 
+M.stylelint = {
+    lintCommand = "stylelint --stdin --stdin-filename ${INPUT} --formatter compact",
+    lintIgnoreExitCode = true,
+    lintStdin = true,
+    lintFormats = {"%f: line %l, col %c, %tarning - %m", "%f: line %l, col %c, %trror - %m"},
+    formatCommand = "stylelint --fix --stdin --stdin-filename ${INPUT}",
+    formatStdin = true
+}
+
+M.eslint_d = {
+    lintCommand = "eslint_d -f unix --stdin --stdin-filename ${INPUT} -f visualstudio",
+    lintStdin = true,
+    lintFormats = {"%f(%l,%c): %tarning %m", "%f(%l,%c): %rror %m"}, -- {"%f:%l:%c: %m"},
+    lintIgnoreExitCode = true,
+    formatCommand = "eslint_d --fix-to-stdout --stdin --stdin-filename=${INPUT}",
+    formatStdin = true
+}
+
+M.rustfmt = {formatCommand = "rustfmt", formatStdin = true}
+
+M.clangfmtproto = {
+    formatCommand = [[clang-format -style="{BasedOnStyle: Google, IndentWidth: 4, AlignConsecutiveDeclarations: true, AlignConsecutiveAssignments: true, ColumnLimit: 0}"]],
+    formatStdin = true
+}
+
 M.languages = {
     python = {M.isort, M.flake8, M.black, M.mypy},
     lua = {M.luafmt},
     json = {M.jq, M.prettier},
     html = {M.prettier},
+    svelte = {M.eslint_d, M.prettier},
     xml = {M.prettier},
     css = {M.prettier},
+    typescript = {M.stylelint, M.prettier, M.eslint_d},
+    typescriptreact = {M.stylelint, M.prettier, M.eslint_d},
+    javascript = {M.eslint_d, M.prettier},
+    javascriptreact = {M.eslint_d, M.prettier},
+    sass = {M.prettier},
+    less = {M.prettier},
+    graphql = {M.prettier},
+    vue = {M.prettier},
+    scss = {M.prettier},
     markdown = {M.prettier},
     go = {M.golines, M.golangci},
     sh = {M.shfmt, M.shellcheck},
     yaml = {M.yamllint, M.prettier},
     ["yaml.ansible"] = {M.yamllint, M.prettier}
+    proto = {M.clangfmtproto},
+    rust = {M.rustfmt}
 }
 
 return M
