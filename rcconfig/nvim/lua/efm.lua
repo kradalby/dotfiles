@@ -48,7 +48,7 @@ M.golines = {
 }
 
 M.golangci = {
-    lintCommand = "golangci-lint run"
+    lintCommand = "golangci-lint run --fast"
 }
 
 M.shfmt = {
