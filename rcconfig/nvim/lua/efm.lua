@@ -78,15 +78,15 @@ M.jq = {
 M.languages = {
     python = {M.isort, M.flake8, M.black, M.mypy},
     lua = {M.luafmt},
-    yaml = {M.yamllint, M.prettier},
     json = {M.jq, M.prettier},
     html = {M.prettier},
     xml = {M.prettier},
     css = {M.prettier},
     markdown = {M.prettier},
     go = {M.golines, M.golangci},
-    sh = {M.shfmt, M.shellcheck}
+    sh = {M.shfmt, M.shellcheck},
+    yaml = {M.yamllint, M.prettier},
+    ["yaml.ansible"] = {M.yamllint, M.prettier}
 }
-M.languages["yaml.ansible"] = {M.yamllint, M.prettier}
 
 return M
