@@ -121,7 +121,7 @@ M.languages = {
     go = {M.golines, M.golangci},
     sh = {M.shfmt, M.shellcheck},
     yaml = {M.yamllint, M.prettier},
-    ["yaml.ansible"] = {M.yamllint, M.prettier}
+    ["yaml.ansible"] = {M.yamllint, M.prettier},
     proto = {M.clangfmtproto},
     rust = {M.rustfmt}
 }
