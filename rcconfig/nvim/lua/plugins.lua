@@ -40,8 +40,8 @@ return require("packer").startup(
             end
         }
 
-        use {"ms-jpq/coq_nvim", branch = "coq"}
-        use {"ms-jpq/coq.artifacts", branch = "artifacts"}
+        -- use {"ms-jpq/coq_nvim", branch = "coq"}
+        -- use {"ms-jpq/coq.artifacts", branch = "artifacts"}
 
         use {
             "neovim/nvim-lspconfig",
@@ -65,9 +65,9 @@ return require("packer").startup(
                     },
                     sources = {
                         {name = "nvim_lsp"},
+                        {name = "path"},
                         {name = "buffer"},
                         {name = "treesitter"},
-                        {name = "path"},
                         {name = "vsnip"}
                     },
                     formatting = {

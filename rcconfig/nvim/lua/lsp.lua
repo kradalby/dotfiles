@@ -2,7 +2,7 @@ local lsp_installer = require "nvim-lsp-installer"
 local lspconfig = require "lspconfig"
 local util = require "lspconfig/util"
 local lsp_status = require "lsp-status"
-local coq = require "coq"
+-- local coq = require "coq"
 local efm = require "efm"
 lsp_status.register_progress()
 
@@ -121,7 +121,7 @@ local function common_lsp(server)
         opts = vim.tbl_deep_extend("keep", opts, require("lua-dev").setup({}))
     end
 
-    opts = coq.lsp_ensure_capabilities(opts)
+    -- opts = coq.lsp_ensure_capabilities(opts)
 
     server:setup(opts)
     vim.cmd [[ do User LspAttachBuffers ]]
