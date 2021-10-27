@@ -15,5 +15,6 @@ linters:
     - gocognit
     - funlen
     - exhaustivestruct
+    - godox
 issues:
   fix: true
