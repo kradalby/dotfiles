@@ -67,11 +67,12 @@ return require("packer").startup(
                         {name = "nvim_lsp"},
                         {name = "path"},
                         {name = "buffer"},
-                        {name = "treesitter"},
+                        {name = "rg"},
+                        -- {name = "treesitter"},
                         {name = "vsnip"}
                     },
                     formatting = {
-                        format = require("lspkind").cmp_format({with_text = false, maxwidth = 50})
+                        format = require("lspkind").cmp_format({with_text = true, maxwidth = 80})
                     },
                     mapping = {
                         ["<CR>"] = cmp.mapping.confirm(
@@ -90,6 +91,7 @@ return require("packer").startup(
                 "hrsh7th/cmp-path",
                 "onsails/lspkind-nvim",
                 "hrsh7th/cmp-vsnip",
+                "lukas-reineke/cmp-rg",
                 "hrsh7th/vim-vsnip"
             }
         }
@@ -102,7 +104,9 @@ return require("packer").startup(
         }
 
         use {
-            "glepnir/lspsaga.nvim",
+            -- "glepnir/lspsaga.nvim",
+            "tami5/lspsaga.nvim",
+            branch = "nvim51",
             config = function()
                 require "lspsaga".init_lsp_saga {
                     finder_action_keys = {
@@ -189,5 +193,8 @@ return require("packer").startup(
                 )
             end
         }
+
+        -- Remove when nvim 12587 is resolved
+        use "antoinemadec/FixCursorHold.nvim"
     end
 )
