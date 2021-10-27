@@ -53,12 +53,16 @@ end
 
 install_missing_servers()
 
+local function enable_auto_format()
+    vim.api.nvim_command [[augroup Format]]
+    vim.api.nvim_command [[autocmd! * <buffer>]]
+    vim.api.nvim_command [[autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_seq_sync()]]
+    vim.api.nvim_command [[augroup END]]
+end
+
 local function common_on_attach(client)
     if client.resolved_capabilities.document_formatting then
-        vim.api.nvim_command [[augroup Format]]
-        vim.api.nvim_command [[autocmd! * <buffer>]]
-        vim.api.nvim_command [[autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_seq_sync()]]
-        vim.api.nvim_command [[augroup END]]
+        enable_auto_format()
     end
 
     lsp_status.on_attach(client)
@@ -99,18 +103,27 @@ local function common_lsp(server)
             "-loglevel",
             "1"
         }
+        opts.flags = {debounce_text_changes = 2000}
         opts.root_dir = lspconfig.util.root_pattern(".git", ".")
         opts.filetypes = vim.tbl_keys(efm.languages)
         opts.init_options = {
             documentFormatting = true,
             document_formatting = true,
             documentSymbol = true,
-            codeAction = false
+            codeAction = true
         }
         opts.settings = {
+            lintDebounce = "1000ms",
+            formatDebounce = "1000ms",
             rootMarkers = {".git/"},
             languages = efm.languages
         }
+        opts.on_attach = function(client)
+            client.resolved_capabilities.document_formatting = true
+            client.resolved_capabilities.goto_definition = false
+            -- client.resolved_capabilities.code_action = false
+            common_on_attach(client)
+        end
     end
 
     if server.name == "yamlls" then
