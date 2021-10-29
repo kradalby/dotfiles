@@ -100,6 +100,12 @@ M.clangfmtproto = {
     formatStdin = true
 }
 
+M.buf_lint = {
+    prefix = "buif",
+    lintCommand = "buf lint --path",
+    rootMarkers = {"buf.yaml"}
+}
+
 M.languages = {
     python = {M.isort, M.flake8, M.black, M.mypy},
     lua = {M.luafmt},
@@ -122,7 +128,7 @@ M.languages = {
     sh = {M.shfmt, M.shellcheck},
     yaml = {M.yamllint, M.prettier},
     ["yaml.ansible"] = {M.yamllint, M.prettier},
-    proto = {M.clangfmtproto},
+    proto = {M.clangfmtproto, M.buf_lint},
     rust = {M.rustfmt}
 }
 
