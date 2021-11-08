@@ -106,7 +106,6 @@ return require("packer").startup(
         use {
             -- "glepnir/lspsaga.nvim",
             "tami5/lspsaga.nvim",
-            branch = "nvim51",
             config = function()
                 require "lspsaga".init_lsp_saga {
                     finder_action_keys = {
