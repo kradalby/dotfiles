@@ -136,18 +136,27 @@ return require("packer").startup(
         use "sainnhe/sonokai"
         use "savq/melange"
 
-        use "nvim-lua/popup.nvim"
-        use "nvim-lua/plenary.nvim"
         use {
             "nvim-telescope/telescope.nvim",
             requires = {
                 {
                     "AckslD/nvim-neoclip.lua",
+                    requires = {"tami5/sqlite.lua", module = "sqlite"},
                     config = function()
                         require("neoclip").setup()
                     end
-                }
+                },
+                use "nvim-lua/popup.nvim",
+                use "nvim-lua/plenary.nvim"
             }
+        }
+
+        use {
+            "ibhagwan/fzf-lua",
+            requires = {
+                "vijaymarupudi/nvim-fzf",
+                "kyazdani42/nvim-web-devicons"
+            } -- optional for icons
         }
 
         -- use {

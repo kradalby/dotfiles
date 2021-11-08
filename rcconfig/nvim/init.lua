@@ -54,15 +54,21 @@ end
 
 map("n", "<leader>o", "m`o<Esc>``") -- Insert a newline in normal mode
 
-map("n", "<leader><leader>", '<cmd>lua require("telescope.builtin").find_files()<cr>')
-map("n", "<leader>ag", '<cmd>lua require("telescope.builtin").live_grep()<cr>')
-map("n", "<leader>fb", '<cmd>lua require("telescope.builtin").file_browser()<cr>')
-map("n", "<leader>ft", '<cmd>lua require("telescope.builtin").filetypes()<cr>')
+-- map("n", "<leader><leader>", '<cmd>lua require("telescope.builtin").find_files()<cr>')
+-- map("n", "<leader>ag", '<cmd>lua require("telescope.builtin").live_grep()<cr>')
+-- map("n", "<leader>fb", '<cmd>lua require("telescope.builtin").file_browser()<cr>')
+-- map("n", "<leader>ft", '<cmd>lua require("telescope.builtin").filetypes()<cr>')
+-- map("n", "<leader>p", "<cmd>lua require('telescope').extensions.neoclip.default()<cr>")
+-- map("n", "<leader>b", '<cmd>lua require("telescope.builtin").buffers()<cr>')
+
+map("n", "<leader><leader>", "<cmd>:FzfLua files<cr>")
+map("n", "<leader>ag", "<cmd>:FzfLua live_grep<cr>")
+map("n", "<leader>ft", "<cmd>:FzfLua filetypes<cr>")
+map("n", "<leader>km", "<cmd>:FzfLua keymaps<cr>")
 map("n", "<leader>p", "<cmd>lua require('telescope').extensions.neoclip.default()<cr>")
+map("n", "<leader>b", "<cmd>:FzfLua buffers<cr>")
 
 map("n", "<leader>tt", "<cmd>:TroubleToggle<cr>") -- Toggle trouble
-
--- map("n", "<leader>ts", '<cmd>lua require("telescope.builtin").treesitter()<cr>')
 
 map("n", "<leader>fi", "<cmd>:Lspsaga lsp_finder<cr>")
 map("n", "<leader>a", "<cmd>:Lspsaga code_action<cr>")
@@ -71,8 +77,6 @@ map("n", "<leader>r", "<cmd>:Lspsaga rename<cr>")
 map("n", "<leader>d", "<cmd>:Lspsaga preview_definition<cr>")
 map("n", "<leader>dn", "<cmd>:Lspsaga diagnostic_jump_next<cr>")
 map("n", "<leader>dp", "<cmd>:Lspsaga diagnostic_jump_prev<cr>")
-
-map("n", "<leader>b", '<cmd>lua require("telescope.builtin").buffers()<cr>')
 
 map("n", "<A-Up>", "<cmd>:tabnew<cr>") -- Alt + Arrow Up, new tab
 map("n", "<A-Left>", "<cmd>:tabprev<cr>") -- Alt + Arrow Left, tab left
