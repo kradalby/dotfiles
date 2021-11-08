@@ -66,7 +66,6 @@ map("n", "<leader>ag", "<cmd>:FzfLua live_grep<cr>")
 map("n", "<leader>ft", "<cmd>:FzfLua filetypes<cr>")
 map("n", "<leader>km", "<cmd>:FzfLua keymaps<cr>")
 map("n", "<leader>b", "<cmd>:FzfLua buffers<cr>")
-map("n", "<leader>a", "<cmd>:FzfLua lsp_code_actions<cr>")
 map("n", "<leader>d", "<cmd>:FzfLua lsp_definitions<cr>")
 map("n", "<leader>f", "<cmd>:FzfLua lsp_references<cr>")
 map("n", "<leader>p", "<cmd>lua require('telescope').extensions.neoclip.default()<cr>")
@@ -75,6 +74,7 @@ map("n", "<leader>tt", "<cmd>:TroubleToggle<cr>") -- Toggle trouble
 
 map("n", "<leader>h", "<cmd>:Lspsaga hover_doc<cr>")
 map("n", "<leader>r", "<cmd>:Lspsaga rename<cr>")
+map("n", "<leader>a", "<cmd>:Lspsaga code_actions<cr>")
 map("n", "<leader>dn", "<cmd>:Lspsaga diagnostic_jump_next<cr>")
 map("n", "<leader>dp", "<cmd>:Lspsaga diagnostic_jump_prev<cr>")
 
