@@ -120,6 +120,7 @@ return require("packer").startup(
             end
         }
 
+        use "kosayoda/nvim-lightbulb"
         use "folke/lua-dev.nvim"
         use "darfink/vim-plist"
 
