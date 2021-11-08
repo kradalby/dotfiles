@@ -60,9 +60,17 @@ local function enable_auto_format()
     vim.api.nvim_command [[augroup END]]
 end
 
+local function enable_code_action_lightbulb()
+    vim.api.nvim_command [[autocmd CursorHold,CursorHoldI * lua require'nvim-lightbulb'.update_lightbulb()]]
+end
+
 local function common_on_attach(client)
     if client.resolved_capabilities.document_formatting then
         enable_auto_format()
+    end
+
+    if client.resolved_capabilities.code_action then
+        enable_code_action_lightbulb()
     end
 
     lsp_status.on_attach(client)
