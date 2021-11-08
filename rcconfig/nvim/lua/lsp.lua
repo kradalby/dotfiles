@@ -142,6 +142,13 @@ local function common_lsp(server)
         opts = vim.tbl_deep_extend("keep", opts, require("lua-dev").setup({}))
     end
 
+    if server.name == "gopls" then
+        opts.settings = {
+            gopls = {
+                buildFlags = {"-tags=integration"}
+            }
+        }
+    end
     -- opts = coq.lsp_ensure_capabilities(opts)
 
     server:setup(opts)
