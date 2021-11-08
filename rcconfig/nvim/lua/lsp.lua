@@ -149,6 +149,14 @@ local function common_lsp(server)
             }
         }
     end
+
+    if server.name == "jsonls" then
+        opts.settings = {
+            json = {
+                schemas = require("schemastore").json.schemas()
+            }
+        }
+    end
     -- opts = coq.lsp_ensure_capabilities(opts)
 
     server:setup(opts)

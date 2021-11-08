@@ -52,6 +52,7 @@ return require("packer").startup(
                 "williamboman/nvim-lsp-installer"
             }
         }
+        use "b0o/schemastore.nvim"
 
         use {
             "hrsh7th/nvim-cmp",
