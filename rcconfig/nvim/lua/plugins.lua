@@ -40,15 +40,10 @@ return require("packer").startup(
             end
         }
 
-        -- use {"ms-jpq/coq_nvim", branch = "coq"}
-        -- use {"ms-jpq/coq.artifacts", branch = "artifacts"}
-
         use {
             "neovim/nvim-lspconfig",
             requires = {
                 "nvim-lua/lsp-status.nvim",
-                -- "kabouzeid/nvim-lspinstall",
-                -- "kradalby/nvim-lspinstall" -- TODO: remove when #83 is resolved
                 "williamboman/nvim-lsp-installer"
             }
         }
@@ -86,14 +81,14 @@ return require("packer").startup(
                 }
             end,
             requires = {
-                "hrsh7th/cmp-nvim-lsp",
                 "hrsh7th/cmp-buffer",
-                "ray-x/cmp-treesitter",
+                "hrsh7th/cmp-nvim-lsp",
                 "hrsh7th/cmp-path",
-                "onsails/lspkind-nvim",
                 "hrsh7th/cmp-vsnip",
+                "hrsh7th/vim-vsnip",
                 "lukas-reineke/cmp-rg",
-                "hrsh7th/vim-vsnip"
+                "onsails/lspkind-nvim"
+                -- "ray-x/cmp-treesitter"
             }
         }
 
@@ -125,11 +120,6 @@ return require("packer").startup(
         use "folke/lua-dev.nvim"
         use "darfink/vim-plist"
 
-        -- use {
-        --     "dense-analysis/ale"
-        --     -- TODO: Only certain files?
-        -- } -- TODO: Replace with Lua based plugin
-
         use "kyazdani42/nvim-web-devicons"
         use "tanvirtin/monokai.nvim"
         use "folke/tokyonight.nvim"
@@ -156,15 +146,15 @@ return require("packer").startup(
             requires = {
                 "vijaymarupudi/nvim-fzf",
                 "kyazdani42/nvim-web-devicons"
-            } -- optional for icons
+            }
         }
 
-        -- use {
-        --     "b3nj5m1n/kommentary",
-        --     config = function()
-        --         require("kommentary.config")
-        --     end
-        -- }
+        use {
+            "numToStr/Comment.nvim",
+            config = function()
+                require("Comment").setup()
+            end
+        }
 
         use {
             "lewis6991/gitsigns.nvim",
@@ -186,9 +176,40 @@ return require("packer").startup(
 
         use {
             "folke/trouble.nvim",
-            requires = "kyazdani42/nvim-web-devicons",
+            requires = {
+                "kyazdani42/nvim-web-devicons"
+            },
             config = function()
                 require("trouble").setup {}
+            end
+        }
+
+        use {
+            "folke/todo-comments.nvim",
+            config = function()
+                -- TODO: This can hopefully go away when issue 10 is resolved.
+                require("todo-comments").setup {
+                    highlight = {
+                        before = "", -- "fg" or "bg" or empty
+                        keyword = "bg", -- "fg", "bg", "wide" or empty. (wide is the same as bg, but will also highlight surrounding characters)
+                        after = "fg", -- "fg" or "bg" or empty
+                        pattern = [[.*<(KEYWORDS)(\([^\)]*\))?:]],
+                        comments_only = true, -- uses treesitter to match keywords in comments only
+                        max_line_len = 400, -- ignore lines longer than this
+                        exclude = {} -- list of file types to exclude highlighting
+                    },
+                    search = {
+                        command = "rg",
+                        args = {
+                            "--color=never",
+                            "--no-heading",
+                            "--with-filename",
+                            "--line-number",
+                            "--column"
+                        },
+                        pattern = [[\b(KEYWORDS)(\([^\)]*\))?:]]
+                    }
+                }
             end
         }
 
