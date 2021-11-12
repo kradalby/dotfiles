@@ -68,7 +68,19 @@ return require("packer").startup(
                         {name = "vsnip"}
                     },
                     formatting = {
-                        format = require("lspkind").cmp_format({with_text = true, maxwidth = 80})
+                        format = require("lspkind").cmp_format(
+                            {
+                                with_text = true,
+                                maxwidth = 80,
+                                menu = ({
+                                    buffer = "[Buffer]",
+                                    nvim_lsp = "[LSP]",
+                                    luasnip = "[LuaSnip]",
+                                    nvim_lua = "[Lua]",
+                                    latex_symbols = "[Latex]"
+                                })
+                            }
+                        )
                     },
                     mapping = {
                         ["<CR>"] = cmp.mapping.confirm(
@@ -90,6 +102,13 @@ return require("packer").startup(
                 "onsails/lspkind-nvim"
                 -- "ray-x/cmp-treesitter"
             }
+        }
+
+        use {
+            "windwp/nvim-autopairs",
+            config = function()
+                require("nvim-autopairs").setup({})
+            end
         }
 
         use {
