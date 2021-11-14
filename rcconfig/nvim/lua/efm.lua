@@ -43,7 +43,7 @@ M.gofumpt = {
 }
 
 M.golines = {
-    formatCommand = "golines --max-len=120 --base-formatter=gofumpt",
+    formatCommand = "golines --max-len=88 --base-formatter=gofumpt",
     formatStdin = true
 }
 
