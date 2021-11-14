@@ -42,7 +42,7 @@ go install github.com/ramya-rao-a/go-outline@latest
 go install github.com/acroca/go-symbols@latest
 
 go install github.com/segmentio/golines@latest
-go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.42.1
+go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.43.0
 
 go install github.com/bitnami/bcrypt-cli@latest
 go install github.com/homeport/dyff/cmd/dyff@latest
