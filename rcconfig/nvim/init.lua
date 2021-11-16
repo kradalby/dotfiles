@@ -68,7 +68,8 @@ map("n", "<leader>km", "<cmd>:FzfLua keymaps<cr>")
 map("n", "<leader>b", "<cmd>:FzfLua buffers<cr>")
 map("n", "<leader>d", "<cmd>:FzfLua lsp_definitions<cr>")
 map("n", "<leader>f", "<cmd>:FzfLua lsp_references<cr>")
-map("n", "<leader>p", "<cmd>lua require('telescope').extensions.neoclip.default()<cr>")
+-- map("n", "<leader>p", "<cmd>lua require('telescope').extensions.neoclip.default()<cr>")
+map("n", "<leader>p", "<cmd>lua require('neoclip.fzf')()<cr>")
 
 map("n", "<leader>tt", "<cmd>:TroubleToggle<cr>") -- Toggle trouble
 map("n", "<leader>to", "<cmd>:TodoTrouble<cr>") -- Toggle trouble
