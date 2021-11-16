@@ -35,6 +35,8 @@ local function install_missing_servers()
         "vimls",
         "vscode-langservers-extracted",
         "vuels",
+        "jsonnet_ls",
+        -- "fsautocomplete",
         "yamlls"
         -- "groovyls"
         -- "sqlls",
