@@ -145,19 +145,28 @@ return require("packer").startup(
         use "sainnhe/sonokai"
         use "savq/melange"
 
+        -- use {
+        --     "nvim-telescope/telescope.nvim",
+        --     requires = {
+        --         use "nvim-lua/popup.nvim",
+        --         use "nvim-lua/plenary.nvim"
+        --     }
+        -- }
+
         use {
-            "nvim-telescope/telescope.nvim",
+            "AckslD/nvim-neoclip.lua",
+            branch = "fzf-lua",
             requires = {
-                {
-                    "AckslD/nvim-neoclip.lua",
-                    requires = {"tami5/sqlite.lua", module = "sqlite"},
-                    config = function()
-                        require("neoclip").setup()
-                    end
-                },
-                use "nvim-lua/popup.nvim",
-                use "nvim-lua/plenary.nvim"
-            }
+                {"tami5/sqlite.lua", module = "sqlite"},
+                {"ibhagwan/fzf-lua"}
+            },
+            config = function()
+                require("neoclip").setup(
+                    {
+                        enable_persistant_history = true
+                    }
+                )
+            end
         }
 
         use {
