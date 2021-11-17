@@ -63,7 +63,7 @@ local function enable_auto_format()
 end
 
 local function enable_code_action_lightbulb()
-    vim.api.nvim_command [[autocmd CursorHold,CursorHoldI * lua require'nvim-lightbulb'.update_lightbulb()]]
+    --vim.api.nvim_command [[autocmd CursorHold,CursorHoldI * lua require'nvim-lightbulb'.update_lightbulb()]]
 end
 
 local function common_on_attach(client)
