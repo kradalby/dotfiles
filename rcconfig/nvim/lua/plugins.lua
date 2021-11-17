@@ -143,7 +143,7 @@ return require("packer").startup(
         --     disable = true
         -- }
 
-        use {"folke/lua-dev.nvim", ft = {"lua"}}
+        use {"folke/lua-dev.nvim"}
         use {"darfink/vim-plist", ft = {"plist", "xml"}}
 
         use "kyazdani42/nvim-web-devicons"
