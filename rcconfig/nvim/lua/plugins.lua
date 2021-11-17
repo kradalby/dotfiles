@@ -47,7 +47,10 @@ return require("packer").startup(
                 "williamboman/nvim-lsp-installer"
             }
         }
-        use "b0o/schemastore.nvim"
+        use {
+            "b0o/schemastore.nvim"
+            -- ft = {"json", "yaml", "yaml.ansible"}
+        }
 
         use {
             "hrsh7th/nvim-cmp",
@@ -135,15 +138,19 @@ return require("packer").startup(
             end
         }
 
-        use "kosayoda/nvim-lightbulb"
-        use "folke/lua-dev.nvim"
-        use "darfink/vim-plist"
+        -- use {
+        --     "kosayoda/nvim-lightbulb",
+        --     disable = true
+        -- }
+
+        use {"folke/lua-dev.nvim", ft = {"lua"}}
+        use {"darfink/vim-plist", ft = {"plist", "xml"}}
 
         use "kyazdani42/nvim-web-devicons"
-        use "tanvirtin/monokai.nvim"
         use "folke/tokyonight.nvim"
-        use "sainnhe/sonokai"
-        use "savq/melange"
+        -- use "tanvirtin/monokai.nvim"
+        -- use "sainnhe/sonokai"
+        -- use "savq/melange"
 
         -- use {
         --     "nvim-telescope/telescope.nvim",
@@ -198,9 +205,12 @@ return require("packer").startup(
         use "sheerun/vim-polyglot"
 
         -- Github integration
-        if vim.fn.executable "gh" == 1 then
-            use "pwntester/octo.nvim"
-        end
+        use {
+            "pwntester/octo.nvim",
+            cond = function()
+                return vim.fn.executable "gh" == 1
+            end
+        }
 
         use {
             "folke/trouble.nvim",
@@ -243,6 +253,9 @@ return require("packer").startup(
 
         use {
             "andweeb/presence.nvim",
+            cond = function()
+                return vim.fn.has("macunix")
+            end,
             config = function()
                 require "presence":setup(
                     {
