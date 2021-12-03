@@ -66,7 +66,7 @@ return require("packer").startup(
                         {name = "nvim_lsp"},
                         {name = "path"},
                         {name = "buffer"},
-                        {name = "rg"},
+                        {name = "rg", option = { debounce = 500 }},
                         -- {name = "treesitter"},
                         {name = "vsnip"}
                     },
