@@ -16,5 +16,6 @@ linters:
     - funlen
     - exhaustivestruct
     - godox
+    - tagliatelle
 issues:
   fix: true
