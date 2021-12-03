@@ -15,3 +15,6 @@
 !Code/User/settings.json
 !kitty/kitty.conf
 fish/functions/fzf_key_bindings.fish
+
+fish_variables
+.netrwhist
