@@ -167,7 +167,7 @@ end
 
 lsp_installer.on_server_ready(common_lsp)
 
-local servers = {"sourcekit"}
+local servers = {"sourcekit", "rnix"}
 for _, lsp in ipairs(servers) do
     common_lsp(lspconfig[lsp])
 end
