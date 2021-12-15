@@ -1,6 +1,0 @@
-#!/usr/bin/env bash
-
-killall nm-applet
-killall volumeicon
-xrandr --auto --output VGA1 --mode 1920x1080 --above LVDS1
-xrandr --auto --output LVDS1 --mode 1366x768

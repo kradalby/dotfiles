@@ -1,8 +1,0 @@
-[global]
-floatX = float32
-device = gpu0
-allow_gc = True
-optimizer = None
-
-[nvcc]
-fastmath = True
