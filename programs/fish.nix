@@ -85,6 +85,8 @@
       mp = "multipass";
       "..." = "cd ../..";
 
+      nix-kramacbook = "darwin-rebuild switch --flake ~/.nixpkgs/.#kramacbook";
+
       ssh-rsakey = "ssh-keygen -t rsa -b 4096 -o -a 100";
       ssh-ed25519key = "ssh-keygen -t ed25519 -o -a 100";
 
@@ -101,6 +103,7 @@
       gp = "git pull";
       gss = "git status -s";
       gst = "git stash";
+      gstc = "git stash clear";
       gm = "git merge --no-ff";
       gr = "git rebase";
       grom = "git rebase origin/master";
