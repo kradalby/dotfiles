@@ -104,6 +104,7 @@
     ./programs/starship.nix
     ./programs/kitty.nix
 
+    ./pkgs/macos.nix
     ./pkgs/workstation.nix
     ./pkgs/dev.nix
     ./pkgs/common.nix
