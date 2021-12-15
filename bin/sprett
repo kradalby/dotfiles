@@ -1,2 +1,0 @@
-#!/usr/bin/env bash
-xfreerdp /w:1366 /h:730 /u:kradalby /v:sprett2.studdem.ntnu.no

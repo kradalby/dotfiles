@@ -1,4 +1,0 @@
-#.xinitrc
-xrdb -merge ~/.Xresources #if you have Xresources
-# nm-applet& #if you want to use network-manager
-ck-launch-session awesome

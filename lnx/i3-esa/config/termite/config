@@ -1,6 +1,0 @@
-[options]
-font = Monospace 8
-scrollback_lines = -1
-
-[colors]
-background = rgba(0, 0, 0, 0.65)
