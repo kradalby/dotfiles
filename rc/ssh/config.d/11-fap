@@ -1,0 +1,61 @@
+###################
+# Public IP hosts #
+###################
+
+Host sprocket
+    HostName sprocket.nvg.ntnu.no
+    User kradalby
+    Port 22
+
+Host vmac.*
+    User kradalby
+
+Host *.te
+    HostName %hrra.fap.no
+    User root
+    Port 22
+
+Host *.tj
+    HostName %hoda.fap.no
+    User root
+    Port 22
+
+Host *.n
+    HostName %htnu.fap.no
+    User root
+    Port 22
+
+Host *.l
+    HostName %hdn.fap.no
+    User root
+    Port 22
+
+Host *.or
+    HostName %hacle-ldn.fap.no
+    User root
+    Port 22
+
+Host *.v
+    HostName %hpn.fap.no
+    User root
+    Port 22
+
+Host kramacbook.v
+    HostName %hpn.fap.no
+    User kradalby
+    Port 22
+
+###################
+# Tjodalyng       #
+###################
+
+Host tupo
+    HostName %h.tjoda.fap.no
+    User root
+    Port 22
+    KexAlgorithms +diffie-hellman-group1-sha1
+
+Host 192.168.1.3
+    User root
+    Port 22
+    KexAlgorithms +diffie-hellman-group1-sha1

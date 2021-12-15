@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>EnvironmentVariables</key>
+	<dict>
+		<key>HOME</key>
+		<string>/Users/kradalby</string>
+		<key>PATH</key>
+		<string>/Users/kradalby/go/bin:/Users/kradalby/.local/bin:/Users/kradalby/bin:/Users/kradalby/git/dotfiles/bin:/Users/kradalby/.cargo/bin:/Users/kradalby/.config/yarn/global/node_modules/.bin:/Users/kradalby/.npm-packages/bin:/usr/local/opt/coreutils/libexec/gnubin:/Applications/VMware OVF Tool:/usr/local/opt/ruby/bin:/usr/local/opt/gnu-tar/libexec/gnubin:/usr/local/opt/gnu-sed/bin:/Library/Developer/CommandLineTools/usr/bin:/usr/local/opt/fzf/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/Apple/usr/bin:/Applications/Little Snitch.app/Contents/Components:/Applications/Server.app/Contents/ServerRoot/usr/bin:/Applications/Server.app/Contents/ServerRoot/usr/sbin:/usr/local/opt/qt/bin</string>
+	</dict>
+	<key>Label</key>
+	<string>no.kradalby.ResticDaily</string>
+	<key>ProcessType</key>
+	<string>Background</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/Users/kradalby/bin/restic_wrapper</string>
+		<string>full</string>
+	</array>
+	<key>RunAtLoad</key>
+	<true/>
+	<key>StandardErrorPath</key>
+	<string>/Users/kradalby/Library/Logs/no.kradalby.ResticDaily.err.log</string>
+	<key>StandardOutPath</key>
+	<string>/Users/kradalby/Library/Logs/no.kradalby.ResticDaily.out.log</string>
+	<key>StartCalendarInterval</key>
+	<dict>
+		<key>Hour</key>
+		<integer>3</integer>
+		<key>Minute</key>
+		<integer>15</integer>
+	</dict>
+	<key>UserName</key>
+	<string>kradalby</string>
+	<key>WorkingDirectory</key>
+	<string>/Users/kradalby</string>
+</dict>
+</plist>
