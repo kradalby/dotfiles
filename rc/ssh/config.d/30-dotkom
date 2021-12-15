@@ -1,0 +1,15 @@
+###################
+# Public IP hosts #
+###################
+
+# Ardbeg, Don og Xo har ancient SSH versjon, og støtter ikke mer moderne key exchange algs
+Host ardbeg don xo
+    KexAlgorithms diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1,diffie-hellman-group1-sha1
+
+Host ardbeg bacardi blacklabel don duncan fireball kahlua passoa vsop xo
+    HostName %h.online.ntnu.no
+    User root
+    Port 22
+
+Host *.online.ntnu.no
+    User root
