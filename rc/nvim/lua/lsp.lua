@@ -2,58 +2,8 @@ local lsp_installer = require "nvim-lsp-installer"
 local lspconfig = require "lspconfig"
 local util = require "lspconfig/util"
 local lsp_status = require "lsp-status"
--- local coq = require "coq"
 local efm = require "efm"
 lsp_status.register_progress()
-
-local function install_missing_servers()
-    local lsps = {
-        "ansiblels",
-        "bashls",
-        "cssls",
-        "diagnosticls",
-        "dockerls",
-        "dotls",
-        "efm",
-        "elmls",
-        "gopls",
-        "graphql",
-        -- "html",
-        "jedi_language_server",
-        "jsonls",
-        "kotlin_language_server",
-        "omnisharp",
-        "pylsp",
-        "pyright",
-        "rescriptls",
-        "rust_analyzer",
-        "sumneko_lua",
-        "tailwindcss",
-        "terraformls",
-        "tflint",
-        "tsserver",
-        "vimls",
-        "vscode-langservers-extracted",
-        "vuels",
-        "jsonnet_ls",
-        -- "fsautocomplete",
-        "yamlls"
-        -- "groovyls"
-        -- "sqlls",
-        -- "sqls",
-    }
-
-    for _, lsp_name in ipairs(lsps) do
-        local ok, lsp_server = lsp_installer.get_server(lsp_name)
-        if ok then
-            if not lsp_server:is_installed() then
-                lsp_installer.install(lsp_name)
-            end
-        end
-    end
-end
-
-install_missing_servers()
 
 local function enable_auto_format()
     vim.api.nvim_command [[augroup Format]]
@@ -159,10 +109,10 @@ local function common_lsp(server)
             }
         }
     end
-    -- opts = coq.lsp_ensure_capabilities(opts)
 
     if server.name == "rnix" then
         opts.on_attach = function(client)
+            -- TODO: Why does this not work?
             client.resolved_capabilities.document_formatting = true
             common_on_attach(client)
         end
@@ -174,7 +124,7 @@ end
 
 lsp_installer.on_server_ready(common_lsp)
 
-local servers = {"sourcekit", "rnix"}
+local servers = {"rnix"}
 for _, lsp in ipairs(servers) do
     common_lsp(lspconfig[lsp])
 end
