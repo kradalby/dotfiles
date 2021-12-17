@@ -55,6 +55,10 @@
       ".config/nvim" = {
         source = ./rc/nvim;
         recursive = true;
+        onChange = ''
+          nvim --headless -c "autocmd User PackerComplete quitall" -c "PackerSync" > ~/.nixpkgs/nvim_packer.log 2>&1
+          nvim --headless -c "lua require('tools').install_servers()" -c "quitall" > ~/.nixpkgs/nvim_lsp.log 2>&1
+        '';
       };
 
       ".ssh/config" = {
