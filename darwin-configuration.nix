@@ -1,13 +1,9 @@
 { pkgs
 , config
 , machine
-, home-manager
 , ...
 }:
 {
-  imports =
-    [ (home-manager.darwinModules.home-manager) ];
-
   services.nix-daemon = {
     enable = true;
   };
