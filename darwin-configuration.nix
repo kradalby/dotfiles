@@ -44,7 +44,7 @@
     useUserPackages = true;
     useGlobalPkgs = true;
     users."${machine.username}" = {
-      imports = [ ./home.nix ];
+      imports = [ ./home ];
     };
     extraSpecialArgs = { inherit machine; };
   };
