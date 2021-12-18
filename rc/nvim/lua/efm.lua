@@ -71,6 +71,14 @@ M.shellcheck = {
     }
 }
 
+M.nixpkgs = {
+    lintCommand = "nixpkgs-format --check --explain",
+    lintStdin = true,
+    -- lintFormats = {"%f: line %l, col %c, %tarning - %m", "%f: line %l, col %c, %trror - %m"},
+    formatCommand = "nixpkgs-format",
+    formatStdin = true
+}
+
 M.jq = {
     lintCommand = "jq ."
 }
@@ -129,7 +137,8 @@ M.languages = {
     yaml = {M.yamllint, M.prettier},
     ["yaml.ansible"] = {M.yamllint, M.prettier},
     proto = {M.clangfmtproto, M.buf_lint},
-    rust = {M.rustfmt}
+    rust = {M.rustfmt},
+    nix = {M.nixpkgs}
 }
 
 return M
