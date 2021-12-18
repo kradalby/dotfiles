@@ -38,22 +38,22 @@
     ];
 
     file = {
-      ".alacritty.yml".source = ./rc/alacritty.yml;
-      ".ansible.cfg".source = ./rc/ansible.cfg;
-      ".editorconfig".source = ./rc/editorconfig;
-      ".eslintrc.json".source = ./rc/eslintrc.json;
-      ".golangci.yaml".source = ./rc/golangci.yaml;
-      ".minirc.dfl".source = ./rc/minirc.dfl;
-      ".npmrc".source = ./rc/npmrc;
+      ".alacritty.yml".source = ../rc/alacritty.yml;
+      ".ansible.cfg".source = ../rc/ansible.cfg;
+      ".editorconfig".source = ../rc/editorconfig;
+      ".eslintrc.json".source = ../rc/eslintrc.json;
+      ".golangci.yaml".source = ../rc/golangci.yaml;
+      ".minirc.dfl".source = ../rc/minirc.dfl;
+      ".npmrc".source = ../rc/npmrc;
 
-      ".tmux.conf".source = ./rc/tmux.conf;
+      ".tmux.conf".source = ../rc/tmux.conf;
       ".tmuxinator" = {
-        source = ./rc/tmuxinator;
+        source = ../rc/tmuxinator;
         recursive = true;
       };
 
       ".config/nvim" = {
-        source = ./rc/nvim;
+        source = ../rc/nvim;
         recursive = true;
         onChange = ''
           nvim --headless -c "autocmd User PackerComplete quitall" -c "PackerSync" > ~/.nixpkgs/nvim_packer.log 2>&1
@@ -62,10 +62,10 @@
       };
 
       ".ssh/config" = {
-        source = ./rc/ssh/config;
+        source = ../rc/ssh/config;
       };
       ".ssh/config.d" = {
-        source = ./rc/ssh/config.d;
+        source = ../rc/ssh/config.d;
         recursive = true;
       };
     };
@@ -102,16 +102,16 @@
   };
 
   imports = [
-    ./programs/git.nix
-    ./programs/go.nix
-    ./programs/fish.nix
-    ./programs/starship.nix
-    ./programs/kitty.nix
+    ../programs/git.nix
+    ../programs/go.nix
+    ../programs/fish.nix
+    ../programs/starship.nix
+    ../programs/kitty.nix
 
-    ./pkgs/macos.nix
-    ./pkgs/workstation.nix
-    ./pkgs/dev.nix
-    ./pkgs/common.nix
+    ../pkgs/macos.nix
+    ../pkgs/workstation.nix
+    ../pkgs/dev.nix
+    ../pkgs/common.nix
   ];
 }
 
