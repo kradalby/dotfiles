@@ -20,7 +20,7 @@ Lsps = {
     "pyright",
     "rescriptls",
     "rust_analyzer",
-    -- "sumneko_lua",
+    "sumneko_lua",
     "tailwindcss",
     "terraformls",
     "tflint",

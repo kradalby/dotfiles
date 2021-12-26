@@ -16,7 +16,23 @@
     home-manager-unstable.url = github:nix-community/home-manager/master;
     home-manager-unstable.inputs.nixpkgs.follows = "nixos-unstable";
 
+    sops-nix.url = github:Mic92/sops-nix;
+
     nur.url = github:nix-community/NUR;
+
+    # Only pull from 'trunk' when channels are blocked by a Hydra jobset
+    # failure or the 'unstable' channel has not otherwise updated recently for
+    # some other reason.
+    trunk.url = github:nixos/nixpkgs;
+
+    # nixops-plugged.url = github:lukebfox/nixops-plugged;
+    # deploy-flake.url = "github:antifuchs/deploy-flake";
+    deploy-rs.url = github:serokell/deploy-rs;
+
+    nixos-generators = {
+      url = github:nix-community/nixos-generators;
+      inputs.nixpkgs.follows = "nixos-unstable";
+    };
   };
 
   outputs =
@@ -28,28 +44,141 @@
     , home-manager-old
     , home-manager
     , home-manager-unstable
+    , sops-nix
     , nur
+    , trunk
+      # , nixops-plugged
+      # , deploy-flake
+    , deploy-rs
+    , nixos-generators
     , ...
-    } @ flakes: {
-      darwinConfigurations.kramacbook =
-        let
-          system = "x86_64-darwin";
-          machine = {
-            username = "kradalby";
-            hostname = "kramacbook";
-            homeDir = "/Users/kradalby";
-          };
-        in
-        darwin.lib.darwinSystem {
-          inherit system;
-          modules = [
-            ./darwin-configuration.nix
-            home-manager-unstable.darwinModules.home-manager
-          ];
-          specialArgs = {
-            inherit machine;
+    } @ flakes:
+    let
+      overlay-pkgs = final: prev: {
+        unstable = import nixos-unstable { system = final.system; };
+        trunk = import trunk { system = final.system; };
+      };
+
+      commonModules = [
+        # sops-nix.nixosModules.sops
+        #
+        # ({ pkgs, ... }: {
+        #   sops.defaultSopsFile = ./secrets.yaml;
+        # })
+
+        ({ nixpkgs.overlays = [ nur.overlay overlay-pkgs ]; })
+      ];
+
+      nixosBox = arch: base: homeBase: name: base.lib.nixosSystem {
+        system = arch;
+        modules = commonModules ++ [
+          ({
+            system.configurationRevision =
+              if self ? rev
+              then self.rev
+              else "DIRTY";
+          })
+
+          (./. + "/machines/${name}")
+        ] ++ (
+          if builtins.isNull homeBase then
+            [ ]
+          else [
+            homeBase.nixosModules.home-manager
+            ./common/home.nix
+          ]
+        );
+        specialArgs = { inherit flakes; };
+      };
+
+      macBox = machine: base: homeBase: darwin.lib.darwinSystem {
+        system = machine.arch;
+        modules = commonModules ++ [
+          (./. + "/machines/${machine.hostname}")
+          homeBase.darwinModules.home-manager
+        ];
+        specialArgs = {
+          inherit flakes;
+          inherit machine;
+        };
+      };
+
+      homeOnly = machine: homeBase: homeBase.lib.homeManagerConfiguration {
+        system = machine.arch;
+        homeDirectory = machine.homeDir;
+        username = machine.username;
+        configuration.imports = [ ./home ];
+        extraModules =
+          commonModules ++
+          [ (./. + "/machines/${machine.hostname}") ];
+
+      };
+    in
+    {
+
+      nixosConfigurations = {
+        "dev.terra" = nixosBox "x86_64-linux" nixos home-manager-unstable "dev.terra";
+        "storage.bassan" = nixosBox "aarch64-linux" nixos null "storage.bassan";
+      };
+
+      # darwin-rebuild switch --flake .#kramacbook
+      darwinConfigurations = {
+        kramacbook =
+          let
+            machine = {
+              arch = "x86_64-darwin";
+              username = "kradalby";
+              hostname = "kramacbook";
+              homeDir = "/Users/kradalby";
+            };
+          in
+          macBox machine nixos-unstable home-manager-unstable;
+      };
+
+      homeConfigurations = {
+        # nix run github:nix-community/home-manager/master --no-write-lock-file -- switch --flake .#multipass
+        multipass =
+          let
+            machine = {
+              arch = "x86_64-linux";
+              username = "ubuntu";
+              hostname = "multipass";
+              homeDir = "/home/ubuntu";
+            };
+          in
+          homeOnly machine home-manager-unstable;
+      };
+
+      deploy = {
+        sshUser = "root";
+        user = "root";
+
+        nodes = {
+          # nix run github:serokell/deploy-rs -- .#"devterra"
+          "devterra" = {
+            hostname = "dev.terra.fap.no";
+            fastConnection = true;
+            profiles = {
+              system = {
+                path =
+                  deploy-rs.lib.x86_64-linux.activate.nixos self.nixosConfigurations."dev.terra";
+              };
+            };
           };
         };
-    };
+      };
 
+      packages.aarch64-linux = {
+        "storage.bassan" = nixos-generators.nixosGenerate {
+          pkgs = nixos-unstable.legacyPackages.aarch64-linux;
+          modules = [
+            (./. + "/machines/storage-bassan")
+          ];
+          format = "sd-aarch64";
+        };
+      };
+
+      checks = builtins.mapAttrs (system: deployLib: deployLib.deployChecks self.deploy) deploy-rs.lib;
+    };
 }
+

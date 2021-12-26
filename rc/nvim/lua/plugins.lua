@@ -162,7 +162,6 @@ return require("packer").startup(
 
         use {
             "AckslD/nvim-neoclip.lua",
-            branch = "fzf-lua",
             requires = {
                 {"tami5/sqlite.lua", module = "sqlite"},
                 {"ibhagwan/fzf-lua"}

@@ -4,20 +4,24 @@
 , ...
 }:
 {
+
+  # sops.age.sshKeyPaths = [ "~/.ssh/id_ed25519" ];
+  sops.age.keyFile = "~/.config/sops/age/keys.txt";
+
   services.nix-daemon = {
     enable = true;
   };
 
   nix = {
-    package = pkgs.nix_2_4;
+    package = pkgs.nixUnstable;
+    extraOptions = ''
+      experimental-features = nix-command flakes
+    '';
 
     trustedUsers = [ machine.username ];
 
     # todo
     useSandbox = false;
-    extraOptions = ''
-      experimental-features = nix-command flakes
-    '';
   };
 
   nixpkgs = {
@@ -26,12 +30,8 @@
     };
   };
 
-  # List packages installed in system profile. To search by name, run:
-  # $ nix-env -qaP | grep wget
-  environment.systemPackages =
-    [
-      pkgs.fish
-    ];
+  # System packages
+  imports = [ ../../pkgs/system.nix ];
 
   users.users.kradalby = {
     name = machine.username;
@@ -44,9 +44,9 @@
     useUserPackages = true;
     useGlobalPkgs = true;
     users."${machine.username}" = {
-      imports = [ ./home ];
+      imports = [ ../../home ];
     };
-    extraSpecialArgs = { inherit machine; };
+    # extraSpecialArgs = { inherit machine; };
   };
 
   networking.hostName = machine.hostname;
@@ -56,7 +56,6 @@
   system.defaults = {
     LaunchServices = { LSQuarantine = false; };
     NSGlobalDomain = {
-      AppleInterfaceStyle = "Dark"; # Dark mode
       AppleInterfaceStyleSwitchesAutomatically = true;
       ApplePressAndHoldEnabled = false; # No accents
       KeyRepeat = 2; # I am speed

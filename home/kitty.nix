@@ -1,10 +1,11 @@
-{ pkgs, ... }:
+{ pkgs, config, ... }:
 {
   programs.kitty = {
-    enable = true;
-    darwinLaunchOptions = [
-      "--single-instance"
-    ];
+    enable = pkgs.stdenv.isDarwin;
+    darwinLaunchOptions =
+      [
+        "--single-instance"
+      ];
 
     font = {
       package = pkgs.jetbrains-mono;

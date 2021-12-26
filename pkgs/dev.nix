@@ -24,6 +24,11 @@
     pkgs.rnix-lsp
     pkgs.shfmt
     pkgs.yarn
+
+    pkgs.rustup
+
+    # pkgs.clang_13
+
     # pkgs.golines
     # pkgs.swiftlint
     # pkgs.clang-format
