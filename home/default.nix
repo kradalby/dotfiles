@@ -30,6 +30,8 @@
       GO111MODULE = "on";
 
       TF_X_HELM_MANIFEST = 1;
+
+      SOPS_AGE_KEY_FILE = "$HOME/.config/sops/age/keys.txt";
     };
 
     packages = [

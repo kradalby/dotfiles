@@ -2,7 +2,7 @@
   environment.systemPackages = [
     pkgs.fish
 
-    pkgs.unstable.neovim
+    # pkgs.unstable.neovim
     pkgs.bat
     pkgs.coreutils
     pkgs.dos2unix

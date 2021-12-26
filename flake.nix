@@ -60,11 +60,11 @@
       };
 
       commonModules = [
-        # sops-nix.nixosModules.sops
-        #
-        # ({ pkgs, ... }: {
-        #   sops.defaultSopsFile = ./secrets.yaml;
-        # })
+        sops-nix.nixosModules.sops
+
+        ({ pkgs, ... }: {
+          sops.defaultSopsFile = ./secrets.yaml;
+        })
 
         ({ nixpkgs.overlays = [ nur.overlay overlay-pkgs ]; })
       ];
@@ -118,7 +118,9 @@
 
       nixosConfigurations = {
         "dev.terra" = nixosBox "x86_64-linux" nixos home-manager-unstable "dev.terra";
-        "storage.bassan" = nixosBox "aarch64-linux" nixos null "storage.bassan";
+
+        # nixos-generate --system aarch64-linux -f sd-aarch64 -I nixpkgs=channel:nixos-unstable
+        "storage-bassan" = nixosBox "aarch64-linux" nixos null "storage.bassan";
       };
 
       # darwin-rebuild switch --flake .#kramacbook
@@ -168,15 +170,16 @@
         };
       };
 
-      packages.aarch64-linux = {
-        "storage.bassan" = nixos-generators.nixosGenerate {
-          pkgs = nixos-unstable.legacyPackages.aarch64-linux;
-          modules = [
-            (./. + "/machines/storage-bassan")
-          ];
-          format = "sd-aarch64";
-        };
-      };
+      # packages.aarch64-linux = {
+      #   # nix build --system aarch64-linux .#"storage-bassan"
+      #   "storage-bassan" = nixos-generators.nixosGenerate {
+      #     pkgs = nixos.legacyPackages.aarch64-linux;
+      #     modules =
+      #       commonModules ++
+      #       [ (./. + "/machines/storage.bassan") ];
+      #     format = "sd-aarch64";
+      #   };
+      # };
 
       checks = builtins.mapAttrs (system: deployLib: deployLib.deployChecks self.deploy) deploy-rs.lib;
     };
