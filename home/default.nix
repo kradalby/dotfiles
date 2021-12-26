@@ -1,20 +1,18 @@
-{ pkgs, machine, ... }: {
+{ config, pkgs, lib, ... }: {
   # Available options
   # https://nix-community.github.io/home-manager/options.html
 
+
   home = {
-    username = machine.username;
-    homeDirectory = machine.homeDir;
-    # profileDirectory = "${machine.homeDir}/.nix-profile";
 
     sessionPath = [
-      "/etc/profiles/per-user/${machine.username}/bin"
-      "~/bin"
-      "~/.bin"
-      "~/git/dotfiles/bin"
-      "~/.cargo/bin"
-      "~/.local/bin"
-      "~/.nixpkgs/bin"
+      # "/etc/profiles/per-user/$USER/bin"
+      "$HOME/bin"
+      "$HOME/.bin"
+      "$HOME/git/dotfiles/bin"
+      "$HOME/.cargo/bin"
+      "$HOME/.local/bin"
+      "$HOME/.nixpkgs/bin"
     ];
 
     sessionVariables = {
@@ -37,6 +35,7 @@
     packages = [
     ];
 
+
     file = {
       ".alacritty.yml".source = ../rc/alacritty.yml;
       ".ansible.cfg".source = ../rc/ansible.cfg;
@@ -55,10 +54,11 @@
       ".config/nvim" = {
         source = ../rc/nvim;
         recursive = true;
-        onChange = ''
-          nvim --headless -c "autocmd User PackerComplete quitall" -c "PackerSync" > ~/.nixpkgs/nvim_packer.log 2>&1
-          nvim --headless -c "lua require('tools').install_servers()" -c "quitall" > ~/.nixpkgs/nvim_lsp.log 2>&1
-        '';
+        # onChange = ''
+        #   mkdir -p ~/logs
+        #   nvim --headless -c "autocmd User PackerComplete quitall" -c "PackerSync" > ~/logs/nvim_packer.log 2>&1
+        #   nvim --headless -c "lua require('tools').install_servers()" -c "quitall" > ~/logs/nvim_lsp.log 2>&1
+        # '';
       };
 
       ".ssh/config" = {
@@ -68,6 +68,10 @@
         source = ../rc/ssh/config.d;
         recursive = true;
       };
+
+      ".config/nix/nix.conf".text = ''
+        experimental-features = nix-command flakes
+      '';
     };
   };
 
@@ -102,11 +106,11 @@
   };
 
   imports = [
-    ../programs/git.nix
-    ../programs/go.nix
-    ../programs/fish.nix
-    ../programs/starship.nix
-    ../programs/kitty.nix
+    ./git.nix
+    ./go.nix
+    ./fish.nix
+    ./starship.nix
+    ./kitty.nix
 
     ../pkgs/macos.nix
     ../pkgs/workstation.nix

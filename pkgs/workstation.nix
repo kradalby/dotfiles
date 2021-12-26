@@ -1,7 +1,6 @@
 { pkgs, ... }: {
   home.packages = [
     # Workstation
-    pkgs._1password
     pkgs.ansible
     pkgs.ansible-lint
     pkgs.drone-cli
@@ -15,6 +14,7 @@
     pkgs.terraform
     pkgs.tflint
     pkgs.tfsec
+    pkgs.nixopsUnstable
 
     # pkgs.logcli
 

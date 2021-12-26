@@ -1,5 +1,8 @@
 { pkgs, ... }: {
-  home.packages = [
-    pkgs.terminal-notifier
-  ];
+  home.packages =
+    (if pkgs.stdenv.isDarwin then
+      [
+        pkgs.terminal-notifier
+      ] else [ ]
+    );
 }

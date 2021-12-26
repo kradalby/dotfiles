@@ -1,0 +1,14 @@
+---
+keys:
+  - &kradalby age1qup7qqaxqt82lu04f8l2lmmdmeyzv2fyen2re87d79mfyga76vesxmqpyc
+
+  # Hosts
+  - &dev-terra age1zup0zex6cfejdg7kzvj3elm4tt38s83fd27q5y70evq0rrl4fvdqrnr24e
+# command to add a new age key for a new host
+# nix-shell -p ssh-to-age --run "ssh-keyscan $host | ssh-to-age"
+creation_rules:
+  - path_regex: secrets.yaml$
+    key_groups:
+      - age:
+          - *kradalby
+          - *dev-terra

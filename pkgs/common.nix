@@ -1,35 +1,11 @@
 { pkgs, ... }: {
   home.packages = [
-    pkgs.bat
-    pkgs.coreutils
-    pkgs.dos2unix
-    pkgs.exa
-    pkgs.fd
-    pkgs.fdupes
-    pkgs.fish
-    pkgs.fzf
-    pkgs.git
-    pkgs.htop
-    pkgs.jq
-    pkgs.mosh
-    pkgs.ncdu
-    pkgs.neovim
-    pkgs.p7zip
-    pkgs.procs
-    pkgs.python3
-    pkgs.rclone
-    pkgs.restic
-    pkgs.ripgrep
-    pkgs.shellcheck
-    pkgs.socat
-    pkgs.speedtest-cli
-    pkgs.tldr
-    pkgs.tmux
-    pkgs.tmuxinator
-    pkgs.tree
-    pkgs.viddy
-    pkgs.wget
+    pkgs.unstable.speedtest-cli
     pkgs.yamllint
-    pkgs.yq
+    pkgs.tmuxinator
+    pkgs.shellcheck
+    pkgs.sops
+    pkgs.age
+    pkgs.ssh-to-age
   ];
 }

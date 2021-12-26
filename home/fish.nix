@@ -3,15 +3,15 @@
   programs.fish = {
     enable = true;
     plugins = [
-      {
-        name = "fish-kubectl-completions";
-        src = pkgs.fetchFromGitHub {
-          owner = "evanlucas";
-          repo = "fish-kubectl-completions";
-          rev = "ced676392575d618d8b80b3895cdc3159be3f628";
-          sha256 = "sha256-6oeyN9ngXWvps1c5QAUjlyPDQwRWAoxBiVTNmZ4sG8E=";
-        };
-      }
+      # {
+      #   name = "fish-kubectl-completions";
+      #   src = pkgs.fetchFromGitHub {
+      #     owner = "evanlucas";
+      #     repo = "fish-kubectl-completions";
+      #     rev = "ced676392575d618d8b80b3895cdc3159be3f628";
+      #     sha256 = "sha256-6oeyN9ngXWvps1c5QAUjlyPDQwRWAoxBiVTNmZ4sG8E=";
+      #   };
+      # }
       # Need this when using Fish as a default macOS shell in order to pick
       # up ~/.nix-profile/bin
       {
@@ -43,11 +43,16 @@
       }
     ];
 
+
+    # for p in /run/current-system/sw/bin
+    #   if not contains $p $fish_user_paths
+    #     set -g fish_user_paths $p $fish_user_paths
+    #   end
+    # end
+
     shellInit = ''
-      for p in /run/current-system/sw/bin
-        if not contains $p $fish_user_paths
-          set -g fish_user_paths $p $fish_user_paths
-        end
+      if type -q babelfish
+        cat /etc/profiles/per-user/$USER/etc/profile.d/hm-session-vars.sh | babelfish | tail -n +5 | source
       end
 
       if test -f $HOME/Sync/fish/tokens.fish
