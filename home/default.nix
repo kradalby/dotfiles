@@ -20,8 +20,8 @@
       EDITOR = "nvim";
 
       # Apparently nix-direnv or direnv sets this to something weird
-      GNUPGHOME = "~/.gnupg";
-      GPG_FINGERPRINT = "09F62DC067465735";
+      # GNUPGHOME = "~/.gnupg";
+      # GPG_FINGERPRINT = "09F62DC067465735";
 
       TMPDIR = "/tmp";
 
