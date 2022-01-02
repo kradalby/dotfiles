@@ -25,7 +25,14 @@
     pkgs.shfmt
     pkgs.yarn
 
-    pkgs.rustup
+    (pkgs.fenix.complete.withComponents
+      [
+        "cargo"
+        "clippy"
+        "rust-src"
+        "rustc"
+        "rustfmt"
+      ])
 
     # pkgs.clang_13
 
