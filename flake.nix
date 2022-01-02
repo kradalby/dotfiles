@@ -20,6 +20,11 @@
 
     nur.url = github:nix-community/NUR;
 
+    fenix = {
+      url = "github:nix-community/fenix";
+      # inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # Only pull from 'trunk' when channels are blocked by a Hydra jobset
     # failure or the 'unstable' channel has not otherwise updated recently for
     # some other reason.
@@ -46,6 +51,7 @@
     , home-manager-unstable
     , sops-nix
     , nur
+    , fenix
     , trunk
       # , nixops-plugged
       # , deploy-flake
@@ -66,7 +72,7 @@
           sops.defaultSopsFile = ./secrets.yaml;
         })
 
-        ({ nixpkgs.overlays = [ nur.overlay overlay-pkgs ]; })
+        ({ nixpkgs.overlays = [ nur.overlay overlay-pkgs fenix.overlay ]; })
       ];
 
       nixosBox = arch: base: homeBase: name: base.lib.nixosSystem {
