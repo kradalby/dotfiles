@@ -56,50 +56,78 @@ return require("packer").startup(
             "hrsh7th/nvim-cmp",
             config = function()
                 local cmp = require "cmp"
-                cmp.setup {
-                    snippet = {
-                        expand = function(args)
-                            vim.fn["vsnip#anonymous"](args.body)
-                        end
-                    },
-                    sources = {
-                        {name = "nvim_lsp"},
-                        {name = "path"},
-                        {name = "buffer"},
-                        {name = "rg", option = {debounce = 500}},
-                        -- {name = "treesitter"},
-                        {name = "vsnip"}
-                    },
-                    formatting = {
-                        format = require("lspkind").cmp_format(
+                cmp.setup(
+                    {
+                        snippet = {
+                            expand = function(args)
+                                vim.fn["vsnip#anonymous"](args.body)
+                            end
+                        },
+                        sources = {
+                            {name = "nvim_lsp"},
+                            {name = "path"},
+                            {name = "buffer"},
+                            {name = "rg", option = {debounce = 500}},
+                            -- {name = "treesitter"},
+                            {name = "vsnip"}
+                        },
+                        formatting = {
+                            format = require("lspkind").cmp_format(
+                                {
+                                    with_text = true,
+                                    maxwidth = 80,
+                                    menu = ({
+                                        buffer = "[Buffer]",
+                                        nvim_lsp = "[LSP]",
+                                        luasnip = "[LuaSnip]",
+                                        nvim_lua = "[Lua]",
+                                        latex_symbols = "[Latex]"
+                                    })
+                                }
+                            )
+                        },
+                        mapping = {
+                            ["<CR>"] = cmp.mapping.confirm(
+                                {
+                                    behavior = cmp.ConfirmBehavior.Replace,
+                                    select = true
+                                }
+                            )
+                        }
+                    }
+                )
+
+                -- Use buffer source for `/` (if you enabled `native_menu`, this won't work anymore).
+                cmp.setup.cmdline(
+                    "/",
+                    {
+                        sources = {
+                            {name = "buffer"}
+                        }
+                    }
+                )
+
+                -- Use cmdline & path source for ':' (if you enabled `native_menu`, this won't work anymore).
+                cmp.setup.cmdline(
+                    ":",
+                    {
+                        sources = cmp.config.sources(
                             {
-                                with_text = true,
-                                maxwidth = 80,
-                                menu = ({
-                                    buffer = "[Buffer]",
-                                    nvim_lsp = "[LSP]",
-                                    luasnip = "[LuaSnip]",
-                                    nvim_lua = "[Lua]",
-                                    latex_symbols = "[Latex]"
-                                })
-                            }
-                        )
-                    },
-                    mapping = {
-                        ["<CR>"] = cmp.mapping.confirm(
+                                {name = "path"}
+                            },
                             {
-                                behavior = cmp.ConfirmBehavior.Replace,
-                                select = true
+                                {name = "cmdline"}
                             }
                         )
                     }
-                }
+                )
             end,
             requires = {
                 "hrsh7th/cmp-buffer",
                 "hrsh7th/cmp-nvim-lsp",
                 "hrsh7th/cmp-path",
                 "hrsh7th/cmp-vsnip",
+                "hrsh7th/cmp-cmdline",
                 "hrsh7th/vim-vsnip",
                 "lukas-reineke/cmp-rg",
                 "onsails/lspkind-nvim"
