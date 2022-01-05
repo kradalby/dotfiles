@@ -3,12 +3,17 @@
   imports = [
     ../../common
     ./hardware-configuration.nix
+    ./syncthing.nix
   ];
 
   # NixOps
   # deployment = {
   #   targetHost = "dev.terra.fap.no";
   # };
+
+  environment.systemPackages = with pkgs; [
+    parted
+  ];
 
 
   networking = {

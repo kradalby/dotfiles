@@ -14,7 +14,6 @@
     pkgs.gox
     pkgs.hadolint
     pkgs.html-tidy
-    pkgs.nixpkgs-fmt
     pkgs.nodePackages.eslint_d
     pkgs.nodePackages.lua-fmt
     pkgs.nodePackages.prettier

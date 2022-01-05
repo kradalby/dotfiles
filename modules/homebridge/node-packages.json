@@ -1,0 +1,7 @@
+[
+  "homebridge",
+  "homebridge-config-ui-x",
+  "homebridge-philips-tv6",
+  "homebridge-mqttthing",
+  "homebridge-xiaomi-roborock-vacuum"
+]

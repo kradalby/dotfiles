@@ -4,7 +4,8 @@
   inputs = {
     nixos-old.url = github:NixOS/nixpkgs/nixos-21.05;
     nixos.url = github:NixOS/nixpkgs/nixos-21.11;
-    nixos-unstable.url = github:nixos/nixpkgs/nixpkgs-unstable;
+    nixos-unstable.url = github:NixOS/nixpkgs/nixpkgs-unstable;
+    nixos-master.url = github:NixOS/nixpkgs/master;
 
     nixos-hardware.url = github:NixOS/nixos-hardware;
 
@@ -45,6 +46,7 @@
     , nixos-old
     , nixos
     , nixos-unstable
+    , nixos-master
     , darwin
     , home-manager-old
     , home-manager
@@ -127,6 +129,7 @@
 
         # nixos-generate --system aarch64-linux -f sd-aarch64 -I nixpkgs=channel:nixos-unstable
         "storage-bassan" = nixosBox "aarch64-linux" nixos null "storage.bassan";
+        "home-ldn" = nixosBox "aarch64-linux" nixos-unstable null "home.ldn";
       };
 
       # darwin-rebuild switch --flake .#kramacbook
