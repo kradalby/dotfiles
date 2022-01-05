@@ -2,7 +2,9 @@
   environment.systemPackages = [
     pkgs.fish
 
-    # pkgs.unstable.neovim
+    pkgs.unstable.neovim
+    pkgs.vim
+    pkgs.babelfish
     pkgs.bat
     pkgs.coreutils
     pkgs.dos2unix
@@ -14,10 +16,10 @@
     pkgs.git
     pkgs.htop
     pkgs.jq
+    pkgs.lsof
     pkgs.mosh
     pkgs.ncdu
     pkgs.p7zip
-    pkgs.unzip
     pkgs.procs
     pkgs.python3
     pkgs.rclone
@@ -27,13 +29,18 @@
     pkgs.tldr
     pkgs.tmux
     pkgs.tree
+    pkgs.unzip
     pkgs.viddy
     pkgs.wget
     pkgs.yq
-    pkgs.babelfish
+    pkgs.usbutils
 
     # Neovim plugins
     pkgs.sqlite
     pkgs.gcc
+
+    # Nix tooling
+    pkgs.unstable.nodePackages.node2nix
+    pkgs.nixpkgs-fmt
   ];
 }
