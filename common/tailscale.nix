@@ -7,6 +7,8 @@
   # enable the tailscale service
   services.tailscale.enable = true;
 
+  systemd.services.tailscale.onFailure = [ "notify-email@%n.service" ];
+
   # create a oneshot job to authenticate to Tailscale
   systemd.services.tailscale-autoconnect = {
     description = "Automatic connection to Tailscale";

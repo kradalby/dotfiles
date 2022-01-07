@@ -7,7 +7,7 @@
     ./firewall.nix
     ./lldp.nix
     ./prometheus.nix
-    ./dns.nix
+    ./promtail.nix
     ./nix.nix
     ./time.nix
     ./timezone.nix

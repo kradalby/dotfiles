@@ -5,4 +5,6 @@
     enabledCollectors = [ "systemd" ];
     openFirewall = true;
   };
+
+  systemd.services."prometheus-node-exporter".onFailure = [ "notify-email@%n.service" ];
 }

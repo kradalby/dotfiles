@@ -78,6 +78,7 @@
       };
     };
   };
+  systemd.services.zigbee2mqtt.onFailure = [ "notify-email@%n.service" ];
 
   networking.firewall.allowedTCPPorts = [ 48080 ];
 

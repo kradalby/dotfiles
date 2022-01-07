@@ -1,10 +1,10 @@
 { config, lib, ... }:
 {
-  config = lib.mkIf (!config.boot.isContainer) {
-    services.openssh = {
-      enable = true;
-      openFirewall = true;
+  services.openssh = {
+    enable = true;
+    openFirewall = true;
 
-    };
   };
+
+  systemd.services.sshd.onFailure = [ "notify-email@%n.service" ];
 }
