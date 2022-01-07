@@ -83,6 +83,9 @@
           };
         };
 
+      # https://templates.blakadder.com/avatar_AWP14H.html
+      # Tasmota profile:
+      # {"NAME":"Avatar UK 10A","GPIO":[0,0,56,0,0,134,0,0,131,17,132,21,0],"FLAG":0,"BASE":45}
       mqttthingAvatarOutlet = name: type: topic:
         (mqttthing name type) //
         {

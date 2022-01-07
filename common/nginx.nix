@@ -8,7 +8,7 @@
     # Use recommended settings
     recommendedGzipSettings = true;
     recommendedOptimisation = true;
-    recommendedProxySettings = true;
+    recommendedProxySettings = false;
     recommendedTlsSettings = true;
 
     # Only allow PFS-enabled ciphers with AES256
@@ -42,6 +42,8 @@
       proxy_cookie_path / "/; secure; HttpOnly; SameSite=strict";
     '';
   };
+
+  systemd.services.nginx.onFailure = [ "notify-email@%n.service" ];
 
   networking.firewall.allowedTCPPorts = [ 80 443 ];
   networking.firewall.allowedUDPPorts = [ 443 ];

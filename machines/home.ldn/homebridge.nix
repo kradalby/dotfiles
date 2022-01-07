@@ -79,6 +79,8 @@ in
       HOMEBRIDGE_CONFIG_UI_PORT = "8581";
     };
 
+    onFailure = [ "notify-email@%n.service" ];
+
     preStart = ''
       cp -f ${configFile} ${dataDir}/config.json
       cp -f ${cieRgbConvert} ${dataDir}/cie-rgb-converter.js

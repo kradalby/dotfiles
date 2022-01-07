@@ -8,6 +8,9 @@
     ../../common/nginx.nix
     ../../common/containers.nix
 
+    ./sendmail.nix
+
+    ./restic.nix
     ./mqtt.nix
     ./zigbee2mqtt.nix
     ./homebridge.nix
@@ -60,6 +63,7 @@
 
   networking = {
     hostName = "home";
+    domain = "ldn.fap.no";
     nameservers = [
       "1.1.1.1"
       "1.0.0.1"
