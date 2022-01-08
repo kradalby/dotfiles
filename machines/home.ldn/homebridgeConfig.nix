@@ -155,7 +155,7 @@
       (mqttthingTradfriColour "Bedroom Speaker" "lightbulb" "bedroom-speaker-light")
 
       (mqttthingTradfri "Entrance Ceiling" "lightbulb" "entrance-light")
-      (mqttthingTradfri "Bedroom Ceiling" "lightbulb" "bedroom-light")
+      (mqttthingTradfri "Bedroom Ceiling" "lightbulb" "bedroom-ceiling-light")
 
       (mqttthingAvatarOutlet "Bedroom Nook" "outlet" "tasmota_C39499")
       (mqttthingAvatarOutlet "Bedroom Desk" "outlet" "tasmota_C38721")
