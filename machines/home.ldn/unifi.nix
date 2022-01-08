@@ -19,33 +19,45 @@
   services.nginx.virtualHosts."unifi.ldn.fap.no" = {
     forceSSL = true;
     useACMEHost = "unifi.ldn.fap.no";
-    locations."/" = {
-      proxyPass = "https://127.0.0.1:8443";
-      proxyWebsockets = true;
-      extraConfig =
-        # "proxy_set_header Host $host;" +
-        # "proxy_set_header X-Real-IP $remote_addr;" +
-        #  "proxy_set_header X-Forward-For $proxy_add_x_forwarded_for;" +
-        #  "proxy_read_timeout 86400;" +
-        "proxy_set_header Referer '';" +
-        "proxy_set_header Origin '';" +
-        "proxy_ssl_verify off;" +
-        "proxy_ssl_session_reuse on;" +
-        "proxy_buffering off;" +
-        "proxy_hide_header Authorization;"
-      ;
+    locations = {
+      "/" = {
+        proxyPass = "https://localhost:8443/";
+        proxyWebsockets = true;
+        extraConfig = ''
+          proxy_set_header Accept-Encoding "";
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+          proxy_set_header Front-End-Https on;
+          proxy_redirect off;
+          '';
+      };
     };
-    # locations."/wss" = {
-    #   proxyPass = "https://127.0.0.1:8443";
-    #   proxyWebsockets = true;
-    #   #  extraConfig =
-    #   #"proxy_set_header Upgrade $http_upgrade;" +
-    #   #''proxy_set_header Connection "upgrade";'' +
-    #   #"proxy_set_header Origin '';" +
-    #   #"proxy_buffering off;" +
-    #   #"proxy_hide_header Authorization;" +
-    #   #"proxy_set_header Referer '';" 
-    #   #  ;
-    # };
   };
+    # nginx.config = ''
+    #   server {
+    #     listen *:443 ssl http2;
+    #     listen [::]:443 ssl http2;
+    #     server_name unifi.ldn.fap.no;
+    #     location / {
+
+    #       proxy_set_header Accept-Encoding "";
+    #       proxy_set_header Host $http_host;
+    #       proxy_set_header X-Real-IP $remote_addr;
+    #       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    #       proxy_set_header X-Forwarded-Proto $scheme;
+    #       proxy_pass https://localhost:8443/;
+    #       proxy_set_header Front-End-Https on;
+    #       proxy_redirect off;
+    #     }
+    #     ${import sub/ssl-settings.nix { inherit domain; }}
+    #   }
+
+    #   server {
+    #     listen *:80;
+    #     listen [::]:80;
+    #     server_name unifi.ldn.fap.no;
+    #     rewrite ^(.*) https://unifi.ldn.fap.no$1 permanent;
+    #   }
+    # '';
 }
