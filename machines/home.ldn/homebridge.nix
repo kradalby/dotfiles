@@ -80,7 +80,7 @@ in
     environment = {
       HOMEBRIDGE_INSECURE = "1";
       HOMEBRIDGE_CONFIG_UI = "1";
-      HOMEBRIDGE_CONFIG_UI_PORT = homebridgeUIPort;
+      HOMEBRIDGE_CONFIG_UI_PORT = (toString homebridgeUIPort);
     };
 
     onFailure = [ "notify-email@%n.service" ];
@@ -125,7 +125,7 @@ in
     forceSSL = true;
     useACMEHost = domain;
     locations."/" = {
-      proxyPass = "http://127.0.0.1:${homebridgeUIPort}";
+      proxyPass = "http://127.0.0.1:${toString homebridgeUIPort}";
       # proxyWebsockets = true;
     };
   };
