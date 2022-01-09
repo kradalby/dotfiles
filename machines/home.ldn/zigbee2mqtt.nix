@@ -83,7 +83,7 @@ in
   };
   systemd.services.zigbee2mqtt.onFailure = [ "notify-email@%n.service" ];
 
-  networking.firewall.allowedTCPPorts = [ config.services.zigbee2mqtt.frontend.port ];
+  networking.firewall.allowedTCPPorts = [ config.services.zigbee2mqtt.settings.frontend.port ];
 
   security.acme.certs."${domain}".domain = domain;
 
@@ -91,7 +91,7 @@ in
     forceSSL = true;
     useACMEHost = domain;
     locations."/" = {
-      proxyPass = "http://127.0.0.1:${config.services.zigbee2mqtt.frontend.port}";
+      proxyPass = "http://127.0.0.1:${toString config.services.zigbee2mqtt.settings.frontend.port}";
       proxyWebsockets = true;
     };
   };
