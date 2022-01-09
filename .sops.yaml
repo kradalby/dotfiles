@@ -5,6 +5,7 @@ keys:
   # Hosts
   - &dev-terra age1zup0zex6cfejdg7kzvj3elm4tt38s83fd27q5y70evq0rrl4fvdqrnr24e
   - &home-ldn age16rv4qtm9hsqgxq474qvhy2nzqsp3m9nlk9fd9kk26afnvt4fw4rs3hpdku
+  - &core-ntnu age1h78pteaed78vwff8df72nxxqasc2nvnuwlk83fcgudusppru849q9ft5y9
 
     # command to add a new age key for a new host
     # nix-shell -p ssh-to-age --run "ssh-keyscan $host | ssh-to-age"
@@ -16,3 +17,4 @@ creation_rules:
           - *kradalby
           - *dev-terra
           - *home-ldn
+          - *core-ntnu
