@@ -30,34 +30,34 @@
           proxy_set_header X-Forwarded-Proto $scheme;
           proxy_set_header Front-End-Https on;
           proxy_redirect off;
-          '';
+        '';
       };
     };
   };
-    # nginx.config = ''
-    #   server {
-    #     listen *:443 ssl http2;
-    #     listen [::]:443 ssl http2;
-    #     server_name unifi.ldn.fap.no;
-    #     location / {
+  # nginx.config = ''
+  #   server {
+  #     listen *:443 ssl http2;
+  #     listen [::]:443 ssl http2;
+  #     server_name unifi.ldn.fap.no;
+  #     location / {
 
-    #       proxy_set_header Accept-Encoding "";
-    #       proxy_set_header Host $http_host;
-    #       proxy_set_header X-Real-IP $remote_addr;
-    #       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    #       proxy_set_header X-Forwarded-Proto $scheme;
-    #       proxy_pass https://localhost:8443/;
-    #       proxy_set_header Front-End-Https on;
-    #       proxy_redirect off;
-    #     }
-    #     ${import sub/ssl-settings.nix { inherit domain; }}
-    #   }
+  #       proxy_set_header Accept-Encoding "";
+  #       proxy_set_header Host $http_host;
+  #       proxy_set_header X-Real-IP $remote_addr;
+  #       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  #       proxy_set_header X-Forwarded-Proto $scheme;
+  #       proxy_pass https://localhost:8443/;
+  #       proxy_set_header Front-End-Https on;
+  #       proxy_redirect off;
+  #     }
+  #     ${import sub/ssl-settings.nix { inherit domain; }}
+  #   }
 
-    #   server {
-    #     listen *:80;
-    #     listen [::]:80;
-    #     server_name unifi.ldn.fap.no;
-    #     rewrite ^(.*) https://unifi.ldn.fap.no$1 permanent;
-    #   }
-    # '';
+  #   server {
+  #     listen *:80;
+  #     listen [::]:80;
+  #     server_name unifi.ldn.fap.no;
+  #     rewrite ^(.*) https://unifi.ldn.fap.no$1 permanent;
+  #   }
+  # '';
 }
