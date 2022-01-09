@@ -74,12 +74,12 @@
             setBrightness = {
               topic = "zigbee2mqtt/${topic}/set";
             };
-          };
-          getColorTemprature = {
-            topic = "zigbee2mqtt/${topic}";
-          };
-          setColorTemprature = {
-            topic = "zigbee2mqtt/${topic}/set";
+            getColorTemprature = {
+              topic = "zigbee2mqtt/${topic}";
+            };
+            setColorTemprature = {
+              topic = "zigbee2mqtt/${topic}/set";
+            };
           };
         };
 
