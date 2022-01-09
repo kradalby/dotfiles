@@ -1,4 +1,3 @@
-{ config, lib, pkgs, ... }:
 let
   serverPeer = name:
     let
@@ -34,18 +33,11 @@ let
     {
       ips = wireguardConfig.addresses ++ wireguardConfig.additional_networks;
       listenPort = wireguardConfig.endpoint_port;
-      privateKey = privateKeyPath;
+      privateKeyFile = privateKeyPath;
       peers = servers ++ clients;
     };
 in
 {
-  # Usage: 
-  # networking.wireguard = {
-  #   enable = true;
-  #   interfaces = {
-  #     wg0 = (import ./common/funcs/wireguard.nix).server "ntnu" config.sops.secrets.wireguard-ntnu.path;
-  #   };
-  # };
   inherit server;
 }
 
