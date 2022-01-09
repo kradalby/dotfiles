@@ -125,7 +125,8 @@
     {
 
       nixosConfigurations = {
-        "dev.terra" = nixosBox "x86_64-linux" nixos home-manager-unstable "dev.terra";
+        "dev-terra" = nixosBox "x86_64-linux" nixos home-manager-unstable "dev.terra";
+        "core-ntnu" = nixosBox "x86_64-linux" nixos null "core.ntnu";
 
         # nixos-generate --system aarch64-linux -f sd-aarch64 -I nixpkgs=channel:nixos-unstable
         "storage-bassan" = nixosBox "aarch64-linux" nixos null "storage.bassan";
