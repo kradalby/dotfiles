@@ -1,9 +1,13 @@
 { config, pkgs, lib, ... }:
 let
+  domain = "homebridge.${config.networking.domain}";
+
   dataDir = "/var/lib/homebridge";
 
   homebridgeConfig = import ./homebridgeConfig.nix;
   configFile = pkgs.writeText "config.json" (builtins.toJSON homebridgeConfig);
+
+  homebridgeUIPort = (builtins.elemAt homebridgeConfig.platforms 0).port;
 
   startupFile = pkgs.writeText "startup.sh" ''
     #!/bin/sh
@@ -53,8 +57,8 @@ in
 
   users.groups.homebridge = { };
 
-  networking.firewall.allowedTCPPorts = [ 51781 ];
-  networking.firewall.allowedUDPPorts = [ 51781 1900 5350 5351 5353 ];
+  networking.firewall.allowedTCPPorts = [ homebridgeConfig.bridge.port ];
+  networking.firewall.allowedUDPPorts = [ homebridgeConfig.bridge.port 1900 5350 5351 5353 ];
 
   systemd.services.homebridge = {
     enable = true;
@@ -76,7 +80,7 @@ in
     environment = {
       HOMEBRIDGE_INSECURE = "1";
       HOMEBRIDGE_CONFIG_UI = "1";
-      HOMEBRIDGE_CONFIG_UI_PORT = "8581";
+      HOMEBRIDGE_CONFIG_UI_PORT = homebridgeUIPort;
     };
 
     onFailure = [ "notify-email@%n.service" ];
@@ -115,13 +119,13 @@ in
   #   ];
   # };
 
-  security.acme.certs."homebridge.ldn.fap.no".domain = "homebridge.ldn.fap.no";
+  security.acme.certs."${domain}".domain = domain;
 
-  services.nginx.virtualHosts."homebridge.ldn.fap.no" = {
+  services.nginx.virtualHosts."${domain}" = {
     forceSSL = true;
-    useACMEHost = "homebridge.ldn.fap.no";
+    useACMEHost = domain;
     locations."/" = {
-      proxyPass = "http://127.0.0.1:8581";
+      proxyPass = "http://127.0.0.1:${homebridgeUIPort}";
       # proxyWebsockets = true;
     };
   };

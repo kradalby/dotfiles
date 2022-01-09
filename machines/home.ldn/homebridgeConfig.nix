@@ -2,7 +2,7 @@
   bridge = {
     name = "Homebridge RPi";
     username = "0E:76:D4:0C:2D:7A";
-    port = "51781";
+    port = 51781;
     pin = "031-45-154";
   };
   accessories =
