@@ -118,7 +118,9 @@
         configuration.imports = [ ./home ];
         extraModules =
           commonModules ++
-          [ (./. + "/machines/${machine.hostname}") ];
+          [
+            (./. + "/machines/${machine.hostname}")
+          ];
 
       };
     in
