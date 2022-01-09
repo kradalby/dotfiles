@@ -1,4 +1,7 @@
 { config, lib, ... }:
+let
+  domain = "zigbee2mqtt.${config.networking.domain}";
+in
 {
   services.zigbee2mqtt = {
     enable = true;
@@ -80,15 +83,15 @@
   };
   systemd.services.zigbee2mqtt.onFailure = [ "notify-email@%n.service" ];
 
-  networking.firewall.allowedTCPPorts = [ 48080 ];
+  networking.firewall.allowedTCPPorts = [ config.services.zigbee2mqtt.frontend.port ];
 
-  security.acme.certs."zigbee2mqtt.ldn.fap.no".domain = "zigbee2mqtt.ldn.fap.no";
+  security.acme.certs."${domain}".domain = domain;
 
-  services.nginx.virtualHosts."zigbee2mqtt.ldn.fap.no" = {
+  services.nginx.virtualHosts."${domain}" = {
     forceSSL = true;
-    useACMEHost = "zigbee2mqtt.ldn.fap.no";
+    useACMEHost = domain;
     locations."/" = {
-      proxyPass = "http://127.0.0.1:48080";
+      proxyPass = "http://127.0.0.1:${config.services.zigbee2mqtt.frontend.port}";
       proxyWebsockets = true;
     };
   };

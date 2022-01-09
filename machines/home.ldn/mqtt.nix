@@ -1,4 +1,7 @@
 { config, lib, ... }:
+let
+  port = 1883;
+in
 {
   services.mosquitto = {
     enable = true;
@@ -7,6 +10,7 @@
     listeners = [
       {
         address = "0.0.0.0";
+        port = port;
         users = {
           zigbee2mqtt = {
             acl = [
@@ -42,6 +46,6 @@
 
   systemd.services.mosquitto.onFailure = [ "notify-email@%n.service" ];
 
-  networking.firewall.allowedTCPPorts = [ 1883 ];
-  networking.firewall.allowedUDPPorts = [ 1883 ];
+  networking.firewall.allowedTCPPorts = [ port ];
+  networking.firewall.allowedUDPPorts = [ port ];
 }
