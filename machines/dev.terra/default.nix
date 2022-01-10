@@ -18,6 +18,7 @@
 
   networking = {
     hostName = "dev";
+    domain = "terra.fap.no";
     nameservers = [
       "8.8.8.8"
     ];
