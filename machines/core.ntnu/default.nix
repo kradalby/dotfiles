@@ -97,7 +97,6 @@ in
     node = {
       enable = true;
       enabledCollectors = [
-        "systemd"
         "tcpstat"
         "conntrack"
         "diskstats"
