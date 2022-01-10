@@ -9,7 +9,8 @@ in
   imports = [
     ../../common
     ./hardware-configuration.nix
-    ./wireguard-server.nix
+    ./wireguard.nix
+    ./tailscale.nix
   ];
 
   environment.systemPackages = with pkgs; [
