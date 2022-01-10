@@ -2,6 +2,7 @@
 {
   require = [
     ./cpufreq.nix
+    ./consul.nix
     ./users.nix
     ./ssh.nix
     ./firewall.nix
