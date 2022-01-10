@@ -33,7 +33,10 @@
     pkgs.viddy
     pkgs.wget
     pkgs.yq
-    pkgs.usbutils
+    pkgs.rsync
+
+    # Linux only
+    # pkgs.usbutils
 
     # Neovim plugins
     pkgs.sqlite
