@@ -42,7 +42,7 @@ in
       "1.0.0.1"
     ];
     defaultGateway = "129.241.210.1";
-    defaultGateway6 = "";
+    defaultGateway6 = "2001:700:300:2000::1";
     dhcpcd.enable = false;
     usePredictableInterfaceNames = lib.mkForce true;
 
@@ -55,6 +55,9 @@ in
         useDHCP = false;
         ipv4.addresses = [
           { address = "129.241.210.106"; prefixLength = 25; }
+        ];
+        ipv6.addresses = [
+          { address = "2001:700:300:2000::106"; prefixLength = 64; }
         ];
       };
       br0 = {
@@ -72,7 +75,9 @@ in
       internalIPs = [ "10.0.0.0/8" ];
       internalInterfaces = internalInterfaces;
       forwardPorts = [
-        # { sourcePort = 1194; destination = "10.40.33.20:1194"; proto = "udp"; }
+        { sourcePort = 64322; destination = "10.61.0.1:22"; proto = "tcp"; }
+        { sourcePort = 500; destination = "10.61.0.1:51820"; proto = "udp"; }
+        { sourcePort = 4500; destination = "10.61.0.1:51820"; proto = "udp"; }
       ];
     };
   };
