@@ -3,7 +3,6 @@ let
   wgFuncs = import ../../common/funcs/wireguard.nix;
 in
 {
-
   sops.secrets.wireguard-ntnu = { };
   networking.wireguard = {
     enable = true;
@@ -13,6 +12,5 @@ in
   };
 
   networking.firewall.allowedUDPPorts = [ config.networking.wireguard.interfaces.wg0.listenPort ];
-
 }
 
