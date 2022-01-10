@@ -15,8 +15,18 @@ Host *.te
     User root
     Port 22
 
+Host *.terra
+    HostName %h.fap.no
+    User root
+    Port 22
+
 Host *.tj
     HostName %hoda.fap.no
+    User root
+    Port 22
+
+Host *.tjoda
+    HostName %h.fap.no
     User root
     Port 22
 
@@ -25,13 +35,28 @@ Host *.n
     User root
     Port 22
 
+Host *.ntnu
+    HostName %h.fap.no
+    User root
+    Port 22
+
 Host *.l
     HostName %hdn.fap.no
     User root
     Port 22
 
+Host *.ldn
+    HostName %h.fap.no
+    User root
+    Port 22
+
 Host *.or
     HostName %hacle-ldn.fap.no
+    User root
+    Port 22
+
+Host *.oracle-ldn
+    HostName %h.fap.no
     User root
     Port 22
 
