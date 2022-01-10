@@ -20,7 +20,7 @@
     pkgs.nodejs
     pkgs.poetry
     pkgs.pre-commit
-    pkgs.rnix-lsp
+    # pkgs.rnix-lsp
     pkgs.shfmt
     pkgs.yarn
 
