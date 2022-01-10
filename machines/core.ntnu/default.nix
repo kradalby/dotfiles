@@ -11,6 +11,7 @@ in
     ./hardware-configuration.nix
     ./wireguard.nix
     ./tailscale.nix
+    ./consul.nix
   ];
 
   environment.systemPackages = with pkgs; [
