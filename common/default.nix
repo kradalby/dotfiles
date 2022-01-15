@@ -5,6 +5,7 @@
     ./consul.nix
     ./users.nix
     ./ssh.nix
+    ./environment.nix
     ./firewall.nix
     ./lldp.nix
     ./prometheus.nix
@@ -14,5 +15,8 @@
     ./timezone.nix
     ./tmp.nix
     ./util.nix
+    ./network.nix
+    # ./sendmail.nix
+    ./senddiscord.nix
   ];
 }

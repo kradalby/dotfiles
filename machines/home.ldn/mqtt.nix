@@ -44,7 +44,7 @@ in
     ];
   };
 
-  systemd.services.mosquitto.onFailure = [ "notify-email@%n.service" ];
+  systemd.services.mosquitto.onFailure = [ "notify-discord@%n.service" ];
 
   networking.firewall.allowedTCPPorts = [ port ];
   networking.firewall.allowedUDPPorts = [ port ];

@@ -1,11 +1,11 @@
 { pkgs, ... }: {
-  home.packages = [
-    pkgs.unstable.speedtest-cli
-    pkgs.yamllint
-    pkgs.tmuxinator
-    pkgs.shellcheck
-    pkgs.sops
-    pkgs.age
-    pkgs.ssh-to-age
+  home.packages = with pkgs; [
+    unstable.speedtest-cli
+    yamllint
+    tmuxinator
+    shellcheck
+    sops
+    age
+    ssh-to-age
   ];
 }

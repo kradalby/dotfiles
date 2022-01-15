@@ -6,7 +6,7 @@
     openFirewall = true;
   };
 
-  systemd.services."prometheus-node-exporter".onFailure = [ "notify-email@%n.service" ];
+  systemd.services."prometheus-node-exporter".onFailure = [ "notify-discord@%n.service" ];
 
   my.consulServices.node_exporter = {
     name = "node_exporter";

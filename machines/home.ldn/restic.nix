@@ -18,8 +18,8 @@ let
       };
     };
 
-    systemd.timers."restic-backups-${site}".onFailure = [ "notify-email@%n.service" ];
-    systemd.services."restic-backups-${site}".onFailure = [ "notify-email@%n.service" ];
+    systemd.timers."restic-backups-${site}".onFailure = [ "notify-discord@%n.service" ];
+    systemd.services."restic-backups-${site}".onFailure = [ "notify-discord@%n.service" ];
 
   };
 

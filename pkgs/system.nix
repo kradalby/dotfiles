@@ -1,49 +1,50 @@
 { pkgs, ... }: {
-  environment.systemPackages = [
-    pkgs.fish
+  environment.systemPackages = with pkgs; [
+    fish
 
-    pkgs.unstable.neovim
-    pkgs.vim
-    pkgs.babelfish
-    pkgs.bat
-    pkgs.coreutils
-    pkgs.dos2unix
-    pkgs.exa
-    pkgs.fd
-    pkgs.fdupes
-    pkgs.fish
-    pkgs.fzf
-    pkgs.git
-    pkgs.htop
-    pkgs.jq
-    pkgs.lsof
-    pkgs.mosh
-    pkgs.ncdu
-    pkgs.p7zip
-    pkgs.procs
-    pkgs.python3
-    pkgs.rclone
-    pkgs.restic
-    pkgs.ripgrep
-    pkgs.socat
-    pkgs.tldr
-    pkgs.tmux
-    pkgs.tree
-    pkgs.unzip
-    pkgs.viddy
-    pkgs.wget
-    pkgs.yq
-    pkgs.rsync
+    unstable.neovim
+    dig
+    vim
+    babelfish
+    bat
+    coreutils
+    dos2unix
+    exa
+    fd
+    fdupes
+    fish
+    fzf
+    git
+    htop
+    jq
+    lsof
+    mosh
+    ncdu
+    p7zip
+    procs
+    python3
+    rclone
+    restic
+    ripgrep
+    socat
+    tldr
+    tmux
+    tree
+    unzip
+    viddy
+    wget
+    yq
+    rsync
 
     # Linux only
-    # pkgs.usbutils
+    # usbutils
 
     # Neovim plugins
-    pkgs.sqlite
-    pkgs.gcc
+    sqlite
+    gcc
 
     # Nix tooling
-    pkgs.unstable.nodePackages.node2nix
-    pkgs.nixpkgs-fmt
+    unstable.nodePackages.node2nix
+    nixpkgs-fmt
   ];
 }

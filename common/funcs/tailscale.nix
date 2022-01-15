@@ -13,6 +13,8 @@ let
     # enable the tailscale service
     services.tailscale.enable = true;
 
+    systemd.services.tailscaled.onFailure = [ "notify-discord@%n.service" ];
+
     # create a oneshot job to authenticate to Tailscale
     systemd.services.tailscale-autoconnect = {
       description = "Automatic connection to Tailscale";
@@ -21,6 +23,7 @@ let
       after = [ "network-pre.target" "tailscale.service" ];
       wants = [ "network-pre.target" "tailscale.service" ];
       wantedBy = [ "multi-user.target" ];
+      onFailure = [ "notify-discord@%n.service" ];
 
       # set this service as a oneshot job
       serviceConfig.Type = "oneshot";

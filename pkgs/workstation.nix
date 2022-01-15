@@ -1,24 +1,24 @@
 { pkgs, ... }: {
-  home.packages = [
+  home.packages = with pkgs; [
     # Workstation
-    pkgs.ansible
-    pkgs.ansible-lint
-    pkgs.drone-cli
-    pkgs.exiftool
-    pkgs.ipcalc
-    pkgs.kubectl
-    pkgs.kubernetes-helm
-    pkgs.nmap
-    pkgs.prettyping
-    pkgs.qrencode
-    pkgs.terraform
-    pkgs.tflint
-    pkgs.tfsec
-    pkgs.nixopsUnstable
+    ansible
+    ansible-lint
+    drone-cli
+    exiftool
+    ipcalc
+    kubectl
+    kubernetes-helm
+    nmap
+    prettyping
+    qrencode
+    terraform
+    tflint
+    tfsec
+    nixopsUnstable
 
-    # pkgs.logcli
+    # logcli
 
-    pkgs.python39Packages.pipx
+    python39Packages.pipx
     # osxphotos
   ];
 }

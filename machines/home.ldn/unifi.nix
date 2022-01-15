@@ -8,7 +8,7 @@
     # initialJavaHeapSize = 1024;
     # maximumJavaHeapSize = 1536;
   };
-  systemd.services.unifi.onFailure = [ "notify-email@%n.service" ];
+  systemd.services.unifi.onFailure = [ "notify-discord@%n.service" ];
 
   # TODO: Remove 8443 when nginx can correctly proxy
   networking.firewall.allowedTCPPorts = [ 8443 ];

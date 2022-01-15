@@ -6,5 +6,5 @@
 
   };
 
-  systemd.services.sshd.onFailure = [ "notify-email@%n.service" ];
+  systemd.services.sshd.onFailure = [ "notify-discord@%n.service" ];
 }
