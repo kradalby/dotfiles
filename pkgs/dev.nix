@@ -1,30 +1,30 @@
 { pkgs, ... }: {
-  home.packages = [
+  home.packages = with pkgs; [
     # Development
-    pkgs.buf
-    pkgs.dockfmt
-    pkgs.dyff
-    pkgs.entr
-    pkgs.gh
-    pkgs.git-open
-    pkgs.go
-    pkgs.go-jsonnet
-    pkgs.gofumpt
-    pkgs.golangci-lint
-    pkgs.gox
-    pkgs.hadolint
-    pkgs.html-tidy
-    pkgs.nodePackages.eslint_d
-    pkgs.nodePackages.lua-fmt
-    pkgs.nodePackages.prettier
-    pkgs.nodejs
-    pkgs.poetry
-    pkgs.pre-commit
-    # pkgs.rnix-lsp
-    pkgs.shfmt
-    pkgs.yarn
+    buf
+    dockfmt
+    dyff
+    entr
+    gh
+    git-open
+    go
+    go-jsonnet
+    gofumpt
+    golangci-lint
+    gox
+    hadolint
+    html-tidy
+    nodePackages.eslint_d
+    nodePackages.lua-fmt
+    nodePackages.prettier
+    nodejs
+    poetry
+    pre-commit
+    # rnix-lsp
+    shfmt
+    yarn
 
-    (pkgs.fenix.complete.withComponents
+    (fenix.complete.withComponents
       [
         "cargo"
         "clippy"
@@ -33,12 +33,12 @@
         "rustfmt"
       ])
 
-    # pkgs.clang_13
+    # clang_13
 
-    # pkgs.golines
-    # pkgs.swiftlint
-    # pkgs.clang-format
-    # pkgs.hclfmt
+    # golines
+    # swiftlint
+    # clang-format
+    # hclfmt
 
   ];
 }

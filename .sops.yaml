@@ -3,8 +3,11 @@ keys:
   - &kradalby age1qup7qqaxqt82lu04f8l2lmmdmeyzv2fyen2re87d79mfyga76vesxmqpyc
 
   # Hosts
-  - &dev-terra age1zup0zex6cfejdg7kzvj3elm4tt38s83fd27q5y70evq0rrl4fvdqrnr24e
+  - &dev-terra age1ex64eqg9vl635slkfv2nnz9a4htcjnhunwdlwt2ylznw0h37a90s4t6zpx
+
+  - &core-ldn age1q8px893a4j0xxqln27zna2tslnk6v2f8l3u5rd88fqlwmnn664dslpp3cl
   - &home-ldn age16rv4qtm9hsqgxq474qvhy2nzqsp3m9nlk9fd9kk26afnvt4fw4rs3hpdku
+
   - &core-ntnu age1h78pteaed78vwff8df72nxxqasc2nvnuwlk83fcgudusppru849q9ft5y9
 
     # command to add a new age key for a new host
@@ -16,5 +19,6 @@ creation_rules:
       - age:
           - *kradalby
           - *dev-terra
+          - *core-ldn
           - *home-ldn
           - *core-ntnu

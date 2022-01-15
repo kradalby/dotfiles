@@ -21,6 +21,8 @@ onehost() {
 		--cvs-exclude \
 		--exclude=result \
 		--exclude=deploy \
+		--exclude=.mypy_cache \
+		--exclude=.pyre \
 		-auv . "root@${host}:/etc/nixos"
 
 	ssh -t "root@${host}" -- nixos-rebuild switch --flake "/etc/nixos#${profile}"

@@ -13,10 +13,20 @@
       "$HOME/.cargo/bin"
       "$HOME/.local/bin"
       "$HOME/.nixpkgs/bin"
+
+      # Load user profiles bin
+      "/etc/profiles/per-user/$USER/bin/"
+
+      # This is a workaround as the path is not 
+      # available to mosh unless its loaded here.
+      "/usr/local/bin"
+
+      # I dont think this should be needed, but it seems
+      # to disappair...
+      "/run/current-system/sw/bin"
     ];
 
     sessionVariables = {
-      LANG = "en_US.UTF-8";
       EDITOR = "nvim";
 
       # Apparently nix-direnv or direnv sets this to something weird
@@ -36,6 +46,11 @@
 
     packages = [
     ];
+
+    language = {
+      base = "en_US.UTF-8";
+      ctype = "";
+    };
 
 
     file = {

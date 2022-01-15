@@ -43,7 +43,7 @@
     '';
   };
 
-  systemd.services.nginx.onFailure = [ "notify-email@%n.service" ];
+  systemd.services.nginx.onFailure = [ "notify-discord@%n.service" ];
 
   networking.firewall.allowedTCPPorts = [ 80 443 ];
   networking.firewall.allowedUDPPorts = [ 443 ];

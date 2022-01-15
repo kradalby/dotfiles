@@ -83,7 +83,7 @@ in
       HOMEBRIDGE_CONFIG_UI_PORT = (toString homebridgeUIPort);
     };
 
-    onFailure = [ "notify-email@%n.service" ];
+    onFailure = [ "notify-discord@%n.service" ];
 
     preStart = ''
       cp -f ${configFile} ${dataDir}/config.json

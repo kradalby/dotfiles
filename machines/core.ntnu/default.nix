@@ -2,16 +2,20 @@
 let
   externalInterface = "ens33";
   internalInterfaces = [
-    "br0"
+    "lan"
   ];
 in
 {
   imports = [
     ../../common
+
+    ../../common/acme.nix
+    ../../common/nginx.nix
+    ../../common/consul-server.nix
+
     ./hardware-configuration.nix
     ./wireguard.nix
     ./tailscale.nix
-    ./consul.nix
   ];
 
   environment.systemPackages = with pkgs; [
@@ -48,7 +52,7 @@ in
     usePredictableInterfaceNames = lib.mkForce true;
 
     bridges = {
-      br0.interfaces = [ "ens34" ];
+      lan.interfaces = [ "ens34" ];
     };
 
     interfaces = {
@@ -61,7 +65,7 @@ in
           { address = "2001:700:300:2000::106"; prefixLength = 64; }
         ];
       };
-      br0 = {
+      lan = {
         useDHCP = false;
         ipv4.addresses = [
           { address = "10.61.0.1"; prefixLength = 24; }
@@ -85,7 +89,7 @@ in
 
   services.dhcpd4 = {
     enable = true;
-    interfaces = [ "br0" ];
+    interfaces = [ "lan" ];
     extraConfig = ''
       option domain-name-servers 1.0.0.1, 1.1.1.1;
       option subnet-mask 255.255.255.0;
@@ -93,11 +97,13 @@ in
       subnet 10.61.0.0 netmask 255.255.255.0 {
         option broadcast-address 10.61.0.255;
         option routers 10.61.0.1;
-        interface br0;
+        interface lan;
         range 10.61.0.200 10.61.0.230;
       }
     '';
   };
+
+  systemd.services.dhcpd4.onFailure = [ "notify-discord@%n.service" ];
 
   services.prometheus.exporters = {
     node = {
@@ -122,6 +128,7 @@ in
       ];
     };
   };
+
 
   boot.cleanTmpDir = true;
 

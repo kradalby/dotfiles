@@ -21,7 +21,7 @@ in
 
       root = {
         openssh.authorizedKeys.keys = keys;
-        shell = pkgs.zsh;
+        # shell = pkgs.zsh;
       };
     };
   };

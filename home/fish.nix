@@ -1,17 +1,11 @@
-{ pkgs, ... }:
+{ pkgs, config, ... }:
 {
+
+  imports = [ ../common/var.nix ];
+
   programs.fish = {
     enable = true;
     plugins = [
-      # {
-      #   name = "fish-kubectl-completions";
-      #   src = pkgs.fetchFromGitHub {
-      #     owner = "evanlucas";
-      #     repo = "fish-kubectl-completions";
-      #     rev = "ced676392575d618d8b80b3895cdc3159be3f628";
-      #     sha256 = "sha256-6oeyN9ngXWvps1c5QAUjlyPDQwRWAoxBiVTNmZ4sG8E=";
-      #   };
-      # }
       # Need this when using Fish as a default macOS shell in order to pick
       # up ~/.nix-profile/bin
       {
@@ -51,9 +45,9 @@
     # end
 
     shellInit = ''
-      if type -q babelfish
-        cat /etc/profiles/per-user/$USER/etc/profile.d/hm-session-vars.sh | babelfish | tail -n +5 | source
-      end
+      # if type -q ${pkgs.babelfish}
+        cat /etc/profiles/per-user/$USER/etc/profile.d/hm-session-vars.sh | ${pkgs.babelfish}/bin/babelfish | tail -n +5 | source
+      # end
 
       if test -f $HOME/Sync/fish/tokens.fish
           source $HOME/Sync/fish/tokens.fish
@@ -85,77 +79,7 @@
 
     # Abbreviate commonly used functions
     # An abbreviation will expand after <space> or <Enter> is hit
-    shellAbbrs = {
-      hm = "history merge";
-      mp = "multipass";
-      "..." = "cd ../..";
-
-      nix-kramacbook = "darwin-rebuild switch --flake ~/.nixpkgs/.#kramacbook";
-
-      ssh-rsakey = "ssh-keygen -t rsa -b 4096 -o -a 100";
-      ssh-ed25519key = "ssh-keygen -t ed25519 -o -a 100";
-
-      g = "git";
-      ga = "git add";
-      gap = "git add -p";
-      gaa = "git add --update .";
-      gco = "git checkout";
-      gcob = "git checkout -b";
-      gcom = "git checkout master";
-      gd = "git diff";
-      gb = "git branch";
-      gbd = "git branch -d ";
-      gp = "git pull";
-      gss = "git status -s";
-      gst = "git stash";
-      gstc = "git stash clear";
-      gm = "git merge --no-ff";
-      gr = "git rebase";
-      grom = "git rebase origin/master";
-      grc = "git rebase --continue";
-      gra = "git rebase --abort";
-      gfo = "git fetch origin";
-      gfu = "git fetch upstream";
-      gcum = "git checkout upstream/main";
-
-
-      k = "kubectl";
-      kg = "kubectl get";
-      kga = "kubectl get pods -o wide --all-namespaces --sort-by=.spec.nodeName";
-      kd = "kubectl describe";
-      kdel = "kubectl delete";
-      ke = "kubectl edit";
-      kaf = "kubectl apply -f";
-      kdelf = "kubectl delete -f";
-      kubuntu = "kubectl run --generator=run-pod/v1 ubuntu-shell --rm -i --tty --image ubuntu -- bash";
-      kbusy = "kubectl run --generator=run-pod/v1 busybox-shell --rm -i --tty --image busybox -- sh";
-
-      kc = "kubectl config use-context";
-      kgc = "kubectl config get-contexts";
-      kcn = "kubectl config set-context --current --namespace";
-
-      kl = "kubectl logs";
-      klf = "kubectl logs -f";
-
-      tf = "terraform";
-      tfi = "terraform init";
-      tfiu = "terraform init -upgrade";
-      tfp = "terraform plan";
-      tfa = "terraform apply";
-      tfaaa = "terraform apply -auto-approve";
-      tft = "terraform taint";
-
-      lc = "logcli";
-      lcq = "logcli query";
-      lcl = "logcli labels";
-      lcljob = "logcli labels job";
-      lclapp = "logcli labels app";
-
-      m = "make";
-      n = "nvim";
-      o = "open";
-      p = "python3";
-    };
+    shellAbbrs = config.my.shellAliases // { };
 
     # TODO: Figure out what this is renamed to
     functions = {

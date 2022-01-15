@@ -34,5 +34,5 @@
     };
   };
 
-  systemd.services.promtail.onFailure = [ "notify-email@%n.service" ];
+  systemd.services.promtail.onFailure = [ "notify-discord@%n.service" ];
 }
