@@ -1,27 +1,7 @@
 { config, lib, ... }:
 let
-  resticBackup = site: secret: directories: {
-    sops.secrets."${secret}" = { };
-    services.restic.backups."${site}" = {
-      repository = "rest:https://restic.core.${site}.fap.no/${config.networking.fqdn}";
-      paths = directories;
-      pruneOpts = [
-        "--keep-daily 7"
-        "--keep-weekly 5"
-        "--keep-monthly 12"
-        "--keep-yearly 75"
-      ];
-      initialize = true;
-      passwordFile = config.sops.secrets."${secret}".path;
-      timerConfig = {
-        OnCalendar = "hourly";
-      };
-    };
-
-    systemd.timers."restic-backups-${site}".onFailure = [ "notify-discord@%n.service" ];
-    systemd.services."restic-backups-${site}".onFailure = [ "notify-discord@%n.service" ];
-
-  };
+  restic = import ../../common/funcs/restic.nix { inherit config; };
+  helpers = import ../../common/funcs/helpers.nix { inherit lib; };
 
   directories = [
     "/etc/nixos"
@@ -31,6 +11,7 @@ let
   ];
 in
 
-(resticBackup "tjoda" "restic-ldn-home-token" directories)
-  //
-(resticBackup "terra" "restic-ldn-home-token" directories)
+helpers.recursiveMerge [
+  (restic.backupJob "tjoda" "restic-ldn-home-token" directories)
+  (restic.backupJob "terra" "restic-ldn-home-token" directories)
+]

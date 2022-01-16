@@ -1,10 +1,4 @@
 { config, flakes, pkgs, lib, ... }:
-let
-  externalInterface = "ens33";
-  internalInterfaces = [
-    "lan"
-  ];
-in
 {
   imports = [
     ../../common
@@ -17,6 +11,9 @@ in
     ./wireguard.nix
     ./tailscale.nix
   ];
+
+  my.wan = "ens33";
+  my.lan = "lan";
 
   environment.systemPackages = with pkgs; [
   ];
@@ -35,8 +32,8 @@ in
     "net.ipv6.conf.all.use_tempaddr" = 0;
 
     # On WAN, allow IPv6 autoconfiguration and tempory address use.
-    "net.ipv6.conf.${externalInterface}.accept_ra" = 2;
-    "net.ipv6.conf.${externalInterface}.autoconf" = 1;
+    "net.ipv6.conf.${config.my.wan}.accept_ra" = 2;
+    "net.ipv6.conf.${config.my.wan}.autoconf" = 1;
   };
 
   networking = {
@@ -56,7 +53,7 @@ in
     };
 
     interfaces = {
-      "${externalInterface}" = {
+      "${config.my.wan}" = {
         useDHCP = false;
         ipv4.addresses = [
           { address = "129.241.210.106"; prefixLength = 25; }
@@ -76,9 +73,9 @@ in
 
     nat = {
       enable = true;
-      externalInterface = "${externalInterface}";
+      externalInterface = "${config.my.wan}";
       internalIPs = [ "10.0.0.0/8" ];
-      internalInterfaces = internalInterfaces;
+      internalInterfaces = [ config.my.lan ];
       forwardPorts = [
         { sourcePort = 64322; destination = "10.61.0.1:22"; proto = "tcp"; }
         { sourcePort = 500; destination = "10.61.0.1:51820"; proto = "udp"; }
@@ -89,7 +86,7 @@ in
 
   services.dhcpd4 = {
     enable = true;
-    interfaces = [ "lan" ];
+    interfaces = [ config.my.lan ];
     extraConfig = ''
       option domain-name-servers 1.0.0.1, 1.1.1.1;
       option subnet-mask 255.255.255.0;
@@ -97,7 +94,7 @@ in
       subnet 10.61.0.0 netmask 255.255.255.0 {
         option broadcast-address 10.61.0.255;
         option routers 10.61.0.1;
-        interface lan;
+        interface ${config.my.lan};
         range 10.61.0.200 10.61.0.230;
       }
     '';
@@ -105,29 +102,6 @@ in
 
   systemd.services.dhcpd4.onFailure = [ "notify-discord@%n.service" ];
 
-  services.prometheus.exporters = {
-    node = {
-      enable = true;
-      enabledCollectors = [
-        "tcpstat"
-        "conntrack"
-        "diskstats"
-        "entropy"
-        "filefd"
-        "filesystem"
-        "loadavg"
-        "meminfo"
-        "netdev"
-        "netstat"
-        "stat"
-        "time"
-        "vmstat"
-        "logind"
-        "interrupts"
-        "ksmd"
-      ];
-    };
-  };
 
 
   boot.cleanTmpDir = true;

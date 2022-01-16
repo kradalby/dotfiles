@@ -13,8 +13,11 @@
     ./mqtt.nix
     ./zigbee2mqtt.nix
     ./homebridge.nix
+    # ./scrypted.nix
     ./unifi.nix
   ];
+
+  my.lan = "eth0";
 
   networking = {
     hostName = "home";
@@ -27,7 +30,7 @@
     dhcpcd.enable = false;
     usePredictableInterfaceNames = lib.mkForce true;
     useDHCP = false;
-    interfaces.eth0 = {
+    interfaces."${config.my.lan}" = {
       useDHCP = false;
       ipv4.addresses = [
         { address = "10.65.0.25"; prefixLength = 24; }

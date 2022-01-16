@@ -1,6 +1,12 @@
 { config, ... }:
 let
   domain = "consul.${config.networking.domain}";
+
+
+  sites = import ../metadata/consul.nix;
+  currentSite = builtins.replaceStrings [ ".fap.no" ] [ "" ] config.networking.domain;
+
+  peers = builtins.removeAttrs sites [ currentSite ];
 in
 {
 
@@ -17,7 +23,7 @@ in
       bind_addr = ''{{ GetInterfaceIP "${config.my.lan}" }}'';
 
       retry_join = [ ];
-      retry_join_wan = [ ];
+      retry_join_wan = builtins.attrValues peers;
 
       connect = {
         enabled = true;

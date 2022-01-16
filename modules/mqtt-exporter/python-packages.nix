@@ -3,4 +3,33 @@
 
 { pkgs, fetchurl, fetchgit, fetchhg }:
 
-self: super: { 
+self: super: {
+  "paho-mqtt" = super.buildPythonPackage rec {
+    pname = "paho-mqtt";
+    version = "1.6.1";
+    src = fetchurl {
+      url = "https://files.pythonhosted.org/packages/f8/dd/4b75dcba025f8647bc9862ac17299e0d7d12d3beadbf026d8c8d74215c12/paho-mqtt-1.6.1.tar.gz";
+      sha256 = "0vy2xy78nqqqwbgk96cfrb5lgivjldc5ba5mf81w1bi32v4930ia";
+    };
+    format = "setuptools";
+    doCheck = false;
+    buildInputs = [];
+    checkInputs = [];
+    nativeBuildInputs = [];
+    propagatedBuildInputs = [];
+  };
+  "prometheus-client" = super.buildPythonPackage rec {
+    pname = "prometheus-client";
+    version = "0.12.0";
+    src = fetchurl {
+      url = "https://files.pythonhosted.org/packages/df/6c/6c5f9404977f8f9caa30c1a408f6cc5ea6e0c1949761f24d0a33239b49c5/prometheus_client-0.12.0-py2.py3-none-any.whl";
+      sha256 = "1w0a980dsc3jjnv1rdkjf2g4iqr1mgxqww3zvw11n2pzmgmm6x1i";
+    };
+    format = "wheel";
+    doCheck = false;
+    buildInputs = [];
+    checkInputs = [];
+    nativeBuildInputs = [];
+    propagatedBuildInputs = [];
+  };
+}

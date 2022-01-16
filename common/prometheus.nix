@@ -3,13 +3,14 @@
   services.prometheus.exporters.node = lib.mkIf (!config.boot.isContainer) {
     enable = true;
     enabledCollectors = [ "systemd" ];
-    openFirewall = true;
   };
+
+  networking.firewall.interfaces."${config.my.lan}".allowedTCPPorts = [ config.services.prometheus.exporters.node.port ];
 
   systemd.services."prometheus-node-exporter".onFailure = [ "notify-discord@%n.service" ];
 
   my.consulServices.node_exporter = {
-    name = "node_exporter";
+    name = "node-exporter";
     tags = [ "node_exporter" "prometheus" ];
     port = 9100;
     check = {
