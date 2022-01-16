@@ -1,1 +1,2 @@
-git+https://github.com/kpetremann/mqtt-exporter.git
+paho-mqtt
+prometheus-client

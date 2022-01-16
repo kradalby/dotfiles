@@ -6,6 +6,8 @@
     ./syncthing.nix
   ];
 
+  my.lan = "ens3";
+
   # NixOps
   # deployment = {
   #   targetHost = "dev.terra.fap.no";
@@ -27,18 +29,17 @@
     dhcpcd.enable = false;
     usePredictableInterfaceNames = lib.mkForce true;
     interfaces = {
-      ens3 = {
+      ${config.my.lan} = {
         ipv4.addresses = [
           { address = "10.60.0.44"; prefixLength = 24; }
         ];
-        ipv4.routes = [{ address = "10.60.0.1"; prefixLength = 32; }];
       };
 
     };
   };
 
   services.udev.extraRules = ''
-    ATTR{address}=="52:54:00:7e:ff:c8", NAME="ens3"
+    ATTR{address}=="52:54:00:7e:ff:c8", NAME="${config.my.lan}"
   '';
 
   boot.cleanTmpDir = true;

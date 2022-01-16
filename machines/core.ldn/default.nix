@@ -2,7 +2,6 @@
 {
   imports = [
     ../../common
-    ../../common/gateway.nix
 
     ../../common/acme.nix
     ../../common/nginx.nix
@@ -153,6 +152,28 @@
         ipAddress = "10.65.0.52";
         ethernetAddress = "9a:4a:7f:aa:97:13";
       }
+      {
+        hostName = "gr-laptop";
+        ipAddress = "10.65.0.53";
+        ethernetAddress = "c8:34:8e:51:8b:43";
+      }
+
+      # Network
+      {
+        hostName = "skap-switch";
+        ipAddress = "10.65.0.70";
+        ethernetAddress = "e0:63:da:54:fc:fb";
+      }
+      {
+        hostName = "tv-switch";
+        ipAddress = "10.65.0.71";
+        ethernetAddress = "f4:92:bf:a3:6a:23";
+      }
+      {
+        hostName = "stue-ap";
+        ipAddress = "10.65.0.72";
+        ethernetAddress = "e0:63:da:25:cc:1e";
+      }
 
 
       # IoT
@@ -199,6 +220,31 @@
         ipAddress = "10.65.0.103";
         ethernetAddress = "70:af:24:b8:4e:7b";
       }
+      {
+        hostName = "sonos-1";
+        ipAddress = "10.65.0.104";
+        ethernetAddress = "34:7e:5c:f0:22:30";
+      }
+      {
+        hostName = "sonos-2";
+        ipAddress = "10.65.0.105";
+        ethernetAddress = "78:28:ca:d1:3c:88";
+      }
+      {
+        hostName = "counter";
+        ipAddress = "10.65.0.106";
+        ethernetAddress = "e0:2b:96:9c:54:3d";
+      }
+      {
+        hostName = "bedroom-airport";
+        ipAddress = "10.65.0.107";
+        ethernetAddress = "ac:7f:3e:ed:b4:10";
+      }
+      {
+        hostName = "living-room-airport";
+        ipAddress = "10.65.0.108";
+        ethernetAddress = "00:f7:6f:d3:ac:e3";
+      }
     ];
   };
 
@@ -212,15 +258,11 @@
       in
       ''
         . {
-          ${lib.concatMapStrings (interface: ''
-          bind ${interface}
-            '') [config.my.lan "iot"]
-          }
           cache 3600 {
             success 8192
             denial 4096
           }
-          prometheus 10.65.0.1:9153
+          prometheus :9153
           forward . tls://1.1.1.1 tls://1.0.0.1 tls://2606:4700:4700::1111 tls://2606:4700:4700::1001 {
             tls_servername tls.cloudflare-dns.com
             health_check 5s
@@ -228,10 +270,6 @@
         }
 
         consul {
-          ${lib.concatMapStrings (interface: ''
-          bind ${interface}
-            '') [config.my.lan "iot"]
-          }
           forward . 127.0.0.1:8600 {
             health_check 5s
           }
@@ -239,10 +277,6 @@
 
         # Internal zone.
         ${domain} {
-          ${lib.concatMapStrings (interface: ''
-          bind ${interface}
-            '') [config.my.lan "iot"]
-          }
           hosts {
             ${lib.concatMapStrings (host: ''
                 ${host.ipAddress} ${host.hostName}.${domain}
@@ -255,42 +289,20 @@
 
   systemd.services.coredns.onFailure = [ "notify-discord@%n.service" ];
 
-  networking.firewall.allowedTCPPorts = [ 53 9153 ];
-  networking.firewall.allowedUDPPorts = [ 53 ];
+  # networking.firewall.interfaces."${config.my.lan}".allowedTCPPorts = [ 53 9153 ];
+  # networking.firewall.interfaces."${config.my.lan}".allowedUDPPorts = [ 53 ];
+  networking.firewall.interfaces.eth0.allowedTCPPorts = [ 53 9153 ];
+  networking.firewall.interfaces.eth0.allowedUDPPorts = [ 53 ];
 
   my.consulServices.coredns_exporter = {
-    name = "coredns_exporter";
+    name = "coredns-exporter";
     tags = [ "coredns_exporter" "prometheus" ];
     port = 9153;
     check = {
       name = "coredns health check";
-      http = "http://10.65.0.1:9153/metrics";
+      http = "http://127.0.0.1:9153/metrics";
       interval = "60s";
       timeout = "1s";
-    };
-  };
-
-  services.prometheus.exporters = {
-    node = {
-      enable = true;
-      enabledCollectors = [
-        "tcpstat"
-        "conntrack"
-        "diskstats"
-        "entropy"
-        "filefd"
-        "filesystem"
-        "loadavg"
-        "meminfo"
-        "netdev"
-        "netstat"
-        "stat"
-        "time"
-        "vmstat"
-        "logind"
-        "interrupts"
-        "ksmd"
-      ];
     };
   };
 

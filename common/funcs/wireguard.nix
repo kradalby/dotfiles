@@ -1,3 +1,4 @@
+{ config, ... }:
 let
   serverPeer = name:
     let
@@ -36,8 +37,24 @@ let
       privateKeyFile = privateKeyPath;
       peers = servers ++ clients;
     };
+
+  service = name: secret: {
+    sops.secrets.${secret} = { };
+    networking.wireguard = {
+      enable = true;
+      interfaces = {
+        wg0 = server name config.sops.secrets.${secret}.path;
+      };
+    };
+
+    networking.firewall = {
+      allowedUDPPorts = [ config.networking.wireguard.interfaces.wg0.listenPort ];
+      trustedInterfaces = [ "wg0" ];
+    };
+  };
+
 in
 {
-  inherit server;
+  inherit service;
 }
 

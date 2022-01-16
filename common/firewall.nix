@@ -2,8 +2,16 @@
   networking.firewall = {
     enable = true;
     allowPing = true;
+    pingLimit = "--limit 1/minute --limit-burst 5";
     checkReversePath = lib.mkDefault "strict";
-    trustedInterfaces = [ "tailscale0" "wg0" ];
     logRefusedConnections = lib.mkDefault false;
+
+    autoLoadConntrackHelpers = true;
+    connectionTrackingModules = [
+      "ftp"
+      "tftp"
+      "netbios_sn"
+      "snmp"
+    ];
   };
 }

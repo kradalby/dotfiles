@@ -1,8 +1,8 @@
 { lib, flakes, ... }:
 {
   require = [
+    ./network.nix
     ./cpufreq.nix
-    ./consul.nix
     ./users.nix
     ./ssh.nix
     ./environment.nix
@@ -15,8 +15,8 @@
     ./timezone.nix
     ./tmp.nix
     ./util.nix
-    ./network.nix
     # ./sendmail.nix
     ./senddiscord.nix
+    ./consul.nix
   ];
 }
