@@ -1,5 +1,6 @@
 { config, lib, ... }:
 let
+  consul = import ../../common/funcs/consul.nix { inherit lib; };
 
   port = 1883;
 in
@@ -81,15 +82,5 @@ in
 
   systemd.services."mqtt-exporter".onFailure = [ "notify-discord@%n.service" ];
 
-  my.consulServices.mqtt_exporter = {
-    name = "mqtt-exporter";
-    tags = [ "mqtt_exporter" "prometheus" ];
-    port = config.services.mqtt-exporter.prometheus.port;
-    check = {
-      name = "mqtt_exporter health check";
-      http = "http://localhost:${toString config.services.mqtt-exporter.prometheus.port}/metrics";
-      interval = "60s";
-      timeout = "1s";
-    };
-  };
+  my.consulServices.mqtt_exporter = consul.prometheusExporter "mqtt" config.services.mqtt-exporter.prometheus.port;
 }

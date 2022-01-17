@@ -40,6 +40,9 @@ in
       proxyPass = "http://127.0.0.1:8500";
       proxyWebsockets = true;
     };
+    extraConfig = ''
+      access_log /var/log/nginx/${domain}.access.log;
+    '';
   };
 
 }

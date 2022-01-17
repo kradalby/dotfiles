@@ -128,5 +128,8 @@ in
       proxyPass = "http://127.0.0.1:${toString homebridgeUIPort}";
       # proxyWebsockets = true;
     };
+    extraConfig = ''
+      access_log /var/log/nginx/${domain}.access.log;
+    '';
   };
 }

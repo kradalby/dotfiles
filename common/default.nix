@@ -8,7 +8,8 @@
     ./environment.nix
     ./firewall.nix
     ./lldp.nix
-    ./prometheus.nix
+    ./node-exporter.nix
+    ./smartctl-exporter.nix
     ./promtail.nix
     ./nix.nix
     ./time.nix

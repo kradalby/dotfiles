@@ -1,4 +1,7 @@
 { pkgs, config, lib, ... }:
+let
+  consul = import ../../common/funcs/consul.nix { inherit lib; };
+in
 {
   services.unifi = {
     unifiPackage = pkgs.unifi;
@@ -11,7 +14,7 @@
   systemd.services.unifi.onFailure = [ "notify-discord@%n.service" ];
 
   # TODO: Remove 8443 when nginx can correctly proxy
-  networking.firewall.allowedTCPPorts = [ 8443 ];
+  networking.firewall.allowedTCPPorts = [ 8443 9130 ];
 
   security.acme.certs."unifi.ldn.fap.no".domain = "unifi.ldn.fap.no";
 
@@ -33,31 +36,35 @@
         '';
       };
     };
+    extraConfig = ''
+      access_log /var/log/nginx/${domain}.access.log;
+    '';
   };
-  # nginx.config = ''
-  #   server {
-  #     listen *:443 ssl http2;
-  #     listen [::]:443 ssl http2;
-  #     server_name unifi.ldn.fap.no;
-  #     location / {
 
-  #       proxy_set_header Accept-Encoding "";
-  #       proxy_set_header Host $http_host;
-  #       proxy_set_header X-Real-IP $remote_addr;
-  #       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-  #       proxy_set_header X-Forwarded-Proto $scheme;
-  #       proxy_pass https://localhost:8443/;
-  #       proxy_set_header Front-End-Https on;
-  #       proxy_redirect off;
-  #     }
-  #     ${import sub/ssl-settings.nix { inherit domain; }}
-  #   }
+  sops.secrets.unifi-read-only = {
+    mode = "0400";
+    owner = "unifi-poller";
+  };
 
-  #   server {
-  #     listen *:80;
-  #     listen [::]:80;
-  #     server_name unifi.ldn.fap.no;
-  #     rewrite ^(.*) https://unifi.ldn.fap.no$1 permanent;
-  #   }
-  # '';
+  services.unifi-poller = {
+    enable = true;
+
+    unifi.defaults = {
+      url = "https://127.0.0.1:8443";
+      user = "read-only";
+      pass = config.sops.secrets.unifi-read-only.path;
+
+      verify_ssl = false;
+    };
+
+    influxdb.disable = true;
+
+    prometheus = {
+      http_listen = ":9130";
+    };
+  };
+
+  systemd.services.prometheus-unifi-exporter.onFailure = [ "notify-discord@%n.service" ];
+  my.consulServices.unifi_exporter = consul.prometheusExporter "unifi" config.services.prometheus.exporters.unifi.port;
+
 }

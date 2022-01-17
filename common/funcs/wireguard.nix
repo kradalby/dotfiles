@@ -1,5 +1,7 @@
-{ config, ... }:
+{ config, lib, ... }:
 let
+  consul = import ./consul.nix { inherit lib; };
+
   serverPeer = name:
     let
       wireguardHosts = import ../../metadata/wireguard.nix;
@@ -51,6 +53,13 @@ let
       allowedUDPPorts = [ config.networking.wireguard.interfaces.wg0.listenPort ];
       trustedInterfaces = [ "wg0" ];
     };
+
+    services.prometheus.exporters.wireguard = {
+      enable = true;
+      withRemoteIp = true;
+    };
+
+    my.consulServices.wireguard_exporter = consul.prometheusExporter "wireguard" config.services.prometheus.exporters.wireguard.port;
   };
 
 in
