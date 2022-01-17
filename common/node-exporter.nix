@@ -1,4 +1,7 @@
 { config, lib, ... }:
+let
+  consul = import ./funcs/consul.nix { inherit lib; };
+in
 {
   services.prometheus.exporters.node = lib.mkIf (!config.boot.isContainer) {
     enable = true;
@@ -9,15 +12,5 @@
 
   systemd.services."prometheus-node-exporter".onFailure = [ "notify-discord@%n.service" ];
 
-  my.consulServices.node_exporter = {
-    name = "node-exporter";
-    tags = [ "node_exporter" "prometheus" ];
-    port = 9100;
-    check = {
-      name = "node_exporter health check";
-      http = "http://localhost:9100/metrics";
-      interval = "60s";
-      timeout = "1s";
-    };
-  };
+  my.consulServices.node_exporter = consul.prometheusExporter "node" config.services.prometheus.exporters.node.port;
 }
