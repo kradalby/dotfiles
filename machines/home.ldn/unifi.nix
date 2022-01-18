@@ -1,6 +1,8 @@
 { pkgs, config, lib, ... }:
 let
   consul = import ../../common/funcs/consul.nix { inherit lib; };
+
+  domain = "unifi.${config.networking.domain}";
 in
 {
   services.unifi = {
@@ -16,12 +18,12 @@ in
   # TODO: Remove 8443 when nginx can correctly proxy
   networking.firewall.allowedTCPPorts = [ 8443 9130 ];
 
-  security.acme.certs."unifi.ldn.fap.no".domain = "unifi.ldn.fap.no";
+  security.acme.certs."${domain}".domain = domain;
 
   # TODO: Figure out why this loops indefinetly
-  services.nginx.virtualHosts."unifi.ldn.fap.no" = {
+  services.nginx.virtualHosts."${domain}" = {
     forceSSL = true;
-    useACMEHost = "unifi.ldn.fap.no";
+    useACMEHost = domain;
     locations = {
       "/" = {
         proxyPass = "https://localhost:8443/";

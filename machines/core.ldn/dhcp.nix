@@ -51,6 +51,11 @@
         ipAddress = "10.65.0.53";
         ethernetAddress = "c8:34:8e:51:8b:43";
       }
+      {
+        hostName = "kradell";
+        ipAddress = "10.65.0.54";
+        ethernetAddress = "9c:b6:d0:da:bd:dd";
+      }
 
       # Network
       {

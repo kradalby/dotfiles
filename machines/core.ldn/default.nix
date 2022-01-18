@@ -7,6 +7,7 @@
     ../../common/nginx.nix
     ../../common/consul-server.nix
     ../../common/ddns.nix
+    ../../common/smokeping-exporter.nix
 
     ./hardware-configuration.nix
     ./wireguard.nix
@@ -157,6 +158,9 @@
         config.services.prometheus.exporters.smartctl.port
         config.services.prometheus.exporters.wireguard.port
         config.services.prometheus.exporters.nginx.port
+        config.services.prometheus.exporters.nginxlog.port
+        config.services.prometheus.exporters.systemd.port
+        config.services.prometheus.exporters.smokeping.port
       ];
 
       interfaces.eth0.allowedUDPPorts = [
