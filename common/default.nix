@@ -10,6 +10,7 @@
     ./lldp.nix
     ./node-exporter.nix
     ./smartctl-exporter.nix
+    ./systemd-exporter.nix
     ./promtail.nix
     ./nix.nix
     ./time.nix

@@ -72,9 +72,10 @@ in
     settings = {
       namespaces =
         let
-          format = ''
-            $remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent"
-          '';
+          # format = ''
+          #   $remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent"
+          # '';
+
           mkApp = domain: {
             name = domain;
             metrics_override = { prefix = "nginxlog"; };
@@ -90,8 +91,11 @@ in
             namespace_label = "vhost";
           }
         ] ++ builtins.map mkApp (builtins.attrNames config.services.nginx.virtualHosts);
-
     };
   };
+
+  systemd.services."prometheus-nginxlog-exporter".onFailure = [ "notify-discord@%n.service" ];
+
+  my.consulServices.nginxlog_exporter = consul.prometheusExporter "nginxlog" config.services.prometheus.exporters.nginxlog.port;
 
 }
