@@ -13,10 +13,10 @@ self: super: {
     };
     format = "setuptools";
     doCheck = false;
-    buildInputs = [];
-    checkInputs = [];
-    nativeBuildInputs = [];
-    propagatedBuildInputs = [];
+    buildInputs = [ ];
+    checkInputs = [ ];
+    nativeBuildInputs = [ ];
+    propagatedBuildInputs = [ ];
   };
   "prometheus-client" = super.buildPythonPackage rec {
     pname = "prometheus-client";
@@ -27,9 +27,9 @@ self: super: {
     };
     format = "wheel";
     doCheck = false;
-    buildInputs = [];
-    checkInputs = [];
-    nativeBuildInputs = [];
-    propagatedBuildInputs = [];
+    buildInputs = [ ];
+    checkInputs = [ ];
+    nativeBuildInputs = [ ];
+    propagatedBuildInputs = [ ];
   };
 }
