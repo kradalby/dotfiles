@@ -4,6 +4,11 @@
 , ...
 }:
 {
+  imports = [
+    ../../pkgs/system.nix
+    ./syncthing.nix
+    # ./autossh.nix
+  ];
 
   # sops.age.sshKeyPaths = [ "~/.ssh/id_ed25519" ];
   # sops.age.keyFile = "~/.config/sops/age/keys.txt";
@@ -29,11 +34,6 @@
       allowUnfree = true;
     };
   };
-
-  # System packages
-  imports = [
-    ../../pkgs/system.nix
-  ];
 
   users.users.kradalby = {
     name = machine.username;
@@ -160,7 +160,7 @@
       "signal"
       "slack"
       "slowquitapps"
-      "syncthing"
+      # "syncthing"
       "the-unarchiver"
       "tor-browser"
       "transmission"
