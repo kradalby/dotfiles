@@ -1,28 +1,48 @@
-{ config, ... }:
-
+{ lib, config, pkgs, ... }:
+with lib;
 let
-  backupJob = site: secret: directories: {
-    sops.secrets."${secret}" = { };
-    services.restic.backups."${site}" = {
-      repository = "rest:https://restic.core.${site}.fap.no/${config.networking.fqdn}";
-      paths = directories;
-      pruneOpts = [
-        "--keep-daily 7"
-        "--keep-weekly 5"
-        "--keep-monthly 12"
-        "--keep-yearly 75"
-      ];
-      initialize = true;
-      passwordFile = config.sops.secrets."${secret}".path;
-      timerConfig = {
-        OnCalendar = "hourly";
-      };
-    };
+  backupJob = name: site: secret: directories:
+    mkMerge [
+      {
+        sops.secrets."${secret}" = { };
+      }
+      {
+        services.restic.backups."${site}" = {
 
-    systemd.timers."restic-backups-${site}".onFailure = [ "notify-discord@%n.service" ];
-    systemd.services."restic-backups-${site}".onFailure = [ "notify-discord@%n.service" ];
+          repository = "rest:https://restic.core.${site}.fap.no/${name}";
 
-  };
+          paths = directories;
+          pruneOpts = [
+            "--keep-daily 7"
+            "--keep-weekly 5"
+            "--keep-monthly 12"
+            "--keep-yearly 75"
+          ];
+          initialize = true;
+          passwordFile = config.sops.secrets."${secret}".path;
 
+        };
+      }
+
+      (mkIf pkgs.stdenv.isDarwin {
+        services.restic.backups."${site}" = {
+          logPath = "/Users/kradalby/Library/Logs";
+          calendarInterval = {
+            Minute = 30;
+          };
+
+        };
+      })
+
+      (mkIf pkgs.stdenv.isLinux {
+        services.restic.backups."${site}".timerConfig = {
+          OnCalendar = "hourly";
+        };
+      })
+
+      # (mkIf pkgs.stdenv.isLinux {
+      #   systemd.services."restic-backups-${site}".onFailure = [ "notify-discord@%n.service" ];
+      # })
+    ];
 in
 { inherit backupJob; }

@@ -499,7 +499,6 @@ in
   config = mkIf cfg.enable {
     launchd.user.agents = {
       syncthing = {
-        # command = syncthingScript;
         command = ''
           ${cfg.package}/bin/syncthing \
             -no-browser \
@@ -511,12 +510,6 @@ in
           STNOUPGRADE = "yes";
         };
         serviceConfig = {
-          # ProgramArguments = [
-          #   "${cfg.package}/bin/syncthing"
-          #   "-no-browser"
-          #   "-gui-address=${cfg.guiAddress}"
-          #   ''-home="${cfg.configDir}"'' # ${escapeShellArgs cfg.extraFlags}
-          # ];
           ProcessType = "Background";
           RunAtLoad = true;
           KeepAlive = { SuccessfulExit = false; };
