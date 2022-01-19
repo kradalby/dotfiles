@@ -1,17 +1,29 @@
 { pkgs
 , config
 , machine
+, lib
+, stdenv
 , ...
 }:
 {
   imports = [
     ../../pkgs/system.nix
     ./syncthing.nix
+    ./restic.nix
     # ./autossh.nix
   ];
 
-  # sops.age.sshKeyPaths = [ "~/.ssh/id_ed25519" ];
-  # sops.age.keyFile = "~/.config/sops/age/keys.txt";
+  # on macOS, we need to make sure all SSH references
+  # are empty so sops dont go looking for services.openssh
+  # which doesnt exist.
+  sops.gnupg.sshKeyPaths = lib.mkForce [ ];
+  sops.age.sshKeyPaths = lib.mkForce [ ];
+  sops.age.keyFile = "/Users/kradalby/.config/sops/age/keys.txt";
+
+  # sops.secrets.restic-kramacbook-token = { };
+  # environment.etc.testy.text = ''
+  #   ${config.sops.secrets.restic-kramacbook-token.path}
+  # '';
 
   services.nix-daemon = {
     enable = true;
