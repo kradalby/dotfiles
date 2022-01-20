@@ -7,6 +7,7 @@
 }:
 {
   imports = [
+    ../../common/environment.nix
     ../../pkgs/system.nix
     ./syncthing.nix
     ./restic.nix
@@ -128,7 +129,7 @@
     enable = true;
     autoUpdate = true;
 
-    cleanup = "none"; # zap;
+    cleanup = "zap"; # zap;
 
     taps = [
       "apparition47/tap"
@@ -179,6 +180,7 @@
       "transmit"
       "tripmode"
       "visual-studio-code"
+      "safari-technology-preview"
 
       # Maybe
       "monitorcontrol"

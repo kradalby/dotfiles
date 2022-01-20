@@ -21,8 +21,8 @@ return require("packer").startup(
             requires = {"p00f/nvim-ts-rainbow"},
             config = function()
                 require "nvim-treesitter.configs".setup {
-                    ensure_installed = "all",
-                    ignore_install = {"haskell"}, -- Haskell breaks without Java?
+                    ensure_installed = "maintained",
+                    -- ignore_install = {"haskell"}, -- Haskell breaks without Java?
                     highlight = {enable = true},
                     rainbow = {
                         enable = true,

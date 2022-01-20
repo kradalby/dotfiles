@@ -24,6 +24,9 @@
     shfmt
     yarn
 
+    lua53Packages.luasql-sqlite3
+    lua53Packages.luadbi-sqlite3
+
     (fenix.complete.withComponents
       [
         "cargo"
@@ -32,6 +35,7 @@
         "rustc"
         "rustfmt"
       ])
+
 
     # clang_13
 

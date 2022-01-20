@@ -1,5 +1,6 @@
 require("plugins")
 require("statusline")
+require("nix")
 -- require("ale")
 -- require("lint")
 

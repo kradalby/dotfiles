@@ -201,24 +201,12 @@ M.set_explorer = function(self)
 end
 
 M.get_lsp_diagnostic = function(self)
-    local result = {}
-    local levels = {
-        errors = "Error",
-        warnings = "Warning",
-        info = "Information",
-        hints = "Hint"
-    }
-
-    for k, level in pairs(levels) do
-        result[k] = vim.lsp.diagnostic.get_count(0, level)
-    end
-
     return string.format(
         "| e:%s w:%s i:%s h:%s ",
-        result["errors"] or 0,
-        result["warnings"] or 0,
-        result["info"] or 0,
-        result["hints"] or 0
+        #vim.diagnostic.get(0, { severity = vim.diagnostic.severity.ERROR }),
+        #vim.diagnostic.get(0, { severity = vim.diagnostic.severity.WARN  }),
+        #vim.diagnostic.get(0, { severity = vim.diagnostic.severity.INFO  }),
+        #vim.diagnostic.get(0, { severity = vim.diagnostic.severity.HINT  })
     )
 end
 
