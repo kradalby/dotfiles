@@ -1,4 +1,4 @@
-{ pkgs, ... }: {
+{ pkgs, lib, ... }: {
   environment.systemPackages = with pkgs; [
     fish
 
@@ -37,10 +37,9 @@
     rsync
 
     # Linux only
-    # usbutils
+    (lib.mkIf pkgs.stdenv.isLinux usbutils)
 
     # Neovim plugins
-    sqlite
     gcc
 
     # Nix tooling

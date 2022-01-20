@@ -1,4 +1,5 @@
-{ pkgs, ... }: {
+{ pkgs, lib, ... }:
+{
   home.packages = with pkgs; [
     # Workstation
     ansible
@@ -15,6 +16,8 @@
     tflint
     tfsec
     nixopsUnstable
+
+    (lib.mkIf pkgs.stdenv.isDarwin terminal-notifier)
 
     # logcli
 

@@ -136,7 +136,6 @@
     ./kitty.nix
     ./tmux.nix
 
-    ../pkgs/macos.nix
     ../pkgs/workstation.nix
     ../pkgs/dev.nix
     ../pkgs/common.nix
