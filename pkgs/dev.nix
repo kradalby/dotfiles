@@ -7,7 +7,6 @@
     entr
     gh
     git-open
-    go
     go-jsonnet
     gofumpt
     golangci-lint
