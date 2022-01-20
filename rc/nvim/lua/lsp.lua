@@ -13,6 +13,7 @@ local function enable_auto_format()
 end
 
 local function enable_code_action_lightbulb()
+    -- This broke in Blink on the iPad
     --vim.api.nvim_command [[autocmd CursorHold,CursorHoldI * lua require'nvim-lightbulb'.update_lightbulb()]]
 end
 
@@ -51,18 +52,22 @@ local function common_lsp(server)
 
     if server.name == "efm" then
         local home = os.getenv("HOME")
-        local installer_server = require "nvim-lsp-installer.server"
-        local go = require "nvim-lsp-installer.installers.go"
+        local installer_server = require("nvim-lsp-installer.server")
+        local go = require("nvim-lsp-installer.installers.go")
 
-        local root_dir = installer_server.get_server_root_path "efm"
+        local root_dir = installer_server.get_server_root_path("efm")
 
-        opts.cmd = {
-            go.executable(root_dir, "efm-langserver"),
-            "-logfile",
-            home .. "/.config/efm-langserver/efm.log",
-            "-loglevel",
-            "1"
+        opts.default_options = {
+            cmd_env = go.env(root_dir),
+            cmd = {
+                "efm-langserver",
+                "-logfile",
+                home .. "/.config/efm-langserver/efm.log",
+                "-loglevel",
+                "1"
+            }
         }
+
         opts.flags = {debounce_text_changes = 2000}
         opts.root_dir = lspconfig.util.root_pattern(".git", ".")
         opts.filetypes = vim.tbl_keys(efm.languages)
@@ -124,7 +129,7 @@ end
 
 lsp_installer.on_server_ready(common_lsp)
 
-local servers = {"rnix"}
+local servers = {}
 for _, lsp in ipairs(servers) do
     common_lsp(lspconfig[lsp])
 end

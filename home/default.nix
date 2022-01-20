@@ -62,7 +62,7 @@
       ".minirc.dfl".source = ../rc/minirc.dfl;
       ".npmrc".source = ../rc/npmrc;
 
-      ".tmux.conf".source = ../rc/tmux.conf;
+      # ".tmux.conf".source = ../rc/tmux.conf;
       ".tmuxinator" = {
         source = ../rc/tmuxinator;
         recursive = true;
@@ -77,6 +77,12 @@
         #   nvim --headless -c "lua require('tools').install_servers()" -c "quitall" > ~/logs/nvim_lsp.log 2>&1
         # '';
       };
+
+      # nvim.sqlite needs to know where to find libsqlite3
+      ".config/nvim/lua/nix.lua".text = ''
+        vim.g.sqlite_clib_path = "${pkgs.sqlite.out}/lib/${if pkgs.stdenv.isDarwin then "libsqlite3.dylib" else "libsqlite3.so"}"
+      '';
+
 
       ".ssh/config" = {
         source = ../rc/ssh/config;
@@ -128,6 +134,7 @@
     ./fish.nix
     ./starship.nix
     ./kitty.nix
+    ./tmux.nix
 
     ../pkgs/macos.nix
     ../pkgs/workstation.nix
