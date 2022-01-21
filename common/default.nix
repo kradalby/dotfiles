@@ -20,5 +20,6 @@
     # ./sendmail.nix
     ./senddiscord.nix
     ./consul.nix
+    ./avahi.nix
   ];
 }

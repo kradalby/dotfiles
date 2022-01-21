@@ -15,6 +15,7 @@
     ./corerad.nix
     ./coredns.nix
     ./dhcp.nix
+    ./avahi.nix
   ];
 
   my.wan = "wan";
@@ -165,6 +166,7 @@
 
       interfaces.eth0.allowedUDPPorts = [
         53 # DNS
+        5353 # mDNS
 
         # consul 
         8301
