@@ -26,7 +26,7 @@
         (mqttthing name type) //
         {
           topics = {
-            getCurrentRelativeHumidity = {
+            getCurrentTemperature = {
               "topic" = "zigbee2mqtt/${topic}";
               "apply" = "return parseFloat(JSON.parse(message).temperature);";
             };
