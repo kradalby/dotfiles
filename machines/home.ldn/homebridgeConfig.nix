@@ -57,6 +57,32 @@
           };
         };
 
+      mqttthingTradfriTemperature = name: type: topic:
+        (mqttthing name type) //
+        {
+          codec = "tradfri-codec.js";
+          topics = {
+            getOn = {
+              topic = "zigbee2mqtt/${topic}";
+            };
+            setOn = {
+              topic = "zigbee2mqtt/${topic}/set";
+            };
+            getBrightness = {
+              topic = "zigbee2mqtt/${topic}";
+            };
+            setBrightness = {
+              topic = "zigbee2mqtt/${topic}/set";
+            };
+            getColorTemperature = {
+              topic = "zigbee2mqtt/${topic}";
+            };
+            setColorTemperature = {
+              topic = "zigbee2mqtt/${topic}/set";
+            };
+          };
+        };
+
       mqttthingTradfriColour = name: type: topic:
         (mqttthing name type) //
         {
@@ -74,10 +100,10 @@
             setBrightness = {
               topic = "zigbee2mqtt/${topic}/set";
             };
-            getColorTemprature = {
+            getRGB = {
               topic = "zigbee2mqtt/${topic}";
             };
-            setColorTemprature = {
+            setRGB = {
               topic = "zigbee2mqtt/${topic}/set";
             };
           };
@@ -135,11 +161,12 @@
         accessory = "mqttthing";
         name = name;
         type = type;
+        history = true;
 
         mqttOptions = {
           keepalive = 30;
         };
-        whiteMix = true;
+        # whiteMix = true;
       };
     in
     [
@@ -155,7 +182,8 @@
       (mqttthingHumiditySensor "Living Room Humidity" "humiditySensor" "living-room-aqara")
       (mqttthingTemperatureSensor "Living Room Temperature" "temperatureSensor" "living-room-aqara")
 
-      (mqttthingTradfriColour "Living Room Shelf" "lightbulb" "living-room-shelf-light")
+      (mqttthingTradfriTemperature "Living Room Shelf" "lightbulb" "living-room-shelf-light")
+
       (mqttthingTradfriColour "Bedroom Speaker" "lightbulb" "bedroom-speaker-light")
 
       (mqttthingTradfri "Entrance Ceiling" "lightbulb" "entrance-light")
