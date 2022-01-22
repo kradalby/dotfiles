@@ -6,7 +6,6 @@ in
   services.zigbee2mqtt = {
     enable = true;
 
-
     settings = {
       homeassistant = false;
       permit_join = false;
@@ -15,8 +14,23 @@ in
         port = 48080;
         host = "0.0.0.0";
       };
+
       serial = {
         port = "/dev/serial/by-id/usb-1a86_USB_Serial-if00-port0";
+      };
+
+      availability = {
+        active = {
+          # Time after which an active device will be marked as offline in
+          # minutes (default = 10 minutes)
+          timeout = 10;
+
+        };
+        passive = {
+          # Time after which a passive device will be marked as offline in
+          # minutes (default = 1500 minutes aka 25 hours)
+          timeout = 1500;
+        };
       };
 
       mqtt = {
