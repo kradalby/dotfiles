@@ -121,6 +121,10 @@
               topic = "tele/${topic}/SENSOR";
               apply = "return JSON.parse(message).ENERGY.Current;";
             };
+            getTotalConsumption = {
+              topic = "tele/${topic}/SENSOR";
+              apply = "return JSON.parse(message).ENERGY.Total;";
+            };
           };
         };
 
