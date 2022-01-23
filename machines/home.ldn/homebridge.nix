@@ -16,14 +16,10 @@ let
     npm install --unsafe-perm homebridge-philips-tv6
   '';
 
-  cieRgbConvert = pkgs.fetchurl {
-    url = "https://github.com/kradalby/tradfri-mqttthing/raw/master/cie-rgb-converter.js";
-    sha256 = "sha256-7FX+T2IXDc+3SUV1N/b3W1+ZmB8mNANGHdMJzcBKK6A=";
-  };
-
-  tradfriCodec = pkgs.fetchurl {
-    url = "https://github.com/kradalby/tradfri-mqttthing/raw/master/tradfri-codec.js";
-    sha256 = "sha256-5nizIgxi34GTYXLHJ6JLavRhX/6FAGj0JV58UB7Kis0=";
+  tradfriCodec = builtins.fetchGit {
+    url = "https://github.com/kradalby/tradfri-mqttthing.git";
+    ref = "master";
+    rev = "c09fe38ce0ae58f1c9216b9dfcb7e05d641eebbe";
   };
 
   homebridgePackages = import ../../modules/homebridge { inherit pkgs; };
@@ -39,7 +35,7 @@ let
       mkdir -p $out/bin
       cat > $out/bin/homebridge <<EOF
       #!/bin/sh
-      NODE_PATH=${nodePath} exec ${homebridgePackages.homebridge}/bin/homebridge -U ~/ -I "$@"
+      NODE_PATH=${nodePath} exec ${homebridgePackages.homebridge}/bin/homebridge -D -U ~/ -I "$@"
       EOF
       chmod +x $out/bin/homebridge
     '';
@@ -86,9 +82,9 @@ in
     onFailure = [ "notify-discord@%n.service" ];
 
     preStart = ''
-      cp -f ${configFile} ${dataDir}/config.json
-      cp -f ${cieRgbConvert} ${dataDir}/cie-rgb-converter.js
-      cp -f ${tradfriCodec} ${dataDir}/tradfri-codec.js
+      ln -sf ${configFile} ${dataDir}/config.json
+      ln -sf ${tradfriCodec}/cie-rgb-converter.js ${dataDir}/cie-rgb-converter.js
+      ln -sf ${tradfriCodec}/tradfri-codec.js ${dataDir}/tradfri-codec.js
     '';
   };
 
