@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, system, ... }:
 let
   domain = "homebridge.${config.networking.domain}";
 
@@ -9,12 +9,12 @@ let
 
   homebridgeUIPort = (builtins.elemAt homebridgeConfig.platforms 0).port;
 
-  startupFile = pkgs.writeText "startup.sh" ''
-    #!/bin/sh
-    npm install --unsafe-perm homebridge-mqttthing
-    npm install --unsafe-perm homebridge-xiaomi-roborock-vacuum@latest
-    npm install --unsafe-perm homebridge-philips-tv6
-  '';
+  # startupFile = pkgs.writeText "startup.sh" ''
+  #   #!/bin/sh
+  #   npm install --unsafe-perm homebridge-mqttthing
+  #   npm install --unsafe-perm homebridge-xiaomi-roborock-vacuum@latest
+  #   npm install --unsafe-perm homebridge-philips-tv6
+  # '';
 
   tradfriCodec = builtins.fetchGit {
     url = "https://github.com/kradalby/tradfri-mqttthing.git";
@@ -35,7 +35,7 @@ let
       mkdir -p $out/bin
       cat > $out/bin/homebridge <<EOF
       #!/bin/sh
-      NODE_PATH=${nodePath} exec ${homebridgePackages.homebridge}/bin/homebridge -D -U ~/ -I "$@"
+      NODE_PATH=${nodePath} exec ${homebridgePackages.homebridge}/bin/homebridge -U ~/ -I "$@"
       EOF
       chmod +x $out/bin/homebridge
     '';
@@ -46,6 +46,7 @@ in
     home = dataDir;
     createHome = true;
     group = "homebridge";
+    extraGroups = [ "video" ];
     isSystemUser = false;
     isNormalUser = true;
     description = "Home Bridge";
@@ -72,7 +73,9 @@ in
       RestartSec = "15";
       # CapabilityBoundingSet = "CAP_NET_RAW";
       AmbientCapabilities = "CAP_NET_RAW";
+      DeviceAllow = [ "/dev/v4l/by-id/usb-046d_0825_A4221F10-video-index0" ];
     };
+    path = [ pkgs.ffmpeg ];
     environment = {
       HOMEBRIDGE_INSECURE = "1";
       HOMEBRIDGE_CONFIG_UI = "1";

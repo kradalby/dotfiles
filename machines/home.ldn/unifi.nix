@@ -43,7 +43,8 @@ in
     '';
   };
 
-  sops.secrets.unifi-read-only = {
+  age.secrets.unifi-ldn-read-only = {
+    file = ../../secrets/unifi-ldn-read-only.age;
     mode = "0400";
     owner = "unifi-poller";
   };
@@ -54,7 +55,7 @@ in
     unifi.defaults = {
       url = "https://127.0.0.1:8443";
       user = "read-only";
-      pass = config.sops.secrets.unifi-read-only.path;
+      pass = config.age.secrets.unifi-ldn-read-only.path;
 
       verify_ssl = false;
     };

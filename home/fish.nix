@@ -59,6 +59,7 @@
       # mv = "mv -i";
       # rm = "rm -i";
 
+      s = ''${pkgs.findutils}/bin/xargs ${pkgs.perl}/bin/perl -pi -E'';
       ag = "rg";
       cat = "bat";
       du = "du -hs";
@@ -110,17 +111,13 @@
         end
       '';
 
-      gi = ''curl -L -s https://www.gitignore.io/api/$argv'';
+      gi = ''${pkgs.curl}/bin/curl -L -s https://www.gitignore.io/api/$argv'';
 
-      push = ''git push origin -u (git rev-parse --abbrev-ref HEAD)'';
-      yolo = ''git push -f origin (git rev-parse --abbrev-ref HEAD)'';
+      push = ''${pkgs.git}/bin/git push origin -u (git rev-parse --abbrev-ref HEAD)'';
+      yolo = ''${pkgs.git}/bin/git push -f origin (git rev-parse --abbrev-ref HEAD)'';
 
       rmkh = ''
-        set -x sed sed
-        if type -q gsed
-            set -x sed gsed
-        end
-        $sed -i $argv'd' ~/.ssh/known_hosts
+        ${pkgs.gnused}/bin/sed -i $argv'd' ~/.ssh/known_hosts
       '';
     };
   };

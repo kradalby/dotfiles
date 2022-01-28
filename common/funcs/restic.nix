@@ -4,7 +4,7 @@ let
   backupJob = name: site: secret: directories:
     mkMerge [
       {
-        sops.secrets."${secret}" = { };
+        age.secrets."${secret}".file = ../../secrets + "/${secret}.age";
       }
       {
         services.restic.backups."${site}" = {
@@ -19,7 +19,7 @@ let
             "--keep-yearly 75"
           ];
           initialize = true;
-          passwordFile = config.sops.secrets."${secret}".path;
+          passwordFile = config.age.secrets."${secret}".path;
 
         };
       }

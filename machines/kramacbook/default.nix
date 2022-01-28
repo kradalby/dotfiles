@@ -3,6 +3,7 @@
 , machine
 , lib
 , stdenv
+, flakes
 , ...
 }:
 {
@@ -15,16 +16,9 @@
   ];
 
   # on macOS, we need to make sure all SSH references
-  # are empty so sops dont go looking for services.openssh
+  # are empty so age dont go looking for services.openssh
   # which doesnt exist.
-  sops.gnupg.sshKeyPaths = lib.mkForce [ ];
-  sops.age.sshKeyPaths = lib.mkForce [ ];
-  sops.age.keyFile = "/Users/kradalby/.config/sops/age/keys.txt";
-
-  # sops.secrets.restic-kramacbook-token = { };
-  # environment.etc.testy.text = ''
-  #   ${config.sops.secrets.restic-kramacbook-token.path}
-  # '';
+  age.identityPaths = [ "/Users/kradalby/.ssh/id_ed25519" ];
 
   services.nix-daemon = {
     enable = true;
@@ -181,6 +175,7 @@
       "tripmode"
       "visual-studio-code"
       "safari-technology-preview"
+      "flameshot"
 
       # Maybe
       "monitorcontrol"

@@ -11,6 +11,6 @@ let
   ];
 in
 lib.mkMerge [
-  (restic.backupJob config.networking.fqdn "tjoda" "restic-ldn-home-token" directories)
-  (restic.backupJob config.networking.fqdn "terra" "restic-ldn-home-token" directories)
+  (restic.backupJob config.networking.fqdn "tjoda" "restic-home-ldn-token" directories)
+  (restic.backupJob config.networking.fqdn "terra" "restic-home-ldn-token" directories)
 ]

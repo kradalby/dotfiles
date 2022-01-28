@@ -10,6 +10,8 @@ keys:
 
   - &core-ntnu age1h78pteaed78vwff8df72nxxqasc2nvnuwlk83fcgudusppru849q9ft5y9
 
+  - &headscale-oracldn age1jradnffk9pkdu00zzdrl4leg73fcpghd205gtd5grva0n9cut97scvwtjz
+
     # command to add a new age key for a new host
     # nix-shell -p ssh-to-age --run "ssh-keyscan $host | ssh-to-age"
 
@@ -22,3 +24,4 @@ creation_rules:
           - *core-ldn
           - *home-ldn
           - *core-ntnu
+          - *headscale-oracldn

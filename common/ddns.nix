@@ -15,8 +15,9 @@
   #   ];
   # };
 
-  sops.secrets.cloudflare_ddns_token = {
-    mode = "0404";
+  age.secrets.cloudflare-ddns-token = {
+    mode = "0400";
+    file = ../secrets/cloudflare-token.age;
   };
 
   services.ddclient = {
@@ -26,7 +27,7 @@
     ipv6 = true;
     server = "www.cloudflare.com";
     username = "kradalby@kradalby.no";
-    passwordFile = config.sops.secrets.cloudflare_ddns_token.path;
+    passwordFile = config.age.secrets.cloudflare-ddns-token.path;
     protocol = "cloudflare";
   };
 

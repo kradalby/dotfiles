@@ -40,12 +40,26 @@ let
       peers = servers ++ clients;
     };
 
-  service = name: secret: {
-    sops.secrets.${secret} = { };
+  client = name: privateKeyPath:
+    let
+      wireguardHosts = import ../../metadata/wireguard.nix;
+      wireguardConfig = wireguardHosts.clients."${name}";
+
+      servers = map serverPeer (builtins.attrNames wireguardHosts.servers);
+    in
+    {
+      ips = wireguardConfig.addresses ++ wireguardConfig.additional_networks;
+      privateKeyFile = privateKeyPath;
+      peers = servers;
+    };
+
+
+  service = name: secret: wgConfig: {
+    age.secrets.${secret}.file = ../../secrets + "/${secret}.age";
     networking.wireguard = {
       enable = true;
       interfaces = {
-        wg0 = server name config.sops.secrets.${secret}.path;
+        wg0 = wgConfig;
       };
     };
 
@@ -62,8 +76,13 @@ let
     my.consulServices.wireguard_exporter = consul.prometheusExporter "wireguard" config.services.prometheus.exporters.wireguard.port;
   };
 
+  clientService = name: secret:
+    service name secret (client name config.age.secrets.${secret}.path);
+
+  serverService = name: secret:
+    service name secret (server name config.age.secrets.${secret}.path);
 in
 {
-  inherit service;
+  inherit clientService serverService;
 }
 
