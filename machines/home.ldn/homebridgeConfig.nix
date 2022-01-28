@@ -228,5 +228,32 @@
       port = 8581;
       sudo = false;
     }
+
+    {
+      platform = "Camera-ffmpeg";
+      cameras = [
+        {
+          name = "Entrance";
+          manufacturer = "Logitech";
+          model = "C270";
+          videoConfig = {
+            # source = "-f alsa -ac 1 -ar 44100 -thread_queue_size 2048 -i default:CARD=U0x46d0x825,DEV=0 -re -f video4linux2 -i /dev/v4l/by-id/usb-046d_0825_A4221F10-video-index0 -vsync 0 -af aresample=async=1";
+            source = "-re -f video4linux2 -i /dev/v4l/by-id/usb-046d_0825_A4221F10-video-index0 -vsync 0 -af aresample=async=1";
+            stillImageSource = "-s 1280x720 -f video4linux2 -i /dev/v4l/by-id/usb-046d_0825_A4221F10-video-index0";
+            maxStreams = 1;
+            maxWidth = 1280;
+            maxHeight = 720;
+            maxFPS = 30;
+            # forceMax = true;
+            # maxBitrate = 384;
+            # packetSize = 188;
+            audio = false;
+            debug = false;
+            # mapvideo = "1";
+            # mapaudio = "0";
+          };
+        }
+      ];
+    }
   ];
 }

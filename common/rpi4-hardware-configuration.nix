@@ -21,7 +21,7 @@
         firmwareConfig = "dtparam=sd_poll_once=on";
       };
       grub.enable = false;
-      generic-extlinux-compatible.enable = true;
+      generic-extlinux-compatible.enable = false;
     };
   };
 

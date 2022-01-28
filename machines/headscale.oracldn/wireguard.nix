@@ -2,5 +2,5 @@
 let
   wireguard = import ../../common/funcs/wireguard.nix { inherit config lib; };
 in
-wireguard.serverService "ldn" "wireguard-ldn"
+wireguard.clientService "headscale" "wireguard-headscale-oracldn"
 

@@ -2,7 +2,7 @@
   environment.systemPackages = with pkgs; [
     fish
 
-    unstable.neovim
+    neovim
     dig
     vim
     babelfish
@@ -43,7 +43,7 @@
     gcc
 
     # Nix tooling
-    unstable.nodePackages.node2nix
     nixpkgs-fmt
+    nix-diff
   ];
 }

@@ -7,7 +7,7 @@ let
   };
 in
 {
-  sops.secrets.discord-systemd-webhook = { };
+  age.secrets.discord-systemd-webhook.file = ../secrets/discord-systemd-webhook.age;
 
   systemd.services."notify-discord@" = {
     serviceConfig.Type = "oneshot";
@@ -18,7 +18,7 @@ in
       UNIT=$(systemd-escape $1)
       BODY=$(systemctl status --no-pager $UNIT || true)
       HOSTNAME=$(${pkgs.hostname}/bin/hostname -f)
-      WEBHOOK_URL="$(cat '${config.sops.secrets.discord-systemd-webhook.path}')"
+      WEBHOOK_URL="$(cat '${config.age.secrets.discord-systemd-webhook.path}')"
 
       ${pkgs.bash}/bin/bash ${discordScript}/discord.sh \
               --webhook-url="$WEBHOOK_URL" \

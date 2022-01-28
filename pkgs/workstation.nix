@@ -1,4 +1,8 @@
-{ pkgs, lib, ... }:
+{ pkgs
+, lib
+  # , flakes
+, ...
+}:
 {
   home.packages = with pkgs; [
     # Workstation
@@ -15,13 +19,19 @@
     terraform
     tflint
     tfsec
-    nixopsUnstable
 
+    # nix tooling
+    nixopsUnstable
+    unstable.nodePackages.node2nix
+
+    # Darwin only
     (lib.mkIf pkgs.stdenv.isDarwin terminal-notifier)
 
     # logcli
 
     python39Packages.pipx
     # osxphotos
+  ] ++ [
+    # flakes.agenix.defaultPackage."${pkgs.system}"
   ];
 }

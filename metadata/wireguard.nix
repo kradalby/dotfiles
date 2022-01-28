@@ -20,7 +20,7 @@
     oracleldn = {
       additional_networks = [ "10.66.0.0/16" ];
       addresses = [ "10.69.0.206/32" "2a03:94e0:200d:69::206/128" ];
-      endpoint_address = "oracle-ldn.fap.no";
+      endpoint_address = "oracldn.fap.no";
       endpoint_port = 51820;
       public_key = "Gp4ZxbTOP3yo8SVPBC1Bi34OqArGYsvP3MNT1CjbTyM=";
     };
@@ -100,7 +100,7 @@
       public_key = "gIUy1AimcxaPRK336Qmi47eZ2FBHO0vWHs3aYfg/62I=";
     };
 
-    vetleshield = {
+    headscale = {
       additional_networks = [ ];
       addresses = [ "10.69.0.9/32" "2a03:94e0:200d:69::9/128" ];
       public_key = "tuiPc7znUC4vAFJhmbsVuenGBGY+Y4WgVxGrVUl6/wk=";

@@ -2,59 +2,49 @@
   description = "kradalby's system config";
 
   inputs = {
-    nixos-old.url = github:NixOS/nixpkgs/nixos-21.05;
-    nixos.url = github:NixOS/nixpkgs/nixos-21.11;
-    nixos-unstable.url = github:NixOS/nixpkgs/nixpkgs-unstable;
-    nixos-master.url = github:NixOS/nixpkgs/master;
+    nixos.url = "github:NixOS/nixpkgs/nixos-21.11";
+    nixos-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nixos-master.url = "github:NixOS/nixpkgs/master";
 
-    nixos-hardware.url = github:NixOS/nixos-hardware;
+    nixos-hardware.url = "github:NixOS/nixos-hardware";
 
-    darwin.url = github:lnl7/nix-darwin/master;
+    darwin.url = "github:lnl7/nix-darwin/master";
     darwin.inputs.nixpkgs.follows = "nixos-unstable";
 
-    home-manager-old.url = github:nix-community/home-manager/release-21.05;
-    home-manager.url = github:nix-community/home-manager/release-21.11;
-    home-manager-unstable.url = github:nix-community/home-manager/master;
+    home-manager.url = "github:nix-community/home-manager/release-21.11";
+    home-manager-unstable.url = "github:nix-community/home-manager/master";
     home-manager-unstable.inputs.nixpkgs.follows = "nixos-unstable";
 
-    sops-nix.url = github:Mic92/sops-nix;
+    agenix.url = "github:ryantm/agenix";
 
-    nur.url = github:nix-community/NUR;
+    nur.url = "github:nix-community/NUR";
 
     fenix = {
       url = "github:nix-community/fenix";
       # inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Only pull from 'trunk' when channels are blocked by a Hydra jobset
-    # failure or the 'unstable' channel has not otherwise updated recently for
-    # some other reason.
-    trunk.url = github:nixos/nixpkgs;
-
     # nixops-plugged.url = github:lukebfox/nixops-plugged;
     # deploy-flake.url = "github:antifuchs/deploy-flake";
-    deploy-rs.url = github:serokell/deploy-rs;
+    deploy-rs.url = "github:serokell/deploy-rs";
 
     nixos-generators = {
-      url = github:nix-community/nixos-generators;
+      url = "github:nix-community/nixos-generators";
       inputs.nixpkgs.follows = "nixos-unstable";
     };
   };
 
   outputs =
     { self
-    , nixos-old
     , nixos
     , nixos-unstable
     , nixos-master
     , darwin
-    , home-manager-old
     , home-manager
     , home-manager-unstable
-    , sops-nix
+    , agenix
     , nur
     , fenix
-    , trunk
       # , nixops-plugged
       # , deploy-flake
     , deploy-rs
@@ -64,22 +54,23 @@
     let
       overlay-pkgs = final: prev: {
         unstable = import nixos-unstable { system = final.system; };
-        trunk = import trunk { system = final.system; };
+        master = import nixos-master { system = final.system; };
       };
 
       commonModules = [
-        sops-nix.nixosModules.sops
-
-        ({ pkgs, ... }: {
-          sops.defaultSopsFile = ./secrets.yaml;
-        })
+        # TODO: use when macOS is supported
+        # agenix.nixosModules.age
 
         ({ nixpkgs.overlays = [ nur.overlay overlay-pkgs fenix.overlay ]; })
       ];
 
+
+
       nixosBox = arch: base: homeBase: name: base.lib.nixosSystem {
         system = arch;
         modules = commonModules ++ [
+          # TODO: remove when common 
+          agenix.nixosModules.age
           ({
             system.configurationRevision =
               if self ? rev
@@ -101,14 +92,20 @@
 
       macBox = machine: base: homeBase: darwin.lib.darwinSystem {
         system = machine.arch;
-        modules = commonModules ++ [
-          (./. + "/machines/${machine.hostname}")
-          homeBase.darwinModules.home-manager
-        ];
-        specialArgs = {
-          inherit flakes;
-          inherit machine;
-        };
+        modules =
+          let
+            age = import ./modules/agenix.nix;
+          in
+          commonModules ++ [
+            (./. + "/machines/${machine.hostname}")
+            homeBase.darwinModules.home-manager
+            age
+          ];
+        specialArgs =
+          {
+            inherit flakes;
+            inherit machine;
+          };
       };
 
       homeOnly = machine: homeBase: homeBase.lib.homeManagerConfiguration {
@@ -127,8 +124,9 @@
     {
 
       nixosConfigurations = {
-        "dev-terra" = nixosBox "x86_64-linux" nixos home-manager-unstable "dev.terra";
+        "dev-terra" = nixosBox "x86_64-linux" nixos-unstable home-manager-unstable "dev.terra";
         "core-ntnu" = nixosBox "x86_64-linux" nixos-unstable null "core.ntnu";
+        "headscale-oracldn" = nixosBox "x86_64-linux" nixos-master null "headscale.oracldn";
 
         # nixos-generate --system aarch64-linux -f sd-aarch64 -I nixpkgs=channel:nixos-unstable
         "core-ldn" = nixosBox "aarch64-linux" nixos-unstable null "core.ldn";
@@ -143,7 +141,7 @@
               arch = "x86_64-darwin";
               username = "kradalby";
               hostname = "kramacbook";
-              homeDir = "/Users/kradalby";
+              homeDir = /Users/kradalby;
             };
           in
           macBox machine nixos-unstable home-manager-unstable;

@@ -60,6 +60,11 @@ Host *.oracle-ldn
     User root
     Port 22
 
+Host *.oracldn
+    HostName %h.fap.no
+    User root
+    Port 22
+
 Host *.v
     HostName %hpn.fap.no
     User root
