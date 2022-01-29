@@ -51,7 +51,7 @@ let
           print("Executing: ${command}")
 
           task.arguments = ["-c", command]
-          task.launchPath = "/bin/bash"
+          task.launchPath = "${pkgs.bash}/bin/bash"
           do {
               try task.run()
           } 
