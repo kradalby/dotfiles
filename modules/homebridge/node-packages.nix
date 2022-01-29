@@ -229,13 +229,13 @@ let
         sha512 = "4L8msWK31oXwdtC81RmRBAULd0ShnAHjBuKT9MRQpjP0piNrZdXyTRcKY9/UIfhGeKIT4PvF5amOOUbbT/9Wpg==";
       };
     };
-    "@types/node-17.0.10" = {
+    "@types/node-17.0.13" = {
       name = "_at_types_slash_node";
       packageName = "@types/node";
-      version = "17.0.10";
+      version = "17.0.13";
       src = fetchurl {
-        url = "https://registry.npmjs.org/@types/node/-/node-17.0.10.tgz";
-        sha512 = "S/3xB4KzyFxYGCppyDt68yzBU9ysL88lSdIah4D6cptdcltc4NCPCAMc0+PCpg/lLIyC7IPvj2Z52OJWeIUkog==";
+        url = "https://registry.npmjs.org/@types/node/-/node-17.0.13.tgz";
+        sha512 = "Y86MAxASe25hNzlDbsviXl8jQHb0RDvKt4c40ZJQ1Don0AAL0STLZSs4N+6gLEO55pedy7r2cLwS+ZDxPm/2Bw==";
       };
     };
     "abort-controller-3.0.0" = {
@@ -1696,13 +1696,13 @@ let
         sha512 = "dy7yogJ4ARaQALGbi4dQtyYziNBuUJgGgTGmp3eS3+roAwLMDBsWz0OvBzJHth4xS/OW/js26xNdW6VlxT8htA==";
       };
     };
-    "fastify-plugin-3.0.0" = {
+    "fastify-plugin-3.0.1" = {
       name = "fastify-plugin";
       packageName = "fastify-plugin";
-      version = "3.0.0";
+      version = "3.0.1";
       src = fetchurl {
-        url = "https://registry.npmjs.org/fastify-plugin/-/fastify-plugin-3.0.0.tgz";
-        sha512 = "ZdCvKEEd92DNLps5n0v231Bha8bkz1DjnPP/aEz37rz/q42Z5JVLmgnqR4DYuNn3NXAO3IDCPyRvgvxtJ4Ym4w==";
+        url = "https://registry.npmjs.org/fastify-plugin/-/fastify-plugin-3.0.1.tgz";
+        sha512 = "qKcDXmuZadJqdTm6vlCqioEbyewF60b/0LOFCcYN1B6BIZGlYJumWWOYs70SFYLDAH4YqdE1cxH/RKMG7rFxgA==";
       };
     };
     "fastify-static-4.5.0" = {
@@ -2812,13 +2812,13 @@ let
         sha1 = "3b09924edf9f083c0490fdd4c0bc4421e04764ee";
       };
     };
-    "libphonenumber-js-1.9.44" = {
+    "libphonenumber-js-1.9.46" = {
       name = "libphonenumber-js";
       packageName = "libphonenumber-js";
-      version = "1.9.44";
+      version = "1.9.46";
       src = fetchurl {
-        url = "https://registry.npmjs.org/libphonenumber-js/-/libphonenumber-js-1.9.44.tgz";
-        sha512 = "zhw8nUMJuQf7jG1dZfEOKKOS6M3QYIv3HnvB/vGohNd0QfxIQcObH3a6Y6s350H+9xgBeOXClOJkS0hJ0yvS3g==";
+        url = "https://registry.npmjs.org/libphonenumber-js/-/libphonenumber-js-1.9.46.tgz";
+        sha512 = "QqTX4UVsGy24njtCgLRspiKpxfRniRBZE/P+d0vQXuYWQ+hwDS6X0ouo0O/SRyf7bhhMCE71b6vAvLMtY5PfEw==";
       };
     };
     "light-my-request-4.6.0" = {
@@ -5041,7 +5041,7 @@ in
       sources."@types/cookie-0.4.1"
       sources."@types/cors-2.8.12"
       sources."@types/jsonwebtoken-8.5.4"
-      sources."@types/node-17.0.10"
+      sources."@types/node-17.0.13"
       sources."abstract-logging-2.0.1"
       sources."accepts-1.3.7"
       sources."ajv-6.12.6"
@@ -5166,7 +5166,7 @@ in
       sources."fastify-error-0.3.1"
       sources."fastify-formbody-5.2.0"
       sources."fastify-multipart-5.2.1"
-      sources."fastify-plugin-3.0.0"
+      sources."fastify-plugin-3.0.1"
       sources."fastify-static-4.5.0"
       sources."fastify-swagger-4.12.6"
       sources."fastify-warning-0.2.0"
@@ -5232,7 +5232,7 @@ in
       sources."jwa-1.4.1"
       sources."jws-3.2.2"
       sources."leven-2.1.0"
-      sources."libphonenumber-js-1.9.44"
+      sources."libphonenumber-js-1.9.46"
       (sources."light-my-request-4.6.0" // {
         dependencies = [
           sources."ajv-8.9.0"
