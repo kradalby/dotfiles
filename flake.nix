@@ -61,7 +61,14 @@
         # TODO: use when macOS is supported
         # agenix.nixosModules.age
 
-        ({ nixpkgs.overlays = [ nur.overlay overlay-pkgs fenix.overlay ]; })
+        ({
+          nixpkgs.overlays = [
+            nur.overlay
+            overlay-pkgs
+            fenix.overlay
+            (import ./pkgs/overlays)
+          ];
+        })
       ];
 
 
@@ -126,7 +133,7 @@
       nixosConfigurations = {
         "dev-terra" = nixosBox "x86_64-linux" nixos-unstable home-manager-unstable "dev.terra";
         "core-ntnu" = nixosBox "x86_64-linux" nixos-unstable null "core.ntnu";
-        "headscale-oracldn" = nixosBox "x86_64-linux" nixos-master null "headscale.oracldn";
+        "headscale-oracldn" = nixosBox "x86_64-linux" nixos-unstable null "headscale.oracldn";
 
         # nixos-generate --system aarch64-linux -f sd-aarch64 -I nixpkgs=channel:nixos-unstable
         "core-ldn" = nixosBox "aarch64-linux" nixos-unstable null "core.ldn";

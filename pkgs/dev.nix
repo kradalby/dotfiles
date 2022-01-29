@@ -1,4 +1,5 @@
-{ pkgs, ... }: {
+{ pkgs, ... }:
+{
   home.packages = with pkgs; [
     # Development
     buf
@@ -8,9 +9,6 @@
     gh
     git-open
     go-jsonnet
-    gofumpt
-    golangci-lint
-    gox
     hadolint
     html-tidy
     nodePackages.eslint_d
@@ -35,10 +33,14 @@
         "rustfmt"
       ])
 
+    gofumpt
+    golangci-lint
+    gox
+    golines
+
 
     # clang_13
 
-    # golines
     # swiftlint
     # clang-format
     # hclfmt
