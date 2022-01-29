@@ -38,6 +38,7 @@
     gox
     golines
 
+    (lib.mkIf pkgs.stdenv.isLinux swift)
 
     # clang_13
 

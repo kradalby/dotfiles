@@ -3,7 +3,7 @@ local lsp_installer = require "nvim-lsp-installer"
 Lsps = {
     "ansiblels",
     "bashls",
-    "cssls",
+    "cssmodules_ls",
     "diagnosticls",
     "dockerls",
     "dotls",
@@ -11,32 +11,32 @@ Lsps = {
     "elmls",
     "gopls",
     "graphql",
-    -- "html",
     "jedi_language_server",
     "jsonls",
+    "jsonnet_ls",
     "kotlin_language_server",
     "omnisharp",
     "pylsp",
     "pyright",
     "rescriptls",
+    "rnix",
     "rust_analyzer",
+    "sourcekit",
     "sumneko_lua",
     "tailwindcss",
     "terraformls",
     "tflint",
     "tsserver",
     "vimls",
-    -- "vscode-langservers-extracted",
     "vuels",
-    "jsonnet_ls",
-    "sourcekit",
+    "yamlls"
+    -- "cssls",
     -- "fsautocomplete",
-    "yamlls",
-    "cssmodules_ls",
-    "rnix"
     -- "groovyls"
+    -- "html",
     -- "sqlls",
     -- "sqls",
+    -- "vscode-langservers-extracted",
 }
 
 function table.empty(self)
@@ -82,7 +82,6 @@ function M.install_servers_gui()
             end
         end
     end
-
 end
 
 return M
