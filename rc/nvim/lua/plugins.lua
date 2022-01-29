@@ -293,6 +293,16 @@ return require("packer").startup(
             end
         }
 
+        use {
+            "danymat/neogen",
+            config = function()
+                require("neogen").setup {
+                    enabled = true
+                }
+            end,
+            requires = "nvim-treesitter/nvim-treesitter"
+        }
+
         -- Remove when nvim 12587 is resolved
         use "antoinemadec/FixCursorHold.nvim"
 
