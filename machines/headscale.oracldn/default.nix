@@ -10,6 +10,7 @@
 
     ./restic.nix
     ./wireguard.nix
+    ./tailscale.nix
     ./headscale.nix
   ];
 

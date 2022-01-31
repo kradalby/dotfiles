@@ -6,6 +6,7 @@
     ../../common/acme.nix
     ../../common/nginx.nix
     ../../common/consul-server.nix
+    ../../common/coredns.nix
 
     ./hardware-configuration.nix
     ./wireguard.nix
@@ -81,6 +82,55 @@
         { sourcePort = 500; destination = "10.61.0.1:51820"; proto = "udp"; }
         { sourcePort = 4500; destination = "10.61.0.1:51820"; proto = "udp"; }
       ];
+    };
+
+    firewall = {
+      # This is a special override for gateway machines as we 
+      # dont want to use "openFirewall" here since it makes
+      # everything world available.
+      allowedTCPPorts = lib.mkForce [
+        80 # HTTP
+        443 # HTTPS
+      ];
+
+      allowedUDPPorts = lib.mkForce [
+        443 # HTTPS
+        config.services.tailscale.port
+        config.networking.wireguard.interfaces.wg0.listenPort
+      ];
+
+      interfaces.lan.allowedTCPPorts = [
+        22 # ssh
+        53 # DNS
+
+        # consul 
+        8300
+        8301
+        8302
+        8600
+
+        # Exporters
+        9153 # CoreDNS exporter
+        9430 # CoreRAD exporter
+        config.services.prometheus.exporters.node.port
+        config.services.prometheus.exporters.smartctl.port
+        config.services.prometheus.exporters.wireguard.port
+        config.services.prometheus.exporters.nginx.port
+        config.services.prometheus.exporters.nginxlog.port
+        config.services.prometheus.exporters.systemd.port
+        config.services.prometheus.exporters.smokeping.port
+      ];
+
+      interfaces.lan.allowedUDPPorts = [
+        53 # DNS
+        5353 # mDNS
+
+        # consul 
+        8301
+        8302
+        8600
+      ];
+
     };
   };
 

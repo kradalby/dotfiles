@@ -28,8 +28,7 @@ in
         default = "headscale";
         type = types.str;
         description = ''
-          If the default user "headscale" is configured then this is the primary
-          group of that user.
+          Group the headscale server should execute under.
         '';
       };
 
@@ -57,11 +56,12 @@ in
         description = ''
           Listening port of headscale.
         '';
-        example = "443";
+        example = 443;
       };
 
       privateKeyFile = mkOption {
         type = types.path;
+        default = "${dataDir}/private.key";
         description = ''
           Path to private key file, generated automatically if it does not exist.
         '';
@@ -73,8 +73,7 @@ in
           default = [ "https://controlplane.tailscale.com/derpmap/default" ];
           description = ''
             List of urls containing DERP maps.
-
-            <link xlink:href="https://tailscale.com/blog/how-tailscale-works/"><literal>How Tailscale works</link>
+            See <link xlink:href="https://tailscale.com/blog/how-tailscale-works/"><literal>How Tailscale works</link> for more information on DERP maps.
           '';
         };
 
@@ -83,8 +82,7 @@ in
           default = [ ];
           description = ''
             List of file paths containing DERP maps.
-
-            <link xlink:href="https://tailscale.com/blog/how-tailscale-works/"><literal>How Tailscale works</link>
+            See <link xlink:href="https://tailscale.com/blog/how-tailscale-works/"><literal>How Tailscale works</link> for more information on DERP maps.
           '';
         };
 
@@ -215,7 +213,8 @@ in
             Defines the base domain to create the hostnames for MagicDNS.
             <option>baseDomain</option> must be a FQDNs, without the trailing dot.
             The FQDN of the hosts will be
-            <literal>hostname.namespace.base_domain</literal> (e.g., _myhost.mynamespace.example.com_).
+            <literal>hostname.namespace.base_domain</literal> (e.g.
+            <literal>myhost.mynamespace.example.com</literal>).
           '';
         };
       };
@@ -239,8 +238,8 @@ in
         };
 
         clientSecretFile = mkOption {
-          type = types.path;
-          default = "";
+          type = types.nullOr types.path;
+          default = null;
           description = ''
             Path to OpenID Connect client secret file.
           '';
@@ -295,7 +294,6 @@ in
             Path to already created certificate.
           '';
         };
-
         keyFile = mkOption {
           type = types.nullOr types.path;
           default = null;
@@ -331,66 +329,67 @@ in
   config = mkIf cfg.enable {
 
     services.headscale.extraSettings = {
-      server_url = cfg.serverUrl;
-      listen_addr = "${cfg.address}:${toString cfg.port}";
+      server_url = mkDefault cfg.serverUrl;
+      listen_addr = mkDefault "${cfg.address}:${toString cfg.port}";
 
-      private_key_path = cfg.privateKeyFile;
+      private_key_path = mkDefault cfg.privateKeyFile;
 
       derp = {
-        urls = cfg.derp.urls;
-        paths = cfg.derp.paths;
-        auto_update_enable = cfg.derp.autoUpdate;
-        update_frequency = cfg.derp.updateFrequency;
+        urls = mkDefault cfg.derp.urls;
+        paths = mkDefault cfg.derp.paths;
+        auto_update_enable = mkDefault cfg.derp.autoUpdate;
+        update_frequency = mkDefault cfg.derp.updateFrequency;
       };
 
       # Turn off update checks since the origin of our package
       # is nixpkgs and not Github.
       disable_check_updates = true;
 
-      ephemeral_node_inactivity_timeout = cfg.ephemeralNodeInactivityTimeout;
+      ephemeral_node_inactivity_timeout = mkDefault cfg.ephemeralNodeInactivityTimeout;
 
-      db_type = cfg.database.type;
-      db_path = cfg.database.path;
+      db_type = mkDefault cfg.database.type;
+      db_path = mkDefault cfg.database.path;
 
-      log_level = cfg.logLevel;
+      log_level = mkDefault cfg.logLevel;
 
       dns_config = {
-        nameservers = cfg.dns.nameservers;
-        domains = cfg.dns.domains;
-        magic_dns = cfg.dns.magicDns;
-        base_domain = cfg.dns.baseDomain;
+        nameservers = mkDefault cfg.dns.nameservers;
+        domains = mkDefault cfg.dns.domains;
+        magic_dns = mkDefault cfg.dns.magicDns;
+        base_domain = mkDefault cfg.dns.baseDomain;
       };
 
       unix_socket = "${runDir}/headscale.sock";
 
       # OpenID Connect
       oidc = {
-        issuer = cfg.openIdConnect.issuer;
-        client_id = cfg.openIdConnect.clientId;
-        domain_map = cfg.openIdConnect.domainMap;
+        issuer = mkDefault cfg.openIdConnect.issuer;
+        client_id = mkDefault cfg.openIdConnect.clientId;
+        domain_map = mkDefault cfg.openIdConnect.domainMap;
       };
 
       tls_letsencrypt_cache_dir = "${dataDir}/.cache";
 
-      acl_policy_path = cfg.aclPolicyFile;
     } // optionalAttrs (cfg.database.host != null) {
-      db_host = cfg.database.host;
+      db_host = mkDefault cfg.database.host;
     } // optionalAttrs (cfg.database.port != null) {
-      db_port = cfg.database.port;
+      db_port = mkDefault cfg.database.port;
     } // optionalAttrs (cfg.database.name != null) {
-      db_name = cfg.database.name;
+      db_name = mkDefault cfg.database.name;
     } // optionalAttrs (cfg.database.user != null) {
-      db_user = cfg.database.user;
+      db_user = mkDefault cfg.database.user;
     } // optionalAttrs (cfg.tls.letsencrypt.hostname != null) {
-      tls_letsencrypt_hostname = cfg.tls.letsencrypt.hostname;
+      tls_letsencrypt_hostname = mkDefault cfg.tls.letsencrypt.hostname;
     } // optionalAttrs (cfg.tls.letsencrypt.challengeType != null) {
-      tls_letsencrypt_challenge_type = cfg.tls.letsencrypt.challengeType;
+      tls_letsencrypt_challenge_type = mkDefault cfg.tls.letsencrypt.challengeType;
     } // optionalAttrs (cfg.tls.letsencrypt.httpListen != null) {
-      tls_letsencrypt_listen = cfg.tls.letsencrypt.httpListen;
+      tls_letsencrypt_listen = mkDefault cfg.tls.letsencrypt.httpListen;
     } // optionalAttrs (cfg.tls.certFile != null) {
-      tls_cert_path = cfg.tls.certFile;
+      tls_cert_path = mkDefault cfg.tls.certFile;
     } // optionalAttrs (cfg.tls.keyFile != null) {
-      tls_key_path = cfg.tls.keyFile;
+      tls_key_path = mkDefault cfg.tls.keyFile;
+    } // optionalAttrs (cfg.aclPolicyFile != null) {
+      acl_policy_path = mkDefault cfg.aclPolicyFile;
     };
 
     # Setup the headscale configuration in a known path in /etc to
@@ -400,13 +399,11 @@ in
 
     users.groups.headscale = mkIf (cfg.group == "headscale") { };
 
-    users.users = optionalAttrs (cfg.user == "headscale") {
-      headscale = {
-        description = "headscale user";
-        home = dataDir;
-        group = cfg.group;
-        isSystemUser = true;
-      };
+    users.users.headscale = mkIf (cfg.user == "headscale") {
+      description = "headscale user";
+      home = dataDir;
+      group = cfg.group;
+      isSystemUser = true;
     };
 
     systemd.services.headscale = {
@@ -417,7 +414,7 @@ in
 
       script = ''
         ${optionalString (cfg.database.passwordFile != null) ''
-          export HEADSCALE_DB_PASS="$(head -n1 ${cfg.database.passwordFile})"
+          export HEADSCALE_DB_PASS="$(head -n1 ${escapeShellArg cfg.database.passwordFile})"
         ''}
 
         export HEADSCALE_OIDC_CLIENT_SECRET="$(head -n1 ${escapeShellArg cfg.openIdConnect.clientSecretFile})"
@@ -437,10 +434,10 @@ in
           # Hardening options
           RuntimeDirectory = "headscale";
           # Allow headscale group access so users can be added and use the CLI.
-          RuntimeDirectoryMode = "0770";
+          RuntimeDirectoryMode = "0750";
 
           StateDirectory = "headscale";
-          StateDirectoryMode = "0755";
+          StateDirectoryMode = "0750";
 
           ProtectSystem = "strict";
           ProtectHome = true;

@@ -1,10 +1,12 @@
 { config, lib, ... }:
 let
-  consul = import ../../common/funcs/consul.nix { inherit lib; };
+  consul = import ./funcs/consul.nix { inherit lib; };
+
+  site = builtins.replaceStrings [ ".fap.no" ] [ "" ] config.networking.domain;
 in
 {
   imports = [
-    ../../modules/blocklist.nix
+    ../modules/blocklist.nix
   ];
   services.blocklist-downloader.enable = true;
 
@@ -12,7 +14,7 @@ in
     enable = true;
     config =
       let
-        domain = "ldn";
+        domain = site;
       in
       ''
         consul {
@@ -69,8 +71,8 @@ in
 
   # networking.firewall.interfaces."${config.my.lan}".allowedTCPPorts = [ 53 9153 ];
   # networking.firewall.interfaces."${config.my.lan}".allowedUDPPorts = [ 53 ];
-  networking.firewall.interfaces.eth0.allowedTCPPorts = [ 53 9153 ];
-  networking.firewall.interfaces.eth0.allowedUDPPorts = [ 53 ];
+  networking.firewall.allowedTCPPorts = [ 53 9153 ];
+  networking.firewall.allowedUDPPorts = [ 53 ];
 
   my.consulServices.coredns_exporter = consul.prometheusExporter "coredns" 9153;
 }

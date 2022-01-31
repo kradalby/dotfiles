@@ -17,7 +17,7 @@ in
     file = ../../secrets/headscale-oidc-secret.age;
   };
 
-  environment.systemPackages = [ pkgs.unstable.headscale ];
+  environment.systemPackages = [ pkgs.headscale pkgs.sqlite-interactive pkgs.sqlite-web ];
 
   services.headscale = {
     enable = true;
@@ -36,6 +36,13 @@ in
       domainMap = {
         ".*" = "fap";
       };
+    };
+
+    extraSettings = {
+      ip_prefixes = [
+        "fd7a:115c:a1e0::/48"
+        "100.64.0.0/10"
+      ];
     };
   };
 
