@@ -10,6 +10,7 @@ Lsps = {
     "efm",
     "elmls",
     "gopls",
+    "golangci_lint_ls",
     "graphql",
     "jedi_language_server",
     "jsonls",

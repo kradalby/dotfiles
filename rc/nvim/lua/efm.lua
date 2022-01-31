@@ -132,12 +132,15 @@ M.languages = {
     vue = {M.prettier},
     scss = {M.prettier},
     markdown = {M.prettier},
-    go = {M.golines, M.golangci},
+    go = {
+        M.golines
+        -- M.golangci
+    },
     sh = {M.shfmt, M.shellcheck},
     yaml = {M.yamllint, M.prettier},
     ["yaml.ansible"] = {M.yamllint, M.prettier},
     proto = {M.clangfmtproto, M.buf_lint},
-    rust = {M.rustfmt},
+    rust = {M.rustfmt}
     -- nix = {M.nixpkgs}
 }
 
