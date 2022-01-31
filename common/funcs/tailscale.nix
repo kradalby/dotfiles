@@ -1,5 +1,6 @@
 { config, pkgs, lib }:
 let
+
   tailscale = hostname: loginServer: preAuthKey: exitNode: advertiseRoutes: {
 
     networking.firewall = {
@@ -29,25 +30,32 @@ let
       serviceConfig.Type = "oneshot";
 
       # have the job run this shell script
-      script = ''
-        # wait for tailscaled to settle
-        sleep 2
+      script =
+        let
+          upCommand = [
+            "${pkgs.tailscale}/bin/tailscale up"
+            "-login-server ${loginServer}"
+            "--authkey ${preAuthKey}"
+            "--accept-dns=false"
+            ''--hostname ${builtins.replaceStrings [ ".fap.no" ] [ "" ] config.networking.fqdn}''
+          ]
+          ++ lib.optional exitNode ''--advertise-exit-node \''
+          ++ lib.optional ((builtins.length advertiseRoutes) > 0) ''--advertise-routes=${builtins.concatStringsSep "," advertiseRoutes}'';
 
-        # check if we are already authenticated to tailscale
-        status="$(${pkgs.tailscale}/bin/tailscale status -json | ${pkgs.jq}/bin/jq -r .BackendState)"
-        if [ $status = "Running" ]; then # if so, then do nothing
-          exit 0
-        fi
+        in
+        ''
+          # wait for tailscaled to settle
+          sleep 2
 
-        # otherwise authenticate with tailscale
-        ${pkgs.tailscale}/bin/tailscale up \
-          -login-server ${loginServer} \
-          --authkey ${preAuthKey} \
-          --accept-dns=false \
-          ${lib.strings.optionalString (exitNode) ''--advertise-exit-node \''}
-          ${lib.strings.optionalString ((builtins.length advertiseRoutes) > 0) ''--advertise-routes=${builtins.concatStringsSep "," advertiseRoutes} \''}
-          --hostname ${builtins.replaceStrings [ ".fap.no" ] [ "" ] config.networking.fqdn}
-      '';
+          # check if we are already authenticated to tailscale
+          status="$(${pkgs.tailscale}/bin/tailscale status -json | ${pkgs.jq}/bin/jq -r .BackendState)"
+          if [ $status = "Running" ]; then # if so, then do nothing
+            exit 0
+          fi
+
+          # otherwise authenticate with tailscale
+          ${builtins.concatStringsSep " " upCommand}
+        '';
     };
   };
 in

@@ -7,7 +7,7 @@
   home.packages = with pkgs; [
     # Workstation
     ansible
-    ansible-lint
+    # ansible-lint
     drone-cli
     exiftool
     ipcalc

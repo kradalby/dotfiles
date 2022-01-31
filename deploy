@@ -25,9 +25,14 @@ onehost() {
 		--exclude=.pyre \
 		-auv . "root@${host}:/etc/nixos"
 
-	ssh -t "root@${host}" -- nixos-rebuild build --flake "/etc/nixos#${profile}"
-	# ssh -t "root@${host}" -- nix-diff /nix/var/nix/profiles/system result
-	ssh -t "root@${host}" -- nixos-rebuild switch --flake "/etc/nixos#${profile}"
+	set -x
+	if [ -n "${1-}" ] && [ "$1" = "diff" ]; then
+		ssh -t "root@${host}" -- nixos-rebuild build --flake "/etc/nixos#${profile}"
+		ssh -t "root@${host}" -- nix-diff /nix/var/nix/profiles/system result
+	else
+		ssh -t "root@${host}" -- nixos-rebuild switch --flake "/etc/nixos#${profile}"
+	fi
+	set +x
 }
 
 host=$1

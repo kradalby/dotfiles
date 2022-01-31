@@ -9,7 +9,11 @@
     nixos-hardware.url = "github:NixOS/nixos-hardware";
 
     darwin.url = "github:lnl7/nix-darwin/master";
-    darwin.inputs.nixpkgs.follows = "nixos-unstable";
+    darwin.inputs.nixpkgs.follows = "nixos";
+    darwin-unstable.url = "github:lnl7/nix-darwin/master";
+    darwin-unstable.inputs.nixpkgs.follows = "nixos-unstable";
+    darwin-master.url = "github:lnl7/nix-darwin/master";
+    darwin-master.inputs.nixpkgs.follows = "nixos-master";
 
     home-manager.url = "github:nix-community/home-manager/release-21.11";
     home-manager-unstable.url = "github:nix-community/home-manager/master";
@@ -40,6 +44,8 @@
     , nixos-unstable
     , nixos-master
     , darwin
+    , darwin-unstable
+    , darwin-master
     , home-manager
     , home-manager-unstable
     , agenix
@@ -156,13 +162,13 @@
 
       homeConfigurations = {
         # nix run github:nix-community/home-manager/master --no-write-lock-file -- switch --flake .#multipass
-        multipass =
+        "dev-ntnu" =
           let
             machine = {
               arch = "x86_64-linux";
-              username = "ubuntu";
-              hostname = "multipass";
-              homeDir = "/home/ubuntu";
+              username = "kradalby";
+              hostname = "dev.ntnu.fap.no";
+              homeDir = "/home/kradalby";
             };
           in
           homeOnly machine home-manager-unstable;

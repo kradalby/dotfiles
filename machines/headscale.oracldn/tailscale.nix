@@ -1,12 +1,12 @@
 { config, pkgs, lib, ... }:
 let
   wireguardHosts = import ../../metadata/wireguard.nix;
-  wireguardConfig = wireguardHosts.servers.ldn;
+  wireguardConfig = wireguardHosts.clients.headscale;
 in
 ((import ../../common/funcs/tailscale.nix { inherit config pkgs lib; }).tailscale
-  "core.ldn"
+  "headscale.oracldn"
   "https://headscale.kradalby.no"
-  "e342d42fd773376f936d592375c6e423e419da09ad9c730b" # onetime key
+  "7f0e5d7862606ce31537317ad22abe6e18ca3c099926e3ae" # onetime key
   true
   wireguardConfig.additional_networks)
 
