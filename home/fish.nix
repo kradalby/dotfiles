@@ -44,9 +44,24 @@
     #   end
     # end
 
+    loginShellInit =
+      let
+        fishReorderPath = path:
+          "fish_add_path --move --prepend ${path}";
+
+        path = [
+          (fishReorderPath "/nix/var/nix/profiles/default/bin")
+          (fishReorderPath "/etc/profiles/per-user/$USER/bin")
+          (fishReorderPath "/run/current-system/sw/bin")
+        ];
+      in
+      ''
+        ${builtins.concatStringsSep "\n" path}
+      '';
+
     shellInit = ''
       # if type -q ${pkgs.babelfish}
-        cat /etc/profiles/per-user/$USER/etc/profile.d/hm-session-vars.sh | ${pkgs.babelfish}/bin/babelfish | tail -n +5 | source
+      # cat /etc/profiles/per-user/$USER/etc/profile.d/hm-session-vars.sh | ${pkgs.babelfish}/bin/babelfish | tail -n +5 | source
       # end
 
       if test -f $HOME/Sync/fish/tokens.fish
@@ -54,29 +69,36 @@
       end
     '';
 
-    shellAliases = {
-      # cp = "cp -i";
-      # mv = "mv -i";
-      # rm = "rm -i";
+    shellAliases =
+      let
+        pyyaml = pkgs.python3.withPackages
+          (p: with p; [
+            pyyaml
+          ]);
+      in
+      {
+        # cp = "cp -i";
+        # mv = "mv -i";
+        # rm = "rm -i";
 
-      s = ''${pkgs.findutils}/bin/xargs ${pkgs.perl}/bin/perl -pi -E'';
-      ag = "rg";
-      cat = "bat";
-      du = "du -hs";
-      ipython = "ipython --no-banner";
-      ls = "exa";
-      mkdir = "mkdir -p";
-      nvim = "nvim -p";
-      ping = "prettyping";
-      vim = "nvim -p";
-      watch = "viddy --differences";
+        s = ''${pkgs.findutils}/bin/xargs ${pkgs.perl}/bin/perl -pi -E'';
+        ag = "${pkgs.ripgrep}/bin/rg";
+        cat = "${pkgs.bat}/bin/bat";
+        du = "du -hs";
+        ipython = "ipython --no-banner";
+        ls = "${pkgs.exa}/bin/exa";
+        mkdir = "mkdir -p";
+        nvim = "nvim -p";
+        ping = "${pkgs.prettyping}/bin/prettyping";
+        vim = "nvim -p";
+        watch = "${pkgs.viddy}/bin/viddy --differences";
 
-      # TODO: Add if for platform
-      tailscale = "/Applications/Tailscale.app/Contents/MacOS/Tailscale";
+        # TODO: Add if for platform
+        tailscale = "/Applications/Tailscale.app/Contents/MacOS/Tailscale";
 
-      osxphotos_missing_path = ''osxphotos query --json --only-photos | jq ".[] | select((.path == null)and .path_edited == null)"'';
-      yaml2json = "python3 -c 'import sys, yaml, json; json.dump(yaml.safe_load(sys.stdin), sys.stdout)' | jq";
-    };
+        osxphotos_missing_path = ''osxphotos query --json --only-photos | ${pkgs.jq}/bin/jq ".[] | select((.path == null)and .path_edited == null)"'';
+        yaml2json = "${pyyaml}/bin/python3 -c 'import sys, yaml, json; json.dump(yaml.safe_load(sys.stdin), sys.stdout)' | ${pkgs.jq}/bin/jq";
+      };
 
     # Abbreviate commonly used functions
     # An abbreviation will expand after <space> or <Enter> is hit

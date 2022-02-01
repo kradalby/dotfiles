@@ -2,22 +2,24 @@
   description = "kradalby's system config";
 
   inputs = {
-    nixos.url = "github:NixOS/nixpkgs/nixos-21.11";
-    nixos-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    nixos-master.url = "github:NixOS/nixpkgs/master";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-21.11";
+    nixpkgs-darwin.url = "github:NixOS/nixpkgs/nixpkgs-21.11-darwin";
 
-    nixos-hardware.url = "github:NixOS/nixos-hardware";
+    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nixpkgs-master.url = "github:NixOS/nixpkgs/master";
+
+    nixpkgs-hardware.url = "github:NixOS/nixos-hardware";
 
     darwin.url = "github:lnl7/nix-darwin/master";
-    darwin.inputs.nixpkgs.follows = "nixos";
+    darwin.inputs.nixpkgs.follows = "nixpkgs-darwin";
     darwin-unstable.url = "github:lnl7/nix-darwin/master";
-    darwin-unstable.inputs.nixpkgs.follows = "nixos-unstable";
+    darwin-unstable.inputs.nixpkgs.follows = "nixpkgs-unstable";
     darwin-master.url = "github:lnl7/nix-darwin/master";
-    darwin-master.inputs.nixpkgs.follows = "nixos-master";
+    darwin-master.inputs.nixpkgs.follows = "nixpkgs-master";
 
     home-manager.url = "github:nix-community/home-manager/release-21.11";
     home-manager-unstable.url = "github:nix-community/home-manager/master";
-    home-manager-unstable.inputs.nixpkgs.follows = "nixos-unstable";
+    home-manager-unstable.inputs.nixpkgs.follows = "nixpkgs-unstable";
 
     agenix.url = "github:ryantm/agenix";
 
@@ -34,15 +36,15 @@
 
     nixos-generators = {
       url = "github:nix-community/nixos-generators";
-      inputs.nixpkgs.follows = "nixos-unstable";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
   };
 
   outputs =
     { self
-    , nixos
-    , nixos-unstable
-    , nixos-master
+    , nixpkgs
+    , nixpkgs-unstable
+    , nixpkgs-master
     , darwin
     , darwin-unstable
     , darwin-master
@@ -59,8 +61,8 @@
     } @ flakes:
     let
       overlay-pkgs = final: prev: {
-        unstable = import nixos-unstable { system = final.system; };
-        master = import nixos-master { system = final.system; };
+        unstable = import nixpkgs-unstable { system = final.system; };
+        master = import nixpkgs-master { system = final.system; };
       };
 
       commonModules = [
@@ -103,7 +105,7 @@
         specialArgs = { inherit flakes; };
       };
 
-      macBox = machine: base: homeBase: darwin.lib.darwinSystem {
+      macBox = machine: base: homeBase: base.lib.darwinSystem {
         system = machine.arch;
         modules =
           let
@@ -137,13 +139,13 @@
     {
 
       nixosConfigurations = {
-        "dev-terra" = nixosBox "x86_64-linux" nixos-unstable home-manager-unstable "dev.terra";
-        "core-ntnu" = nixosBox "x86_64-linux" nixos-unstable null "core.ntnu";
-        "headscale-oracldn" = nixosBox "x86_64-linux" nixos-unstable null "headscale.oracldn";
+        "dev-terra" = nixosBox "x86_64-linux" nixpkgs-unstable home-manager-unstable "dev.terra";
+        "core-ntnu" = nixosBox "x86_64-linux" nixpkgs-unstable null "core.ntnu";
+        "headscale-oracldn" = nixosBox "x86_64-linux" nixpkgs-unstable null "headscale.oracldn";
 
         # nixos-generate --system aarch64-linux -f sd-aarch64 -I nixpkgs=channel:nixos-unstable
-        "core-ldn" = nixosBox "aarch64-linux" nixos-unstable null "core.ldn";
-        "home-ldn" = nixosBox "aarch64-linux" nixos-unstable null "home.ldn";
+        "core-ldn" = nixosBox "aarch64-linux" nixpkgs-unstable null "core.ldn";
+        "home-ldn" = nixosBox "aarch64-linux" nixpkgs-unstable null "home.ldn";
       };
 
       # darwin-rebuild switch --flake .#kramacbook
@@ -157,17 +159,17 @@
               homeDir = /Users/kradalby;
             };
           in
-          macBox machine nixos-unstable home-manager-unstable;
+          macBox machine darwin-master home-manager-unstable;
       };
 
       homeConfigurations = {
         # nix run github:nix-community/home-manager/master --no-write-lock-file -- switch --flake .#multipass
-        "dev-ntnu" =
+        "kradalby" =
           let
             machine = {
               arch = "x86_64-linux";
               username = "kradalby";
-              hostname = "dev.ntnu.fap.no";
+              hostname = "kradalby.home";
               homeDir = "/home/kradalby";
             };
           in

@@ -8,6 +8,7 @@
     entr
     gh
     git-open
+    gitlint
     go-jsonnet
     hadolint
     html-tidy
@@ -19,7 +20,10 @@
     pre-commit
     # rnix-lsp
     shfmt
+    shellharden
+    shellcheck
     yarn
+    editorconfig-checker
 
     lua53Packages.luasql-sqlite3
     lua53Packages.luadbi-sqlite3
@@ -39,6 +43,9 @@
     golines
 
     (lib.mkIf pkgs.stdenv.isLinux swift)
+
+    statix
+    nixpkgs-fmt
 
     # clang_13
 

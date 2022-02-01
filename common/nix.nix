@@ -21,8 +21,9 @@
       dates = [ "03:45" ];
     };
     registry = {
-      nixos.flake = flakes.nixos;
-      nixos-unstable.flake = flakes.nixos-unstable;
+      nixos.flake = flakes.nixpkgs;
+      nixos-unstable.flake = flakes.nixpkgs-unstable;
+      nixos-master.flake = flakes.nixpkgs-master;
     };
   };
 
