@@ -31,10 +31,10 @@
     tmux
     tree
     unzip
-    viddy
     wget
     yq
     rsync
+    viddy
 
     # Linux only
     (lib.mkIf pkgs.stdenv.isLinux usbutils)

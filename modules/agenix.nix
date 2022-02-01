@@ -27,7 +27,7 @@ let
     [ "${secretType.path}" != "/run/agenix/${secretType.name}" ] && mkdir -p "$(dirname "${secretType.path}")"
     (
       umask u=r,g=,o=
-      LANG=${config.i18n.defaultLocale} ${ageBin} --decrypt ${identities} -o "$TMP_FILE" "${secretType.file}"
+      ${ageBin} --decrypt ${identities} -o "$TMP_FILE" "${secretType.file}"
     )
     chmod ${secretType.mode} "$TMP_FILE"
     chown ${secretType.owner}:${secretType.group} "$TMP_FILE"
@@ -146,60 +146,70 @@ in
     # Create a new directory full of secrets for symlinking (this helps
     # ensure removed secrets are actually removed, or at least become
     # invalid symlinks).
-    system.activationScripts.agenixMountSecrets = {
+    system.activationScripts.preActivation = {
       text = ''
         _agenix_generation="$(basename "$(readlink /run/agenix)" || echo 0)"
         (( ++_agenix_generation ))
         echo "[agenix] symlinking new secrets to /run/agenix (generation $_agenix_generation)..."
         mkdir -p "${cfg.secretsMountPoint}"
-        chmod 0751 "${cfg.secretsMountPoint}"
-        grep -q "${cfg.secretsMountPoint} ramfs" /proc/mounts || mount -t ramfs none "${cfg.secretsMountPoint}" -o nodev,nosuid,mode=0751
+        chmod 0755 "${cfg.secretsMountPoint}"
+        # This does not work on macOS
+        # grep -q "${cfg.secretsMountPoint} ramfs" /proc/mounts || mount -t ramfs none "${cfg.secretsMountPoint}" -o nodev,nosuid,mode=0751
         mkdir -p "${cfg.secretsMountPoint}/$_agenix_generation"
-        chmod 0751 "${cfg.secretsMountPoint}/$_agenix_generation"
+        chmod 0755 "${cfg.secretsMountPoint}/$_agenix_generation"
         ln -sfn "${cfg.secretsMountPoint}/$_agenix_generation" /run/agenix
         (( _agenix_generation > 1 )) && {
           echo "[agenix] removing old secrets (generation $(( _agenix_generation - 1 )))..."
           rm -rf "${cfg.secretsMountPoint}/$(( _agenix_generation - 1 ))"
         }
       '';
-      deps = [
-        "specialfs"
-      ];
+      # deps = [
+      #   "specialfs"
+      # ];
     };
+
+    # # Secrets with root owner and group can be installed before users
+    # # exist. This allows user password files to be encrypted.
+    # system.activationScripts.agenixRoot = {
+    #   text = installRootOwnedSecrets;
+    #   deps = [
+    #     "agenixMountSecrets"
+    #     # "specialfs"
+    #   ];
+    # };
+    # system.activationScripts.users.deps = [ "agenixRoot" ];
 
     # Secrets with root owner and group can be installed before users
     # exist. This allows user password files to be encrypted.
-    system.activationScripts.agenixRoot = {
-      text = installRootOwnedSecrets;
-      deps = [ "agenixMountSecrets" "specialfs" ];
-    };
-    # system.activationScripts.users.deps = [ "agenixRoot" ];
+    system.activationScripts.extraActivation.text = installRootOwnedSecrets;
+
+    # Other secrets need to wait for users and groups to exist.
+    system.activationScripts.users.text = lib.mkAfter installNonRootSecrets;
 
     # chown the secrets mountpoint and the current generation to the keys group
     # instead of leaving it root:root.
-    system.activationScripts.agenixChownKeys = {
-      text = ''
-        chown :keys "${cfg.secretsMountPoint}" "${cfg.secretsMountPoint}/$_agenix_generation"
-      '';
-      deps = [
-        "users"
-        "groups"
-        "agenixMountSecrets"
-      ];
-    };
+    # system.activationScripts.postUserActivation = {
+    #   text = ''
+    #     sudo chown :wheel "${cfg.secretsMountPoint}" "${cfg.secretsMountPoint}/$_agenix_generation"
+    #   '';
+    #   # deps = [
+    #   #   "users"
+    #   #   "groups"
+    #   #   "agenixMountSecrets"
+    #   # ];
+    # };
 
-    # Other secrets need to wait for users and groups to exist.
-    system.activationScripts.agenix = {
-      text = installNonRootSecrets;
-      deps = [
-        "users"
-        "groups"
-        "specialfs"
-        "agenixMountSecrets"
-        "agenixChownKeys"
-      ];
-    };
+    # # Other secrets need to wait for users and groups to exist.
+    # system.activationScripts.agenix = {
+    #   text = installNonRootSecrets;
+    #   deps = [
+    #     "users"
+    #     "groups"
+    #     # "specialfs"
+    #     "agenixMountSecrets"
+    #     "agenixChownKeys"
+    #   ];
+    # };
   };
 
 }
-

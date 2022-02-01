@@ -5,7 +5,16 @@ local install_path = fn.stdpath("data") .. "/site/pack/packer/start/packer.nvim"
 
 if fn.empty(fn.glob(install_path)) > 0 then
     Packer_bootstrap =
-        fn.system({"git", "clone", "--depth", "1", "https://github.com/wbthomason/packer.nvim", install_path})
+        fn.system(
+        {
+            "git",
+            "clone",
+            "--depth",
+            "1",
+            "https://github.com/wbthomason/packer.nvim",
+            install_path
+        }
+    )
 end
 
 vim.cmd [[packadd packer.nvim]]
@@ -22,7 +31,8 @@ return require("packer").startup(
             config = function()
                 require "nvim-treesitter.configs".setup {
                     ensure_installed = "maintained",
-                    -- ignore_install = {"haskell"}, -- Haskell breaks without Java?
+                    -- ignore_install =
+                    --   {"haskell"}, -- Haskell breaks without Java?
                     highlight = {enable = true},
                     rainbow = {
                         enable = true,
@@ -134,6 +144,35 @@ return require("packer").startup(
                 -- "ray-x/cmp-treesitter"
             }
         }
+
+        -- use {
+        --     "jose-elias-alvarez/null-ls.nvim",
+        --     config = function()
+        --         local null_ls = require("null-ls")
+        --         null_ls.setup(
+        --             {
+        --                 sources = {
+        --                     -- null_ls.builtins.code_actions.statix,
+        --                     null_ls.builtins.diagnostics.editorconfig_checker.with(
+        --                         {
+        --                             command = "editorconfig-checker"
+        --                         }
+        --                     ),
+        --                     null_ls.builtins.diagnostics.gitlint,
+        --                     null_ls.builtins.diagnostics.shellcheck,
+        --                     -- null_ls.builtins.diagnostics.statix,
+        --                     null_ls.builtins.formatting.fish_indent,
+        --                     null_ls.builtins.formatting.shellharden,
+        --                     null_ls.builtins.formatting.trim_newlines,
+        --                     null_ls.builtins.formatting.trim_whitespace
+        --                 }
+        --             }
+        --         )
+        --     end,
+        --     requires = {
+        --         use "nvim-lua/plenary.nvim"
+        --     }
+        -- }
 
         use {
             "windwp/nvim-autopairs",

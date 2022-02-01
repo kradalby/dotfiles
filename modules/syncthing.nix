@@ -3,6 +3,8 @@
 with lib;
 
 let
+  helpers = import ../common/funcs/helpers.nix { inherit lib pkgs; };
+
   cfg = config.services.syncthing;
   opt = options.services.syncthing;
 
@@ -31,7 +33,7 @@ let
       )
       cfg.folders);
 
-  copyKeys = pkgs.writers.writeBash "syncthing-copy-keys" '' 
+  copyKeys = pkgs.writers.writeBash "syncthing-copy-keys" ''
     install -dm700 -o ${cfg.user} -g ${cfg.group} ${cfg.configDir}
     ${optionalString (cfg.cert != null) ''
       install -Dm400 -o ${cfg.user} -g ${cfg.group} ${toString cfg.cert} "${cfg.configDir}/cert.pem"
@@ -499,12 +501,16 @@ in
   config = mkIf cfg.enable {
     launchd.user.agents = {
       syncthing = {
-        command = ''
-          ${cfg.package}/bin/syncthing \
-            -no-browser \
-            -gui-address=${cfg.guiAddress} \
-            -home="${cfg.configDir}" ${escapeShellArgs cfg.extraFlags}
-        '';
+        command =
+          let
+            runSyncthing = pkgs.writers.writeBash "run-syncthing" ''
+              ${cfg.package}/bin/syncthing \
+                -no-browser \
+                -gui-address=${cfg.guiAddress} \
+                -home="${cfg.configDir}" ${escapeShellArgs cfg.extraFlags}
+            '';
+          in
+          helpers.swiftMacOSWrapper runSyncthing;
         environment = {
           STNORESTART = "yes";
           STNOUPGRADE = "yes";

@@ -1,17 +1,20 @@
 { lib, config, pkgs, ... }:
 with lib;
 let
-  backupJob = name: site: secret: directories:
+  backupJob = { name ? config.networking.fqdn, site, secret, paths, owner ? "root" }:
     mkMerge [
       {
-        age.secrets."${secret}".file = ../../secrets + "/${secret}.age";
+        age.secrets."${secret}" = {
+          file = ../../secrets + "/${secret}.age";
+          owner = owner;
+        };
       }
       {
         services.restic.backups."${site}" = {
 
           repository = "rest:https://restic.core.${site}.fap.no/${name}";
 
-          paths = directories;
+          paths = paths;
           pruneOpts = [
             "--keep-daily 7"
             "--keep-weekly 5"

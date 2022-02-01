@@ -1,4 +1,5 @@
 { config, lib, ... }:
+with lib;
 let
   consul = import ./funcs/consul.nix { inherit lib; };
 
@@ -14,7 +15,18 @@ in
     enable = true;
     config =
       let
-        domain = site;
+        sites = import ../metadata/consul.nix;
+        currentSite = builtins.replaceStrings [ ".fap.no" ] [ "" ] config.networking.domain;
+
+        peers = builtins.removeAttrs sites [ currentSite ];
+
+        peer = name: ip: ''
+          ${name} {
+            forward . ${ip} {
+              health_check 5s
+            }
+          }
+        '';
       in
       ''
         consul {
@@ -23,15 +35,17 @@ in
           }
         }
 
-        # Internal zone.
-        ${domain} {
+        # Internal zones.
+        ${currentSite} {
           hosts {
             ${lib.concatMapStrings (host: ''
-                ${host.ipAddress} ${host.hostName}.${domain}
+                ${host.ipAddress} ${host.hostName}.${currentSite}
               '') config.services.dhcpd4.machines
             }
           }
         }
+
+        ${concatStringsSep "\n" (attrValues (mapAttrs peer peers))}
 
         (cloudflare) {
           forward . tls://1.1.1.1 tls://1.0.0.1 tls://2606:4700:4700::1111 tls://2606:4700:4700::1001 {

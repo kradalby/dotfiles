@@ -232,7 +232,7 @@ in
             rcloneAttrToConf = v: "RCLONE_CONFIG_" + toUpper (rcloneRemoteName + "_" + v);
             toRcloneVal = v: if lib.isBool v then lib.boolToString v else v;
 
-            runRestic = pkgs.writers.writeBash "run-restic" '' 
+            runRestic = pkgs.writers.writeBash "run-restic" ''
               ${optionalString (backup.initialize || backup.dynamicFilesFrom != null) ''
                 # pre-exec
                 ${optionalString (backup.initialize) ''

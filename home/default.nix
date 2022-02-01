@@ -6,6 +6,14 @@
   home = {
 
     sessionPath = [
+      # I dont think this should be needed, but it seems
+      # to disappair...
+      "/run/current-system/sw/bin"
+
+      # This is a workaround as the path is not
+      # available to mosh unless its loaded here.
+      "/usr/local/bin"
+
       # "/etc/profiles/per-user/$USER/bin"
       "$HOME/bin"
       "$HOME/.bin"
@@ -15,15 +23,7 @@
       "$HOME/.nixpkgs/bin"
 
       # Load user profiles bin
-      "/etc/profiles/per-user/$USER/bin/"
-
-      # This is a workaround as the path is not 
-      # available to mosh unless its loaded here.
-      "/usr/local/bin"
-
-      # I dont think this should be needed, but it seems
-      # to disappair...
-      "/run/current-system/sw/bin"
+      # "/etc/profiles/per-user/$USER/bin"
     ];
 
     sessionVariables = {
@@ -141,4 +141,3 @@
     ../pkgs/common.nix
   ];
 }
-

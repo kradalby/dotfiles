@@ -3,7 +3,7 @@ let
   restic = import ../../common/funcs/restic.nix { inherit config lib pkgs; };
   helpers = import ../../common/funcs/helpers.nix { inherit pkgs lib; };
 
-  directories = [
+  paths = [
     "$HOME/Desktop"
     "$HOME/Documents"
     "$HOME/Downloads"
@@ -15,11 +15,20 @@ let
     "$HOME/.config"
   ];
 
+  cfg = site: {
+    name = "kramacbook";
+    secret = "restic-kramacbook-token";
+    owner = "kradalby";
+    site = site;
+    paths = paths;
+  };
+
+
 in
 {
   imports = [ ../../modules/restic.nix ];
 } //
 lib.mkMerge [
-  (restic.backupJob "kramacbook" "tjoda" "restic-kramacbook-token" directories)
-  (restic.backupJob "kramacbook" "terra" "restic-kramacbook-token" directories)
+  (restic.backupJob (cfg "tjoda"))
+  (restic.backupJob (cfg "terra"))
 ]
