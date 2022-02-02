@@ -16,4 +16,4 @@ windows:
       root: ~/git/kubes
   - core.te: eb -- mosh core.te
   - core.tj: eb -- mosh core.tj
-  - dev.n: eb -- mosh dev.n
+  - dev.n: eb -- mosh kradalby@dev.n
