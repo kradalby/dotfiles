@@ -145,34 +145,34 @@ return require("packer").startup(
             }
         }
 
-        -- use {
-        --     "jose-elias-alvarez/null-ls.nvim",
-        --     config = function()
-        --         local null_ls = require("null-ls")
-        --         null_ls.setup(
-        --             {
-        --                 sources = {
-        --                     -- null_ls.builtins.code_actions.statix,
-        --                     null_ls.builtins.diagnostics.editorconfig_checker.with(
-        --                         {
-        --                             command = "editorconfig-checker"
-        --                         }
-        --                     ),
-        --                     null_ls.builtins.diagnostics.gitlint,
-        --                     null_ls.builtins.diagnostics.shellcheck,
-        --                     -- null_ls.builtins.diagnostics.statix,
-        --                     null_ls.builtins.formatting.fish_indent,
-        --                     null_ls.builtins.formatting.shellharden,
-        --                     null_ls.builtins.formatting.trim_newlines,
-        --                     null_ls.builtins.formatting.trim_whitespace
-        --                 }
-        --             }
-        --         )
-        --     end,
-        --     requires = {
-        --         use "nvim-lua/plenary.nvim"
-        --     }
-        -- }
+        use {
+            "jose-elias-alvarez/null-ls.nvim",
+            config = function()
+                local null_ls = require("null-ls")
+                null_ls.setup(
+                    {
+                        sources = {
+                            null_ls.builtins.code_actions.statix,
+                            null_ls.builtins.diagnostics.editorconfig_checker.with(
+                                {
+                                    command = "editorconfig-checker"
+                                }
+                            ),
+                            null_ls.builtins.diagnostics.gitlint,
+                            null_ls.builtins.diagnostics.shellcheck,
+                            null_ls.builtins.diagnostics.statix,
+                            null_ls.builtins.formatting.fish_indent,
+                            null_ls.builtins.formatting.shellharden,
+                            null_ls.builtins.formatting.trim_newlines,
+                            null_ls.builtins.formatting.trim_whitespace
+                        }
+                    }
+                )
+            end,
+            requires = {
+                use "nvim-lua/plenary.nvim"
+            }
+        }
 
         use {
             "windwp/nvim-autopairs",

@@ -61,22 +61,23 @@
     } @ flakes:
     let
       overlay-pkgs = final: prev: {
-        unstable = import nixpkgs-unstable { system = final.system; };
-        master = import nixpkgs-master { system = final.system; };
+        stable = import nixpkgs { inherit (final) system; };
+        unstable = import nixpkgs-unstable { inherit (final) system; };
+        master = import nixpkgs-master { inherit (final) system; };
       };
 
       commonModules = [
         # TODO: use when macOS is supported
         # agenix.nixosModules.age
 
-        ({
+        {
           nixpkgs.overlays = [
             nur.overlay
             overlay-pkgs
             fenix.overlay
             (import ./pkgs/overlays)
           ];
-        })
+        }
       ];
 
 
@@ -84,14 +85,14 @@
       nixosBox = arch: base: homeBase: name: base.lib.nixosSystem {
         system = arch;
         modules = commonModules ++ [
-          # TODO: remove when common 
+          # TODO: remove when common
           agenix.nixosModules.age
-          ({
+          {
             system.configurationRevision =
               if self ? rev
               then self.rev
               else "DIRTY";
-          })
+          }
 
           (./. + "/machines/${name}")
         ] ++ (
@@ -124,9 +125,9 @@
       };
 
       homeOnly = machine: homeBase: homeBase.lib.homeManagerConfiguration {
+        inherit (machine) username;
         system = machine.arch;
         homeDirectory = machine.homeDir;
-        username = machine.username;
         configuration.imports = [ ./home ];
         extraModules =
           commonModules ++
@@ -209,4 +210,3 @@
       checks = builtins.mapAttrs (system: deployLib: deployLib.deployChecks self.deploy) deploy-rs.lib;
     };
 }
-
