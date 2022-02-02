@@ -44,7 +44,10 @@
 
     (lib.mkIf pkgs.stdenv.isLinux swift)
 
-    statix
+    # null-ls only support 0.4.0, so override
+    # to ensure we use stable for now.
+    stable.statix
+
     nixpkgs-fmt
 
     # clang_13
