@@ -19,6 +19,7 @@
     terraform
     tflint
     tfsec
+    headscale
 
     # nix tooling
     nixopsUnstable
