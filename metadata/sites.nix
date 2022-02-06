@@ -38,6 +38,11 @@ let
         {
           name = "terra";
           nameservers = [ ipv4Gateway ];
+          k3s = {
+            master = "10.60.0.111";
+            clusterCidr = "10.60.4.0/24";
+            serviceCidr = "10.60.5.0/24";
+          };
           inherit ipv4Gateway;
         };
 

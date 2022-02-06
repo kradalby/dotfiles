@@ -7,9 +7,11 @@ in
   imports = [
     ../../common
     ./hardware-configuration.nix
+
+    ./k3s.nix
   ];
 
-  my.lan = "enp0s3";
+  my.lan = "ens3";
 
   networking = network.base
     {
@@ -21,6 +23,7 @@ in
 
   # TODO: Remove when terra has consul
   services.consul.extraConfig.retry_join = [ ];
+
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
