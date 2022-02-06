@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, config, ... }:
 let
   keys = [
     # kramacbook
@@ -9,6 +9,8 @@ let
   ];
 in
 {
+  age.secrets.r.file = ../secrets/r.age;
+
   users = {
     users = {
       kradalby = {
@@ -17,6 +19,7 @@ in
         extraGroups = [ "audio" "dialout" "lp" "scanner" "video" "wheel" "wireshark" ];
         shell = pkgs.fish;
         openssh.authorizedKeys.keys = keys;
+        passwordFile = config.age.secrets.r.path;
       };
 
       root = {
@@ -26,4 +29,3 @@ in
     };
   };
 }
-

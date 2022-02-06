@@ -8,9 +8,9 @@ let
     # Terra hosts
     dev-terra = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMWqiendEfZNjhaXu0RTrNUPcNeRJKeiu2pZ+mjAWWsM";
 
-    k3m1-terra = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIfHBW3Uhtr3GXgIx2y1BhmAhJtm5GryohVAxRhQ2PSM";
-    k3a1-terra = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK/l5lbDOQliAixJPyWf1uz0OA8V/yjki8cCD2bFHvJ5";
-    k3a2-terra = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILtIfcosxFY04DnvptOmkXK3OiHjYxWjyvjU3V4khqHs";
+    k3m1-terra = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINAY5rkpRN5U2ApZGQPPr6E9Mx1NVrI8EdUDUZFRLlKW";
+    k3a1-terra = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGaKx+Az8vDmlknGiORkA54gxKpSj5Y+064wNYjPVSbt";
+    k3a2-terra = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIO1YyxAf57LjkvULrmgBAP91D/BoRtD15KWjIbfW8XrY";
 
     # London hosts
     core-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINRxkYxhNbI3+SGbm1ecm+r6PYAtJLDCvKv5F7midx7K";
@@ -25,6 +25,12 @@ let
 
   global = (attrValues users) ++ (attrValues hosts);
   u = attrValues users;
+
+  k3s-terra = [
+    hosts.k3m1-terra
+    hosts.k3a1-terra
+    hosts.k3a2-terra
+  ];
 in
 with builtins;
 {
@@ -32,6 +38,7 @@ with builtins;
   "cloudflare-token.age".publicKeys = global;
   "cloudflare-ddns-token.age".publicKeys = global;
   "discord-systemd-webhook.age".publicKeys = global;
+  "r.age".publicKeys = global;
 
   # Restic
   "restic-home-ldn-token.age".publicKeys = u ++ [ hosts.home-ldn ];
@@ -52,4 +59,7 @@ with builtins;
   # headscale
   "headscale-private-key.age".publicKeys = u ++ [ hosts.headscale-oracldn ];
   "headscale-oidc-secret.age".publicKeys = u ++ [ hosts.headscale-oracldn ];
+
+  # k3s
+  "k3s-terra.age".publicKeys = u ++ k3s-terra;
 }

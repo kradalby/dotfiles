@@ -7,9 +7,11 @@ in
   imports = [
     ../../common
     ./hardware-configuration.nix
+
+    ./k3s.nix
   ];
 
-  my.lan = "enp0s3";
+  my.lan = "ens3";
 
   networking = network.base
     {
