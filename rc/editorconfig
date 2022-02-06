@@ -67,6 +67,9 @@ indent_size = 2
 [*.swift]
 indent_size = 2
 
+[*.tf]
+indent_size = 2
+
 [*.nix]
 indent_size = 2
 max_line_length=120

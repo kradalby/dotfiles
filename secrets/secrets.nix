@@ -8,6 +8,10 @@ let
     # Terra hosts
     dev-terra = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMWqiendEfZNjhaXu0RTrNUPcNeRJKeiu2pZ+mjAWWsM";
 
+    k3m1-terra = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIfHBW3Uhtr3GXgIx2y1BhmAhJtm5GryohVAxRhQ2PSM";
+    k3a1-terra = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK/l5lbDOQliAixJPyWf1uz0OA8V/yjki8cCD2bFHvJ5";
+    k3a2-terra = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILtIfcosxFY04DnvptOmkXK3OiHjYxWjyvjU3V4khqHs";
+
     # London hosts
     core-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINRxkYxhNbI3+SGbm1ecm+r6PYAtJLDCvKv5F7midx7K";
     home-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINSfUa0k5lySBwBhx2BfovlKhpkCBCgY5BkzagPJNVhd";
@@ -20,7 +24,7 @@ let
   };
 
   global = (attrValues users) ++ (attrValues hosts);
-  u = (attrValues users);
+  u = attrValues users;
 in
 with builtins;
 {

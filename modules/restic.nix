@@ -256,7 +256,12 @@ in
             '';
           in
           nameValuePair "restic-backups-${name}" ({
-            command = helpers.swiftMacOSWrapper runRestic;
+            # command = helpers.swiftMacOSWrapper runRestic;
+            # command = ''
+            #   date
+            #   $HOME/bin/backup_wrap ${runRestic}
+            # '';
+            command = runRestic;
             environment = {
               RESTIC_PASSWORD_FILE = backup.passwordFile;
               RESTIC_REPOSITORY = backup.repository;
