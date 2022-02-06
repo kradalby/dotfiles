@@ -144,6 +144,10 @@
         "core-ntnu" = nixosBox "x86_64-linux" nixpkgs-unstable null "core.ntnu";
         "headscale-oracldn" = nixosBox "x86_64-linux" nixpkgs-unstable null "headscale.oracldn";
 
+        "k3m1-terra" = nixosBox "x86_64-linux" nixpkgs-unstable null "k3m1.terra";
+        "k3a1-terra" = nixosBox "x86_64-linux" nixpkgs-unstable null "k3a1.terra";
+        "k3a2-terra" = nixosBox "x86_64-linux" nixpkgs-unstable null "k3a2.terra";
+
         # nixos-generate --system aarch64-linux -f sd-aarch64 -I nixpkgs=channel:nixos-unstable
         "core-ldn" = nixosBox "aarch64-linux" nixpkgs-unstable null "core.ldn";
         "home-ldn" = nixosBox "aarch64-linux" nixpkgs-unstable null "home.ldn";

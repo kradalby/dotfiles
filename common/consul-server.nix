@@ -1,12 +1,10 @@
-{ config, ... }:
+{ config, lib, ... }:
+with lib builtins;
 let
   domain = "consul.${config.networking.domain}";
 
-
-  sites = import ../metadata/consul.nix;
-  currentSite = builtins.replaceStrings [ ".fap.no" ] [ "" ] config.networking.domain;
-
-  peers = builtins.removeAttrs sites [ currentSite ];
+  s = import ../metadata/sites.nix { inherit lib config; };
+  peers = s.consulPeers;
 in
 {
 

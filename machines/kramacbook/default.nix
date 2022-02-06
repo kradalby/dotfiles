@@ -143,7 +143,10 @@
       "sachaos/tap"
     ];
 
-    brews = [ ];
+    brews = [
+      # cdrkit in nixpkgs is only available for Linux
+      "cdrtools"
+    ];
 
     casks = [
       "1password"
@@ -176,6 +179,11 @@
       "visual-studio-code"
       "safari-technology-preview"
       "flameshot"
+
+      # Decompilers and reverse engineering
+      "temurin"
+      "ghidra"
+      "machoview"
 
       # Maybe
       "monitorcontrol"
