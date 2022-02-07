@@ -91,7 +91,7 @@
         nvim = "nvim -p";
         ping = "${pkgs.prettyping}/bin/prettyping";
         vim = "nvim -p";
-        watch = "${pkgs.viddy}/bin/viddy --differences";
+        watch = "${pkgs.viddy}/bin/viddy --shell ${pkgs.fish}/bin/fish --differences";
 
         # TODO: Add if for platform
         tailscale = "/Applications/Tailscale.app/Contents/MacOS/Tailscale";
@@ -104,6 +104,8 @@
           "${pyyaml}/bin/python3 -c 'import sys, yaml, json; json.dump(yaml.safe_load(sys.stdin), sys.stdout)'"
           "${pkgs.jq}/bin/jq"
         ];
+
+        agenix = "${pkgs.nix}/bin/nix run github:ryantm/agenix -- --rekey";
       };
 
     # Abbreviate commonly used functions
@@ -200,6 +202,48 @@
 
         rmkh = ''
           ${pkgs.gnused}/bin/sed -i $argv'd' ~/.ssh/known_hosts
+        '';
+
+        k3s-fetch-merge-config = ''
+          set host $argv[1]
+          set target $argv[2]
+
+          echo "Updating target $target with config from $host"
+
+          set rconfig (ssh $host "cat /etc/rancher/k3s/k3s.yaml | yq -c")
+
+          set cert_auth_data (echo $rconfig | ${pkgs.jq}/bin/jq -r '.clusters[0].cluster."certificate-authority-data"')
+          set client_cert_data (echo $rconfig | ${pkgs.jq}/bin/jq -r '.users[0].user."client-certificate-data"')
+          set client_key_data (echo $rconfig | ${pkgs.jq}/bin/jq -r '.users[0].user."client-key-data"')
+
+          set lconfig (cat $HOME/.kube/config | ${pkgs.yq}/bin/yq -c)
+
+          echo "Moving $HOME/.kube/config to $HOME/.kube/config.bak"
+          mv $HOME/.kube/config $HOME/.kube/config.bak
+
+          echo "Writing new config to $HOME/.kube/config"
+          echo $lconfig \
+            | ${pkgs.jq}/bin/jq "(.clusters[] | select(.name == \"$target\")).cluster.\"certificate-authority-data\" |= \"$cert_auth_data\"" \
+            | ${pkgs.jq}/bin/jq "(.users[] | select(.name == \"$target-admin\")).user.\"client-certificate-data\" |= \"$client_cert_data\"" \
+            | ${pkgs.jq}/bin/jq "(.users[] | select(.name == \"$target-admin\")).user.\"client-key-data\" |= \"$client_key_data\"" \
+            | ${pkgs.yq}/bin/yq --yaml-output \
+            > $HOME/.kube/config
+        '';
+
+        agenix-update-key = ''
+          set host $argv[1]
+          set hostDash (echo $host | ${pkgs.gnused}/bin/sed 's/\./-/g')
+
+          set sshKey (ssh-keyscan -t ed25519 $host.fap.no | ${pkgs.gnused}/bin/sed 's/.*ssh/ssh/')
+
+          echo "New key: $sshKey"
+
+          set sedString "/$hostDash = \"ssh-ed25519/c\ $hostDash = \"$sshKey\";"
+
+          ${pkgs.gnused}/bin/sed -i $sedString secrets.nix
+
+          ${pkgs.nixpkgs-fmt}/bin/nixpkgs-fmt secrets.nix
+          nix run github:ryantm/agenix -- --rekey
         '';
       };
   };
