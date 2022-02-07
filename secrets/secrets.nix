@@ -9,7 +9,7 @@ let
     dev-terra = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMWqiendEfZNjhaXu0RTrNUPcNeRJKeiu2pZ+mjAWWsM";
 
     k3m1-terra = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINAY5rkpRN5U2ApZGQPPr6E9Mx1NVrI8EdUDUZFRLlKW";
-    k3a1-terra = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGaKx+Az8vDmlknGiORkA54gxKpSj5Y+064wNYjPVSbt";
+    k3a1-terra = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAeWP0sz11ZibeRmJsIbLgFLK/rUmia0KcXGlZKbnycp";
     k3a2-terra = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIO1YyxAf57LjkvULrmgBAP91D/BoRtD15KWjIbfW8XrY";
 
     # London hosts
