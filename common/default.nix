@@ -1,10 +1,12 @@
 { lib, flakes, ... }:
 {
   require = [
+    ./dns-ready.nix
     ./network.nix
     ./cpufreq.nix
     ./users.nix
     ./ssh.nix
+    ./mosh.nix
     ./environment.nix
     ./firewall.nix
     ./lldp.nix

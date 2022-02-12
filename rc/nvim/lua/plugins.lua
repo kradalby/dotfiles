@@ -75,6 +75,7 @@ return require("packer").startup(
                         },
                         sources = {
                             {name = "nvim_lsp"},
+                            {name = "nvim_lsp_signature_help"},
                             {name = "path"},
                             {name = "buffer"},
                             {name = "rg", option = {debounce = 500}},
@@ -138,6 +139,7 @@ return require("packer").startup(
                 "hrsh7th/cmp-path",
                 "hrsh7th/cmp-vsnip",
                 "hrsh7th/cmp-cmdline",
+                "hrsh7th/cmp-nvim-lsp-signature-help",
                 "hrsh7th/vim-vsnip",
                 "lukas-reineke/cmp-rg",
                 "onsails/lspkind-nvim"
@@ -181,12 +183,12 @@ return require("packer").startup(
             end
         }
 
-        use {
-            "ray-x/lsp_signature.nvim",
-            config = function()
-                require "lsp_signature".on_attach()
-            end
-        }
+        -- use {
+        --     "ray-x/lsp_signature.nvim",
+        --     config = function()
+        --         require "lsp_signature".on_attach()
+        --     end
+        -- }
 
         use {
             -- "glepnir/lspsaga.nvim",
@@ -236,7 +238,7 @@ return require("packer").startup(
             config = function()
                 require("neoclip").setup(
                     {
-                        enable_persistant_history = true
+                        enable_persistent_history = true
                     }
                 )
             end

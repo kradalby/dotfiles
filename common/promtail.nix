@@ -34,5 +34,10 @@
     };
   };
 
-  systemd.services.promtail.onFailure = [ "notify-discord@%n.service" ];
+  systemd.services.promtail = {
+    wantedBy = [ "multi-user.target" ];
+    wants = [ "network-online.target" "dns-ready.service" ];
+    after = [ "dns-ready.service" ];
+    onFailure = [ "notify-discord@%n.service" ];
+  };
 }

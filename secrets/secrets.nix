@@ -16,6 +16,9 @@ let
     core-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINRxkYxhNbI3+SGbm1ecm+r6PYAtJLDCvKv5F7midx7K";
     home-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINSfUa0k5lySBwBhx2BfovlKhpkCBCgY5BkzagPJNVhd";
 
+
+    core-oracldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGEe9eIMf462ZQhE8Nl9jyUscRtTTYeAIPRN2kvO3cdC";
+
     # NTNU hosts
     core-ntnu = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICXhYsZfTX/h7v9eDo3vmtoTtKH1GkXhwf6uVnpi+Fj7";
 
@@ -43,12 +46,13 @@ with builtins;
   # Restic
   "restic-home-ldn-token.age".publicKeys = u ++ [ hosts.home-ldn ];
   "restic-headscale-oracldn-token.age".publicKeys = u ++ [ hosts.headscale-oracldn ];
+  "restic-core-oracldn-token.age".publicKeys = u ++ [ hosts.core-oracldn ];
   "restic-kramacbook-token.age".publicKeys = u;
 
   # Wireguard
   "wireguard-ldn.age".publicKeys = u ++ [ hosts.core-ldn ];
   "wireguard-ntnu.age".publicKeys = u ++ [ hosts.core-ntnu ];
-  "wireguard-oracldn.age".publicKeys = u; # ++ [ hosts.core.oracldn ];
+  "wireguard-oracldn.age".publicKeys = u ++ [ hosts.core-oracldn ];
   "wireguard-terra.age".publicKeys = u; # ++ [ hosts.core-terra ];
   "wireguard-tjoda.age".publicKeys = u; # ++ [ hosts.core-tjoda ];
   "wireguard-headscale-oracldn.age".publicKeys = u ++ [ hosts.headscale-oracldn ];
@@ -59,6 +63,7 @@ with builtins;
   # headscale
   "headscale-private-key.age".publicKeys = u ++ [ hosts.headscale-oracldn ];
   "headscale-oidc-secret.age".publicKeys = u ++ [ hosts.headscale-oracldn ];
+  "matterbridge-config.age".publicKeys = u ++ [ hosts.headscale-oracldn ];
 
   # k3s
   "k3s-terra.age".publicKeys = u ++ k3s-terra;

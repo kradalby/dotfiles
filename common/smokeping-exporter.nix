@@ -19,7 +19,12 @@ in
     ];
   };
 
-  systemd.services."prometheus-smokeping-exporter".onFailure = [ "notify-discord@%n.service" ];
+  systemd.services."prometheus-smokeping-exporter" = {
+    wantedBy = [ "multi-user.target" ];
+    wants = [ "network-online.target" "dns-ready.service" ];
+    after = [ "dns-ready.service" ];
+    onFailure = [ "notify-discord@%n.service" ];
+  };
 
   my.consulServices.smokeping_exporter = consul.prometheusExporter "smokeping" config.services.prometheus.exporters.smokeping.port;
 }

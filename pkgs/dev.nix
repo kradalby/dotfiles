@@ -42,7 +42,7 @@
     gox
     golines
 
-    (lib.mkIf pkgs.stdenv.isLinux swift)
+    # (lib.mkIf (pkgs.stdenv.isLinux && pkgs.stdenv.isx86_64) swift)
 
     # null-ls only support 0.4.0, so override
     # to ensure we use stable for now.

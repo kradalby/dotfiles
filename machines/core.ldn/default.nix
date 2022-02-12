@@ -24,6 +24,8 @@
   environment.systemPackages = with pkgs; [
   ];
 
+  services.resolved.enable = false;
+
   boot.kernel.sysctl = {
     # if you use ipv4, this is all you need
     "net.ipv4.conf.all.forwarding" = true;
@@ -62,7 +64,7 @@
           ipv6rs
           # DHCPv6-PD.
           ia_na 0
-          ia_pd 1/::/48 ${config.my.lan}/0/64 iot/156/64 
+          ia_pd 1/::/48 ${config.my.lan}/0/64 iot/156/64
           # IPv4 DHCP ISP settings overrides.
           static domain_name_servers=10.65.0.1
           static domain_search=
@@ -93,8 +95,8 @@
       };
 
       ${config.my.lan} = {
-        # It looks like Community Fiber has whitelisted this 
-        # Mac address somehow, so keep it around incase we 
+        # It looks like Community Fiber has whitelisted this
+        # Mac address somehow, so keep it around incase we
         # need a new machine.
         macAddress = "dc:a6:32:08:d3:e8";
 
@@ -128,7 +130,7 @@
     };
 
     firewall = {
-      # This is a special override for gateway machines as we 
+      # This is a special override for gateway machines as we
       # dont want to use "openFirewall" here since it makes
       # everything world available.
       allowedTCPPorts = lib.mkForce [
@@ -146,7 +148,7 @@
         22 # ssh
         53 # DNS
 
-        # consul 
+        # consul
         8300
         8301
         8302
@@ -168,7 +170,7 @@
         53 # DNS
         5353 # mDNS
 
-        # consul 
+        # consul
         8301
         8302
         8600
