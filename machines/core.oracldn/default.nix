@@ -5,20 +5,21 @@
     ./hardware-configuration.nix
 
     ../../common/acme.nix
-    # ../../common/nginx.nix
+    ../../common/nginx.nix
+    ../../common/containers.nix
 
 
     ./restic.nix
     ./wireguard.nix
     ./tailscale.nix
-    ./headscale.nix
-    ./matterbridge.nix
+    ./kuma.nix
+    ./monitoring.nix
   ];
 
-  my.lan = "ens3";
+  my.lan = "enp0s3";
 
   networking = {
-    hostName = "headscale";
+    hostName = "core";
     domain = "oracldn.fap.no";
     nameservers = [
       "1.1.1.1"
@@ -40,7 +41,6 @@
         22 # SSH
         80 # HTTP
         443 # HTTPS
-        50443 # gRPC to headscale
       ];
 
       allowedUDPPorts = lib.mkForce [
@@ -50,9 +50,6 @@
       ];
     };
   };
-  services.udev.extraRules = ''
-    ATTR{address}=="02:00:17:02:df:1c", NAME="ens3"
-  '';
 
 
   services.consul.extraConfig.retry_join = [ ];

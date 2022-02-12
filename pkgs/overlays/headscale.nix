@@ -10,14 +10,14 @@ buildGoModule rec {
     repo = "headscale";
     # rev = "v${version}";
     # sha256 = "sha256-TBCTfAWJcpl6tew03P1mTb7cQClBBNFJllXusjTMuwc=";
-    rev = "56b6528e3b3125d460437c22529d381b7f311b7d";
-    sha256 = "sha256-V5BEbM2ajLKl9Oelv84WCGLpbE4XGe9EzkXw7ME3Sqg=";
+    rev = "d79ccfc05a00c470def605f4e70bc69844d30d97";
+    sha256 = "sha256-s9vIVN0VTlHGosntC2BdK0LrmSJrP8qsR1BSskNSPfw=";
   };
 
   # proxyVendor = true;
-  vendorSha256 = "sha256-xRQ0M363eyPxwC3wNeCXsqxxp3bBT4evyFD0eO0Izmg=";
+  vendorSha256 = "sha256-v76UWaF6kdmuvABg6sDMmDpJ4HWvgliyEWAbAebK3wM=";
 
-  ldflags = [ "-s" "-w" "-X github.com/juanfont/headscale/cmd/headscale/cli.Version=v${version}" ];
+  ldflags = [ "-s" "-w" "-X github.com/juanfont/headscale/cmd/headscale/cli.Version=v${version}-${src.rev}" ];
 
   nativeBuildInputs = [ installShellFiles ];
 
@@ -45,7 +45,6 @@ buildGoModule rec {
       Headscale implements this coordination server.
     '';
     license = licenses.bsd3;
-    maintainers = with maintainers; [ nkje jk ];
+    maintainers = with maintainers; [ kradalby ];
   };
 }
-

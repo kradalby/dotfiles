@@ -105,7 +105,7 @@
           "${pkgs.jq}/bin/jq"
         ];
 
-        agenix = "${pkgs.nix}/bin/nix run github:ryantm/agenix -- --rekey";
+        agenix = "${pkgs.nix}/bin/nix run github:ryantm/agenix --";
       };
 
     # Abbreviate commonly used functions

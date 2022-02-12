@@ -36,6 +36,11 @@
       init = {
         defaultBranch = "main";
       };
+
+      fetch = {
+        prune = true;
+      };
+
       # Clone git repos with URLs like "gh:alexpearce/dotfiles"
       url."git@github.com:" = {
         insteadOf = "gh:";

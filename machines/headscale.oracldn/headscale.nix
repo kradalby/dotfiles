@@ -4,10 +4,6 @@ let
   domain = "headscale.kradalby.no";
 in
 {
-  imports = [
-    ../../modules/headscale.nix
-  ];
-
   age.secrets.headscale-private-key = {
     owner = "headscale";
     file = ../../secrets/headscale-private-key.age;
@@ -21,7 +17,6 @@ in
 
   services.headscale = {
     enable = true;
-    # package = pkgs.unstable.headscale;
 
     address = "0.0.0.0";
     port = 443;
@@ -45,7 +40,7 @@ in
       };
     };
 
-    extraSettings = {
+    settings = {
       ip_prefixes = [
         "fd7a:115c:a1e0::/48"
         "100.64.0.0/10"
@@ -54,6 +49,12 @@ in
   };
 
   systemd.services.headscale.onFailure = [ "notify-discord@%n.service" ];
+
+  systemd.services.headscale.environment = {
+    # HEADSCALE_LOG_LEVEL = "trace";
+    GRPC_GO_LOG_VERBOSITY_LEVEL = "2";
+    GRPC_GO_LOG_SEVERITY_LEVEL = "info";
+  };
 
   my.consulServices.headscale = consul.prometheusExporter "headscale" config.services.headscale.port;
 
@@ -79,7 +80,7 @@ in
   #       keepalive_timeout           160s;
   #       proxy_buffering             off;
   #       proxy_connect_timeout       75;
-  #       proxy_ignore_client_abort   on; 
+  #       proxy_ignore_client_abort   on;
   #       proxy_read_timeout          900s;
   #       proxy_send_timeout          600;
   #       send_timeout                600;

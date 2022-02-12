@@ -141,8 +141,11 @@
 
       nixosConfigurations = {
         "dev-terra" = nixosBox "x86_64-linux" nixpkgs-unstable home-manager-unstable "dev.terra";
-        "core-ntnu" = nixosBox "x86_64-linux" nixpkgs-unstable null "core.ntnu";
+
+        "core-oracldn" = nixosBox "aarch64-linux" nixpkgs-unstable home-manager-unstable "core.oracldn";
         "headscale-oracldn" = nixosBox "x86_64-linux" nixpkgs-unstable null "headscale.oracldn";
+
+        "core-ntnu" = nixosBox "x86_64-linux" nixpkgs-unstable null "core.ntnu";
 
         "k3m1-terra" = nixosBox "x86_64-linux" nixpkgs-unstable null "k3m1.terra";
         "k3a1-terra" = nixosBox "x86_64-linux" nixpkgs-unstable null "k3a1.terra";
