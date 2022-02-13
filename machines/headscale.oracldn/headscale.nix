@@ -18,15 +18,7 @@ in
   services.headscale = {
     enable = true;
 
-    address = "0.0.0.0";
-    port = 443;
     serverUrl = "https://${domain}";
-
-    tls = {
-      letsencrypt = {
-        hostname = domain;
-      };
-    };
 
     privateKeyFile = config.age.secrets.headscale-private-key.path;
 
@@ -41,6 +33,9 @@ in
     };
 
     settings = {
+      grpc_listen_addr = "127.0.0.1:50443";
+      grpc_allow_insecure = true;
+
       ip_prefixes = [
         "fd7a:115c:a1e0::/48"
         "100.64.0.0/10"
@@ -52,42 +47,50 @@ in
 
   systemd.services.headscale.environment = {
     # HEADSCALE_LOG_LEVEL = "trace";
-    GRPC_GO_LOG_VERBOSITY_LEVEL = "2";
-    GRPC_GO_LOG_SEVERITY_LEVEL = "info";
+    # GRPC_GO_LOG_VERBOSITY_LEVEL = "2";
+    # GRPC_GO_LOG_SEVERITY_LEVEL = "info";
   };
 
   my.consulServices.headscale = consul.prometheusExporter "headscale" config.services.headscale.port;
 
-  # security.acme.certs."${domain}".domain = domain;
-  #
-  # services.nginx.virtualHosts."${domain}" = {
-  #   forceSSL = true;
-  #   useACMEHost = domain;
-  #   locations."/metrics" = {
-  #     proxyPass = "http://127.0.0.1:${toString config.services.headscale.port}";
-  #     extraConfig = ''
-  #       allow 10.0.0.0/8;
-  #       allow 100.64.0.0/16;
-  #       deny all;
-  #     '';
-  #   };
-  #   locations."/" = {
-  #     proxyPass = "http://127.0.0.1:${toString config.services.headscale.port}";
-  #     proxyWebsockets = true;
-  #     extraConfig = ''
-  #       grpc_pass grpc://127.0.0.1:${toString config.services.headscale.port};
-  #       keepalive_requests          100000;
-  #       keepalive_timeout           160s;
-  #       proxy_buffering             off;
-  #       proxy_connect_timeout       75;
-  #       proxy_ignore_client_abort   on;
-  #       proxy_read_timeout          900s;
-  #       proxy_send_timeout          600;
-  #       send_timeout                600;
-  #     '';
-  #   };
-  #   extraConfig = ''
-  #     access_log /var/log/nginx/${domain}.access.log;
-  #   '';
-  # };
+  security.acme.certs."${domain}".domain = domain;
+
+  services.nginx.virtualHosts."${domain}" = {
+    forceSSL = true;
+    useACMEHost = domain;
+    locations = {
+      "/headscale." = {
+        extraConfig = ''
+          grpc_pass grpc://${config.services.headscale.settings.grpc_listen_addr};
+        '';
+        priority = 1;
+      };
+      "/metrics" = {
+        proxyPass = "http://127.0.0.1:${toString config.services.headscale.port}";
+        extraConfig = ''
+          allow 10.0.0.0/8;
+          allow 100.64.0.0/16;
+          deny all;
+        '';
+        priority = 2;
+      };
+      "/" = {
+        proxyPass = "http://127.0.0.1:${toString config.services.headscale.port}";
+        extraConfig = ''
+          keepalive_requests          100000;
+          keepalive_timeout           160s;
+          proxy_buffering             off;
+          proxy_connect_timeout       75;
+          proxy_ignore_client_abort   on;
+          proxy_read_timeout          900s;
+          proxy_send_timeout          600;
+          send_timeout                600;
+        '';
+        priority = 99;
+      };
+    };
+    extraConfig = ''
+      access_log /var/log/nginx/${domain}.access.log;
+    '';
+  };
 }
