@@ -5,7 +5,7 @@
     ./hardware-configuration.nix
 
     ../../common/acme.nix
-    # ../../common/nginx.nix
+    ../../common/nginx.nix
 
 
     ./restic.nix
