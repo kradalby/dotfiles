@@ -10,11 +10,10 @@ buildGoModule rec {
     repo = "headscale";
     # rev = "v${version}";
     # sha256 = "sha256-TBCTfAWJcpl6tew03P1mTb7cQClBBNFJllXusjTMuwc=";
-    rev = "d79ccfc05a00c470def605f4e70bc69844d30d97";
-    sha256 = "sha256-s9vIVN0VTlHGosntC2BdK0LrmSJrP8qsR1BSskNSPfw=";
+    rev = "4e547963849f48de60ad9eeeb00dd1089d22662a";
+    sha256 = "sha256-KB51LQqE0pwg7+CVcTYFPSZEKNczWZcmBKtRemMQFiw=";
   };
 
-  # proxyVendor = true;
   vendorSha256 = "sha256-v76UWaF6kdmuvABg6sDMmDpJ4HWvgliyEWAbAebK3wM=";
 
   ldflags = [ "-s" "-w" "-X github.com/juanfont/headscale/cmd/headscale/cli.Version=v${version}-${src.rev}" ];

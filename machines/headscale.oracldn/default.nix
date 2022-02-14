@@ -40,7 +40,6 @@
         22 # SSH
         80 # HTTP
         443 # HTTPS
-        50443 # gRPC to headscale
       ];
 
       allowedUDPPorts = lib.mkForce [

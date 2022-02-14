@@ -207,6 +207,14 @@ return require("packer").startup(
             end
         }
 
+        use {
+            "echasnovski/mini.nvim",
+            config = function()
+                require "mini.indentscope" {}
+                require "mini.starter" {}
+            end
+        }
+
         -- use {
         --     "kosayoda/nvim-lightbulb",
         --     disable = true

@@ -8,12 +8,12 @@ in
     openFirewall = true;
 
     hosts = [
-      "core.terra.fap.no"
-      "core.oracle-ldn.fap.no"
-      "core.ntnu.fap.no"
-      "core.ldn.fap.no"
-      "core.tjoda.fap.no"
-      "vg.no"
+      # "core.terra.fap.no"
+      # "core.oracle-ldn.fap.no"
+      # "core.ntnu.fap.no"
+      # "core.ldn.fap.no"
+      # "core.tjoda.fap.no"
+      # "vg.no"
       "1.1.1.1"
       "8.8.8.8"
     ];
@@ -21,8 +21,8 @@ in
 
   systemd.services."prometheus-smokeping-exporter" = {
     wantedBy = [ "multi-user.target" ];
-    wants = [ "network-online.target" "dns-ready.service" ];
-    after = [ "dns-ready.service" ];
+    wants = [ "network-online.target" ];
+    after = [ "network-online.target" ];
     onFailure = [ "notify-discord@%n.service" ];
   };
 

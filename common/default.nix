@@ -6,6 +6,7 @@
     ./cpufreq.nix
     ./users.nix
     ./ssh.nix
+    ./sslh.nix
     ./mosh.nix
     ./environment.nix
     ./firewall.nix

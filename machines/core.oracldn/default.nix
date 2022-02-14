@@ -14,6 +14,8 @@
     ./tailscale.nix
     ./kuma.nix
     ./monitoring.nix
+    ./loki.nix
+    ./grafana.nix
   ];
 
   my.lan = "enp0s3";
