@@ -24,6 +24,7 @@
     shellcheck
     yarn
     editorconfig-checker
+    grpcurl
 
     lua53Packages.luasql-sqlite3
     lua53Packages.luadbi-sqlite3

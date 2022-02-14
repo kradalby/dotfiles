@@ -67,4 +67,7 @@ with builtins;
 
   # k3s
   "k3s-terra.age".publicKeys = u ++ k3s-terra;
+
+  # Grafana
+  "grafana-admin.age".publicKeys = u ++ [ hosts.core-oracldn ];
 }
