@@ -6,6 +6,7 @@ let
   paths = [
     "/etc/nixos"
     "/var/lib/kuma"
+    "/var/lib/step-ca"
   ];
 
   cfg = site: {

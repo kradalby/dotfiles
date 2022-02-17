@@ -67,7 +67,7 @@ in
     # workdir = "/home/podmanager";
     autoStart = true;
     ports = [
-      "3001:${toString port}/tcp"
+      "${toString port}:3001/tcp"
     ];
     environment = { };
     volumes = [

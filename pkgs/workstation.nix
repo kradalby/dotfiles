@@ -20,6 +20,7 @@
     tflint
     tfsec
     headscale
+    unstable.step-cli
 
     # nix tooling
     nixopsUnstable
