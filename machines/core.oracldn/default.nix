@@ -16,9 +16,11 @@
     ./monitoring.nix
     ./loki.nix
     ./grafana.nix
+    ./step-ca.nix
   ];
 
   my.lan = "enp0s3";
+
 
   networking = {
     hostName = "core";

@@ -7,11 +7,17 @@ in
   options.services.nginx.virtualHosts = lib.mkOption {
     type = lib.types.attrsOf (lib.types.submodule {
       config.listen = lib.mkDefault [
+        { addr = "0.0.0.0"; port = 80; ssl = false; }
         { addr = "0.0.0.0"; port = 60443; ssl = true; }
+        { addr = "[::]"; port = 80; ssl = false; }
         { addr = "[::]"; port = 60443; ssl = true; }
       ];
     });
   };
+
+  imports = [
+    ./sslh.nix
+  ];
 
   config = {
     services.nginx = {
@@ -19,7 +25,7 @@ in
       enable = true;
       package = pkgs.nginx;
 
-      defaultListenAddresses = [ "127.0.0.1" "[::1]" ];
+      # defaultListenAddresses = [ "127.0.0.1" "[::1]" ];
 
       statusPage = true;
 
@@ -63,8 +69,7 @@ in
 
     systemd.services.nginx.onFailure = [ "notify-discord@%n.service" ];
 
-    networking.firewall.allowedTCPPorts = [ 80 443 ];
-    networking.firewall.allowedUDPPorts = [ 443 ];
+    networking.firewall.allowedTCPPorts = [ 80 ];
 
     services.prometheus.exporters.nginx = {
       enable = true;
