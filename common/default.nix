@@ -1,6 +1,7 @@
 { lib, flakes, ... }:
 {
   require = [
+    ./ca.nix
     ./dns-ready.nix
     ./network.nix
     ./cpufreq.nix

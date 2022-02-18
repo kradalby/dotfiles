@@ -8,6 +8,9 @@
     ../../common/nginx.nix
     ../../common/containers.nix
 
+    ../../common/coredns.nix
+    ../../common/consul-server.nix
+
 
     ./restic.nix
     ./wireguard.nix
@@ -17,9 +20,11 @@
     ./loki.nix
     ./grafana.nix
     ./step-ca.nix
+    ./openvpn.nix
   ];
 
-  my.lan = "enp0s3";
+  my.wan = "enp0s3";
+  my.lan = "enp1s0";
 
 
   networking = {
@@ -31,9 +36,29 @@
     ];
     usePredictableInterfaceNames = lib.mkForce true;
     interfaces = {
-      "${config.my.lan}" = {
+      "${config.my.wan}" = {
         useDHCP = true;
       };
+
+      ${config.my.lan} = {
+        useDHCP = false;
+        ipv4.addresses = [
+          { address = "10.66.0.1"; prefixLength = 24; }
+        ];
+        tempAddress = "disabled";
+      };
+    };
+
+    nat = {
+      enable = true;
+      externalInterface = config.my.wan;
+      internalIPs = [ "10.0.0.0/8" ];
+      internalInterfaces = [ config.my.lan "iot" ];
+      forwardPorts = [
+        { sourcePort = 64322; destination = "10.65.0.1:22"; proto = "tcp"; }
+        { sourcePort = 500; destination = "10.65.0.1:51820"; proto = "udp"; }
+        { sourcePort = 4500; destination = "10.65.0.1:51820"; proto = "udp"; }
+      ];
     };
 
     firewall = {
@@ -49,14 +74,43 @@
 
       allowedUDPPorts = lib.mkForce [
         443 # HTTPS
-        # config.services.tailscale.port
-        # config.networking.wireguard.interfaces.wg0.listenPort
+        config.services.tailscale.port
+        config.networking.wireguard.interfaces.wg0.listenPort
       ];
+
+      interfaces.enp1s0.allowedTCPPorts = [
+        22 # ssh
+        53 # DNS
+
+        # consul
+        8300
+        8301
+        8302
+        8600
+
+        # Exporters
+        9153 # CoreDNS exporter
+        config.services.prometheus.exporters.node.port
+        config.services.prometheus.exporters.smartctl.port
+        config.services.prometheus.exporters.wireguard.port
+        config.services.prometheus.exporters.nginx.port
+        config.services.prometheus.exporters.nginxlog.port
+        config.services.prometheus.exporters.systemd.port
+        config.services.prometheus.exporters.smokeping.port
+      ];
+
+      interfaces.enp1s0.allowedUDPPorts = [
+        53 # DNS
+        5353 # mDNS
+
+        # consul
+        8301
+        8302
+        8600
+      ];
+
     };
   };
-
-
-  services.consul.extraConfig.retry_join = [ ];
 
 
   # This value determines the NixOS release from which the default

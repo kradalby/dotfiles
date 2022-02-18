@@ -42,6 +42,7 @@ with builtins;
   "cloudflare-ddns-token.age".publicKeys = global;
   "discord-systemd-webhook.age".publicKeys = global;
   "r.age".publicKeys = global;
+  "ca.age".publicKeys = global;
 
   # Restic
   "restic-home-ldn-token.age".publicKeys = u ++ [ hosts.home-ldn ];
@@ -74,4 +75,8 @@ with builtins;
   # Step CA
   "step-ca-password.age".publicKeys = u ++ [ hosts.core-oracldn ];
   "step-ca-config.age".publicKeys = u ++ [ hosts.core-oracldn ];
+
+  # OpenVPN
+  "ovpn-oracldn-crt.age".publicKeys = u ++ [ hosts.core-oracldn ];
+  "ovpn-oracldn-key.age".publicKeys = u ++ [ hosts.core-oracldn ];
 }

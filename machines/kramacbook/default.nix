@@ -179,6 +179,7 @@
       "visual-studio-code"
       "safari-technology-preview"
       "flameshot"
+      "tunnelblick"
 
       # Decompilers and reverse engineering
       "temurin"
