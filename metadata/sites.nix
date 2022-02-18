@@ -19,6 +19,7 @@ let
           name = "ntnu";
           nameservers = [ ipv4Gateway ];
           consul = ipv4Gateway;
+          openvpn = "10.61.200.0";
           inherit ipv4Gateway;
         };
       ldn =
@@ -29,6 +30,18 @@ let
           name = "ldn";
           nameservers = [ ipv4Gateway ];
           consul = ipv4Gateway;
+          openvpn = "10.65.200.0";
+          inherit ipv4Gateway;
+        };
+      oracldn =
+        let
+          ipv4Gateway = "10.66.0.1";
+        in
+        {
+          name = "oracldn";
+          nameservers = [ ipv4Gateway ];
+          consul = ipv4Gateway;
+          openvpn = "10.66.200.0";
           inherit ipv4Gateway;
         };
       terra =
@@ -38,6 +51,7 @@ let
         {
           name = "terra";
           nameservers = [ ipv4Gateway ];
+          openvpn = "10.60.200.0";
           k3s = {
             master = "10.60.0.111";
             clusterCidr = "10.60.4.0/24";

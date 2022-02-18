@@ -2,16 +2,16 @@
 
 buildGoModule rec {
   pname = "headscale";
-  version = "0.13.0-beta3";
+  version = "0.13.0";
 
   src = fetchFromGitHub {
-    # owner = "juanfont";
-    owner = "kradalby";
+    owner = "juanfont";
+    # owner = "kradalby";
     repo = "headscale";
-    # rev = "v${version}";
-    # sha256 = "sha256-TBCTfAWJcpl6tew03P1mTb7cQClBBNFJllXusjTMuwc=";
-    rev = "4e547963849f48de60ad9eeeb00dd1089d22662a";
-    sha256 = "sha256-KB51LQqE0pwg7+CVcTYFPSZEKNczWZcmBKtRemMQFiw=";
+    rev = "v${version}";
+    sha256 = "sha256-nVGhLL7HN9m5zIZOFVOMYZXxUUx3WkLpeH/59kXoTHo=";
+    # rev = "4e547963849f48de60ad9eeeb00dd1089d22662a";
+    # sha256 = "sha256-KB51LQqE0pwg7+CVcTYFPSZEKNczWZcmBKtRemMQFiw=";
   };
 
   vendorSha256 = "sha256-v76UWaF6kdmuvABg6sDMmDpJ4HWvgliyEWAbAebK3wM=";
