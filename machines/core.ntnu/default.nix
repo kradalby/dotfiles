@@ -11,6 +11,7 @@
     ./hardware-configuration.nix
     ./wireguard.nix
     ./tailscale.nix
+    ./openvpn.nix
   ];
 
   my.wan = "ens33";
@@ -85,7 +86,7 @@
     };
 
     firewall = {
-      # This is a special override for gateway machines as we 
+      # This is a special override for gateway machines as we
       # dont want to use "openFirewall" here since it makes
       # everything world available.
       allowedTCPPorts = lib.mkForce [
@@ -103,7 +104,7 @@
         22 # ssh
         53 # DNS
 
-        # consul 
+        # consul
         8300
         8301
         8302
@@ -125,7 +126,7 @@
         53 # DNS
         5353 # mDNS
 
-        # consul 
+        # consul
         8301
         8302
         8600
