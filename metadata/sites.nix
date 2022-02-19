@@ -9,6 +9,11 @@ let
   consulPeers =
     mapAttrs (key: value: value.consul) (filterAttrs (key: hasAttr "consul") (removeAttrs sites [ currentSite ]));
 
+  consul =
+    mapAttrs (key: value: value.consul) (filterAttrs (key: hasAttr "consul") sites);
+
+  nameservers = lib.unique (lib.flatten (attrValues (mapAttrs (name: site: site.nameservers) sites)));
+
   sites =
     {
       ntnu =
@@ -63,5 +68,5 @@ let
     };
 in
 {
-  inherit baseDomain currentSite consulPeers sites;
+  inherit baseDomain currentSite consulPeers consul nameservers sites;
 }

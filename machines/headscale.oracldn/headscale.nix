@@ -1,5 +1,6 @@
 { pkgs, lib, config, ... }:
 let
+  s = import ../../metadata/sites.nix { inherit lib config; };
   consul = import ../../common/funcs/consul.nix { inherit lib; };
   domain = "headscale.kradalby.no";
 in
@@ -40,6 +41,10 @@ in
         "fd7a:115c:a1e0::/48"
         "100.64.0.0/10"
       ];
+
+      restricted_nameservers = {
+        consul = s.nameservers;
+      } // builtins.mapAttrs (site: server: [ server ]) s.consul;
     };
   };
 

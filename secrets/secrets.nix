@@ -79,4 +79,8 @@ with builtins;
   # OpenVPN
   "ovpn-oracldn-crt.age".publicKeys = u ++ [ hosts.core-oracldn ];
   "ovpn-oracldn-key.age".publicKeys = u ++ [ hosts.core-oracldn ];
+  "ovpn-ldn-crt.age".publicKeys = u ++ [ hosts.core-ldn ];
+  "ovpn-ldn-key.age".publicKeys = u ++ [ hosts.core-ldn ];
+  "ovpn-ntnu-crt.age".publicKeys = u ++ [ hosts.core-ntnu ];
+  "ovpn-ntnu-key.age".publicKeys = u ++ [ hosts.core-ntnu ];
 }

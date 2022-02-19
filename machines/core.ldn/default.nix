@@ -16,6 +16,7 @@
     ./corerad.nix
     ./dhcp.nix
     ./avahi.nix
+    ./openvpn.nix
   ];
 
   my.wan = "wan";
