@@ -83,4 +83,7 @@ with builtins;
   "ovpn-ldn-key.age".publicKeys = u ++ [ hosts.core-ldn ];
   "ovpn-ntnu-crt.age".publicKeys = u ++ [ hosts.core-ntnu ];
   "ovpn-ntnu-key.age".publicKeys = u ++ [ hosts.core-ntnu ];
+
+  # Postgres
+  "postgres-keycloak.age".publicKeys = u ++ [ hosts.core-oracldn ];
 }

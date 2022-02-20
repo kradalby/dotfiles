@@ -7,6 +7,7 @@ let
     "/etc/nixos"
     "/var/lib/kuma"
     "/var/lib/step-ca"
+    config.services.postgresqlBackup.location
   ];
 
   cfg = site: {
