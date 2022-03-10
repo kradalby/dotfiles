@@ -42,11 +42,28 @@ in
         "100.64.0.0/10"
       ];
 
+      derp = {
+        server = {
+          enabled = true;
+          region_id = 999;
+          region_code = "fap";
+          region_name = "headscale.oracldn.fap.no";
+
+          stun = {
+            enabled = true;
+            listen_addr = "0.0.0.0:3478";
+          };
+        };
+      };
+
       restricted_nameservers = {
         consul = s.nameservers;
       } // builtins.mapAttrs (site: server: [ server ]) s.consul;
     };
   };
+
+  # Allow UDP for STUN
+  networking.firewall.allowedUDPPorts = [ 3478 ];
 
   systemd.services.headscale.onFailure = [ "notify-discord@%n.service" ];
 
@@ -56,7 +73,7 @@ in
     # GRPC_GO_LOG_SEVERITY_LEVEL = "info";
   };
 
-  my.consulServices.headscale = consul.prometheusExporter "headscale" config.services.headscale.port;
+  my.consulServices.headscale = consul.prometheusExporter "headscale" 9090;
 
   security.acme.certs."${domain}".domain = domain;
 
@@ -81,6 +98,7 @@ in
       };
       "/" = {
         proxyPass = "http://127.0.0.1:${toString config.services.headscale.port}";
+        proxyWebsockets = true;
         extraConfig = ''
           keepalive_requests          100000;
           keepalive_timeout           160s;

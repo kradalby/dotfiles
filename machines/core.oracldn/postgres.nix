@@ -1,6 +1,7 @@
 { pkgs, lib, config, ... }:
 let
   databases = [
+    "glauth"
   ];
 
   backup = [

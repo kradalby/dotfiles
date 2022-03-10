@@ -23,6 +23,7 @@
     ./openvpn.nix
     ./postgres.nix
     ./keycloak2.nix
+    ./glauth.nix
   ];
 
   my.wan = "enp0s3";
@@ -80,7 +81,7 @@
         config.networking.wireguard.interfaces.wg0.listenPort
       ];
 
-      trustedInterfaces = [ config.my.lan "cni-podman0" ];
+      trustedInterfaces = [ config.my.lan ];
     };
   };
 

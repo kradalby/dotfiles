@@ -1,7 +1,8 @@
-{ modulesPath, ... }:
+{ lib, modulesPath, ... }:
 {
   imports = [ (modulesPath + "/profiles/qemu-guest.nix") ];
 
+  boot.tmpOnTmpfs = lib.mkForce false;
   boot.cleanTmpDir = true;
   boot.initrd.kernelModules = [ "nvme" ];
   boot.loader.grub = {
@@ -13,6 +14,7 @@
   fileSystems."/boot" = { device = "/dev/disk/by-uuid/73A3-5200"; fsType = "vfat"; };
   fileSystems."/" = { device = "/dev/sda1"; fsType = "ext4"; };
 
+
   swapDevices = [
     {
       device = "/swapfile";
@@ -21,4 +23,3 @@
   ];
   zramSwap.enable = true;
 }
-

@@ -38,6 +38,9 @@
       url = "github:nix-community/nixos-generators";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
+
+    mach-nix.url = "github:DavHau/mach-nix";
+    flake-utils.url = "github:numtide/flake-utils";
   };
 
   outputs =
@@ -57,6 +60,8 @@
       # , deploy-flake
     , deploy-rs
     , nixos-generators
+    , mach-nix
+    , flake-utils
     , ...
     } @ flakes:
     let
@@ -75,7 +80,7 @@
             nur.overlay
             overlay-pkgs
             fenix.overlay
-            (import ./pkgs/overlays)
+            (import ./pkgs/overlays { inherit mach-nix; })
           ];
         }
       ];
@@ -184,24 +189,24 @@
           homeOnly machine home-manager-unstable;
       };
 
-      deploy = {
-        sshUser = "root";
-        user = "root";
-
-        nodes = {
-          # nix run github:serokell/deploy-rs -- .#"devterra"
-          "devterra" = {
-            hostname = "dev.terra.fap.no";
-            fastConnection = true;
-            profiles = {
-              system = {
-                path =
-                  deploy-rs.lib.x86_64-linux.activate.nixos self.nixosConfigurations."dev.terra";
-              };
-            };
-          };
-        };
-      };
+      # deploy = {
+      #   sshUser = "root";
+      #   user = "root";
+      #
+      #   nodes = {
+      #     # nix run github:serokell/deploy-rs -- .#"devterra"
+      #     "devterra" = {
+      #       hostname = "dev.terra.fap.no";
+      #       fastConnection = true;
+      #       profiles = {
+      #         system = {
+      #           path =
+      #             deploy-rs.lib.x86_64-linux.activate.nixos self.nixosConfigurations."dev.terra";
+      #         };
+      #       };
+      #     };
+      #   };
+      # };
 
       # packages.aarch64-linux = {
       #   # nix build --system aarch64-linux .#"storage-bassan"
