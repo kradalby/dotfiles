@@ -46,6 +46,8 @@
         443 # HTTPS
         # config.services.tailscale.port
         # config.networking.wireguard.interfaces.wg0.listenPort
+
+        3478 # STUN
       ];
     };
   };

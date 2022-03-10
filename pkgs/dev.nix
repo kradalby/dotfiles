@@ -50,6 +50,7 @@
     stable.statix
 
     nixpkgs-fmt
+    manix
 
     # clang_13
 

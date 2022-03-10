@@ -210,8 +210,8 @@ return require("packer").startup(
         use {
             "echasnovski/mini.nvim",
             config = function()
-                require "mini.indentscope" {}
-                require "mini.starter" {}
+                require("mini.indentscope").setup({})
+                require("mini.starter").setup({})
             end
         }
 
