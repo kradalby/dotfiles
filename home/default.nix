@@ -101,6 +101,13 @@
   programs = {
     home-manager.enable = true;
 
+    direnv = {
+      enable = true;
+      nix-direnv = {
+        enable = true;
+      };
+    };
+
     bat = {
       enable = true;
       config.theme = "Monokai Extended";

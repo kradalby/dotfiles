@@ -146,6 +146,9 @@
     brews = [
       # cdrkit in nixpkgs is only available for Linux
       "cdrtools"
+
+      # exiftrans is a part of a linux only nix pkgs
+      "exiftran"
     ];
 
     casks = [
