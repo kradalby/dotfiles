@@ -7,15 +7,22 @@
 
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     nixpkgs-master.url = "github:NixOS/nixpkgs/master";
+    nixpkgs-staging.url = "github:NixOS/nixpkgs/staging";
+    nixpkgs-staging-next.url = "github:NixOS/nixpkgs/staging-next";
 
     nixpkgs-hardware.url = "github:NixOS/nixos-hardware";
 
     darwin.url = "github:lnl7/nix-darwin/master";
     darwin.inputs.nixpkgs.follows = "nixpkgs-darwin";
+
     darwin-unstable.url = "github:lnl7/nix-darwin/master";
     darwin-unstable.inputs.nixpkgs.follows = "nixpkgs-unstable";
+
     darwin-master.url = "github:lnl7/nix-darwin/master";
     darwin-master.inputs.nixpkgs.follows = "nixpkgs-master";
+
+    darwin-staging.url = "github:lnl7/nix-darwin/master";
+    darwin-staging.inputs.nixpkgs.follows = "nixpkgs-staging";
 
     home-manager.url = "github:nix-community/home-manager/release-21.11";
     home-manager-unstable.url = "github:nix-community/home-manager/master";
@@ -48,9 +55,12 @@
     , nixpkgs
     , nixpkgs-unstable
     , nixpkgs-master
+    , nixpkgs-staging
+    , nixpkgs-staging-next
     , darwin
     , darwin-unstable
     , darwin-master
+    , darwin-staging
     , home-manager
     , home-manager-unstable
     , agenix
@@ -69,6 +79,8 @@
         stable = import nixpkgs { inherit (final) system; };
         unstable = import nixpkgs-unstable { inherit (final) system; };
         master = import nixpkgs-master { inherit (final) system; };
+        staging = import nixpkgs-staging { inherit (final) system; };
+        staging-next = import nixpkgs-staging-next { inherit (final) system; };
       };
 
       commonModules = [
@@ -172,7 +184,7 @@
               homeDir = /Users/kradalby;
             };
           in
-          macBox machine darwin-master home-manager-unstable;
+          macBox machine darwin-unstable home-manager-unstable;
       };
 
       homeConfigurations = {

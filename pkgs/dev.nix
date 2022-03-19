@@ -2,46 +2,49 @@
 {
   home.packages = with pkgs; [
     # Development
-    buf
+    # buf
     dockfmt
     dyff
     entr
     gh
     git-open
     gitlint
-    go-jsonnet
+    # go-jsonnet
     hadolint
     html-tidy
     nodePackages.eslint_d
-    nodePackages.lua-fmt
+
+    # nodePackages.lua-fmt
+
     nodePackages.prettier
-    nodejs
-    poetry
+    # nodejs
+    # poetry
     pre-commit
     # rnix-lsp
     shfmt
     shellharden
     shellcheck
-    yarn
+    # yarn
     editorconfig-checker
     grpcurl
+    act
 
     lua53Packages.luasql-sqlite3
     lua53Packages.luadbi-sqlite3
 
-    (fenix.complete.withComponents
-      [
-        "cargo"
-        "clippy"
-        "rust-src"
-        "rustc"
-        "rustfmt"
-      ])
+    # (fenix.complete.withComponents
+    #   [
+    #     "cargo"
+    #     "clippy"
+    #     "rust-src"
+    #     "rustc"
+    #     "rustfmt"
+    #   ])
 
-    gofumpt
-    golangci-lint
-    gox
-    golines
+    # gofumpt
+    # golangci-lint
+    # gox
+    # golines
 
     # (lib.mkIf (pkgs.stdenv.isLinux && pkgs.stdenv.isx86_64) swift)
 

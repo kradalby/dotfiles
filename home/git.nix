@@ -55,7 +55,7 @@
       ".DS_Store"
       "Icon"
       "*.pyc"
-      ".envrc"
+      # ".envrc"
       "environment.yaml"
     ];
   };

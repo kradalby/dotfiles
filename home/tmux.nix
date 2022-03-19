@@ -5,6 +5,7 @@
     terminal = "screen-256color";
     clock24 = true;
     secureSocket = true;
+    historyLimit = 30000;
 
     sensibleOnTop = true;
 
@@ -113,4 +114,3 @@
     '';
   };
 }
-

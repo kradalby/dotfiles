@@ -23,7 +23,7 @@
     ./openvpn.nix
     ./postgres.nix
     ./keycloak2.nix
-    ./glauth.nix
+    # ./glauth.nix
   ];
 
   my.wan = "enp0s3";

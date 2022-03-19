@@ -177,6 +177,21 @@ return require("packer").startup(
         }
 
         use {
+            "bennypowers/nvim-regexplainer",
+            config = function()
+                require "regexplainer".setup(
+                    {
+                        auto = true
+                    }
+                )
+            end,
+            requires = {
+                "nvim-lua/plenary.nvim",
+                "MunifTanjim/nui.nvim"
+            }
+        }
+
+        use {
             "windwp/nvim-autopairs",
             config = function()
                 require("nvim-autopairs").setup({})

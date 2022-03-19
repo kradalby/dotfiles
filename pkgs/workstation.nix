@@ -6,7 +6,7 @@
 {
   home.packages = with pkgs; [
     # Workstation
-    ansible
+    # ansible
     # ansible-lint
     drone-cli
     exiftool
@@ -16,9 +16,9 @@
     nmap
     prettyping
     qrencode
-    terraform
-    tflint
-    tfsec
+    # terraform
+    # tflint
+    # tfsec
     headscale
     unstable.step-cli
 

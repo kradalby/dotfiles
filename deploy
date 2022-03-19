@@ -23,14 +23,16 @@ onehost() {
 		--exclude=deploy \
 		--exclude=.mypy_cache \
 		--exclude=.pyre \
-		-auv . "root@${host}:/etc/nixos"
+		-auv . "root@$host:/etc/nixos"
 
 	set -x
 	if [ -n "${1-}" ] && [ "$1" = "diff" ]; then
-		ssh -t "root@${host}" -- nixos-rebuild build --flake "/etc/nixos#${profile}"
-		ssh -t "root@${host}" -- nix-diff /nix/var/nix/profiles/system result
+		ssh -t "root@$host" -- nixos-rebuild build --flake "/etc/nixos#$profile"
+		ssh -t "root@$host" -- nix-diff /nix/var/nix/profiles/system result
+	elif [ -n "${1-}" ] && [ "$1" = "dry" ]; then
+		ssh -t "root@$host" -- nixos-rebuild dry-activate --flake "/etc/nixos#$profile"
 	else
-		ssh -t "root@${host}" -- nixos-rebuild switch --flake "/etc/nixos#${profile}"
+		ssh -t "root@$host" -- nixos-rebuild switch --flake "/etc/nixos#$profile"
 	fi
 	set +x
 }
@@ -38,7 +40,7 @@ onehost() {
 host=$1
 shift
 if [[ $host == "all" ]]; then
-	for host in $(grep '= nixosBox' flake.nix | awk '{print $1}' | tr -d '"'); do
+	for host in "$(grep '= nixosBox' flake.nix | awk '{print $1}' | tr -d '"')"; do
 		echo
 		echo "##################################"
 		echo "# $host"
