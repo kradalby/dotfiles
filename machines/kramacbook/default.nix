@@ -210,6 +210,8 @@
       "WhatsApp" = 1147396723;
       "WireGuard" = 1451685025;
       "Xcode" = 497799835;
+      "Refined GitHub" = 1519867270;
+      "Octotree" = 1457450145;
     };
 
   };
