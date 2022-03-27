@@ -21,9 +21,8 @@
       folders = {
         "Sync" = {
           id = "xTDuT-kZeuK";
-          # Name of folder in Syncthing, also the folder ID
-          path = "/Users/kradalby/Documents/Sync"; # Which folder to add to Syncthing
-          devices = builtins.attrNames config.services.syncthing.devices; # Which devices to share the folder with
+          path = "/Users/kradalby/Sync";
+          devices = builtins.attrNames config.services.syncthing.devices;
           type = "sendreceive";
         };
         "/storage/software" = {

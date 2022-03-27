@@ -4,9 +4,12 @@ let
   helpers = import ../../common/funcs/helpers.nix { inherit pkgs lib; };
 
   paths = [
-    "$HOME/Desktop"
-    "$HOME/Documents"
-    "$HOME/Downloads"
+    # We do not have perms to backup these folders
+    # because of macOS magic
+    # "$HOME/Desktop"
+    # "$HOME/Documents"
+    # "$HOME/Downloads"
+
     "$HOME/Pictures"
     "$HOME/Sync"
     "$HOME/git"
