@@ -48,11 +48,7 @@ in
           region_id = 999;
           region_code = "fap";
           region_name = "headscale.oracldn.fap.no";
-
-          stun = {
-            enabled = true;
-            listen_addr = "0.0.0.0:3478";
-          };
+          stun_listen_addr = "0.0.0.0:3478";
         };
       };
 
