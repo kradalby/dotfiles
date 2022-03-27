@@ -539,5 +539,13 @@ in
           };
         };
     };
+    environment.etc."newsyslog.d/syncthing.conf".text =
+      ''
+        # logfilename                                          [owner:group]   mode   count   size   when  flags
+        ${cfg.dataDir}/Library/Logs/syncthing.log              kradalby:staff      750    10      10240  *     NJ
+        ${cfg.dataDir}/Library/Logs/syncthing-error.log        kradalby:staff      750    10      10240  *     NJ
+        ${cfg.dataDir}/Library/Logs/syncthing-init.log         kradalby:staff      750    10      10240  *     NJ
+        ${cfg.dataDir}/Library/Logs/syncthing-init-error.log   kradalby:staff      750    10      10240  *     NJ
+      '';
   };
 }

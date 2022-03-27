@@ -102,6 +102,8 @@
       nixosBox = arch: base: homeBase: name: base.lib.nixosSystem {
         system = arch;
         modules = commonModules ++ [
+          (import ./modules/linux.nix)
+
           # TODO: remove when common
           agenix.nixosModules.age
           {
@@ -130,6 +132,9 @@
             age = import ./modules/agenix.nix;
           in
           commonModules ++ [
+            # TODO: Why does this cause infinite recurse
+            # (import ./modules/macos.nix)
+
             (./. + "/machines/${machine.hostname}")
             homeBase.darwinModules.home-manager
             age
@@ -231,6 +236,6 @@
       #   };
       # };
 
-      checks = builtins.mapAttrs (system: deployLib: deployLib.deployChecks self.deploy) deploy-rs.lib;
+      # checks = builtins.mapAttrs (system: deployLib: deployLib.deployChecks self.deploy) deploy-rs.lib;
     };
 }
