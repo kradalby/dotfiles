@@ -21,25 +21,6 @@ let
     ref = "master";
     rev = "c09fe38ce0ae58f1c9216b9dfcb7e05d641eebbe";
   };
-
-  homebridgePackages = import ../../modules/homebridge { inherit pkgs; };
-  packageModulePath = package: "${package}/lib/node_modules/";
-  nodeModulePaths = map packageModulePath (builtins.attrValues homebridgePackages);
-  nodePath = builtins.concatStringsSep ":" nodeModulePaths;
-  homebridgeWrapped = pkgs.stdenv.mkDerivation rec {
-    version = "1.0.0";
-    name = "homepi-server-${version}";
-    unpackPhase = "true";
-    buildPhase = "true";
-    installPhase = ''
-      mkdir -p $out/bin
-      cat > $out/bin/homebridge <<EOF
-      #!/bin/sh
-      NODE_PATH=${nodePath} exec ${homebridgePackages.homebridge}/bin/homebridge -U ~/ -I "$@"
-      EOF
-      chmod +x $out/bin/homebridge
-    '';
-  };
 in
 {
   users.users.homebridge = {
@@ -63,8 +44,8 @@ in
     #   enable = true;
     #   mode = "chroot-only";
     # };
-    restartTriggers = [ homebridgeWrapped ];
-    script = "exec ${homebridgeWrapped}/bin/homebridge";
+    restartTriggers = [ pkgs.homebridge ];
+    script = "exec ${pkgs.homebridge}/bin/homebridge";
     wantedBy = [ "multi-user.target" ];
     after = [ "network.target" "zigbee2mqtt.service" "mosquitto.service" ];
     serviceConfig = {

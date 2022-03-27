@@ -11,5 +11,7 @@ final: prev: {
     buildGoModule = prev.buildGo118Module;
   };
 
+  homebridge = prev.callPackage ./homebridge/override.nix { };
+
   # glauth-ui = prev.callPackage ./glauth-ui.nix { pkgs = prev; inherit mach-nix; };
 }

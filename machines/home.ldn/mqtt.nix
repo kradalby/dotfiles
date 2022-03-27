@@ -5,8 +5,6 @@ let
   port = 1883;
 in
 {
-  imports = [ ../../modules/mqtt-exporter ];
-
   services.mosquitto = {
     enable = true;
     persistence = false;
