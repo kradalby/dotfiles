@@ -123,7 +123,7 @@
           startPub = [
             {
               topic = "cmnd/${topic}/POWER";
-              message = "OFF";
+              message = "ON";
             }
             {
               topic = "stat/${topic}/POWER";

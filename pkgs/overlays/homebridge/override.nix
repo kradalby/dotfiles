@@ -6,7 +6,7 @@ let
 
   homebridgePackages =
     nodePackages // {
-      "homebridge" = nodePackages."homebridge-camera-ffmpeg".override {
+      "homebridge-camera-ffmpeg" = nodePackages."homebridge-camera-ffmpeg".override {
         buildInputs = [ pkgs.ffmpeg ];
       };
     };
