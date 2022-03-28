@@ -245,7 +245,7 @@ in
 
               # exec
               ${optionalString (backupPaths != "") ''
-                ${resticCmd} backup --cache-dir=/tmp/restic-backups-${name} ${concatStringsSep " " backup.extraBackupArgs} ${backupPaths}
+                ${resticCmd} backup ${concatStringsSep " " backup.extraBackupArgs} ${backupPaths}
               ''}
               ${builtins.concatStringsSep "\n" pruneCmd}
 
