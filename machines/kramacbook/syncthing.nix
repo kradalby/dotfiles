@@ -46,7 +46,7 @@
         "/fast/album" = {
           id = "qha65-mn9fc";
           path = "/Volumes/storage/hugin/album";
-          devices = [ "core.terra" "core.tjoda" ];
+          devices = [ "core.terra" ];
           type = "sendonly";
         };
       };
