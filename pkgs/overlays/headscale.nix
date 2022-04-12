@@ -8,9 +8,9 @@ buildGoModule rec {
     owner = "juanfont";
     # owner = "kradalby";
     repo = "headscale";
-    rev = "v${version}";
-    # rev = "cc568fa5b2ad8da81b2deddcbb3785b368b4a9f1";
-    sha256 = "sha256-ZgChln6jcxyEHbCy89kNnwd9qWcB0yDq05xFkM69WLs=";
+    # rev = "v${version}";
+    rev = "367f8489db11a833e2134acba90f05977956a7b3";
+    sha256 = "sha256-BEpGU6GVx98J1Uo9biPkyd61P8S31cHTxvIjTHAw7SY=";
   };
 
   vendorSha256 = "sha256-0jZ37tmBG8E0HS/wbQyQvAKo1UKQdaZDa+OTGfGDAi4=";

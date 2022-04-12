@@ -205,19 +205,19 @@
         cleanword = "cleaning";
       }
 
-      {
-        accessory = "PhilipsTV";
-        name = "Television";
-        ip_address = "10.65.0.103";
-        poll_status_interval = "30";
-        model_year = 2019;
-        has_ambilight = true;
-        username = "INdLGBCtHWh275OR";
-        password = "0cf74acce7c02fee600c8fcd1cea52010a5275fe681a343a6443bab2df272206";
-        inputs = [
-          { name = "TV Mode"; }
-        ];
-      }
+      # {
+      #   accessory = "PhilipsTV";
+      #   name = "Television";
+      #   ip_address = "10.65.0.103";
+      #   poll_status_interval = "30";
+      #   model_year = 2019;
+      #   has_ambilight = true;
+      #   username = "INdLGBCtHWh275OR";
+      #   password = "0cf74acce7c02fee600c8fcd1cea52010a5275fe681a343a6443bab2df272206";
+      #   inputs = [
+      #     { name = "TV Mode"; }
+      #   ];
+      # }
 
     ];
 

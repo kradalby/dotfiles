@@ -29,8 +29,12 @@
     grpcurl
     act
 
-    lua53Packages.luasql-sqlite3
-    lua53Packages.luadbi-sqlite3
+    # neovim plugin deps
+    libiconv # rnix-lsp
+    nodejs # ansiblels
+    dotnet-sdk # omnisharp
+    lua53Packages.luasql-sqlite3 # yank sql
+    lua53Packages.luadbi-sqlite3 # yank sql
 
     # (fenix.complete.withComponents
     #   [
