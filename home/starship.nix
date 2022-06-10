@@ -2,7 +2,7 @@
 {
   programs.starship = {
     enable = true;
-    package = pkgs.unstable.starship;
+    package = pkgs.starship;
     enableFishIntegration = true;
     settings = {
       add_newline = true;

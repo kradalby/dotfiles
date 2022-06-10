@@ -65,6 +65,11 @@ Host *.oracldn
     User root
     Port 22
 
+Host *.oracfurt
+    HostName %h.fap.no
+    User root
+    Port 22
+
 Host *.v
     HostName %hpn.fap.no
     User root
@@ -72,6 +77,11 @@ Host *.v
 
 Host kramacbook.v
     HostName %hpn.fap.no
+    User kradalby
+    Port 22
+
+Host devf
+    HostName dev.oracfurt.fap.no
     User kradalby
     Port 22
 

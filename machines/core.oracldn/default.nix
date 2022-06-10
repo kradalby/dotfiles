@@ -22,8 +22,9 @@
     ./step-ca.nix
     ./openvpn.nix
     ./postgres.nix
-    ./keycloak2.nix
+    ./keycloak.nix
     # ./glauth.nix
+    ./nextcloud.nix
   ];
 
   my.wan = "enp0s3";
@@ -58,9 +59,9 @@
       internalIPs = [ "10.0.0.0/8" ];
       internalInterfaces = [ config.my.lan "iot" ];
       forwardPorts = [
-        { sourcePort = 64322; destination = "10.65.0.1:22"; proto = "tcp"; }
-        { sourcePort = 500; destination = "10.65.0.1:51820"; proto = "udp"; }
-        { sourcePort = 4500; destination = "10.65.0.1:51820"; proto = "udp"; }
+        { sourcePort = 64322; destination = "10.66.0.1:22"; proto = "tcp"; }
+        { sourcePort = 500; destination = "10.66.0.1:51820"; proto = "udp"; }
+        { sourcePort = 4500; destination = "10.66.0.1:51820"; proto = "udp"; }
       ];
     };
 

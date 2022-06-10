@@ -32,25 +32,25 @@
     # neovim plugin deps
     libiconv # rnix-lsp
     nodejs # ansiblels
-    dotnet-sdk # omnisharp
+    unstable.dotnet-sdk # omnisharp
     lua53Packages.luasql-sqlite3 # yank sql
     lua53Packages.luadbi-sqlite3 # yank sql
 
-    # (fenix.complete.withComponents
-    #   [
-    #     "cargo"
-    #     "clippy"
-    #     "rust-src"
-    #     "rustc"
-    #     "rustfmt"
-    #   ])
+    (fenix.complete.withComponents
+      [
+        "cargo"
+        "clippy"
+        "rust-src"
+        "rustc"
+        "rustfmt"
+      ])
 
     # gofumpt
     # golangci-lint
     # gox
     # golines
 
-    # (lib.mkIf (pkgs.stdenv.isLinux && pkgs.stdenv.isx86_64) swift)
+    # (lib.mkIf pkgs.stdenv.isLinux swift)
 
     # null-ls only support 0.4.0, so override
     # to ensure we use stable for now.

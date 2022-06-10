@@ -1,7 +1,7 @@
 { buildGoModule, fetchFromGitHub, lib, installShellFiles }:
 buildGoModule rec {
   pname = "golines";
-  version = "0.9.0";
+  version = "0.10.0";
 
   src = fetchFromGitHub {
     owner = "segmentio";

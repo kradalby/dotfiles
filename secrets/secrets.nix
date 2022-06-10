@@ -19,11 +19,16 @@ let
 
     core-oracldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGEe9eIMf462ZQhE8Nl9jyUscRtTTYeAIPRN2kvO3cdC";
 
+    dev-oracfurt = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIE65s/hRn34v5UNhSIC8/JN/452hLdqn131gVqqBTPnl";
+
     # NTNU hosts
     core-ntnu = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICXhYsZfTX/h7v9eDo3vmtoTtKH1GkXhwf6uVnpi+Fj7";
 
     # Oracle London hosts
     headscale-oracldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIN2wiCW3z5MpNw7sVrs2ot2uThEdM0LlCJCr/IJRXlty";
+
+    # Storage at bassan
+    storage-bassan = "";
   };
 
   global = (attrValues users) ++ (attrValues hosts);
@@ -48,15 +53,18 @@ with builtins;
   "restic-home-ldn-token.age".publicKeys = u ++ [ hosts.home-ldn ];
   "restic-headscale-oracldn-token.age".publicKeys = u ++ [ hosts.headscale-oracldn ];
   "restic-core-oracldn-token.age".publicKeys = u ++ [ hosts.core-oracldn ];
+  "restic-dev-oracfurt-token.age".publicKeys = u ++ [ hosts.dev-oracfurt ];
   "restic-kramacbook-token.age".publicKeys = u;
 
   # Wireguard
   "wireguard-ldn.age".publicKeys = u ++ [ hosts.core-ldn ];
   "wireguard-ntnu.age".publicKeys = u ++ [ hosts.core-ntnu ];
   "wireguard-oracldn.age".publicKeys = u ++ [ hosts.core-oracldn ];
+  "wireguard-oracfurt.age".publicKeys = u ++ [ hosts.dev-oracfurt ];
   "wireguard-terra.age".publicKeys = u; # ++ [ hosts.core-terra ];
   "wireguard-tjoda.age".publicKeys = u; # ++ [ hosts.core-tjoda ];
   "wireguard-headscale-oracldn.age".publicKeys = u ++ [ hosts.headscale-oracldn ];
+  "wireguard-storage-bassan.age".publicKeys = u ++ [ hosts.storage-bassan ];
 
   # Unifi
   "unifi-ldn-read-only.age".publicKeys = u ++ [ hosts.home-ldn ];
@@ -86,4 +94,7 @@ with builtins;
 
   # Postgres
   "postgres-keycloak.age".publicKeys = u ++ [ hosts.core-oracldn ];
+
+  # Nextcloud
+  "nextcloud.age".publicKeys = u ++ [ hosts.core-oracldn ];
 }

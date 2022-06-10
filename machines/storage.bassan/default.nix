@@ -3,10 +3,14 @@
   imports = [
     ../../common
     ./hardware-configuration.nix
+
+    ./tailscale.nix
+    ./wireguard.nix
   ];
 
   networking = {
     hostName = "storage";
+    domain = "bassan.fap.no";
     nameservers = [
       "1.1.1.1"
       "1.0.0.1"
@@ -15,6 +19,14 @@
     dhcpcd.enable = true;
     usePredictableInterfaceNames = lib.mkForce true;
   };
+
+  networking.firewall.allowedUDPPorts = lib.mkForce [
+    51280
+  ];
+
+  services.consul.extraConfig.retry_join = lib.mkForce [ ];
+
+  monitoring.smartctl.devices = [ ];
 
   boot.cleanTmpDir = true;
 

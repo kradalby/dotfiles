@@ -62,7 +62,7 @@ in
   # };
 
   virtualisation.oci-containers.containers.kuma = {
-    image = "louislam/uptime-kuma:1.11.4";
+    image = "louislam/uptime-kuma:1.16.0";
     # user = "kuma";
     # workdir = "/home/podmanager";
     autoStart = true;

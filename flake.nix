@@ -2,8 +2,8 @@
   description = "kradalby's system config";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-21.11";
-    nixpkgs-darwin.url = "github:NixOS/nixpkgs/nixpkgs-21.11-darwin";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.05";
+    nixpkgs-darwin.url = "github:NixOS/nixpkgs/nixpkgs-22.05-darwin";
 
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     nixpkgs-master.url = "github:NixOS/nixpkgs/master";
@@ -24,7 +24,7 @@
     darwin-staging.url = "github:lnl7/nix-darwin/master";
     darwin-staging.inputs.nixpkgs.follows = "nixpkgs-staging";
 
-    home-manager.url = "github:nix-community/home-manager/release-21.11";
+    home-manager.url = "github:nix-community/home-manager/release-22.05";
     home-manager-unstable.url = "github:nix-community/home-manager/master";
     home-manager-unstable.inputs.nixpkgs.follows = "nixpkgs-unstable";
 
@@ -36,10 +36,6 @@
       url = "github:nix-community/fenix";
       # inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    # nixops-plugged.url = github:lukebfox/nixops-plugged;
-    # deploy-flake.url = "github:antifuchs/deploy-flake";
-    deploy-rs.url = "github:serokell/deploy-rs";
 
     nixos-generators = {
       url = "github:nix-community/nixos-generators";
@@ -66,9 +62,6 @@
     , agenix
     , nur
     , fenix
-      # , nixops-plugged
-      # , deploy-flake
-    , deploy-rs
     , nixos-generators
     , mach-nix
     , flake-utils
@@ -83,20 +76,22 @@
         staging-next = import nixpkgs-staging-next { inherit (final) system; };
       };
 
+      overlays = [
+        nur.overlay
+        overlay-pkgs
+        fenix.overlay
+        (import ./pkgs/overlays { inherit mach-nix; })
+
+      ];
+
       commonModules = [
         # TODO: use when macOS is supported
         # agenix.nixosModules.age
 
         {
-          nixpkgs.overlays = [
-            nur.overlay
-            overlay-pkgs
-            fenix.overlay
-            (import ./pkgs/overlays { inherit mach-nix; })
-          ];
+          nixpkgs.overlays = overlays;
         }
       ];
-
 
 
       nixosBox = arch: base: homeBase: name: base.lib.nixosSystem {
@@ -108,9 +103,7 @@
           agenix.nixosModules.age
           {
             system.configurationRevision =
-              if self ? rev
-              then self.rev
-              else "DIRTY";
+              self.rev or "DIRTY";
           }
 
           (./. + "/machines/${name}")
@@ -158,24 +151,47 @@
           ];
 
       };
+
+      mkColmenaFromNixOSConfigurations = nixosConfigurations:
+        {
+          meta = {
+            nixpkgs = import nixpkgs {
+              system = "x86_64-darwin";
+              inherit overlays;
+            };
+
+            specialArgs = {
+              inherit flakes;
+            };
+          };
+        } // builtins.mapAttrs
+          (name: value:
+            {
+              nixpkgs.system = value.config.nixpkgs.system;
+              imports = value._module.args.modules;
+            })
+          nixosConfigurations;
     in
     {
 
       nixosConfigurations = {
-        "dev-terra" = nixosBox "x86_64-linux" nixpkgs-unstable home-manager-unstable "dev.terra";
+        "dev.terra" = nixosBox "x86_64-linux" nixpkgs home-manager "dev.terra";
 
-        "core-oracldn" = nixosBox "aarch64-linux" nixpkgs-unstable home-manager-unstable "core.oracldn";
-        "headscale-oracldn" = nixosBox "x86_64-linux" nixpkgs-unstable null "headscale.oracldn";
+        "core.oracldn" = nixosBox "aarch64-linux" nixpkgs home-manager "core.oracldn";
+        "headscale.oracldn" = nixosBox "x86_64-linux" nixpkgs null "headscale.oracldn";
 
-        "core-ntnu" = nixosBox "x86_64-linux" nixpkgs-unstable null "core.ntnu";
+        "dev.oracfurt" = nixosBox "aarch64-linux" nixpkgs home-manager "dev.oracfurt";
 
-        "k3m1-terra" = nixosBox "x86_64-linux" nixpkgs-unstable null "k3m1.terra";
-        "k3a1-terra" = nixosBox "x86_64-linux" nixpkgs-unstable null "k3a1.terra";
-        "k3a2-terra" = nixosBox "x86_64-linux" nixpkgs-unstable null "k3a2.terra";
+        "core.ntnu" = nixosBox "x86_64-linux" nixpkgs null "core.ntnu";
 
-        # nixos-generate --system aarch64-linux -f sd-aarch64 -I nixpkgs=channel:nixos-unstable
-        "home-ldn" = nixosBox "aarch64-linux" nixpkgs-unstable null "home.ldn";
-        "core-ldn" = nixosBox "aarch64-linux" nixpkgs-unstable null "core.ldn";
+        "k3m1.terra" = nixosBox "x86_64-linux" nixpkgs null "k3m1.terra";
+        "k3a1.terra" = nixosBox "x86_64-linux" nixpkgs null "k3a1.terra";
+        "k3a2.terra" = nixosBox "x86_64-linux" nixpkgs null "k3a2.terra";
+
+        # nixos-generate --system aarch64-linux -f sd-aarch64 -I nixpkgs=channel:nixos
+        "home.ldn" = nixosBox "aarch64-linux" nixpkgs null "home.ldn";
+        "core.ldn" = nixosBox "aarch64-linux" nixpkgs null "core.ldn";
+        # "storage.bassan" = nixosBox "aarch64-linux" nixpkgs null "storage.bassan";
       };
 
       # darwin-rebuild switch --flake .#kramacbook
@@ -189,7 +205,7 @@
               homeDir = /Users/kradalby;
             };
           in
-          macBox machine darwin-unstable home-manager-unstable;
+          macBox machine darwin home-manager;
       };
 
       homeConfigurations = {
@@ -203,39 +219,24 @@
               homeDir = "/home/kradalby";
             };
           in
-          homeOnly machine home-manager-unstable;
+          homeOnly machine home-manager;
       };
 
-      # deploy = {
-      #   sshUser = "root";
-      #   user = "root";
-      #
-      #   nodes = {
-      #     # nix run github:serokell/deploy-rs -- .#"devterra"
-      #     "devterra" = {
-      #       hostname = "dev.terra.fap.no";
-      #       fastConnection = true;
-      #       profiles = {
-      #         system = {
-      #           path =
-      #             deploy-rs.lib.x86_64-linux.activate.nixos self.nixosConfigurations."dev.terra";
-      #         };
-      #       };
-      #     };
-      #   };
-      # };
+      colmena = mkColmenaFromNixOSConfigurations self.nixosConfigurations;
 
-      # packages.aarch64-linux = {
-      #   # nix build --system aarch64-linux .#"storage-bassan"
-      #   "storage-bassan" = nixos-generators.nixosGenerate {
-      #     pkgs = nixos.legacyPackages.aarch64-linux;
-      #     modules =
-      #       commonModules ++
-      #       [ (./. + "/machines/storage.bassan") ];
-      #     format = "sd-aarch64";
-      #   };
-      # };
-
-      # checks = builtins.mapAttrs (system: deployLib: deployLib.deployChecks self.deploy) deploy-rs.lib;
+      packages.aarch64-linux = {
+        # nix build --system aarch64-linux .#storage-bassan
+        "storage-bassan" = nixos-generators.nixosGenerate {
+          pkgs = nixpkgs.legacyPackages.aarch64-linux;
+          modules =
+            commonModules ++
+            [
+              # TODO: remove when common
+              agenix.nixosModules.age
+              (./. + "/machines/storage.bassan")
+            ];
+          format = "sd-aarch64";
+        };
+      };
     };
 }

@@ -11,11 +11,18 @@ in
   services.keycloak = {
     enable = true;
 
-    httpPort = "38089";
-    bindAddress = "127.0.0.1";
 
-    frontendUrl = "https://${domain}/auth";
-    forceBackendUrlToFrontendUrl = true;
+    # frontendUrl = "https://${domain}";
+    # forceBackendUrlToFrontendUrl = true;
+
+    settings = {
+      proxy = "edge";
+      hostname = domain;
+
+      http-port = 38089;
+      http-host = "127.0.0.1";
+      hostname-strict-backchannel = true;
+    };
 
     database = {
       createLocally = true;
@@ -27,18 +34,18 @@ in
       passwordFile = config.age.secrets.postgres-keycloak.path;
     };
 
-    extraConfig = {
-      "subsystem=undertow" = {
-        "server=default-server" = {
-          "http-listener=default" = {
-            "proxy-address-forwarding" = true;
-          };
-          "https-listener=https" = {
-            "proxy-address-forwarding" = true;
-          };
-        };
-      };
-    };
+    # extraConfig = {
+    #   "subsystem=undertow" = {
+    #     "server=default-server" = {
+    #       "http-listener=default" = {
+    #         "proxy-address-forwarding" = true;
+    #       };
+    #       "https-listener=https" = {
+    #         "proxy-address-forwarding" = true;
+    #       };
+    #     };
+    #   };
+    # };
 
   };
 
@@ -48,7 +55,7 @@ in
     forceSSL = true;
     useACMEHost = domain;
     locations."/" = {
-      proxyPass = "http://127.0.0.1:${config.services.keycloak.httpPort}";
+      proxyPass = "http://127.0.0.1:${toString config.services.keycloak.settings.http-port}";
       # proxyWebsockets = true;
       # extraConfig = ''
       #   proxy_set_header X-Forwarded-For $proxy_protocol_addr;
