@@ -9,7 +9,7 @@ Lsps = {
     "dotls",
     "efm",
     "elmls",
-    "golangci_lint_ls",
+    -- "golangci_lint_ls",
     "gopls",
     "graphql",
     "jedi_language_server",

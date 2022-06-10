@@ -235,7 +235,7 @@ in
             runRestic = pkgs.writers.writeBash "run-restic" ''
               ${optionalString (backup.initialize || backup.dynamicFilesFrom != null) ''
                 # pre-exec
-                ${optionalString (backup.initialize) ''
+                ${optionalString backup.initialize ''
                   ${resticCmd} snapshots || ${resticCmd} init
                 ''}
                 ${optionalString (backup.dynamicFilesFrom != null) ''
@@ -255,13 +255,15 @@ in
               ''}
             '';
           in
-          nameValuePair "restic-backups-${name}" ({
+          nameValuePair "restic-backups-${name}" {
             # command = helpers.swiftMacOSWrapper runRestic;
             # command = ''
             #   date
             #   $HOME/bin/backup_wrap ${runRestic}
             # '';
-            command = runRestic;
+            command = pkgs.writers.writeBash "run-restic-with-flock" ''
+              ${pkgs.flock}/bin/flock -n /tmp/backup_restic_${name}.lockfile ${runRestic}
+            '';
             environment = {
               RESTIC_PASSWORD_FILE = backup.passwordFile;
               RESTIC_REPOSITORY = backup.repository;
@@ -285,7 +287,7 @@ in
               StandardOutPath = "${backup.logPath}/restic-${name}.log";
               StandardErrorPath = "${backup.logPath}/restic-${name}-error.log";
             };
-          })
+          }
         )
         config.services.restic.backups;
 

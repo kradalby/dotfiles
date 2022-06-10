@@ -14,11 +14,11 @@ in
     age.secrets.step-ca-password.file = ../../secrets/step-ca-password.age;
     age.secrets.step-ca-config.file = ../../secrets/step-ca-config.age;
 
-    environment.systemPackages = with pkgs.unstable; [ step-cli step-ca ];
+    environment.systemPackages = with pkgs; [ step-cli step-ca ];
 
     services.step-ca = {
       enable = true;
-      package = pkgs.unstable.step-ca;
+      package = pkgs.step-ca;
 
       address = "0.0.0.0";
       port = 38443;

@@ -70,7 +70,8 @@ let
 
     services.prometheus.exporters.wireguard = {
       enable = true;
-      withRemoteIp = true;
+      # TODO: Remove when fixed upstream
+      # withRemoteIp = true;
     };
 
     my.consulServices.wireguard_exporter = consul.prometheusExporter "wireguard" config.services.prometheus.exporters.wireguard.port;
@@ -85,4 +86,3 @@ in
 {
   inherit clientService serverService;
 }
-

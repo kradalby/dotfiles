@@ -28,6 +28,7 @@
     package = pkgs.nixUnstable;
     extraOptions = ''
       experimental-features = nix-command flakes
+      builders = ssh://core.terra x86_64-linux ; ssh://core.oracldn aarch64-linux ; ssh://core.tjoda x86_64-linux
     '';
 
     trustedUsers = [ machine.username ];
@@ -39,6 +40,7 @@
   nixpkgs = {
     config = {
       allowUnfree = true;
+      allowBroken = true; # TODO: Remove
     };
   };
 
@@ -65,7 +67,7 @@
   };
 
   fonts = {
-    enableFontDir = true;
+    fontDir.enable = true;
     fonts = [ pkgs.jetbrains-mono pkgs.nerdfonts ];
   };
 
@@ -155,6 +157,7 @@
       "1password"
       "1password-cli"
       "alacritty"
+      "anki"
       "balenaetcher"
       "calibre"
       "discord"

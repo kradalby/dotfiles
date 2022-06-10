@@ -25,6 +25,14 @@
       public_key = "Gp4ZxbTOP3yo8SVPBC1Bi34OqArGYsvP3MNT1CjbTyM=";
     };
 
+    oraclefurt = {
+      additional_networks = [ "10.67.0.0/16" ];
+      addresses = [ "10.69.0.207/32" "2a03:94e0:200d:69::207/128" ];
+      endpoint_address = "oracfurt.fap.no";
+      endpoint_port = 51820;
+      public_key = "3cjdc90xSHcs+E9lY1LoLavsWumxyNtsfCVuLWKHglw=";
+    };
+
     terra = {
       additional_networks = [ "10.60.0.0/16" "2a03:94e0:200d::/48" ];
       addresses = [ "10.69.0.200/32" "2a03:94e0:200d:69::200/128" ];

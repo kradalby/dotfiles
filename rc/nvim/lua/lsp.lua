@@ -31,7 +31,7 @@ end
 
 local function common_lsp(server)
     local capabilities =
-        require("cmp_nvim_lsp").update_capabilities(
+    require("cmp_nvim_lsp").update_capabilities(
         vim.tbl_deep_extend("keep", vim.lsp.protocol.make_client_capabilities(), lsp_status.capabilities)
     )
 
@@ -42,18 +42,18 @@ local function common_lsp(server)
 
     -- (optional) Customize the options passed to the server
     if server.name == "ansiblels" then
-        opts.filetypes = {"yaml", "yaml.ansible", "ansible"}
+        opts.filetypes = { "yaml", "yaml.ansible", "ansible" }
         opts.root_dir = function(fname)
             -- return util.root_pattern {"requirements.yaml", "inventory", "*.yml", "*.yaml"}(fname)
-            return util.root_pattern {"requirements.yaml", "inventory"}(fname)
+            return util.root_pattern { "requirements.yaml", "inventory" } (fname)
         end
-    -- server.setup(opts)
+        -- server.setup(opts)
     end
 
     if server.name == "efm" then
         local home = os.getenv("HOME")
         local installer_server = require("nvim-lsp-installer.server")
-        local go = require("nvim-lsp-installer.installers.go")
+        local go = require("nvim-lsp-installer.core.managers.go")
 
         local root_dir = installer_server.get_server_root_path("efm")
 
@@ -68,7 +68,7 @@ local function common_lsp(server)
             }
         }
 
-        opts.flags = {debounce_text_changes = 2000}
+        opts.flags = { debounce_text_changes = 2000 }
         opts.root_dir = lspconfig.util.root_pattern(".git", ".")
         opts.filetypes = vim.tbl_keys(efm.languages)
         opts.init_options = {
@@ -80,7 +80,7 @@ local function common_lsp(server)
         opts.settings = {
             lintDebounce = "1000ms",
             formatDebounce = "1000ms",
-            rootMarkers = {".git/"},
+            rootMarkers = { ".git/" },
             languages = efm.languages
         }
         opts.on_attach = function(client)
@@ -92,7 +92,7 @@ local function common_lsp(server)
     end
 
     if server.name == "yamlls" then
-        opts.filetypes = {"yaml", "yaml.ansible", "ansible"}
+        opts.filetypes = { "yaml", "yaml.ansible", "ansible" }
     end
 
     if server.name == "sumneko_lua" then
@@ -102,7 +102,7 @@ local function common_lsp(server)
     if server.name == "gopls" then
         opts.settings = {
             gopls = {
-                buildFlags = {"-tags=integration"}
+                buildFlags = { "-tags=integration" }
             }
         }
     end

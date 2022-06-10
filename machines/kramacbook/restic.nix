@@ -32,6 +32,6 @@ in
   imports = [ ../../modules/restic.nix ];
 } //
 lib.mkMerge [
-  (restic.backupJob (cfg "tjoda"))
-  (restic.backupJob (cfg "terra"))
+  # (restic.backupJob (cfg "tjoda"))
+  # (restic.backupJob (cfg "terra"))
 ]

@@ -49,6 +49,17 @@ let
           openvpn = "10.66.200.0";
           inherit ipv4Gateway;
         };
+      oracfurt =
+        let
+          ipv4Gateway = "10.67.0.1";
+        in
+        {
+          name = "oracfurt";
+          nameservers = [ ipv4Gateway ];
+          consul = ipv4Gateway;
+          openvpn = "10.67.200.0";
+          inherit ipv4Gateway;
+        };
       terra =
         let
           ipv4Gateway = "10.60.0.1";

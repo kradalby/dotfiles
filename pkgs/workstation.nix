@@ -20,11 +20,15 @@
     # tflint
     # tfsec
     headscale
-    unstable.step-cli
+    step-cli
+    colmena
 
     # nix tooling
-    nixopsUnstable
-    unstable.nodePackages.node2nix
+    # TODO: Add back in when builds on macOS
+    # nixopsUnstable
+    nodePackages.node2nix
+
+    imapchive
 
     # Darwin only
     (lib.mkIf pkgs.stdenv.isDarwin terminal-notifier)

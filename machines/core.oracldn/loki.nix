@@ -67,7 +67,10 @@ in
         retention_period = retention;
       };
 
-      limits_config.ingestion_burst_size_mb = 16;
+      limits_config = {
+        split_queries_by_interval = "24h";
+        ingestion_burst_size_mb = 16;
+      };
 
       ruler = {
         # storage = {
@@ -81,7 +84,6 @@ in
 
       # Query splitting and caching
       query_range = {
-        split_queries_by_interval = "24h";
         cache_results = true;
       };
     };

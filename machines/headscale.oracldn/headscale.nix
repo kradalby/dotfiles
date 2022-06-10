@@ -24,14 +24,18 @@ in
     privateKeyFile = config.age.secrets.headscale-private-key.path;
 
     openIdConnect = {
-      issuer = "https://id.kradalby.no/dex";
-      clientId = "headscale";
+      # issuer = "https://id.kradalby.no/dex";
+      # clientId = "headscale";
+      issuer = "https://nextcloud.kradalby.no";
+      clientId = "Pxc5EeJ8gYTcfESmsYysJoFEy2Usu2mDu51jULbzVIksR5WEXKOMwI0MNLM9E9md";
       clientSecretFile = config.age.secrets.headscale-oidc-secret.path;
 
       domainMap = {
         ".*" = "fap";
       };
     };
+
+    dns.baseDomain = "fap";
 
     settings = {
       grpc_listen_addr = "127.0.0.1:50443";
