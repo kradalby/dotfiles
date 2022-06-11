@@ -6,6 +6,9 @@
 , flakes
 , ...
 }:
+let
+  sshKeys = import ../../metadata/ssh.nix;
+in
 {
   imports = [
     ../../common/environment.nix
@@ -61,6 +64,10 @@
     useGlobalPkgs = true;
     users."${machine.username}" = {
       imports = [ ../../home ];
+
+      home.file = {
+        ".ssh/authorized_keys".text = lib.concatStringsSep "\n" (sshKeys.main ++ sshKeys.kradalby);
+      };
     };
     # extraSpecialArgs = { inherit machine; };
   };
