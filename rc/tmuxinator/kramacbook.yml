@@ -10,10 +10,12 @@ windows:
       root: ~/git/plays
   - dotfiles:
       root: ~/git/dotfiles
+  - dotfiles:
+      root: ~/git/dotfiles
   - infra:
       root: ~/git/infrastructure
-  - kubes:
-      root: ~/git/kubes
-  - core.te: eb -- mosh core.te
-  - core.tj: eb -- mosh core.tj
-  - dev.n: eb -- mosh kradalby@dev.n
+  - infra:
+      root: ~/git/infrastructure
+  # - core.te: eb -- mosh core.te
+  # - core.tj: eb -- mosh core.tj
+  - devf: eb -- mosh devf
