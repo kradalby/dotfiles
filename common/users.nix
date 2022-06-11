@@ -7,6 +7,10 @@ let
     # dev vm
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGyrauaLwnrgeR5mpeOBCw/creVh1dMU1a12TTXvQ+Rd"
   ];
+
+  kradalbyKeys = [
+    "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBFiqc4Mou7XVbFNEY0EDkD34G1JbtuFB0WndjktfiBBxS3hz0XdE/mCUjS5Zs65mg5aKzdQXisGRX85LT4DTAtQ= kphone@blink"
+  ];
 in
 {
   age.secrets.r.file = ../secrets/r.age;
@@ -18,7 +22,7 @@ in
         uid = 1000;
         extraGroups = [ "audio" "dialout" "lp" "scanner" "video" "wheel" "wireshark" "docker" ];
         shell = pkgs.fish;
-        openssh.authorizedKeys.keys = keys;
+        openssh.authorizedKeys.keys = keys ++ kradalbyKeys;
         passwordFile = config.age.secrets.r.path;
       };
 
