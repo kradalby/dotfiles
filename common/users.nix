@@ -1,6 +1,6 @@
 { pkgs, config, ... }:
 let
-  sshKeys = import ../../metadata/ssh.nix;
+  sshKeys = import ../metadata/ssh.nix;
 in
 {
   age.secrets.r.file = ../secrets/r.age;
