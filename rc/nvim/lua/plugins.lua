@@ -4,8 +4,7 @@ local fn = vim.fn
 local install_path = fn.stdpath("data") .. "/site/pack/packer/start/packer.nvim"
 
 if fn.empty(fn.glob(install_path)) > 0 then
-    Packer_bootstrap =
-        fn.system(
+    Packer_bootstrap = fn.system(
         {
             "git",
             "clone",
@@ -27,13 +26,12 @@ return require("packer").startup(
         use {
             "nvim-treesitter/nvim-treesitter",
             run = ":TSUpdate",
-            requires = {"p00f/nvim-ts-rainbow"},
+            requires = { "p00f/nvim-ts-rainbow" },
             config = function()
                 require "nvim-treesitter.configs".setup {
                     ensure_installed = "maintained",
-                    -- ignore_install =
-                    --   {"haskell"}, -- Haskell breaks without Java?
-                    highlight = {enable = true},
+                    ignore_install = { "haskell", "lua" }, -- Haskell breaks without Java?
+                    highlight = { enable = true },
                     rainbow = {
                         enable = true,
                         extended_mode = true,
@@ -74,13 +72,13 @@ return require("packer").startup(
                             end
                         },
                         sources = {
-                            {name = "nvim_lsp"},
-                            {name = "nvim_lsp_signature_help"},
-                            {name = "path"},
-                            {name = "buffer"},
-                            {name = "rg", option = {debounce = 500}},
+                            { name = "nvim_lsp" },
+                            { name = "nvim_lsp_signature_help" },
+                            { name = "path" },
+                            { name = "buffer" },
+                            { name = "rg", option = { debounce = 500 } },
                             -- {name = "treesitter"},
-                            {name = "vsnip"}
+                            { name = "vsnip" }
                         },
                         formatting = {
                             format = require("lspkind").cmp_format(
@@ -113,7 +111,7 @@ return require("packer").startup(
                     "/",
                     {
                         sources = {
-                            {name = "buffer"}
+                            { name = "buffer" }
                         }
                     }
                 )
@@ -124,10 +122,10 @@ return require("packer").startup(
                     {
                         sources = cmp.config.sources(
                             {
-                                {name = "path"}
+                                { name = "path" }
                             },
                             {
-                                {name = "cmdline"}
+                                { name = "cmdline" }
                             }
                         )
                     }
@@ -235,8 +233,8 @@ return require("packer").startup(
         --     disable = true
         -- }
 
-        use {"folke/lua-dev.nvim"}
-        use {"darfink/vim-plist", ft = {"plist", "xml"}}
+        use { "folke/lua-dev.nvim" }
+        use { "darfink/vim-plist", ft = { "plist", "xml" } }
 
         use "kyazdani42/nvim-web-devicons"
         use "folke/tokyonight.nvim"
@@ -255,8 +253,8 @@ return require("packer").startup(
         use {
             "AckslD/nvim-neoclip.lua",
             requires = {
-                {"tami5/sqlite.lua", module = "sqlite"},
-                {"ibhagwan/fzf-lua"}
+                { "tami5/sqlite.lua", module = "sqlite" },
+                { "ibhagwan/fzf-lua" }
             },
             config = function()
                 require("neoclip").setup(
