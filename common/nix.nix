@@ -11,15 +11,18 @@
       sandbox = true;
       trusted-users = [ "kradalby" ];
     };
+
     gc = {
       automatic = true;
       dates = "03:15";
       options = "--delete-older-than 10d";
     };
+
     optimise = {
       automatic = true;
       dates = [ "03:45" ];
     };
+
     registry = {
       nixos.flake = flakes.nixpkgs;
       nixos-unstable.flake = flakes.nixpkgs-unstable;
