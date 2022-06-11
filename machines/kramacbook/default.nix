@@ -8,6 +8,12 @@
 }:
 let
   sshKeys = import ../../metadata/ssh.nix;
+  remoteBuilders = [
+    "ssh://core.terra x86_64-linux"
+    "ssh://core.tjoda x86_64-linux"
+    "ssh://core.oracldn aarch64-linux"
+    "ssh://dev.oracfurt aarch64-linux"
+  ];
 in
 {
   imports = [
@@ -31,7 +37,7 @@ in
     package = pkgs.nixUnstable;
     extraOptions = ''
       experimental-features = nix-command flakes
-      builders = ssh://core.terra x86_64-linux ; ssh://core.oracldn aarch64-linux ; ssh://core.tjoda x86_64-linux
+      builders = ${lib.concatStringsSep " ; " remoteBuilders}
     '';
 
     trustedUsers = [ machine.username ];
