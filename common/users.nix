@@ -16,7 +16,7 @@ in
       kradalby = {
         isNormalUser = true;
         uid = 1000;
-        extraGroups = [ "audio" "dialout" "lp" "scanner" "video" "wheel" "wireshark" ];
+        extraGroups = [ "audio" "dialout" "lp" "scanner" "video" "wheel" "wireshark" "docker" ];
         shell = pkgs.fish;
         openssh.authorizedKeys.keys = keys;
         passwordFile = config.age.secrets.r.path;
