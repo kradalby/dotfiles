@@ -51,6 +51,7 @@
     # golines
 
     # (lib.mkIf pkgs.stdenv.isLinux swift)
+    (lib.mkIf pkgs.stdenv.isLinux docker)
 
     # null-ls only support 0.4.0, so override
     # to ensure we use stable for now.
