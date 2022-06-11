@@ -9,10 +9,12 @@
 let
   sshKeys = import ../../metadata/ssh.nix;
   remoteBuilders = [
-    "ssh://core.terra x86_64-linux"
-    "ssh://core.tjoda x86_64-linux"
-    "ssh://core.oracldn aarch64-linux"
-    "ssh://dev.oracfurt aarch64-linux"
+    # "ssh-ng://core.ntnu x86_64-linux"
+    "ssh-ng://k3a1.terra x86_64-linux - 4 - benchmark,big-parallel"
+    "ssh-ng://k3a2.terra x86_64-linux - 4 - benchmark,big-parallel"
+    "ssh-ng://dev.terra x86_64-linux - 4 - benchmark,big-parallel"
+    "ssh-ng://core.oracldn aarch64-linux - 4 - benchmark,big-parallel"
+    "ssh-ng://dev.oracfurt aarch64-linux - 4 - benchmark,big-parallel"
   ];
 in
 {
