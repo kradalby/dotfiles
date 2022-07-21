@@ -191,7 +191,7 @@
         # nixos-generate --system aarch64-linux -f sd-aarch64 -I nixpkgs=channel:nixos
         "home.ldn" = nixosBox "aarch64-linux" nixpkgs null "home.ldn";
         "core.ldn" = nixosBox "aarch64-linux" nixpkgs null "core.ldn";
-        # "storage.bassan" = nixosBox "aarch64-linux" nixpkgs null "storage.bassan";
+        "storage.bassan" = nixosBox "aarch64-linux" nixpkgs null "storage.bassan";
       };
 
       # darwin-rebuild switch --flake .#kramacbook
@@ -228,13 +228,7 @@
         # nix build --system aarch64-linux .#storage-bassan
         "storage-bassan" = nixos-generators.nixosGenerate {
           pkgs = nixpkgs.legacyPackages.aarch64-linux;
-          modules =
-            commonModules ++
-            [
-              # TODO: remove when common
-              agenix.nixosModules.age
-              (./. + "/machines/storage.bassan")
-            ];
+          inherit (self.nixosConfigurations."storage.bassan"._module.args) modules;
           format = "sd-aarch64";
         };
       };
