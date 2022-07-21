@@ -18,5 +18,7 @@ final: prev: {
 
   homebridge = prev.callPackage ./homebridge/override.nix { };
 
+  rustdesk-server = prev.callPackage ./rustdesk-server.nix { };
+
   # glauth-ui = prev.callPackage ./glauth-ui.nix { pkgs = prev; inherit mach-nix; };
 }
