@@ -25,11 +25,15 @@
     ./keycloak.nix
     # ./glauth.nix
     ./nextcloud.nix
+    ./rustdesk-server.nix
   ];
 
   my.wan = "enp0s3";
   my.lan = "enp1s0";
 
+  environment.systemPackages = with pkgs; [
+    rustdesk-server
+  ];
 
   networking = {
     hostName = "core";
@@ -74,12 +78,16 @@
         22 # SSH
         80 # HTTP
         443 # HTTPS
+
+        21115 21116 21117 21118 21119 # Rustdesk
       ];
 
       allowedUDPPorts = lib.mkForce [
         443 # HTTPS
         config.services.tailscale.port
         config.networking.wireguard.interfaces.wg0.listenPort
+
+        21116 # Rustdesk
       ];
 
       trustedInterfaces = [ config.my.lan ];
