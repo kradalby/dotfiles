@@ -35,6 +35,7 @@
     yq
     rsync
     viddy
+    zstd
 
     # Linux only
     (lib.mkIf pkgs.stdenv.isLinux usbutils)
