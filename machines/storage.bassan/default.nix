@@ -18,6 +18,12 @@
     ];
     dhcpcd.enable = true;
     usePredictableInterfaceNames = lib.mkForce true;
+
+    wireless = {
+      enable = true;
+      networks."abragjest".psk = "interstellar66";
+      interfaces = [ "wlan0" ];
+    };
   };
 
   networking.firewall.allowedUDPPorts = lib.mkForce [

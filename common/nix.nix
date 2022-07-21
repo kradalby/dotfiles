@@ -6,11 +6,11 @@
   nix = {
     package = pkgs.nixFlakes;
     extraOptions = "experimental-features = nix-command flakes";
-    settings = {
-      auto-optimise-store = true;
-      sandbox = true;
-      trusted-users = [ "kradalby" ];
-    };
+    # settings = {
+    #   auto-optimise-store = true;
+    #   sandbox = true;
+    #   trusted-users = [ "kradalby" ];
+    # };
 
     gc = {
       automatic = true;

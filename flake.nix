@@ -39,7 +39,7 @@
 
     nixos-generators = {
       url = "github:nix-community/nixos-generators";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     mach-nix.url = "github:DavHau/mach-nix";
@@ -229,6 +229,7 @@
         "storage-bassan" = nixos-generators.nixosGenerate {
           pkgs = nixpkgs.legacyPackages.aarch64-linux;
           inherit (self.nixosConfigurations."storage.bassan"._module.args) modules;
+          specialArgs = { inherit flakes; };
           format = "sd-aarch64";
         };
       };
