@@ -75,6 +75,16 @@ let
           };
           inherit ipv4Gateway;
         };
+      tjoda =
+        let
+          ipv4Gateway = "10.62.0.1";
+        in
+        {
+          name = "tjoda";
+          nameservers = [ ipv4Gateway ];
+          openvpn = "10.62.200.0";
+          inherit ipv4Gateway;
+        };
 
     };
 in

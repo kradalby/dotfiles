@@ -1,4 +1,4 @@
-{ pkgs, config, ... }:
+{ pkgs, lib, config, ... }:
 {
 
   imports = [ ../common/var.nix ];
@@ -93,8 +93,6 @@
         vim = "nvim -p";
         watch = "${pkgs.viddy}/bin/viddy --shell ${pkgs.fish}/bin/fish --differences";
 
-        # TODO: Add if for platform
-        tailscale = "/Applications/Tailscale.app/Contents/MacOS/Tailscale";
 
         osxphotos_missing_path = builtins.concatStringsSep " | " [
           ''osxphotos query --json --only-photos''
@@ -106,6 +104,11 @@
         ];
 
         agenix = "${pkgs.nix}/bin/nix run github:ryantm/agenix --";
+
+        tailscale = if pkgs.stdenv.isDarwin then "/Applications/Tailscale.app/Contents/MacOS/Tailscale" else "tailscale";
+        ts = "tailscale";
+        tss = "tailscale status";
+        tsp = "tailscale ping";
       };
 
     # Abbreviate commonly used functions

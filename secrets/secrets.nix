@@ -29,6 +29,9 @@ let
 
     # Storage at bassan
     storage-bassan = "";
+
+    # Tjoda hosts
+    core-tjoda = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBSqEhLLds8shw8HMOSpN8UMBFjLPTCyg1TjHKqXvm1W";
   };
 
   global = (attrValues users) ++ (attrValues hosts);
@@ -62,12 +65,13 @@ with builtins;
   "wireguard-oracldn.age".publicKeys = u ++ [ hosts.core-oracldn ];
   "wireguard-oracfurt.age".publicKeys = u ++ [ hosts.dev-oracfurt ];
   "wireguard-terra.age".publicKeys = u; # ++ [ hosts.core-terra ];
-  "wireguard-tjoda.age".publicKeys = u; # ++ [ hosts.core-tjoda ];
+  "wireguard-tjoda.age".publicKeys = u ++ [ hosts.core-tjoda ];
   "wireguard-headscale-oracldn.age".publicKeys = u ++ [ hosts.headscale-oracldn ];
   "wireguard-storage-bassan.age".publicKeys = u ++ [ hosts.storage-bassan ];
 
   # Unifi
   "unifi-ldn-read-only.age".publicKeys = u ++ [ hosts.home-ldn ];
+  "unifi-tjoda-read-only.age".publicKeys = u ++ [ hosts.core-tjoda ];
 
   # headscale
   "headscale-private-key.age".publicKeys = u ++ [ hosts.headscale-oracldn ];
