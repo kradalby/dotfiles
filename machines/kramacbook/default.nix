@@ -218,24 +218,24 @@ in
       "docker"
     ];
 
-    masApps = {
-      "Amphetamine" = 937984704;
-      "Apple Configurator 2" = 1037126344;
-      "Discovery" = 1381004916;
-      "Disk Speed Test" = 425264550;
-      "Key Codes" = 414568915;
-      "Messenger" = 1480068668;
-      "Microsoft Remote Desktop" = 1295203466;
-      "MQTT Explorer" = 1455214828;
-      "Patterns" = 429449079;
-      "Pixelmator Pro" = 1289583905;
-      "Tailscale" = 1475387142;
-      "WhatsApp" = 1147396723;
-      "WireGuard" = 1451685025;
-      "Xcode" = 497799835;
-      "Refined GitHub" = 1519867270;
-      "Octotree" = 1457450145;
-    };
+    # masApps = {
+    #   "Amphetamine" = 937984704;
+    #   "Apple Configurator 2" = 1037126344;
+    #   "Discovery" = 1381004916;
+    #   "Disk Speed Test" = 425264550;
+    #   "Key Codes" = 414568915;
+    #   "Messenger" = 1480068668;
+    #   "Microsoft Remote Desktop" = 1295203466;
+    #   "MQTT Explorer" = 1455214828;
+    #   "Patterns" = 429449079;
+    #   "Pixelmator Pro" = 1289583905;
+    #   "Tailscale" = 1475387142;
+    #   "WhatsApp" = 1147396723;
+    #   "WireGuard" = 1451685025;
+    #   "Xcode" = 497799835;
+    #   "Refined GitHub" = 1519867270;
+    #   "Octotree" = 1457450145;
+    # };
 
   };
 
