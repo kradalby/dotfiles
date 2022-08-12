@@ -12,7 +12,6 @@ in
       group = "storage";
       dataDir = "/storage";
       enable = true;
-      # guiAddress = "0.0.0.0:8443";
       overrideDevices = true;
       overrideFolders = true;
       folders = {
