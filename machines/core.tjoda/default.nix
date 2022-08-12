@@ -17,10 +17,17 @@
     ./dhcp.nix
     # ./openvpn.nix
     ./unifi.nix
+    ./syncthing.nix
+    ./rest-server.nix
+    ./samba.nix
+    ./avahi.nix
   ];
 
   my.wan = "enp1s0f0";
   my.lan = "enp1s0f1";
+
+  my.users.storage = true;
+  my.users.timemachine = true;
 
   environment.systemPackages = with pkgs; [
   ];
@@ -53,6 +60,7 @@
       "1.0.0.1"
     ];
     usePredictableInterfaceNames = lib.mkForce true;
+    hostId = "14889c5c";
 
     dhcpcd = {
       enable = true;
@@ -136,6 +144,9 @@
       ];
 
       trustedInterfaces = [ config.my.lan ];
+
+      # Allow DNS from selskap
+      interfaces."selskap".allowedUDPPorts = [ 53 ];
 
     };
   };
