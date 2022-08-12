@@ -11,6 +11,7 @@
     ../../common/coredns.nix
 
     ./hardware-configuration.nix
+    ./zfs.nix
     ./wireguard.nix
     ./tailscale.nix
     ./corerad.nix
@@ -21,6 +22,7 @@
     ./rest-server.nix
     ./samba.nix
     ./avahi.nix
+    ./restic.nix
   ];
 
   my.wan = "enp1s0f0";
@@ -67,18 +69,18 @@
       # Do not remove interface configuration on shutdown.
       persistent = true;
       allowInterfaces = [ config.my.wan ];
-      # extraConfig = ''
-      #   noipv6rs
-      #   interface ${config.my.wan}
-      #     ipv6rs
-      #     # DHCPv6-PD.
-      #     ia_na 0
-      #     ia_pd 1/::/48 ${config.my.lan}/0/64 iot/156/64
-      #     # IPv4 DHCP ISP settings overrides.
-      #     static domain_name_servers=10.65.0.1
-      #     static domain_search=
-      #     static domain_name=
-      # '';
+      extraConfig = ''
+        noipv6rs
+        interface ${config.my.wan}
+          ipv6rs
+          # DHCPv6-PD.
+          ia_na 0
+          ia_pd 1/::/56 ${config.my.lan}/0/64 selskap/200/64
+          # IPv4 DHCP ISP settings overrides.
+          static domain_name_servers=10.65.0.1
+          static domain_search=
+          static domain_name=
+      '';
     };
 
     vlans = {

@@ -1,20 +1,19 @@
 { lib, config, pkgs, ... }:
 with lib;
 let
-  backupJob = { name ? config.networking.fqdn, site, secret, paths, owner ? "root" }:
+  commonJob = { name, repository, secret, paths, owner ? "root" }:
     mkMerge [
       {
         age.secrets."${secret}" = {
           file = ../../secrets + "/${secret}.age";
-          owner = owner;
+          inherit owner;
         };
       }
       {
-        services.restic.backups."${site}" = {
+        services.restic.backups."${name}" = {
+          inherit repository;
+          inherit paths;
 
-          repository = "rest:https://restic.core.${site}.fap.no/${name}";
-
-          paths = paths;
           pruneOpts = [
             "--keep-daily 7"
             "--keep-weekly 5"
@@ -28,7 +27,7 @@ let
       }
 
       (mkIf pkgs.stdenv.isDarwin {
-        services.restic.backups."${site}" = {
+        services.restic.backups."${name}" = {
           logPath = "/Users/kradalby/Library/Logs";
           calendarInterval = {
             Minute = 30;
@@ -38,7 +37,7 @@ let
       })
 
       (mkIf pkgs.stdenv.isLinux {
-        services.restic.backups."${site}".timerConfig = {
+        services.restic.backups."${name}".timerConfig = {
           OnCalendar = "hourly";
         };
       })
@@ -47,5 +46,16 @@ let
       #   systemd.services."restic-backups-${site}".onFailure = [ "notify-discord@%n.service" ];
       # })
     ];
+
+  backupJob = { name ? config.networking.fqdn, site, secret, paths, owner ? "root" }: (commonJob {
+    inherit secret;
+    inherit paths;
+    inherit owner;
+    name = site;
+    repository = "rest:https://restic.core.${site}.fap.no/${name}";
+  });
 in
-{ inherit backupJob; }
+{
+  inherit backupJob;
+  inherit commonJob;
+}
