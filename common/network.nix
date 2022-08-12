@@ -10,6 +10,11 @@
       type = lib.types.str;
       default = "";
     };
+
+    my.extraLan = lib.mkOption {
+      type = lib.types.list lib.types.str;
+      default = [];
+    };
   };
 
   config = {

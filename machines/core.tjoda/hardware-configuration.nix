@@ -7,16 +7,28 @@
   };
 
 
+  boot.kernelPackages = config.boot.zfs.package.latestCompatibleLinuxPackages;
   boot.initrd.availableKernelModules = [ "xhci_pci" "ehci_pci" "ahci" "usbhid" "uas" "sd_mod" ];
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ "kvm-intel" ];
   boot.extraModulePackages = [ ];
+  boot.supportedFilesystems = [ "zfs" ];
+
+  # services.zfs.trim.enable = true;
+  # services.zfs.autoScrub.enable = true;
+  # services.zfs.autoSnapshot.enable = true;
 
   fileSystems."/" =
     {
       device = "/dev/disk/by-uuid/6fb6cb76-2e0e-4592-acee-d4e328d7fcd8";
       fsType = "ext4";
     };
+
+  # fileSystems."/storage" =
+  #   {
+  #     device = "/dev/disk/by-uuid/879931918469542350";
+  #     fsType = "zfs";
+  #   };
 
   swapDevices =
     [{ device = "/dev/disk/by-uuid/d471b41a-e5cd-42ef-b818-198bcf636787"; }];
