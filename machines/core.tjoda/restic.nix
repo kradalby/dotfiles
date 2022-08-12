@@ -4,17 +4,24 @@ let
   helpers = import ../../common/funcs/helpers.nix { inherit pkgs lib; };
 
   paths = [
+    "/root"
     "/etc/nixos"
     "/var/lib/unifi/data/backup"
+    "/storage/backup"
+    "/storage/libraries"
+    "/storage/pictures"
+    "/storage/software"
+    "/storage/sync"
+    # "/storage/restic"
   ];
 
-  cfg = site: {
+  cfg = {
+    name = "jotta";
     secret = "restic-core-tjoda-token";
-    inherit site;
+    repository = "rclone:Jotta:1d444f272fa766893d9a06cc4d392cd5";
     inherit paths;
   };
 in
 lib.mkMerge [
-  (restic.backupJob (cfg "tjoda"))
-  (restic.backupJob (cfg "terra"))
+  (restic.commonJob cfg)
 ]

@@ -57,6 +57,7 @@ with builtins;
   "restic-headscale-oracldn-token.age".publicKeys = u ++ [ hosts.headscale-oracldn ];
   "restic-core-oracldn-token.age".publicKeys = u ++ [ hosts.core-oracldn ];
   "restic-dev-oracfurt-token.age".publicKeys = u ++ [ hosts.dev-oracfurt ];
+  "restic-core-tjoda-token.age".publicKeys = u ++ [ hosts.core-tjoda ];
   "restic-kramacbook-token.age".publicKeys = u;
 
   # Wireguard

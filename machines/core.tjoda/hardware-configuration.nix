@@ -14,9 +14,6 @@
   boot.extraModulePackages = [ ];
   boot.supportedFilesystems = [ "zfs" ];
 
-  # services.zfs.trim.enable = true;
-  # services.zfs.autoScrub.enable = true;
-  # services.zfs.autoSnapshot.enable = true;
 
   fileSystems."/" =
     {
