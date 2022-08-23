@@ -23,7 +23,7 @@
       }) [
       "storage/backup"
       "storage/libraries"
-      "storage/pictrues"
+      "storage/pictures"
       "storage/software"
       "storage/sync"
     ]);
