@@ -42,10 +42,12 @@ in
       builders = ${lib.concatStringsSep " ; " remoteBuilders}
     '';
 
-    trustedUsers = [ machine.username ];
+    settings = {
+      trusted-users = [ machine.username ];
 
-    # todo
-    useSandbox = false;
+      # todo
+      sandbox = false;
+    };
 
     gc = {
       automatic = true;
