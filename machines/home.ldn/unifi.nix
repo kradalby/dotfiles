@@ -6,7 +6,9 @@ let
 in
 {
   services.unifi = {
-    unifiPackage = pkgs.unifi;
+    unifiPackage = pkgs.unstable.unifi.overrideAttrs (attrs: {
+      meta = attrs.meta // { license = lib.licenses.mit; };
+    });
     enable = true;
     openFirewall = true;
 
