@@ -4,5 +4,6 @@
   "homebridge-philips-tv6",
   "homebridge-mqttthing",
   "homebridge-camera-ffmpeg",
+  "homebridge-nefit-easy",
   "homebridge-xiaomi-roborock-vacuum"
 ]
