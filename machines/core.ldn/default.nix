@@ -19,7 +19,8 @@
     ./openvpn.nix
   ];
 
-  my.wan = "wan";
+  my.wan = "wlan0";
+  # my.wan = "wan";
   my.lan = "eth0";
 
   environment.systemPackages = with pkgs; [
@@ -73,8 +74,20 @@
       '';
     };
 
+    wireless = {
+      enable = true;
+      interfaces = [ "wlan0" ];
+      networks = {
+        kPhone = {
+          # Not really critical since my phone is not stationary and this is not
+          # an important password
+          pskRaw = "97f4d338b47d77ba29c03305c1e21e3f21e7749d34071fd1fc516fda5a5e8e49";
+        };
+      };
+    };
+
     vlans = {
-      ${config.my.wan} = {
+      wan = {
         interface = config.my.lan;
         id = 3;
       };
@@ -90,7 +103,12 @@
     # };
 
     interfaces = {
-      ${config.my.wan} = {
+      wan = {
+        useDHCP = true;
+        tempAddress = "disabled";
+      };
+
+      wlan0 = {
         useDHCP = true;
         tempAddress = "disabled";
       };
