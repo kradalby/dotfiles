@@ -175,23 +175,23 @@
     {
 
       nixosConfigurations = {
-        "dev.terra" = nixosBox "x86_64-linux" nixpkgs home-manager "dev.terra";
+        # "dev.terra" = nixosBox "x86_64-linux" nixpkgs home-manager "dev.terra";
 
         "core.oracldn" = nixosBox "aarch64-linux" nixpkgs home-manager "core.oracldn";
         "headscale.oracldn" = nixosBox "x86_64-linux" nixpkgs null "headscale.oracldn";
 
         "dev.oracfurt" = nixosBox "aarch64-linux" nixpkgs home-manager "dev.oracfurt";
 
-        "core.ntnu" = nixosBox "x86_64-linux" nixpkgs null "core.ntnu";
+        # "core.ntnu" = nixosBox "x86_64-linux" nixpkgs null "core.ntnu";
 
-        "k3m1.terra" = nixosBox "x86_64-linux" nixpkgs null "k3m1.terra";
-        "k3a1.terra" = nixosBox "x86_64-linux" nixpkgs null "k3a1.terra";
-        "k3a2.terra" = nixosBox "x86_64-linux" nixpkgs null "k3a2.terra";
+        # "k3m1.terra" = nixosBox "x86_64-linux" nixpkgs null "k3m1.terra";
+        # "k3a1.terra" = nixosBox "x86_64-linux" nixpkgs null "k3a1.terra";
+        # "k3a2.terra" = nixosBox "x86_64-linux" nixpkgs null "k3a2.terra";
 
         # nixos-generate --system aarch64-linux -f sd-aarch64 -I nixpkgs=channel:nixos
         "home.ldn" = nixosBox "aarch64-linux" nixpkgs null "home.ldn";
         "core.ldn" = nixosBox "aarch64-linux" nixpkgs null "core.ldn";
-        "storage.bassan" = nixosBox "aarch64-linux" nixpkgs null "storage.bassan";
+        # "storage.bassan" = nixosBox "aarch64-linux" nixpkgs null "storage.bassan";
         "core.tjoda" = nixosBox "x86_64-linux" nixpkgs null "core.tjoda";
       };
 
