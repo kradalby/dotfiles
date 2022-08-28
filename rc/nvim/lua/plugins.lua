@@ -95,14 +95,14 @@ return require("packer").startup(
                                 }
                             )
                         },
-                        mapping = {
+                        mapping = cmp.mapping.preset.insert({
                             ["<CR>"] = cmp.mapping.confirm(
                                 {
                                     behavior = cmp.ConfirmBehavior.Replace,
                                     select = true
                                 }
                             )
-                        }
+                        })
                     }
                 )
 
@@ -130,6 +130,20 @@ return require("packer").startup(
                         )
                     }
                 )
+
+                cmp.setup.cmdline {
+                    mapping = cmp.mapping.preset.cmdline({
+                    })
+
+                }
+
+                cmp.setup.filetype('gitcommit', {
+                    sources = cmp.config.sources({
+                        { name = 'cmp_git' }, -- You can specify the `cmp_git` source if you were installed it.
+                    }, {
+                        { name = 'buffer' },
+                    })
+                })
             end,
             requires = {
                 "hrsh7th/cmp-buffer",
@@ -140,8 +154,9 @@ return require("packer").startup(
                 "hrsh7th/cmp-nvim-lsp-signature-help",
                 "hrsh7th/vim-vsnip",
                 "lukas-reineke/cmp-rg",
-                "onsails/lspkind-nvim"
+                "onsails/lspkind-nvim",
                 -- "ray-x/cmp-treesitter"
+                { "petertriho/cmp-git", requires = "nvim-lua/plenary.nvim" }
             }
         }
 
@@ -204,8 +219,8 @@ return require("packer").startup(
         -- }
 
         use {
-            -- "glepnir/lspsaga.nvim",
-            "tami5/lspsaga.nvim",
+            "glepnir/lspsaga.nvim",
+            -- "tami5/lspsaga.nvim",
             config = function()
                 require "lspsaga".init_lsp_saga {
                     finder_action_keys = {
@@ -228,10 +243,10 @@ return require("packer").startup(
             end
         }
 
-        -- use {
-        --     "kosayoda/nvim-lightbulb",
-        --     disable = true
-        -- }
+        use {
+            "kosayoda/nvim-lightbulb",
+            -- disable = true
+        }
 
         use { "folke/lua-dev.nvim" }
         use { "darfink/vim-plist", ft = { "plist", "xml" } }
@@ -259,7 +274,7 @@ return require("packer").startup(
             config = function()
                 require("neoclip").setup(
                     {
-                        enable_persistent_history = true
+                        enable_persistent_history = true,
                     }
                 )
             end
