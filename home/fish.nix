@@ -103,8 +103,6 @@
           "${pkgs.jq}/bin/jq"
         ];
 
-        agenix = "${pkgs.nix}/bin/nix run github:ryantm/agenix --";
-
         tailscale = if pkgs.stdenv.isDarwin then "/Applications/Tailscale.app/Contents/MacOS/Tailscale" else "tailscale";
         ts = "tailscale";
         tss = "tailscale status";
@@ -233,7 +231,7 @@
             > $HOME/.kube/config
         '';
 
-        agenix-update-key = ''
+        ragenix-update-key = ''
           set host $argv[1]
           set hostDash (echo $host | ${pkgs.gnused}/bin/sed 's/\./-/g')
 
@@ -246,7 +244,7 @@
           ${pkgs.gnused}/bin/sed -i $sedString secrets.nix
 
           ${pkgs.nixpkgs-fmt}/bin/nixpkgs-fmt secrets.nix
-          nix run github:ryantm/agenix -- --rekey
+          ${pkgs.ragenix}/bin/ragenix --rekey
         '';
       };
   };
