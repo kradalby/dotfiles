@@ -28,7 +28,7 @@
     home-manager-unstable.url = "github:nix-community/home-manager/master";
     home-manager-unstable.inputs.nixpkgs.follows = "nixpkgs-unstable";
 
-    agenix.url = "github:ryantm/agenix";
+    ragenix.url = "github:yaxitech/ragenix";
 
     nur.url = "github:nix-community/NUR";
 
@@ -59,7 +59,7 @@
     , darwin-staging
     , home-manager
     , home-manager-unstable
-    , agenix
+    , ragenix
     , nur
     , fenix
     , nixos-generators
@@ -80,13 +80,13 @@
         nur.overlay
         overlay-pkgs
         fenix.overlay
+        ragenix.overlay
         (import ./pkgs/overlays { inherit mach-nix; })
 
       ];
 
       commonModules = [
-        # TODO: use when macOS is supported
-        # agenix.nixosModules.age
+        ragenix.nixosModules.age
 
         {
           nixpkgs.overlays = overlays;
@@ -98,9 +98,6 @@
         system = arch;
         modules = commonModules ++ [
           (import ./modules/linux.nix)
-
-          # TODO: remove when common
-          agenix.nixosModules.age
           {
             system.configurationRevision =
               self.rev or "DIRTY";
@@ -121,16 +118,9 @@
       macBox = machine: base: homeBase: base.lib.darwinSystem {
         system = machine.arch;
         modules =
-          let
-            age = import ./modules/agenix.nix;
-          in
           commonModules ++ [
-            # TODO: Why does this cause infinite recurse
-            # (import ./modules/macos.nix)
-
             (./. + "/machines/${machine.hostname}")
             homeBase.darwinModules.home-manager
-            age
           ];
         specialArgs =
           {
