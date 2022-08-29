@@ -6,8 +6,6 @@
 {
   home.packages = with pkgs; [
     # Workstation
-    # ansible
-    # ansible-lint
     drone-cli
     exiftool
     ipcalc
@@ -16,19 +14,15 @@
     nmap
     prettyping
     qrencode
-    # terraform
-    # tflint
-    # tfsec
     headscale
     step-cli
     colmena
+    ragenix
 
     # nix tooling
-    # TODO: Add back in when builds on macOS
-    # nixopsUnstable
     nodePackages.node2nix
 
-    imapchive
+    # imapchive
 
     # Darwin only
     (lib.mkIf pkgs.stdenv.isDarwin terminal-notifier)
@@ -37,7 +31,5 @@
 
     python39Packages.pipx
     # osxphotos
-  ] ++ [
-    # flakes.agenix.defaultPackage."${pkgs.system}"
   ];
 }
