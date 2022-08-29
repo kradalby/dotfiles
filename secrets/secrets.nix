@@ -28,7 +28,7 @@ let
     headscale-oracldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIN2wiCW3z5MpNw7sVrs2ot2uThEdM0LlCJCr/IJRXlty";
 
     # Storage at bassan
-    storage-bassan = "";
+    # storage-bassan = "";
 
     # Tjoda hosts
     core-tjoda = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBSqEhLLds8shw8HMOSpN8UMBFjLPTCyg1TjHKqXvm1W";
@@ -68,7 +68,7 @@ with builtins;
   "wireguard-terra.age".publicKeys = u; # ++ [ hosts.core-terra ];
   "wireguard-tjoda.age".publicKeys = u ++ [ hosts.core-tjoda ];
   "wireguard-headscale-oracldn.age".publicKeys = u ++ [ hosts.headscale-oracldn ];
-  "wireguard-storage-bassan.age".publicKeys = u ++ [ hosts.storage-bassan ];
+  # "wireguard-storage-bassan.age".publicKeys = u ++ [ hosts.storage-bassan ];
 
   # Unifi
   "unifi-ldn-read-only.age".publicKeys = u ++ [ hosts.home-ldn ];
