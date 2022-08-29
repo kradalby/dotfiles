@@ -27,7 +27,7 @@
     # yarn
     editorconfig-checker
     grpcurl
-    act
+    # act
 
     # neovim plugin deps
     libiconv # rnix-lsp
