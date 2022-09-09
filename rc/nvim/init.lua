@@ -90,8 +90,3 @@ map("n", "<S-tab>", "<c-w>W") -- shift tab
 
 map("i", "<D-c>", '<Esc>"+yi')
 map("i", "<D-v>", '<Esc>"+pi')
-
--- Ensure plugins are installed before we load LSP
-if #vim.fn.readdir(fn.stdpath("data") .. "/site/pack/packer/start") > 1 then
-    require("lsp")
-end
