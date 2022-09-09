@@ -40,15 +40,6 @@ local function common_lsp(server)
         capabilities = capabilities
     }
 
-    -- (optional) Customize the options passed to the server
-    if server.name == "ansiblels" then
-        opts.filetypes = { "yaml", "yaml.ansible", "ansible" }
-        opts.root_dir = function(fname)
-            -- return util.root_pattern {"requirements.yaml", "inventory", "*.yml", "*.yaml"}(fname)
-            return util.root_pattern { "requirements.yaml", "inventory" } (fname)
-        end
-        -- server.setup(opts)
-    end
 
     if server.name == "efm" then
         local home = os.getenv("HOME")
@@ -91,36 +82,8 @@ local function common_lsp(server)
         end
     end
 
-    if server.name == "yamlls" then
-        opts.filetypes = { "yaml", "yaml.ansible", "ansible" }
-    end
-
     if server.name == "sumneko_lua" then
         opts = vim.tbl_deep_extend("keep", opts, require("lua-dev").setup({}))
-    end
-
-    if server.name == "gopls" then
-        opts.settings = {
-            gopls = {
-                buildFlags = { "-tags=integration" }
-            }
-        }
-    end
-
-    if server.name == "jsonls" then
-        opts.settings = {
-            json = {
-                schemas = require("schemastore").json.schemas()
-            }
-        }
-    end
-
-    if server.name == "rnix" then
-        opts.on_attach = function(client)
-            -- TODO: Why does this not work?
-            client.resolved_capabilities.document_formatting = true
-            common_on_attach(client)
-        end
     end
 
     server:setup(opts)

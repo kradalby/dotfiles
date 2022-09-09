@@ -22,8 +22,8 @@ let
     name = "kramacbook";
     secret = "restic-kramacbook-token";
     owner = "kradalby";
-    site = site;
-    paths = paths;
+    inherit site;
+    inherit paths;
   };
 
 

@@ -52,9 +52,180 @@ return require("packer").startup(
             "neovim/nvim-lspconfig",
             requires = {
                 "nvim-lua/lsp-status.nvim",
-                "williamboman/nvim-lsp-installer"
             }
         }
+
+        use { "williamboman/mason.nvim",
+            config = function()
+                require("mason").setup()
+            end
+        }
+
+        use { "williamboman/mason-lspconfig.nvim",
+            config = function()
+                require("mason-lspconfig").setup {
+                    ensure_installed = {
+                        "ansiblels",
+                        "bashls",
+                        "cssls",
+                        "cssmodules_ls",
+                        "diagnosticls",
+                        "dockerls",
+                        "dotls",
+                        "efm",
+                        "elmls",
+                        "golangci_lint_ls",
+                        "gopls",
+                        "graphql",
+                        "html",
+                        "jedi_language_server",
+                        "jsonls",
+                        "jsonnet_ls",
+                        "pylsp",
+                        "pyright",
+                        "rnix",
+                        "rust_analyzer",
+                        "sourcekit",
+                        "sumneko_lua",
+                        "tailwindcss",
+                        "taplo",
+                        "terraformls",
+                        "tflint",
+                        "tsserver",
+                        "vimls",
+                        "vuels",
+                        "yamlls",
+                    },
+                }
+
+                require("mason-lspconfig").setup_handlers {
+                    function(server_name)
+                        lspconfig[server_name].setup {}
+                    end,
+                    ["jsonls"] = function()
+                        lspconfig.jsonls.setup {
+                            settings = {
+                                json = {
+                                    schemas = require("schemastore").json.schemas(),
+                                },
+                            },
+                        }
+                    end,
+                    -- ["rust_analyzer"] = function()
+                    --     require("rust-tools").setup {
+                    --         tools = {
+                    --             autoSetHints = false,
+                    --             executor = require("rust-tools/executors").toggleterm,
+                    --             hover_actions = { border = "solid" },
+                    --         },
+                    --     }
+                    -- end,
+                    ["sumneko_lua"] = function()
+                        lspconfig.sumneko_lua.setup(require("lua-dev").setup {
+                            settings = {
+                                Lua = {
+                                    format = {
+                                        enable = false,
+                                    },
+                                    hint = {
+                                        enable = true,
+                                        arrayIndex = "Disable", -- "Enable", "Auto", "Disable"
+                                        await = true,
+                                        paramName = "Disable", -- "All", "Literal", "Disable"
+                                        paramType = false,
+                                        semicolon = "Disable", -- "All", "SameLine", "Disable"
+                                        setType = true,
+                                    },
+                                    diagnostics = {
+                                        globals = { "P" },
+                                    },
+                                },
+                            },
+                        })
+                    end,
+                    ["gopls"] = function()
+                        lspconfig.gopls.setup {
+                            settings = {
+                                gopls = {
+                                    buildFlags = { "-tags=integration" }
+                                }
+                            }
+                        }
+                    end,
+                    ["yamlls"] = function()
+                        lspconfig.yamlls.setup {
+                            filetypes = {
+                                "yaml", "yaml.ansible", "ansible"
+                            },
+                            settings = {
+                                yaml = {
+                                    hover = true,
+                                    completion = true,
+                                    validate = true,
+                                    schemas = require("schemastore").json.schemas(),
+                                },
+                            },
+                        }
+                    end,
+
+                    ["ansiblels"] = function()
+                        lspconfig.ansiblels.setup {
+                            filetypes = { "yaml", "yaml.ansible", "ansible" },
+                            root_dir = function(fname)
+                                return util.root_pattern { "requirements.yaml", "inventory" } (fname)
+                            end
+                        }
+                    end,
+
+                    ["efm"] = function()
+                        local home = os.getenv("HOME")
+                        -- local installer_server = require("nvim-lsp-installer.server")
+                        -- local go = require("nvim-lsp-installer.core.managers.go")
+                        local efm = require "efm"
+
+                        -- local root_dir = installer_server.get_server_root_path("efm")
+
+                        lspconfig.efm.setup {
+                            default_options = {
+                                -- cmd_env = go.env(root_dir),
+                                cmd = {
+                                    "efm-langserver",
+                                    "-logfile",
+                                    home .. "/.config/efm-langserver/efm.log",
+                                    "-loglevel",
+                                    "1"
+                                }
+                            },
+
+                            flags = { debounce_text_changes = 2000 },
+                            root_dir = lspconfig.util.root_pattern(".git", "."),
+                            filetypes = vim.tbl_keys(efm.languages),
+                            init_options = {
+                                documentFormatting = true,
+                                document_formatting = true,
+                                documentSymbol = true,
+                                codeAction = true
+                            },
+
+                            settings = {
+                                lintDebounce = "1000ms",
+                                formatDebounce = "1000ms",
+                                rootMarkers = { ".git/" },
+                                languages = efm.languages
+                            },
+
+                            on_attach = function(client)
+                                client.resolved_capabilities.document_formatting = true
+                                client.resolved_capabilities.goto_definition = false
+                                -- client.resolved_capabilities.code_action = false
+                                common_on_attach(client)
+                            end
+                        }
+                    end,
+                }
+            end
+        }
+
         use {
             "b0o/schemastore.nvim"
             -- ft = {"json", "yaml", "yaml.ansible"}
@@ -189,27 +360,27 @@ return require("packer").startup(
             }
         }
 
-        use {
-            "bennypowers/nvim-regexplainer",
-            config = function()
-                require "regexplainer".setup(
-                    {
-                        auto = true
-                    }
-                )
-            end,
-            requires = {
-                "nvim-lua/plenary.nvim",
-                "MunifTanjim/nui.nvim"
-            }
-        }
+        -- use {
+        --     "bennypowers/nvim-regexplainer",
+        --     config = function()
+        --         require "regexplainer".setup(
+        --             {
+        --                 auto = true
+        --             }
+        --         )
+        --     end,
+        --     requires = {
+        --         "nvim-lua/plenary.nvim",
+        --         "MunifTanjim/nui.nvim"
+        --     }
+        -- }
 
-        use {
-            "windwp/nvim-autopairs",
-            config = function()
-                require("nvim-autopairs").setup({})
-            end
-        }
+        -- use {
+        --     "windwp/nvim-autopairs",
+        --     config = function()
+        --         require("nvim-autopairs").setup({})
+        --     end
+        -- }
 
         -- use {
         --     "ray-x/lsp_signature.nvim",
@@ -243,12 +414,13 @@ return require("packer").startup(
             end
         }
 
-        use {
-            "kosayoda/nvim-lightbulb",
-            -- disable = true
-        }
+        -- use {
+        --     "kosayoda/nvim-lightbulb",
+        --     -- disable = true
+        -- }
 
-        use { "folke/lua-dev.nvim" }
+        -- use { "folke/lua-dev.nvim" }
+        --
         use { "darfink/vim-plist", ft = { "plist", "xml" } }
 
         use "kyazdani42/nvim-web-devicons"
@@ -316,16 +488,16 @@ return require("packer").startup(
             end
         }
 
-        use {
-            "folke/trouble.nvim",
-            requires = {
-                "kyazdani42/nvim-web-devicons"
-            },
-            config = function()
-                require("trouble").setup {}
-            end
-        }
-
+        -- use {
+        --     "folke/trouble.nvim",
+        --     requires = {
+        --         "kyazdani42/nvim-web-devicons"
+        --     },
+        --     config = function()
+        --         require("trouble").setup {}
+        --     end
+        -- }
+        --
         use {
             "folke/todo-comments.nvim",
             config = function()
@@ -355,36 +527,37 @@ return require("packer").startup(
             end
         }
 
-        use {
-            "andweeb/presence.nvim",
-            cond = function()
-                return vim.fn.has("macunix")
-            end,
-            config = function()
-                require "presence":setup(
-                    {
-                        auto_update = true,
-                        log_level = nil
-                    }
-                )
-            end
-        }
+        -- use {
+        --     "andweeb/presence.nvim",
+        --     cond = function()
+        --         return vim.fn.has("macunix")
+        --     end,
+        --     config = function()
+        --         require "presence":setup(
+        --             {
+        --                 auto_update = true,
+        --                 log_level = nil
+        --             }
+        --         )
+        --     end
+        -- }
 
-        use {
-            "danymat/neogen",
-            config = function()
-                require("neogen").setup {
-                    enabled = true
-                }
-            end,
-            requires = "nvim-treesitter/nvim-treesitter"
-        }
+        -- use {
+        --     "danymat/neogen",
+        --     config = function()
+        --         require("neogen").setup {
+        --             enabled = true
+        --         }
+        --     end,
+        --     requires = "nvim-treesitter/nvim-treesitter"
+        -- }
 
         -- Remove when nvim 12587 is resolved
-        use "antoinemadec/FixCursorHold.nvim"
+        -- use "antoinemadec/FixCursorHold.nvim"
 
         if Packer_bootstrap then
             require("packer").sync()
         end
     end
 )
+
