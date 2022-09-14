@@ -1,8 +1,6 @@
 require("plugins")
 require("statusline")
 require("nix")
--- require("ale")
--- require("lint")
 
 local cmd = vim.cmd -- to execute Vim commands e.g. cmd('pwd')
 local fn = vim.fn -- to call Vim functions e.g. fn.bufnr()
@@ -71,6 +69,8 @@ map("n", "<leader>d", "<cmd>:FzfLua lsp_definitions<cr>")
 map("n", "<leader>f", "<cmd>:FzfLua lsp_references<cr>")
 -- map("n", "<leader>p", "<cmd>lua require('telescope').extensions.neoclip.default()<cr>")
 map("n", "<leader>p", "<cmd>lua require('neoclip.fzf')()<cr>")
+
+map("n", "<leader>ff", "<cmd>lua vim.lsp.buf.formatting_seq_sync()<cr>")
 
 map("n", "<leader>tt", "<cmd>:TroubleToggle<cr>") -- Toggle trouble
 map("n", "<leader>to", "<cmd>:TodoTrouble<cr>") -- Toggle trouble
