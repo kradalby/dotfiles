@@ -35,6 +35,8 @@
         gfo = "git fetch origin";
         gfu = "git fetch upstream";
         gcum = "git checkout upstream/main";
+        gc = "git commit -s";
+        gcm = "git commit -s -m";
 
         # Kubernetes
         k = "kubectl";
