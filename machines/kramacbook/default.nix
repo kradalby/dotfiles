@@ -79,6 +79,16 @@ in
       home.file = {
         ".ssh/authorized_keys".text = lib.concatStringsSep "\n" (sshKeys.main ++ sshKeys.kradalby);
       };
+
+      programs.git = {
+        userEmail = lib.mkForce "kristoffer@dalby.cc";
+
+        extraConfig = {
+          user = {
+            signingkey = lib.mkForce "~/.ssh/id_ed25519.pub";
+          };
+        };
+      };
     };
     # extraSpecialArgs = { inherit machine; };
   };
