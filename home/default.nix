@@ -5,6 +5,8 @@
 
   home = {
 
+    stateVersion = "22.05";
+
     sessionPath = [
       # I dont think this should be needed, but it seems
       # to disappair...
@@ -13,6 +15,9 @@
       # This is a workaround as the path is not
       # available to mosh unless its loaded here.
       "/usr/local/bin"
+
+      # On M Macs, homebrew is moved
+      (lib.mkIf (pkgs.stdenv.isDarwin && pkgs.stdenv.isAarch64) "/opt/homebrew/bin")
 
       # "/etc/profiles/per-user/$USER/bin"
       "$HOME/bin"
@@ -44,6 +49,8 @@
       SOPS_AGE_KEY_FILE = "$HOME/.config/sops/age/keys.txt";
 
       GIT_SSH_COMMAND = "ssh";
+
+      SSH_AUTH_SOCK = "/Users/kradalby/Library/Containers/com.maxgoedjen.Secretive.SecretAgent/Data/socket.ssh";
     };
 
     packages = [
