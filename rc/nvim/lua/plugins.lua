@@ -62,7 +62,13 @@ return require("packer").startup(
         }
 
         use { "williamboman/mason-lspconfig.nvim",
+            requires = {
+                "neovim/nvim-lspconfig",
+                "folke/lua-dev.nvim"
+            },
             config = function()
+                lspconfig = require "lspconfig"
+
                 require("mason-lspconfig").setup {
                     ensure_installed = {
                         "ansiblels",
@@ -218,12 +224,55 @@ return require("packer").startup(
                                 client.resolved_capabilities.document_formatting = true
                                 client.resolved_capabilities.goto_definition = false
                                 -- client.resolved_capabilities.code_action = false
-                                common_on_attach(client)
+                                -- common_on_attach(client)
                             end
                         }
                     end,
                 }
             end
+        }
+
+        use {
+            "jose-elias-alvarez/null-ls.nvim",
+            config = function()
+                local null_ls = require("null-ls")
+                null_ls.setup(
+                    {
+                        sources = {
+                            null_ls.builtins.code_actions.statix,
+                            null_ls.builtins.diagnostics.editorconfig_checker.with(
+                                {
+                                    command = "editorconfig-checker"
+                                }
+                            ),
+                            null_ls.builtins.diagnostics.gitlint,
+                            null_ls.builtins.diagnostics.shellcheck,
+                            null_ls.builtins.diagnostics.statix,
+                            null_ls.builtins.formatting.fish_indent,
+                            null_ls.builtins.formatting.shellharden,
+                            null_ls.builtins.formatting.trim_newlines,
+                            null_ls.builtins.formatting.trim_whitespace
+                        }
+                    }
+                )
+            end,
+            requires = {
+                use "nvim-lua/plenary.nvim"
+            }
+        }
+
+        use {
+            "jayp0521/mason-null-ls.nvim",
+            after = {
+                "null-ls.nvim",
+                "mason.nvim",
+            },
+            config = function()
+                require("mason-null-ls").setup({
+                    automatic_installation = true,
+                })
+                require("mason-null-ls").check_install(true)
+            end,
         }
 
         use {
@@ -331,35 +380,6 @@ return require("packer").startup(
             }
         }
 
-        use {
-            "jose-elias-alvarez/null-ls.nvim",
-            config = function()
-                local null_ls = require("null-ls")
-                null_ls.setup(
-                    {
-                        sources = {
-                            null_ls.builtins.code_actions.statix,
-                            null_ls.builtins.diagnostics.editorconfig_checker.with(
-                                {
-                                    command = "editorconfig-checker"
-                                }
-                            ),
-                            null_ls.builtins.diagnostics.gitlint,
-                            null_ls.builtins.diagnostics.shellcheck,
-                            null_ls.builtins.diagnostics.statix,
-                            null_ls.builtins.formatting.fish_indent,
-                            null_ls.builtins.formatting.shellharden,
-                            null_ls.builtins.formatting.trim_newlines,
-                            null_ls.builtins.formatting.trim_whitespace
-                        }
-                    }
-                )
-            end,
-            requires = {
-                use "nvim-lua/plenary.nvim"
-            }
-        }
-
         -- use {
         --     "bennypowers/nvim-regexplainer",
         --     config = function()
@@ -419,7 +439,6 @@ return require("packer").startup(
         --     -- disable = true
         -- }
 
-        -- use { "folke/lua-dev.nvim" }
         --
         use { "darfink/vim-plist", ft = { "plist", "xml" } }
 
@@ -560,4 +579,3 @@ return require("packer").startup(
         end
     end
 )
-
