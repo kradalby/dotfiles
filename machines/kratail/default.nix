@@ -70,7 +70,7 @@
 
         extraConfig = {
           user = {
-            signingkey = lib.mkForce "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBOm0+vlPKTRMQm9teF/bCrTPEDEqs1m+B5kMZtuLKh2rDLYM2uwsLPjNjaIlFQfkUn2vyAqGovyKOVR7Q/Z28yo=";
+            signingkey = lib.mkForce "/Users/kradalby/Library/Containers/com.maxgoedjen.Secretive.SecretAgent/Data/PublicKeys/84675f6c5d4035e4e790ed5d73dd74e3.pub";
           };
         };
       };

@@ -101,6 +101,10 @@
         recursive = true;
       };
 
+      ".ssh/allowed_signers".text = ''
+        kristoffer@tailscale.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBOm0+vlPKTRMQm9teF/bCrTPEDEqs1m+B5kMZtuLKh2rDLYM2uwsLPjNjaIlFQfkUn2vyAqGovyKOVR7Q/Z28yo=
+      '';
+
       ".config/nix/nix.conf".text = ''
         experimental-features = nix-command flakes
       '';
