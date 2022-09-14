@@ -176,22 +176,6 @@
           lcq $query $argv[2..-1]
         '';
 
-        gc = ''
-          if string length -q -- $GPG_FINGERPRINT
-              ${pkgs.git}/bin/git commit -S
-          else
-              ${pkgs.git}/bin/git commit
-          end
-        '';
-
-        gcm = ''
-          if string length -q -- $GPG_FINGERPRINT
-              ${pkgs.git}/bin/git commit -S -m "$argv"
-          else
-              ${pkgs.git}/bin/git commit -m "$argv"
-          end
-        '';
-
         dtgc = ''
           env GIT_AUTHOR_DATE=(${oofTime}) GIT_COMMITTER_DATE=(${oofTime}) ${pkgs.git}/bin/git commit $argv
         '';
