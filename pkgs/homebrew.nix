@@ -68,6 +68,7 @@ _: {
       # "flameshot"
       "shottr"
       "tunnelblick"
+      "secretive"
 
       # Decompilers and reverse engineering
       "temurin"
@@ -75,31 +76,32 @@ _: {
       "machoview"
 
       # Maybe
-      # "monitorcontrol"
+      "monitorcontrol"
+      "logi-options-plus"
       # "multipass"
       "docker"
     ];
 
     # TODO: why does some of these not work?
-    # masApps = {
-    #   # "1Password for Safari" = 1569813296;
-    #   # "Amphetamine" = 937984704;
-    #   "Discovery" = 1381004916;
-    #   "Disk Speed Test" = 425264550;
-    #   "Key Codes" = 414568915;
-    #   "MQTT Explorer" = 1455214828;
-    #   "Messenger" = 1480068668;
-    #   "Microsoft Remote Desktop" = 1295203466;
-    #   "Octotree" = 1457450145;
-    #   "Patterns" = 429449079;
-    #   "Pixelmator Pro" = 1289583905;
-    #   "Refined GitHub" = 1519867270;
-    #   "Tailscale" = 1475387142;
-    #   "WhatsApp" = 1147396723;
-    #   "WireGuard" = 1451685025;
-    #   "Xcode" = 497799835;
-    #   # "Yubico Authenticator" = 1497506650;
-    # };
+    masApps = {
+      "1Password for Safari" = 1569813296;
+      "Amphetamine" = 937984704;
+      "Discovery" = 1381004916;
+      "Disk Speed Test" = 425264550;
+      "Key Codes" = 414568915;
+      "MQTT Explorer" = 1455214828;
+      "Messenger" = 1480068668;
+      "Microsoft Remote Desktop" = 1295203466;
+      "Octotree" = 1457450145;
+      "Patterns" = 429449079;
+      "Pixelmator Pro" = 1289583905;
+      "Refined GitHub" = 1519867270;
+      "Tailscale" = 1475387142;
+      "WhatsApp" = 1147396723;
+      "WireGuard" = 1451685025;
+      "Xcode" = 497799835;
+      "Yubico Authenticator" = 1497506650;
+    };
 
   };
 

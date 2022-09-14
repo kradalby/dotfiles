@@ -3,7 +3,9 @@
     fish
 
     neovim
-    dig
+
+    # jemalloc, which bind depends on is broken on darwin aarch64
+    (lib.mkIf (! (pkgs.stdenv.isDarwin && pkgs.stdenv.isAarch64)) dig)
     vim
     babelfish
     bat
@@ -46,5 +48,6 @@
     # Nix tooling
     nixpkgs-fmt
     nix-diff
+    nix-tree
   ];
 }

@@ -60,7 +60,11 @@
     nixpkgs-fmt
     manix
 
-    # clang_13
+
+    # Tailscale stuff
+    redo-apenwarr
+
+    clang
 
     # swiftlint
     # clang-format
