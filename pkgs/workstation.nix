@@ -25,7 +25,7 @@
     # imapchive
 
     # Darwin only
-    (lib.mkIf pkgs.stdenv.isDarwin terminal-notifier)
+    (lib.mkIf (pkgs.stdenv.isDarwin && !pkgs.stdenv.isAarch64) terminal-notifier)
 
     # logcli
 
