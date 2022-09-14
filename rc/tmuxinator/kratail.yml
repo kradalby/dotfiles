@@ -13,6 +13,6 @@ windows:
   - corp:
       root: ~/git/corp
   - tailscale:
-      root: ~/git/tailscalestructure
+      root: ~/git/tailscale
   - tailscale:
-      root: ~/git/tailscalestructure
+      root: ~/git/tailscale
