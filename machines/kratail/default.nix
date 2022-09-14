@@ -64,6 +64,8 @@
       # home.file = {
       #   ".ssh/authorized_keys".text = lib.concatStringsSep "\n" (sshKeys.main ++ sshKeys.kradalby);
       # };
+
+      programs.git.userEmail = lib.mkForce "kristoffer@tailscale.com";
     };
     # extraSpecialArgs = { inherit machine; };
   };
@@ -131,5 +133,5 @@
 
   # Used for backwards compatibility, please read the changelog before changing.
   # $ darwin-rebuild changelog
-  system.stateVersion = 4;
+  # system.stateVersion = 4;
 }
