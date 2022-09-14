@@ -65,7 +65,15 @@
       #   ".ssh/authorized_keys".text = lib.concatStringsSep "\n" (sshKeys.main ++ sshKeys.kradalby);
       # };
 
-      programs.git.userEmail = lib.mkForce "kristoffer@tailscale.com";
+      programs.git = {
+        userEmail = lib.mkForce "kristoffer@tailscale.com";
+
+        extraConfig = {
+          user = {
+            signingkey = lib.mkForce "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBOm0+vlPKTRMQm9teF/bCrTPEDEqs1m+B5kMZtuLKh2rDLYM2uwsLPjNjaIlFQfkUn2vyAqGovyKOVR7Q/Z28yo=";
+          };
+        };
+      };
     };
     # extraSpecialArgs = { inherit machine; };
   };
