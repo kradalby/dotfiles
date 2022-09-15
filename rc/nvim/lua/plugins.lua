@@ -395,12 +395,12 @@ return require("packer").startup(
         --     }
         -- }
 
-        -- use {
-        --     "windwp/nvim-autopairs",
-        --     config = function()
-        --         require("nvim-autopairs").setup({})
-        --     end
-        -- }
+        use {
+            "windwp/nvim-autopairs",
+            config = function()
+                require("nvim-autopairs").setup({})
+            end
+        }
 
         -- use {
         --     "ray-x/lsp_signature.nvim",
