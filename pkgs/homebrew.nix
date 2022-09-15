@@ -32,6 +32,9 @@ _: {
 
       # exiftrans is a part of a linux only nix pkgs
       "exiftran"
+
+      # PAM module to make TouchID sudo work in tmux
+      "pam-reattach"
     ];
 
     casks = [
