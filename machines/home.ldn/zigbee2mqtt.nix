@@ -43,55 +43,60 @@ in
       devices = {
 
         "0x00158d0005867f78" = {
-          friendly_name = "bedroom-aqara";
+          friendly_name = "kitchen-aqara";
         };
         "0x00158d00058a1f24" = {
           friendly_name = "bathroom-aqara";
         };
         "0x00158d00056bfcd7" = {
-          friendly_name = "entrance-aqara";
+          friendly_name = "office-aqara";
         };
         "0x00158d0005889210" = {
           friendly_name = "living-room-aqara";
         };
 
         "0xec1bbdfffe9a2eaa" = {
-          friendly_name = "entrance-switch";
-        };
-        "0xbc33acfffe76d2c3" = {
-          friendly_name = "living-room-shelf-light";
+          friendly_name = "living-switch";
         };
         "0xccccccfffebeb856" = {
-          friendly_name = "entrance-light";
-        };
-
-        "0xec1bbdfffea3c9b3" = {
-          friendly_name = "bedroom-switch";
+          friendly_name = "living-window-light";
         };
         "0xec1bbdfffeae279e" = {
-          friendly_name = "bedroom-ceiling-light";
+          friendly_name = "living-inner-light";
         };
+
+        # "0xbc33acfffe76d2c3" = {
+        #   friendly_name = "living-room-shelf-light";
+        # };
+
+        # "0xec1bbdfffea3c9b3" = {
+        #   friendly_name = "bedroom-switch";
+        # };
         "0xec1bbdfffe269185" = {
-          friendly_name = "bedroom-speaker-light";
+          friendly_name = "office-speaker-light";
+        };
+
+        "0x00158d0007ed50e9" = {
+          friendly_name = "office-motion";
         };
 
       };
 
       groups = {
         "1" = {
-          friendly_name = "entrance";
+          friendly_name = "living-room";
           devices = [
-            "living-room-shelf-light"
-            "entrance-light"
+            "living-window-light"
+            "living-inner-light"
           ];
         };
-        "2" = {
-          friendly_name = "bedroom";
-          devices = [
-            "bedroom-ceiling-light"
-            "bedroom-speaker-light"
-          ];
-        };
+        # "2" = {
+        #   friendly_name = "bedroom";
+        #   devices = [
+        #     "bedroom-ceiling-light"
+        #     "bedroom-speaker-light"
+        #   ];
+        # };
       };
     };
   };
