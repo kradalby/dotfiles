@@ -19,8 +19,8 @@
     ./openvpn.nix
   ];
 
-  my.wan = "wlan0";
-  # my.wan = "wan";
+  # my.wan = "wlan0";
+  my.wan = "wan";
   my.lan = "eth0";
 
   environment.systemPackages = with pkgs; [
