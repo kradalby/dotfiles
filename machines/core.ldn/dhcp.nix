@@ -4,6 +4,7 @@
     interfaces = [ config.my.lan "iot" ];
     extraConfig = ''
       option domain-name-servers 10.65.0.1;
+      # option domain-name-servers 1.1.1.1;
       option subnet-mask 255.255.255.0;
 
       subnet 10.65.0.0 netmask 255.255.255.0 {
