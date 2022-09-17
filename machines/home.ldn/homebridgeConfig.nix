@@ -109,21 +109,15 @@
           };
         };
 
-      # https://templates.blakadder.com/avatar_AWP14H.html
-      # Tasmota profile:
-      # {"NAME":"Avatar UK 10A","GPIO":[0,0,56,0,0,134,0,0,131,17,132,21,0],"FLAG":0,"BASE":45}
-      mqttthingAvatarOutlet = name: type: topic:
-        (mqttthing name type) //
+      mqttthingTasmotaOutlet = name: type: topic:
         {
           onlineValue = "Online";
-          manufacturer = "Avatar";
-          model = "UK 10A";
           onValue = "ON";
           offValue = "OFF";
           startPub = [
             {
               topic = "cmnd/${topic}/POWER";
-              message = "ON";
+              message = "off";
             }
             {
               topic = "stat/${topic}/POWER";
@@ -154,13 +148,49 @@
           };
         };
 
+      # https://templates.blakadder.com/avatar_AWP14H.html
+      # Tasmota profile:
+      # {"NAME":"Avatar UK 10A","GPIO":[0,0,56,0,0,134,0,0,131,17,132,21,0],"FLAG":0,"BASE":45}
+      mqttthingAvatarOutlet = name: type: topic:
+        (mqttthing name type) //
+        {
+          manufacturer = "Avatar";
+          model = "UK 10A";
+        } // (mqttthingTasmotaOutlet name type topic);
+
+      mqttthingAthomV2Outlet = name: type: topic:
+        (mqttthing name type) //
+        {
+          manufacturer = "Athom";
+          model = "Plug V2";
+        } // (mqttthingTasmotaOutlet name type topic);
+
+      mqttthingAqaraOccupOutlet = name: topic:
+        (mqttthing name "occupancySensor") //
+        {
+          topics = {
+                getOccupancyDetected= {
+                    topic= "zigbee2mqtt/${topic}";
+                    apply= "return JSON.parse(message).occupancy;";
+                };
+                getStatusLowBattery= {
+                    topic= "zigbee2mqtt/${topic}";
+                    apply= "if (JSON.parse(message).battery < 20) return 1; else return 0;";
+                };
+                getBatteryLevel= {
+                    topic= "zigbee2mqtt/${topic}";
+                    apply= "return JSON.parse(message).battery;";
+                };
+          };
+        };
+
       mqttthing = name: type: {
+        inherit name;
+        inherit type;
         url = "http://localhost:1883";
         username = "homebridge";
         password = "birdbirdbirdistheword";
         accessory = "mqttthing";
-        name = name;
-        type = type;
         history = true;
 
         mqttOptions = {
@@ -170,29 +200,39 @@
       };
     in
     [
-      (mqttthingHumiditySensor "Bedroom Humidity" "humiditySensor" "bedroom-aqara")
-      (mqttthingTemperatureSensor "Bedroom Temperature" "temperatureSensor" "bedroom-aqara")
+      (mqttthingHumiditySensor "Kitchen Humidity" "humiditySensor" "kitchen-aqara")
+      (mqttthingTemperatureSensor "Kitchen Temperature" "temperatureSensor" "kitchen-aqara")
 
       (mqttthingHumiditySensor "Bathroom Humidity" "humiditySensor" "bathroom-aqara")
       (mqttthingTemperatureSensor "Bathroom Temperature" "temperatureSensor" "bathroom-aqara")
 
-      (mqttthingHumiditySensor "Entrance Humidity" "humiditySensor" "entrance-aqara")
-      (mqttthingTemperatureSensor "Entrance Temperature" "temperatureSensor" "entrance-aqara")
+      (mqttthingHumiditySensor "Office Humidity" "humiditySensor" "office-aqara")
+      (mqttthingTemperatureSensor "Office Temperature" "temperatureSensor" "office-aqara")
 
       (mqttthingHumiditySensor "Living Room Humidity" "humiditySensor" "living-room-aqara")
       (mqttthingTemperatureSensor "Living Room Temperature" "temperatureSensor" "living-room-aqara")
 
-      (mqttthingTradfriTemperature "Living Room Shelf" "lightbulb" "living-room-shelf-light")
+      # (mqttthingTradfriTemperature "Living Room Shelf" "lightbulb" "living-room-shelf-light")
 
-      (mqttthingTradfriColour "Bedroom Speaker" "lightbulb" "bedroom-speaker-light")
+      (mqttthingTradfriColour "Office Speaker" "lightbulb" "office-speaker-light")
 
-      (mqttthingTradfri "Entrance Ceiling" "lightbulb" "entrance-light")
-      (mqttthingTradfri "Bedroom Ceiling" "lightbulb" "bedroom-ceiling-light")
+      (mqttthingTradfri "Living Room Ceiling Inner" "lightbulb" "living-inner-light")
+      (mqttthingTradfri "Living Room Ceiling Window" "lightbulb" "living-window-light")
 
-      (mqttthingAvatarOutlet "Bedroom Nook" "outlet" "tasmota_C39499")
-      (mqttthingAvatarOutlet "Bedroom Desk" "outlet" "tasmota_C38721")
-      (mqttthingAvatarOutlet "Kitchen Fairy Lights" "outlet" "tasmota_5EA590")
-      (mqttthingAvatarOutlet "Living Room Fairy Lights" "outlet" "tasmota_6BB357")
+      # (mqttthingAvatarOutlet "Bedroom Nook" "outlet" "tasmota_C39499")
+      # (mqttthingAvatarOutlet "Kitchen Fairy Lights" "outlet" "tasmota_5EA590")
+      (mqttthingAvatarOutlet "Living Room Shelf Lamp" "outlet" "tasmota_6BB357")
+
+      (mqttthingAthomV2Outlet "Office Ceiling" "outlet" "tasmota_8F629A")
+      (mqttthingAthomV2Outlet "Office Air Purifier" "outlet" "tasmota_97429B")
+
+      (mqttthingAthomV2Outlet "Living Room Corner" "outlet" "tasmota_8F8AC1")
+      (mqttthingAthomV2Outlet "Living Room Drawer" "outlet" "tasmota_8F9D84")
+
+      (mqttthingAqaraOccupOutlet "Office motion" "office-motion")
+
+      # Used for measuring power of internet hw
+      # (mqttthingAvatarOutlet "Bedroom Desk" "outlet" "tasmota_C38721")
 
       {
         accessory = "XiaomiRoborockVacuum";
