@@ -13,23 +13,23 @@ self: super: {
     };
     format = "setuptools";
     doCheck = false;
-    buildInputs = [ ];
-    checkInputs = [ ];
-    nativeBuildInputs = [ ];
-    propagatedBuildInputs = [ ];
+    buildInputs = [];
+    checkInputs = [];
+    nativeBuildInputs = [];
+    propagatedBuildInputs = [];
   };
   "prometheus-client" = super.buildPythonPackage rec {
     pname = "prometheus-client";
-    version = "0.12.0";
+    version = "0.14.1";
     src = fetchurl {
-      url = "https://files.pythonhosted.org/packages/df/6c/6c5f9404977f8f9caa30c1a408f6cc5ea6e0c1949761f24d0a33239b49c5/prometheus_client-0.12.0-py2.py3-none-any.whl";
-      sha256 = "1w0a980dsc3jjnv1rdkjf2g4iqr1mgxqww3zvw11n2pzmgmm6x1i";
+      url = "https://files.pythonhosted.org/packages/19/e5/7d4b4b3b0d8d2fdc55395cdb4271c6dbfde3c3ff7d6a6dbe63d19c4e2288/prometheus_client-0.14.1-py3-none-any.whl";
+      sha256 = "00fwahfrq64a7wz471jax2lba56z88plawr7ksl24a184pbdwbsj";
     };
     format = "wheel";
     doCheck = false;
-    buildInputs = [ ];
-    checkInputs = [ ];
-    nativeBuildInputs = [ ];
-    propagatedBuildInputs = [ ];
+    buildInputs = [];
+    checkInputs = [];
+    nativeBuildInputs = [];
+    propagatedBuildInputs = [];
   };
 }
