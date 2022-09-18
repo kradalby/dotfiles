@@ -5,7 +5,7 @@ final: prev: {
   };
 
   headscale = prev.callPackage ./headscale.nix {
-    buildGoModule = prev.buildGo118Module;
+    buildGoModule = prev.unstable.buildGo119Module;
   };
 
   act = prev.callPackage ./act.nix {
