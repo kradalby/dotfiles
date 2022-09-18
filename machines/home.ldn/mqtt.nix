@@ -11,8 +11,8 @@ in
 
     listeners = [
       {
+        inherit port;
         address = "0.0.0.0";
-        port = port;
         users = {
           zigbee2mqtt = {
             acl = [
@@ -60,15 +60,15 @@ in
 
   services.mqtt-exporter =
     let
-      password = (builtins.elemAt config.services.mosquitto.listeners 0).users.exporter.password;
+      inherit ((builtins.elemAt config.services.mosquitto.listeners 0).users.exporter) password;
     in
     {
       enable = true;
       openFirewall = true;
 
       mqtt = {
+        inherit password;
         username = "exporter";
-        password = password;
         keepalive = 30;
       };
 
