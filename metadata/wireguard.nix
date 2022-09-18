@@ -54,12 +54,6 @@
   };
 
   clients = {
-    daniellembp = {
-      additional_networks = [ ];
-      addresses = [ "10.69.0.12/32" "2a03:94e0:200d:69::12/128" ];
-      public_key = "99l26P/kec/3/FWb1jV0bqqYRfpChXC/6l1fw+Y5kFw=";
-    };
-
     kpad = {
       additional_networks = [ ];
       addresses = [ "10.69.0.15/32" "2a03:94e0:200d:69::15/128" ];
