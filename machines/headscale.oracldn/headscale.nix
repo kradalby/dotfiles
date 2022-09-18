@@ -9,6 +9,10 @@ in
     owner = "headscale";
     file = ../../secrets/headscale-private-key.age;
   };
+  age.secrets.headscale-noise-private-key = {
+    owner = "headscale";
+    file = ../../secrets/headscale-noise-private-key.age;
+  };
   age.secrets.headscale-oidc-secret = {
     owner = "headscale";
     file = ../../secrets/headscale-oidc-secret.age;
@@ -40,6 +44,10 @@ in
     settings = {
       grpc_listen_addr = "127.0.0.1:50443";
       grpc_allow_insecure = true;
+
+      noise = {
+        private_key_path = config.age.secrets.headscale-noise-private-key.path;
+      };
 
       ip_prefixes = [
         "fd7a:115c:a1e0::/48"
