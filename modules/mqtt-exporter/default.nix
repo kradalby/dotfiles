@@ -10,7 +10,7 @@ let
   mqttExporter = builtins.fetchGit {
     url = "https://github.com/kpetremann/mqtt-exporter.git";
     ref = "master";
-    rev = "7c7a828e85f732160d1e3587dd88d90c6e164ab5";
+    rev = "774617eead7b2be3c0ba3b020585b9e7ad06c93d";
   };
 
   cfg = config.services.mqtt-exporter;
@@ -114,7 +114,7 @@ in
 
   config = mkIf cfg.enable {
 
-    networking.firewall.allowedTCPPorts = mkIf cfg.openFirewall [ 9000 ];
+    networking.firewall.allowedTCPPorts = mkIf cfg.openFirewall [ cfg.prometheus.port ];
 
     systemd.services.mqtt-exporter = {
       enable = true;
