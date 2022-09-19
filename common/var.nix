@@ -21,6 +21,7 @@
         gcob = "git checkout -b";
         gcom = "git checkout master";
         gd = "git diff";
+        gdc = "git diff --cached";
         gb = "git branch";
         gbd = "git branch -d ";
         gp = "git pull";
