@@ -1,12 +1,16 @@
-{ config, pkgs, flakes, ... }:
 {
+  config,
+  pkgs,
+  flakes,
+  ...
+}: {
   environment.homeBinInPath = true;
   home-manager = {
     verbose = true;
     backupFileExtension = "hm_bak~";
     useGlobalPkgs = true;
     useUserPackages = true;
-    extraSpecialArgs = { inherit flakes; };
+    extraSpecialArgs = {inherit flakes;};
     users = {
       kradalby = {
         imports = [

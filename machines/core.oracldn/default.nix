@@ -1,5 +1,10 @@
-{ config, flakes, pkgs, lib, ... }:
 {
+  config,
+  flakes,
+  pkgs,
+  lib,
+  ...
+}: {
   imports = [
     ../../common
     ./hardware-configuration.nix
@@ -10,7 +15,6 @@
 
     ../../common/coredns.nix
     ../../common/consul-server.nix
-
 
     ./restic.nix
     ./wireguard.nix
@@ -51,7 +55,10 @@
       ${config.my.lan} = {
         useDHCP = false;
         ipv4.addresses = [
-          { address = "10.66.0.1"; prefixLength = 24; }
+          {
+            address = "10.66.0.1";
+            prefixLength = 24;
+          }
         ];
         tempAddress = "disabled";
       };
@@ -60,12 +67,24 @@
     nat = {
       enable = true;
       externalInterface = config.my.wan;
-      internalIPs = [ "10.0.0.0/8" ];
-      internalInterfaces = [ config.my.lan "iot" ];
+      internalIPs = ["10.0.0.0/8"];
+      internalInterfaces = [config.my.lan "iot"];
       forwardPorts = [
-        { sourcePort = 64322; destination = "10.66.0.1:22"; proto = "tcp"; }
-        { sourcePort = 500; destination = "10.66.0.1:51820"; proto = "udp"; }
-        { sourcePort = 4500; destination = "10.66.0.1:51820"; proto = "udp"; }
+        {
+          sourcePort = 64322;
+          destination = "10.66.0.1:22";
+          proto = "tcp";
+        }
+        {
+          sourcePort = 500;
+          destination = "10.66.0.1:51820";
+          proto = "udp";
+        }
+        {
+          sourcePort = 4500;
+          destination = "10.66.0.1:51820";
+          proto = "udp";
+        }
       ];
     };
 
@@ -79,7 +98,11 @@
         80 # HTTP
         443 # HTTPS
 
-        21115 21116 21117 21118 21119 # Rustdesk
+        21115
+        21116
+        21117
+        21118
+        21119 # Rustdesk
       ];
 
       allowedUDPPorts = lib.mkForce [
@@ -90,10 +113,9 @@
         21116 # Rustdesk
       ];
 
-      trustedInterfaces = [ config.my.lan ];
+      trustedInterfaces = [config.my.lan];
     };
   };
-
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions

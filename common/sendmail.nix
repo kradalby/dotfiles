@@ -1,7 +1,10 @@
-{ config, lib, pkgs, ... }:
 {
-
-  # TODO: 
+  config,
+  lib,
+  pkgs,
+  ...
+}: {
+  # TODO:
   services.ssmtp = {
     enable = true;
     root = "kradalby@kradalby.no";
@@ -17,7 +20,7 @@
 
   systemd.services."notify-email@" = {
     serviceConfig.Type = "oneshot";
-    path = with pkgs; [ systemd system-sendmail ];
+    path = with pkgs; [systemd system-sendmail];
     scriptArgs = "%I";
     script = ''
       UNIT=$(systemd-escape $1)

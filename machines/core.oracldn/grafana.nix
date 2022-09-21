@@ -1,14 +1,16 @@
-{ pkgs, lib, config, ... }:
-let
-  domain = "grafana.${config.networking.domain}";
-in
 {
+  pkgs,
+  lib,
+  config,
+  ...
+}: let
+  domain = "grafana.${config.networking.domain}";
+in {
   age.secrets.grafana-admin = {
     file = ../../secrets/grafana-admin.age;
     mode = "0400";
     owner = "grafana";
   };
-
 
   services.grafana = {
     enable = true;

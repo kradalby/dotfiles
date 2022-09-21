@@ -1,5 +1,4 @@
-{ lib, ... }: {
-
+{lib, ...}: {
   options = {
     my.wan = lib.mkOption {
       type = lib.types.str;

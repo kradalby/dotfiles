@@ -1,12 +1,17 @@
-{ config, pkgs, lib, system, ... }:
-let
+{
+  config,
+  pkgs,
+  lib,
+  system,
+  ...
+}: let
   domain = "uptime.kradalby.no";
 
   dataDir = "/var/lib/kuma";
 
   port = 3001;
 
-  kumaPackages = import ../../modules/uptime-kuma/override.nix { inherit pkgs system; };
+  kumaPackages = import ../../modules/uptime-kuma/override.nix {inherit pkgs system;};
   packageModulePath = package: "${package}/lib/node_modules/";
   nodeModulePaths = map packageModulePath (builtins.attrValues kumaPackages);
   nodePath = builtins.concatStringsSep ":" nodeModulePaths;
@@ -24,8 +29,7 @@ let
       chmod +x $out/bin/kuma
     '';
   };
-in
-{
+in {
   users.users.kuma = {
     home = dataDir;
     createHome = true;
@@ -35,7 +39,7 @@ in
     description = "uptime-kuma";
   };
 
-  users.groups.kuma = { };
+  users.groups.kuma = {};
 
   # networking.firewall.allowedTCPPorts = [ kumaConfig.bridge.port ];
   # networking.firewall.allowedUDPPorts = [ kumaConfig.bridge.port 1900 5350 5351 5353 ];
@@ -69,12 +73,11 @@ in
     ports = [
       "${toString port}:3001/tcp"
     ];
-    environment = { };
+    environment = {};
     volumes = [
       "/var/lib/kuma:/app/data"
     ];
   };
-
 
   security.acme.certs."${domain}".domain = domain;
 

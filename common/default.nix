@@ -1,5 +1,8 @@
-{ lib, flakes, ... }:
 {
+  lib,
+  flakes,
+  ...
+}: {
   require = [
     ./ca.nix
     ./dns-ready.nix

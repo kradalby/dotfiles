@@ -1,13 +1,16 @@
-{ pkgs, config, lib, ... }:
-let
-  consul = import ../../common/funcs/consul.nix { inherit lib; };
+{
+  pkgs,
+  config,
+  lib,
+  ...
+}: let
+  consul = import ../../common/funcs/consul.nix {inherit lib;};
 
   domain = "unifi.${config.networking.domain}";
-in
-{
+in {
   services.unifi = {
     unifiPackage = pkgs.unstable.unifi.overrideAttrs (attrs: {
-      meta = attrs.meta // { license = lib.licenses.mit; };
+      meta = attrs.meta // {license = lib.licenses.mit;};
     });
     enable = true;
     openFirewall = true;
@@ -15,10 +18,10 @@ in
     # initialJavaHeapSize = 1024;
     # maximumJavaHeapSize = 1536;
   };
-  systemd.services.unifi.onFailure = [ "notify-discord@%n.service" ];
+  systemd.services.unifi.onFailure = ["notify-discord@%n.service"];
 
   # TODO: Remove 8443 when nginx can correctly proxy
-  networking.firewall.allowedTCPPorts = [ 8443 9130 ];
+  networking.firewall.allowedTCPPorts = [8443 9130];
 
   security.acme.certs."${domain}".domain = domain;
 
@@ -69,7 +72,6 @@ in
     };
   };
 
-  systemd.services.prometheus-unifi-exporter.onFailure = [ "notify-discord@%n.service" ];
+  systemd.services.prometheus-unifi-exporter.onFailure = ["notify-discord@%n.service"];
   my.consulServices.unifi_exporter = consul.prometheusExporter "unifi" config.services.prometheus.exporters.unifi.port;
-
 }

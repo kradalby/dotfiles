@@ -1,9 +1,15 @@
-{ config, pkgs, lib, tf, ... }: with lib; let
+{
+  config,
+  pkgs,
+  lib,
+  tf,
+  ...
+}:
+with lib; let
   keystore-pass = "randomsupersecret_prodigal2earphone6snowplow_booting-flashback7daringly2";
 
   domain = "login.kradalby.no";
-in
-{
+in {
   age.secrets.postgres-keycloak = {
     file = ../../secrets/postgres-keycloak.age;
     owner = "postgres";
@@ -11,9 +17,9 @@ in
 
   services.keycloak = {
     enable = true;
-    package = (pkgs.keycloak.override {
+    package = pkgs.keycloak.override {
       jre = pkgs.openjdk11;
-    });
+    };
     bindAddress = "127.0.0.1";
     httpPort = "38089";
     httpsPort = "38445";
@@ -43,9 +49,8 @@ in
     };
   };
 
-
   # network.extraCerts.domain-login-kradalby-no = "auth.${config.network.dns.domain}";
-  users.groups.domain-login-kradalby-no.members = [ "nginx" "openldap" "keycloak" ];
+  users.groups.domain-login-kradalby-no.members = ["nginx" "openldap" "keycloak"];
   security.acme.certs.${domain} = {
     domain = domain;
     group = "domain-login-kradalby-no";

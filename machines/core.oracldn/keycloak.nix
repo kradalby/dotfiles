@@ -1,8 +1,11 @@
-{ pkgs, lib, config, ... }:
-let
-  domain = "login.kradalby.no";
-in
 {
+  pkgs,
+  lib,
+  config,
+  ...
+}: let
+  domain = "login.kradalby.no";
+in {
   age.secrets.postgres-keycloak = {
     file = ../../secrets/postgres-keycloak.age;
     owner = "postgres";
@@ -10,7 +13,6 @@ in
 
   services.keycloak = {
     enable = true;
-
 
     # frontendUrl = "https://${domain}";
     # forceBackendUrlToFrontendUrl = true;
@@ -46,7 +48,6 @@ in
     #     };
     #   };
     # };
-
   };
 
   security.acme.certs."${domain}".domain = domain;
@@ -75,5 +76,4 @@ in
       access_log /var/log/nginx/${domain}.access.log;
     '';
   };
-
 }

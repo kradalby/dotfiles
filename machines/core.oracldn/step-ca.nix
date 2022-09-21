@@ -1,20 +1,22 @@
-{ pkgs, config, lib, ... }:
-let
+{
+  pkgs,
+  config,
+  lib,
+  ...
+}: let
   cfg = config.services.step-ca;
 
   domain = "ca.kradalby.no";
-in
-{
+in {
   options.services.step-ca.configFilePath = lib.mkOption {
     type = lib.types.path;
   };
-
 
   config = {
     age.secrets.step-ca-password.file = ../../secrets/step-ca-password.age;
     age.secrets.step-ca-config.file = ../../secrets/step-ca-config.age;
 
-    environment.systemPackages = with pkgs; [ step-cli step-ca ];
+    environment.systemPackages = with pkgs; [step-cli step-ca];
 
     services.step-ca = {
       enable = true;
@@ -26,12 +28,12 @@ in
       intermediatePasswordFile = config.age.secrets.step-ca-password.path;
       configFilePath = config.age.secrets.step-ca-config.path;
 
-      settings = { };
+      settings = {};
     };
 
     systemd.services."step-ca" = {
       serviceConfig = {
-        restartTriggers = [ ../../secrets/step-ca-config.age ../../secrets/step-ca-password.age ];
+        restartTriggers = [../../secrets/step-ca-config.age ../../secrets/step-ca-password.age];
         LoadCredential = lib.mkForce [
           "intermediate_password:${cfg.intermediatePasswordFile}"
           "config:${cfg.configFilePath}"
@@ -44,5 +46,4 @@ in
       };
     };
   };
-
 }

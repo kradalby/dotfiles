@@ -1,14 +1,17 @@
-{ config, pkgs, lib, ... }:
-let
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}: let
   domain = "ldap.kradalby.no";
 
   ui = {
     domain = "directory.kradalby.no";
     port = 5000;
   };
-in
-{
-  imports = [ ../../modules/glauth-ui.nix ];
+in {
+  imports = [../../modules/glauth-ui.nix];
 
   users.users.glauth = {
     home = "/var/lib/glauth";
@@ -17,11 +20,10 @@ in
     isSystemUser = true;
     isNormalUser = false;
     description = "Glauth LDAP";
-    extraGroups = [ "acme" ];
+    extraGroups = ["acme"];
   };
 
-  users.groups.glauth = { };
-
+  users.groups.glauth = {};
 
   virtualisation.oci-containers.containers.glauth = {
     # image = "glauth/glauth:v2.0.0";
@@ -33,13 +35,12 @@ in
       "389:389/tcp"
       "636:636/tcp"
     ];
-    environment = { };
+    environment = {};
     volumes = [
       "glauth-config:/app/config"
       "/var/lib/acme/ldap.kradalby.no:/certs"
     ];
   };
-
 
   # virtualisation.oci-containers.containers.glauth-ui = {
   #   image = "kradalby/glauth-ui:040322-2-arm64";
@@ -75,7 +76,7 @@ in
 
   security.acme.certs."${domain}" = {
     domain = domain;
-    reloadServices = [ "docker-glauth.service" ];
+    reloadServices = ["docker-glauth.service"];
   };
 
   security.acme.certs."${ui.domain}".domain = ui.domain;

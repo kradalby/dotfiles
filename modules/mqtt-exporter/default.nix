@@ -1,11 +1,13 @@
-{ config, pkgs, lib, ... }:
-
-with lib;
-
-let
-  packageOverrides = pkgs.callPackage ./python-packages.nix { };
-  python = pkgs.python3.override { inherit packageOverrides; };
-  pythonWithPackages = python.withPackages (ps: [ ps."paho-mqtt" ps."prometheus-client" ]);
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
+with lib; let
+  packageOverrides = pkgs.callPackage ./python-packages.nix {};
+  python = pkgs.python3.override {inherit packageOverrides;};
+  pythonWithPackages = python.withPackages (ps: [ps."paho-mqtt" ps."prometheus-client"]);
 
   mqttExporter = builtins.fetchGit {
     url = "https://github.com/kpetremann/mqtt-exporter.git";
@@ -14,9 +16,7 @@ let
   };
 
   cfg = config.services.mqtt-exporter;
-in
-{
-
+in {
   options.services.mqtt-exporter = {
     enable = mkEnableOption "MQTT exporter for Prometheus, exposing zigbee2mqtt metrics.";
 
@@ -31,7 +31,7 @@ in
 
     mqtt.ignoredTopics = mkOption {
       type = types.listOf types.str;
-      default = [ ];
+      default = [];
       description = "Lists of topics to ignore";
     };
 
@@ -77,7 +77,6 @@ in
       description = "Password which should be used to authenticate against the MQTT broker";
     };
 
-
     prometheus.port = mkOption {
       type = types.port;
       default = 9000;
@@ -109,20 +108,18 @@ in
     };
 
     openFirewall = mkEnableOption "opening of the metric in the firewall";
-
   };
 
   config = mkIf cfg.enable {
-
-    networking.firewall.allowedTCPPorts = mkIf cfg.openFirewall [ cfg.prometheus.port ];
+    networking.firewall.allowedTCPPorts = mkIf cfg.openFirewall [cfg.prometheus.port];
 
     systemd.services.mqtt-exporter = {
       enable = true;
       script = ''
         ${pythonWithPackages}/bin/python ${mqttExporter}/exporter.py
       '';
-      wantedBy = [ "multi-user.target" ];
-      after = [ "network.target" "zigbee2mqtt.service" "mosquitto.service" ];
+      wantedBy = ["multi-user.target"];
+      after = ["network.target" "zigbee2mqtt.service" "mosquitto.service"];
       serviceConfig = {
         User = cfg.user;
         Group = cfg.group;
@@ -143,8 +140,7 @@ in
       };
 
       preStart = ''
-    '';
-
+      '';
     };
   };
 }

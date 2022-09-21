@@ -1,5 +1,10 @@
-{ config, flakes, pkgs, lib, ... }:
 {
+  config,
+  flakes,
+  pkgs,
+  lib,
+  ...
+}: {
   imports = [
     ../../common
     ./hardware-configuration.nix
@@ -7,7 +12,6 @@
     ../../common/acme.nix
     ../../common/nginx.nix
     ../../common/containers.nix
-
 
     ./restic.nix
     ./mqtt.nix
@@ -33,16 +37,24 @@
     interfaces."${config.my.lan}" = {
       useDHCP = false;
       ipv4.addresses = [
-        { address = "10.65.0.25"; prefixLength = 24; }
+        {
+          address = "10.65.0.25";
+          prefixLength = 24;
+        }
       ];
-      ipv4.routes = [{ address = "10.65.0.1"; prefixLength = 32; }];
+      ipv4.routes = [
+        {
+          address = "10.65.0.1";
+          prefixLength = 32;
+        }
+      ];
     };
     interfaces.wlan0.useDHCP = false;
   };
 
   boot.cleanTmpDir = true;
 
-  monitoring.smartctl.devices = [ "/dev/sda" ];
+  monitoring.smartctl.devices = ["/dev/sda"];
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions

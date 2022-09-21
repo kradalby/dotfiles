@@ -1,8 +1,10 @@
-{ config, lib, ... }:
-let
-  consul = import ./funcs/consul.nix { inherit lib; };
-in
 {
+  config,
+  lib,
+  ...
+}: let
+  consul = import ./funcs/consul.nix {inherit lib;};
+in {
   services.prometheus.exporters.smokeping = {
     enable = true;
     openFirewall = true;
@@ -20,10 +22,10 @@ in
   };
 
   systemd.services."prometheus-smokeping-exporter" = {
-    wantedBy = [ "multi-user.target" ];
-    wants = [ "network-online.target" ];
-    after = [ "network-online.target" ];
-    onFailure = [ "notify-discord@%n.service" ];
+    wantedBy = ["multi-user.target"];
+    wants = ["network-online.target"];
+    after = ["network-online.target"];
+    onFailure = ["notify-discord@%n.service"];
   };
 
   my.consulServices.smokeping_exporter = consul.prometheusExporter "smokeping" config.services.prometheus.exporters.smokeping.port;

@@ -1,4 +1,4 @@
-{ lib, ... }: {
+{lib, ...}: {
   services.samba = {
     # REMIND: `smbpasswd -a`
 

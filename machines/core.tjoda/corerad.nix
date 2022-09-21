@@ -1,44 +1,43 @@
-{ config, lib, ... }:
-let
-  consul = import ../../common/funcs/consul.nix { inherit lib; };
-in
 {
+  config,
+  lib,
+  ...
+}: let
+  consul = import ../../common/funcs/consul.nix {inherit lib;};
+in {
   services.corerad = {
     enable = true;
-    settings =
-      {
-        interfaces =
-          # Upstream monitoring interfaces.
-          lib.forEach [ config.my.wan ]
-            (ifi: {
-              name = ifi;
-              monitor = true;
-            })
+    settings = {
+      interfaces =
+        # Upstream monitoring interfaces.
+        lib.forEach [config.my.wan]
+        (ifi: {
+          name = ifi;
+          monitor = true;
+        })
+        # Downstream advertising interfaces.
+        ++ lib.forEach [config.my.lan "selskap"]
+        (ifi: {
+          name = ifi;
+          advertise = true;
 
-          # Downstream advertising interfaces.
-          ++ lib.forEach [ config.my.lan "selskap" ]
-            (ifi:
-              {
-                name = ifi;
-                advertise = true;
+          # Advertise all /64 prefixes on the interface.
+          prefix = [{}];
 
-                # Advertise all /64 prefixes on the interface.
-                prefix = [{ }];
-
-                # Automatically use the appropriate interface address as a DNS server.
-                rdnss = [{ }];
-              });
-        # Optionally enable Prometheus metrics.
-        debug = {
-          address = ":9430";
-          prometheus = true;
-        };
+          # Automatically use the appropriate interface address as a DNS server.
+          rdnss = [{}];
+        });
+      # Optionally enable Prometheus metrics.
+      debug = {
+        address = ":9430";
+        prometheus = true;
       };
+    };
   };
 
-  systemd.services.corerad.onFailure = [ "notify-discord@%n.service" ];
+  systemd.services.corerad.onFailure = ["notify-discord@%n.service"];
 
-  networking.firewall.interfaces.enp1s0f0.allowedTCPPorts = [ 9430 ];
+  networking.firewall.interfaces.enp1s0f0.allowedTCPPorts = [9430];
 
   my.consulServices.corerad_exporter = consul.prometheusExporter "corerad" 9430;
 }

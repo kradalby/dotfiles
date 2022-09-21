@@ -1,7 +1,17 @@
-{ lib, config, pkgs, ... }:
-with lib;
-let
-  commonJob = { name, repository, secret, paths, owner ? "root" }:
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
+with lib; let
+  commonJob = {
+    name,
+    repository,
+    secret,
+    paths,
+    owner ? "root",
+  }:
     mkMerge [
       {
         age.secrets."${secret}" = {
@@ -22,7 +32,6 @@ let
           ];
           initialize = true;
           passwordFile = config.age.secrets."${secret}".path;
-
         };
       }
 
@@ -32,7 +41,6 @@ let
           calendarInterval = {
             Minute = 30;
           };
-
         };
       })
 
@@ -47,15 +55,20 @@ let
       # })
     ];
 
-  backupJob = { name ? config.networking.fqdn, site, secret, paths, owner ? "root" }: (commonJob {
+  backupJob = {
+    name ? config.networking.fqdn,
+    site,
+    secret,
+    paths,
+    owner ? "root",
+  }: (commonJob {
     inherit secret;
     inherit paths;
     inherit owner;
     name = site;
     repository = "rest:https://restic.core.${site}.fap.no/${name}";
   });
-in
-{
+in {
   inherit backupJob;
   inherit commonJob;
 }

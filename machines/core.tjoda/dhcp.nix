@@ -1,7 +1,7 @@
-{ config, ... }: {
+{config, ...}: {
   services.dhcpd4 = {
     enable = true;
-    interfaces = [ config.my.lan "selskap" ];
+    interfaces = [config.my.lan "selskap"];
     extraConfig = ''
       option subnet-mask 255.255.255.0;
 
@@ -25,5 +25,5 @@
     ];
   };
 
-  systemd.services.dhcpd4.onFailure = [ "notify-discord@%n.service" ];
+  systemd.services.dhcpd4.onFailure = ["notify-discord@%n.service"];
 }

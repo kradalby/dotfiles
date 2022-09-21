@@ -1,16 +1,22 @@
-{ config, lib, pkgs, utils, ... }:
-
-with lib;
-let
-  helpers = import ../common/funcs/helpers.nix { inherit lib pkgs; };
-in
-
 {
+  config,
+  lib,
+  pkgs,
+  utils,
+  ...
+}:
+with lib; let
+  helpers = import ../common/funcs/helpers.nix {inherit lib pkgs;};
+in {
   options.services.restic.backups = mkOption {
     description = ''
       Periodic backups to create with Restic.
     '';
-    type = types.attrsOf (types.submodule ({ config, name, ... }: {
+    type = types.attrsOf (types.submodule ({
+      config,
+      name,
+      ...
+    }: {
       options = {
         passwordFile = mkOption {
           type = types.str;
@@ -21,7 +27,7 @@ in
         };
 
         rcloneOptions = mkOption {
-          type = with types; nullOr (attrsOf (oneOf [ str bool ]));
+          type = with types; nullOr (attrsOf (oneOf [str bool]));
           default = null;
           description = ''
             Options to pass to rclone to control its behavior.
@@ -38,7 +44,7 @@ in
         };
 
         rcloneConfig = mkOption {
-          type = with types; nullOr (attrsOf (oneOf [ str bool ]));
+          type = with types; nullOr (attrsOf (oneOf [str bool]));
           default = null;
           description = ''
             Configuration for the rclone remote being used for backup.
@@ -130,7 +136,7 @@ in
 
         extraBackupArgs = mkOption {
           type = types.listOf types.str;
-          default = [ ];
+          default = [];
           description = ''
             Extra arguments passed to restic backup.
           '';
@@ -141,7 +147,7 @@ in
 
         extraOptions = mkOption {
           type = types.listOf types.str;
-          default = [ ];
+          default = [];
           description = ''
             Extra extended options to be passed to the restic --option flag.
           '';
@@ -160,7 +166,7 @@ in
 
         pruneOpts = mkOption {
           type = types.listOf types.str;
-          default = [ ];
+          default = [];
           description = ''
             A list of options (--keep-* et al.) for 'restic forget
             --prune', to automatically prune old snapshots.  The
@@ -187,16 +193,16 @@ in
         };
       };
     }));
-    default = { };
+    default = {};
     example = {
       localbackup = {
-        paths = [ "/home" ];
+        paths = ["/home"];
         repository = "/mnt/backup-hdd";
         passwordFile = "/etc/nixos/secrets/restic-password";
         initialize = true;
       };
       remotebackup = {
-        paths = [ "/home" ];
+        paths = ["/home"];
         repository = "sftp:backup@host:/backups/home";
         passwordFile = "/etc/nixos/secrets/restic-password";
         extraOptions = [
@@ -213,48 +219,54 @@ in
   config = {
     launchd.user.agents =
       mapAttrs'
-        (name: backup:
-          let
-            extraOptions = concatMapStrings (arg: " -o ${arg}") backup.extraOptions;
-            resticCmd = "${pkgs.restic}/bin/restic${extraOptions}";
-            filesFromTmpFile = "/run/restic-backups-${name}/includes";
-            backupPaths =
-              if (backup.dynamicFilesFrom == null)
-              then if (backup.paths != null) then concatStringsSep " " backup.paths else ""
-              else "--files-from ${filesFromTmpFile}";
-            pruneCmd = optionals (builtins.length backup.pruneOpts > 0) [
-              (resticCmd + " forget --prune " + (concatStringsSep " " backup.pruneOpts))
-              (resticCmd + " check")
-            ];
-            # Helper functions for rclone remotes
-            rcloneRemoteName = builtins.elemAt (splitString ":" backup.repository) 1;
-            rcloneAttrToOpt = v: "RCLONE_" + toUpper (builtins.replaceStrings [ "-" ] [ "_" ] v);
-            rcloneAttrToConf = v: "RCLONE_CONFIG_" + toUpper (rcloneRemoteName + "_" + v);
-            toRcloneVal = v: if lib.isBool v then lib.boolToString v else v;
+      (
+        name: backup: let
+          extraOptions = concatMapStrings (arg: " -o ${arg}") backup.extraOptions;
+          resticCmd = "${pkgs.restic}/bin/restic${extraOptions}";
+          filesFromTmpFile = "/run/restic-backups-${name}/includes";
+          backupPaths =
+            if (backup.dynamicFilesFrom == null)
+            then
+              if (backup.paths != null)
+              then concatStringsSep " " backup.paths
+              else ""
+            else "--files-from ${filesFromTmpFile}";
+          pruneCmd = optionals (builtins.length backup.pruneOpts > 0) [
+            (resticCmd + " forget --prune " + (concatStringsSep " " backup.pruneOpts))
+            (resticCmd + " check")
+          ];
+          # Helper functions for rclone remotes
+          rcloneRemoteName = builtins.elemAt (splitString ":" backup.repository) 1;
+          rcloneAttrToOpt = v: "RCLONE_" + toUpper (builtins.replaceStrings ["-"] ["_"] v);
+          rcloneAttrToConf = v: "RCLONE_CONFIG_" + toUpper (rcloneRemoteName + "_" + v);
+          toRcloneVal = v:
+            if lib.isBool v
+            then lib.boolToString v
+            else v;
 
-            runRestic = pkgs.writers.writeBash "run-restic" ''
-              ${optionalString (backup.initialize || backup.dynamicFilesFrom != null) ''
-                # pre-exec
-                ${optionalString backup.initialize ''
-                  ${resticCmd} snapshots || ${resticCmd} init
-                ''}
-                ${optionalString (backup.dynamicFilesFrom != null) ''
-                  ${pkgs.writeScript "dynamicFilesFromScript" backup.dynamicFilesFrom} > ${filesFromTmpFile}
-                ''}
+          runRestic = pkgs.writers.writeBash "run-restic" ''
+            ${optionalString (backup.initialize || backup.dynamicFilesFrom != null) ''
+              # pre-exec
+              ${optionalString backup.initialize ''
+                ${resticCmd} snapshots || ${resticCmd} init
               ''}
-
-              # exec
-              ${optionalString (backupPaths != "") ''
-                ${resticCmd} backup ${concatStringsSep " " backup.extraBackupArgs} ${backupPaths}
-              ''}
-              ${builtins.concatStringsSep "\n" pruneCmd}
-
               ${optionalString (backup.dynamicFilesFrom != null) ''
-                # post-exec
-                rm ${filesFromTmpFile}
+                ${pkgs.writeScript "dynamicFilesFromScript" backup.dynamicFilesFrom} > ${filesFromTmpFile}
               ''}
-            '';
-          in
+            ''}
+
+            # exec
+            ${optionalString (backupPaths != "") ''
+              ${resticCmd} backup ${concatStringsSep " " backup.extraBackupArgs} ${backupPaths}
+            ''}
+            ${builtins.concatStringsSep "\n" pruneCmd}
+
+            ${optionalString (backup.dynamicFilesFrom != null) ''
+              # post-exec
+              rm ${filesFromTmpFile}
+            ''}
+          '';
+        in
           nameValuePair "restic-backups-${name}" {
             # command = helpers.swiftMacOSWrapper runRestic;
             # command = ''
@@ -264,23 +276,29 @@ in
             command = pkgs.writers.writeBash "run-restic-with-flock" ''
               ${pkgs.flock}/bin/flock -n /tmp/backup_restic_${name}.lockfile ${runRestic}
             '';
-            environment = {
-              RESTIC_PASSWORD_FILE = backup.passwordFile;
-              RESTIC_REPOSITORY = backup.repository;
-            } // optionalAttrs (backup.rcloneOptions != null) (mapAttrs'
-              (name: value:
-                nameValuePair (rcloneAttrToOpt name) (toRcloneVal value)
-              )
-              backup.rcloneOptions) // optionalAttrs (backup.rcloneConfigFile != null) {
-              RCLONE_CONFIG = backup.rcloneConfigFile;
-            } // optionalAttrs (backup.rcloneConfig != null) (mapAttrs'
-              (name: value:
-                nameValuePair (rcloneAttrToConf name) (toRcloneVal value)
-              )
-              backup.rcloneConfig);
+            environment =
+              {
+                RESTIC_PASSWORD_FILE = backup.passwordFile;
+                RESTIC_REPOSITORY = backup.repository;
+              }
+              // optionalAttrs (backup.rcloneOptions != null) (mapAttrs'
+                (
+                  name: value:
+                    nameValuePair (rcloneAttrToOpt name) (toRcloneVal value)
+                )
+                backup.rcloneOptions)
+              // optionalAttrs (backup.rcloneConfigFile != null) {
+                RCLONE_CONFIG = backup.rcloneConfigFile;
+              }
+              // optionalAttrs (backup.rcloneConfig != null) (mapAttrs'
+                (
+                  name: value:
+                    nameValuePair (rcloneAttrToConf name) (toRcloneVal value)
+                )
+                backup.rcloneConfig);
             serviceConfig = {
               Disabled = false;
-              StartCalendarInterval = [ backup.calendarInterval ];
+              StartCalendarInterval = [backup.calendarInterval];
               ProcessType = "Background";
               RunAtLoad = true;
               LowPriorityIO = true;
@@ -288,22 +306,23 @@ in
               StandardErrorPath = "${backup.logPath}/restic-${name}-error.log";
             };
           }
-        )
-        config.services.restic.backups;
+      )
+      config.services.restic.backups;
 
     environment.etc =
       mapAttrs'
-        (name: backup:
+      (
+        name: backup:
           nameValuePair "newsyslog.d/restic-${name}.conf"
-            {
-              text = ''
-                # logfilename                                [owner:group]   mode   count   size   when  flags
-                ${backup.logPath}/restic-${name}.log         kradalby:staff      750    10      10240  *     NJ
-                ${backup.logPath}/restic-${name}-error.log   kradalby:staff      750    10      10240  *     NJ
+          {
+            text = ''
+              # logfilename                                [owner:group]   mode   count   size   when  flags
+              ${backup.logPath}/restic-${name}.log         kradalby:staff      750    10      10240  *     NJ
+              ${backup.logPath}/restic-${name}-error.log   kradalby:staff      750    10      10240  *     NJ
 
-              '';
-            }
-        )
-        config.services.restic.backups;
+            '';
+          }
+      )
+      config.services.restic.backups;
   };
 }

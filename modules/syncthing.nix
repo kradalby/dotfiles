@@ -1,24 +1,29 @@
-{ config, lib, options, pkgs, ... }:
-
-with lib;
-
-let
-  helpers = import ../common/funcs/helpers.nix { inherit lib pkgs; };
+{
+  config,
+  lib,
+  options,
+  pkgs,
+  ...
+}:
+with lib; let
+  helpers = import ../common/funcs/helpers.nix {inherit lib pkgs;};
 
   cfg = config.services.syncthing;
   opt = options.services.syncthing;
 
-  devices = mapAttrsToList
+  devices =
+    mapAttrsToList
     (name: device: {
       deviceID = device.id;
       inherit (device) name addresses introducer autoAcceptFolders;
     })
     cfg.devices;
 
-  folders = mapAttrsToList
+  folders =
+    mapAttrsToList
     (_: folder: {
       inherit (folder) path id label type;
-      devices = map (device: { deviceId = cfg.devices.${device}.id; }) folder.devices;
+      devices = map (device: {deviceId = cfg.devices.${device}.id;}) folder.devices;
       rescanIntervalS = folder.rescanInterval;
       fsWatcherEnabled = folder.watch;
       fsWatcherDelayS = folder.watchDelay;
@@ -43,35 +48,34 @@ let
     ''}
   '';
 
-  updateConfig =
-    pkgs.writers.writeBash "merge-syncthing-config" ''
-      set -efu
-      # get the api key by parsing the config.xml
-      while
-          ! api_key=$(${pkgs.libxml2}/bin/xmllint \
-              --xpath 'string(configuration/gui/apikey)' \
-              "${cfg.configDir}/config.xml")
-      do sleep 1; done
-      curl() {
-          ${pkgs.curl}/bin/curl -sSLk -H "X-API-Key: $api_key" \
-              --retry 1000 --retry-delay 1 --retry-all-errors \
-              "$@"
-      }
-      # query the old config
-      old_cfg=$(curl ${cfg.guiAddress}/rest/config)
-      # generate the new config by merging with the NixOS config options
-      new_cfg=$(printf '%s\n' "$old_cfg" | ${pkgs.jq}/bin/jq -c '. * {
-          "devices": (${builtins.toJSON devices}${optionalString (! cfg.overrideDevices) " + .devices"}),
-          "folders": (${builtins.toJSON folders}${optionalString (! cfg.overrideFolders) " + .folders"})
-      } * ${builtins.toJSON cfg.extraOptions}')
-      # send the new config
-      curl -X PUT -d "$new_cfg" ${cfg.guiAddress}/rest/config
-      # restart Syncthing if required
-      if curl ${cfg.guiAddress}/rest/config/restart-required |
-         ${pkgs.jq}/bin/jq -e .requiresRestart > /dev/null; then
-          curl -X POST ${cfg.guiAddress}/rest/system/restart
-      fi
-    '';
+  updateConfig = pkgs.writers.writeBash "merge-syncthing-config" ''
+    set -efu
+    # get the api key by parsing the config.xml
+    while
+        ! api_key=$(${pkgs.libxml2}/bin/xmllint \
+            --xpath 'string(configuration/gui/apikey)' \
+            "${cfg.configDir}/config.xml")
+    do sleep 1; done
+    curl() {
+        ${pkgs.curl}/bin/curl -sSLk -H "X-API-Key: $api_key" \
+            --retry 1000 --retry-delay 1 --retry-all-errors \
+            "$@"
+    }
+    # query the old config
+    old_cfg=$(curl ${cfg.guiAddress}/rest/config)
+    # generate the new config by merging with the NixOS config options
+    new_cfg=$(printf '%s\n' "$old_cfg" | ${pkgs.jq}/bin/jq -c '. * {
+        "devices": (${builtins.toJSON devices}${optionalString (! cfg.overrideDevices) " + .devices"}),
+        "folders": (${builtins.toJSON folders}${optionalString (! cfg.overrideFolders) " + .folders"})
+    } * ${builtins.toJSON cfg.extraOptions}')
+    # send the new config
+    curl -X PUT -d "$new_cfg" ${cfg.guiAddress}/rest/config
+    # restart Syncthing if required
+    if curl ${cfg.guiAddress}/rest/config/restart-required |
+       ${pkgs.jq}/bin/jq -e .requiresRestart > /dev/null; then
+        curl -X POST ${cfg.guiAddress}/rest/system/restart
+    fi
+  '';
 
   syncthingScript = pkgs.writers.writeBash "run-syncthing" ''
     ${optionalString (cfg.cert != null || cfg.key != null) ''
@@ -83,13 +87,12 @@ let
       -gui-address=${cfg.guiAddress} \
       -home="${cfg.configDir}" ${escapeShellArgs cfg.extraFlags}
   '';
-in
-{
+in {
   ###### interface
   options = {
     services.syncthing = {
-
-      enable = mkEnableOption
+      enable =
+        mkEnableOption
         "Syncthing, a self-hosted open-source alternative to Dropbox and Bittorrent Sync";
 
       # cert = mkOption {
@@ -122,7 +125,7 @@ in
       };
 
       devices = mkOption {
-        default = { };
+        default = {};
         description = ''
           Peers/devices which Syncthing should communicate with.
           Note that you can still add devices manually, but those changes
@@ -132,12 +135,11 @@ in
         example = {
           bigbox = {
             id = "7CFNTQM-IMTJBHJ-3UWRDIU-ZGQJFR6-VCXZ3NB-XUH3KZO-N52ITXR-LAIYUAU";
-            addresses = [ "tcp://192.168.0.10:51820" ];
+            addresses = ["tcp://192.168.0.10:51820"];
           };
         };
-        type = types.attrsOf (types.submodule ({ name, ... }: {
+        type = types.attrsOf (types.submodule ({name, ...}: {
           options = {
-
             name = mkOption {
               type = types.str;
               default = name;
@@ -148,7 +150,7 @@ in
 
             addresses = mkOption {
               type = types.listOf types.str;
-              default = [ ];
+              default = [];
               description = ''
                 The addresses used to connect to the device.
                 If this is left empty, dynamic configuration is attempted.
@@ -180,7 +182,6 @@ in
                 See <link xlink:href="https://docs.syncthing.net/users/config.html?highlight=autoaccept#config-file-format"/>.
               '';
             };
-
           };
         }));
       };
@@ -197,7 +198,7 @@ in
       };
 
       folders = mkOption {
-        default = { };
+        default = {};
         description = ''
           Folders which should be shared by Syncthing.
           Note that you can still add devices manually, but those changes
@@ -212,9 +213,8 @@ in
             };
           }
         '';
-        type = types.attrsOf (types.submodule ({ name, ... }: {
+        type = types.attrsOf (types.submodule ({name, ...}: {
           options = {
-
             enable = mkOption {
               type = types.bool;
               default = true;
@@ -251,7 +251,7 @@ in
 
             devices = mkOption {
               type = types.listOf types.str;
-              default = [ ];
+              default = [];
               description = ''
                 The devices this folder should be shared with. Each device must
                 be defined in the <link linkend="opt-services.syncthing.devices">devices</link> option.
@@ -301,25 +301,26 @@ in
                   }
                 ]
               '';
-              type = with types; nullOr (submodule {
-                options = {
-                  type = mkOption {
-                    type = enum [ "external" "simple" "staggered" "trashcan" ];
-                    description = ''
-                      The type of versioning.
-                      See <link xlink:href="https://docs.syncthing.net/users/versioning.html"/>.
-                    '';
+              type = with types;
+                nullOr (submodule {
+                  options = {
+                    type = mkOption {
+                      type = enum ["external" "simple" "staggered" "trashcan"];
+                      description = ''
+                        The type of versioning.
+                        See <link xlink:href="https://docs.syncthing.net/users/versioning.html"/>.
+                      '';
+                    };
+                    params = mkOption {
+                      type = attrsOf (either str path);
+                      description = ''
+                        The parameters for versioning. Structure depends on
+                        <link linkend="opt-services.syncthing.folders._name_.versioning.type">versioning.type</link>.
+                        See <link xlink:href="https://docs.syncthing.net/users/versioning.html"/>.
+                      '';
+                    };
                   };
-                  params = mkOption {
-                    type = attrsOf (either str path);
-                    description = ''
-                      The parameters for versioning. Structure depends on
-                      <link linkend="opt-services.syncthing.folders._name_.versioning.type">versioning.type</link>.
-                      See <link xlink:href="https://docs.syncthing.net/users/versioning.html"/>.
-                    '';
-                  };
-                };
-              });
+                });
             };
 
             rescanInterval = mkOption {
@@ -331,7 +332,7 @@ in
             };
 
             type = mkOption {
-              type = types.enum [ "sendreceive" "sendonly" "receiveonly" ];
+              type = types.enum ["sendreceive" "sendonly" "receiveonly"];
               default = "sendreceive";
               description = ''
                 Whether to only send changes for this folder, only receive them
@@ -376,8 +377,8 @@ in
       };
 
       extraOptions = mkOption {
-        type = types.addCheck (pkgs.formats.json { }).type isAttrs;
-        default = { };
+        type = types.addCheck (pkgs.formats.json {}).type isAttrs;
+        default = {};
         description = ''
           Extra configuration options for Syncthing.
           See <link xlink:href="https://docs.syncthing.net/users/config.html"/>.
@@ -433,39 +434,38 @@ in
         '';
       };
 
-      configDir =
-        mkOption {
-          type = types.path;
-          description = ''
-            The path where the settings and keys will exist.
-          '';
-          default = cfg.dataDir + "/.config/syncthing";
-          defaultText = literalDocBook ''
-            <variablelist>
-              <varlistentry>
-                <term><literal>stateVersion >= 19.03</literal></term>
-                <listitem>
-                  <programlisting>
-                    config.${opt.dataDir} + "/.config/syncthing"
-                  </programlisting>
-                </listitem>
-              </varlistentry>
-              <varlistentry>
-                <term>otherwise</term>
-                <listitem>
-                  <programlisting>
-                    config.${opt.dataDir}
-                  </programlisting>
-                </listitem>
-              </varlistentry>
-            </variablelist>
-          '';
-        };
+      configDir = mkOption {
+        type = types.path;
+        description = ''
+          The path where the settings and keys will exist.
+        '';
+        default = cfg.dataDir + "/.config/syncthing";
+        defaultText = literalDocBook ''
+          <variablelist>
+            <varlistentry>
+              <term><literal>stateVersion >= 19.03</literal></term>
+              <listitem>
+                <programlisting>
+                  config.${opt.dataDir} + "/.config/syncthing"
+                </programlisting>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>otherwise</term>
+              <listitem>
+                <programlisting>
+                  config.${opt.dataDir}
+                </programlisting>
+              </listitem>
+            </varlistentry>
+          </variablelist>
+        '';
+      };
 
       extraFlags = mkOption {
         type = types.listOf types.str;
-        default = [ ];
-        example = [ "--reset-deltas" ];
+        default = [];
+        example = ["--reset-deltas"];
         description = ''
           Extra flags passed to the syncthing command in the service definition.
         '';
@@ -503,13 +503,12 @@ in
       syncthing = {
         # Syncthing will have to be added manually to "Allow disk access" in
         # system preferences
-        command =
-          ''
-            ${cfg.package}/bin/syncthing \
-              -no-browser \
-              -gui-address=${cfg.guiAddress} \
-              -home="${cfg.configDir}" ${escapeShellArgs cfg.extraFlags}
-          '';
+        command = ''
+          ${cfg.package}/bin/syncthing \
+            -no-browser \
+            -gui-address=${cfg.guiAddress} \
+            -home="${cfg.configDir}" ${escapeShellArgs cfg.extraFlags}
+        '';
         environment = {
           STNORESTART = "yes";
           STNOUPGRADE = "yes";
@@ -517,35 +516,35 @@ in
         serviceConfig = {
           ProcessType = "Background";
           RunAtLoad = true;
-          KeepAlive = { SuccessfulExit = false; };
+          KeepAlive = {SuccessfulExit = false;};
           LowPriorityIO = true;
           StandardOutPath = "${cfg.dataDir}/Library/Logs/syncthing.log";
           StandardErrorPath = "${cfg.dataDir}/Library/Logs/syncthing-error.log";
         };
       };
 
-      syncthing-init = mkIf
+      syncthing-init =
+        mkIf
         (
-          cfg.devices != { } || cfg.folders != { } || cfg.extraOptions != { }
+          cfg.devices != {} || cfg.folders != {} || cfg.extraOptions != {}
         )
         {
           command = updateConfig;
           serviceConfig = {
             ProcessType = "Background";
             RunAtLoad = true;
-            KeepAlive = { SuccessfulExit = false; };
+            KeepAlive = {SuccessfulExit = false;};
             StandardOutPath = "${cfg.dataDir}/Library/Logs/syncthing-init.log";
             StandardErrorPath = "${cfg.dataDir}/Library/Logs/syncthing-init-error.log";
           };
         };
     };
-    environment.etc."newsyslog.d/syncthing.conf".text =
-      ''
-        # logfilename                                          [owner:group]   mode   count   size   when  flags
-        ${cfg.dataDir}/Library/Logs/syncthing.log              kradalby:staff      750    10      10240  *     NJ
-        ${cfg.dataDir}/Library/Logs/syncthing-error.log        kradalby:staff      750    10      10240  *     NJ
-        ${cfg.dataDir}/Library/Logs/syncthing-init.log         kradalby:staff      750    10      10240  *     NJ
-        ${cfg.dataDir}/Library/Logs/syncthing-init-error.log   kradalby:staff      750    10      10240  *     NJ
-      '';
+    environment.etc."newsyslog.d/syncthing.conf".text = ''
+      # logfilename                                          [owner:group]   mode   count   size   when  flags
+      ${cfg.dataDir}/Library/Logs/syncthing.log              kradalby:staff      750    10      10240  *     NJ
+      ${cfg.dataDir}/Library/Logs/syncthing-error.log        kradalby:staff      750    10      10240  *     NJ
+      ${cfg.dataDir}/Library/Logs/syncthing-init.log         kradalby:staff      750    10      10240  *     NJ
+      ${cfg.dataDir}/Library/Logs/syncthing-init-error.log   kradalby:staff      750    10      10240  *     NJ
+    '';
   };
 }

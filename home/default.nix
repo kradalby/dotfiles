@@ -1,10 +1,13 @@
-{ config, pkgs, lib, ... }: {
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}: {
   # Available options
   # https://nix-community.github.io/home-manager/options.html
 
-
   home = {
-
     stateVersion = "22.05";
 
     sessionPath = [
@@ -61,7 +64,6 @@
       ctype = "";
     };
 
-
     file = {
       ".alacritty.yml".source = ../rc/alacritty.yml;
       ".ansible.cfg".source = ../rc/ansible.cfg;
@@ -89,9 +91,12 @@
 
       # nvim.sqlite needs to know where to find libsqlite3
       ".config/nvim/lua/nix.lua".text = ''
-        vim.g.sqlite_clib_path = "${pkgs.sqlite.out}/lib/${if pkgs.stdenv.isDarwin then "libsqlite3.dylib" else "libsqlite3.so"}"
+        vim.g.sqlite_clib_path = "${pkgs.sqlite.out}/lib/${
+          if pkgs.stdenv.isDarwin
+          then "libsqlite3.dylib"
+          else "libsqlite3.so"
+        }"
       '';
-
 
       ".ssh/config" = {
         source = ../rc/ssh/config;
@@ -108,6 +113,19 @@
 
       ".config/nix/nix.conf".text = ''
         experimental-features = nix-command flakes
+      '';
+
+      ".vale.ini".text = ''
+        # This goes in a file named either `.vale.ini` or `_vale.ini`.
+        StylesPath = styles
+        MinAlertLevel = suggestion
+
+        # External packages
+        Packages = Google, Readability, alex, proselint
+        # Only Markdown and .txt files; change to whatever you're using.
+        [*.{md,txt}]
+        # List of styles to load.
+        BasedOnStyles = alex, proselint
       '';
     };
   };

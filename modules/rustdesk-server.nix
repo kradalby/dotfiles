@@ -1,12 +1,12 @@
-{ config, pkgs, lib, ... }:
-
-with lib;
-
-let
-  cfg = config.services.rustdesk-server;
-in
 {
-
+  config,
+  pkgs,
+  lib,
+  ...
+}:
+with lib; let
+  cfg = config.services.rustdesk-server;
+in {
   options.services.rustdesk-server = {
     enable = mkEnableOption "Rustdesk server";
 
@@ -47,16 +47,16 @@ in
   };
 
   config = mkIf cfg.enable {
-    networking.firewall.allowedTCPPorts = mkIf cfg.openFirewall [ 21115 21116 21117 21118 21119 ];
-    networking.firewall.allowedUDPPorts = mkIf cfg.openFirewall [ 21116 ];
+    networking.firewall.allowedTCPPorts = mkIf cfg.openFirewall [21115 21116 21117 21118 21119];
+    networking.firewall.allowedUDPPorts = mkIf cfg.openFirewall [21116];
 
     systemd.services.rustdesk-server-hbbs = {
       enable = true;
       script = ''
         ${cfg.package}/bin/hbbs -r ${cfg.domain}:21117
       '';
-      wantedBy = [ "multi-user.target" "docker-rustdesk-server.service" ];
-      after = [ "network-online.target" ];
+      wantedBy = ["multi-user.target" "docker-rustdesk-server.service"];
+      after = ["network-online.target"];
       serviceConfig = {
         User = cfg.user;
         Group = cfg.group;
@@ -64,8 +64,8 @@ in
         RestartSec = "15";
         WorkingDirectory = "${cfg.dataDir}";
       };
-      path = [ cfg.package ];
-      environment = { };
+      path = [cfg.package];
+      environment = {};
     };
 
     systemd.services.rustdesk-server-hbbr = {
@@ -73,8 +73,8 @@ in
       script = ''
         ${cfg.package}/bin/hbbr
       '';
-      wantedBy = [ "multi-user.target" "docker-rustdesk-server.service" ];
-      after = [ "network-online.target" ];
+      wantedBy = ["multi-user.target" "docker-rustdesk-server.service"];
+      after = ["network-online.target"];
       serviceConfig = {
         User = cfg.user;
         Group = cfg.group;
@@ -82,10 +82,9 @@ in
         RestartSec = "15";
         WorkingDirectory = "${cfg.dataDir}";
       };
-      path = [ cfg.package ];
+      path = [cfg.package];
       environment = {
         ENCRYPTED_ONLY = "1";
-
       };
     };
   };

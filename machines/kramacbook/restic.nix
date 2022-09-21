@@ -1,7 +1,13 @@
-{ config, flakes, pkgs, lib, stdenv, ... }:
-let
-  restic = import ../../common/funcs/restic.nix { inherit config lib pkgs; };
-  helpers = import ../../common/funcs/helpers.nix { inherit pkgs lib; };
+{
+  config,
+  flakes,
+  pkgs,
+  lib,
+  stdenv,
+  ...
+}: let
+  restic = import ../../common/funcs/restic.nix {inherit config lib pkgs;};
+  helpers = import ../../common/funcs/helpers.nix {inherit pkgs lib;};
 
   paths = [
     # We do not have perms to backup these folders
@@ -25,13 +31,11 @@ let
     inherit site;
     inherit paths;
   };
-
-
 in
-{
-  imports = [ ../../modules/restic.nix ];
-} //
-lib.mkMerge [
-  # (restic.backupJob (cfg "tjoda"))
-  # (restic.backupJob (cfg "terra"))
-]
+  {
+    imports = [../../modules/restic.nix];
+  }
+  // lib.mkMerge [
+    # (restic.backupJob (cfg "tjoda"))
+    # (restic.backupJob (cfg "terra"))
+  ]

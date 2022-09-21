@@ -1,5 +1,10 @@
-{ config, pkgs, lib, system, ... }:
-let
+{
+  config,
+  pkgs,
+  lib,
+  system,
+  ...
+}: let
   domain = "homebridge.${config.networking.domain}";
 
   dataDir = "/var/lib/homebridge";
@@ -21,22 +26,21 @@ let
     ref = "master";
     rev = "c09fe38ce0ae58f1c9216b9dfcb7e05d641eebbe";
   };
-in
-{
+in {
   users.users.homebridge = {
     home = dataDir;
     createHome = true;
     group = "homebridge";
-    extraGroups = [ "video" ];
+    extraGroups = ["video"];
     isSystemUser = false;
     isNormalUser = true;
     description = "Home Bridge";
   };
 
-  users.groups.homebridge = { };
+  users.groups.homebridge = {};
 
-  networking.firewall.allowedTCPPorts = [ homebridgeConfig.bridge.port ];
-  networking.firewall.allowedUDPPorts = [ homebridgeConfig.bridge.port 1900 5350 5351 5353 ];
+  networking.firewall.allowedTCPPorts = [homebridgeConfig.bridge.port];
+  networking.firewall.allowedUDPPorts = [homebridgeConfig.bridge.port 1900 5350 5351 5353];
 
   systemd.services.homebridge = {
     enable = true;
@@ -44,26 +48,26 @@ in
     #   enable = true;
     #   mode = "chroot-only";
     # };
-    restartTriggers = [ pkgs.homebridge ];
+    restartTriggers = [pkgs.homebridge];
     script = "exec ${pkgs.homebridge}/bin/homebridge";
-    wantedBy = [ "multi-user.target" ];
-    after = [ "network.target" "zigbee2mqtt.service" "mosquitto.service" ];
+    wantedBy = ["multi-user.target"];
+    after = ["network.target" "zigbee2mqtt.service" "mosquitto.service"];
     serviceConfig = {
       User = "homebridge";
       Restart = "always";
       RestartSec = "15";
       # CapabilityBoundingSet = "CAP_NET_RAW";
       AmbientCapabilities = "CAP_NET_RAW";
-      DeviceAllow = [ "/dev/v4l/by-id/usb-046d_0825_A4221F10-video-index0" ];
+      DeviceAllow = ["/dev/v4l/by-id/usb-046d_0825_A4221F10-video-index0"];
     };
-    path = [ pkgs.ffmpeg ];
+    path = [pkgs.ffmpeg];
     environment = {
       HOMEBRIDGE_INSECURE = "1";
       HOMEBRIDGE_CONFIG_UI = "1";
-      HOMEBRIDGE_CONFIG_UI_PORT = (toString homebridgeUIPort);
+      HOMEBRIDGE_CONFIG_UI_PORT = toString homebridgeUIPort;
     };
 
-    onFailure = [ "notify-discord@%n.service" ];
+    onFailure = ["notify-discord@%n.service"];
 
     preStart = ''
       ln -sf ${configFile} ${dataDir}/config.json
@@ -71,7 +75,6 @@ in
       ln -sf ${tradfriCodec}/tradfri-codec.js ${dataDir}/tradfri-codec.js
     '';
   };
-
 
   # virtualisation.oci-containers.containers.homebridge = {
   #   image = "oznu/homebridge:no-avahi-arm64v8";

@@ -1,9 +1,13 @@
-{ config, flakes, pkgs, lib, ... }:
-let
-  network = import ../../common/funcs/network.nix { inherit lib pkgs; };
-  s = import ../../metadata/sites.nix { inherit lib config; };
-in
 {
+  config,
+  flakes,
+  pkgs,
+  lib,
+  ...
+}: let
+  network = import ../../common/funcs/network.nix {inherit lib pkgs;};
+  s = import ../../metadata/sites.nix {inherit lib config;};
+in {
   imports = [
     ../../common
     ./hardware-configuration.nix
@@ -13,7 +17,8 @@ in
 
   my.lan = "ens3";
 
-  networking = network.base
+  networking =
+    network.base
     {
       hostName = "k3m1";
       interface = config.my.lan;
@@ -22,8 +27,7 @@ in
     };
 
   # TODO: Remove when terra has consul
-  services.consul.extraConfig.retry_join = [ ];
-
+  services.consul.extraConfig.retry_join = [];
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions

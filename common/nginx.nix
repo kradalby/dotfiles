@@ -1,16 +1,34 @@
-{ config, lib, pkgs, ... }:
-let
-  consul = import ./funcs/consul.nix { inherit lib; };
-in
 {
-
+  config,
+  lib,
+  pkgs,
+  ...
+}: let
+  consul = import ./funcs/consul.nix {inherit lib;};
+in {
   options.services.nginx.virtualHosts = lib.mkOption {
     type = lib.types.attrsOf (lib.types.submodule {
       config.listen = lib.mkDefault [
-        { addr = "0.0.0.0"; port = 80; ssl = false; }
-        { addr = "0.0.0.0"; port = 60443; ssl = true; }
-        { addr = "[::]"; port = 80; ssl = false; }
-        { addr = "[::]"; port = 60443; ssl = true; }
+        {
+          addr = "0.0.0.0";
+          port = 80;
+          ssl = false;
+        }
+        {
+          addr = "0.0.0.0";
+          port = 60443;
+          ssl = true;
+        }
+        {
+          addr = "[::]";
+          port = 80;
+          ssl = false;
+        }
+        {
+          addr = "[::]";
+          port = 60443;
+          ssl = true;
+        }
       ];
     });
   };
@@ -21,7 +39,6 @@ in
 
   config = {
     services.nginx = {
-
       enable = true;
       package = pkgs.nginx;
 
@@ -67,16 +84,16 @@ in
       '';
     };
 
-    systemd.services.nginx.onFailure = [ "notify-discord@%n.service" ];
+    systemd.services.nginx.onFailure = ["notify-discord@%n.service"];
 
-    networking.firewall.allowedTCPPorts = [ 80 ];
+    networking.firewall.allowedTCPPorts = [80];
 
     services.prometheus.exporters.nginx = {
       enable = true;
       openFirewall = true;
     };
 
-    systemd.services."prometheus-nginx-exporter".onFailure = [ "notify-discord@%n.service" ];
+    systemd.services."prometheus-nginx-exporter".onFailure = ["notify-discord@%n.service"];
 
     my.consulServices.nginx_exporter = consul.prometheusExporter "nginx" config.services.prometheus.exporters.nginx.port;
 
@@ -88,33 +105,31 @@ in
       user = "nginx";
 
       settings = {
-        namespaces =
-          let
-            # format = ''
-            #   $remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent"
-            # '';
-
-            mkApp = domain: {
-              name = domain;
-              metrics_override = { prefix = "nginxlog"; };
-              source.files = [ "/var/log/nginx/${domain}.access.log" ];
-              namespace_label = "vhost";
-            };
-          in
+        namespaces = let
+          # format = ''
+          #   $remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent"
+          # '';
+          mkApp = domain: {
+            name = domain;
+            metrics_override = {prefix = "nginxlog";};
+            source.files = ["/var/log/nginx/${domain}.access.log"];
+            namespace_label = "vhost";
+          };
+        in
           [
             {
               name = "catch";
-              metrics_override = { prefix = "nginxlog"; };
-              source.files = [ "/var/log/nginx/access.log" ];
+              metrics_override = {prefix = "nginxlog";};
+              source.files = ["/var/log/nginx/access.log"];
               namespace_label = "vhost";
             }
-          ] ++ builtins.map mkApp (builtins.attrNames config.services.nginx.virtualHosts);
+          ]
+          ++ builtins.map mkApp (builtins.attrNames config.services.nginx.virtualHosts);
       };
     };
 
-    systemd.services."prometheus-nginxlog-exporter".onFailure = [ "notify-discord@%n.service" ];
+    systemd.services."prometheus-nginxlog-exporter".onFailure = ["notify-discord@%n.service"];
 
     my.consulServices.nginxlog_exporter = consul.prometheusExporter "nginxlog" config.services.prometheus.exporters.nginxlog.port;
   };
-
 }

@@ -1,5 +1,10 @@
-{ config, flakes, pkgs, lib, ... }:
 {
+  config,
+  flakes,
+  pkgs,
+  lib,
+  ...
+}: {
   imports = [
     ../../common
     ./hardware-configuration.nix
@@ -11,7 +16,6 @@
     ../../common/coredns.nix
     ../../common/consul-server.nix
 
-
     ./restic.nix
     ./wireguard.nix
     ./tailscale.nix
@@ -21,7 +25,6 @@
 
   my.wan = "enp0s3";
   my.lan = "enp1s0";
-
 
   networking = {
     hostName = "dev";
@@ -39,7 +42,10 @@
       ${config.my.lan} = {
         useDHCP = false;
         ipv4.addresses = [
-          { address = "10.67.0.1"; prefixLength = 24; }
+          {
+            address = "10.67.0.1";
+            prefixLength = 24;
+          }
         ];
         tempAddress = "disabled";
       };
@@ -48,12 +54,24 @@
     nat = {
       enable = true;
       externalInterface = config.my.wan;
-      internalIPs = [ "10.0.0.0/8" ];
-      internalInterfaces = [ config.my.lan "iot" ];
+      internalIPs = ["10.0.0.0/8"];
+      internalInterfaces = [config.my.lan "iot"];
       forwardPorts = [
-        { sourcePort = 64322; destination = "10.67.0.1:22"; proto = "tcp"; }
-        { sourcePort = 500; destination = "10.67.0.1:51820"; proto = "udp"; }
-        { sourcePort = 4500; destination = "10.67.0.1:51820"; proto = "udp"; }
+        {
+          sourcePort = 64322;
+          destination = "10.67.0.1:22";
+          proto = "tcp";
+        }
+        {
+          sourcePort = 500;
+          destination = "10.67.0.1:51820";
+          proto = "udp";
+        }
+        {
+          sourcePort = 4500;
+          destination = "10.67.0.1:51820";
+          proto = "udp";
+        }
       ];
     };
 
@@ -74,13 +92,11 @@
         config.networking.wireguard.interfaces.wg0.listenPort
       ];
 
-      trustedInterfaces = [ config.my.lan ];
+      trustedInterfaces = [config.my.lan];
     };
   };
 
-
   virtualisation.docker.enable = true;
-
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions

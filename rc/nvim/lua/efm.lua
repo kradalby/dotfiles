@@ -140,7 +140,7 @@ M.languages = {
     yaml = {M.yamllint, M.prettier},
     ["yaml.ansible"] = {M.yamllint, M.prettier},
     proto = {M.clangfmtproto, M.buf_lint},
-    rust = {M.rustfmt}
+    rust = {M.rustfmt},
     -- nix = {M.nixpkgs}
 }
 

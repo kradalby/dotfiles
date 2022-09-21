@@ -1,6 +1,10 @@
-{ pkgs, config, lib, ... }:
-with lib;
-let
+{
+  pkgs,
+  config,
+  lib,
+  ...
+}:
+with lib; let
   blockDownloader = ''
     HOSTS_FILE="${config.services.blocklist-downloader.dataDir}/${config.services.blocklist-downloader.fileName}"
     HOSTS_FILES="$HOSTS_FILE.d"
@@ -51,11 +55,11 @@ let
     download "https://raw.githubusercontent.com/StevenBlack/hosts/master/data/add.Risk/hosts"
 
     # kradalby's pihole migration
-    download https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts 
+    download https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts
     download https://raw.githubusercontent.com/kboghdady/youTube_ads_4_pi-hole/master/youtubelist.txt
     download https://www.github.developerdan.com/hosts/lists/amp-hosts-extended.txt
-    download https://www.github.developerdan.com/hosts/lists/ads-and-tracking-extended.txt 
-    download https://www.github.developerdan.com/hosts/lists/dating-services-extended.txt 
+    download https://www.github.developerdan.com/hosts/lists/ads-and-tracking-extended.txt
+    download https://www.github.developerdan.com/hosts/lists/dating-services-extended.txt
     download https://pgl.yoyo.org/adservers/serverlist.php?hostformat=hosts&showintro=0&mimetype=plaintext
 
     cat "$HOSTS_FILES"/* | \
@@ -78,8 +82,7 @@ let
 
     ${pkgs.systemd}/bin/systemctl reload ${config.services.blocklist-downloader.dnsService}
   '';
-in
-{
+in {
   options = {
     services.blocklist-downloader = {
       enable = mkEnableOption "Enable blocklist downloader";
@@ -97,7 +100,8 @@ in
           File name of compiled blocklist
         '';
       };
-      dnsService = mkOption
+      dnsService =
+        mkOption
         {
           type = types.str;
           default = "coredns.service";
@@ -118,14 +122,14 @@ in
         PrivateTmp = true;
       };
       script = blockDownloader;
-      wants = [ "network-online.target" config.services.blocklist-downloader.dnsService ];
-      after = [ "network-online.target" config.services.blocklist-downloader.dnsService ];
-      wantedBy = [ "multi-user.target" ];
+      wants = ["network-online.target" config.services.blocklist-downloader.dnsService];
+      after = ["network-online.target" config.services.blocklist-downloader.dnsService];
+      wantedBy = ["multi-user.target"];
     };
 
     systemd.timers.blocklist-download = {
-      wantedBy = [ "timers.target" ];
-      partOf = [ "blocklist-download.service" ];
+      wantedBy = ["timers.target"];
+      partOf = ["blocklist-download.service"];
       timerConfig.OnCalendar = "daily";
     };
   };

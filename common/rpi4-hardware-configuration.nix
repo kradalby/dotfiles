@@ -1,10 +1,13 @@
-{ pkgs, lib, config, ... }: {
-
-
+{
+  pkgs,
+  lib,
+  config,
+  ...
+}: {
   boot = {
     kernelPackages = pkgs.linuxPackages_rpi4;
     tmpOnTmpfs = true;
-    initrd.availableKernelModules = [ "xhci_pci" "uas" "usbhid" "usb_storage" ];
+    initrd.availableKernelModules = ["xhci_pci" "uas" "usbhid" "usb_storage"];
     # ttyAMA0 is the serial console broken out to the GPIO
     kernelParams = [
       "8250.nr_uarts=1"
@@ -31,7 +34,7 @@
     "/" = {
       device = "/dev/disk/by-label/NIXOS_SD";
       fsType = "ext4";
-      options = [ "noatime" ];
+      options = ["noatime"];
     };
     "/boot/firmware" = {
       device = "/dev/disk/by-label/FIRMWARE";
@@ -39,9 +42,7 @@
       # Alternatively, this could be removed from the configuration.
       # The filesystem is not needed at runtime, it could be treated
       # as an opaque blob instead of a discrete FAT32 filesystem.
-      options = [ "nofail" "noauto" ];
+      options = ["nofail" "noauto"];
     };
   };
-
-
 }

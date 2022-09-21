@@ -1,14 +1,15 @@
-{ config, lib, ... }:
-with lib builtins;
-let
+{
+  config,
+  lib,
+  ...
+}:
+with lib builtins; let
   domain = "consul.${config.networking.domain}";
 
-  s = import ../metadata/sites.nix { inherit lib config; };
+  s = import ../metadata/sites.nix {inherit lib config;};
   peers = s.consulPeers;
-in
-{
-
-  imports = [ ./consul.nix ];
+in {
+  imports = [./consul.nix];
 
   services.consul = {
     enable = true;
@@ -20,7 +21,7 @@ in
 
       bind_addr = ''{{ GetInterfaceIP "${config.my.lan}" }}'';
 
-      retry_join = [ ];
+      retry_join = [];
       retry_join_wan = builtins.attrValues peers;
 
       connect = {
@@ -42,5 +43,4 @@ in
       access_log /var/log/nginx/${domain}.access.log;
     '';
   };
-
 }

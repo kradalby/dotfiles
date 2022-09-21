@@ -1,10 +1,15 @@
-{ config, pkgs, lib, system, ... }:
-let
+{
+  config,
+  pkgs,
+  lib,
+  system,
+  ...
+}: let
   domain = "scrypted.${config.networking.domain}";
 
   dataDir = "/var/lib/scrypted";
 
-  scryptedPackages = import ../../modules/scrypted/override.nix { inherit pkgs system; };
+  scryptedPackages = import ../../modules/scrypted/override.nix {inherit pkgs system;};
   packageModulePath = package: "${package}/lib/node_modules/";
   nodeModulePaths = map packageModulePath (builtins.attrValues scryptedPackages);
   nodePath = builtins.concatStringsSep ":" nodeModulePaths;
@@ -22,8 +27,7 @@ let
       chmod +x $out/bin/scrypted
     '';
   };
-in
-{
+in {
   users.users.scrypted = {
     home = dataDir;
     createHome = true;
@@ -33,17 +37,17 @@ in
     description = "Home Bridge";
   };
 
-  users.groups.scrypted = { };
+  users.groups.scrypted = {};
 
   # networking.firewall.allowedTCPPorts = [ scryptedConfig.bridge.port ];
   # networking.firewall.allowedUDPPorts = [ scryptedConfig.bridge.port 1900 5350 5351 5353 ];
 
   systemd.services.scrypted = {
     enable = true;
-    restartTriggers = [ scryptedWrapped ];
+    restartTriggers = [scryptedWrapped];
     script = "exec ${scryptedWrapped}/bin/scrypted";
-    wantedBy = [ "multi-user.target" ];
-    after = [ "network.target" ];
+    wantedBy = ["multi-user.target"];
+    after = ["network.target"];
     serviceConfig = {
       User = "scrypted";
       Restart = "always";
@@ -51,9 +55,9 @@ in
       # CapabilityBoundingSet = "CAP_NET_RAW";
       AmbientCapabilities = "CAP_NET_RAW";
     };
-    environment = { };
+    environment = {};
 
-    onFailure = [ "notify-discord@%n.service" ];
+    onFailure = ["notify-discord@%n.service"];
 
     # preStart = ''
     #   cp -f ${configFile} ${dataDir}/config.json

@@ -1,9 +1,9 @@
-{ pkgs
-, lib
-  # , flakes
-, ...
-}:
 {
+  pkgs,
+  lib,
+  # , flakes
+  ...
+}: {
   home.packages = with pkgs; [
     # Workstation
     drone-cli

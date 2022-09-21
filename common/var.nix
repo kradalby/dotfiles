@@ -1,4 +1,8 @@
-{ config, lib, ... }: {
+{
+  config,
+  lib,
+  ...
+}: {
   options = {
     my.shellAliases = lib.mkOption {
       type = lib.types.attrsOf lib.types.anything;
@@ -86,14 +90,11 @@
         ju = "journalctl -u";
         jfu = "journalctl -fu";
 
-
         m = "make";
         n = "nvim";
         o = "open";
         p = "python3";
-
       };
     };
   };
-
 }

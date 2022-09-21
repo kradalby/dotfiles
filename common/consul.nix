@@ -1,8 +1,13 @@
-{ pkgs, config, lib, ... }: {
+{
+  pkgs,
+  config,
+  lib,
+  ...
+}: {
   options = {
     my.consulServices = lib.mkOption {
       type = lib.types.attrsOf lib.types.anything;
-      default = { };
+      default = {};
     };
   };
 
@@ -15,9 +20,9 @@
         node_name = config.networking.hostName;
         server = lib.mkDefault false;
         log_level = "DEBUG";
-        datacenter = builtins.replaceStrings [ ".fap.no" ] [ "" ] config.networking.domain;
+        datacenter = builtins.replaceStrings [".fap.no"] [""] config.networking.domain;
 
-        retry_join = lib.mkDefault [ config.networking.defaultGateway.address ];
+        retry_join = lib.mkDefault [config.networking.defaultGateway.address];
 
         # addresses = {
         #   http = "127.0.0.1";
@@ -37,10 +42,9 @@
 
         services = builtins.attrValues config.my.consulServices;
       };
-
     };
 
-    systemd.services.consul.onFailure = [ "notify-discord@%n.service" ];
+    systemd.services.consul.onFailure = ["notify-discord@%n.service"];
 
     networking.firewall.allowedTCPPorts = [
       8600 # DNS server
@@ -55,5 +59,4 @@
       8302 # Serf Discovery WAN
     ];
   };
-
 }

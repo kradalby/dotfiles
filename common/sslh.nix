@@ -1,7 +1,10 @@
-{ lib, config, ... }:
-with lib;
 {
-  imports = [ ../modules/sslh.nix ];
+  lib,
+  config,
+  ...
+}:
+with lib; {
+  imports = [../modules/sslh.nix];
 
   config = {
     services.sslh2 = {
@@ -23,8 +26,7 @@ with lib;
       '';
     };
 
-    networking.firewall.allowedTCPPorts = [ 443 ];
-    networking.firewall.allowedUDPPorts = [ 443 ];
+    networking.firewall.allowedTCPPorts = [443];
+    networking.firewall.allowedUDPPorts = [443];
   };
-
 }

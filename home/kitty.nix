@@ -1,5 +1,8 @@
-{ pkgs, config, ... }:
 {
+  pkgs,
+  config,
+  ...
+}: {
   # programs.kitty = {
   #   enable = pkgs.stdenv.isDarwin;
   #   darwinLaunchOptions =

@@ -1,7 +1,10 @@
-{ pkgs, lib, config, ... }:
 {
-
-  imports = [ ../common/var.nix ];
+  pkgs,
+  lib,
+  config,
+  ...
+}: {
+  imports = [../common/var.nix];
 
   programs.fish = {
     enable = true;
@@ -37,27 +40,23 @@
       }
     ];
 
-
     # for p in /run/current-system/sw/bin
     #   if not contains $p $fish_user_paths
     #     set -g fish_user_paths $p $fish_user_paths
     #   end
     # end
 
-    loginShellInit =
-      let
-        fishReorderPath = path:
-          "fish_add_path --move --prepend ${path}";
+    loginShellInit = let
+      fishReorderPath = path: "fish_add_path --move --prepend ${path}";
 
-        path = [
-          (fishReorderPath "/nix/var/nix/profiles/default/bin")
-          (fishReorderPath "/etc/profiles/per-user/$USER/bin")
-          (fishReorderPath "/run/current-system/sw/bin")
-        ];
-      in
-      ''
-        ${builtins.concatStringsSep "\n" path}
-      '';
+      path = [
+        (fishReorderPath "/nix/var/nix/profiles/default/bin")
+        (fishReorderPath "/etc/profiles/per-user/$USER/bin")
+        (fishReorderPath "/run/current-system/sw/bin")
+      ];
+    in ''
+      ${builtins.concatStringsSep "\n" path}
+    '';
 
     shellInit = ''
       # if type -q ${pkgs.babelfish}
@@ -69,57 +68,59 @@
       end
     '';
 
-    shellAliases =
-      let
-        pyyaml = pkgs.python3.withPackages
-          (p: with p; [
+    shellAliases = let
+      pyyaml =
+        pkgs.python3.withPackages
+        (p:
+          with p; [
             pyyaml
           ]);
-      in
-      {
-        # cp = "cp -i";
-        # mv = "mv -i";
-        # rm = "rm -i";
+    in {
+      # cp = "cp -i";
+      # mv = "mv -i";
+      # rm = "rm -i";
 
-        s = ''${pkgs.findutils}/bin/xargs ${pkgs.perl}/bin/perl -pi -E'';
-        ag = "${pkgs.ripgrep}/bin/rg";
-        cat = "${pkgs.bat}/bin/bat";
-        du = "du -hs";
-        ipython = "ipython --no-banner";
-        ls = "${pkgs.exa}/bin/exa";
-        mkdir = "mkdir -p";
-        nvim = "nvim -p";
-        ping = "${pkgs.prettyping}/bin/prettyping";
-        vim = "nvim -p";
-        watch = "${pkgs.viddy}/bin/viddy --shell ${pkgs.fish}/bin/fish --differences";
+      s = ''${pkgs.findutils}/bin/xargs ${pkgs.perl}/bin/perl -pi -E'';
+      ag = "${pkgs.ripgrep}/bin/rg";
+      cat = "${pkgs.bat}/bin/bat";
+      du = "du -hs";
+      ipython = "ipython --no-banner";
+      ls = "${pkgs.exa}/bin/exa";
+      mkdir = "mkdir -p";
+      nvim = "nvim -p";
+      ping = "${pkgs.prettyping}/bin/prettyping";
+      vim = "nvim -p";
+      watch = "${pkgs.viddy}/bin/viddy --shell ${pkgs.fish}/bin/fish --differences";
 
+      osxphotos_missing_path = builtins.concatStringsSep " | " [
+        ''osxphotos query --json --only-photos''
+        ''${pkgs.jq}/bin/jq ".[] | select((.path == null)and .path_edited == null)"''
+      ];
+      yaml2json = builtins.concatStringsSep " | " [
+        "${pyyaml}/bin/python3 -c 'import sys, yaml, json; json.dump(yaml.safe_load(sys.stdin), sys.stdout)'"
+        "${pkgs.jq}/bin/jq"
+      ];
 
-        osxphotos_missing_path = builtins.concatStringsSep " | " [
-          ''osxphotos query --json --only-photos''
-          ''${pkgs.jq}/bin/jq ".[] | select((.path == null)and .path_edited == null)"''
-        ];
-        yaml2json = builtins.concatStringsSep " | " [
-          "${pyyaml}/bin/python3 -c 'import sys, yaml, json; json.dump(yaml.safe_load(sys.stdin), sys.stdout)'"
-          "${pkgs.jq}/bin/jq"
-        ];
-
-        tailscale = if pkgs.stdenv.isDarwin then "/Applications/Tailscale.app/Contents/MacOS/Tailscale" else "tailscale";
-        ts = "tailscale";
-        tss = "tailscale status";
-        tsp = "tailscale ping";
-      };
+      tailscale =
+        if pkgs.stdenv.isDarwin
+        then "/Applications/Tailscale.app/Contents/MacOS/Tailscale"
+        else "tailscale";
+      ts = "tailscale";
+      tss = "tailscale status";
+      tsp = "tailscale ping";
+    };
 
     # Abbreviate commonly used functions
     # An abbreviation will expand after <space> or <Enter> is hit
-    shellAbbrs = config.my.shellAliases // { };
+    shellAbbrs = config.my.shellAliases // {};
 
     # TODO: Figure out what this is renamed to
-    functions =
-      let
-        oofTime = pkgs.writers.writePython3 "test_python3"
-          {
-            libraries = [ ];
-          } ''
+    functions = let
+      oofTime =
+        pkgs.writers.writePython3 "test_python3"
+        {
+          libraries = [];
+        } ''
           import datetime
           import math
 
@@ -162,74 +163,73 @@
               else:
                   print(now.strftime("%Y-%m-%dT%H:%M:%S"), end="")
         '';
-      in
-      {
-        mkcd = "mkdir -p $argv[1]; and cd $argv[1]";
+    in {
+      mkcd = "mkdir -p $argv[1]; and cd $argv[1]";
 
-        lcqjob = ''
-          set query (printf '{job=~"%s.*"}' $argv[1])
-          lcq $query $argv[2..-1]
-        '';
+      lcqjob = ''
+        set query (printf '{job=~"%s.*"}' $argv[1])
+        lcq $query $argv[2..-1]
+      '';
 
-        lcqapp = ''
-          set query (printf '{app=~"%s.*"}' $argv[1])
-          lcq $query $argv[2..-1]
-        '';
+      lcqapp = ''
+        set query (printf '{app=~"%s.*"}' $argv[1])
+        lcq $query $argv[2..-1]
+      '';
 
-        dtgc = ''
-          env GIT_AUTHOR_DATE=(${oofTime}) GIT_COMMITTER_DATE=(${oofTime}) ${pkgs.git}/bin/git commit $argv
-        '';
+      dtgc = ''
+        env GIT_AUTHOR_DATE=(${oofTime}) GIT_COMMITTER_DATE=(${oofTime}) ${pkgs.git}/bin/git commit $argv
+      '';
 
-        gi = ''${pkgs.curl}/bin/curl -L -s https://www.gitignore.io/api/$argv'';
+      gi = ''${pkgs.curl}/bin/curl -L -s https://www.gitignore.io/api/$argv'';
 
-        push = ''${pkgs.git}/bin/git push origin -u (${pkgs.git}/bin/git rev-parse --abbrev-ref HEAD)'';
-        yolo = ''${pkgs.git}/bin/git push -f origin (${pkgs.git}/bin/git rev-parse --abbrev-ref HEAD)'';
+      push = ''${pkgs.git}/bin/git push origin -u (${pkgs.git}/bin/git rev-parse --abbrev-ref HEAD)'';
+      yolo = ''${pkgs.git}/bin/git push -f origin (${pkgs.git}/bin/git rev-parse --abbrev-ref HEAD)'';
 
-        rmkh = ''
-          ${pkgs.gnused}/bin/sed -i $argv'd' ~/.ssh/known_hosts
-        '';
+      rmkh = ''
+        ${pkgs.gnused}/bin/sed -i $argv'd' ~/.ssh/known_hosts
+      '';
 
-        k3s-fetch-merge-config = ''
-          set host $argv[1]
-          set target $argv[2]
+      k3s-fetch-merge-config = ''
+        set host $argv[1]
+        set target $argv[2]
 
-          echo "Updating target $target with config from $host"
+        echo "Updating target $target with config from $host"
 
-          set rconfig (ssh $host "cat /etc/rancher/k3s/k3s.yaml | yq -c")
+        set rconfig (ssh $host "cat /etc/rancher/k3s/k3s.yaml | yq -c")
 
-          set cert_auth_data (echo $rconfig | ${pkgs.jq}/bin/jq -r '.clusters[0].cluster."certificate-authority-data"')
-          set client_cert_data (echo $rconfig | ${pkgs.jq}/bin/jq -r '.users[0].user."client-certificate-data"')
-          set client_key_data (echo $rconfig | ${pkgs.jq}/bin/jq -r '.users[0].user."client-key-data"')
+        set cert_auth_data (echo $rconfig | ${pkgs.jq}/bin/jq -r '.clusters[0].cluster."certificate-authority-data"')
+        set client_cert_data (echo $rconfig | ${pkgs.jq}/bin/jq -r '.users[0].user."client-certificate-data"')
+        set client_key_data (echo $rconfig | ${pkgs.jq}/bin/jq -r '.users[0].user."client-key-data"')
 
-          set lconfig (cat $HOME/.kube/config | ${pkgs.yq}/bin/yq -c)
+        set lconfig (cat $HOME/.kube/config | ${pkgs.yq}/bin/yq -c)
 
-          echo "Moving $HOME/.kube/config to $HOME/.kube/config.bak"
-          mv $HOME/.kube/config $HOME/.kube/config.bak
+        echo "Moving $HOME/.kube/config to $HOME/.kube/config.bak"
+        mv $HOME/.kube/config $HOME/.kube/config.bak
 
-          echo "Writing new config to $HOME/.kube/config"
-          echo $lconfig \
-            | ${pkgs.jq}/bin/jq "(.clusters[] | select(.name == \"$target\")).cluster.\"certificate-authority-data\" |= \"$cert_auth_data\"" \
-            | ${pkgs.jq}/bin/jq "(.users[] | select(.name == \"$target-admin\")).user.\"client-certificate-data\" |= \"$client_cert_data\"" \
-            | ${pkgs.jq}/bin/jq "(.users[] | select(.name == \"$target-admin\")).user.\"client-key-data\" |= \"$client_key_data\"" \
-            | ${pkgs.yq}/bin/yq --yaml-output \
-            > $HOME/.kube/config
-        '';
+        echo "Writing new config to $HOME/.kube/config"
+        echo $lconfig \
+          | ${pkgs.jq}/bin/jq "(.clusters[] | select(.name == \"$target\")).cluster.\"certificate-authority-data\" |= \"$cert_auth_data\"" \
+          | ${pkgs.jq}/bin/jq "(.users[] | select(.name == \"$target-admin\")).user.\"client-certificate-data\" |= \"$client_cert_data\"" \
+          | ${pkgs.jq}/bin/jq "(.users[] | select(.name == \"$target-admin\")).user.\"client-key-data\" |= \"$client_key_data\"" \
+          | ${pkgs.yq}/bin/yq --yaml-output \
+          > $HOME/.kube/config
+      '';
 
-        ragenix-update-key = ''
-          set host $argv[1]
-          set hostDash (echo $host | ${pkgs.gnused}/bin/sed 's/\./-/g')
+      ragenix-update-key = ''
+        set host $argv[1]
+        set hostDash (echo $host | ${pkgs.gnused}/bin/sed 's/\./-/g')
 
-          set sshKey (ssh-keyscan -t ed25519 $host.fap.no | ${pkgs.gnused}/bin/sed 's/.*ssh/ssh/')
+        set sshKey (ssh-keyscan -t ed25519 $host.fap.no | ${pkgs.gnused}/bin/sed 's/.*ssh/ssh/')
 
-          echo "New key: $sshKey"
+        echo "New key: $sshKey"
 
-          set sedString "/$hostDash = \"ssh-ed25519/c\ $hostDash = \"$sshKey\";"
+        set sedString "/$hostDash = \"ssh-ed25519/c\ $hostDash = \"$sshKey\";"
 
-          ${pkgs.gnused}/bin/sed -i $sedString secrets.nix
+        ${pkgs.gnused}/bin/sed -i $sedString secrets.nix
 
-          ${pkgs.nixpkgs-fmt}/bin/nixpkgs-fmt secrets.nix
-          ${pkgs.ragenix}/bin/ragenix --rekey
-        '';
-      };
+        ${pkgs.nixpkgs-fmt}/bin/nixpkgs-fmt secrets.nix
+        ${pkgs.ragenix}/bin/ragenix --rekey
+      '';
+    };
   };
 }

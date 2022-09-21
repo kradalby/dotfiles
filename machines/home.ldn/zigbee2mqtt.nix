@@ -1,8 +1,10 @@
-{ config, lib, ... }:
-let
-  domain = "zigbee2mqtt.${config.networking.domain}";
-in
 {
+  config,
+  lib,
+  ...
+}: let
+  domain = "zigbee2mqtt.${config.networking.domain}";
+in {
   services.zigbee2mqtt = {
     enable = true;
 
@@ -24,7 +26,6 @@ in
           # Time after which an active device will be marked as offline in
           # minutes (default = 10 minutes)
           timeout = 10;
-
         };
         passive = {
           # Time after which a passive device will be marked as offline in
@@ -41,7 +42,6 @@ in
       };
 
       devices = {
-
         "0x00158d0005867f78" = {
           friendly_name = "kitchen-aqara";
         };
@@ -79,7 +79,6 @@ in
         "0x00158d0007ed50e9" = {
           friendly_name = "office-motion";
         };
-
       };
 
       groups = {
@@ -100,9 +99,9 @@ in
       };
     };
   };
-  systemd.services.zigbee2mqtt.onFailure = [ "notify-discord@%n.service" ];
+  systemd.services.zigbee2mqtt.onFailure = ["notify-discord@%n.service"];
 
-  networking.firewall.allowedTCPPorts = [ config.services.zigbee2mqtt.settings.frontend.port ];
+  networking.firewall.allowedTCPPorts = [config.services.zigbee2mqtt.settings.frontend.port];
 
   security.acme.certs."${domain}".domain = domain;
 
@@ -117,5 +116,4 @@ in
       access_log /var/log/nginx/${domain}.access.log;
     '';
   };
-
 }

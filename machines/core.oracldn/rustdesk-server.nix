@@ -1,10 +1,12 @@
-{ config, pkgs, lib, ... }:
-let
-  domain = "desk.kradalby.no";
-
-in
 {
-  imports = [ ../../modules/rustdesk-server.nix ];
+  config,
+  pkgs,
+  lib,
+  ...
+}: let
+  domain = "desk.kradalby.no";
+in {
+  imports = [../../modules/rustdesk-server.nix];
 
   users.users.rustdesk-server = {
     home = "/var/lib/rustdesk-server";
@@ -15,8 +17,7 @@ in
     description = "rustdesk-server";
   };
 
-  users.groups.rustdesk-server = { };
-
+  users.groups.rustdesk-server = {};
 
   services."rustdesk-server" = {
     enable = true;
