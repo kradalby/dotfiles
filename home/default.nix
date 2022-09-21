@@ -176,7 +176,6 @@
     ./tmux.nix
 
     ../pkgs/workstation.nix
-    ../pkgs/dev.nix
     ../pkgs/common.nix
   ];
 }
