@@ -103,4 +103,7 @@ in
 
   # minio
   "minio-oracldn.age".publicKeys = u ++ [ hosts.core-oracldn ];
+
+  # litestream
+  "litestream.age".publicKeys = u ++ [ hosts.core-oracldn hosts.headscale-oracldn ];
 }
