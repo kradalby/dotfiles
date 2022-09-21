@@ -29,6 +29,7 @@
     ./keycloak.nix
     # ./glauth.nix
     ./nextcloud.nix
+    ./minio.nix
     ./rustdesk-server.nix
   ];
 
