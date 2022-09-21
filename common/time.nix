@@ -18,7 +18,7 @@
     '';
   };
 
-  systemd.services.chrony.onFailure = [ "notify-discord@%n.service" ];
+  systemd.services.chrony.onFailure = ["notify-discord@%n.service"];
 
   services.timesyncd = {
     enable = true;
@@ -39,5 +39,5 @@
     '';
   };
 
-  systemd.services.timesyncd.onFailure = [ "notify-discord@%n.service" ];
+  systemd.services.timesyncd.onFailure = ["notify-discord@%n.service"];
 }

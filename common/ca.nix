@@ -1,4 +1,4 @@
-{ ... }: {
+{...}: {
   security.pki.certificates = [
     ''
       kradalby corp

@@ -1,10 +1,13 @@
-{ config, flakes, pkgs, lib, ... }:
-let
+{
+  config,
+  flakes,
+  pkgs,
+  lib,
+  ...
+}: let
   cfg = import ../../metadata/syncthing.nix;
   domain = "syncthing.core.${config.networking.domain}";
-in
-{
-
+in {
   services = {
     syncthing = {
       inherit (cfg) devices;

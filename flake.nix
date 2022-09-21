@@ -44,196 +44,200 @@
 
     mach-nix.url = "github:DavHau/mach-nix";
     flake-utils.url = "github:numtide/flake-utils";
+
+    deadnix.url = "github:astro/deadnix";
+    alejandra.url = "github:kamadorueda/alejandra";
   };
 
-  outputs =
-    { self
-    , nixpkgs
-    , nixpkgs-unstable
-    , nixpkgs-master
-    , nixpkgs-staging
-    , nixpkgs-staging-next
-    , darwin
-    , darwin-unstable
-    , darwin-master
-    , darwin-staging
-    , home-manager
-    , home-manager-unstable
-    , ragenix
-    , nur
-    , fenix
-    , nixos-generators
-    , mach-nix
-    , flake-utils
-    , ...
-    } @ flakes:
-    let
-      overlay-pkgs = final: prev: {
-        stable = import nixpkgs { inherit (final) system; };
-        unstable = import nixpkgs-unstable { inherit (final) system; };
-        master = import nixpkgs-master { inherit (final) system; };
-        staging = import nixpkgs-staging { inherit (final) system; };
-        staging-next = import nixpkgs-staging-next { inherit (final) system; };
-      };
+  outputs = {
+    self,
+    nixpkgs,
+    nixpkgs-unstable,
+    nixpkgs-master,
+    nixpkgs-staging,
+    nixpkgs-staging-next,
+    darwin,
+    darwin-unstable,
+    darwin-master,
+    darwin-staging,
+    home-manager,
+    home-manager-unstable,
+    ragenix,
+    nur,
+    fenix,
+    nixos-generators,
+    mach-nix,
+    flake-utils,
+    deadnix,
+    alejandra,
+    ...
+  } @ flakes: let
+    overlay-pkgs = final: prev: {
+      stable = import nixpkgs {inherit (final) system;};
+      unstable = import nixpkgs-unstable {inherit (final) system;};
+      master = import nixpkgs-master {inherit (final) system;};
+      staging = import nixpkgs-staging {inherit (final) system;};
+      staging-next = import nixpkgs-staging-next {inherit (final) system;};
+    };
 
-      overlays = [
-        nur.overlay
-        overlay-pkgs
-        fenix.overlay
-        ragenix.overlay
-        (import ./pkgs/overlays { inherit mach-nix; })
+    overlays = [
+      nur.overlay
+      overlay-pkgs
+      fenix.overlay
+      ragenix.overlay
+      deadnix.overlays.default
+      alejandra.overlay
+      (import ./pkgs/overlays {inherit mach-nix;})
+    ];
 
-      ];
+    commonModules = [
+      ragenix.nixosModules.age
 
-      commonModules = [
-        ragenix.nixosModules.age
+      {
+        nixpkgs.overlays = overlays;
+      }
+    ];
 
-        {
-          nixpkgs.overlays = overlays;
-        }
-      ];
-
-
-      nixosBox = arch: base: homeBase: name: base.lib.nixosSystem {
+    nixosBox = arch: base: homeBase: name:
+      base.lib.nixosSystem {
         system = arch;
-        modules = commonModules ++ [
-          (import ./modules/linux.nix)
-          {
-            system.configurationRevision =
-              self.rev or "DIRTY";
-          }
+        modules =
+          commonModules
+          ++ [
+            (import ./modules/linux.nix)
+            {
+              system.configurationRevision =
+                self.rev or "DIRTY";
+            }
 
-          (./. + "/machines/${name}")
-        ] ++ (
-          if builtins.isNull homeBase then
-            [ ]
-          else [
-            homeBase.nixosModules.home-manager
-            ./common/home.nix
+            (./. + "/machines/${name}")
           ]
-        );
-        specialArgs = { inherit flakes; };
+          ++ (
+            if builtins.isNull homeBase
+            then []
+            else [
+              homeBase.nixosModules.home-manager
+              ./common/home.nix
+            ]
+          );
+        specialArgs = {inherit flakes;};
       };
 
-      macBox = machine: base: homeBase: base.lib.darwinSystem {
+    macBox = machine: base: homeBase:
+      base.lib.darwinSystem {
         system = machine.arch;
         modules =
-          commonModules ++ [
+          commonModules
+          ++ [
             (./. + "/machines/${machine.hostname}")
             homeBase.darwinModules.home-manager
           ];
-        specialArgs =
-          {
-            inherit flakes;
-            inherit machine;
-          };
+        specialArgs = {
+          inherit flakes;
+          inherit machine;
+        };
       };
 
-      homeOnly = machine: homeBase: homeBase.lib.homeManagerConfiguration {
+    homeOnly = machine: homeBase:
+      homeBase.lib.homeManagerConfiguration {
         inherit (machine) username;
         system = machine.arch;
         homeDirectory = machine.homeDir;
-        configuration.imports = [ ./home ];
+        configuration.imports = [./home];
         extraModules =
-          commonModules ++
-          [
+          commonModules
+          ++ [
             (./. + "/machines/${machine.hostname}")
           ];
-
       };
 
-      mkColmenaFromNixOSConfigurations = nixosConfigurations:
-        {
-          meta = {
-            nixpkgs = import nixpkgs {
-              system = "x86_64-darwin";
-              inherit overlays;
-            };
-
-            specialArgs = {
-              inherit flakes;
-            };
+    mkColmenaFromNixOSConfigurations = nixosConfigurations:
+      {
+        meta = {
+          nixpkgs = import nixpkgs {
+            system = "x86_64-darwin";
+            inherit overlays;
           };
-        } // builtins.mapAttrs
-          (name: value:
-            {
-              nixpkgs.system = value.config.nixpkgs.system;
-              imports = value._module.args.modules;
-            })
-          nixosConfigurations;
-    in
-    {
 
-      nixosConfigurations = {
-        # "dev.terra" = nixosBox "x86_64-linux" nixpkgs home-manager "dev.terra";
-
-        "core.oracldn" = nixosBox "aarch64-linux" nixpkgs home-manager "core.oracldn";
-        "headscale.oracldn" = nixosBox "x86_64-linux" nixpkgs null "headscale.oracldn";
-
-        "dev.oracfurt" = nixosBox "aarch64-linux" nixpkgs home-manager "dev.oracfurt";
-
-        # "core.ntnu" = nixosBox "x86_64-linux" nixpkgs null "core.ntnu";
-
-        # "k3m1.terra" = nixosBox "x86_64-linux" nixpkgs null "k3m1.terra";
-        # "k3a1.terra" = nixosBox "x86_64-linux" nixpkgs null "k3a1.terra";
-        # "k3a2.terra" = nixosBox "x86_64-linux" nixpkgs null "k3a2.terra";
-
-        # nixos-generate --system aarch64-linux -f sd-aarch64 -I nixpkgs=channel:nixos
-        "home.ldn" = nixosBox "aarch64-linux" nixpkgs null "home.ldn";
-        "core.ldn" = nixosBox "aarch64-linux" nixpkgs null "core.ldn";
-        # "storage.bassan" = nixosBox "aarch64-linux" nixpkgs null "storage.bassan";
-        "core.tjoda" = nixosBox "x86_64-linux" nixpkgs null "core.tjoda";
-      };
-
-      # darwin-rebuild switch --flake .#kramacbook
-      darwinConfigurations = {
-        kramacbook =
-          let
-            machine = {
-              arch = "x86_64-darwin";
-              username = "kradalby";
-              hostname = "kramacbook";
-              homeDir = /Users/kradalby;
-            };
-          in
-          macBox machine darwin home-manager;
-
-        kratail =
-          let
-            machine = {
-              arch = "aarch64-darwin";
-              username = "kradalby";
-              hostname = "kratail";
-              homeDir = /Users/kradalby;
-            };
-          in
-          macBox machine darwin-master home-manager;
-      };
-
-      homeConfigurations = {
-        # nix run github:nix-community/home-manager/master --no-write-lock-file -- switch --flake .#multipass
-        "kradalby" =
-          let
-            machine = {
-              arch = "x86_64-linux";
-              username = "kradalby";
-              hostname = "kradalby.home";
-              homeDir = "/home/kradalby";
-            };
-          in
-          homeOnly machine home-manager;
-      };
-
-      colmena = mkColmenaFromNixOSConfigurations self.nixosConfigurations;
-
-      packages.aarch64-linux = {
-        # nix build --system aarch64-linux .#storage-bassan
-        "storage-bassan" = nixos-generators.nixosGenerate {
-          pkgs = nixpkgs.legacyPackages.aarch64-linux;
-          inherit (self.nixosConfigurations."storage.bassan"._module.args) modules;
-          specialArgs = { inherit flakes; };
-          format = "sd-aarch64";
+          specialArgs = {
+            inherit flakes;
+          };
         };
+      }
+      // builtins.mapAttrs
+      (name: value: {
+        nixpkgs.system = value.config.nixpkgs.system;
+        imports = value._module.args.modules;
+      })
+      nixosConfigurations;
+  in {
+    nixosConfigurations = {
+      # "dev.terra" = nixosBox "x86_64-linux" nixpkgs home-manager "dev.terra";
+
+      "core.oracldn" = nixosBox "aarch64-linux" nixpkgs home-manager "core.oracldn";
+      "headscale.oracldn" = nixosBox "x86_64-linux" nixpkgs null "headscale.oracldn";
+
+      "dev.oracfurt" = nixosBox "aarch64-linux" nixpkgs home-manager "dev.oracfurt";
+
+      # "core.ntnu" = nixosBox "x86_64-linux" nixpkgs null "core.ntnu";
+
+      # "k3m1.terra" = nixosBox "x86_64-linux" nixpkgs null "k3m1.terra";
+      # "k3a1.terra" = nixosBox "x86_64-linux" nixpkgs null "k3a1.terra";
+      # "k3a2.terra" = nixosBox "x86_64-linux" nixpkgs null "k3a2.terra";
+
+      # nixos-generate --system aarch64-linux -f sd-aarch64 -I nixpkgs=channel:nixos
+      "home.ldn" = nixosBox "aarch64-linux" nixpkgs null "home.ldn";
+      "core.ldn" = nixosBox "aarch64-linux" nixpkgs null "core.ldn";
+      # "storage.bassan" = nixosBox "aarch64-linux" nixpkgs null "storage.bassan";
+      "core.tjoda" = nixosBox "x86_64-linux" nixpkgs null "core.tjoda";
+    };
+
+    # darwin-rebuild switch --flake .#kramacbook
+    darwinConfigurations = {
+      kramacbook = let
+        machine = {
+          arch = "x86_64-darwin";
+          username = "kradalby";
+          hostname = "kramacbook";
+          homeDir = /Users/kradalby;
+        };
+      in
+        macBox machine darwin home-manager;
+
+      kratail = let
+        machine = {
+          arch = "aarch64-darwin";
+          username = "kradalby";
+          hostname = "kratail";
+          homeDir = /Users/kradalby;
+        };
+      in
+        macBox machine darwin-master home-manager;
+    };
+
+    homeConfigurations = {
+      # nix run github:nix-community/home-manager/master --no-write-lock-file -- switch --flake .#multipass
+      "kradalby" = let
+        machine = {
+          arch = "x86_64-linux";
+          username = "kradalby";
+          hostname = "kradalby.home";
+          homeDir = "/home/kradalby";
+        };
+      in
+        homeOnly machine home-manager;
+    };
+
+    colmena = mkColmenaFromNixOSConfigurations self.nixosConfigurations;
+
+    packages.aarch64-linux = {
+      # nix build --system aarch64-linux .#storage-bassan
+      "storage-bassan" = nixos-generators.nixosGenerate {
+        pkgs = nixpkgs.legacyPackages.aarch64-linux;
+        inherit (self.nixosConfigurations."storage.bassan"._module.args) modules;
+        specialArgs = {inherit flakes;};
+        format = "sd-aarch64";
       };
     };
+  };
 }

@@ -1,5 +1,10 @@
-{ config, flakes, pkgs, lib, ... }:
 {
+  config,
+  flakes,
+  pkgs,
+  lib,
+  ...
+}: {
   imports = [
     ../../common
 
@@ -68,7 +73,7 @@
       enable = true;
       # Do not remove interface configuration on shutdown.
       persistent = true;
-      allowInterfaces = [ config.my.wan ];
+      allowInterfaces = [config.my.wan];
       extraConfig = ''
         noipv6rs
         interface ${config.my.wan}
@@ -103,7 +108,10 @@
       ${config.my.lan} = {
         useDHCP = false;
         ipv4.addresses = [
-          { address = "10.62.0.1"; prefixLength = 24; }
+          {
+            address = "10.62.0.1";
+            prefixLength = 24;
+          }
         ];
         tempAddress = "disabled";
       };
@@ -111,22 +119,36 @@
       selskap = {
         useDHCP = false;
         ipv4.addresses = [
-          { address = "192.168.200.1"; prefixLength = 24; }
+          {
+            address = "192.168.200.1";
+            prefixLength = 24;
+          }
         ];
         tempAddress = "disabled";
       };
-
     };
 
     nat = {
       enable = true;
       externalInterface = config.my.wan;
-      internalIPs = [ "10.0.0.0/8" "192.168.200.0/24" ];
-      internalInterfaces = [ config.my.lan "selskap" ];
+      internalIPs = ["10.0.0.0/8" "192.168.200.0/24"];
+      internalInterfaces = [config.my.lan "selskap"];
       forwardPorts = [
-        { sourcePort = 64322; destination = "10.62.0.1:22"; proto = "tcp"; }
-        { sourcePort = 500; destination = "10.62.0.1:51820"; proto = "udp"; }
-        { sourcePort = 4500; destination = "10.62.0.1:51820"; proto = "udp"; }
+        {
+          sourcePort = 64322;
+          destination = "10.62.0.1:22";
+          proto = "tcp";
+        }
+        {
+          sourcePort = 500;
+          destination = "10.62.0.1:51820";
+          proto = "udp";
+        }
+        {
+          sourcePort = 4500;
+          destination = "10.62.0.1:51820";
+          proto = "udp";
+        }
       ];
     };
 
@@ -145,15 +167,14 @@
         config.networking.wireguard.interfaces.wg0.listenPort
       ];
 
-      trustedInterfaces = [ config.my.lan ];
+      trustedInterfaces = [config.my.lan];
 
       # Allow DNS from selskap
-      interfaces."selskap".allowedUDPPorts = [ 53 ];
-
+      interfaces."selskap".allowedUDPPorts = [53];
     };
   };
 
-  monitoring.smartctl.devices = [ "/dev/sda" ];
+  monitoring.smartctl.devices = ["/dev/sda"];
 
   boot.cleanTmpDir = true;
 

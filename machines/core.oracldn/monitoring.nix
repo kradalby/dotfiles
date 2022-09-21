@@ -1,9 +1,12 @@
-{ pkgs, config, lib, ... }:
-let
+{
+  pkgs,
+  config,
+  lib,
+  ...
+}: let
   prometheusDomain = "prometheus.${config.networking.domain}";
   pushgatewayDomain = "pushgateway.${config.networking.domain}";
-in
-{
+in {
   services.prometheus = {
     enable = true;
 
@@ -13,9 +16,9 @@ in
       {
         job_name = "consul";
         consul_sd_configs = [
-          { server = "consul.ldn.fap.no"; }
-          { server = "consul.ntnu.fap.no"; }
-          { server = "consul.tjoda.fap.no"; }
+          {server = "consul.ldn.fap.no";}
+          {server = "consul.ntnu.fap.no";}
+          {server = "consul.tjoda.fap.no";}
         ];
         relabel_configs = [
           {

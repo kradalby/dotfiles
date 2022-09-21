@@ -1,5 +1,10 @@
-{ config, flakes, pkgs, lib, ... }:
 {
+  config,
+  flakes,
+  pkgs,
+  lib,
+  ...
+}: {
   imports = [
     ../../common
 
@@ -59,7 +64,7 @@
       enable = true;
       # Do not remove interface configuration on shutdown.
       persistent = true;
-      allowInterfaces = [ config.my.wan ];
+      allowInterfaces = [config.my.wan];
       extraConfig = ''
         noipv6rs
         interface ${config.my.wan}
@@ -76,7 +81,7 @@
 
     wireless = {
       enable = true;
-      interfaces = [ "wlan0" ];
+      interfaces = ["wlan0"];
       networks = {
         kPhone = {
           # Not really critical since my phone is not stationary and this is not
@@ -121,7 +126,10 @@
 
         useDHCP = false;
         ipv4.addresses = [
-          { address = "10.65.0.1"; prefixLength = 24; }
+          {
+            address = "10.65.0.1";
+            prefixLength = 24;
+          }
         ];
         tempAddress = "disabled";
       };
@@ -129,22 +137,36 @@
       iot = {
         useDHCP = false;
         ipv4.addresses = [
-          { address = "192.168.156.1"; prefixLength = 24; }
+          {
+            address = "192.168.156.1";
+            prefixLength = 24;
+          }
         ];
         tempAddress = "disabled";
       };
-
     };
 
     nat = {
       enable = true;
       externalInterface = config.my.wan;
-      internalIPs = [ "10.0.0.0/8" "192.168.156.0/24" ];
-      internalInterfaces = [ config.my.lan "iot" ];
+      internalIPs = ["10.0.0.0/8" "192.168.156.0/24"];
+      internalInterfaces = [config.my.lan "iot"];
       forwardPorts = [
-        { sourcePort = 64322; destination = "10.65.0.1:22"; proto = "tcp"; }
-        { sourcePort = 500; destination = "10.65.0.1:51820"; proto = "udp"; }
-        { sourcePort = 4500; destination = "10.65.0.1:51820"; proto = "udp"; }
+        {
+          sourcePort = 64322;
+          destination = "10.65.0.1:22";
+          proto = "tcp";
+        }
+        {
+          sourcePort = 500;
+          destination = "10.65.0.1:51820";
+          proto = "udp";
+        }
+        {
+          sourcePort = 4500;
+          destination = "10.65.0.1:51820";
+          proto = "udp";
+        }
       ];
     };
 
@@ -163,12 +185,11 @@
         config.networking.wireguard.interfaces.wg0.listenPort
       ];
 
-      trustedInterfaces = [ config.my.lan ];
-
+      trustedInterfaces = [config.my.lan];
     };
   };
 
-  monitoring.smartctl.devices = [ "/dev/sda" ];
+  monitoring.smartctl.devices = ["/dev/sda"];
 
   boot.cleanTmpDir = true;
 

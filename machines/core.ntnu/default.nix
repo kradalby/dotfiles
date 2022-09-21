@@ -1,5 +1,10 @@
-{ config, flakes, pkgs, lib, ... }:
 {
+  config,
+  flakes,
+  pkgs,
+  lib,
+  ...
+}: {
   imports = [
     ../../common
 
@@ -51,37 +56,57 @@
     usePredictableInterfaceNames = lib.mkForce true;
 
     bridges = {
-      lan.interfaces = [ "ens34" ];
+      lan.interfaces = ["ens34"];
     };
 
     interfaces = {
       "${config.my.wan}" = {
         useDHCP = false;
         ipv4.addresses = [
-          { address = "129.241.210.106"; prefixLength = 25; }
+          {
+            address = "129.241.210.106";
+            prefixLength = 25;
+          }
         ];
         ipv6.addresses = [
-          { address = "2001:700:300:2000::106"; prefixLength = 64; }
+          {
+            address = "2001:700:300:2000::106";
+            prefixLength = 64;
+          }
         ];
       };
       lan = {
         useDHCP = false;
         ipv4.addresses = [
-          { address = "10.61.0.1"; prefixLength = 24; }
+          {
+            address = "10.61.0.1";
+            prefixLength = 24;
+          }
         ];
       };
-
     };
 
     nat = {
       enable = true;
       externalInterface = "${config.my.wan}";
-      internalIPs = [ "10.0.0.0/8" ];
-      internalInterfaces = [ config.my.lan ];
+      internalIPs = ["10.0.0.0/8"];
+      internalInterfaces = [config.my.lan];
       forwardPorts = [
-        { sourcePort = 64322; destination = "10.61.0.1:22"; proto = "tcp"; }
-        { sourcePort = 500; destination = "10.61.0.1:51820"; proto = "udp"; }
-        { sourcePort = 4500; destination = "10.61.0.1:51820"; proto = "udp"; }
+        {
+          sourcePort = 64322;
+          destination = "10.61.0.1:22";
+          proto = "tcp";
+        }
+        {
+          sourcePort = 500;
+          destination = "10.61.0.1:51820";
+          proto = "udp";
+        }
+        {
+          sourcePort = 4500;
+          destination = "10.61.0.1:51820";
+          proto = "udp";
+        }
       ];
     };
 
@@ -100,14 +125,13 @@
         config.networking.wireguard.interfaces.wg0.listenPort
       ];
 
-      trustedInterfaces = [ config.my.lan ];
-
+      trustedInterfaces = [config.my.lan];
     };
   };
 
   services.dhcpd4 = {
     enable = true;
-    interfaces = [ config.my.lan ];
+    interfaces = [config.my.lan];
     extraConfig = ''
       option domain-name-servers 1.0.0.1, 1.1.1.1;
       option subnet-mask 255.255.255.0;
@@ -121,9 +145,7 @@
     '';
   };
 
-  systemd.services.dhcpd4.onFailure = [ "notify-discord@%n.service" ];
-
-
+  systemd.services.dhcpd4.onFailure = ["notify-discord@%n.service"];
 
   boot.cleanTmpDir = true;
 

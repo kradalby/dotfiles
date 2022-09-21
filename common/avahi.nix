@@ -1,8 +1,10 @@
-{ pkgs, config, ... }:
-let
-  site = builtins.replaceStrings [ ".fap.no" ] [ "" ] config.networking.domain;
-in
 {
+  pkgs,
+  config,
+  ...
+}: let
+  site = builtins.replaceStrings [".fap.no"] [""] config.networking.domain;
+in {
   services.avahi = {
     enable = true;
     openFirewall = true;
@@ -26,5 +28,5 @@ in
     };
   };
 
-  systemd.services.avahi-daemon.onFailure = [ "notify-discord@%n.service" ];
+  systemd.services.avahi-daemon.onFailure = ["notify-discord@%n.service"];
 }

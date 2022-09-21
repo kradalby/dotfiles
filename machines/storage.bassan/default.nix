@@ -1,5 +1,10 @@
-{ config, flakes, pkgs, lib, ... }:
 {
+  config,
+  flakes,
+  pkgs,
+  lib,
+  ...
+}: {
   imports = [
     ../../common
     ./hardware-configuration.nix
@@ -22,7 +27,7 @@
     wireless = {
       enable = true;
       networks."abragjest".psk = "interstellar66";
-      interfaces = [ "wlan0" ];
+      interfaces = ["wlan0"];
     };
   };
 
@@ -30,9 +35,9 @@
     51280
   ];
 
-  services.consul.extraConfig.retry_join = lib.mkForce [ ];
+  services.consul.extraConfig.retry_join = lib.mkForce [];
 
-  monitoring.smartctl.devices = [ ];
+  monitoring.smartctl.devices = [];
 
   boot.cleanTmpDir = true;
 

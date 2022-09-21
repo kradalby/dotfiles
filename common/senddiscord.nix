@@ -1,17 +1,20 @@
-{ config, lib, pkgs, ... }:
-let
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}: let
   discordScript = builtins.fetchGit {
     url = "https://github.com/ChaoticWeg/discord.sh.git";
     ref = "master";
     rev = "6d50287671e57f8d6c4e85a37ce23d83bfc3db14";
   };
-in
-{
+in {
   age.secrets.discord-systemd-webhook.file = ../secrets/discord-systemd-webhook.age;
 
   systemd.services."notify-discord@" = {
     serviceConfig.Type = "oneshot";
-    path = with pkgs; [ systemd system-sendmail ];
+    path = with pkgs; [systemd system-sendmail];
     scriptArgs = "%I";
     script = ''
       export PATH=$PATH:${pkgs.jq}/bin:${pkgs.curl}/bin

@@ -1,4 +1,9 @@
-{ config, pkgs, lib, ... }: {
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}: {
   programs.tmux = {
     enable = true;
     shell = "${pkgs.fish}/bin/fish";

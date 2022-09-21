@@ -1,12 +1,12 @@
-{ pkgs
-, config
-, machine
-, lib
-, stdenv
-, flakes
-, ...
-}:
 {
+  pkgs,
+  config,
+  machine,
+  lib,
+  stdenv,
+  flakes,
+  ...
+}: {
   imports = [
     ../../common/environment.nix
     ../../pkgs/system.nix
@@ -29,7 +29,7 @@
     '';
 
     settings = {
-      trusted-users = [ machine.username ];
+      trusted-users = [machine.username];
 
       # todo
       sandbox = false;
@@ -59,7 +59,7 @@
     useUserPackages = true;
     useGlobalPkgs = true;
     users."${machine.username}" = {
-      imports = [ ../../home ];
+      imports = [../../home];
 
       # home.file = {
       #   ".ssh/authorized_keys".text = lib.concatStringsSep "\n" (sshKeys.main ++ sshKeys.kradalby);
@@ -78,6 +78,18 @@
     # extraSpecialArgs = { inherit machine; };
   };
 
+  environment.etc = {
+    "pam.d/sudo".text = ''
+      auth       optional       /opt/homebrew/lib/pam/pam_reattach.so
+      auth       sufficient     pam_tid.so
+      auth       sufficient     pam_smartcard.so
+      auth       required       pam_opendirectory.so
+      account    required       pam_permit.so
+      password   required       pam_deny.so
+      session    required       pam_permit.so
+    '';
+  };
+
   networking = {
     hostName = machine.hostname;
     computerName = machine.hostname;
@@ -86,7 +98,7 @@
 
   fonts = {
     fontDir.enable = true;
-    fonts = [ pkgs.jetbrains-mono pkgs.nerdfonts ];
+    fonts = [pkgs.jetbrains-mono pkgs.nerdfonts];
   };
 
   # Available options

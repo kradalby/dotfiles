@@ -1,12 +1,16 @@
-{ config, flakes, pkgs, lib, ... }:
 {
+  config,
+  flakes,
+  pkgs,
+  lib,
+  ...
+}: {
   imports = [
     ../../common
     ./hardware-configuration.nix
 
     ../../common/acme.nix
     ../../common/nginx.nix
-
 
     ./restic.nix
     ./wireguard.nix
@@ -55,9 +59,7 @@
     ATTR{address}=="02:00:17:02:df:1c", NAME="ens3"
   '';
 
-
-  services.consul.extraConfig.retry_join = [ ];
-
+  services.consul.extraConfig.retry_join = [];
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions

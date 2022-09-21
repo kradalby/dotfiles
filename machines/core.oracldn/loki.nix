@@ -1,13 +1,15 @@
-{ pkgs, lib, config, ... }:
-let
+{
+  pkgs,
+  lib,
+  config,
+  ...
+}: let
   retention = "168h";
 
   domain = "loki.oracldn.fap.no";
-in
-{
+in {
   services.loki = {
     enable = true;
-
 
     configuration = {
       server = {
@@ -27,7 +29,6 @@ in
             index = {
               prefix = "index_";
               period = retention;
-
             };
           }
         ];
@@ -42,7 +43,7 @@ in
           kvstore.store = "inmemory";
           replication_factor = 1;
         };
-        lifecycler.interface_names = [ config.my.lan "wg0" "tailscale0" "enp1s0" ];
+        lifecycler.interface_names = [config.my.lan "wg0" "tailscale0" "enp1s0"];
         chunk_encoding = "snappy";
         # Disable block transfers on shutdown
         max_transfer_retries = 0;

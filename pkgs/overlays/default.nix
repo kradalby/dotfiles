@@ -1,5 +1,4 @@
-{ mach-nix, ... }:
-final: prev: {
+{mach-nix, ...}: final: prev: {
   golines = prev.callPackage ./golines.nix {
     buildGoModule = prev.buildGo117Module;
   };
@@ -16,9 +15,9 @@ final: prev: {
     buildGoModule = prev.buildGo118Module;
   };
 
-  homebridge = prev.callPackage ./homebridge/override.nix { };
+  homebridge = prev.callPackage ./homebridge/override.nix {};
 
-  rustdesk-server = prev.callPackage ./rustdesk-server.nix { };
+  rustdesk-server = prev.callPackage ./rustdesk-server.nix {};
 
   # glauth-ui = prev.callPackage ./glauth-ui.nix { pkgs = prev; inherit mach-nix; };
 }

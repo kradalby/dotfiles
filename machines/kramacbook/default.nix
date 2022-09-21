@@ -1,12 +1,12 @@
-{ pkgs
-, config
-, machine
-, lib
-, stdenv
-, flakes
-, ...
-}:
-let
+{
+  pkgs,
+  config,
+  machine,
+  lib,
+  stdenv,
+  flakes,
+  ...
+}: let
   sshKeys = import ../../metadata/ssh.nix;
   remoteBuilders = [
     # "ssh-ng://core.ntnu x86_64-linux"
@@ -16,8 +16,7 @@ let
     "ssh-ng://core.oracldn aarch64-linux - 4 - benchmark,big-parallel"
     "ssh-ng://dev.oracfurt aarch64-linux - 4 - benchmark,big-parallel"
   ];
-in
-{
+in {
   imports = [
     ../../common/environment.nix
     ../../pkgs/system.nix
@@ -30,7 +29,7 @@ in
   # on macOS, we need to make sure all SSH references
   # are empty so age dont go looking for services.openssh
   # which doesnt exist.
-  age.identityPaths = [ "/Users/kradalby/.ssh/id_ed25519" ];
+  age.identityPaths = ["/Users/kradalby/.ssh/id_ed25519"];
 
   services.nix-daemon = {
     enable = true;
@@ -44,7 +43,7 @@ in
     '';
 
     settings = {
-      trusted-users = [ machine.username ];
+      trusted-users = [machine.username];
 
       # todo
       sandbox = false;
@@ -74,7 +73,7 @@ in
     useUserPackages = true;
     useGlobalPkgs = true;
     users."${machine.username}" = {
-      imports = [ ../../home ];
+      imports = [../../home];
 
       home.file = {
         ".ssh/authorized_keys".text = lib.concatStringsSep "\n" (sshKeys.main ++ sshKeys.kradalby);
@@ -101,7 +100,7 @@ in
 
   fonts = {
     fontDir.enable = true;
-    fonts = [ pkgs.jetbrains-mono pkgs.nerdfonts ];
+    fonts = [pkgs.jetbrains-mono pkgs.nerdfonts];
   };
 
   # Available options

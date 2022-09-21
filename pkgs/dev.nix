@@ -1,5 +1,4 @@
-{ pkgs, ... }:
-{
+{pkgs, ...}: {
   home.packages = with pkgs; [
     # Development
     # buf
@@ -28,6 +27,7 @@
     editorconfig-checker
     grpcurl
     # act
+    vale
 
     # neovim plugin deps
     libiconv # rnix-lsp
@@ -57,9 +57,11 @@
     # to ensure we use stable for now.
     stable.statix
 
+    alejandra
+    deadnix
+
     nixpkgs-fmt
     manix
-
 
     # Tailscale stuff
     redo-apenwarr
@@ -69,6 +71,5 @@
     # swiftlint
     # clang-format
     # hclfmt
-
   ];
 }

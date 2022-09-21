@@ -1,6 +1,9 @@
-{ config, lib, pkgs, ... }:
 {
-
+  config,
+  lib,
+  pkgs,
+  ...
+}: {
   age.secrets.cloudflare-token.file = ../secrets/cloudflare-token.age;
 
   security.acme = {

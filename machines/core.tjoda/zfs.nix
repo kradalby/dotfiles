@@ -1,4 +1,8 @@
-{ config, lib, ... }: {
+{
+  config,
+  lib,
+  ...
+}: {
   services.zfs.trim.enable = true;
   # services.zfs.autoScrub.enable = true;
   # services.zfs.autoSnapshot.enable = true;
@@ -19,13 +23,13 @@
     datasets = builtins.listToAttrs (builtins.map
       (item: {
         name = item;
-        value = { useTemplate = [ "normal" ]; };
+        value = {useTemplate = ["normal"];};
       }) [
-      "storage/backup"
-      "storage/libraries"
-      "storage/pictures"
-      "storage/software"
-      "storage/sync"
-    ]);
+        "storage/backup"
+        "storage/libraries"
+        "storage/pictures"
+        "storage/software"
+        "storage/sync"
+      ]);
   };
 }

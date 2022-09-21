@@ -1,7 +1,7 @@
-{ config, ... }: {
+{config, ...}: {
   services.dhcpd4 = {
     enable = true;
-    interfaces = [ config.my.lan "iot" ];
+    interfaces = [config.my.lan "iot"];
     extraConfig = ''
       option domain-name-servers 10.65.0.1;
       # option domain-name-servers 1.1.1.1;
@@ -75,7 +75,6 @@
         ethernetAddress = "e0:63:da:25:cc:1e";
       }
 
-
       # IoT
       {
         hostName = "vacuum";
@@ -86,7 +85,6 @@
         hostName = "bedroom-desk-light";
         ipAddress = "10.65.0.82";
         ethernetAddress = "a4:cf:12:c3:87:21";
-
       }
       {
         hostName = "living-room-fairy-light";
@@ -148,5 +146,5 @@
     ];
   };
 
-  systemd.services.dhcpd4.onFailure = [ "notify-discord@%n.service" ];
+  systemd.services.dhcpd4.onFailure = ["notify-discord@%n.service"];
 }

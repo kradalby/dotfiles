@@ -1,10 +1,12 @@
-{ config, lib, ... }:
-let
-  consul = import ../../common/funcs/consul.nix { inherit lib; };
+{
+  config,
+  lib,
+  ...
+}: let
+  consul = import ../../common/funcs/consul.nix {inherit lib;};
 
   port = 1883;
-in
-{
+in {
   services.mosquitto = {
     enable = true;
     persistence = false;
@@ -53,32 +55,30 @@ in
     ];
   };
 
-  systemd.services.mosquitto.onFailure = [ "notify-discord@%n.service" ];
+  systemd.services.mosquitto.onFailure = ["notify-discord@%n.service"];
 
-  networking.firewall.allowedTCPPorts = [ port ];
-  networking.firewall.allowedUDPPorts = [ port ];
+  networking.firewall.allowedTCPPorts = [port];
+  networking.firewall.allowedUDPPorts = [port];
 
-  services.mqtt-exporter =
-    let
-      inherit ((builtins.elemAt config.services.mosquitto.listeners 0).users.exporter) password;
-    in
-    {
-      enable = true;
-      openFirewall = true;
+  services.mqtt-exporter = let
+    inherit ((builtins.elemAt config.services.mosquitto.listeners 0).users.exporter) password;
+  in {
+    enable = true;
+    openFirewall = true;
 
-      mqtt = {
-        inherit password;
-        username = "exporter";
-        keepalive = 30;
-      };
-
-      prometheus = {
-        prefix = "sensor_";
-        topicLabel = "sensor";
-      };
+    mqtt = {
+      inherit password;
+      username = "exporter";
+      keepalive = 30;
     };
 
-  systemd.services."mqtt-exporter".onFailure = [ "notify-discord@%n.service" ];
+    prometheus = {
+      prefix = "sensor_";
+      topicLabel = "sensor";
+    };
+  };
+
+  systemd.services."mqtt-exporter".onFailure = ["notify-discord@%n.service"];
 
   my.consulServices.mqtt_exporter = consul.prometheusExporter "mqtt" config.services.mqtt-exporter.prometheus.port;
 }

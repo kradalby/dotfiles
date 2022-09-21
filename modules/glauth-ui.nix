@@ -1,12 +1,12 @@
-{ config, pkgs, lib, ... }:
-
-with lib;
-
-let
-  cfg = config.services.glauth-ui;
-in
 {
-
+  config,
+  pkgs,
+  lib,
+  ...
+}:
+with lib; let
+  cfg = config.services.glauth-ui;
+in {
   options.services.glauth-ui = {
     enable = mkEnableOption "Glauth UI for Glauth LDAP server";
 
@@ -74,7 +74,6 @@ in
       default = "";
       description = "";
     };
-
   };
 
   config = mkIf cfg.enable {
@@ -83,8 +82,8 @@ in
       script = ''
         ${cfg.package}/bin/gunicorn -b :${toString cfg.port} --access-logfile - --error-logfile - ldap:app
       '';
-      wantedBy = [ "multi-user.target" "docker-glauth.service" ];
-      after = [ "network-online.target" ];
+      wantedBy = ["multi-user.target" "docker-glauth.service"];
+      after = ["network-online.target"];
       serviceConfig = {
         User = cfg.user;
         Group = cfg.group;
@@ -92,10 +91,9 @@ in
         RestartSec = "15";
         WorkingDirectory = cfg.dataDir;
       };
-      path = [ cfg.packages ];
+      path = [cfg.packages];
       environment = {
-        PYTHONPATH =
-          "${pythonWithPackages}";
+        PYTHONPATH = "${pythonWithPackages}";
         SECRET_KEY = cfg.cookieSecret;
         MAIL_SERVER = cfg.mail.server;
         MAIL_PORT = "${toString cfg.mail.port}";
@@ -109,7 +107,6 @@ in
         ${cfg.package}/bin/flask db upgrade
         ${cfg.package}/bin/flask createdbdata
       '';
-
     };
   };
 }

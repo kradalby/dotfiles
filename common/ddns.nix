@@ -1,4 +1,4 @@
-{ config, ... }: {
+{config, ...}: {
   # sops.secrets.cloudflare_ddns_token = {
   #   mode = "0400";
   #   owner = config.users.users.cfdyndns.name;
@@ -22,7 +22,7 @@
 
   services.ddclient = {
     enable = true;
-    domains = [ config.networking.domain ];
+    domains = [config.networking.domain];
     zone = "fap.no";
     ipv6 = true;
     server = "www.cloudflare.com";
@@ -31,5 +31,5 @@
     protocol = "cloudflare";
   };
 
-  systemd.services.ddclient.onFailure = [ "notify-discord@%n.service" ];
+  systemd.services.ddclient.onFailure = ["notify-discord@%n.service"];
 }

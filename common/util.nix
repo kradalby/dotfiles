@@ -1,5 +1,9 @@
-{ config, pkgs, flakes, ... }:
 {
+  config,
+  pkgs,
+  flakes,
+  ...
+}: {
   # Things that require setcap wrappers. Everything else is in ../home
   programs = {
     iotop.enable = true;

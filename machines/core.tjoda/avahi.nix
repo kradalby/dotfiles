@@ -1,6 +1,6 @@
-{ config, ... }: {
+{config, ...}: {
   services.avahi = {
-    interfaces = [ config.my.lan "tailscale0" "wg0" ];
+    interfaces = [config.my.lan "tailscale0" "wg0"];
     extraServiceFiles = {
       timemachine-tjoda = ''
         <?xml version="1.0" standalone='no'?><!--*-nxml-*-->

@@ -1,4 +1,4 @@
-{ ... }: {
+{...}: {
   networking.firewall.allowedUDPPortRanges = [
     {
       from = 60000;

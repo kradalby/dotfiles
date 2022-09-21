@@ -1,6 +1,10 @@
-{ config, lib, flakes, pkgs, ... }:
 {
-
+  config,
+  lib,
+  flakes,
+  pkgs,
+  ...
+}: {
   i18n.defaultLocale = "en_US.UTF-8";
 
   nix = {
@@ -20,7 +24,7 @@
 
     optimise = {
       automatic = true;
-      dates = [ "03:45" ];
+      dates = ["03:45"];
     };
 
     registry = {
@@ -34,6 +38,5 @@
     allowUnfree = true;
   };
 
-
-  imports = [ ../pkgs/system.nix ];
+  imports = [../pkgs/system.nix];
 }

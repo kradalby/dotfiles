@@ -1,5 +1,10 @@
-{ config, flakes, pkgs, lib, ... }:
 {
+  config,
+  flakes,
+  pkgs,
+  lib,
+  ...
+}: {
   imports = [
     ../../common
     ./hardware-configuration.nix
@@ -17,7 +22,6 @@
     parted
   ];
 
-
   networking = {
     hostName = "dev";
     domain = "terra.fap.no";
@@ -31,10 +35,12 @@
     interfaces = {
       ${config.my.lan} = {
         ipv4.addresses = [
-          { address = "10.60.0.44"; prefixLength = 24; }
+          {
+            address = "10.60.0.44";
+            prefixLength = 24;
+          }
         ];
       };
-
     };
   };
 

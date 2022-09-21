@@ -1,12 +1,12 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, rustPlatform
-, asciidoctor
-, installShellFiles
-, pkg-config
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  rustPlatform,
+  asciidoctor,
+  installShellFiles,
+  pkg-config,
 }:
-
 rustPlatform.buildRustPackage rec {
   pname = "rustdesk-server";
   version = "1.1.6";
@@ -26,7 +26,7 @@ rustPlatform.buildRustPackage rec {
     description = "RustDesk Server Program";
     homepage = "https://github.com/rustdesk/rustdesk-server";
     # license = with licenses; [ agpl ];
-    maintainers = with maintainers; [ kradalby ];
+    maintainers = with maintainers; [kradalby];
     mainProgram = "hbbs";
   };
 }
