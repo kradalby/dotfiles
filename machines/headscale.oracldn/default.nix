@@ -17,6 +17,7 @@
     ./tailscale.nix
     ./headscale.nix
     ./matterbridge.nix
+    ./litestream.nix
   ];
 
   my.lan = "ens3";
