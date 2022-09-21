@@ -233,6 +233,7 @@
     # Used for measuring power of internet hw
     # (mqttthingAvatarOutlet "Bedroom Desk" "outlet" "tasmota_C38721")
 
+<<<<<<< Updated upstream
     {
       accessory = "XiaomiRoborockVacuum";
       name = "Martin";
@@ -243,6 +244,31 @@
       waterBox = false;
       cleanword = "cleaning";
     }
+=======
+      {
+        accessory = "NefitEasy";
+        name = "Thermostat";
+        options = {
+          serialNumber = "455010082";
+          accessKey = "z4FpZ8hvP6fLX6Hd";
+          password = "Atomike1";
+        };
+      }
+
+      # {
+      #   accessory = "PhilipsTV";
+      #   name = "Television";
+      #   ip_address = "10.65.0.103";
+      #   poll_status_interval = "30";
+      #   model_year = 2019;
+      #   has_ambilight = true;
+      #   username = "INdLGBCtHWh275OR";
+      #   password = "0cf74acce7c02fee600c8fcd1cea52010a5275fe681a343a6443bab2df272206";
+      #   inputs = [
+      #     { name = "TV Mode"; }
+      #   ];
+      # }
+>>>>>>> Stashed changes
 
     # {
     #   accessory = "PhilipsTV";

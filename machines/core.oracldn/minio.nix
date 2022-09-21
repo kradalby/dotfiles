@@ -9,7 +9,7 @@ in
 
   services.minio = {
     enable = true;
-    listenAddress = "127.0.0.1:49005";
+    consoleAddress = "127.0.0.1:49005";
     rootCredentialsFile = config.age.secrets.minio-oracldn.path;
   };
 
