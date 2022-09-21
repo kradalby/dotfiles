@@ -98,6 +98,9 @@ in
     # Postgres
     "postgres-keycloak.age".publicKeys = u ++ [hosts.core-oracldn];
 
-    # Nextcloud
-    "nextcloud.age".publicKeys = u ++ [hosts.core-oracldn];
-  }
+  # Nextcloud
+  "nextcloud.age".publicKeys = u ++ [ hosts.core-oracldn ];
+
+  # minio
+  "minio-oracldn.age".publicKeys = u ++ [ hosts.core-oracldn ];
+}

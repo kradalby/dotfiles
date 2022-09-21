@@ -12,12 +12,13 @@
     "/var/lib/kuma"
     "/var/lib/step-ca"
     config.services.postgresqlBackup.location
+    config.services.minio.configDir
   ];
 
   cfg = site: {
     secret = "restic-core-oracldn-token";
-    site = site;
-    paths = paths;
+    inherit site;
+    inherit paths;
   };
 in
   lib.mkMerge [
