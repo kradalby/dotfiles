@@ -44,7 +44,6 @@
   nixpkgs = {
     config = {
       allowUnfree = true;
-      allowBroken = true; # TODO: Remove
     };
   };
 

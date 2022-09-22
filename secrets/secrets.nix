@@ -1,6 +1,7 @@
 with builtins; let
   users = {
     kradalby = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBV4ZjlUvRDs70qHD/Ldi6OTkFpDEFgfbXbqSnaL2Qup";
+    kratail = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJjAKM+WX/sNJwMcgOv87DXfeXD/fGG7RyCF8svQNbLL";
   };
 
   hosts = {
@@ -106,4 +107,5 @@ in
 
   # litestream
   "litestream.age".publicKeys = u ++ [ hosts.core-oracldn hosts.headscale-oracldn ];
+
 }
