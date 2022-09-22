@@ -67,7 +67,7 @@ return require("packer").startup(
                 "folke/lua-dev.nvim"
             },
             config = function()
-                lspconfig = require "lspconfig"
+                local lspconfig = require "lspconfig"
 
                 require("mason-lspconfig").setup {
                     ensure_installed = {
@@ -178,7 +178,7 @@ return require("packer").startup(
                         lspconfig.ansiblels.setup {
                             filetypes = { "yaml", "yaml.ansible", "ansible" },
                             root_dir = function(fname)
-                                return util.root_pattern { "requirements.yaml", "inventory" } (fname)
+                                return lspconfig.util.root_pattern { "requirements.yaml", "inventory" } (fname)
                             end
                         }
                     end,
@@ -275,7 +275,6 @@ return require("packer").startup(
                 require("mason-null-ls").setup({
                     automatic_installation = true,
                 })
-                require("mason-null-ls").check_install(true)
             end,
         }
 
