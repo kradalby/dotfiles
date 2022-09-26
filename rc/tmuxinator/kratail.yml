@@ -16,3 +16,7 @@ windows:
       root: ~/git/tailscale
   - tailscale:
       root: ~/git/tailscale
+  - headscale:
+      root: ~/git/headscale
+  - headscale:
+      root: ~/git/headscale
