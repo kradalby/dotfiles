@@ -47,9 +47,7 @@
 
     deadnix.url = "github:astro/deadnix";
     alejandra.url = "github:kamadorueda/alejandra";
-    headscale = {
-      url = "github:kradalby/headscale/nix-overlay";
-    };
+    headscale.url = "github:juanfont/headscale";
   };
 
   outputs = {
