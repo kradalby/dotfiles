@@ -3,9 +3,9 @@
     buildGoModule = prev.buildGo117Module;
   };
 
-  headscale = prev.callPackage ./headscale.nix {
-    buildGoModule = prev.unstable.buildGo119Module;
-  };
+  # headscale = prev.callPackage ./headscale.nix {
+  #   buildGoModule = prev.unstable.buildGo119Module;
+  # };
 
   act = prev.callPackage ./act.nix {
     buildGoModule = prev.buildGo118Module;
