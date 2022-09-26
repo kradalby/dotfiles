@@ -47,6 +47,9 @@
 
     deadnix.url = "github:astro/deadnix";
     alejandra.url = "github:kamadorueda/alejandra";
+    headscale = {
+      url = "github:kradalby/headscale/nix-overlay";
+    };
   };
 
   outputs = {
@@ -70,6 +73,7 @@
     flake-utils,
     deadnix,
     alejandra,
+    headscale,
     ...
   } @ flakes: let
     overlay-pkgs = final: prev: {
@@ -87,6 +91,7 @@
       ragenix.overlay
       deadnix.overlays.default
       alejandra.overlay
+      headscale.overlay
       (import ./pkgs/overlays {inherit mach-nix;})
     ];
 
