@@ -239,23 +239,49 @@ return require("packer").startup(
                 null_ls.setup(
                     {
                         sources = {
+                            null_ls.builtins.code_actions.eslint_d,
+                            null_ls.builtins.code_actions.proselint,
+                            null_ls.builtins.code_actions.shellcheck,
                             null_ls.builtins.code_actions.statix,
+                            null_ls.builtins.completion.spell,
                             null_ls.builtins.diagnostics.editorconfig_checker.with(
                                 {
                                     command = "editorconfig-checker"
                                 }
                             ),
+                            null_ls.builtins.diagnostics.actionlint,
+                            null_ls.builtins.diagnostics.commitlint,
+                            null_ls.builtins.diagnostics.curlylint,
+                            null_ls.builtins.diagnostics.deadnix,
+                            null_ls.builtins.diagnostics.djlint,
+                            null_ls.builtins.diagnostics.eslint_d,
+                            null_ls.builtins.diagnostics.fish,
                             null_ls.builtins.diagnostics.gitlint,
+                            null_ls.builtins.diagnostics.hadolint,
+                            null_ls.builtins.diagnostics.proselint,
+                            null_ls.builtins.diagnostics.pylama,
                             null_ls.builtins.diagnostics.shellcheck,
+                            null_ls.builtins.diagnostics.staticcheck,
                             null_ls.builtins.diagnostics.statix,
                             null_ls.builtins.diagnostics.vale,
-                            null_ls.builtins.diagnostics.staticcheck,
-                            null_ls.builtins.diagnostics.deadnix,
+                            null_ls.builtins.diagnostics.write_good,
                             null_ls.builtins.formatting.alejandra,
+                            null_ls.builtins.formatting.beautysh,
+                            null_ls.builtins.formatting.black,
+                            null_ls.builtins.formatting.cbfmt,
+                            null_ls.builtins.formatting.clang_format,
+                            null_ls.builtins.formatting.djlint,
+                            null_ls.builtins.formatting.eslint_d,
                             null_ls.builtins.formatting.fish_indent,
+                            null_ls.builtins.formatting.isort,
+                            null_ls.builtins.formatting.jq,
+                            null_ls.builtins.formatting.prettierd,
                             null_ls.builtins.formatting.shellharden,
+                            null_ls.builtins.formatting.swiftformat,
+                            -- null_ls.builtins.formatting.terraform_fmt, -- Covered by LSP?
                             null_ls.builtins.formatting.trim_newlines,
-                            null_ls.builtins.formatting.trim_whitespace
+                            null_ls.builtins.formatting.trim_whitespace,
+                            null_ls.builtins.hover.dictionary
                         }
                     }
                 )
