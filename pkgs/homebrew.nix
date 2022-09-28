@@ -83,6 +83,7 @@ _: {
       "logi-options-plus"
       # "multipass"
       "docker"
+      "webex"
     ];
 
     # TODO: why does some of these not work?
