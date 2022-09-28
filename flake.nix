@@ -86,7 +86,7 @@
       nur.overlay
       overlay-pkgs
       fenix.overlay
-      ragenix.overlay
+      ragenix.overlays.default
       deadnix.overlays.default
       alejandra.overlay
       headscale.overlay
