@@ -3,7 +3,18 @@
   pkgs,
   lib,
 }: let
-  tailscale = hostname: loginServer: preAuthKey: exitNode: advertiseRoutes: {
+  tailscale = {
+    hostname ? ''${builtins.replaceStrings [".fap.no"] [""] config.networking.fqdn}'',
+    loginServer ? "",
+    preAuthKey,
+    exitNode ? false,
+    advertiseRoutes ? [],
+    acceptDns ? false,
+    reset ? true,
+    reauth ? false,
+    ssh ? true,
+    tags ? [],
+  }: {
     networking.firewall = {
       trustedInterfaces = ["tailscale0"];
       allowedUDPPorts = [config.services.tailscale.port];
@@ -44,14 +55,17 @@
         upCommand = "${pkgs.tailscale}/bin/tailscale up";
         args =
           [
-            "-login-server ${loginServer}"
             "--authkey ${preAuthKey}"
-            "--accept-dns=false"
-            ''--hostname ${builtins.replaceStrings [".fap.no"] [""] config.networking.fqdn}''
-            "--reset"
+            ''--hostname ${hostname}''
           ]
+          ++ lib.optional ((builtins.length loginServer) > 0) "--login-server ${loginServer}"
+          ++ lib.optional reauth "--force-reauth"
+          ++ lib.optional reset "--reset"
+          ++ lib.optional ssh "--ssh"
+          ++ lib.optional acceptDns "--accept-dns=false"
           ++ lib.optional exitNode ''--advertise-exit-node ''
-          ++ lib.optional ((builtins.length advertiseRoutes) > 0) ''--advertise-routes=${builtins.concatStringsSep "," advertiseRoutes}'';
+          ++ lib.optional ((builtins.length advertiseRoutes) > 0) ''--advertise-routes=${builtins.concatStringsSep "," advertiseRoutes}''
+          ++ lib.optional ((builtins.length tags) > 0) ''--advertise-tags=${builtins.concatStringsSep "," tags}'';
       in ''
         # wait for tailscaled to settle
         sleep 2
