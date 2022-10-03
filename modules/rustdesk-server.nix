@@ -43,6 +43,16 @@ in {
       description = "Path to data dir, for config.cfg";
     };
 
+    pubKeyFile = mkOption {
+      type = types.path;
+      description = "ed25519 public key, generated if empty";
+    };
+
+    privKeyFile = mkOption {
+      type = types.path;
+      description = "ed25519 private key, generated if empty";
+    };
+
     openFirewall = mkEnableOption "opening of the metric in the firewall";
   };
 
@@ -86,6 +96,11 @@ in {
       environment = {
         ENCRYPTED_ONLY = "1";
       };
+
+      preStart = ''
+        ln -sf ${cfg.pubKeyFile} ${cfg.dataDir}/id_ed25519.pub
+        ln -sf ${cfg.privKeyFile} ${cfg.dataDir}/id_ed25519
+      '';
     };
   };
 }

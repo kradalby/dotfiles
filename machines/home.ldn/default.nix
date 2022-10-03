@@ -19,6 +19,7 @@
     ./homebridge.nix
     # ./scrypted.nix
     ./unifi.nix
+    ./tailscale.nix
   ];
 
   my.lan = "eth0";

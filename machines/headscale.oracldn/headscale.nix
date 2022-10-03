@@ -30,6 +30,9 @@ in {
 
     privateKeyFile = config.age.secrets.headscale-private-key.path;
 
+    # database.path = "file:/var/lib/headscale/db.sqlite?cache=shared&mode=rwc&_journal_mode=WAL&_busy_timeout=5000";
+    # database.path = "file:/var/lib/headscale/db.sqlite?_journal_mode=WAL&_busy_timeout=5000";
+
     openIdConnect = {
       # issuer = "https://id.kradalby.no/dex";
       # clientId = "headscale";

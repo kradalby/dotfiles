@@ -1,7 +1,7 @@
 {
   config,
   lib,
-  modulesPath,
+  pkgs,
   ...
 }: {
   boot.loader.grub = {
@@ -21,6 +21,11 @@
     device = "/dev/disk/by-uuid/6fb6cb76-2e0e-4592-acee-d4e328d7fcd8";
     fsType = "ext4";
   };
+
+  boot.postBootCommands = ''
+    ${pkgs.zfs}/bin/zpool import -a -N -d storage
+    ${pkgs.zfs}/bin/zfs mount -a
+  '';
 
   # fileSystems."/storage" =
   #   {

@@ -33,7 +33,10 @@
     environment.systemPackages = [pkgs.tailscale];
 
     # enable the tailscale service
-    services.tailscale.enable = true;
+    services.tailscale = {
+      enable = true;
+      package = pkgs.unstable.tailscale;
+    };
 
     systemd.services.tailscaled.onFailure = ["notify-discord@%n.service"];
 
@@ -52,13 +55,13 @@
 
       # have the job run this shell script
       script = let
-        upCommand = "${pkgs.tailscale}/bin/tailscale up";
+        upCommand = "${pkgs.unstable.tailscale}/bin/tailscale up";
         args =
           [
             "--authkey ${preAuthKey}"
             ''--hostname ${hostname}''
           ]
-          ++ lib.optional ((builtins.length loginServer) > 0) "--login-server ${loginServer}"
+          ++ lib.optional ((builtins.stringLength loginServer) > 0) "--login-server ${loginServer}"
           ++ lib.optional reauth "--force-reauth"
           ++ lib.optional reset "--reset"
           ++ lib.optional ssh "--ssh"
