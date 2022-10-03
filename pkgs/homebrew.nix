@@ -81,6 +81,7 @@ _: {
       # Maybe
       "monitorcontrol"
       "logi-options-plus"
+      "logitech-g-hub"
       # "multipass"
       "docker"
       "webex"
