@@ -99,13 +99,16 @@ in
     # Postgres
     "postgres-keycloak.age".publicKeys = u ++ [hosts.core-oracldn];
 
-  # Nextcloud
-  "nextcloud.age".publicKeys = u ++ [ hosts.core-oracldn ];
+    # Nextcloud
+    "nextcloud.age".publicKeys = u ++ [hosts.core-oracldn];
 
-  # minio
-  "minio-oracldn.age".publicKeys = u ++ [ hosts.core-oracldn ];
+    # minio
+    "minio-oracldn.age".publicKeys = u ++ [hosts.core-oracldn];
 
-  # litestream
-  "litestream.age".publicKeys = u ++ [ hosts.core-oracldn hosts.headscale-oracldn ];
+    # litestream
+    "litestream.age".publicKeys = u ++ [hosts.core-oracldn hosts.headscale-oracldn];
 
-}
+    # rustdesk relay
+    "rustdesk-ed25519.age".publicKeys = u ++ [hosts.core-oracldn];
+    "rustdesk-ed25519-pub.age".publicKeys = u ++ [hosts.core-oracldn];
+  }

@@ -20,7 +20,7 @@ in
     useACMEHost = domain;
     locations."/" = {
       proxyWebsockets = true;
-      proxyPass = "http://${config.services.minio.listenAddress}";
+      proxyPass = "http://${config.services.minio.consoleAddress}";
 
       extraConfig = ''
         access_log /var/log/nginx/${domain}.access.log;

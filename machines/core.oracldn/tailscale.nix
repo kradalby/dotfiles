@@ -8,9 +8,10 @@
   wireguardConfig = wireguardHosts.servers.oracleldn;
 in
   (import ../../common/funcs/tailscale.nix {inherit config pkgs lib;}).tailscale
-  "core.oracldn"
-  "https://headscale.kradalby.no"
-  "5d12701404d46e35107e40a8ea21bfdefffa46099664c74b" # onetime key
-  
-  true
-  wireguardConfig.additional_networks
+  {
+    preAuthKey = "tskey-kLeAwF3CNTRL-ECKYbf5nEY17n2hwGokBn3"; # onetime key
+    reauth = false;
+    exitNode = true;
+    advertiseRoutes = wireguardConfig.additional_networks;
+    tags = ["tag:oracldn" "tag:gateway" "tag:server"];
+  }
