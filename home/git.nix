@@ -30,7 +30,7 @@
         default = "simple";
       };
       pull = {
-        ff = "only";
+        rebase = true;
       };
       init = {
         defaultBranch = "main";
