@@ -6,8 +6,6 @@ startup_window: plays
 
 windows:
   - -:
-  - plays:
-      root: ~/git/plays
   - dotfiles:
       root: ~/git/dotfiles
   - dotfiles:

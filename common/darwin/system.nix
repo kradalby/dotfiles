@@ -1,4 +1,4 @@
-{}:{
+{...}:{
   # Available options
   # https://daiderd.com/nix-darwin/manual/index.html#sec-options
   system = {
@@ -40,7 +40,6 @@
         TrackpadThreeFingerDrag = true;
       };
       loginwindow.GuestEnabled = false;
-      smb.NetBIOSName = machine.hostname;
     };
 
     keyboard = {
