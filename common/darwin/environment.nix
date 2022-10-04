@@ -1,5 +1,10 @@
-{stdenv}: {
-  environment.etc = mkIf stdenv.isAarch64 {
+{
+  pkgs,
+  lib,
+  stdenv,
+  ...
+}: {
+  environment.etc = lib.mkIf pkgs.stdenv.isAarch64 {
     "pam.d/sudo".text = ''
       auth       optional       /opt/homebrew/lib/pam/pam_reattach.so
       auth       sufficient     pam_tid.so

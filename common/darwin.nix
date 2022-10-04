@@ -1,4 +1,4 @@
-{}: {
+{...}: {
   require = [
     ./darwin/environment.nix
     ./darwin/system.nix
