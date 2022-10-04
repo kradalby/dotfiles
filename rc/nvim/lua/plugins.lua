@@ -238,6 +238,19 @@ return require("packer").startup(
                 local null_ls = require("null-ls")
                 null_ls.setup(
                     {
+                        on_attach = function(client, bufnr)
+                            if client.supports_method("textDocument/formatting") then
+                                vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
+                                vim.api.nvim_create_autocmd("BufWritePre", {
+                                    group = augroup,
+                                    buffer = bufnr,
+                                    callback = function()
+                                        -- on 0.8, you should use vim.lsp.buf.format({ bufnr = bufnr }) instead
+                                        vim.lsp.buf.formatting_sync()
+                                    end,
+                                })
+                            end
+                        end,
                         sources = {
                             null_ls.builtins.code_actions.eslint_d,
                             null_ls.builtins.code_actions.proselint,
@@ -273,6 +286,17 @@ return require("packer").startup(
                             null_ls.builtins.formatting.djlint,
                             null_ls.builtins.formatting.eslint_d,
                             null_ls.builtins.formatting.fish_indent,
+                            null_ls.builtins.formatting.goimports.with({
+                                condition = function(utils)
+                                    -- Try to detect if we are in a tailscale repo
+                                    return utils.root_has_file({ "go.toolchain.rev" })
+                                end,
+                            }),
+                            null_ls.builtins.formatting.golines.with({
+                                condition = function(utils)
+                                    return not utils.root_has_file({ "go.toolchain.rev" })
+                                end,
+                            }),
                             null_ls.builtins.formatting.isort,
                             null_ls.builtins.formatting.jq,
                             null_ls.builtins.formatting.prettierd,

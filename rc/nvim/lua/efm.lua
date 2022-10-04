@@ -151,7 +151,7 @@ M.languages = {
     -- scss = { M.prettier },
     -- markdown = { M.prettier },
     go = {
-        M.golines
+        -- M.golines
         -- M.golangci
     },
     sh = {
