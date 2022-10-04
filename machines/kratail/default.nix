@@ -152,13 +152,15 @@
       enableKeyMapping = true;
       remapCapsLockToEscape = true;
     };
+  };
 
-    // Work stuff
-    homebrew = {
+  # Work stuff
+  homebrew = {
+    casks = [
       "webex"
       "logi-options-plus"
       "monitorcontrol"
-    };
+    ];
   };
 
   # Used for backwards compatibility, please read the changelog before changing.
