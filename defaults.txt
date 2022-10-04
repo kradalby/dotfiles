@@ -1,0 +1,17 @@
+# Maccy copy paste
+org.p0deje.Maccy.KeyboardShortcuts_popup = "{\\"carbonModifiers\\":768,\\"carbonKeyCode\\":9}"
+org.p0deje.Maccy.SUEnableAutomaticChecks = 1
+org.p0deje.Maccy.fuzzySearch = 1
+
+
+# System General
+AppleHighlightColor = "1.000000 0.749020 0.823529 Pink"
+NSTableViewDefaultSizeMode = 1;
+
+# hot corners
+"wvous-br-corner" = 1;
+
+
+# accessibility
+TrackpadThreeFingerDrag = 1;
+
