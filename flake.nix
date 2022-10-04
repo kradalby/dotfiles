@@ -216,6 +216,16 @@
         };
       in
         macBox machine darwin-master home-manager;
+
+      kraairm2 = let
+        machine = {
+          arch = "aarch64-darwin";
+          username = "kradalby";
+          hostname = "kraairm2";
+          homeDir = /Users/kradalby;
+        };
+      in
+        macBox machine darwin-master home-manager;
     };
 
     homeConfigurations = {
