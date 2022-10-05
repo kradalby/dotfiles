@@ -7,7 +7,7 @@
   programs.tmux = {
     enable = true;
     shell = "${pkgs.fish}/bin/fish";
-    terminal = "screen-256color";
+    # terminal = "screen-256color";
     clock24 = true;
     secureSocket = true;
     historyLimit = 30000;

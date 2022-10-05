@@ -22,14 +22,12 @@
   nix = {
     extraOptions = lib.mkForce ''
       experimental-features = nix-command flakes
-      builders = ${lib.concatStringsSep " ; " remoteBuilders}
     '';
 
     settings = {
       trusted-users = [machine.username];
     };
   };
-
 
   users.users.kradalby = {
     name = machine.username;
