@@ -59,7 +59,7 @@
       };
 
       home.sessionVariables = {
-        TAILSCALE_NIX_SHELL_XCODE_VERSION = "14.0.1";
+        TS_NIX_SHELL_XCODE_VERSION = "14.0.1";
       };
     };
     # extraSpecialArgs = { inherit machine; };
