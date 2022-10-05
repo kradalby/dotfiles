@@ -40,12 +40,6 @@
       }
     ];
 
-    # for p in /run/current-system/sw/bin
-    #   if not contains $p $fish_user_paths
-    #     set -g fish_user_paths $p $fish_user_paths
-    #   end
-    # end
-
     loginShellInit = let
       fishReorderPath = path: "fish_add_path --move --prepend ${path}";
 
@@ -59,10 +53,6 @@
     '';
 
     shellInit = ''
-      # if type -q ${pkgs.babelfish}
-      # cat /etc/profiles/per-user/$USER/etc/profile.d/hm-session-vars.sh | ${pkgs.babelfish}/bin/babelfish | tail -n +5 | source
-      # end
-
       if test -f $HOME/Sync/fish/tokens.fish
           source $HOME/Sync/fish/tokens.fish
       end
@@ -76,10 +66,6 @@
             pyyaml
           ]);
     in {
-      # cp = "cp -i";
-      # mv = "mv -i";
-      # rm = "rm -i";
-
       s = ''${pkgs.findutils}/bin/xargs ${pkgs.perl}/bin/perl -pi -E'';
       ag = "${pkgs.ripgrep}/bin/rg";
       cat = "${pkgs.bat}/bin/bat";

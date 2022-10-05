@@ -56,6 +56,7 @@ _: {
       "openttd"
       "protonmail-bridge"
       "rectangle"
+      "safari-technology-preview"
       "secretive"
       "shottr"
       "signal"
@@ -67,7 +68,6 @@ _: {
       # "free-ruler"
       # "hex-fiend"
       # "little-snitch"
-      # "safari-technology-preview"
       # "tor-browser"
       # "transmission"
       # "tunnelblick"
@@ -77,10 +77,8 @@ _: {
       # "temurin"
       # "ghidra"
       # "machoview"
-
     ];
 
-    # TODO: why does some of these not work?
     masApps = {
       "1Password for Safari" = 1569813296;
       "Amphetamine" = 937984704;
