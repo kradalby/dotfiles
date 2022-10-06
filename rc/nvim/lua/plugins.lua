@@ -221,9 +221,9 @@ return require("packer").startup(
                             },
 
                             on_attach = function(client)
-                                client.resolved_capabilities.document_formatting = true
-                                client.resolved_capabilities.goto_definition = false
-                                -- client.resolved_capabilities.code_action = false
+                                client.server_capabilities.document_formatting = true
+                                client.server_capabilities.goto_definition = false
+                                -- client.server_capabilities.code_action = false
                                 -- common_on_attach(client)
                             end
                         }
