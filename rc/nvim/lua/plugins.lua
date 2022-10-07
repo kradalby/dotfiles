@@ -246,7 +246,7 @@ return require("packer").startup(
                                     buffer = bufnr,
                                     callback = function()
                                         -- on 0.8, you should use vim.lsp.buf.format({ bufnr = bufnr }) instead
-                                        vim.lsp.buf.formatting_seq_sync()
+                                        vim.lsp.buf.format()
                                     end,
                                 })
                             end
