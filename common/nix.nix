@@ -38,5 +38,8 @@
     allowUnfree = true;
   };
 
+  # TODO: why doesnt this always work?
+  # system.copySystemConfiguration = true;
+
   imports = [../pkgs/system.nix];
 }
