@@ -175,7 +175,7 @@
       nixosConfigurations;
   in {
     nixosConfigurations = {
-      # "dev.terra" = nixosBox "x86_64-linux" nixpkgs home-manager "dev.terra";
+      "core.terra" = nixosBox "x86_64-linux" nixpkgs home-manager "core.terra";
 
       "core.oracldn" = nixosBox "aarch64-linux" nixpkgs home-manager "core.oracldn";
       "headscale.oracldn" = nixosBox "x86_64-linux" nixpkgs null "headscale.oracldn";
