@@ -26,6 +26,8 @@
     # ./rest-server.nix
     # ./samba.nix
     # ./restic.nix
+
+    ./polar
   ];
 
   my.wan = "enp4s0f1";
