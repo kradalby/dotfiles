@@ -72,6 +72,7 @@
   # Work stuff
   homebrew = {
     casks = [
+      "wireshark"
       "webex"
       "logi-options-plus"
       "monitorcontrol"
