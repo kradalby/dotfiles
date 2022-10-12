@@ -24,6 +24,7 @@ _: {
       "lukakerr/things"
       "minio/stable"
       "sachaos/tap"
+      "cirruslabs/cli"
     ];
 
     brews = [
@@ -35,6 +36,9 @@ _: {
 
       # PAM module to make TouchID sudo work in tmux
       "pam-reattach"
+
+      # CI/VM
+      "tart"
     ];
 
     casks = [
@@ -45,7 +49,7 @@ _: {
       "balenaetcher"
       "calibre"
       "discord"
-      "docker"
+      # "docker" // TODO: remove if colima + docker works
       "firefox"
       "gas-mask"
       "geotag-photos-pro"
