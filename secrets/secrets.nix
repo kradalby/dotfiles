@@ -65,7 +65,7 @@ in
     "wireguard-ntnu.age".publicKeys = u ++ [hosts.core-ntnu];
     "wireguard-oracldn.age".publicKeys = u ++ [hosts.core-oracldn];
     "wireguard-oracfurt.age".publicKeys = u ++ [hosts.dev-oracfurt];
-    "wireguard-terra.age".publicKeys = u; # ++ [ hosts.core-terra ];
+    "wireguard-terra.age".publicKeys = u ++ [hosts.core-terra];
     "wireguard-tjoda.age".publicKeys = u ++ [hosts.core-tjoda];
     "wireguard-headscale-oracldn.age".publicKeys = u ++ [hosts.headscale-oracldn];
     # "wireguard-storage-bassan.age".publicKeys = u ++ [ hosts.storage-bassan ];

@@ -7,25 +7,27 @@
   domain = "grafana.${config.networking.domain}";
 in {
   age.secrets.grafana-admin-polar = {
-    file = ../../secrets/grafana-admin-polar.age;
+    file = ../../../secrets/grafana-admin-polar.age;
     mode = "0400";
     owner = "grafana";
   };
 
   services.grafana = {
     enable = true;
-    domain = domain;
+    package = pkgs.unstable.grafana;
+
+    inherit domain;
     rootUrl = "https://${domain}";
 
     analytics.reporting.enable = false;
 
     extraOptions = {
       SERVER_ENFORCE_DOMAIN = "true";
-
       AUTH_ANONYMOUS_ENABLED = "true";
       AUTH_ANONYMOUS_ORG_NAME = "Main Org.";
       AUTH_ANONYMOUS_ORG_ROLE = "Viewer";
       SERVER_ENABLE_GZIP = "true";
+      SECURITY_ALLOW_EMBEDDING = "true";
     };
 
     smtp = {
@@ -62,8 +64,10 @@ in {
       forceSSL = true;
       locations."/" = {
         proxyPass = "http://${toString config.services.grafana.addr}:${toString config.services.grafana.port}";
+        proxyWebsockets = true;
 
         extraConfig = ''
+          proxy_hide_header X-Frame-Options;
           proxy_set_header Host $host;
           proxy_set_header X-Real-IP $remote_addr;
           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
