@@ -7,7 +7,7 @@
   boot.loader.grub = {
     enable = true;
     version = 2;
-    device = "/dev/sda";
+    device = "/dev/disk/by-id/scsi-3600508b1001c721ab38cf39e04d065d6";
   };
 
   boot.kernelPackages = config.boot.zfs.package.latestCompatibleLinuxPackages;
@@ -16,6 +16,10 @@
   boot.kernelModules = ["kvm-intel"];
   boot.extraModulePackages = [];
   boot.supportedFilesystems = ["zfs"];
+  boot.zfs.extraPools = [
+    "fast"
+    "storage"
+  ];
 
   fileSystems."/" = {
     device = "/dev/disk/by-uuid/3c5dea1a-2662-42c0-abc0-dbfc9a4153e2";
@@ -25,17 +29,6 @@
   swapDevices = [
     {device = "/dev/disk/by-uuid/8baa072e-b85b-4611-83e2-5b60fd55a133";}
   ];
-
-  # boot.postBootCommands = ''
-  #   ${pkgs.zfs}/bin/zpool import -a -N -d storage
-  #   ${pkgs.zfs}/bin/zfs mount -a
-  # '';
-
-  # fileSystems."/storage" =
-  #   {
-  #     device = "/dev/disk/by-uuid/879931918469542350";
-  #     fsType = "zfs";
-  #   };
 
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 }

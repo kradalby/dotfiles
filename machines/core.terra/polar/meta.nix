@@ -1,4 +1,4 @@
-{
+{}: let
   juniperSwitches = [
     "techsw"
     "tribunesw"
@@ -34,5 +34,9 @@
     "westgw"
   ];
 
-  switches = juniperSwitches + aristaSwitches;
+  switches = juniperSwitches ++ aristaSwitches;
+in {
+  inherit switches;
+  inherit juniperSwitches;
+  inherit aristaSwitches;
 }

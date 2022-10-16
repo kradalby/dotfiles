@@ -4,7 +4,7 @@
   lib,
   ...
 }: let
-  meta = import ./polar.nix;
+  meta = import ./meta.nix {};
 
   prometheusDomain = "prometheus.${config.networking.domain}";
   # pushgatewayDomain = "pushgateway.${config.networking.domain}";
@@ -40,7 +40,7 @@
     #     host = ".*";
     #     host_pattern = true;
     #     username = "tech";
-    #     password = "0xfjortiz";
+    #     password = "";
     #   }
     # ];
 
@@ -48,7 +48,7 @@
       builtins.map (host: {
         host = host + ".pp30.polarparty.no";
         username = "tech";
-        password = "0xfjortiz";
+        password = "";
       })
       meta.juniperSwitches;
 
@@ -115,6 +115,35 @@ in {
           {
             "target_label" = "__address__";
             "replacement" = "127.0.0.1:${toString config.services.prometheus.exporters.snmp.port}";
+          }
+        ];
+      }
+      {
+        job_name = "polar-arista";
+        scrape_interval = "2m";
+        scrape_timeout = "1m59s";
+        static_configs = [
+          {
+            targets = builtins.map (sw: "${sw}.pp30.polarparty.no") meta.aristaSwitches;
+          }
+        ];
+        metrics_path = "/arista";
+        scheme = "https";
+        params = {
+          module = ["port"];
+        };
+        relabel_configs = [
+          {
+            "source_labels" = ["__address__"];
+            "target_label" = "__param_target";
+          }
+          {
+            "source_labels" = ["__param_target"];
+            "target_label" = "instance";
+          }
+          {
+            "target_label" = "__address__";
+            "replacement" = "arista-exporter.nms.pp30.polarparty.no:443";
           }
         ];
       }

@@ -8,7 +8,7 @@ with lib; {
 
   config = {
     services.sslh2 = {
-      enable = true;
+      enable = config.my.enableSslh;
       port = 443;
       verbose = true;
       timeout = 5;

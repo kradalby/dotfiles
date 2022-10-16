@@ -4,7 +4,7 @@
   lib,
   ...
 }: let
-  meta = import ./polar.nix;
+  meta = import ./meta.nix {};
 
   domain = "ox.core.terra.fap.no";
   conf = pkgs.writeText "oxidized-config.yml" ''
@@ -42,10 +42,10 @@
             - password
             - keyboard-interactive
         username: tech
-        password: 0xfjortiz
+        password: 
       junos:
         username: tech
-        password: 0xfjortiz
+        password: 
   '';
 in {
   config = {
@@ -55,7 +55,7 @@ in {
       routerDB = pkgs.writeText "oxidized-router.db" (lib.concatStringsSep "\n" (
         (builtins.map (name: "${name}.pp30.polarparty.no:eos")
           meta.aristaSwitches)
-        + (builtins.map (name: "${name}.pp30.polarparty.no:junos") meta.juniperSwitches)
+        ++ (builtins.map (name: "${name}.pp30.polarparty.no:junos") meta.juniperSwitches)
       ));
 
       configFile = conf;

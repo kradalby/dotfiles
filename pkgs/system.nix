@@ -28,7 +28,6 @@
     ncdu
     p7zip
     procs
-    python3
     rclone
     restic
     ripgrep
@@ -53,5 +52,14 @@
     nixpkgs-fmt
     nix-diff
     nix-tree
+
+    (let
+      my-python-packages = python-packages:
+        with python-packages; [
+          requests
+        ];
+      python-with-my-packages = python3.withPackages my-python-packages;
+    in
+      python-with-my-packages)
   ];
 }

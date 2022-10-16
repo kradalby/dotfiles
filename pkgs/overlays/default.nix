@@ -15,6 +15,10 @@
     buildGoModule = prev.buildGo118Module;
   };
 
+  junos_exporter = prev.callPackage ./junos_exporter.nix {
+    buildGoModule = prev.buildGo118Module;
+  };
+
   homebridge = prev.callPackage ./homebridge/override.nix {};
 
   rustdesk-server = prev.callPackage ./rustdesk-server.nix {};

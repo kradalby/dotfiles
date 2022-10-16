@@ -6,30 +6,37 @@
 }: let
   consul = import ./funcs/consul.nix {inherit lib;};
 in {
+  options.my.enableSslh = lib.mkOption {
+    type = lib.types.bool;
+    default = false;
+  };
+
   options.services.nginx.virtualHosts = lib.mkOption {
     type = lib.types.attrsOf (lib.types.submodule {
-      config.listen = lib.mkDefault [
-        {
-          addr = "0.0.0.0";
-          port = 80;
-          ssl = false;
-        }
-        {
-          addr = "0.0.0.0";
-          port = 60443;
-          ssl = true;
-        }
-        {
-          addr = "[::]";
-          port = 80;
-          ssl = false;
-        }
-        {
-          addr = "[::]";
-          port = 60443;
-          ssl = true;
-        }
-      ];
+      config.listen = lib.mkIf config.my.enableSslh (
+        lib.mkDefault [
+          {
+            addr = "0.0.0.0";
+            port = 80;
+            ssl = false;
+          }
+          {
+            addr = "0.0.0.0";
+            port = 60443;
+            ssl = true;
+          }
+          {
+            addr = "[::]";
+            port = 80;
+            ssl = false;
+          }
+          {
+            addr = "[::]";
+            port = 60443;
+            ssl = true;
+          }
+        ]
+      );
     });
   };
 
@@ -70,7 +77,7 @@ in {
         add_header 'Referrer-Policy' 'origin-when-cross-origin';
 
         # Disable embedding as a frame
-        add_header X-Frame-Options DENY;
+        # add_header X-Frame-Options DENY;
 
         # Prevent injection of code in other mime types (XSS Attacks)
         add_header X-Content-Type-Options nosniff;

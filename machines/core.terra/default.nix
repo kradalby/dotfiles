@@ -19,7 +19,7 @@
     ./zfs.nix
     ./wireguard.nix
     ./tailscale.nix
-    ./corerad.nix
+    # ./corerad.nix
     # ./dhcp.nix
     # ./openvpn.nix
     ./syncthing.nix
@@ -27,11 +27,13 @@
     # ./samba.nix
     # ./restic.nix
 
-    ./polar
+    # ./polar
   ];
 
-  my.wan = "enp4s0f1";
-  my.lan = "enp1s0f0";
+  my.wan = "enp4s0f0";
+  my.lan = "lo";
+
+  my.enableSslh = false;
 
   my.users.storage = true;
   my.users.timemachine = true;
@@ -89,9 +91,29 @@
     #   '';
     # };
 
+    defaultGateway = "185.243.216.1";
+    defaultGateway6 = "2a03:94e0:ffff:185:243:216::1";
+
     interfaces = {
-      ${config.my.wan} = {
+      enp4s0f1 = {
         useDHCP = true;
+        tempAddress = "disabled";
+      };
+
+      enp4s0f0 = {
+        ipv4.addresses = [
+          {
+            address = "185.243.216.95";
+            prefixLength = 24;
+          }
+        ];
+        ipv6.addresses = [
+          {
+            address = "2a03:94e0:ffff:185:243:216::95";
+            prefixLength = 118;
+          }
+        ];
+
         tempAddress = "disabled";
       };
 
@@ -143,14 +165,15 @@
       allowedUDPPorts = lib.mkForce [
         443 # HTTPS
         config.services.tailscale.port
-        config.networking.wireguard.interfaces.wg0.listenPort
+        # config.networking.wireguard.interfaces.wg0.listenPort
       ];
 
       trustedInterfaces = [config.my.lan];
     };
   };
 
-  monitoring.smartctl.devices = ["/dev/sdc"];
+  # TODO: Fix disk monitoring somehow
+  # monitoring.smartctl.devices = ["/dev/sdc"];
 
   boot.cleanTmpDir = true;
 
