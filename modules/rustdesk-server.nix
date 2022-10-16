@@ -65,7 +65,7 @@ in {
       script = ''
         ${cfg.package}/bin/hbbs -r ${cfg.domain}:21117
       '';
-      wantedBy = ["multi-user.target" "docker-rustdesk-server.service"];
+      wantedBy = ["multi-user.target"];
       after = ["network-online.target"];
       serviceConfig = {
         User = cfg.user;
@@ -83,7 +83,7 @@ in {
       script = ''
         ${cfg.package}/bin/hbbr
       '';
-      wantedBy = ["multi-user.target" "docker-rustdesk-server.service"];
+      wantedBy = ["multi-user.target"];
       after = ["network-online.target"];
       serviceConfig = {
         User = cfg.user;

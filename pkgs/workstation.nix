@@ -6,65 +6,53 @@
 }: {
   home.packages = with pkgs;
     [
-      # Workstation
-      drone-cli
-      exiftool
-      ipcalc
-      kubectl
-      kubernetes-helm
-      nmap
-      prettyping
-      qrencode
-      headscale
-      step-cli
-      colmena
-      ragenix
-      ansible
-
-      # nix tooling
-      nodePackages.node2nix
-
-      # imapchive
-
-      # logcli
-
-      python39Packages.pipx
-      # osxphotos
-      # Development
+      # act
       # buf
+      # go-jsonnet
+      # imapchive
+      # logcli
+      # nodejs
+      # osxphotos
+      # poetry
+      # rnix-lsp
+      # yarn
+      ansible
+      colmena
       dockfmt
+      drone-cli
       dyff
+      editorconfig-checker
       entr
+      exiftool
       gh
       git-open
       gitlint
-      # go-jsonnet
-      hadolint
-      html-tidy
-      nodePackages.eslint_d
-
-      # nodePackages.lua-fmt
-
-      nodePackages.prettier
-      # nodejs
-      # poetry
-      pre-commit
-      # rnix-lsp
-      shfmt
-      shellharden
-      shellcheck
-      # yarn
-      editorconfig-checker
       grpcurl
-      # act
-      vale
-
-      # neovim plugin deps
+      hadolint
+      headscale
+      html-tidy
+      ipcalc
+      kubectl
+      kubernetes-helm
       libiconv # rnix-lsp
-      nodejs # ansiblels
-      unstable.dotnet-sdk # omnisharp
-      lua53Packages.luasql-sqlite3 # yank sql
       lua53Packages.luadbi-sqlite3 # yank sql
+      lua53Packages.luasql-sqlite3 # yank sql
+      nmap
+      nodePackages.eslint_d
+      nodePackages.node2nix
+      nodePackages.prettier
+      nodejs # ansiblels
+      pre-commit
+      prettyping
+      python310Packages.pylama
+      qrencode
+      ragenix
+      shellcheck
+      shellharden
+      shfmt
+      step-cli
+      unstable.dotnet-sdk # omnisharp
+      vale
 
       (fenix.complete.withComponents
         [
@@ -106,6 +94,6 @@
       terminal-notifier
     ]
     ++ lib.optionals stdenv.isLinux [
-      swift
+      # swift
     ];
 }

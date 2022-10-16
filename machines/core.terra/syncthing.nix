@@ -39,6 +39,13 @@ in {
           type = "receiveonly";
         };
 
+        "/fast/album" = {
+          id = "qha65-mn9fc";
+          path = "/fast/hugin/album";
+          devices = ["kraairm2"];
+          type = "receiveonly";
+        };
+
         "kradalby - Sync" = {
           id = "xTDuT-kZeuK";
           path = "/storage/sync/kradalby";

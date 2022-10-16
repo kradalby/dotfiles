@@ -6,7 +6,7 @@
   python3Packages,
 }: let
   packageOverrides = pkgs.callPackage ./python-packages.nix {};
-  python = pkgs.python39.override {inherit packageOverrides;};
+  python = pkgs.python310.override {inherit packageOverrides;};
   pythonWithPackages =
     python.withPackages (ps: [
     ]);
@@ -25,7 +25,7 @@ in
     };
 
     patches = with packageOverrides; [
-      pkgs.python39Packages.psycopg2
+      pkgs.python310Packages.psycopg2
       Bootstrap-Flask
       Flask
       Flask-Admin

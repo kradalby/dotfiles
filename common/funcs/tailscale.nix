@@ -3,6 +3,7 @@
   pkgs,
   lib,
 }: let
+  package = pkgs.unstable.tailscale;
   tailscale = {
     hostname ? ''${builtins.replaceStrings [".fap.no"] [""] config.networking.fqdn}'',
     loginServer ? "",
@@ -30,12 +31,12 @@
     };
 
     # make the tailscale command usable to users
-    environment.systemPackages = [pkgs.tailscale];
+    environment.systemPackages = [package];
 
     # enable the tailscale service
     services.tailscale = {
       enable = true;
-      package = pkgs.unstable.tailscale;
+      package = package;
     };
 
     systemd.services.tailscaled.onFailure = ["notify-discord@%n.service"];
@@ -55,7 +56,7 @@
 
       # have the job run this shell script
       script = let
-        upCommand = "${pkgs.unstable.tailscale}/bin/tailscale up";
+        upCommand = "${package}/bin/tailscale up";
         args =
           [
             "--authkey ${preAuthKey}"
@@ -74,7 +75,7 @@
         sleep 2
 
         # check if we are already authenticated to tailscale
-        status="$(${pkgs.tailscale}/bin/tailscale status -json | ${pkgs.jq}/bin/jq -r .BackendState)"
+        status="$(${package}/bin/tailscale status -json | ${pkgs.jq}/bin/jq -r .BackendState)"
         if [ $status = "Running" ]; then # if so, then do nothing
           exit 0
         fi
