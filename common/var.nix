@@ -23,7 +23,7 @@
         gaa = "git add --update .";
         gco = "git checkout";
         gcob = "git checkout -b";
-        gcom = "git checkout master";
+        gcom = "git checkout main";
         gd = "git diff";
         gdc = "git diff --cached";
         gb = "git branch";
@@ -34,7 +34,8 @@
         gstc = "git stash clear";
         gm = "git merge --no-ff";
         gr = "git rebase";
-        grom = "git rebase origin/master";
+        grom = "git rebase origin/main";
+        gri = "git rebase --interactive";
         grc = "git rebase --continue";
         gra = "git rebase --abort";
         gfo = "git fetch origin";
