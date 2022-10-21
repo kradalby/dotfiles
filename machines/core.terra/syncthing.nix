@@ -64,9 +64,12 @@ in {
     locations."/" = {
       proxyPass = "http://127.0.0.1:8384";
       proxyWebsockets = true;
+      extraConfig = config.services.tailscale-nginx-auth.authConfig;
     };
-    extraConfig = ''
-      access_log /var/log/nginx/${domain}.access.log;
-    '';
+    extraConfig =
+      ''
+        access_log /var/log/nginx/${domain}.access.log;
+      ''
+      + config.services.tailscale-nginx-auth.internalRoute;
   };
 }
