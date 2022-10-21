@@ -7,6 +7,10 @@
   #   buildGoModule = prev.unstable.buildGo119Module;
   # };
 
+  tailscale-nginx-auth = prev.callPackage ./tailscale-nginx-auth.nix {
+    buildGoModule = prev.unstable.buildGo119Module;
+  };
+
   act = prev.callPackage ./act.nix {
     buildGoModule = prev.buildGo118Module;
   };
