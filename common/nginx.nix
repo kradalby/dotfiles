@@ -45,6 +45,8 @@ in {
   ];
 
   config = {
+    services.tailscale-nginx-auth.enable = true;
+
     services.nginx = {
       enable = true;
       package = pkgs.nginx;
