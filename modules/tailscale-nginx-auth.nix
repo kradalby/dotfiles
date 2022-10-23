@@ -48,10 +48,11 @@ in {
         location /auth {
           internal;
 
-          proxy_pass http://unix:/run/tailscale.nginx-auth.sock;
+          proxy_pass http://unix:/run/tailscale-nginx-auth/tailscale.nginx-auth.sock;
           proxy_pass_request_body off;
 
-          proxy_set_header Host $http_host;
+          # proxy_set_header Host $http_host;
+          proxy_set_header Host $host;
           proxy_set_header Remote-Addr $remote_addr;
           proxy_set_header Remote-Port $remote_port;
           proxy_set_header Original-URI $request_uri;
@@ -65,22 +66,28 @@ in {
       enable = true;
       description = "Tailscale NGINX Authentication service";
       script = ''
-        ${cfg.package}/bin/nginx-auth
+        ${cfg.package}/bin/nginx-auth -sockpath /run/tailscale-nginx-auth/tailscale.nginx-auth.sock
       '';
       wantedBy = ["default.target"];
       after = ["nginx.service"];
       wants = ["nginx.service"];
+
       serviceConfig = {
-        DynamicUser = true;
+        # DynamicUser = true;
+        User = config.services.nginx.user;
+        Group = config.services.nginx.group;
+        RuntimeDirectory = "tailscale-nginx-auth";
+        RuntimeDirectoryMode = "0755";
       };
+
       path = [cfg.package];
     };
 
-    systemd.sockets.tailscale-nginx-auth = {
-      description = "Tailscale NGINX Authentication socket";
-      partOf = ["tailscale-nginx-auth.service"];
-      listenStreams = ["/var/run/tailscale.nginx-auth.sock"];
-      wantedBy = ["sockets.target"];
-    };
+    # systemd.sockets.tailscale-nginx-auth = {
+    #   description = "Tailscale NGINX Authentication socket";
+    #   partOf = ["tailscale-nginx-auth.service"];
+    #   listenStreams = ["/run/tailscale-nginx-auth/tailscale.nginx-auth.sock"];
+    #   wantedBy = ["sockets.target"];
+    # };
   };
 }

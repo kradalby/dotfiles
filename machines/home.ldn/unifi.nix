@@ -4,74 +4,67 @@
   lib,
   ...
 }: let
+  nginx = import ../../common/funcs/nginx.nix {inherit config lib;};
   consul = import ../../common/funcs/consul.nix {inherit lib;};
 
   domain = "unifi.${config.networking.domain}";
-in {
-  services.unifi = {
-    unifiPackage = pkgs.unstable.unifi.overrideAttrs (attrs: {
-      meta = attrs.meta // {license = lib.licenses.mit;};
-    });
-    enable = true;
-    openFirewall = true;
+in
+  lib.mkMerge [
+    {
+      services.unifi = {
+        unifiPackage = pkgs.unstable.unifi.overrideAttrs (attrs: {
+          meta = attrs.meta // {license = lib.licenses.mit;};
+        });
+        enable = true;
+        openFirewall = true;
 
-    # initialJavaHeapSize = 1024;
-    # maximumJavaHeapSize = 1536;
-  };
-  systemd.services.unifi.onFailure = ["notify-discord@%n.service"];
-
-  # TODO: Remove 8443 when nginx can correctly proxy
-  networking.firewall.allowedTCPPorts = [8443 9130];
-
-  security.acme.certs."${domain}".domain = domain;
-
-  # TODO: Figure out why this loops indefinetly
-  services.nginx.virtualHosts."${domain}" = {
-    forceSSL = true;
-    useACMEHost = domain;
-    locations = {
-      "/" = {
-        proxyPass = "https://localhost:8443/";
-        proxyWebsockets = true;
-        extraConfig = ''
-          proxy_set_header Accept-Encoding "";
-          proxy_set_header X-Real-IP $remote_addr;
-          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-          proxy_set_header X-Forwarded-Proto $scheme;
-          proxy_set_header Front-End-Https on;
-          proxy_redirect off;
-        '';
+        # initialJavaHeapSize = 1024;
+        # maximumJavaHeapSize = 1536;
       };
-    };
-    extraConfig = ''
-      access_log /var/log/nginx/${domain}.access.log;
-    '';
-  };
+      systemd.services.unifi.onFailure = ["notify-discord@%n.service"];
 
-  age.secrets.unifi-ldn-read-only = {
-    file = ../../secrets/unifi-ldn-read-only.age;
-    mode = "0400";
-    owner = "unifi-poller";
-  };
+      # TODO: Remove 8443 when nginx can correctly proxy
+      networking.firewall.allowedTCPPorts = [8443 9130];
 
-  services.unifi-poller = {
-    enable = true;
+      age.secrets.unifi-ldn-read-only = {
+        file = ../../secrets/unifi-ldn-read-only.age;
+        mode = "0400";
+        owner = "unifi-poller";
+      };
 
-    unifi.defaults = {
-      url = "https://127.0.0.1:8443";
-      user = "read-only";
-      pass = config.age.secrets.unifi-ldn-read-only.path;
+      services.unifi-poller = {
+        enable = true;
 
-      verify_ssl = false;
-    };
+        unifi.defaults = {
+          url = "https://127.0.0.1:8443";
+          user = "read-only";
+          pass = config.age.secrets.unifi-ldn-read-only.path;
 
-    influxdb.disable = true;
+          verify_ssl = false;
+        };
 
-    prometheus = {
-      http_listen = ":9130";
-    };
-  };
+        influxdb.disable = true;
 
-  systemd.services.prometheus-unifi-exporter.onFailure = ["notify-discord@%n.service"];
-  my.consulServices.unifi_exporter = consul.prometheusExporter "unifi" config.services.prometheus.exporters.unifi.port;
-}
+        prometheus = {
+          http_listen = ":9130";
+        };
+      };
+
+      systemd.services.prometheus-unifi-exporter.onFailure = ["notify-discord@%n.service"];
+      my.consulServices.unifi_exporter = consul.prometheusExporter "unifi" config.services.prometheus.exporters.unifi.port;
+    }
+
+    (nginx.internalVhost {
+      inherit domain;
+      proxyPass = "https://localhost:8443/";
+      proxyWebsockets = true;
+      locationExtraConfig = ''
+        proxy_set_header Accept-Encoding "";
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Front-End-Https on;
+        proxy_redirect off;
+      '';
+    })
+  ]

@@ -36,7 +36,7 @@
     # enable the tailscale service
     services.tailscale = {
       enable = true;
-      package = package;
+      inherit package;
     };
 
     systemd.services.tailscaled.onFailure = ["notify-discord@%n.service"];
