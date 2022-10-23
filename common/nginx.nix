@@ -42,6 +42,7 @@ in {
 
   imports = [
     ./sslh.nix
+    ../modules/tailscale-nginx-auth.nix
   ];
 
   config = {
