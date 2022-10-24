@@ -107,6 +107,8 @@
     #   lan.interfaces = [ "eth0" "wlan0" ];
     # };
 
+    defaultGateway = "192.168.2.254";
+
     interfaces = {
       wan = {
         useDHCP = true;

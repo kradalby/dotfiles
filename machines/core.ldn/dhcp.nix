@@ -38,16 +38,6 @@
         ethernetAddress = "b8:e8:56:3e:8f:da";
       }
       {
-        hostName = "danielle-macbookpro";
-        ipAddress = "10.65.0.51";
-        ethernetAddress = "c8:e0:eb:16:7a:d9";
-      }
-      {
-        hostName = "danielle-iphone";
-        ipAddress = "10.65.0.52";
-        ethernetAddress = "9a:4a:7f:aa:97:13";
-      }
-      {
         hostName = "gr-laptop";
         ipAddress = "10.65.0.53";
         ethernetAddress = "c8:34:8e:51:8b:43";
@@ -73,6 +63,28 @@
         hostName = "stue-ap";
         ipAddress = "10.65.0.72";
         ethernetAddress = "e0:63:da:25:cc:1e";
+      }
+
+      # Cisco
+      {
+        hostName = "cisco-skap-ap";
+        ipAddress = "10.65.0.73";
+        ethernetAddress = "00:ea:bd:83:f2:02";
+      }
+      {
+        hostName = "cisco-skap-me";
+        ipAddress = "10.65.0.74";
+        ethernetAddress = "00:00:5e:00:01:01";
+      }
+      {
+        hostName = "cisco-hjorne-ap";
+        ipAddress = "10.65.0.75";
+        ethernetAddress = "68:3b:78:f9:43:70";
+      }
+      {
+        hostName = "skap-tp-switch";
+        ipAddress = "10.65.0.76";
+        ethernetAddress = "34:60:F9:AA:FB:52";
       }
 
       # IoT
