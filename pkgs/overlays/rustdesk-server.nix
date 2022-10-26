@@ -1,11 +1,7 @@
 {
   lib,
-  stdenv,
   fetchFromGitHub,
   rustPlatform,
-  asciidoctor,
-  installShellFiles,
-  pkg-config,
 }:
 rustPlatform.buildRustPackage rec {
   pname = "rustdesk-server";
