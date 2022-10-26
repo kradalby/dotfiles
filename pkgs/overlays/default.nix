@@ -27,5 +27,7 @@
 
   rustdesk-server = prev.callPackage ./rustdesk-server.nix {};
 
+  eb = prev.callPackage ./eb.nix {};
+
   # glauth-ui = prev.callPackage ./glauth-ui.nix { pkgs = prev; inherit mach-nix; };
 }
