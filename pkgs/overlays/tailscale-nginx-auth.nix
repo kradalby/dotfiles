@@ -5,18 +5,18 @@
 }:
 buildGoModule rec {
   pname = "tailscale-nginx-auth";
-  version = "cfbbcf6d071dd13addbc1b38ef993a08d557ba22";
+  version = "19b558657308a0cd6d8e2eac272737552fb04725";
 
   src = fetchFromGitHub {
     owner = "tailscale";
     repo = "tailscale";
     rev = "${version}";
-    sha256 = "sha256-2yA5g4YeCvT3u/Wm/J7TciMRIeWoH/4/hKyTjlucvuQ=";
+    sha256 = "sha256-3OeO2mL3jiynmZjUbo0znRf/0M/pRR4T/kpDtC8uTWU=";
   };
 
   subPackages = ["cmd/nginx-auth/nginx-auth.go"];
 
-  vendorSha256 = "sha256-ipBY8F3pdWzGKTk2F7K1vz8rWxCffABJ5q9e9WLxFJ0=";
+  vendorSha256 = "sha256-VKwuEdMRBa8u1GXnp1yDRGjjG0uTGLdqOF9jgaZ6cwo=";
 
   meta = with lib; {
     homepage = "https://github.com/tailscale/tailscale/tree/main/cmd/nginx-auth";
