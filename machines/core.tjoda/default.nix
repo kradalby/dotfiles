@@ -30,6 +30,9 @@
     ./restic.nix
   ];
 
+  # TODO: Figure a way to allowlist some URLs
+  services.blocklist-downloader.enable = lib.mkForce false;
+
   my.wan = "enp1s0f0";
   my.lan = "enp1s0f1";
 
