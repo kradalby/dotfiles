@@ -12,10 +12,10 @@ rustPlatform.buildRustPackage rec {
     owner = "rye";
     repo = pname;
     rev = version;
-    sha256 = "";
+    sha256 = "sha256-kHN9W4oKlSIiJlbu3Jd9HAIQjk1jTk/2sHr1eLlydD8=";
   };
 
-  cargoSha256 = "";
+  cargoSha256 = "sha256-9ZbL+FlpRKUcMcpFigR3JwAbAs5w55iapJwpuqVyI14=";
 
   meta = with lib; {
     description = "♻️ Run commands with exponential backoff 📈";
