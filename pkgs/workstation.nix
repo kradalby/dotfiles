@@ -21,6 +21,7 @@
       dockfmt
       drone-cli
       dyff
+      eb
       editorconfig-checker
       entr
       exiftool
