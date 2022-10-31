@@ -64,7 +64,7 @@ return require("packer").startup(
         use { "williamboman/mason-lspconfig.nvim",
             requires = {
                 "neovim/nvim-lspconfig",
-                "folke/lua-dev.nvim"
+                "folke/neodev.nvim"
             },
             config = function()
                 local lspconfig = require "lspconfig"
@@ -91,7 +91,7 @@ return require("packer").startup(
                         "pyright",
                         "rnix",
                         "rust_analyzer",
-                        "sourcekit",
+                        -- "sourcekit",
                         "sumneko_lua",
                         "tailwindcss",
                         "taplo",
@@ -127,7 +127,7 @@ return require("packer").startup(
                     --     }
                     -- end,
                     ["sumneko_lua"] = function()
-                        lspconfig.sumneko_lua.setup(require("lua-dev").setup {
+                        lspconfig.sumneko_lua.setup(require("neodev").setup {
                             settings = {
                                 Lua = {
                                     format = {
