@@ -70,6 +70,10 @@ in {
         };
       };
 
+      oidc = {
+        only_start_if_oidc_is_available = "false";
+      };
+
       restricted_nameservers =
         {
           consul = s.nameservers;

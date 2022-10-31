@@ -228,7 +228,7 @@
           homeDir = /Users/kradalby;
         };
       in
-        macBox machine darwin-master home-manager;
+        macBox machine darwin-master home-manager-unstable;
     };
 
     homeConfigurations = {
