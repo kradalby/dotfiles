@@ -126,7 +126,9 @@
               ./common/home.nix
             ]
           );
-        specialArgs = {inherit flakes;};
+        specialArgs = {
+          inherit flakes;
+        };
       };
 
     macBox = machine: base: homeBase:
