@@ -21,8 +21,8 @@
 
   cfg = {
     name = "jotta";
-    secret = "restic-core-tjoda-token";
-    repository = "rclone:Jotta:1d444f272fa766893d9a06cc4d392cd5";
+    secret = "restic-core-terra-token";
+    repository = "rclone:Jotta:3cee607f10a34c3fd67e4b292fda606f";
     inherit paths;
   };
 in
