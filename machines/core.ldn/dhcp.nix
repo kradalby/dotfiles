@@ -99,7 +99,7 @@
         ethernetAddress = "a4:cf:12:c3:87:21";
       }
       {
-        hostName = "living-room-fairy-light";
+        hostName = "living-room-shelf";
         ipAddress = "10.65.0.83";
         ethernetAddress = "2c:f4:32:6b:b3:57";
       }
