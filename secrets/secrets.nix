@@ -58,7 +58,9 @@ in
     "restic-core-oracldn-token.age".publicKeys = u ++ [hosts.core-oracldn];
     "restic-dev-oracfurt-token.age".publicKeys = u ++ [hosts.dev-oracfurt];
     "restic-core-tjoda-token.age".publicKeys = u ++ [hosts.core-tjoda];
+    "restic-core-terra-token.age".publicKeys = u ++ [hosts.core-terra];
     "restic-kramacbook-token.age".publicKeys = u;
+    "restic-kraairm2-token.age".publicKeys = u;
 
     # Wireguard
     "wireguard-ldn.age".publicKeys = u ++ [hosts.core-ldn];

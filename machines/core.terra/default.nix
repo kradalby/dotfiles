@@ -25,7 +25,7 @@
     ./syncthing.nix
     # ./rest-server.nix
     # ./samba.nix
-    # ./restic.nix
+    ./restic.nix
     ./gh-runner.nix
 
     # ./polar
