@@ -4,7 +4,7 @@
   config,
   ...
 }: let
-  retention = "168h";
+  retention = "72h";
 
   domain = "loki.oracldn.fap.no";
 in {
