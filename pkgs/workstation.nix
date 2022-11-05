@@ -54,7 +54,7 @@
       step-cli
       unstable.dotnet-sdk # omnisharp
       vale
-      unstable.silicon
+      silicon
 
       (fenix.complete.withComponents
         [
