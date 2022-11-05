@@ -114,4 +114,7 @@ in
     # rustdesk relay
     "rustdesk-ed25519.age".publicKeys = u ++ [hosts.core-oracldn];
     "rustdesk-ed25519-pub.age".publicKeys = u ++ [hosts.core-oracldn];
+
+    # github
+    "github-headscale-token.age".publicKeys = u ++ [hosts.core-terra];
   }
