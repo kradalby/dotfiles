@@ -10,11 +10,11 @@
   sshKeys = import ../../metadata/ssh.nix;
   remoteBuilders = [
     # "ssh-ng://core.ntnu x86_64-linux"
-    "ssh-ng://k3a1.terra x86_64-linux - 4 - benchmark,big-parallel"
-    "ssh-ng://k3a2.terra x86_64-linux - 4 - benchmark,big-parallel"
-    "ssh-ng://dev.terra x86_64-linux - 4 - benchmark,big-parallel"
-    "ssh-ng://core.oracldn aarch64-linux - 4 - benchmark,big-parallel"
-    "ssh-ng://dev.oracfurt aarch64-linux - 4 - benchmark,big-parallel"
+    # "ssh-ng://k3a1.terra x86_64-linux - 4 - benchmark,big-parallel"
+    # "ssh-ng://k3a2.terra x86_64-linux - 4 - benchmark,big-parallel"
+    # "ssh-ng://dev.terra x86_64-linux - 4 - benchmark,big-parallel"
+    # "ssh-ng://core.oracldn aarch64-linux - 4 - benchmark,big-parallel"
+    # "ssh-ng://dev.oracfurt aarch64-linux - 4 - benchmark,big-parallel"
   ];
 in {
   imports = [
