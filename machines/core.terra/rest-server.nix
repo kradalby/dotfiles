@@ -6,7 +6,7 @@
   consul = import ../../common/funcs/consul.nix {inherit lib;};
   nginx = import ../../common/funcs/nginx.nix {inherit config lib;};
 
-  domain = "restic.${config.networking.domain}";
+  domain = "restic.core.${config.networking.domain}";
   port = 56899;
 in
   lib.mkMerge [
@@ -26,5 +26,8 @@ in
       inherit domain;
       proxyPass = "http://127.0.0.1:${toString port}";
       tailscaleAuth = false;
+      locationExtraConfig = ''
+        client_max_body_size 64m;
+      '';
     })
   ]

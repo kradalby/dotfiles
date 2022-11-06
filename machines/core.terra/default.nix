@@ -23,7 +23,7 @@
     # ./dhcp.nix
     # ./openvpn.nix
     ./syncthing.nix
-    # ./rest-server.nix
+    ./rest-server.nix
     # ./samba.nix
     ./restic.nix
     ./gh-runner.nix

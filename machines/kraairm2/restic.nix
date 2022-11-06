@@ -9,33 +9,43 @@
   restic = import ../../common/funcs/restic.nix {inherit config lib pkgs;};
   helpers = import ../../common/funcs/helpers.nix {inherit pkgs lib;};
 
-  paths = [
+  basePaths = [
     # We do not have perms to backup these folders
     # because of macOS magic
     # "$HOME/Desktop"
     # "$HOME/Documents"
     # "$HOME/Downloads"
 
-    "$HOME/Pictures"
     "$HOME/Sync"
     "$HOME/git"
-    "$HOME/grit"
-    "$HOME/.local"
-    "$HOME/.config"
   ];
 
+  jottaPaths =
+    basePaths
+    ++ [
+      "$HOME/Pictures"
+    ];
+
   cfg = site: {
-    name = "kramacbook";
-    secret = "restic-kramacbook-token";
+    name = "kraairm2";
+    secret = "restic-kraairm2-token";
     owner = "kradalby";
     inherit site;
-    inherit paths;
+    paths = basePaths;
+  };
+
+  cfgJotta = {
+    name = "jotta";
+    secret = "restic-kraairm2-token";
+    repository = "rclone:Jotta:56497300b2108b1b4f0278fe761ae155";
+    paths = jottaPaths;
   };
 in
   {
     imports = [../../modules/restic.nix];
   }
   // lib.mkMerge [
+    # (restic.commonJob cfgJotta)
     # (restic.backupJob (cfg "tjoda"))
     # (restic.backupJob (cfg "terra"))
   ]

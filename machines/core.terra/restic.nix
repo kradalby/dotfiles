@@ -10,7 +10,6 @@
   paths = [
     "/root"
     "/etc/nixos"
-    "/var/lib/unifi/data/backup"
     "/storage/backup"
     "/storage/libraries"
     "/storage/pictures"

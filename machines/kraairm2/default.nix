@@ -29,7 +29,7 @@ in {
   # on macOS, we need to make sure all SSH references
   # are empty so age dont go looking for services.openssh
   # which doesnt exist.
-  # age.identityPaths = [ "/Users/kradalby/.ssh/id_ed25519" ];
+  age.identityPaths = ["/Users/kradalby/.ssh/id_ed25519"];
 
   nix = {
     extraOptions = lib.mkForce ''
