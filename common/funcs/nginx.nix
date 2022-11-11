@@ -7,6 +7,7 @@
     proxyPass,
     proxyWebsockets ? true,
     tailscaleAuth ? true,
+    allowLocal ? false,
     locationExtraConfig ? "",
   }: {
     security.acme.certs."${domain}".domain = domain;
@@ -19,6 +20,10 @@
         inherit proxyWebsockets;
         extraConfig =
           ""
+          + lib.optionalString allowLocal ''
+            allow 10.0.0.0/8;
+            satisfy any;
+          ''
           + lib.optionalString tailscaleAuth config.services.tailscale-nginx-auth.authConfig
           + locationExtraConfig;
       };
