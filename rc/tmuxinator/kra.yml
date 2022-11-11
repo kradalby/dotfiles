@@ -1,11 +1,27 @@
-name: kramacbook
+---
+name: kra
 root: ~/git
-startup_window: plays
+startup_window: dotfiles
 
 # tmux_command: set-option mouse on
 
 windows:
-  - -:
+  - r:
+      root: ~/
+      layout: main-vertical
+      panes:
+        - terra:
+            - set -xg RESTIC_REPOSITORY rest:https://restic.core.terra.fap.no/
+            - set -xg RESTIC_PASSWORD_FILE ~/.config/restic.p
+            - restic backup $HOME/git $HOME/Sync
+        - tjoda:
+            - set -xg RESTIC_REPOSITORY rest:https://restic.core.tjoda.fap.no/
+            - set -xg RESTIC_PASSWORD_FILE ~/.config/restic.p
+            - restic backup $HOME/git $HOME/Sync
+        - jotta:
+            - set -xg RESTIC_REPOSITORY rclone:Jotta:56497300b2108b1b4f0278fe761ae155
+            - set -xg RESTIC_PASSWORD_FILE ~/.config/restic.p
+            - restic backup $HOME/git $HOME/Sync $HOME/Pictures
   - dotfiles:
       root: ~/git/dotfiles
   - dotfiles:
