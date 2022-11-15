@@ -87,7 +87,7 @@
     overlays = [
       nur.overlay
       overlay-pkgs
-      fenix.overlay
+      fenix.overlays.default
       ragenix.overlays.default
       deadnix.overlays.default
       alejandra.overlay
@@ -195,7 +195,7 @@
 
       # nixos-generate --system aarch64-linux -f sd-aarch64 -I nixpkgs=channel:nixos
       "home.ldn" = nixosBox "aarch64-linux" nixpkgs null "home.ldn";
-      "core.ldn" = nixosBox "aarch64-linux" nixpkgs null "core.ldn";
+      # "core.ldn" = nixosBox "aarch64-linux" nixpkgs null "core.ldn";
       # "storage.bassan" = nixosBox "aarch64-linux" nixpkgs null "storage.bassan";
       "core.tjoda" = nixosBox "x86_64-linux" nixpkgs null "core.tjoda";
     };
