@@ -560,16 +560,16 @@ return require("packer").startup(
             end
         }
 
-        -- use {
-        --     "folke/trouble.nvim",
-        --     requires = {
-        --         "kyazdani42/nvim-web-devicons"
-        --     },
-        --     config = function()
-        --         require("trouble").setup {}
-        --     end
-        -- }
-        --
+        use {
+            "folke/trouble.nvim",
+            requires = {
+                "kyazdani42/nvim-web-devicons"
+            },
+            config = function()
+                require("trouble").setup {}
+            end
+        }
+
         use {
             "folke/todo-comments.nvim",
             config = function()
