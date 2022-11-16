@@ -13,15 +13,28 @@ windows:
         - terra:
             - set -xg RESTIC_REPOSITORY rest:https://restic.core.terra.fap.no/
             - set -xg RESTIC_PASSWORD_FILE ~/.config/restic.p
-            - restic backup $HOME/git $HOME/Sync
+            - |
+              while true
+                  restic backup $HOME/git $HOME/Sync
+                  sleep 3600
+              end
         - tjoda:
             - set -xg RESTIC_REPOSITORY rest:https://restic.core.tjoda.fap.no/
             - set -xg RESTIC_PASSWORD_FILE ~/.config/restic.p
             - restic backup $HOME/git $HOME/Sync
+            - |
+              while true
+                  restic backup $HOME/git $HOME/Sync
+                  sleep 3600
+              end
         - jotta:
             - set -xg RESTIC_REPOSITORY rclone:Jotta:56497300b2108b1b4f0278fe761ae155
             - set -xg RESTIC_PASSWORD_FILE ~/.config/restic.p
-            - restic backup $HOME/git $HOME/Sync $HOME/Pictures
+            - |
+              while true
+                  restic backup $HOME/git $HOME/Sync $HOME/Pictures
+                  sleep 3600
+              end
   - dotfiles:
       root: ~/git/dotfiles
   - dotfiles:
