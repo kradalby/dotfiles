@@ -61,6 +61,7 @@ in
     "restic-core-terra-token.age".publicKeys = u ++ [hosts.core-terra];
     "restic-kramacbook-token.age".publicKeys = u;
     "restic-kraairm2-token.age".publicKeys = u;
+    "restic-kratail-token.age".publicKeys = u;
 
     # Wireguard
     "wireguard-ldn.age".publicKeys = u ++ [hosts.core-ldn];
