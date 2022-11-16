@@ -13,7 +13,11 @@ windows:
         - jotta:
             - set -xg RESTIC_REPOSITORY rclone:Jotta:4e8bb5107054b95e58d809060cb72911
             - set -xg RESTIC_PASSWORD_FILE ~/.config/restic.p
-            - restic backup $HOME/git $HOME/Sync $HOME/Pictures
+            - |
+              while true
+                  restic backup $HOME/git $HOME/Pictures
+                  sleep 3600
+              end
   - dotfiles:
       root: ~/git/dotfiles
   - corp:
