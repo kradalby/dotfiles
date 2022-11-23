@@ -16,6 +16,16 @@ windows:
             - |
               while true
                   restic backup $HOME/git $HOME/Pictures
+
+                  if string match -q -- "*AC Power*" (pmset -g ps)
+                    restic forget --prune \
+                      --keep-daily 7 \
+                      --keep-weekly 5 \
+                      --keep-monthly 12 \
+                      --keep-yearly 75
+                    restic check
+                  end
+
                   sleep 3600
               end
   - dotfiles:
