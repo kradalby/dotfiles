@@ -96,7 +96,7 @@ _: {
       "Patterns" = 429449079;
       "Pixelmator Pro" = 1289583905;
       "Refined GitHub" = 1519867270;
-      "Tailscale" = 1475387142;
+      # "Tailscale" = 1475387142;
       "WhatsApp" = 1147396723;
       "WireGuard" = 1451685025;
       "Xcode" = 497799835;
