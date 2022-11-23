@@ -45,7 +45,9 @@ in {
       };
     };
 
-    dns.baseDomain = "fap";
+    dns = {
+      baseDomain = "fap";
+    };
 
     settings = {
       grpc_listen_addr = "127.0.0.1:50443";
@@ -60,6 +62,10 @@ in {
         "100.64.0.0/10"
       ];
 
+      dns_config = {
+        override_local_dns = true;
+      };
+
       derp = {
         server = {
           enabled = true;
@@ -71,7 +77,7 @@ in {
       };
 
       oidc = {
-        only_start_if_oidc_is_available = "false";
+        only_start_if_oidc_is_available = false;
       };
 
       restricted_nameservers =
