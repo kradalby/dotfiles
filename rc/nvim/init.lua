@@ -24,7 +24,7 @@ opt.expandtab = true -- Use spaces instead of tabs
 opt.shiftwidth = indent -- Size of an indent
 opt.smartindent = true -- Insert indents automatically
 opt.tabstop = indent -- Number of spaces tabs count for
-opt.completeopt = {"menu", "menuone", "noinsert", "noselect"}
+opt.completeopt = { "menu", "menuone", "noinsert", "noselect" }
 -- opt.completeopt = {"menuone", "noinsert", "noselect"}
 opt.hidden = true -- Enable modified buffers in background
 opt.ignorecase = true -- Ignore case
@@ -36,15 +36,15 @@ opt.smartcase = true -- Don't ignore case with capitals
 opt.splitbelow = true -- Put new windows below current
 opt.splitright = true -- Put new windows right of current
 opt.termguicolors = true -- True color support
-opt.wildmode = {"list", "longest"} -- Command-line completion mode
+opt.wildmode = { "list", "longest" } -- Command-line completion mode
 opt.list = true -- Show some invisible characters (tabs...
-opt.listchars = {tab = ">·", trail = "·", extends = ">", precedes = "<"} -- Show some invisible characters (tabs...
+opt.listchars = { tab = ">·", trail = "·", extends = ">", precedes = "<" } -- Show some invisible characters (tabs...
 opt.number = true -- Print line number
 opt.relativenumber = false -- Relative line numbers
 opt.wrap = true -- Disable line wrap
 
 local function map(mode, lhs, rhs, opts)
-    local options = {noremap = true}
+    local options = { noremap = true }
     if opts then
         options = vim.tbl_extend("force", options, opts)
     end
@@ -70,7 +70,7 @@ map("n", "<leader>f", "<cmd>:FzfLua lsp_references<cr>")
 -- map("n", "<leader>p", "<cmd>lua require('telescope').extensions.neoclip.default()<cr>")
 map("n", "<leader>p", "<cmd>lua require('neoclip.fzf')()<cr>")
 
-map("n", "<leader>ff", "<cmd>lua vim.lsp.buf.formatting_seq_sync()<cr>")
+map("n", "<leader>ff", "<cmd>lua vim.lsp.buf.format()<cr>")
 
 map("n", "<leader>tt", "<cmd>:TroubleToggle<cr>") -- Toggle trouble
 map("n", "<leader>to", "<cmd>:TodoTrouble<cr>") -- Toggle trouble
