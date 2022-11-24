@@ -76,6 +76,7 @@
       "webex"
       "logi-options-plus"
       "monitorcontrol"
+      "utm"
     ];
   };
   system.defaults.smb.NetBIOSName = machine.hostname;
