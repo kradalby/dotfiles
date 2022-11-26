@@ -91,8 +91,6 @@ in {
   # Allow UDP for STUN
   networking.firewall.allowedUDPPorts = [3478];
 
-  systemd.services.headscale.onFailure = ["notify-discord@%n.service"];
-
   systemd.services.headscale.environment = {
     # HEADSCALE_LOG_LEVEL = "trace";
     # GRPC_GO_LOG_VERBOSITY_LEVEL = "2";

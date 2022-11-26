@@ -145,8 +145,6 @@
     '';
   };
 
-  systemd.services.dhcpd4.onFailure = ["notify-discord@%n.service"];
-
   boot.cleanTmpDir = true;
 
   # This value determines the NixOS release from which the default

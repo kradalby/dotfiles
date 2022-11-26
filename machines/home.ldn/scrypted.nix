@@ -57,8 +57,6 @@ in {
     };
     environment = {};
 
-    onFailure = ["notify-discord@%n.service"];
-
     # preStart = ''
     #   cp -f ${configFile} ${dataDir}/config.json
     # '';

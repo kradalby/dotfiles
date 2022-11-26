@@ -102,7 +102,6 @@ in
           };
         };
       };
-      systemd.services.zigbee2mqtt.onFailure = ["notify-discord@%n.service"];
 
       networking.firewall.allowedTCPPorts = [config.services.zigbee2mqtt.settings.frontend.port];
     }

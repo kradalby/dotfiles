@@ -13,6 +13,4 @@
     enable = true;
     configPath = config.age.secrets.matterbridge-config.path;
   };
-
-  systemd.services.matterbridge.onFailure = ["notify-discord@%n.service"];
 }

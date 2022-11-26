@@ -59,7 +59,7 @@ in {
   #   };
   #   environment = { };
   #
-  #   onFailure = [ "notify-discord@%n.service" ];
+
   #
   #   preStart = ''
   #   '';

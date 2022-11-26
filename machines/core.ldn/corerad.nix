@@ -35,8 +35,6 @@ in {
     };
   };
 
-  systemd.services.corerad.onFailure = ["notify-discord@%n.service"];
-
   networking.firewall.interfaces.eth0.allowedTCPPorts = [9430];
 
   my.consulServices.corerad_exporter = consul.prometheusExporter "corerad" 9430;

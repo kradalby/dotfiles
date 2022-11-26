@@ -55,8 +55,6 @@ in {
     ];
   };
 
-  systemd.services.mosquitto.onFailure = ["notify-discord@%n.service"];
-
   networking.firewall.allowedTCPPorts = [port];
   networking.firewall.allowedUDPPorts = [port];
 
@@ -77,8 +75,6 @@ in {
       topicLabel = "sensor";
     };
   };
-
-  systemd.services."mqtt-exporter".onFailure = ["notify-discord@%n.service"];
 
   my.consulServices.mqtt_exporter = consul.prometheusExporter "mqtt" config.services.mqtt-exporter.prometheus.port;
 }

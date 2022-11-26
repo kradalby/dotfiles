@@ -78,8 +78,6 @@ in {
   };
 
   systemd.services.coredns = {
-    onFailure = ["notify-discord@%n.service"];
-
     # Set up a private tmp between the blocklist and coredns so we can share the blocklist.
     serviceConfig = {
       PrivateTmp = true;

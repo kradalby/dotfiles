@@ -51,7 +51,7 @@ with lib; let
       })
 
       # (mkIf pkgs.stdenv.isLinux {
-      #   systemd.services."restic-backups-${site}".onFailure = [ "notify-discord@%n.service" ];
+
       # })
     ];
 

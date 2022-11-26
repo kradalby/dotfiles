@@ -18,8 +18,6 @@
     '';
   };
 
-  systemd.services.chrony.onFailure = ["notify-discord@%n.service"];
-
   services.timesyncd = {
     enable = true;
     servers = [
@@ -38,6 +36,4 @@
       rtcsync
     '';
   };
-
-  systemd.services.timesyncd.onFailure = ["notify-discord@%n.service"];
 }

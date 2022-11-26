@@ -50,6 +50,5 @@ in {
     wants = ["network-online.target"];
     after = ["network-online.target"];
     requires = ["network-online.target"];
-    onFailure = ["notify-discord@%n.service"];
   };
 }

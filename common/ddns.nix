@@ -30,6 +30,4 @@
     passwordFile = config.age.secrets.cloudflare-ddns-token.path;
     protocol = "cloudflare";
   };
-
-  systemd.services.ddclient.onFailure = ["notify-discord@%n.service"];
 }
