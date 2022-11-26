@@ -94,16 +94,12 @@ in {
       '';
     };
 
-    systemd.services.nginx.onFailure = ["notify-discord@%n.service"];
-
     networking.firewall.allowedTCPPorts = [80];
 
     services.prometheus.exporters.nginx = {
       enable = true;
       openFirewall = true;
     };
-
-    systemd.services."prometheus-nginx-exporter".onFailure = ["notify-discord@%n.service"];
 
     my.consulServices.nginx_exporter = consul.prometheusExporter "nginx" config.services.prometheus.exporters.nginx.port;
 
@@ -137,8 +133,6 @@ in {
           ++ builtins.map mkApp (builtins.attrNames config.services.nginx.virtualHosts);
       };
     };
-
-    systemd.services."prometheus-nginxlog-exporter".onFailure = ["notify-discord@%n.service"];
 
     my.consulServices.nginxlog_exporter = consul.prometheusExporter "nginxlog" config.services.prometheus.exporters.nginxlog.port;
   };

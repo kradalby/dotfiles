@@ -70,8 +70,6 @@ in
           HOMEBRIDGE_CONFIG_UI_PORT = toString homebridgeUIPort;
         };
 
-        onFailure = ["notify-discord@%n.service"];
-
         preStart = ''
           ln -sf ${configFile} ${dataDir}/config.json
           ln -sf ${tradfriCodec}/cie-rgb-converter.js ${dataDir}/cie-rgb-converter.js

@@ -24,6 +24,4 @@
     machines = [
     ];
   };
-
-  systemd.services.dhcpd4.onFailure = ["notify-discord@%n.service"];
 }

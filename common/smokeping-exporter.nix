@@ -25,7 +25,6 @@ in {
     wantedBy = ["multi-user.target"];
     wants = ["network-online.target"];
     after = ["network-online.target"];
-    onFailure = ["notify-discord@%n.service"];
   };
 
   my.consulServices.smokeping_exporter = consul.prometheusExporter "smokeping" config.services.prometheus.exporters.smokeping.port;

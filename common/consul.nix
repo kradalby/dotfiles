@@ -44,8 +44,6 @@
       };
     };
 
-    systemd.services.consul.onFailure = ["notify-discord@%n.service"];
-
     networking.firewall.allowedTCPPorts = [
       8600 # DNS server
       # 8500 # HTTP server

@@ -27,6 +27,4 @@ in {
       ssh = "${pkgs.avahi}/etc/avahi/services/ssh.service";
     };
   };
-
-  systemd.services.avahi-daemon.onFailure = ["notify-discord@%n.service"];
 }

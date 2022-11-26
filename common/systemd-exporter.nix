@@ -10,7 +10,5 @@ in {
     openFirewall = true;
   };
 
-  systemd.services."prometheus-systemd-exporter".onFailure = ["notify-discord@%n.service"];
-
   my.consulServices.systemd_exporter = consul.prometheusExporter "systemd" config.services.prometheus.exporters.systemd.port;
 }

@@ -1,21 +1,23 @@
-{lib, config, pkgs, ...}:
-with lib;
-let
-  replicate = db:
-        {
-          inherit (db) path;
-          replicas = [
-            {
-              type = "s3";
-              bucket = "databases";
-              path = db.name;
-              endpoint = "minio.oracldn.fap.no";
-              region = "us-east-1";
-            }
-          ];
-        };
-in
 {
+  lib,
+  config,
+  pkgs,
+  ...
+}:
+with lib; let
+  replicate = db: {
+    inherit (db) path;
+    replicas = [
+      {
+        type = "s3";
+        bucket = "databases";
+        path = db.name;
+        endpoint = "minio.oracldn.fap.no";
+        region = "us-east-1";
+      }
+    ];
+  };
+in {
   options = {
     my.litestream.databases = lib.mkOption {
       type = types.listOf (types.attrsOf types.str);

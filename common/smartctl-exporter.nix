@@ -24,8 +24,6 @@ in {
       devices = config.monitoring.smartctl.devices;
     };
 
-    systemd.services."prometheus-smartctl-exporter".onFailure = ["notify-discord@%n.service"];
-
     my.consulServices.smartctl_exporter = consul.prometheusExporter "smartctl" config.services.prometheus.exporters.smartctl.port;
   };
 }

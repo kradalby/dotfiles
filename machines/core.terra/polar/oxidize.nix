@@ -42,10 +42,10 @@
             - password
             - keyboard-interactive
         username: tech
-        password: 
+        password:
       junos:
         username: tech
-        password: 
+        password:
   '';
 in {
   config = {
