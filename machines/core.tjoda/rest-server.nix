@@ -15,7 +15,7 @@ in
         enable = true;
         dataDir = "/storage/restic";
         prometheus = true;
-        listenAddress = "127.0.0.1:${toString port}";
+        listenAddress = ":${toString port}";
         extraFlags = ["--no-auth"];
       };
 

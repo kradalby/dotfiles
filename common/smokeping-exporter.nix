@@ -10,12 +10,12 @@ in {
     openFirewall = true;
 
     hosts = [
-      # "core.terra.fap.no"
-      # "core.oracle-ldn.fap.no"
+      "core.terra.fap.no"
+      "core.oracldn.fap.no"
+      "core.ldn.fap.no"
+      "core.tjoda.fap.no"
       # "core.ntnu.fap.no"
-      # "core.ldn.fap.no"
-      # "core.tjoda.fap.no"
-      # "vg.no"
+      "vg.no"
       "1.1.1.1"
       "8.8.8.8"
     ];
