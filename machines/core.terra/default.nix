@@ -27,6 +27,7 @@
     # ./samba.nix
     ./restic.nix
     ./gh-runner.nix
+    ./postfix.nix
 
     # ./polar
   ];

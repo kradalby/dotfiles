@@ -24,6 +24,7 @@
     ./tmp.nix
     ./util.nix
     # ./sendmail.nix
+    ./postfix.nix
     ./senddiscord.nix
     ./consul.nix
     ./avahi.nix
