@@ -76,6 +76,42 @@ in
                   name = "rules";
                   rules = [
                     {
+                      alert = "ExporterDown";
+                      expr = ''up{} == 0'';
+                      for = "1m";
+                      labels = {
+                        severity = "critical";
+                        frequency = "2m";
+                      };
+                      annotations = {
+                        summary = "Exporter down (instance {{ $labels.instance }})";
+                        description = ''
+                          Prometheus exporter down
+
+                          VALUE = {{ $value }}
+                          LABELS: {{ $labels }}
+                        '';
+                      };
+                    }
+                    {
+                      alert = "NodeExporterDown";
+                      expr = ''up{job="nodes"} == 0'';
+                      for = "1m";
+                      labels = {
+                        severity = "critical";
+                        frequency = "2m";
+                      };
+                      annotations = {
+                        summary = "Exporter down (instance {{ $labels.instance }})";
+                        description = ''
+                          Prometheus exporter down
+
+                          VALUE = {{ $value }}
+                          LABELS: {{ $labels }}
+                        '';
+                      };
+                    }
+                    {
                       alert = "InstanceLowDiskAbs";
                       expr = ''node_filesystem_avail_bytes{fstype!~"(tmpfs|ramfs)",mountpoint!~"^/boot.?/?.*"} / 1024 / 1024 < 1024'';
                       for = "1m";
