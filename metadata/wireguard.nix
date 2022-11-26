@@ -53,52 +53,16 @@
   };
 
   clients = {
-    kpad = {
-      additional_networks = [];
-      addresses = ["10.69.0.15/32" "2a03:94e0:200d:69::15/128"];
-      public_key = "nlpKp2gIsJhlOaj4buYlvznPuA7NHSDiDRSVEf/vRXM=";
-    };
-
-    kphone = {
-      additional_networks = [];
-      addresses = ["10.69.0.2/32" "2a03:94e0:200d:69::2/128"];
-      public_key = "DjFhVRUhFgONHJqpFXoIb5WncKbZEvqkS7+Ub2VuSis=";
-    };
-
     kramacbook = {
       additional_networks = [];
       addresses = ["10.69.0.1/32" "2a03:94e0:200d:69::1/128"];
       public_key = "A2hlNqjakhcYw+d40FQYUrMbnRN6KfL/ZhNAzuNoSjY=";
     };
 
-    kranovo = {
-      additional_networks = [];
-      addresses = ["10.69.0.4/32" "2a03:94e0:200d:69::4/128"];
-      public_key = "+08yaHUEhIin8ULKohe85TJzNvSmuM6CTL+qSmQkBQQ=";
-    };
-
-    kristineair = {
-      additional_networks = [];
-      addresses = ["10.69.0.10/32" "2a03:94e0:200d:69::10/128"];
-      public_key = "2RA5T1aSHtNPpiqMXaKMhozmdJguPaWmMGJY7PekeFE=";
-    };
-
     storagebassan = {
       additional_networks = [];
       addresses = ["10.69.0.16/32" "2a03:94e0:200d:69::16/128"];
       public_key = "nL309b5ZosnRKL0xGiNuCln9q5FqA8UGdot54C2ioy0=";
-    };
-
-    vetlelaptop = {
-      additional_networks = [];
-      addresses = ["10.69.0.8/32" "2a03:94e0:200d:69::8/128"];
-      public_key = "c2l8n/va4SvSwmxF+Ckv6GFhJmj6W0EOXndHJwQJwXo=";
-    };
-
-    vetlephone = {
-      additional_networks = [];
-      addresses = ["10.69.0.7/32" "2a03:94e0:200d:69::7/128"];
-      public_key = "gIUy1AimcxaPRK336Qmi47eZ2FBHO0vWHs3aYfg/62I=";
     };
 
     headscale = {
