@@ -1,13 +1,5 @@
 {
   servers = {
-    ldn = {
-      additional_networks = ["10.65.0.0/16" "2a02:6b66:7019::/64"];
-      addresses = ["10.69.0.205/32" "2a03:94e0:200d:69::205/128"];
-      endpoint_address = "ldn.fap.no";
-      endpoint_port = 51820;
-      public_key = "L1sF/PWHXiavT2arPLhDyh9wWwK5a3UeC4mpvFG8xFE=";
-    };
-
     ntnu = {
       additional_networks = ["10.61.0.0/16"];
       addresses = ["10.69.0.201/32" "2a03:94e0:200d:69::201/128"];
@@ -53,6 +45,14 @@
   };
 
   clients = {
+    ldn = {
+      additional_networks = ["10.65.0.0/16" "2a02:6b66:7019::/64"];
+      addresses = ["10.69.0.205/32" "2a03:94e0:200d:69::205/128"];
+      # endpoint_address = "ldn.fap.no";
+      # endpoint_port = 51820;
+      public_key = "L1sF/PWHXiavT2arPLhDyh9wWwK5a3UeC4mpvFG8xFE=";
+    };
+
     kramacbook = {
       additional_networks = [];
       addresses = ["10.69.0.1/32" "2a03:94e0:200d:69::1/128"];

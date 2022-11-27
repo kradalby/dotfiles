@@ -190,7 +190,7 @@
       allowedUDPPorts = lib.mkForce [
         443 # HTTPS
         config.services.tailscale.port
-        config.networking.wireguard.interfaces.wg0.listenPort
+        # config.networking.wireguard.interfaces.wg0.listenPort
       ];
 
       trustedInterfaces = [config.my.lan];

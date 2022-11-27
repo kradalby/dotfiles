@@ -5,7 +5,7 @@
   ...
 }: let
   wireguardHosts = import ../../metadata/wireguard.nix;
-  wireguardConfig = wireguardHosts.servers.ldn;
+  wireguardConfig = wireguardHosts.clients.ldn;
 in
   (import ../../common/funcs/tailscale.nix {inherit config pkgs lib;}).tailscale
   {
