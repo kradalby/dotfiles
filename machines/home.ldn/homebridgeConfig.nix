@@ -187,7 +187,7 @@
     mqttthing = name: type: {
       inherit name;
       inherit type;
-      url = "http://localhost:1883";
+      url = "http://127.0.0.1:1883";
       username = "homebridge";
       password = "birdbirdbirdistheword";
       accessory = "mqttthing";
