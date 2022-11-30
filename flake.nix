@@ -2,8 +2,8 @@
   description = "kradalby's system config";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.05";
-    nixpkgs-darwin.url = "github:NixOS/nixpkgs/nixpkgs-22.05-darwin";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.11";
+    nixpkgs-darwin.url = "github:NixOS/nixpkgs/nixpkgs-22.11-darwin";
 
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     nixpkgs-master.url = "github:NixOS/nixpkgs/master";
@@ -24,7 +24,7 @@
     darwin-staging.url = "github:lnl7/nix-darwin/master";
     darwin-staging.inputs.nixpkgs.follows = "nixpkgs-staging";
 
-    home-manager.url = "github:nix-community/home-manager/release-22.05";
+    home-manager.url = "github:nix-community/home-manager/release-22.11";
     home-manager-unstable.url = "github:nix-community/home-manager/master";
     home-manager-unstable.inputs.nixpkgs.follows = "nixpkgs-unstable";
 
@@ -220,7 +220,7 @@
           homeDir = /Users/kradalby;
         };
       in
-        macBox machine darwin-master home-manager-unstable;
+        macBox machine darwin home-manager;
 
       kraairm2 = let
         machine = {
@@ -230,7 +230,7 @@
           homeDir = /Users/kradalby;
         };
       in
-        macBox machine darwin-master home-manager-unstable;
+        macBox machine darwin home-manager;
     };
 
     homeConfigurations = {
