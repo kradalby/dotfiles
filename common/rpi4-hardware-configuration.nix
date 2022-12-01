@@ -18,13 +18,13 @@
     ];
 
     loader = {
-      raspberryPi = {
-        enable = true;
-        version = 4;
-        firmwareConfig = "dtparam=sd_poll_once=on";
-      };
+      # raspberryPi = {
+      #   enable = true;
+      #   version = 4;
+      #   firmwareConfig = "dtparam=sd_poll_once=on";
+      # };
       grub.enable = false;
-      generic-extlinux-compatible.enable = false;
+      generic-extlinux-compatible.enable = true;
     };
   };
 
