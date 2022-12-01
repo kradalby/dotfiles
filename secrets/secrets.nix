@@ -15,7 +15,7 @@ with builtins; let
     k3a2-terra = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIO1YyxAf57LjkvULrmgBAP91D/BoRtD15KWjIbfW8XrY";
 
     # London hosts
-    core-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINRxkYxhNbI3+SGbm1ecm+r6PYAtJLDCvKv5F7midx7K";
+    core-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJwxuH3BOoww/8FmccjWZSL2DMeF4/AgXgJjLTgpCPjm";
     home-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINSfUa0k5lySBwBhx2BfovlKhpkCBCgY5BkzagPJNVhd";
 
     core-oracldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGEe9eIMf462ZQhE8Nl9jyUscRtTTYeAIPRN2kvO3cdC";

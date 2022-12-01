@@ -22,38 +22,44 @@ in
 
         analytics.reporting.enable = false;
 
-        extraOptions = {
-          SERVER_ENFORCE_DOMAIN = "true";
+        settings = {
+          server = {
+            enforce_domain = true;
+            enable_gzip = true;
+          };
 
-          AUTH_ANONYMOUS_ENABLED = "true";
-          AUTH_ANONYMOUS_ORG_NAME = "Main Org.";
-          AUTH_ANONYMOUS_ORG_ROLE = "Viewer";
-          SERVER_ENABLE_GZIP = "true";
+          auth = {
+            anonymous_enabled = true;
+            anonymous_org_name = "Main Org.";
+            anonymous_org_role = "Viewer";
+          };
+
+          security.admin_password = "$__file{${config.age.secrets.grafana-admin.path}}";
+
+          smtp = {
+            enable = true;
+            host = "smtp.fap.no:25";
+            fromAddress = "grafana@${config.networking.domain}";
+          };
         };
-
-        smtp = {
-          enable = true;
-          host = "smtp.fap.no:25";
-          fromAddress = "grafana@${config.networking.domain}";
-        };
-
-        security.adminPasswordFile = config.age.secrets.grafana-admin.path;
 
         provision = {
           enable = true;
-          datasources = [
-            {
-              url = "https://prometheus.${config.networking.domain}";
-              name = "Prometheus";
-              isDefault = true;
-              type = "prometheus";
-            }
-            {
-              url = "https://loki.${config.networking.domain}";
-              name = "Loki";
-              type = "loki";
-            }
-          ];
+          datasources = {
+            settings.datasources = [
+              {
+                url = "https://prometheus.${config.networking.domain}";
+                name = "Prometheus";
+                isDefault = true;
+                type = "prometheus";
+              }
+              {
+                url = "https://loki.${config.networking.domain}";
+                name = "Loki";
+                type = "loki";
+              }
+            ];
+          };
         };
       };
     }

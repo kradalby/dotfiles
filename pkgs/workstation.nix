@@ -54,7 +54,6 @@
       step-cli
       unstable.dotnet-sdk # omnisharp
       vale
-      silicon
 
       # (fenix.complete.withComponents
       #   [
@@ -94,6 +93,8 @@
       unstable.lima
       unstable.colima
       terminal-notifier
+
+      silicon
     ]
     ++ lib.optionals stdenv.isLinux [
       # swift
