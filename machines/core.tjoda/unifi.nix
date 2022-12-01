@@ -25,31 +25,31 @@ in
       # TODO: Remove 8443 when nginx can correctly proxy
       networking.firewall.allowedTCPPorts = [8443 9130];
 
-      age.secrets.unifi-tjoda-read-only = {
-        file = ../../secrets/unifi-tjoda-read-only.age;
-        mode = "0400";
-        owner = "unifi-poller";
-      };
+      # age.secrets.unifi-tjoda-read-only = {
+      #   file = ../../secrets/unifi-tjoda-read-only.age;
+      #   mode = "0400";
+      #   owner = "unifi-poller";
+      # };
 
-      services.unifi-poller = {
-        enable = true;
+      # services.unifi-poller = {
+      #   enable = true;
+      #
+      #   unifi.defaults = {
+      #     url = "https://127.0.0.1:8443";
+      #     user = "read-only";
+      #     pass = config.age.secrets.unifi-tjoda-read-only.path;
+      #
+      #     verify_ssl = false;
+      #   };
+      #
+      #   influxdb.disable = true;
+      #
+      #   prometheus = {
+      #     http_listen = ":9130";
+      #   };
+      # };
 
-        unifi.defaults = {
-          url = "https://127.0.0.1:8443";
-          user = "read-only";
-          pass = config.age.secrets.unifi-tjoda-read-only.path;
-
-          verify_ssl = false;
-        };
-
-        influxdb.disable = true;
-
-        prometheus = {
-          http_listen = ":9130";
-        };
-      };
-
-      my.consulServices.unifi_exporter = consul.prometheusExporter "unifi" config.services.prometheus.exporters.unifi.port;
+      # my.consulServices.unifi_exporter = consul.prometheusExporter "unifi" config.services.prometheus.exporters.unifi.port;
     }
 
     (nginx.internalVhost {
