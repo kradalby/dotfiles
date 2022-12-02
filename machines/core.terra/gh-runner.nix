@@ -4,11 +4,11 @@
   flakes,
   ...
 }: {
-  disabledModules = ["services/continuous-integration/github-runners.nix"];
-
-  imports = [
-    "${flakes.nixpkgs-unstable}/nixos/modules/services/continuous-integration/github-runners.nix"
-  ];
+  # disabledModules = ["services/continuous-integration/github-runners.nix"];
+  #
+  # imports = [
+  #   "${flakes.nixpkgs-unstable}/nixos/modules/services/continuous-integration/github-runners.nix"
+  # ];
 
   age.secrets.github-headscale-token = {
     file = ../../secrets/github-headscale-token.age;
