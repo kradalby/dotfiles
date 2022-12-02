@@ -195,11 +195,11 @@
         "rust-analyzer-src": "rust-analyzer-src_2"
       },
       "locked": {
-        "lastModified": 1669789565,
-        "narHash": "sha256-9fBxYzp0cnkHygZOY5HTM7QMYr1WsC062Yc8glQNIgM=",
+        "lastModified": 1669875992,
+        "narHash": "sha256-95+ZD+qOgOFq64ea6J0CI+USQF5Jygrs2p74SJ3swOM=",
         "owner": "nix-community",
         "repo": "fenix",
-        "rev": "bba229a06ca03938a1abd4ce6361bf9bf4f651cd",
+        "rev": "7f2986561d0f9f6a107d6d83f09e1455dd7f4bd8",
         "type": "github"
       },
       "original": {
@@ -321,11 +321,11 @@
         "nixpkgs": "nixpkgs_5"
       },
       "locked": {
-        "lastModified": 1669460472,
-        "narHash": "sha256-KBTZpf9hHX1GeI2r0Tksa8oWdCVZz1wXKpy9htvk2RY=",
+        "lastModified": 1669910480,
+        "narHash": "sha256-BhmEhuYt+xdn9YFmRF6t3+LSE9j7TqaimGHDcrq3fJg=",
         "owner": "juanfont",
         "repo": "headscale",
-        "rev": "eb072a1a74f0bb605d23c31fbe6f26acab99bd3d",
+        "rev": "5a70ea7326032d4ed91f9c505e8cc8d1d2ee96f4",
         "type": "github"
       },
       "original": {
@@ -527,13 +527,29 @@
         "type": "github"
       }
     },
+    "nixpkgs-headscale-test": {
+      "locked": {
+        "lastModified": 1669912679,
+        "narHash": "sha256-TjM0J8mbCReGmtxn16iutkdBKe6k+xi03kWy0nDqC40=",
+        "owner": "kradalby",
+        "repo": "nixpkgs",
+        "rev": "9bba67b91df8bfaf28194d0995e546e6df47deec",
+        "type": "github"
+      },
+      "original": {
+        "owner": "kradalby",
+        "ref": "headscale-rfc0042",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "nixpkgs-master": {
       "locked": {
-        "lastModified": 1669900182,
-        "narHash": "sha256-EKxjHxRJnP1w+2nnm8pq4Uqkqa5McnfPXcO8cG8Mxzc=",
+        "lastModified": 1669912636,
+        "narHash": "sha256-1qa42ZEDDVNPiPW5DhTh/UWekwEcs2vST99qE+mCet0=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "bcb6dbbe30ce7631e5a0865dff1ab9b63d92977d",
+        "rev": "40b71c3e937620ae8dcfad69d5dfa343a8918d6d",
         "type": "github"
       },
       "original": {
@@ -789,6 +805,7 @@
         "nixpkgs": "nixpkgs_8",
         "nixpkgs-darwin": "nixpkgs-darwin",
         "nixpkgs-hardware": "nixpkgs-hardware",
+        "nixpkgs-headscale-test": "nixpkgs-headscale-test",
         "nixpkgs-master": "nixpkgs-master",
         "nixpkgs-staging": "nixpkgs-staging",
         "nixpkgs-staging-next": "nixpkgs-staging-next",

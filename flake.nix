@@ -5,6 +5,8 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.11";
     nixpkgs-darwin.url = "github:NixOS/nixpkgs/nixpkgs-22.11-darwin";
 
+    nixpkgs-headscale-test.url = "github:kradalby/nixpkgs/headscale-rfc0042";
+
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     nixpkgs-master.url = "github:NixOS/nixpkgs/master";
     nixpkgs-staging.url = "github:NixOS/nixpkgs/staging";

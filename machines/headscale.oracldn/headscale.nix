@@ -2,12 +2,19 @@
   pkgs,
   lib,
   config,
+  flakes,
   ...
 }: let
   s = import ../../metadata/sites.nix {inherit lib config;};
   consul = import ../../common/funcs/consul.nix {inherit lib;};
   domain = "headscale.kradalby.no";
 in {
+  disabledModules = ["services/networking/headscale.nix"];
+
+  imports = [
+    "${flakes.nixpkgs-headscale-test}/nixos/modules/services/networking/headscale.nix"
+  ];
+
   age.secrets.headscale-private-key = {
     owner = "headscale";
     file = ../../secrets/headscale-private-key.age;
@@ -26,30 +33,30 @@ in {
   services.headscale = {
     enable = true;
 
-    serverUrl = "https://${domain}";
-
-    privateKeyFile = config.age.secrets.headscale-private-key.path;
-
-    # database.path = "file:/var/lib/headscale/db.sqlite?cache=shared&mode=rwc&_journal_mode=WAL&_busy_timeout=5000";
-    # database.path = "file:/var/lib/headscale/db.sqlite?_journal_mode=WAL&_busy_timeout=5000";
-
-    openIdConnect = {
-      # issuer = "https://id.kradalby.no/dex";
-      # clientId = "headscale";
-      issuer = "https://nextcloud.kradalby.no";
-      clientId = "Pxc5EeJ8gYTcfESmsYysJoFEy2Usu2mDu51jULbzVIksR5WEXKOMwI0MNLM9E9md";
-      clientSecretFile = config.age.secrets.headscale-oidc-secret.path;
-
-      domainMap = {
-        ".*" = "fap";
-      };
-    };
-
-    dns = {
-      baseDomain = "fap";
-    };
-
     settings = {
+      server_url = "https://${domain}";
+
+      private_key_file = config.age.secrets.headscale-private-key.path;
+
+      # database.path = "file:/var/lib/headscale/db.sqlite?cache=shared&mode=rwc&_journal_mode=WAL&_busy_timeout=5000";
+      # database.path = "file:/var/lib/headscale/db.sqlite?_journal_mode=WAL&_busy_timeout=5000";
+
+      oidc = {
+        # issuer = "https://id.kradalby.no/dex";
+        # clientId = "headscale";
+        issuer = "https://nextcloud.kradalby.no";
+        client_id = "Pxc5EeJ8gYTcfESmsYysJoFEy2Usu2mDu51jULbzVIksR5WEXKOMwI0MNLM9E9md";
+        client_secret_file = config.age.secrets.headscale-oidc-secret.path;
+
+        domain_map = {
+          ".*" = "fap";
+        };
+      };
+
+      dns = {
+        base_domain = "fap";
+      };
+
       grpc_listen_addr = "127.0.0.1:50443";
       grpc_allow_insecure = true;
 
