@@ -9,7 +9,7 @@
 
   paths = [
     "/etc/nixos"
-    "/var/lib/kuma"
+    "/var/lib/private/uptime-kuma"
     "/var/lib/step-ca"
     config.services.postgresqlBackup.location
     config.services.minio.configDir
