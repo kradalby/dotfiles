@@ -25,6 +25,8 @@
 
   homebridge = prev.callPackage ./homebridge/override.nix {};
 
+  homebridgePlugins = prev.callPackage ./homebridge-plugins {};
+
   rustdesk-server = prev.callPackage ./rustdesk-server.nix {};
 
   eb = prev.callPackage ./eb.nix {};

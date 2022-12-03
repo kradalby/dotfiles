@@ -1,9 +1,4 @@
 [
   "homebridge",
-  "homebridge-config-ui-x",
-  "homebridge-philips-tv6",
-  "homebridge-mqttthing",
-  "homebridge-camera-ffmpeg",
-  "homebridge-nefit-easy",
-  "homebridge-xiaomi-roborock-vacuum"
+  "homebridge-config-ui-x"
 ]
