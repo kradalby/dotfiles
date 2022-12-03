@@ -1,22 +1,24 @@
 {
   pkgs,
   system,
+  plugins ? [],
 }: let
   nodePackages = import ./default.nix {
     inherit pkgs system;
   };
 
   homebridgePackages =
-    nodePackages
-    // {
-      "homebridge-camera-ffmpeg" = nodePackages."homebridge-camera-ffmpeg".override {
-        buildInputs = [pkgs.ffmpeg];
-      };
-    };
+    nodePackages;
+  # // {
+  #   "homebridge-camera-ffmpeg" = nodePackages."homebridge-camera-ffmpeg".override {
+  #     buildInputs = [pkgs.ffmpeg];
+  #   };
+  # };
 
   packageModulePath = package: "${package}/lib/node_modules/";
   nodeModulePaths = map packageModulePath (builtins.attrValues homebridgePackages);
-  nodePath = builtins.concatStringsSep ":" nodeModulePaths;
+  pluginPaths = map packageModulePath plugins;
+  nodePath = builtins.concatStringsSep ":" (nodeModulePaths ++ pluginPaths);
 in
   pkgs.stdenv.mkDerivation rec {
     version = "1.0.0";
