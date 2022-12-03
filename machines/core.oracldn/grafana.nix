@@ -26,6 +26,7 @@ in
           server = {
             enforce_domain = true;
             enable_gzip = true;
+            http_addr = "127.0.0.1";
           };
 
           auth = {
@@ -67,7 +68,7 @@ in
     (nginx.internalVhost
       {
         inherit domain;
-        proxyPass = "http://${toString config.services.grafana.addr}:${toString config.services.grafana.port}";
+        proxyPass = "http://${toString config.services.grafana.settings.server.http_addr}:${toString config.services.grafana.settings.server.http_port}";
 
         locationExtraConfig = ''
           proxy_set_header Host $host;
