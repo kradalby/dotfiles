@@ -100,7 +100,9 @@ in {
     '';
   };
 
-  config = {
+  config = let
+    ports = builtins.catAttrs "port" (builtins.attrValues cfg);
+  in {
     users.users = flip mapAttrs' cfg (
       n: v: let
         uName = "homebridge-${n}";
@@ -120,8 +122,8 @@ in {
 
     users.groups.homebridge = {};
 
-    # networking.firewall.allowedTCPPorts = [homebridgeConfig.bridge.port];
-    # networking.firewall.allowedUDPPorts = [homebridgeConfig.bridge.port 1900 5350 5351 5353];
+    networking.firewall.allowedTCPPorts = ports;
+    networking.firewall.allowedUDPPorts = ports ++ [1900 5350 5351 5353];
 
     systemd.services = flip mapAttrs' cfg (
       n: v: let
