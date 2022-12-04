@@ -94,6 +94,8 @@
       unstable.colima
       terminal-notifier
 
+      cook-cli
+
       silicon
     ]
     ++ lib.optionals stdenv.isLinux [

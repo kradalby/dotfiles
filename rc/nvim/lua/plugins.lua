@@ -551,6 +551,10 @@ return require("packer").startup(
 
         -- Filetypes
         use "sheerun/vim-polyglot"
+        use {
+            "luizribeiro/vim-cooklang",
+            ft = { "cook" },
+        }
 
         -- Github integration
         use {

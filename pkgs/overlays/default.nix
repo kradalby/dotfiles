@@ -31,5 +31,7 @@
 
   eb = prev.callPackage ./eb.nix {};
 
+  cook-cli = prev.callPackage ./cook.nix {};
+
   # glauth-ui = prev.callPackage ./glauth-ui.nix { pkgs = prev; inherit mach-nix; };
 }
