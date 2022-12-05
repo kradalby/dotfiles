@@ -13,6 +13,10 @@ cmd "set guifont=JetbrainsMono\\ Nerd\\ Font:h11" -- Set neovide font
 g.neovide_refresh_rate = 60
 g.neovide_fullscreen = false
 
+opt.foldmethod = "expr"
+opt.foldexpr = "nvim_treesitter#foldexpr()"
+opt.foldlevel = 20
+
 local indent = 4
 cmd "silent! colorscheme tokyonight" -- Put your favorite colorscheme here
 cmd "set signcolumn=yes" -- Put your favorite colorscheme here
