@@ -270,8 +270,6 @@
         modules = [
           ./common
           (with pkgs; {
-            # boot.kernelPackages = lib.mkForce linuxPackages_latest;
-
             networking = {
               hostName = name;
               domain = "bootstrap.fap.no";
@@ -287,6 +285,9 @@
             inherit system;
             modules =
               [
+                {
+                  boot.kernelPackages = pkgs.lib.mkForce pkgs.linuxPackages_latest;
+                }
                 ./common/rpi4-configuration.nix
               ]
               ++ modules;
