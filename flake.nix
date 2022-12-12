@@ -267,24 +267,28 @@
 
       packages = {
         # nix build --system aarch64-linux .#storage-bassan
-        "rpi4" = nixos-generators.nixosGenerate {
-          inherit system;
-          modules = [
-            ./common
-            ./common/rpi4-configuration.nix
-            {
-              networking.firewall.enable = pkgs.lib.mkForce false;
-            }
-          ];
-          specialArgs = {inherit flakes;};
-          format = "sd-aarch64";
-        };
-        "storage-bassan" = nixos-generators.nixosGenerate {
-          inherit system;
-          inherit (self.nixosConfigurations."storage.bassan"._module.args) modules;
-          specialArgs = {inherit flakes;};
-          format = "sd-aarch64";
-        };
+        "rpi4" = let
+          name = "bootstrap";
+        in
+          nixos-generators.nixosGenerate
+          {
+            inherit system;
+            modules = [
+              ./common
+              ./common/rpi4-configuration.nix
+              (with pkgs; {
+                # boot.kernelPackages = lib.mkForce linuxPackages_latest;
+
+                networking = {
+                  hostName = name;
+                  domain = "bootstrap.fap.no";
+                  firewall.enable = lib.mkForce false;
+                };
+              })
+            ];
+            specialArgs = {inherit flakes;};
+            format = "sd-aarch64";
+          };
       };
     });
 }
