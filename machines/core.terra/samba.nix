@@ -9,7 +9,7 @@
       mdns name = mdns
       server string = Samba on core.tjoda
 
-      min protocol = SMB3
+      min protocol = SMB2
       encrypt passwords = true
 
       # Windows discovery
