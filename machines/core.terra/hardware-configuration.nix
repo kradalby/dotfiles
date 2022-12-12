@@ -10,6 +10,8 @@
     device = "/dev/disk/by-id/scsi-3600508b1001c721ab38cf39e04d065d6";
   };
 
+  boot.binfmt.emulatedSystems = ["aarch64-linux"];
+
   boot.kernelPackages = config.boot.zfs.package.latestCompatibleLinuxPackages;
   boot.initrd.availableKernelModules = ["uhci_hcd" "ehci_pci" "hpsa" "usb_storage" "usbhid" "sd_mod"];
   boot.initrd.kernelModules = [];
