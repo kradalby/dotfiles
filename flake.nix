@@ -265,29 +265,46 @@
         ];
       };
 
-      packages = {
-        # nix build --system aarch64-linux .#storage-bassan
-        "rpi4" = let
-          name = "bootstrap";
-        in
+      packages = let
+        name = "bootstrap";
+        modules = [
+          ./common
+          ./common/rpi4-configuration.nix
+          (with pkgs; {
+            # boot.kernelPackages = lib.mkForce linuxPackages_latest;
+
+            networking = {
+              hostName = name;
+              domain = "bootstrap.fap.no";
+              firewall.enable = lib.mkForce false;
+            };
+          })
+        ];
+      in {
+        # nix build --system aarch64-linux .#name
+        "rpi4" =
           nixos-generators.nixosGenerate
           {
             inherit system;
-            modules = [
-              ./common
-              ./common/rpi4-configuration.nix
-              (with pkgs; {
-                # boot.kernelPackages = lib.mkForce linuxPackages_latest;
-
-                networking = {
-                  hostName = name;
-                  domain = "bootstrap.fap.no";
-                  firewall.enable = lib.mkForce false;
-                };
-              })
-            ];
+            inherit modules;
             specialArgs = {inherit flakes;};
             format = "sd-aarch64";
+          };
+        "vmware" =
+          nixos-generators.nixosGenerate
+          {
+            inherit system;
+            inherit modules;
+            specialArgs = {inherit flakes;};
+            format = "vmware";
+          };
+        "iso" =
+          nixos-generators.nixosGenerate
+          {
+            inherit system;
+            inherit modules;
+            specialArgs = {inherit flakes;};
+            format = "install-iso";
           };
       };
     });
