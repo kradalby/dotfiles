@@ -180,84 +180,111 @@
         imports = value._module.args.modules;
       })
       nixosConfigurations;
-  in {
-    nixosConfigurations = {
-      "core.terra" = nixosBox "x86_64-linux" nixpkgs home-manager "core.terra";
+  in
+    {
+      nixosConfigurations = {
+        "core.terra" = nixosBox "x86_64-linux" nixpkgs home-manager "core.terra";
 
-      "core.oracldn" = nixosBox "aarch64-linux" nixpkgs home-manager "core.oracldn";
-      "headscale.oracldn" = nixosBox "x86_64-linux" nixpkgs null "headscale.oracldn";
+        "core.oracldn" = nixosBox "aarch64-linux" nixpkgs home-manager "core.oracldn";
+        "headscale.oracldn" = nixosBox "x86_64-linux" nixpkgs null "headscale.oracldn";
 
-      "dev.oracfurt" = nixosBox "aarch64-linux" nixpkgs home-manager "dev.oracfurt";
+        "dev.oracfurt" = nixosBox "aarch64-linux" nixpkgs home-manager "dev.oracfurt";
 
-      # "core.ntnu" = nixosBox "x86_64-linux" nixpkgs null "core.ntnu";
+        # "core.ntnu" = nixosBox "x86_64-linux" nixpkgs null "core.ntnu";
 
-      # "k3m1.terra" = nixosBox "x86_64-linux" nixpkgs null "k3m1.terra";
-      # "k3a1.terra" = nixosBox "x86_64-linux" nixpkgs null "k3a1.terra";
-      # "k3a2.terra" = nixosBox "x86_64-linux" nixpkgs null "k3a2.terra";
+        # "k3m1.terra" = nixosBox "x86_64-linux" nixpkgs null "k3m1.terra";
+        # "k3a1.terra" = nixosBox "x86_64-linux" nixpkgs null "k3a1.terra";
+        # "k3a2.terra" = nixosBox "x86_64-linux" nixpkgs null "k3a2.terra";
 
-      # nixos-generate --system aarch64-linux -f sd-aarch64 -I nixpkgs=channel:nixos
-      "home.ldn" = nixosBox "aarch64-linux" nixpkgs null "home.ldn";
-      "core.ldn" = nixosBox "aarch64-linux" nixpkgs null "core.ldn";
-      # "storage.bassan" = nixosBox "aarch64-linux" nixpkgs null "storage.bassan";
-      "core.tjoda" = nixosBox "x86_64-linux" nixpkgs null "core.tjoda";
-    };
-
-    # darwin-rebuild switch --flake .#kramacbook
-    darwinConfigurations = {
-      kramacbook = let
-        machine = {
-          arch = "x86_64-darwin";
-          username = "kradalby";
-          hostname = "kramacbook";
-          homeDir = /Users/kradalby;
-        };
-      in
-        macBox machine darwin home-manager;
-
-      kratail = let
-        machine = {
-          arch = "aarch64-darwin";
-          username = "kradalby";
-          hostname = "kratail";
-          homeDir = /Users/kradalby;
-        };
-      in
-        macBox machine darwin home-manager;
-
-      kraairm2 = let
-        machine = {
-          arch = "aarch64-darwin";
-          username = "kradalby";
-          hostname = "kraairm2";
-          homeDir = /Users/kradalby;
-        };
-      in
-        macBox machine darwin home-manager;
-    };
-
-    homeConfigurations = {
-      # nix run github:nix-community/home-manager/master --no-write-lock-file -- switch --flake .#multipass
-      "kradalby" = let
-        machine = {
-          arch = "x86_64-linux";
-          username = "kradalby";
-          hostname = "kradalby.home";
-          homeDir = "/home/kradalby";
-        };
-      in
-        homeOnly machine home-manager;
-    };
-
-    colmena = mkColmenaFromNixOSConfigurations self.nixosConfigurations;
-
-    packages.aarch64-linux = {
-      # nix build --system aarch64-linux .#storage-bassan
-      "storage-bassan" = nixos-generators.nixosGenerate {
-        pkgs = nixpkgs.legacyPackages.aarch64-linux;
-        inherit (self.nixosConfigurations."storage.bassan"._module.args) modules;
-        specialArgs = {inherit flakes;};
-        format = "sd-aarch64";
+        # nixos-generate --system aarch64-linux -f sd-aarch64 -I nixpkgs=channel:nixos
+        "home.ldn" = nixosBox "aarch64-linux" nixpkgs null "home.ldn";
+        "core.ldn" = nixosBox "aarch64-linux" nixpkgs null "core.ldn";
+        # "storage.bassan" = nixosBox "aarch64-linux" nixpkgs null "storage.bassan";
+        "core.tjoda" = nixosBox "x86_64-linux" nixpkgs null "core.tjoda";
       };
-    };
-  };
+
+      # darwin-rebuild switch --flake .#kramacbook
+      darwinConfigurations = {
+        kramacbook = let
+          machine = {
+            arch = "x86_64-darwin";
+            username = "kradalby";
+            hostname = "kramacbook";
+            homeDir = /Users/kradalby;
+          };
+        in
+          macBox machine darwin home-manager;
+
+        kratail = let
+          machine = {
+            arch = "aarch64-darwin";
+            username = "kradalby";
+            hostname = "kratail";
+            homeDir = /Users/kradalby;
+          };
+        in
+          macBox machine darwin home-manager;
+
+        kraairm2 = let
+          machine = {
+            arch = "aarch64-darwin";
+            username = "kradalby";
+            hostname = "kraairm2";
+            homeDir = /Users/kradalby;
+          };
+        in
+          macBox machine darwin home-manager;
+      };
+
+      homeConfigurations = {
+        # nix run github:nix-community/home-manager/master --no-write-lock-file -- switch --flake .#multipass
+        "kradalby" = let
+          machine = {
+            arch = "x86_64-linux";
+            username = "kradalby";
+            hostname = "kradalby.home";
+            homeDir = "/home/kradalby";
+          };
+        in
+          homeOnly machine home-manager;
+      };
+
+      colmena = mkColmenaFromNixOSConfigurations self.nixosConfigurations;
+    }
+    // flake-utils.lib.eachDefaultSystem
+    (system: let
+      pkgs = import nixpkgs {
+        inherit overlays;
+        inherit system;
+      };
+    in rec {
+      devShell = pkgs.mkShell {
+        buildInputs = [
+          pkgs.alejandra
+          pkgs.colmena
+        ];
+      };
+
+      packages = {
+        # nix build --system aarch64-linux .#storage-bassan
+        "rpi4" = nixos-generators.nixosGenerate {
+          inherit system;
+          modules = [
+            ./common
+            ./common/rpi4-configuration.nix
+            {
+              networking.firewall.enable = pkgs.lib.mkForce false;
+            }
+          ];
+          specialArgs = {inherit flakes;};
+          format = "sd-aarch64";
+        };
+        "storage-bassan" = nixos-generators.nixosGenerate {
+          inherit system;
+          inherit (self.nixosConfigurations."storage.bassan"._module.args) modules;
+          specialArgs = {inherit flakes;};
+          format = "sd-aarch64";
+        };
+      };
+    });
 }
