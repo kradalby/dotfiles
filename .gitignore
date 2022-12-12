@@ -48,3 +48,8 @@ Session.vim
 
 # KDE directory preferences
 .directory
+# Created by https://www.toptal.com/developers/gitignore/api/direnv
+# Edit at https://www.toptal.com/developers/gitignore?templates=direnv
+
+.direnv
+.envrc
