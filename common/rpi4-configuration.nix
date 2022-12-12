@@ -4,6 +4,10 @@
   config,
   ...
 }: {
+  imports = [
+    ./journal-volatile.nix
+  ];
+
   boot = {
     kernelPackages = pkgs.linuxPackages_rpi4;
     tmpOnTmpfs = true;

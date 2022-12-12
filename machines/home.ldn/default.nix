@@ -13,6 +13,8 @@
     ../../common/nginx.nix
     ../../common/containers.nix
 
+    ../../common/rpi4-configuration.nix
+
     ./restic.nix
     ./mqtt.nix
     ./zigbee2mqtt.nix

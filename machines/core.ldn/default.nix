@@ -14,8 +14,8 @@
     ../../common/ddns.nix
     ../../common/smokeping-exporter.nix
     ../../common/coredns.nix
+    ../../common/rpi4-configuration.nix
 
-    ./hardware-configuration.nix
     ./wireguard.nix
     ./tailscale.nix
     ./corerad.nix

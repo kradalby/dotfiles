@@ -7,7 +7,6 @@
 }: {
   imports = [
     ../../common
-    ./hardware-configuration.nix
 
     ./tailscale.nix
     ./wireguard.nix
