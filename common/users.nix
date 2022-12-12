@@ -21,7 +21,7 @@ in {
   };
 
   config = {
-    age.secrets.r.file = ../secrets/r.age;
+    # age.secrets.r.file = ../secrets/r.age;
 
     users = {
       users = {
@@ -31,7 +31,7 @@ in {
           extraGroups = ["wireshark" "docker"];
           shell = pkgs.fish;
           openssh.authorizedKeys.keys = sshKeys.main ++ sshKeys.kradalby;
-          passwordFile = config.age.secrets.r.path;
+          # passwordFile = config.age.secrets.r.path;
         };
 
         root = {
