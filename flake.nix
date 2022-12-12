@@ -269,7 +269,6 @@
         name = "bootstrap";
         modules = [
           ./common
-          ./common/rpi4-configuration.nix
           (with pkgs; {
             # boot.kernelPackages = lib.mkForce linuxPackages_latest;
 
@@ -286,7 +285,11 @@
           nixos-generators.nixosGenerate
           {
             inherit system;
-            inherit modules;
+            modules =
+              [
+                ./common/rpi4-configuration.nix
+              ]
+              ++ modules;
             specialArgs = {inherit flakes;};
             format = "sd-aarch64";
           };
