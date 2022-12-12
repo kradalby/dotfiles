@@ -22,7 +22,7 @@
         log_level = "DEBUG";
         datacenter = builtins.replaceStrings [".fap.no"] [""] config.networking.domain;
 
-        retry_join = lib.mkIf (config.networking.defaultGateway != null) [config.networking.defaultGateway.address];
+        retry_join = lib.mkDefault (lib.mkIf (config.networking.defaultGateway != null) [config.networking.defaultGateway.address]);
 
         # addresses = {
         #   http = "127.0.0.1";
