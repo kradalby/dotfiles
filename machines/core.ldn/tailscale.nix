@@ -9,7 +9,7 @@
 in
   (import ../../common/funcs/tailscale.nix {inherit config pkgs lib;}).tailscale
   {
-    preAuthKey = "tskey-auth-kAaPsA4CNTRL-6XvdF2gHTmJAa3rdgWWxsJzTGPfQkyFN"; # onetime key
+    preAuthKey = "tskey-auth-kRDVyj3CNTRL-p1komd6DXiR6TLpkKYrhbRRFYKT1UvGQF"; # onetime key
     reauth = false;
     exitNode = true;
     advertiseRoutes = wireguardConfig.additional_networks;
