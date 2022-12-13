@@ -5,6 +5,8 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.11";
     nixpkgs-darwin.url = "github:NixOS/nixpkgs/nixpkgs-22.11-darwin";
 
+    nixpkgs-rpi4.url = "github:NixOS/nixpkgs/nixos-21.05";
+
     nixpkgs-headscale-test.url = "github:kradalby/nixpkgs/headscale-rfc0042";
 
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
@@ -56,6 +58,7 @@
   outputs = {
     self,
     nixpkgs,
+    nixpkgs-rpi4,
     nixpkgs-unstable,
     nixpkgs-master,
     nixpkgs-staging,
@@ -257,6 +260,11 @@
         inherit overlays;
         inherit system;
       };
+
+      pkgsRpi = import nixpkgs-rpi4 {
+        inherit overlays;
+        inherit system;
+      };
     in rec {
       devShell = pkgs.mkShell {
         buildInputs = [
@@ -286,7 +294,7 @@
             modules =
               [
                 {
-                  boot.kernelPackages = pkgs.lib.mkForce pkgs.linuxPackages_latest;
+                  boot.kernelPackages = pkgs.lib.mkForce pkgsRpi.linuxPackages_rpi4;
                 }
                 ./common/rpi4-configuration.nix
               ]
