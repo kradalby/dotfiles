@@ -28,6 +28,7 @@
     ./restic.nix
     ./gh-runner.nix
     ./postfix.nix
+    ./libvirt.nix
 
     # ./polar
   ];
