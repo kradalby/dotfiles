@@ -5,8 +5,6 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.11";
     nixpkgs-darwin.url = "github:NixOS/nixpkgs/nixpkgs-22.11-darwin";
 
-    nixpkgs-rpi4.url = "github:NixOS/nixpkgs/nixos-21.05";
-
     nixpkgs-headscale-test.url = "github:kradalby/nixpkgs/headscale-rfc0042";
 
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
@@ -55,135 +53,135 @@
     colmena.url = "github:zhaofengli/colmena";
   };
 
-  outputs = {
-    self,
-    nixpkgs,
-    nixpkgs-rpi4,
-    nixpkgs-unstable,
-    nixpkgs-master,
-    nixpkgs-staging,
-    nixpkgs-staging-next,
-    darwin,
-    darwin-unstable,
-    darwin-master,
-    darwin-staging,
-    home-manager,
-    home-manager-unstable,
-    ragenix,
-    nur,
-    fenix,
-    nixos-generators,
-    mach-nix,
-    flake-utils,
-    deadnix,
-    alejandra,
-    headscale,
-    colmena,
-    ...
-  } @ flakes: let
-    overlay-pkgs = final: prev: {
-      stable = import nixpkgs {inherit (final) system;};
-      unstable = import nixpkgs-unstable {inherit (final) system;};
-      master = import nixpkgs-master {inherit (final) system;};
-      staging = import nixpkgs-staging {inherit (final) system;};
-      staging-next = import nixpkgs-staging-next {inherit (final) system;};
-    };
+  outputs =
+    { self
+    , nixpkgs
+    , nixpkgs-unstable
+    , nixpkgs-master
+    , nixpkgs-staging
+    , nixpkgs-staging-next
+    , darwin
+    , darwin-unstable
+    , darwin-master
+    , darwin-staging
+    , home-manager
+    , home-manager-unstable
+    , ragenix
+    , nur
+    , fenix
+    , nixos-generators
+    , mach-nix
+    , flake-utils
+    , deadnix
+    , alejandra
+    , headscale
+    , colmena
+    , ...
+    } @ flakes:
+    let
+      overlay-pkgs = final: prev: {
+        stable = import nixpkgs { inherit (final) system; };
+        unstable = import nixpkgs-unstable { inherit (final) system; };
+        master = import nixpkgs-master { inherit (final) system; };
+        staging = import nixpkgs-staging { inherit (final) system; };
+        staging-next = import nixpkgs-staging-next { inherit (final) system; };
+      };
 
-    overlays = [
-      nur.overlay
-      overlay-pkgs
-      fenix.overlays.default
-      ragenix.overlays.default
-      deadnix.overlays.default
-      alejandra.overlay
-      headscale.overlay
-      colmena.overlay
-      (import ./pkgs/overlays {inherit mach-nix;})
-    ];
+      overlays = [
+        nur.overlay
+        overlay-pkgs
+        fenix.overlays.default
+        ragenix.overlays.default
+        deadnix.overlays.default
+        alejandra.overlay
+        headscale.overlay
+        colmena.overlay
+        (import ./pkgs/overlays { inherit mach-nix; })
+      ];
 
-    commonModules = [
-      ragenix.nixosModules.age
+      commonModules = [
+        ragenix.nixosModules.age
 
-      {
-        nixpkgs.overlays = overlays;
-      }
-    ];
+        {
+          nixpkgs.overlays = overlays;
+        }
+      ];
 
-    nixosBox = arch: base: homeBase: name:
-      base.lib.nixosSystem {
-        system = arch;
-        modules =
-          commonModules
-          ++ [
-            (import ./modules/linux.nix)
-            {
-              system.configurationRevision =
-                self.rev or "DIRTY";
-            }
+      nixosBox = arch: base: homeBase: name:
+        base.lib.nixosSystem {
+          system = arch;
+          modules =
+            commonModules
+            ++ [
+              (import ./modules/linux.nix)
+              {
+                system.configurationRevision =
+                  self.rev or "DIRTY";
+              }
 
-            (./. + "/machines/${name}")
-          ]
-          ++ (
-            if builtins.isNull homeBase
-            then []
-            else [
-              homeBase.nixosModules.home-manager
-              ./common/home.nix
+              (./. + "/machines/${name}")
             ]
-          );
-        specialArgs = {
-          inherit flakes;
-        };
-      };
-
-    macBox = machine: base: homeBase:
-      base.lib.darwinSystem {
-        system = machine.arch;
-        modules =
-          commonModules
-          ++ [
-            (./. + "/machines/${machine.hostname}")
-            homeBase.darwinModules.home-manager
-          ];
-        specialArgs = {
-          inherit flakes;
-          inherit machine;
-        };
-      };
-
-    homeOnly = machine: homeBase:
-      homeBase.lib.homeManagerConfiguration {
-        inherit (machine) username;
-        system = machine.arch;
-        homeDirectory = machine.homeDir;
-        configuration.imports = [./home];
-        extraModules =
-          commonModules
-          ++ [
-            (./. + "/machines/${machine.hostname}")
-          ];
-      };
-
-    mkColmenaFromNixOSConfigurations = nixosConfigurations:
-      {
-        meta = {
-          nixpkgs = import nixpkgs {
-            system = "x86_64-darwin";
-            inherit overlays;
-          };
-
+            ++ (
+              if builtins.isNull homeBase
+              then [ ]
+              else [
+                homeBase.nixosModules.home-manager
+                ./common/home.nix
+              ]
+            );
           specialArgs = {
             inherit flakes;
           };
         };
-      }
-      // builtins.mapAttrs
-      (name: value: {
-        nixpkgs.system = value.config.nixpkgs.system;
-        imports = value._module.args.modules;
-      })
-      nixosConfigurations;
-  in
+
+      macBox = machine: base: homeBase:
+        base.lib.darwinSystem {
+          system = machine.arch;
+          modules =
+            commonModules
+            ++ [
+              (./. + "/machines/${machine.hostname}")
+              homeBase.darwinModules.home-manager
+            ];
+          specialArgs = {
+            inherit flakes;
+            inherit machine;
+          };
+        };
+
+      homeOnly = machine: homeBase:
+        homeBase.lib.homeManagerConfiguration {
+          inherit (machine) username;
+          system = machine.arch;
+          homeDirectory = machine.homeDir;
+          configuration.imports = [ ./home ];
+          extraModules =
+            commonModules
+            ++ [
+              (./. + "/machines/${machine.hostname}")
+            ];
+        };
+
+      mkColmenaFromNixOSConfigurations = nixosConfigurations:
+        {
+          meta = {
+            nixpkgs = import nixpkgs {
+              system = "x86_64-darwin";
+              inherit overlays;
+            };
+
+            specialArgs = {
+              inherit flakes;
+            };
+          };
+        }
+        // builtins.mapAttrs
+          (name: value: {
+            nixpkgs.system = value.config.nixpkgs.system;
+            imports = value._module.args.modules;
+          })
+          nixosConfigurations;
+    in
     {
       nixosConfigurations = {
         "core.terra" = nixosBox "x86_64-linux" nixpkgs home-manager "core.terra";
@@ -208,116 +206,130 @@
 
       # darwin-rebuild switch --flake .#kramacbook
       darwinConfigurations = {
-        kramacbook = let
-          machine = {
-            arch = "x86_64-darwin";
-            username = "kradalby";
-            hostname = "kramacbook";
-            homeDir = /Users/kradalby;
-          };
-        in
+        kramacbook =
+          let
+            machine = {
+              arch = "x86_64-darwin";
+              username = "kradalby";
+              hostname = "kramacbook";
+              homeDir = /Users/kradalby;
+            };
+          in
           macBox machine darwin home-manager;
 
-        kratail = let
-          machine = {
-            arch = "aarch64-darwin";
-            username = "kradalby";
-            hostname = "kratail";
-            homeDir = /Users/kradalby;
-          };
-        in
+        kratail =
+          let
+            machine = {
+              arch = "aarch64-darwin";
+              username = "kradalby";
+              hostname = "kratail";
+              homeDir = /Users/kradalby;
+            };
+          in
           macBox machine darwin home-manager;
 
-        kraairm2 = let
-          machine = {
-            arch = "aarch64-darwin";
-            username = "kradalby";
-            hostname = "kraairm2";
-            homeDir = /Users/kradalby;
-          };
-        in
+        kraairm2 =
+          let
+            machine = {
+              arch = "aarch64-darwin";
+              username = "kradalby";
+              hostname = "kraairm2";
+              homeDir = /Users/kradalby;
+            };
+          in
           macBox machine darwin home-manager;
       };
 
       homeConfigurations = {
         # nix run github:nix-community/home-manager/master --no-write-lock-file -- switch --flake .#multipass
-        "kradalby" = let
-          machine = {
-            arch = "x86_64-linux";
-            username = "kradalby";
-            hostname = "kradalby.home";
-            homeDir = "/home/kradalby";
-          };
-        in
+        "kradalby" =
+          let
+            machine = {
+              arch = "x86_64-linux";
+              username = "kradalby";
+              hostname = "kradalby.home";
+              homeDir = "/home/kradalby";
+            };
+          in
           homeOnly machine home-manager;
       };
 
       colmena = mkColmenaFromNixOSConfigurations self.nixosConfigurations;
     }
     // flake-utils.lib.eachDefaultSystem
-    (system: let
-      pkgs = import nixpkgs {
-        inherit overlays;
-        inherit system;
-      };
+      (system:
+      let
+        pkgs = import nixpkgs {
+          inherit overlays;
+          inherit system;
+        };
+      in
+      rec {
+        devShell = pkgs.mkShell {
+          buildInputs = [
+            pkgs.alejandra
+            pkgs.colmena
+          ];
+        };
 
-      pkgsRpi = import nixpkgs-rpi4 {
-        inherit overlays;
-        inherit system;
-      };
-    in rec {
-      devShell = pkgs.mkShell {
-        buildInputs = [
-          pkgs.alejandra
-          pkgs.colmena
-        ];
-      };
-
-      packages = let
-        name = "bootstrap";
-        modules = [
-          ./common
-          (with pkgs; {
-            networking = {
-              hostName = name;
-              domain = "bootstrap.fap.no";
-              firewall.enable = lib.mkForce false;
-            };
-          })
-        ];
-      in {
-        # nix build --system aarch64-linux .#name
-        "rpi4" =
-          nixos-generators.nixosGenerate
+        packages =
+          let
+            name = "bootstrap";
+            modules = [
+              ./common
+              (with pkgs; {
+                networking = {
+                  hostName = name;
+                  domain = "bootstrap.fap.no";
+                  firewall.enable = lib.mkForce false;
+                };
+              })
+            ];
+          in
           {
-            inherit system;
-            modules =
-              [
+            # nix build --system aarch64-linux .#name
+            "rpi4" =
+              nixos-generators.nixosGenerate
                 {
-                  boot.kernelPackages = pkgs.lib.mkForce pkgsRpi.linuxPackages_rpi4;
-                }
-                ./common/rpi4-configuration.nix
-              ]
-              ++ modules;
-            specialArgs = {inherit flakes;};
-            format = "sd-aarch64";
+                  inherit system;
+                  modules =
+                    [
+                      # FIX: this is requried to build the RPi kernel:
+                      # https://github.com/NixOS/nixpkgs/issues/154163
+                      # https://github.com/NixOS/nixos-hardware/issues/360
+                      {
+                        nixpkgs.overlays = [
+                          (final: super: {
+                            makeModulesClosure = x:
+                              super.makeModulesClosure (x // { allowMissing = true; });
+                          })
+                        ];
+                      }
+                      {
+                        boot.kernelPackages = pkgs.lib.mkForce pkgs.linuxPackages_rpi4;
+                      }
+                      ./common/rpi4-configuration.nix
+                    ]
+                    ++ modules;
+                  specialArgs = { inherit flakes; };
+                  format = "sd-aarch64";
+                };
+            "vmware" =
+              nixos-generators.nixosGenerate
+                {
+                  inherit system;
+                  inherit modules;
+                  specialArgs = { inherit flakes; };
+                  format = "vmware";
+                };
+            "iso" =
+              nixos-generators.nixosGenerate
+                {
+                  inherit system;
+                  inherit modules;
+                  specialArgs = { inherit flakes; };
+                  format = "install-iso";
+                };
           };
-        "vmware" =
-          nixos-generators.nixosGenerate
-          {
-            inherit system;
-            inherit modules;
-            specialArgs = {inherit flakes;};
-            format = "vmware";
-          };
-        "iso" =
-          nixos-generators.nixosGenerate
-          {
-            inherit system;
-            inherit modules;
-            specialArgs = {inherit flakes;};
-            format = "install-iso";
-          };
-      };
-    });
+      });
 }

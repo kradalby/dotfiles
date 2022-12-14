@@ -559,22 +559,6 @@
         "type": "github"
       }
     },
-    "nixpkgs-rpi4": {
-      "locked": {
-        "lastModified": 1659914493,
-        "narHash": "sha256-lkA5X3VNMKirvA+SUzvEhfA7XquWLci+CGi505YFAIs=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "022caabb5f2265ad4006c1fa5b1ebe69fb0c3faf",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "ref": "nixos-21.05",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
     "nixpkgs-staging": {
       "locked": {
         "lastModified": 1670824901,
@@ -823,7 +807,6 @@
         "nixpkgs-hardware": "nixpkgs-hardware",
         "nixpkgs-headscale-test": "nixpkgs-headscale-test",
         "nixpkgs-master": "nixpkgs-master",
-        "nixpkgs-rpi4": "nixpkgs-rpi4",
         "nixpkgs-staging": "nixpkgs-staging",
         "nixpkgs-staging-next": "nixpkgs-staging-next",
         "nixpkgs-unstable": "nixpkgs-unstable",
