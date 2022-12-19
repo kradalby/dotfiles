@@ -90,8 +90,8 @@
       docker
     ]
     ++ lib.optionals stdenv.isDarwin [
-      unstable.lima
-      unstable.colima
+      lima
+      colima
       terminal-notifier
 
       cook-cli
