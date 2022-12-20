@@ -39,6 +39,7 @@ _: {
 
       # CI/VM
       "tart"
+      "softnet"
     ];
 
     casks = [
