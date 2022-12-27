@@ -1,6 +1,6 @@
-{
+{config, ...}: {
   services.fail2ban = {
-    enable = true;
+    enable = config.networking.firewall.enable;
     maxretry = 5;
     ignoreIP = [
       "127.0.0.0/8"
