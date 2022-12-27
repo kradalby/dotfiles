@@ -27,9 +27,9 @@ prev: final: let
       kernelPatches = [
         neo2-dts
         neo2-dts-led
-        h5-dts-cpu-opp-refs
-        h5-dts-add-termal-zones
-        h5-add-gpio-regulator-overclock
+        # h5-dts-cpu-opp-refs
+        # h5-dts-add-termal-zones
+        # h5-add-gpio-regulator-overclock
       ];
     };
 in {

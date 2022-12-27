@@ -1,4 +1,8 @@
-{...}: {
+{
+  pkgs,
+  lib,
+  ...
+}: {
   imports = [
     ../../common/journal-volatile.nix
   ];
@@ -28,5 +32,6 @@
     };
   };
 
-  hardware.enableRedistributableFirmware = true;
+  # hardware.enableRedistributableFirmware = true;
+  hardware.enableAllFirmware = true;
 }
