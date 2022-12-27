@@ -306,17 +306,19 @@
                   boot.kernelPackages = pkgs.lib.mkForce pkgs.linuxPackages_rpi4;
                 }
                 {
-                  # wireless = {
-                  #   enable = true;
-                  #   interfaces = ["wlan0"];
-                  #   networks = {
-                  #     "<Insert SSID>" = {
-                  #       psk = "";
-                  #     };
-                  #   };
-                  # };
-                  # interfaces.wlan0.useDHCP = true;
-                  interfaces.eth0.useDHCP = true;
+                  networking = {
+                    # wireless = {
+                    #   enable = true;
+                    #   interfaces = ["wlan0"];
+                    #   networks = {
+                    #     "<Insert SSID>" = {
+                    #       psk = "";
+                    #     };
+                    #   };
+                    # };
+                    # interfaces.wlan0.useDHCP = true;
+                    interfaces.eth0.useDHCP = true;
+                  };
                 }
                 ./common/rpi4-configuration.nix
               ]
