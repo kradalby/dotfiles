@@ -12,7 +12,6 @@
       # imapchive
       # logcli
       # nodejs
-      # osxphotos
       # poetry
       # rnix-lsp
       # yarn
@@ -54,6 +53,7 @@
       step-cli
       unstable.dotnet-sdk # omnisharp
       vale
+      python310Packages.pipx
 
       # (fenix.complete.withComponents
       #   [

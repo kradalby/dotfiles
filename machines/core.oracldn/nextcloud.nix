@@ -15,6 +15,8 @@ in {
     enable = true;
     package = pkgs.nextcloud25;
 
+    enableBrokenCiphersForSSE = false;
+
     hostName = domain;
     # Enable built-in virtual host management
     # Takes care of somewhat complicated setup

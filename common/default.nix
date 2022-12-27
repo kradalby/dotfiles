@@ -26,6 +26,7 @@
     ./postfix.nix
     ./consul.nix
     ./avahi.nix
+    ./fail2ban.nix
     # ./sendmail.nix
     # ./senddiscord.nix
   ];

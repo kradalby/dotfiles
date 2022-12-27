@@ -1,4 +1,4 @@
-{mach-nix, ...}: final: prev: {
+{...}: final: prev: {
   golines = prev.callPackage ./golines.nix {
     buildGoModule = prev.buildGo117Module;
   };
@@ -33,5 +33,7 @@
 
   cook-cli = prev.callPackage ./cook.nix {};
 
-  # glauth-ui = prev.callPackage ./glauth-ui.nix { pkgs = prev; inherit mach-nix; };
+  umami = prev.callPackage ./umami.nix {};
+
+  # osxphotos = prev.callPackage ./osxphotos.nix {};
 }

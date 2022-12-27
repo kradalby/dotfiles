@@ -7,6 +7,7 @@
   databases = [
     "glauth"
     "nextcloud"
+    "umami"
   ];
 
   backup =

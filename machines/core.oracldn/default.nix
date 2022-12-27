@@ -31,6 +31,9 @@
     ./nextcloud.nix
     ./minio.nix
     ./rustdesk-server.nix
+
+    ../../modules/umami.nix
+    ./umami.nix
   ];
 
   my.wan = "enp0s3";
