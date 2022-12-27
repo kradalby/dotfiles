@@ -22,7 +22,7 @@ with stdenv.lib;
 
       src = fetchurl {
         url = "https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-${version}.tar.xz";
-        sha256 = "";
+        sha256 = "sha256-o+YTd89ENanilmtAmjehBW9qqlnlYa3ZElqI48CXHfs=";
       };
 
       # Should the testing kernels ever be built on Hydra?
