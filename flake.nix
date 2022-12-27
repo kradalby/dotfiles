@@ -326,6 +326,34 @@
             specialArgs = {inherit flakes;};
             format = "sd-aarch64";
           };
+        "nanopi-neo2" =
+          nixos-generators.nixosGenerate
+          {
+            system = "aarch64-linux";
+            modules =
+              [
+                # FIX: this is requried to build the RPi kernel:
+                # https://github.com/NixOS/nixpkgs/issues/154163
+                # https://github.com/NixOS/nixos-hardware/issues/360
+                # {
+                #   nixpkgs.overlays = [
+                #     (final: super: {
+                #       makeModulesClosure = x:
+                #         super.makeModulesClosure (x // {allowMissing = true;});
+                #     })
+                #   ];
+                # }
+                {
+                  networking = {
+                    interfaces.eth0.useDHCP = true;
+                  };
+                }
+                ./misc/nanopi-neo2
+              ]
+              ++ modules;
+            specialArgs = {inherit flakes;};
+            format = "sd-aarch64";
+          };
         "vmware" =
           nixos-generators.nixosGenerate
           {
