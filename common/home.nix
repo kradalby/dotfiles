@@ -1,6 +1,7 @@
 {
   config,
   pkgs,
+  lib,
   flakes,
   ...
 }: {
@@ -16,6 +17,13 @@
         imports = [
           ../home
         ];
+        programs.git = {
+          extraConfig = {
+            user = {
+              signingkey = lib.mkForce "/home/kradalby/.ssh/id_ed25519.pub";
+            };
+          };
+        };
       };
       root = {
         imports = [

@@ -29,6 +29,7 @@
     ./gh-runner.nix
     ./postfix.nix
     ./libvirt.nix
+    ./hugin.nix
 
     # ./polar
   ];

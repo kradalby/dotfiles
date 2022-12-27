@@ -44,13 +44,15 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    mach-nix.url = "github:DavHau/mach-nix";
     flake-utils.url = "github:numtide/flake-utils";
 
     deadnix.url = "github:astro/deadnix";
     alejandra.url = "github:kamadorueda/alejandra";
     headscale.url = "github:juanfont/headscale";
     colmena.url = "github:zhaofengli/colmena";
+
+    hugin.url = "github:kradalby/hugin/flake";
+    munin.url = "github:kradalby/munin";
   };
 
   outputs = {
@@ -70,12 +72,13 @@
     nur,
     fenix,
     nixos-generators,
-    mach-nix,
     flake-utils,
     deadnix,
     alejandra,
     headscale,
     colmena,
+    hugin,
+    munin,
     ...
   } @ flakes: let
     overlay-pkgs = final: prev: {
@@ -95,7 +98,11 @@
       alejandra.overlay
       headscale.overlay
       colmena.overlay
-      (import ./pkgs/overlays {inherit mach-nix;})
+      hugin.overlay
+      munin.overlay
+      (import ./pkgs/overlays {})
+      (final: prev: {
+      })
     ];
 
     commonModules = [
@@ -112,6 +119,7 @@
         modules =
           commonModules
           ++ [
+            hugin.nixosModules.default
             (import ./modules/linux.nix)
             {
               system.configurationRevision =
@@ -164,8 +172,9 @@
     mkColmenaFromNixOSConfigurations = nixosConfigurations:
       {
         meta = {
+          machinesFile = /etc/nix/machines;
           nixpkgs = import nixpkgs {
-            system = "x86_64-darwin";
+            system = "x86_64-linux";
             inherit overlays;
           };
 
@@ -176,6 +185,7 @@
       }
       // builtins.mapAttrs
       (name: value: {
+        deployment.buildOnTarget = false;
         nixpkgs.system = value.config.nixpkgs.system;
         imports = value._module.args.modules;
       })
@@ -191,10 +201,6 @@
         "dev.oracfurt" = nixosBox "aarch64-linux" nixpkgs home-manager "dev.oracfurt";
 
         # "core.ntnu" = nixosBox "x86_64-linux" nixpkgs null "core.ntnu";
-
-        # "k3m1.terra" = nixosBox "x86_64-linux" nixpkgs null "k3m1.terra";
-        # "k3a1.terra" = nixosBox "x86_64-linux" nixpkgs null "k3a1.terra";
-        # "k3a2.terra" = nixosBox "x86_64-linux" nixpkgs null "k3a2.terra";
 
         # nixos-generate --system aarch64-linux -f sd-aarch64 -I nixpkgs=channel:nixos
         "home.ldn" = nixosBox "aarch64-linux" nixpkgs null "home.ldn";
@@ -282,7 +288,7 @@
         "rpi4" =
           nixos-generators.nixosGenerate
           {
-            inherit system;
+            system = "aarch64-linux";
             modules =
               [
                 # FIX: this is requried to build the RPi kernel:

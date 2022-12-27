@@ -120,4 +120,7 @@ in
 
     # github
     "github-headscale-token.age".publicKeys = u ++ [hosts.core-terra];
+
+    # hugin
+    "hugin-tskey.age".publicKeys = u ++ [hosts.core-terra];
   }

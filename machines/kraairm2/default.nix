@@ -8,14 +8,6 @@
   ...
 }: let
   sshKeys = import ../../metadata/ssh.nix;
-  remoteBuilders = [
-    # "ssh-ng://core.ntnu x86_64-linux"
-    # "ssh-ng://k3a1.terra x86_64-linux - 4 - benchmark,big-parallel"
-    # "ssh-ng://k3a2.terra x86_64-linux - 4 - benchmark,big-parallel"
-    # "ssh-ng://dev.terra x86_64-linux - 4 - benchmark,big-parallel"
-    # "ssh-ng://core.oracldn aarch64-linux - 4 - benchmark,big-parallel"
-    # "ssh-ng://dev.oracfurt aarch64-linux - 4 - benchmark,big-parallel"
-  ];
 in {
   imports = [
     ../../common/darwin.nix
@@ -34,12 +26,57 @@ in {
   nix = {
     extraOptions = lib.mkForce ''
       experimental-features = nix-command flakes
-      builders = ${lib.concatStringsSep " ; " remoteBuilders}
     '';
 
     settings = {
       trusted-users = [machine.username];
     };
+
+    distributedBuilds = true;
+
+    # NOTE: Public host key verification seem broken from
+    # at least macOS, we need to add the key manually by
+    # adding the base64 key ourselves:
+    # base64 -w0 /etc/ssh/ssh_host_ed25519_key.pub
+    buildMachines = [
+      # {
+      #   hostName = "core.terra.fap.no";
+      #   systems = ["x86_64-linux"];
+      #   sshUser = "root";
+      #   sshKey = "/Users/kradalby/.ssh/id_ed25519";
+      #   maxJobs = 5;
+      #   supportedFeatures = ["big-parallel" "kvm" "nixos-test"];
+      #
+      #   publicHostKey = "c3NoLWVkMjU1MTkgQUFBQUMzTnphQzFsWkRJMU5URTVBQUFBSUdFenhqcHM1OGFJcncxWnhnRFV1ajFXN1QzQng2WmJPNlEzNGEweGoyQkEgcm9vdEBjb3JlCg==";
+      # }
+      {
+        hostName = "core.tjoda.fap.no";
+        systems = ["x86_64-linux"];
+        sshUser = "root";
+        sshKey = "/Users/kradalby/.ssh/id_ed25519";
+        maxJobs = 3;
+        supportedFeatures = ["big-parallel" "kvm" "nixos-test"];
+        publicHostKey = "c3NoLWVkMjU1MTkgQUFBQUMzTnphQzFsWkRJMU5URTVBQUFBSUJTcUVoTExkczhzaHc4SE1PU3BOOFVNQkZqTFBUQ3lnMVRqSEtxWHZtMVcgcm9vdEBuaXhvcwo=";
+      }
+      {
+        hostName = "core.oracldn.fap.no";
+        systems = ["aarch64-linux"];
+        sshUser = "root";
+        sshKey = "/Users/kradalby/.ssh/id_ed25519";
+        maxJobs = 3;
+        supportedFeatures = ["big-parallel" "kvm" "nixos-test"];
+        publicHostKey = "c3NoLWVkMjU1MTkgQUFBQUMzTnphQzFsWkRJMU5URTVBQUFBSUdFZTllSU1mNDYyWlFoRThObDlqeVVzY1J0VFRZZUFJUFJOMmt2TzNjZEMgcm9vdEBjb3JlCg==";
+      }
+      {
+        hostName = "dev.oracfurt.fap.no";
+        systems = ["aarch64-linux"];
+        sshUser = "kradalby";
+        sshKey = "/Users/kradalby/.ssh/id_ed25519";
+        maxJobs = 3;
+        supportedFeatures = ["big-parallel" "kvm" "nixos-test"];
+        publicHostKey = "c3NoLWVkMjU1MTkgQUFBQUMzTnphQzFsWkRJMU5URTVBQUFBSUU2NXMvaFJuMzR2NVVOaFNJQzgvSk4vNDUyaExkcW4xMzFnVnFxQlRQbmwgcm9vdEBkZXYK";
+      }
+    ];
   };
 
   users.users.kradalby = {
@@ -75,6 +112,15 @@ in {
     computerName = machine.hostname;
     localHostName = machine.hostname;
   };
+
+  homebrew = {
+    casks = [
+      # "vmware-fusion"
+      "macfuse"
+      "transmission"
+    ];
+  };
+
   system.defaults.smb.NetBIOSName = machine.hostname;
 
   # Used for backwards compatibility, please read the changelog before changing.

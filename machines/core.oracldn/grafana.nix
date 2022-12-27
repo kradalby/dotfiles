@@ -17,17 +17,17 @@ in
 
       services.grafana = {
         enable = true;
-        inherit domain;
-        rootUrl = "https://${domain}";
-
-        analytics.reporting.enable = false;
 
         settings = {
           server = {
+            inherit domain;
+            root_url = "https://${domain}";
             enforce_domain = true;
             enable_gzip = true;
             http_addr = "127.0.0.1";
           };
+
+          analytics.reporting_enabled = false;
 
           auth = {
             anonymous_enabled = true;
