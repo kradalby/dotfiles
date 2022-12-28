@@ -32,8 +32,9 @@
     ./minio.nix
     ./rustdesk-server.nix
 
-    ../../modules/umami.nix
-    ./umami.nix
+    # ../../modules/umami.nix
+    # ./umami.nix
+    ./golink.nix
   ];
 
   my.wan = "enp0s3";

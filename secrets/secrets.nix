@@ -123,4 +123,7 @@ in
 
     # hugin
     "hugin-tskey.age".publicKeys = u ++ [hosts.core-terra];
+
+    # golink
+    "golink-tskey.age".publicKeys = u ++ [hosts.core-oracldn];
   }
