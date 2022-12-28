@@ -351,11 +351,11 @@
         "nixpkgs": "nixpkgs_5"
       },
       "locked": {
-        "lastModified": 1672217178,
+        "lastModified": 1672217510,
         "narHash": "sha256-i3kQ6A+WVHnl9YKLYoKlBx4Fas4y1HQyMTSaA6DE2hw=",
         "owner": "tailscale",
         "repo": "golink",
-        "rev": "052d2ad6262ab3cd5bce7aca09c5affb0653842c",
+        "rev": "fa821df7a29b54f6a02b70aa7bc8a5fea5bfdbe8",
         "type": "github"
       },
       "original": {
@@ -614,11 +614,11 @@
     },
     "nixpkgs-master": {
       "locked": {
-        "lastModified": 1672215543,
-        "narHash": "sha256-2Gqh5CGZNILZ6nA5jub2DovKuIn/8On6RhFdtxOOMh0=",
+        "lastModified": 1672217424,
+        "narHash": "sha256-5PaApGsbqGj/XssAcr1EZFN6Oibw7XZM6Ko78ozyrPQ=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "671be4403c3c2768c9fce75882691ac8aa639948",
+        "rev": "3b4b0ee607b4e134b08fd7e1f3e8cce9c25dc391",
         "type": "github"
       },
       "original": {
