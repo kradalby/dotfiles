@@ -19,6 +19,6 @@
     user = "storage";
     group = "storage";
 
-    album = "/fast/hugin/temp";
+    album = "/fast/hugin/album";
   };
 }
