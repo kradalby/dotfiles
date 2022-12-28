@@ -53,6 +53,7 @@
 
     hugin.url = "github:kradalby/hugin/flake";
     munin.url = "github:kradalby/munin";
+    golink.url = "github:tailscale/golink/kristoffer/nixmodule";
   };
 
   outputs = {
@@ -79,6 +80,7 @@
     colmena,
     hugin,
     munin,
+    golink,
     ...
   } @ flakes: let
     overlay-pkgs = final: prev: {
@@ -100,6 +102,7 @@
       colmena.overlay
       hugin.overlay
       munin.overlay
+      golink.overlay
       (import ./pkgs/overlays {})
       (final: prev: {
       })
@@ -120,6 +123,7 @@
           commonModules
           ++ [
             hugin.nixosModules.default
+            golink.nixosModules.default
             (import ./modules/linux.nix)
             {
               system.configurationRevision =
