@@ -14,6 +14,7 @@
     ../../common/ddns.nix
     ../../common/smokeping-exporter.nix
     ../../common/coredns.nix
+    ../../common/miniupnp.nix
 
     ./hardware-configuration.nix
     ./zfs.nix
