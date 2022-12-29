@@ -41,6 +41,7 @@
     rsync
     viddy
     zstd
+    nftables
 
     # Linux only
     (lib.mkIf pkgs.stdenv.isLinux usbutils)
