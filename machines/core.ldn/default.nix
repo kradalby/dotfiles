@@ -15,6 +15,7 @@
     ../../common/smokeping-exporter.nix
     ../../common/coredns.nix
     ../../common/rpi4-configuration.nix
+    ../../common/miniupnp.nix
 
     ./wireguard.nix
     ./tailscale.nix

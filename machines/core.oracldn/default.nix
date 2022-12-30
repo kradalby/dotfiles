@@ -15,6 +15,7 @@
 
     ../../common/coredns.nix
     ../../common/consul-server.nix
+    ../../common/miniupnp.nix
 
     ./restic.nix
     ./wireguard.nix
