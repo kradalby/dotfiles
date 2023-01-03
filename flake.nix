@@ -54,6 +54,7 @@
     hugin.url = "github:kradalby/hugin/flake";
     munin.url = "github:kradalby/munin";
     golink.url = "github:tailscale/golink/kristoffer/nixmodule";
+    nurl.url = "github:nix-community/nurl";
   };
 
   outputs = {
@@ -81,6 +82,7 @@
     hugin,
     munin,
     golink,
+    nurl,
     ...
   } @ flakes: let
     overlay-pkgs = final: prev: {
@@ -105,6 +107,7 @@
       golink.overlay
       (import ./pkgs/overlays {})
       (final: prev: {
+        nurl = nurl.packages."${prev.system}".default;
       })
     ];
 
