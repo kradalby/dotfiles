@@ -53,6 +53,7 @@
       step-cli
       unstable.dotnet-sdk # omnisharp
       vale
+      nurl
       python310Packages.pipx
 
       # (fenix.complete.withComponents
