@@ -1,4 +1,11 @@
-{lib, ...}: {
+{lib, ...}: let
+  guestShare = path: {
+    inherit path;
+    browsable = "yes";
+    "guest ok" = "yes";
+    "read only" = "yes";
+  };
+in {
   services.samba = {
     # REMIND: `smbpasswd -a`
 
@@ -29,13 +36,20 @@
       fruit:wipe_intentionally_left_blank_rfork = yes
       fruit:delete_empty_adfiles = yes
       fruit:advertise_fullsync = true
+
+      map to guest = bad user
     '';
     shares = {
       storage = {
         path = "/storage";
-        "read only" = "no";
         browsable = "yes";
-        "valid users" = "storage, dalby, kradalby";
+        "guest ok" = "no";
+        writeable = "yes";
+        "valid users" = "kradalby";
+        "force user" = "storage";
+        "force group" = "storage";
+        "create mask" = "0755";
+        "directory mask" = "0775";
       };
 
       TimeMachineTjoda = {
@@ -46,6 +60,10 @@
         "fruit:time machine" = "yes";
         "fruit:time machine max size" = "600G";
       };
+
+      software = guestShare "/storage/software";
+      libraries = guestShare "/storage/libraries";
+      pictures = guestShare "/storage/pictures";
     };
   };
 }
