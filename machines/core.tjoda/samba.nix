@@ -64,6 +64,13 @@ in {
       software = guestShare "/storage/software";
       libraries = guestShare "/storage/libraries";
       pictures = guestShare "/storage/pictures";
+
+      dropbox = {
+        path = "/storage/dropbox";
+        browsable = "yes";
+        writeable = "yes";
+        "guest ok" = "yes";
+      };
     };
   };
 }
