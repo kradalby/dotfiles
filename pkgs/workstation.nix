@@ -99,6 +99,8 @@
 
       silicon
 
+      virt-manager
+
       (pkgs.writeScriptBin
         "pamtouchfix"
         ''
