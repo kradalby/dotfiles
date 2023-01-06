@@ -56,7 +56,7 @@ in
       };
 
       services.homebridges.nefit = {
-        enable = false;
+        enable = true;
 
         package = pkgs.homebridge.override {
           plugins = [pkgs.homebridgePlugins.homebridge-nefit-easy];
