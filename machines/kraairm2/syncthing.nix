@@ -29,24 +29,30 @@ in {
         "/storage/software" = {
           id = "vpgyn-cj2mg";
           path = "/Volumes/storage/software";
-          devices = ["core.terra" "core.tjoda"];
+          devices = cfg.storage;
+          type = "sendonly";
+        };
+        "/storage/books" = {
+          id = "ww4gn-xgy9i";
+          path = "/Volumes/storage/books";
+          devices = cfg.storage;
           type = "sendonly";
         };
         "/storage/pictures" = {
           id = "orqnv-bg72d";
           path = "/Volumes/storage/pictures";
-          devices = ["core.terra" "core.tjoda"];
+          devices = cfg.storage;
           type = "sendonly";
         };
         "/storage/backup" = {
           id = "9bjac-k65uu";
           path = "/Volumes/storage/backup";
-          devices = ["core.terra" "core.tjoda"];
+          devices = cfg.storage;
           type = "sendonly";
         };
-        "/fast/album" = {
+        "/fast/hugin" = {
           id = "qha65-mn9fc";
-          path = "/Volumes/storage/hugin/album";
+          path = "/Volumes/storage/hugin";
           devices = ["core.terra"];
           type = "sendonly";
         };

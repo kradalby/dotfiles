@@ -41,9 +41,16 @@ in
               type = "receiveonly";
             };
 
-            "/fast/album" = {
+            "/storage/books" = {
+              id = "ww4gn-xgy9i";
+              path = "/storage/books";
+              devices = cfg.storage;
+              type = "receiveonly";
+            };
+
+            "/fast/hugin" = {
               id = "qha65-mn9fc";
-              path = "/fast/hugin/album";
+              path = "/fast/hugin";
               devices = ["kraairm2"];
               type = "receiveonly";
             };
