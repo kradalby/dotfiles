@@ -7,7 +7,7 @@
     proxyPass,
     proxyWebsockets ? true,
     tailscaleAuth ? true,
-    allowLocal ? false,
+    allowLocal ? true,
     locationExtraConfig ? "",
   }: {
     security.acme.certs."${domain}".domain = domain;
