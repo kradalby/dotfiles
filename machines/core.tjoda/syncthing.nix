@@ -43,6 +43,13 @@ in
               type = "receiveonly";
             };
 
+            "/storage/books" = {
+              id = "ww4gn-xgy9i";
+              path = "/storage/books";
+              devices = cfg.storage;
+              type = "receiveonly";
+            };
+
             "kradalby - Sync" = {
               id = "xTDuT-kZeuK";
               path = "/storage/sync/kradalby";
