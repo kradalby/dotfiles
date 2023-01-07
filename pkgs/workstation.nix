@@ -94,6 +94,7 @@
       lima
       colima
       terminal-notifier
+      syncthing
 
       cook-cli
 

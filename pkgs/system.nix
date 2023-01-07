@@ -26,7 +26,6 @@
       jq
       lsof
       mosh
-      ncdu
       p7zip
       procs
       rclone
@@ -63,5 +62,8 @@
     ++ lib.optionals stdenv.isLinux [
       nftables
       usbutils
+
+      # This keeps breaking on macOS
+      ncdu
     ];
 }
