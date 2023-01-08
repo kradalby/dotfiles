@@ -51,10 +51,10 @@ in {
           type = "sendonly";
         };
         "/fast/hugin" = {
-          id = "qha65-mn9fc";
+          id = "dd5mf-nwmas";
           path = "/Volumes/storage/hugin";
           devices = ["core.terra"];
-          type = "sendonly";
+          type = "sendreceive";
         };
       };
     };
