@@ -25,7 +25,7 @@
     # ./openvpn.nix
     ./syncthing.nix
     ./rest-server.nix
-    # ./samba.nix
+    ./samba.nix
     ./restic.nix
     ./gh-runner.nix
     ./postfix.nix
