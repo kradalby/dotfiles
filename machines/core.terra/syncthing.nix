@@ -49,7 +49,7 @@ in
             };
 
             "/fast/hugin" = {
-              id = "qha65-mn9fc";
+              id = "dd5mf-nwmas";
               path = "/fast/hugin";
               devices = ["kraairm2"];
               type = "receiveonly";
