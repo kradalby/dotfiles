@@ -15,6 +15,8 @@ in {
       mdns name = mdns
       server string = Samba on ${config.networking.hostName}.${site}
 
+      # This would preferrably be SMB3, but iOS Files.app does not
+      # support authing/handshaking over SMB3.
       min protocol = SMB2
       encrypt passwords = true
 

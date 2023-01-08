@@ -2,7 +2,7 @@
   guestShare = path: {
     inherit path;
     browsable = "yes";
-    "guest ok" = "yes";
+    public = "yes";
     "read only" = "yes";
   };
 in {
@@ -11,7 +11,7 @@ in {
       storage = {
         path = "/storage";
         browsable = "yes";
-        "guest ok" = "no";
+        public = "no";
         writeable = "yes";
         "valid users" = "kradalby";
         "force user" = "storage";
@@ -29,7 +29,8 @@ in {
         path = "/storage/dropbox";
         browsable = "yes";
         writeable = "yes";
-        "guest ok" = "yes";
+        public = "yes";
+        "guest account" = "storage";
         "force user" = "storage";
         "force group" = "storage";
         "create mask" = "0755";
