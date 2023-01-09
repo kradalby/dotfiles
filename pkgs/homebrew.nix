@@ -46,6 +46,7 @@ _: {
       "1password"
       "1password-cli"
       "alacritty"
+      "aldente"
       "anki"
       "balenaetcher"
       "calibre"
