@@ -101,6 +101,7 @@
       silicon
 
       virt-manager
+      qemu
 
       (pkgs.writeScriptBin
         "pamtouchfix"
