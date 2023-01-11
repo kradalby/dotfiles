@@ -72,6 +72,7 @@
   # Work stuff
   homebrew = {
     casks = [
+      "tigervnc-viewer"
       "wireshark"
       "webex"
       "logi-options-plus"
