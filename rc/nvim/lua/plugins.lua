@@ -278,6 +278,7 @@ return require("packer").startup(
                             null_ls.builtins.diagnostics.statix,
                             null_ls.builtins.diagnostics.vale,
                             null_ls.builtins.diagnostics.write_good,
+                            null_ls.builtins.diagnostics.tidy,
                             null_ls.builtins.formatting.alejandra,
                             null_ls.builtins.formatting.beautysh,
                             null_ls.builtins.formatting.black,
@@ -299,12 +300,14 @@ return require("packer").startup(
                             }),
                             null_ls.builtins.formatting.isort,
                             null_ls.builtins.formatting.jq,
+                            null_ls.builtins.formatting.tidy,
                             null_ls.builtins.formatting.prettierd,
                             null_ls.builtins.formatting.shellharden,
                             null_ls.builtins.formatting.swiftformat,
                             -- null_ls.builtins.formatting.terraform_fmt, -- Covered by LSP?
                             null_ls.builtins.formatting.trim_newlines,
                             null_ls.builtins.formatting.trim_whitespace,
+                            null_ls.builtins.formatting.packer,
                             null_ls.builtins.hover.dictionary
                         }
                     }
