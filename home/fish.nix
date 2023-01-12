@@ -94,6 +94,17 @@
       ts = "tailscale";
       tss = "tailscale status";
       tsp = "tailscale ping";
+
+      headscale-integration = ''
+        docker run \
+          -t --rm \
+          -v ~/.cache/hs-integration-go:/go \
+          --name headscale-test-suite \
+          -v $PWD:$PWD -w $PWD/integration \
+          -v /var/run/docker.sock:/var/run/docker.sock \
+          golang:1 \
+          go test -tags ts2019 -failfast ./... -timeout 120m -parallel 1 -run
+      '';
     };
 
     # Abbreviate commonly used functions
