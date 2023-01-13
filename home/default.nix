@@ -79,24 +79,24 @@
         recursive = true;
       };
 
-      ".config/nvim" = {
-        source = ../rc/nvim;
-        recursive = true;
-        # onChange = ''
-        #   mkdir -p ~/logs
-        #   nvim --headless -c "autocmd User PackerComplete quitall" -c "PackerSync" > ~/logs/nvim_packer.log 2>&1
-        #   nvim --headless -c "lua require('tools').install_servers()" -c "quitall" > ~/logs/nvim_lsp.log 2>&1
-        # '';
-      };
+      # ".config/nvim" = {
+      #   source = ../rc/nvim;
+      #   recursive = true;
+      #   # onChange = ''
+      #   #   mkdir -p ~/logs
+      #   #   nvim --headless -c "autocmd User PackerComplete quitall" -c "PackerSync" > ~/logs/nvim_packer.log 2>&1
+      #   #   nvim --headless -c "lua require('tools').install_servers()" -c "quitall" > ~/logs/nvim_lsp.log 2>&1
+      #   # '';
+      # };
 
-      # nvim.sqlite needs to know where to find libsqlite3
-      ".config/nvim/lua/nix.lua".text = ''
-        vim.g.sqlite_clib_path = "${pkgs.sqlite.out}/lib/${
-          if pkgs.stdenv.isDarwin
-          then "libsqlite3.dylib"
-          else "libsqlite3.so"
-        }"
-      '';
+      # # nvim.sqlite needs to know where to find libsqlite3
+      # ".config/nvim/lua/nix.lua".text = ''
+      #   vim.g.sqlite_clib_path = "${pkgs.sqlite.out}/lib/${
+      #     if pkgs.stdenv.isDarwin
+      #     then "libsqlite3.dylib"
+      #     else "libsqlite3.so"
+      #   }"
+      # '';
 
       ".ssh/config" = {
         source = ../rc/ssh/config;
