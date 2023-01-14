@@ -14,6 +14,10 @@
     nodePackages.yaml-language-server
     rnix-lsp
     sumneko-lua-language-server
+    terraform-ls
+    buf-language-server
+    dhall-lsp-server
+    golangci-lint-langserver
 
     # EFM
     buf

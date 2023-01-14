@@ -181,3 +181,8 @@ lspconfig.efm.setup {
 
 lspconfig.nil_ls.setup {}
 lspconfig.rnix.setup {}
+lspconfig.terraformls.setup {}
+lspconfig.bufls.setup {}
+lspconfig.dhall_lsp_server.setup {}
+lspconfig.golangci_lint_ls.setup {}
+lspconfig.sourcekit.setup {}
