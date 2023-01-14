@@ -161,10 +161,6 @@
     less.enable = true;
     lesspipe.enable = true;
     man.enable = true;
-
-    # TODO
-    # neovim.enable = true;
-    # tmux.enable = true;
   };
 
   imports = [
@@ -177,5 +173,6 @@
 
     ../pkgs/workstation.nix
     ../pkgs/common.nix
+    ../pkgs/neovim.nix
   ];
 }

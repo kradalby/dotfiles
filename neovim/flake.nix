@@ -1,5 +1,5 @@
 {
-  description = "A very basic flake";
+  description = "kradalby's Neovim distribution";
   inputs =
     # let
     #   nvimPlugin = ghurl: let
@@ -251,12 +251,12 @@
     ...
   } @ inputs:
     {
-      overlay = final: prev: 
-      let
+      overlay = final: prev: let
         pkgs = import nixpkgs {
           inherit (prev) system;
           # overlays = [neovim-nightly-overlay.overlay];
         };
+
         # Build Vim plugin flake inputs into a list of Nix packages
         vimPackages = with pkgs.lib;
         with strings;
@@ -290,7 +290,7 @@
         # Make a derivation containing only Neovim Lua config
         neovim-kradalby-luaconfig = pkgs.stdenv.mkDerivation rec {
           name = "neovim-kradalby-luaconfig";
-          src = ./.;
+          src = pkgs.nix-gitignore.gitignoreSource [] ./.;
           phases = "installPhase";
           installPhase = ''
             mkdir -p $out/lua
@@ -299,8 +299,7 @@
             cp -r ${src}/lua/* $out/lua/.
           '';
         };
-
-        in {
+      in {
         # Wrap Neovim with custom plugins and config
         neovim-kradalby = pkgs.neovim.override {
           viAlias = true;
@@ -323,8 +322,8 @@
             '';
           };
         };
-    };
-  }
+      };
+    }
     // flake-utils.lib.eachDefaultSystem (
       system: let
         pkgs = import nixpkgs {

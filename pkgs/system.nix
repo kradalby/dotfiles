@@ -42,11 +42,7 @@
       viddy
       zstd
 
-      # Neovim plugins
-      gcc
-
       # Nix tooling
-      nixpkgs-fmt
       nix-diff
       nix-tree
 

@@ -167,7 +167,7 @@ M.languages = {
         M.prettier
     },
     proto = { M.clangfmtproto, M.buf_lint },
-    rust = { M.rustfmt },
+    -- rust = { M.rustfmt},
     -- nix = {M.nixpkgs}
 }
 
