@@ -186,3 +186,5 @@ lspconfig.bufls.setup {}
 lspconfig.dhall_lsp_server.setup {}
 lspconfig.golangci_lint_ls.setup {}
 lspconfig.sourcekit.setup {}
+
+require("rust-tools").setup {}

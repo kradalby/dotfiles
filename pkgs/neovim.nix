@@ -18,6 +18,7 @@
     buf-language-server
     dhall-lsp-server
     golangci-lint-langserver
+    rust-analyzer
 
     # EFM
     buf
