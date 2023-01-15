@@ -217,6 +217,16 @@
         flake = false;
       };
 
+      "vim:nvim-dap-virtual-text" = {
+        url = "github:theHamsta/nvim-dap-virtual-text";
+        flake = false;
+      };
+
+      "vim:telescope-dap.nvim" = {
+        url = "github:nvim-telescope/telescope-dap.nvim";
+        flake = false;
+      };
+
       "vim:plenary.nvim" = {
         url = "github:nvim-lua/plenary.nvim";
         flake = false;
