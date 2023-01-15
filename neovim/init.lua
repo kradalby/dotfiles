@@ -3,7 +3,7 @@ require("statusline")
 require("completion")
 require("todo")
 require("lsp")
-require("dap")
+require("debug")
 
 local cmd = vim.cmd -- to execute Vim commands e.g. cmd('pwd')
 local fn = vim.fn -- to call Vim functions e.g. fn.bufnr()
