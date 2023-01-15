@@ -75,6 +75,7 @@
         "vim:nvim-dap-go": "vim:nvim-dap-go",
         "vim:nvim-dap-python": "vim:nvim-dap-python",
         "vim:nvim-dap-ui": "vim:nvim-dap-ui",
+        "vim:nvim-dap-virtual-text": "vim:nvim-dap-virtual-text",
         "vim:nvim-lspconfig": "vim:nvim-lspconfig",
         "vim:nvim-neoclip.lua": "vim:nvim-neoclip.lua",
         "vim:nvim-ts-rainbow": "vim:nvim-ts-rainbow",
@@ -83,6 +84,7 @@
         "vim:plenary.nvim": "vim:plenary.nvim",
         "vim:schemastore.nvim": "vim:schemastore.nvim",
         "vim:sqlite.lua": "vim:sqlite.lua",
+        "vim:telescope-dap.nvim": "vim:telescope-dap.nvim",
         "vim:telescope-ui-select.nvim": "vim:telescope-ui-select.nvim",
         "vim:telescope.nvim": "vim:telescope.nvim",
         "vim:todo-comments.nvim": "vim:todo-comments.nvim",
@@ -91,7 +93,8 @@
         "vim:vim-cooklang": "vim:vim-cooklang",
         "vim:vim-plist": "vim:vim-plist",
         "vim:vim-polyglot": "vim:vim-polyglot",
-        "vim:vim-vsnip": "vim:vim-vsnip"
+        "vim:vim-vsnip": "vim:vim-vsnip",
+        "vim:which-key.nvim": "vim:which-key.nvim"
       }
     },
     "telescope-fzf-native.nvim": {
@@ -462,6 +465,22 @@
         "type": "github"
       }
     },
+    "vim:nvim-dap-virtual-text": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1673706592,
+        "narHash": "sha256-fKT8UW/cbEhjGqsZFyvZRiUTzlYfmWMiv9xT6zMFpXQ=",
+        "owner": "theHamsta",
+        "repo": "nvim-dap-virtual-text",
+        "rev": "6d3da4b786d33e35526e089d85b238c08ce78def",
+        "type": "github"
+      },
+      "original": {
+        "owner": "theHamsta",
+        "repo": "nvim-dap-virtual-text",
+        "type": "github"
+      }
+    },
     "vim:nvim-lspconfig": {
       "flake": false,
       "locked": {
@@ -587,6 +606,22 @@
       "original": {
         "owner": "tami5",
         "repo": "sqlite.lua",
+        "type": "github"
+      }
+    },
+    "vim:telescope-dap.nvim": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1669979517,
+        "narHash": "sha256-9T7O02ieM/If07bSbGcJQFD8oWv2Pg5S+uv2BcardTY=",
+        "owner": "nvim-telescope",
+        "repo": "telescope-dap.nvim",
+        "rev": "313d2ea12ae59a1ca51b62bf01fc941a983d9c9c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nvim-telescope",
+        "repo": "telescope-dap.nvim",
         "type": "github"
       }
     },
@@ -731,6 +766,22 @@
       "original": {
         "owner": "hrsh7th",
         "repo": "vim-vsnip",
+        "type": "github"
+      }
+    },
+    "vim:which-key.nvim": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1673505892,
+        "narHash": "sha256-fiufZp+NgowRlK3esTcPRc9Lbzbk8f6NX8n2H/DEQb4=",
+        "owner": "folke",
+        "repo": "which-key.nvim",
+        "rev": "e4fa445065a2bb0bbc3cca85346b67817f28e83e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "folke",
+        "repo": "which-key.nvim",
         "type": "github"
       }
     }

@@ -3,11 +3,13 @@ require("statusline")
 require("completion")
 require("todo")
 require("lsp")
+require("dap")
 
 local cmd = vim.cmd -- to execute Vim commands e.g. cmd('pwd')
 local fn = vim.fn -- to call Vim functions e.g. fn.bufnr()
 local g = vim.g -- a table to access global variables))
 local opt = vim.opt
+local keymap = vim.keymap
 
 g.mapleader = " "
 
@@ -45,37 +47,28 @@ opt.number = true -- Print line number
 opt.relativenumber = false -- Relative line numbers
 opt.wrap = true -- Disable line wrap
 
-local function map(mode, lhs, rhs, opts)
-    local options = { noremap = true }
-    if opts then
-        options = vim.tbl_extend("force", options, opts)
-    end
-    vim.api.nvim_set_keymap(mode, lhs, rhs, options)
-end
+keymap.set("n", "<leader>o", "m`o<Esc>``", {}) -- Insert a newline in normal mode
 
-map("n", "<leader>o", "m`o<Esc>``") -- Insert a newline in normal mode
+keymap.set('n', '<leader>ff', vim.lsp.buf.format, {})
 
-vim.keymap.set('n', '<leader>ff', vim.lsp.buf.format, {})
+keymap.set("n", "<leader>tt", "<cmd>:TroubleToggle<cr>", {}) -- Toggle trouble
+keymap.set("n", "<leader>to", "<cmd>:TodoTrouble<cr>", {}) -- Toggle trouble
 
--- TODO: Rewrite this "legacy" function for keymap
-map("n", "<leader>tt", "<cmd>:TroubleToggle<cr>") -- Toggle trouble
-map("n", "<leader>to", "<cmd>:TodoTrouble<cr>") -- Toggle trouble
+keymap.set("n", "<leader>h", "<cmd>:Lspsaga hover_doc<cr>", {})
+keymap.set("n", "<leader>r", "<cmd>:Lspsaga rename<cr>", {})
+keymap.set("n", "<leader>a", "<cmd>:Lspsaga code_action<cr>", {})
+-- keymap.set("n", "<leader>d", "<cmd>:Lspsaga preview_definition<cr>", {})
+keymap.set("n", "<leader>dn", "<cmd>:Lspsaga diagnostic_jump_next<cr>", {})
+keymap.set("n", "<leader>dp", "<cmd>:Lspsaga diagnostic_jump_prev<cr>", {})
 
-map("n", "<leader>h", "<cmd>:Lspsaga hover_doc<cr>")
-map("n", "<leader>r", "<cmd>:Lspsaga rename<cr>")
-map("n", "<leader>a", "<cmd>:Lspsaga code_action<cr>")
--- map("n", "<leader>d", "<cmd>:Lspsaga preview_definition<cr>")
-map("n", "<leader>dn", "<cmd>:Lspsaga diagnostic_jump_next<cr>")
-map("n", "<leader>dp", "<cmd>:Lspsaga diagnostic_jump_prev<cr>")
+keymap.set("n", "<A-Up>", "<cmd>:tabnew<cr>", {}) -- Alt + Arrow Up, new tab
+keymap.set("n", "<A-Left>", "<cmd>:tabprev<cr>", {}) -- Alt + Arrow Left, tab left
+keymap.set("n", "<A-Right>", "<cmd>:tabnext<cr>", {}) -- Alt + Arrow Right, tab right
+keymap.set("n", "<tab>", "<c-w>w", {}) -- tab, circular window shifting
+keymap.set("n", "<S-tab>", "<c-w>W", {}) -- shift tab
 
-map("n", "<A-Up>", "<cmd>:tabnew<cr>") -- Alt + Arrow Up, new tab
-map("n", "<A-Left>", "<cmd>:tabprev<cr>") -- Alt + Arrow Left, tab left
-map("n", "<A-Right>", "<cmd>:tabnext<cr>") -- Alt + Arrow Right, tab right
-map("n", "<tab>", "<c-w>w") -- tab, circular window shifting
-map("n", "<S-tab>", "<c-w>W") -- shift tab
-
-map("i", "<D-c>", '<Esc>"+yi')
-map("i", "<D-v>", '<Esc>"+pi')
+keymap.set("i", "<D-c>", '<Esc>"+yi', {})
+keymap.set("i", "<D-v>", '<Esc>"+pi', {})
 
 require("tele")
 require("plugins")
