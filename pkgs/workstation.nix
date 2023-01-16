@@ -41,6 +41,7 @@
       unstable.dotnet-sdk # omnisharp
       nurl
       python310Packages.pipx
+      gitutil
 
       # (fenix.complete.withComponents
       #   [
