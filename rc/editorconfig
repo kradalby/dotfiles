@@ -24,6 +24,7 @@ quote_type = double
 [*.go]
 indent_style = tab
 indent_size = 8
+max_line_length=220
 
 [*.py]
 indent_size = 4
