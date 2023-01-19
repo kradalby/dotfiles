@@ -3,7 +3,6 @@ require("statusline")
 require("completion")
 require("todo")
 require("lsp")
-require("debug")
 
 local cmd = vim.cmd -- to execute Vim commands e.g. cmd('pwd')
 local fn = vim.fn -- to call Vim functions e.g. fn.bufnr()
@@ -72,3 +71,4 @@ keymap.set("i", "<D-v>", '<Esc>"+pi', {})
 
 require("tele")
 require("plugins")
+require("debug")
