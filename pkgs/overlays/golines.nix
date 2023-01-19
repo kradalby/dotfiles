@@ -1,23 +1,23 @@
-{
-  buildGoModule,
-  fetchFromGitHub,
-  lib,
-  installShellFiles,
+{ buildGoModule
+, fetchFromGitHub
+, lib
+, installShellFiles
+,
 }:
 buildGoModule rec {
   pname = "golines";
-  version = "0.10.0";
+  version = "0.11.0";
 
   src = fetchFromGitHub {
     owner = "segmentio";
     repo = "golines";
     rev = "v${version}";
-    sha256 = "sha256-BUXEg+4r9L/gqe4DhTlhN55P3jWt7ZyWFQycO6QePrw=";
+    sha256 = "sha256-2K9KAg8iSubiTbujyFGN3yggrL+EDyeUCs9OOta/19A=";
   };
 
-  vendorSha256 = "sha256-sEzWUeVk5GB0H41wrp12P8sBWRjg0FHUX6ABDEEBqK8=";
+  vendorSha256 = "sha256-rxYuzn4ezAxaeDhxd8qdOzt+CKYIh03A9zKNdzILq18=";
 
   doCheck = false;
 
-  nativeBuildInputs = [installShellFiles];
+  nativeBuildInputs = [ installShellFiles ];
 }

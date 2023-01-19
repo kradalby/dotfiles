@@ -1,77 +1,80 @@
-{...}: let
+{ ... }:
+let
 in
-  final: prev: {
-    golines = prev.callPackage ./golines.nix {
-      buildGoModule = prev.buildGo117Module;
-    };
+final: prev: {
+  golines = prev.callPackage ./golines.nix {
+    # buildGoModule = prev.buildGo117Module;
+  };
 
-    # headscale = prev.callPackage ./headscale.nix {
-    #   buildGoModule = prev.unstable.buildGo119Module;
-    # };
+  # headscale = prev.callPackage ./headscale.nix {
+  #   buildGoModule = prev.unstable.buildGo119Module;
+  # };
 
-    tailscale-nginx-auth = prev.callPackage ./tailscale-nginx-auth.nix {
-      buildGoModule = prev.unstable.buildGo119Module;
-    };
+  tailscale-nginx-auth = prev.callPackage ./tailscale-nginx-auth.nix {
+    buildGoModule = prev.unstable.buildGo119Module;
+  };
 
-    act = prev.callPackage ./act.nix {
-      buildGoModule = prev.buildGo118Module;
-    };
+  act = prev.callPackage ./act.nix {
+    buildGoModule = prev.buildGo118Module;
+  };
 
-    imapchive = prev.callPackage ./imapchive.nix {
-      buildGoModule = prev.buildGo118Module;
-    };
+  imapchive = prev.callPackage ./imapchive.nix {
+    buildGoModule = prev.buildGo118Module;
+  };
 
-    junos_exporter = prev.callPackage ./junos_exporter.nix {
-      buildGoModule = prev.buildGo118Module;
-    };
+  junos_exporter = prev.callPackage ./junos_exporter.nix {
+    buildGoModule = prev.buildGo118Module;
+  };
 
-    homebridge = prev.callPackage ./homebridge/override.nix {};
+  homebridge = prev.callPackage ./homebridge/override.nix { };
 
-    homebridgePlugins = prev.callPackage ./homebridge-plugins {};
+  homebridgePlugins = prev.callPackage ./homebridge-plugins { };
 
-    rustdesk-server = prev.callPackage ./rustdesk-server.nix {};
+  rustdesk-server = prev.callPackage ./rustdesk-server.nix { };
 
-    eb = prev.callPackage ./eb.nix {};
+  eb = prev.callPackage ./eb.nix { };
 
-    cook-cli = prev.callPackage ./cook.nix {};
+  cook-cli = prev.callPackage ./cook.nix { };
 
-    umami = prev.callPackage ./umami.nix {};
+  umami = prev.callPackage ./umami.nix { };
 
-    gitutil = prev.callPackage ./gitutil.nix {};
+  gitutil = prev.callPackage ./gitutil.nix { };
 
-    # osxphotos = prev.callPackage ./osxphotos.nix {};
+  # osxphotos = prev.callPackage ./osxphotos.nix {};
 
-    miniupnpd-nft = let
+  miniupnpd-nft =
+    let
       miniupnpdVersion = "2.2.3";
       miniupnpdSrc = builtins.fetchurl {
         url = "http://miniupnp.free.fr/files/download.php?file=miniupnpd-${miniupnpdVersion}.tar.gz";
         sha256 = "sha256:07080abrp0c22zmfmfb9qi4v2qfbv8zcw3gg4j4dm8r555d2s084";
         name = "miniupnpd-${miniupnpdVersion}.tar.gz";
       };
-      scriptBinEnv = with prev; lib.makeBinPath [which iproute2 nftables gnused coreutils gawk];
+      scriptBinEnv = with prev; lib.makeBinPath [ which iproute2 nftables gnused coreutils gawk ];
     in
-      prev.miniupnpd.overrideAttrs (finalAttrs: previousAttrs: {
-        version = miniupnpdVersion;
-        src = miniupnpdSrc;
+    prev.miniupnpd.overrideAttrs (finalAttrs: previousAttrs: {
+      version = miniupnpdVersion;
+      src = miniupnpdSrc;
 
-        buildInputs =
-          previousAttrs.buildInputs
-          ++ [
-            prev.git
-            prev.libmnl
-            prev.libnftnl
-          ];
+      buildInputs =
+        previousAttrs.buildInputs
+        ++ [
+          prev.git
+          prev.libmnl
+          prev.libnftnl
+        ];
 
-        makefile = "Makefile.linux_nft";
+      makefile = "Makefile.linux_nft";
 
-        postFixup = ''
-          for script in $out/etc/miniupnpd/nft_{init,removeall}.sh
-          do
-            wrapProgram $script --set PATH '${scriptBinEnv}:$PATH'
-          done
-        '';
-      });
-    miniupnpd-ipt = let
+      postFixup = ''
+        for script in $out/etc/miniupnpd/nft_{init,removeall}.sh
+        do
+          wrapProgram $script --set PATH '${scriptBinEnv}:$PATH'
+        done
+      '';
+    });
+  miniupnpd-ipt =
+    let
       miniupnpdVersion = "2.3.1";
       miniupnpdSrc = builtins.fetchurl {
         url = "http://miniupnp.free.fr/files/download.php?file=miniupnpd-${miniupnpdVersion}.tar.gz";
@@ -79,8 +82,8 @@ in
         name = "miniupnpd-${miniupnpdVersion}.tar.gz";
       };
     in
-      prev.miniupnpd.overrideAttrs (finalAttrs: previousAttrs: {
-        version = miniupnpdVersion;
-        src = miniupnpdSrc;
-      });
-  }
+    prev.miniupnpd.overrideAttrs (finalAttrs: previousAttrs: {
+      version = miniupnpdVersion;
+      src = miniupnpdSrc;
+    });
+}
