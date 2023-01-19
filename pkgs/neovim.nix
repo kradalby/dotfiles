@@ -28,6 +28,8 @@
     nodePackages.prettier
     shfmt
     yamllint
+    golines
+    gofumpt
 
     # null-ls
     actionlint
