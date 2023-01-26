@@ -1,4 +1,7 @@
-{pkgs, ...}: {
+{ pkgs
+, config
+, ...
+}: {
   programs.git = {
     enable = true;
     userName = "Kristoffer Dalby";
@@ -47,7 +50,7 @@
       };
 
       commit = {
-        gpgsign = true;
+        gpgsign = config.programs.git.extraConfig.user.signingkey != "";
       };
 
       gpg = {
@@ -59,7 +62,7 @@
       };
 
       user = {
-        signingkey = "override me";
+        signingkey = "";
       };
     };
 
