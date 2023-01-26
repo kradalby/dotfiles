@@ -41,6 +41,7 @@
       nurl
       python310Packages.pipx
       gitutil
+      act
 
       # (fenix.complete.withComponents
       #   [

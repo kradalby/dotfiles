@@ -1,9 +1,8 @@
-{
-  config,
-  flakes,
-  pkgs,
-  lib,
-  ...
+{ config
+, flakes
+, pkgs
+, lib
+, ...
 }: {
   imports = [
     ../../common
@@ -21,7 +20,7 @@
     ./wireguard.nix
     ./tailscale.nix
     # ./corerad.nix
-    # ./dhcp.nix
+    ./dhcp.nix
     # ./openvpn.nix
     ./syncthing.nix
     ./rest-server.nix
@@ -36,15 +35,12 @@
   ];
 
   my.wan = "enp4s0f0";
-  my.lan = "lo";
+  my.lan = "lan0";
 
   my.enableSslh = false;
 
   my.users.storage = true;
   my.users.timemachine = true;
-
-  environment.systemPackages = with pkgs; [
-  ];
 
   services.resolved.enable = false;
 
@@ -99,6 +95,10 @@
     defaultGateway = "185.243.216.1";
     defaultGateway6 = "2a03:94e0:ffff:185:243:216::1";
 
+    bridges = {
+      lan0.interfaces = [ ];
+    };
+
     interfaces = {
       enp4s0f1 = {
         useDHCP = true;
@@ -137,8 +137,8 @@
     nat = {
       enable = true;
       externalInterface = config.my.wan;
-      internalIPs = ["10.0.0.0/8"];
-      internalInterfaces = [config.my.lan];
+      internalIPs = [ "10.0.0.0/8" ];
+      internalInterfaces = [ config.my.lan ];
       forwardPorts = [
         {
           sourcePort = 64322;
@@ -173,7 +173,7 @@
         config.networking.wireguard.interfaces.wg0.listenPort
       ];
 
-      trustedInterfaces = [config.my.lan];
+      trustedInterfaces = [ config.my.lan ];
     };
   };
 

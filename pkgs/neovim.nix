@@ -54,6 +54,7 @@
     shellcheck
     shellharden
     go-tools # staticcheck
+    gotools # goimports
     statix
     vale
     nodePackages.write-good

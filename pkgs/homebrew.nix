@@ -70,6 +70,7 @@ _: {
       "steam"
       "the-unarchiver"
       "transmit"
+      "remote-desktop-manager"
       # "free-ruler"
       # "hex-fiend"
       # "little-snitch"
