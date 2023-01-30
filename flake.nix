@@ -51,7 +51,7 @@
 
     hugin.url = "github:kradalby/hugin/flake";
     munin.url = "github:kradalby/munin";
-    golink.url = "github:tailscale/golink/kristoffer/nixmodule";
+    golink.url = "github:tailscale/golink";
     nurl.url = "github:nix-community/nurl";
 
     neovim-kradalby.url = "path:neovim";

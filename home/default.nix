@@ -1,8 +1,7 @@
-{
-  config,
-  pkgs,
-  lib,
-  ...
+{ config
+, pkgs
+, lib
+, ...
 }: {
   # Available options
   # https://nix-community.github.io/home-manager/options.html
@@ -109,6 +108,13 @@
       ".ssh/allowed_signers".text = ''
         kristoffer@dalby.cc ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBV4ZjlUvRDs70qHD/Ldi6OTkFpDEFgfbXbqSnaL2Qup
         kristoffer@tailscale.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBOm0+vlPKTRMQm9teF/bCrTPEDEqs1m+B5kMZtuLKh2rDLYM2uwsLPjNjaIlFQfkUn2vyAqGovyKOVR7Q/Z28yo=
+      '';
+
+      ".actrc".text = ''
+        --container-daemon-socket unix:///Users/kradalby/.colima/default/docker.sock
+        --platform ubuntu-latest=ghcr.io/catthehacker/ubuntu:act-latest
+        --platform ubuntu-latest=ghcr.io/catthehacker/ubuntu:act-20.04
+        --platform ubuntu-18.04=ghcr.io/catthehacker/ubuntu:act-18.04
       '';
 
       ".config/nix/nix.conf".text = ''
