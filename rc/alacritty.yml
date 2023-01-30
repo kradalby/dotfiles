@@ -3,6 +3,9 @@ live_config_reload: true
 window:
   decorations: none
 
+env:
+  TERM: "xterm-256color"
+
 scrolling:
   # Maximum number of lines in the scrollback buffer.
   # Specifying '0' will disable scrolling.
