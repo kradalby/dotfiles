@@ -39,6 +39,7 @@
       step-cli
       unstable.dotnet-sdk # omnisharp
       nurl
+      nix-init
       python310Packages.pipx
       gitutil
       act

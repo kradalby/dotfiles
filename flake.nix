@@ -53,6 +53,7 @@
     munin.url = "github:kradalby/munin";
     golink.url = "github:tailscale/golink";
     nurl.url = "github:nix-community/nurl";
+    nixinit.url = "github:nix-community/nix-init";
 
     neovim-kradalby.url = "path:neovim";
   };
@@ -83,6 +84,7 @@
     , munin
     , golink
     , nurl
+    , nixinit
     , neovim-kradalby
     , ...
     } @ flakes:
@@ -110,6 +112,7 @@
         (import ./pkgs/overlays { })
         (final: prev: {
           nurl = nurl.packages."${prev.system}".default;
+          nix-init = nixinit.packages."${prev.system}".default;
           neovim = neovim-kradalby.packages."${prev.system}".neovim-kradalby;
         })
       ];
