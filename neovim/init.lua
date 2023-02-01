@@ -56,7 +56,8 @@ keymap.set("n", "<leader>to", "<cmd>:TodoTrouble<cr>", {}) -- Toggle trouble
 keymap.set("n", "<leader>h", "<cmd>:Lspsaga hover_doc<cr>", {})
 keymap.set("n", "<leader>r", "<cmd>:Lspsaga rename<cr>", {})
 keymap.set("n", "<leader>a", "<cmd>:Lspsaga code_action<cr>", {})
--- keymap.set("n", "<leader>d", "<cmd>:Lspsaga preview_definition<cr>", {})
+keymap.set('n', '<leader>d', "<cmd>:Lspsaga peek_definition<cr>", {})
+keymap.set('n', '<leader>f', "<cmd>:Lspsaga lsp_finder<cr>", {})
 keymap.set("n", "<leader>dn", "<cmd>:Lspsaga diagnostic_jump_next<cr>", {})
 keymap.set("n", "<leader>dp", "<cmd>:Lspsaga diagnostic_jump_prev<cr>", {})
 

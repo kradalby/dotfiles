@@ -1,7 +1,24 @@
 require("neodev").setup()
 local lspconfig = require "lspconfig"
 
-require('lspsaga').setup({})
+require('lspsaga').setup({
+    finder = {
+        jump_to = 'p',
+        edit = { "o", "<CR>" },
+        vsplit = "v",
+        split = "i",
+        tabe = "t",
+        quit = { "q", "<ESC>" },
+    },
+    definition = {
+        edit = "<C-c>o",
+        vsplit = "v",
+        split = "<C-c>i",
+        tabe = "t",
+        quit = "q",
+        close = "<Esc>",
+    },
+})
 
 local null_ls = require("null-ls")
 null_ls.setup(
