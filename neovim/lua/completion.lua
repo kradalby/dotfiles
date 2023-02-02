@@ -1,6 +1,7 @@
 local cmp = require("cmp")
 cmp.setup(
     {
+        preselect = cmp.PreselectMode.Item,
         snippet = {
             expand = function(args)
                 vim.fn["vsnip#anonymous"](args.body)
@@ -11,25 +12,28 @@ cmp.setup(
             { name = "nvim_lsp_signature_help" },
             { name = "path" },
             { name = "buffer" },
-            { name = "rg", option = { debounce = 500 } },
+            { name = "git" },
+            { name = "emoji" },
+            -- { name = "rg", option = { debounce = 500 } },
             -- {name = "treesitter"},
-            { name = "vsnip" }
+            -- { name = "vsnip" }
         },
-        formatting = {
-            format = require("lspkind").cmp_format(
-                {
-                    with_text = true,
-                    maxwidth = 80,
-                    menu = ({
-                        buffer = "[Buffer]",
-                        nvim_lsp = "[LSP]",
-                        luasnip = "[LuaSnip]",
-                        nvim_lua = "[Lua]",
-                        latex_symbols = "[Latex]"
-                    })
-                }
-            )
-        },
+        -- formatting = {
+        --     fields = { 'abbr', 'kind', 'menu' },
+        --     format = require("lspkind").cmp_format(
+        --         {
+        --             with_text = true,
+        --             maxwidth = 80,
+        --             menu = ({
+        --                 buffer = "[Buffer]",
+        --                 nvim_lsp = "[LSP]",
+        --                 luasnip = "[LuaSnip]",
+        --                 nvim_lua = "[Lua]",
+        --                 latex_symbols = "[Latex]"
+        --             })
+        --         }
+        --     )
+        -- },
         mapping = cmp.mapping.preset.insert({
             ["<CR>"] = cmp.mapping.confirm(
                 {
@@ -72,10 +76,12 @@ cmp.setup.cmdline {
 
 }
 
-cmp.setup.filetype('gitcommit', {
-    sourcs = cmp.config.sources({
-        { name = 'cmp_git' }, -- You can specify the `cmp_git` source if you were installed it.
-    }, {
-        { name = 'buffer' },
-    })
-})
+-- cmp.setup.filetype('gitcommit', {
+--     sourcs = cmp.config.sources({
+--         { name = 'cmp_git' }, -- You can specify the `cmp_git` source if you were installed it.
+--     }, {
+--         { name = 'buffer' },
+--     })
+-- })
+
+require("cmp_git").setup()

@@ -56,6 +56,7 @@
         "vim:Comment.nvim": "vim:Comment.nvim",
         "vim:cmp-buffer": "vim:cmp-buffer",
         "vim:cmp-cmdline": "vim:cmp-cmdline",
+        "vim:cmp-emoji": "vim:cmp-emoji",
         "vim:cmp-git": "vim:cmp-git",
         "vim:cmp-nvim-lsp": "vim:cmp-nvim-lsp",
         "vim:cmp-nvim-lsp-signature-help": "vim:cmp-nvim-lsp-signature-help",
@@ -158,6 +159,22 @@
       "original": {
         "owner": "hrsh7th",
         "repo": "cmp-cmdline",
+        "type": "github"
+      }
+    },
+    "vim:cmp-emoji": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1632834658,
+        "narHash": "sha256-zc5GNkwdVHaeEoCer9tz40F2Xc8qTzPw6NbgkMjjWQI=",
+        "owner": "hrsh7th",
+        "repo": "cmp-emoji",
+        "rev": "19075c36d5820253d32e2478b6aaf3734aeaafa0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "hrsh7th",
+        "repo": "cmp-emoji",
         "type": "github"
       }
     },
@@ -292,11 +309,11 @@
     "vim:lspsaga.nvim": {
       "flake": false,
       "locked": {
-        "lastModified": 1675231727,
-        "narHash": "sha256-PfVE6oMbiPilMGVG3YA6qu8CUzq46F1NcqPSx5Tj8/U=",
+        "lastModified": 1675321189,
+        "narHash": "sha256-ifrew6PG0W38COa79Pw+79Mp9Wc37yaBBWh8Vwu74Og=",
         "owner": "glepnir",
         "repo": "lspsaga.nvim",
-        "rev": "f514660f65983d33613bf605bfd0adf583c06a8b",
+        "rev": "0686e22ddb65e4c1b468160fb918c1593c992fb6",
         "type": "github"
       },
       "original": {

@@ -107,6 +107,11 @@
         flake = false;
       };
 
+      "vim:cmp-emoji" = {
+        url = "github:hrsh7th/cmp-emoji";
+        flake = false;
+      };
+
       "vim:cmp-git" = {
         url = "github:petertriho/cmp-git";
         flake = false;

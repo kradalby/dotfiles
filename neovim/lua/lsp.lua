@@ -1,5 +1,7 @@
 require("neodev").setup()
 local lspconfig = require "lspconfig"
+local capabilities = require('cmp_nvim_lsp').default_capabilities()
+local min = {capabilities = capabilities}
 
 require('lspsaga').setup({
     finder = {
@@ -23,6 +25,7 @@ require('lspsaga').setup({
 local null_ls = require("null-ls")
 null_ls.setup(
     {
+        capabilities = capabilities,
         on_attach = function(client, bufnr)
             if client.supports_method("textDocument/formatting") then
                 vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
@@ -98,8 +101,8 @@ null_ls.setup(
     }
 )
 
-
 lspconfig.jsonls.setup {
+    capabilities = capabilities,
     settings = {
         json = {
             schemas = require("schemastore").json.schemas(),
@@ -108,6 +111,7 @@ lspconfig.jsonls.setup {
 }
 
 lspconfig.sumneko_lua.setup({
+    capabilities = capabilities,
     settings = {
         Lua = {
             format = {
@@ -129,6 +133,7 @@ lspconfig.sumneko_lua.setup({
     },
 })
 lspconfig.gopls.setup {
+    capabilities = capabilities,
     settings = {
         gopls = {
         }
@@ -136,6 +141,7 @@ lspconfig.gopls.setup {
 }
 
 lspconfig.yamlls.setup {
+    capabilities = capabilities,
     filetypes = {
         "yaml", "yaml.ansible", "ansible"
     },
@@ -150,6 +156,7 @@ lspconfig.yamlls.setup {
 }
 
 lspconfig.ansiblels.setup {
+    capabilities = capabilities,
     filetypes = { "yaml", "yaml.ansible", "ansible" },
     root_dir = function(fname)
         return lspconfig.util.root_pattern { "requirements.yaml", "inventory" } (fname)
@@ -159,6 +166,7 @@ lspconfig.ansiblels.setup {
 local home = os.getenv("HOME")
 local efm = require "efm"
 lspconfig.efm.setup {
+    capabilities = capabilities,
     default_options = {
         -- cmd_env = go.env(root_dir),
         cmd = {
@@ -196,12 +204,12 @@ lspconfig.efm.setup {
 }
 
 
-lspconfig.nil_ls.setup {}
-lspconfig.rnix.setup {}
-lspconfig.terraformls.setup {}
-lspconfig.bufls.setup {}
-lspconfig.dhall_lsp_server.setup {}
-lspconfig.golangci_lint_ls.setup {}
-lspconfig.sourcekit.setup {}
+lspconfig.nil_ls.setup(min)
+lspconfig.rnix.setup(min)
+lspconfig.terraformls.setup(min)
+lspconfig.bufls.setup(min)
+lspconfig.dhall_lsp_server.setup(min)
+lspconfig.golangci_lint_ls.setup(min)
+lspconfig.sourcekit.setup(min)
 
 require("rust-tools").setup {}
