@@ -43,6 +43,7 @@
       python310Packages.pipx
       gitutil
       act
+      devenv
 
       # (fenix.complete.withComponents
       #   [
