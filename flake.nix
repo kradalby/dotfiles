@@ -47,13 +47,15 @@
     deadnix.url = "github:astro/deadnix";
     alejandra.url = "github:kamadorueda/alejandra";
     headscale.url = "github:juanfont/headscale";
+    # headscale.url = "github:kradalby/headscale/ios-prefix";
     colmena.url = "github:zhaofengli/colmena";
 
-    hugin.url = "github:kradalby/hugin/flake";
+    hugin.url = "github:kradalby/hugin";
     munin.url = "github:kradalby/munin";
     golink.url = "github:tailscale/golink";
     nurl.url = "github:nix-community/nurl";
     nixinit.url = "github:nix-community/nix-init";
+    devenv.url = "github:cachix/devenv/latest";
 
     neovim-kradalby.url = "path:neovim";
   };
@@ -85,6 +87,7 @@
     , golink
     , nurl
     , nixinit
+    , devenv
     , neovim-kradalby
     , ...
     } @ flakes:
@@ -111,6 +114,7 @@
         golink.overlay
         (import ./pkgs/overlays { })
         (final: prev: {
+          inherit (devenv.packages."${prev.system}") devenv;
           nurl = nurl.packages."${prev.system}".default;
           nix-init = nixinit.packages."${prev.system}".default;
           neovim = neovim-kradalby.packages."${prev.system}".neovim-kradalby;
