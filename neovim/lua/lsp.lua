@@ -206,6 +206,7 @@ lspconfig.efm.setup {
 
 lspconfig.nil_ls.setup(min)
 lspconfig.rnix.setup(min)
+lspconfig.elmls.setup(min)
 lspconfig.terraformls.setup(min)
 lspconfig.bufls.setup(min)
 lspconfig.dhall_lsp_server.setup(min)

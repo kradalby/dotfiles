@@ -19,6 +19,7 @@
     dhall-lsp-server
     golangci-lint-langserver
     rust-analyzer
+    elmPackages.elm-language-server
 
     # EFM
     buf
