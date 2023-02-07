@@ -62,3 +62,6 @@ max_line_length=120
 
 [*.elm]
 indent_size = 0
+
+[*.dhall]
+indent_size = 2
