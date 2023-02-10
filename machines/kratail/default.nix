@@ -1,11 +1,10 @@
-{
-  pkgs,
-  config,
-  machine,
-  lib,
-  stdenv,
-  flakes,
-  ...
+{ pkgs
+, config
+, machine
+, lib
+, stdenv
+, flakes
+, ...
 }: {
   imports = [
     ../../common/darwin.nix
@@ -25,7 +24,7 @@
     '';
 
     settings = {
-      trusted-users = [machine.username];
+      trusted-users = [ machine.username ];
     };
   };
 
@@ -40,7 +39,7 @@
     useUserPackages = true;
     useGlobalPkgs = true;
     users."${machine.username}" = {
-      imports = [../../home];
+      imports = [ ../../home ];
 
       # home.file = {
       #   ".ssh/authorized_keys".text = lib.concatStringsSep "\n" (sshKeys.main ++ sshKeys.kradalby);
@@ -57,7 +56,7 @@
       };
 
       home.sessionVariables = {
-        TS_NIX_SHELL_XCODE_VERSION = "14.0.1";
+        TS_NIX_SHELL_XCODE_VERSION = "14.2";
       };
     };
     # extraSpecialArgs = { inherit machine; };
