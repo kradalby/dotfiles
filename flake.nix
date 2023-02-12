@@ -57,7 +57,7 @@
     nixinit.url = "github:nix-community/nix-init";
     devenv.url = "github:cachix/devenv/latest";
 
-    neovim-kradalby.url = "path:neovim";
+    neovim-kradalby.url = "github:kradalby/neovim";
   };
 
   outputs =
