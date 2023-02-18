@@ -26,10 +26,12 @@
     ./rest-server.nix
     ./samba.nix
     ./restic.nix
-    ./gh-runner.nix
+    # ./gh-runner.nix
     ./postfix.nix
     ./libvirt.nix
     ./hugin.nix
+    ./postgres.nix
+    ./immich.nix
 
     # ./polar
   ];
