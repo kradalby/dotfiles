@@ -4,6 +4,7 @@
 , ...
 }:
 let
+  version = "v1.47.3";
   dataDir = "/var/lib/immich";
   uploadDir = "${dataDir}/upload";
   dbuser = "immich";
@@ -87,7 +88,7 @@ in
     immich-server =
       immichBase
       // {
-        image = "altran1502/immich-server:release";
+        image = "altran1502/immich-server:${version}";
         ports = [ "3001:3001" ];
         entrypoint = "/bin/sh";
         cmd = [ "./start-server.sh" ];
@@ -97,7 +98,7 @@ in
     immich-microservices =
       immichBase
       // {
-        image = "altran1502/immich-server:release";
+        image = "altran1502/immich-server:${version}";
         entrypoint = "/bin/sh";
         cmd = [ "./start-microservices.sh" ];
         volumes = [ "${uploadDir}:/usr/src/app/upload" ];
@@ -106,8 +107,8 @@ in
     # TODO not working atm
     /*
       immich-machine-learning = immichBase // {
-      image = "bertmelis1/immich-machine-learning-noavx:release"; # no AVX support
-      # image = "altran1502/immich-machine-learning:release";
+      image = "bertmelis1/immich-machine-learning-noavx:${version}"; # no AVX support
+      # image = "altran1502/immich-machine-learning:${version}";
       entrypoint = "/bin/sh";
       cmd = [ "./entrypoint.sh" ];
       volumes = [ "${uploadDir}:/usr/src/app/upload" ];
@@ -117,7 +118,7 @@ in
     immich-web =
       immichBase
       // {
-        image = "altran1502/immich-web:release";
+        image = "altran1502/immich-web:${version}";
         ports = [ "3000:3000" ];
         entrypoint = "/bin/sh";
         cmd = [ "./entrypoint.sh" ];
