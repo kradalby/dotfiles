@@ -12,6 +12,7 @@
     gopls
     nil
     nodePackages.yaml-language-server
+    nodePackages.vscode-langservers-extracted
     rnix-lsp
     sumneko-lua-language-server
     terraform-ls
