@@ -1,11 +1,11 @@
-{
-  pkgs,
-  config,
-  lib,
-  ...
-}: let
-  restic = import ../../common/funcs/restic.nix {inherit config lib pkgs;};
-  helpers = import ../../common/funcs/helpers.nix {inherit pkgs lib;};
+{ pkgs
+, config
+, lib
+, ...
+}:
+let
+  restic = import ../../common/funcs/restic.nix { inherit config lib pkgs; };
+  helpers = import ../../common/funcs/helpers.nix { inherit pkgs lib; };
 
   paths = [
     "/root"
@@ -16,6 +16,7 @@
     "/storage/software"
     "/storage/sync"
     # "/storage/restic"
+    config.services.postgresqlBackup.location
   ];
 
   cfg = {
@@ -25,6 +26,6 @@
     inherit paths;
   };
 in
-  lib.mkMerge [
-    (restic.commonJob cfg)
-  ]
+lib.mkMerge [
+  (restic.commonJob cfg)
+]
