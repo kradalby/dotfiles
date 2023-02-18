@@ -1,8 +1,7 @@
-{
-  pkgs,
-  config,
-  flakes,
-  ...
+{ pkgs
+, config
+, flakes
+, ...
 }: {
   # disabledModules = ["services/continuous-integration/github-runners.nix"];
   #
@@ -27,7 +26,7 @@
     package = pkgs.unstable.github-runner;
     url = "https://github.com/juanfont/headscale";
     replace = true;
-    extraLabels = ["nixos" "docker"];
+    extraLabels = [ "nixos" "docker" ];
     user = "github-runner";
 
     # Justifications for the packages:
