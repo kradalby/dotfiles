@@ -1,9 +1,8 @@
-{
-  config,
-  flakes,
-  pkgs,
-  lib,
-  ...
+{ config
+, flakes
+, pkgs
+, lib
+, ...
 }: {
   imports = [
     ../../common
@@ -36,6 +35,7 @@
     # ../../modules/umami.nix
     # ./umami.nix
     ./golink.nix
+    ./webpage.nix
   ];
 
   my.wan = "enp0s3";
@@ -73,8 +73,8 @@
     nat = {
       enable = true;
       externalInterface = config.my.wan;
-      internalIPs = ["10.0.0.0/8"];
-      internalInterfaces = [config.my.lan "iot"];
+      internalIPs = [ "10.0.0.0/8" ];
+      internalInterfaces = [ config.my.lan "iot" ];
       forwardPorts = [
         {
           sourcePort = 64322;
@@ -119,9 +119,19 @@
         21116 # Rustdesk
       ];
 
-      trustedInterfaces = [config.my.lan];
+      trustedInterfaces = [ config.my.lan ];
     };
   };
+
+  systemd.extraConfig = "DefaultLimitNOFILE=1048576";
+  security.pam.loginLimits = [
+    {
+      domain = "*";
+      type = "hard";
+      item = "nofile";
+      value = "1048576";
+    }
+  ];
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions

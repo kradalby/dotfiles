@@ -1,14 +1,15 @@
-{
-  pkgs,
-  config,
-  machine,
-  lib,
-  stdenv,
-  flakes,
-  ...
-}: let
+{ pkgs
+, config
+, machine
+, lib
+, stdenv
+, flakes
+, ...
+}:
+let
   sshKeys = import ../../metadata/ssh.nix;
-in {
+in
+{
   imports = [
     ../../common/darwin.nix
 
@@ -21,7 +22,7 @@ in {
   # on macOS, we need to make sure all SSH references
   # are empty so age dont go looking for services.openssh
   # which doesnt exist.
-  age.identityPaths = ["/Users/kradalby/.ssh/id_ed25519"];
+  age.identityPaths = [ "/Users/kradalby/.ssh/id_ed25519" ];
 
   nix = {
     extraOptions = lib.mkForce ''
@@ -29,7 +30,7 @@ in {
     '';
 
     settings = {
-      trusted-users = [machine.username];
+      trusted-users = [ machine.username ];
     };
 
     distributedBuilds = true;
@@ -51,29 +52,29 @@ in {
       # }
       {
         hostName = "core.tjoda.fap.no";
-        systems = ["x86_64-linux"];
+        systems = [ "x86_64-linux" ];
         sshUser = "root";
         sshKey = "/Users/kradalby/.ssh/id_ed25519";
         maxJobs = 3;
-        supportedFeatures = ["big-parallel" "kvm" "nixos-test"];
+        supportedFeatures = [ "big-parallel" "kvm" "nixos-test" ];
         publicHostKey = "c3NoLWVkMjU1MTkgQUFBQUMzTnphQzFsWkRJMU5URTVBQUFBSUJTcUVoTExkczhzaHc4SE1PU3BOOFVNQkZqTFBUQ3lnMVRqSEtxWHZtMVcgcm9vdEBuaXhvcwo=";
       }
       {
         hostName = "core.oracldn.fap.no";
-        systems = ["aarch64-linux"];
+        systems = [ "aarch64-linux" ];
         sshUser = "root";
         sshKey = "/Users/kradalby/.ssh/id_ed25519";
         maxJobs = 3;
-        supportedFeatures = ["big-parallel" "kvm" "nixos-test"];
+        supportedFeatures = [ "big-parallel" "kvm" "nixos-test" ];
         publicHostKey = "c3NoLWVkMjU1MTkgQUFBQUMzTnphQzFsWkRJMU5URTVBQUFBSUdFZTllSU1mNDYyWlFoRThObDlqeVVzY1J0VFRZZUFJUFJOMmt2TzNjZEMgcm9vdEBjb3JlCg==";
       }
       {
         hostName = "dev.oracfurt.fap.no";
-        systems = ["aarch64-linux"];
+        systems = [ "aarch64-linux" ];
         sshUser = "kradalby";
         sshKey = "/Users/kradalby/.ssh/id_ed25519";
         maxJobs = 3;
-        supportedFeatures = ["big-parallel" "kvm" "nixos-test"];
+        supportedFeatures = [ "big-parallel" "kvm" "nixos-test" ];
         publicHostKey = "c3NoLWVkMjU1MTkgQUFBQUMzTnphQzFsWkRJMU5URTVBQUFBSUU2NXMvaFJuMzR2NVVOaFNJQzgvSk4vNDUyaExkcW4xMzFnVnFxQlRQbmwgcm9vdEBkZXYK";
       }
     ];
@@ -90,7 +91,7 @@ in {
     useUserPackages = true;
     useGlobalPkgs = true;
     users."${machine.username}" = {
-      imports = [../../home];
+      imports = [ ../../home ];
 
       home.file = {
         ".ssh/authorized_keys".text = lib.concatStringsSep "\n" (sshKeys.main ++ sshKeys.kradalby);
@@ -118,6 +119,7 @@ in {
       # "vmware-fusion"
       "macfuse"
       "transmission"
+      "garmin-express"
     ];
   };
 

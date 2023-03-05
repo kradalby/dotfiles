@@ -72,6 +72,7 @@ _: {
       "the-unarchiver"
       "transmit"
       "remote-desktop-manager"
+      "raycast"
       # "free-ruler"
       # "hex-fiend"
       # "little-snitch"

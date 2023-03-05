@@ -58,6 +58,7 @@
     devenv.url = "github:cachix/devenv/latest";
 
     neovim-kradalby.url = "github:kradalby/neovim";
+    webpage.url = "github:kradalby/webpage/rust";
   };
 
   outputs =
@@ -89,6 +90,7 @@
     , nixinit
     , devenv
     , neovim-kradalby
+    , webpage
     , ...
     } @ flakes:
     let
@@ -118,6 +120,7 @@
           nurl = nurl.packages."${prev.system}".default;
           nix-init = nixinit.packages."${prev.system}".default;
           neovim = neovim-kradalby.packages."${prev.system}".neovim-kradalby;
+          kradalby = webpage.packages."${prev.system}".kradalby;
         })
       ];
 
@@ -137,6 +140,7 @@
             ++ [
               hugin.nixosModules.default
               golink.nixosModules.default
+              webpage.nixosModules.default
               (import ./modules/linux.nix)
               {
                 system.configurationRevision =
