@@ -1,4 +1,4 @@
-{lib, ...}: {
+{ lib, ... }: {
   networking.firewall = {
     enable = true;
     allowPing = true;
@@ -6,7 +6,7 @@
     checkReversePath = lib.mkDefault "loose";
     logRefusedConnections = lib.mkDefault false;
 
-    autoLoadConntrackHelpers = true;
+    autoLoadConntrackHelpers = false;
     connectionTrackingModules = [
       "ftp"
       "tftp"
