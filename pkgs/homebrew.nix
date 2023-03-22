@@ -67,6 +67,7 @@ _: {
       "shottr"
       "signal"
       "slack"
+      "obsidian"
       "slowquitapps"
       "steam"
       "the-unarchiver"
