@@ -33,6 +33,7 @@
     ./postgres.nix
     ./immich.nix
     ./webpage.nix
+    ./files.nix
 
     # ./polar
   ];
