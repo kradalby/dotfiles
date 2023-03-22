@@ -77,6 +77,7 @@
       "logi-options-plus"
       "monitorcontrol"
       "utm"
+      "google-chrome"
     ];
   };
   system.defaults.smb.NetBIOSName = machine.hostname;
