@@ -3,7 +3,11 @@
 , pkgs
 , lib
 , ...
-}: {
+}:
+let
+  sshKeys = import ../../metadata/ssh.nix;
+in
+{
   imports = [
     ../../common
     ./hardware-configuration.nix
@@ -99,6 +103,10 @@
       trustedInterfaces = [ config.my.lan ];
     };
   };
+
+  # Also add work SSH keys
+  users.users.root.openssh.authorizedKeys.keys = sshKeys.main ++ sshKeys.kradalby ++ sshKeys.work;
+  users.users.kradalby.openssh.authorizedKeys.keys = sshKeys.main ++ sshKeys.kradalby ++ sshKeys.work;
 
   virtualisation.docker.enable = true;
 
