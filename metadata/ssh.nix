@@ -17,4 +17,9 @@
     # kPad
     "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBCR4CTWI2qCOfyBy5pVK+GFaekUqyqXX1vbWvJPxTbyGomMdjK4rFUG5thOofsZ8Hc/DwGt7675Zg8s/zSn/BrU="
   ];
+
+  work = [
+    # kratail
+    "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBOm0+vlPKTRMQm9teF/bCrTPEDEqs1m+B5kMZtuLKh2rDLYM2uwsLPjNjaIlFQfkUn2vyAqGovyKOVR7Q/Z28yo="
+  ];
 }
