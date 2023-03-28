@@ -124,19 +124,24 @@
         })
       ];
 
-      commonModules = [
+      commonModules = pkgBase: [
         ragenix.nixosModules.age
 
         {
           nixpkgs.overlays = overlays;
         }
+        {
+          # pin system nixpkgs to the same version as the flake input
+          # (don't see a way to declaratively set channels but this seems to work fine?)
+          nix.nixPath = [ "nixpkgs=${pkgBase}" ];
+        }
       ];
 
-      nixosBox = arch: base: homeBase: name:
-        base.lib.nixosSystem {
+      nixosBox = arch: pkgBase: homeBase: name:
+        pkgBase.lib.nixosSystem {
           system = arch;
           modules =
-            commonModules
+            (commonModules pkgBase)
             ++ [
               hugin.nixosModules.default
               golink.nixosModules.default
@@ -162,11 +167,11 @@
           };
         };
 
-      macBox = machine: base: homeBase:
-        base.lib.darwinSystem {
+      macBox = machine: pkgBase: homeBase:
+        pkgBase.lib.darwinSystem {
           system = machine.arch;
           modules =
-            commonModules
+            (commonModules pkgBase)
             ++ [
               (./. + "/machines/${machine.hostname}")
               homeBase.darwinModules.home-manager
@@ -177,18 +182,18 @@
           };
         };
 
-      homeOnly = machine: homeBase:
-        homeBase.lib.homeManagerConfiguration {
-          inherit (machine) username;
-          system = machine.arch;
-          homeDirectory = machine.homeDir;
-          configuration.imports = [ ./home ];
-          extraModules =
-            commonModules
-            ++ [
-              (./. + "/machines/${machine.hostname}")
-            ];
-        };
+      # homeOnly = machine: pkgBase: homeBase:
+      #   homeBase.lib.homeManagerConfiguration {
+      #     inherit (machine) username;
+      #     system = machine.arch;
+      #     homeDirectory = machine.homeDir;
+      #     configuration.imports = [ ./home ];
+      #     extraModules =
+      #       (commonModules pkgBase)
+      #       ++ [
+      #         (./. + "/machines/${machine.hostname}")
+      #       ];
+      #   };
 
       mkColmenaFromNixOSConfigurations = nixosConfigurations:
         {
@@ -273,19 +278,19 @@
           macBox machine darwin home-manager;
       };
 
-      homeConfigurations = {
-        # nix run github:nix-community/home-manager/master --no-write-lock-file -- switch --flake .#multipass
-        "kradalby" =
-          let
-            machine = {
-              arch = "x86_64-linux";
-              username = "kradalby";
-              hostname = "kradalby.home";
-              homeDir = "/home/kradalby";
-            };
-          in
-          homeOnly machine home-manager;
-      };
+      # homeConfigurations = {
+      #   # nix run github:nix-community/home-manager/master --no-write-lock-file -- switch --flake .#multipass
+      #   "kradalby" =
+      #     let
+      #       machine = {
+      #         arch = "x86_64-linux";
+      #         username = "kradalby";
+      #         hostname = "kradalby.home";
+      #         homeDir = "/home/kradalby";
+      #       };
+      #     in
+      #     homeOnly machine home-manager;
+      # };
 
       colmena = mkColmenaFromNixOSConfigurations self.nixosConfigurations;
     }

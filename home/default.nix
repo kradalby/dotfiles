@@ -139,6 +139,11 @@
   programs = {
     home-manager.enable = true;
 
+    nix-index = {
+      enable = true;
+      enableFishIntegration = true;
+    };
+
     direnv = {
       enable = true;
       nix-direnv = {
