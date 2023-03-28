@@ -17,7 +17,7 @@ in
     ../../common/containers.nix
 
     ../../common/coredns.nix
-    ../../common/consul-server.nix
+    ../../common/consul.nix
 
     # ./restic.nix
     ./tailscale.nix
