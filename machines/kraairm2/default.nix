@@ -77,6 +77,15 @@ in
         supportedFeatures = [ "big-parallel" "kvm" "nixos-test" ];
         publicHostKey = "c3NoLWVkMjU1MTkgQUFBQUMzTnphQzFsWkRJMU5URTVBQUFBSUU2NXMvaFJuMzR2NVVOaFNJQzgvSk4vNDUyaExkcW4xMzFnVnFxQlRQbmwgcm9vdEBkZXYK";
       }
+      {
+        hostName = "dev.ldn.fap.no";
+        systems = [ "x86_64-linux" ];
+        sshUser = "root";
+        sshKey = "/Users/kradalby/.ssh/id_ed25519";
+        maxJobs = 3;
+        supportedFeatures = [ "big-parallel" "kvm" "nixos-test" ];
+        publicHostKey = "c3NoLWVkMjU1MTkgQUFBQUMzTnphQzFsWkRJMU5URTVBQUFBSUYzblJYcVhmbG9Wc2wxN1daV3hLSWtVOUFhNi85c1UxMm1ZS0J0cFN4NjYgcm9vdEBuaXhvcwo=";
+      }
     ];
   };
 
