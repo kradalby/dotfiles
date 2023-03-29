@@ -51,6 +51,7 @@ indent_style = tab
 
 [*.sh]
 end_of_line = lf
+indent_style = tab
 
 [*.{cmd, bat}]
 end_of_line = crlf
