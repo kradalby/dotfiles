@@ -21,6 +21,8 @@
     golangci-lint-langserver
     rust-analyzer
     elmPackages.elm-language-server
+    nodePackages.typescript-language-server
+    nodePackages.typescript
 
     # EFM
     buf
