@@ -70,8 +70,8 @@
       docker
     ]
     ++ lib.optionals stdenv.isDarwin [
-      lima
-      colima
+      unstable.lima
+      unstable.colima
       terminal-notifier
       syncthing
 
