@@ -2347,11 +2347,11 @@
         "utils": "utils_3"
       },
       "locked": {
-        "lastModified": 1682957531,
-        "narHash": "sha256-UxfPWInM93lzH0xALDh+o51hupN7GDDnBzzAT7C149s=",
+        "lastModified": 1682958875,
+        "narHash": "sha256-E9sFrT4jtrA6StdV/2Jc/O1dmlaG4Dh/mLz2siBMpKo=",
         "owner": "kradalby",
         "repo": "webpage",
-        "rev": "624d672e8572b8b28ae6a8a0a01d2ddbb130c049",
+        "rev": "6a17c8e74342b3d6226d985f37b38a0ad12b19db",
         "type": "github"
       },
       "original": {
