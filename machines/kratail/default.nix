@@ -71,13 +71,14 @@
   # Work stuff
   homebrew = {
     casks = [
-      "tigervnc-viewer"
-      "wireshark"
-      "webex"
+      "google-chrome"
       "logi-options-plus"
       "monitorcontrol"
+      "tigervnc-viewer"
       "utm"
-      "google-chrome"
+      "webex"
+      "wireshark"
+      "zoom"
     ];
   };
   system.defaults.smb.NetBIOSName = machine.hostname;
