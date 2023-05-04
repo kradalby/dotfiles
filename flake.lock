@@ -838,11 +838,11 @@
         "vim:vim-vsnip": "vim:vim-vsnip"
       },
       "locked": {
-        "lastModified": 1683205854,
-        "narHash": "sha256-K1IYP5+azbij2Em5yExQKTgLknWjtduH9BoPXKTtWSU=",
+        "lastModified": 1683206095,
+        "narHash": "sha256-a8i65xtrcoykoZZw/NR9f0XkVBwRENSxbVJOkU0+V/E=",
         "owner": "kradalby",
         "repo": "neovim",
-        "rev": "23febee30fd7887784795e5a4d35bd19caa79c60",
+        "rev": "8f5654440fd08a494cdc5f7424b283854748620c",
         "type": "github"
       },
       "original": {
