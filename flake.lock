@@ -838,11 +838,11 @@
         "vim:vim-vsnip": "vim:vim-vsnip"
       },
       "locked": {
-        "lastModified": 1683208053,
-        "narHash": "sha256-GxvsD2z5tj4qyA2iZJZsyeZd2a+cHzKeWifkSpc4F3w=",
+        "lastModified": 1683208621,
+        "narHash": "sha256-Cfh7/mVAETqehbn6GAktnDsaNqUykrklzqAvbMPXECU=",
         "owner": "kradalby",
         "repo": "neovim",
-        "rev": "56506a7909f7d7c4596b86c273a35f3cb0c991d2",
+        "rev": "31761518d35859555c87704b2509092671e47292",
         "type": "github"
       },
       "original": {
@@ -2011,15 +2011,15 @@
     "vim:nvim-dap-go": {
       "flake": false,
       "locked": {
-        "lastModified": 1675825542,
-        "narHash": "sha256-qW+EGDX0VOAp+gLbwTJNvX9gJCKxRCMDI2z/J4gFHKE=",
-        "owner": "leoluz",
+        "lastModified": 1683207757,
+        "narHash": "sha256-DtY1Iidd6hs96cyA1oBSOP/jh/FLTW1vT1KGAcN2Kvw=",
+        "owner": "kradalby",
         "repo": "nvim-dap-go",
-        "rev": "b4ded7de579b4e2a85c203388233b54bf1028816",
+        "rev": "48f74564572159eb3003f059492b1fb55740a2ce",
         "type": "github"
       },
       "original": {
-        "owner": "leoluz",
+        "owner": "kradalby",
         "repo": "nvim-dap-go",
         "type": "github"
       }
