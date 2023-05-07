@@ -29,7 +29,8 @@ in
             job_name = "consul";
             consul_sd_configs = [
               {server = "consul.ldn.fap.no";}
-              {server = "consul.ntnu.fap.no";}
+              {server = "consul.oracldn.fap.no";}
+              {server = "consul.oracfurt.fap.no";}
               {server = "consul.tjoda.fap.no";}
               {server = "consul.terra.fap.no";}
             ];
