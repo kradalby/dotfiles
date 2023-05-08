@@ -64,7 +64,10 @@
     nodePackages.write-good
 
     # Debug
-    delve
+
+    # Use unstable to ensure we get a modern version,
+    # we need to have one that is at least as new as Go.
+    unstable.delve
 
     # Unconfigured
     dockfmt
