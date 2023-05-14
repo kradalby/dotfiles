@@ -44,6 +44,7 @@
       gitutil
       act
       devenv
+      dive
 
       # (fenix.complete.withComponents
       #   [
