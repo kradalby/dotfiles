@@ -1,7 +1,8 @@
-{ pkgs
-, lib
-, config
-, ...
+{
+  pkgs,
+  lib,
+  config,
+  ...
 }: {
   age.secrets.matterbridge-config = {
     owner = "matterbridge";

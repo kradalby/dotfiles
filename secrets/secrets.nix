@@ -45,93 +45,93 @@ with builtins; let
     hosts.k3a2-terra
   ];
 in
-with builtins; {
-  # Global secrets
-  "cloudflare-token.age".publicKeys = global;
-  "cloudflare-ddns-token.age".publicKeys = global;
-  "discord-systemd-webhook.age".publicKeys = global;
-  "r.age".publicKeys = global;
-  "ca.age".publicKeys = global;
+  with builtins; {
+    # Global secrets
+    "cloudflare-token.age".publicKeys = global;
+    "cloudflare-ddns-token.age".publicKeys = global;
+    "discord-systemd-webhook.age".publicKeys = global;
+    "r.age".publicKeys = global;
+    "ca.age".publicKeys = global;
 
-  # Restic
-  "restic-home-ldn-token.age".publicKeys = u ++ [ hosts.home-ldn ];
-  "restic-headscale-oracldn-token.age".publicKeys = u ++ [ hosts.headscale-oracldn ];
-  "restic-core-oracldn-token.age".publicKeys = u ++ [ hosts.core-oracldn ];
-  "restic-dev-oracfurt-token.age".publicKeys = u ++ [ hosts.dev-oracfurt ];
-  "restic-core-tjoda-token.age".publicKeys = u ++ [ hosts.core-tjoda ];
-  "restic-core-terra-token.age".publicKeys = u ++ [ hosts.core-terra ];
-  "restic-kramacbook-token.age".publicKeys = u;
-  "restic-kraairm2-token.age".publicKeys = u;
-  "restic-kratail-token.age".publicKeys = u;
+    # Restic
+    "restic-home-ldn-token.age".publicKeys = u ++ [hosts.home-ldn];
+    "restic-headscale-oracldn-token.age".publicKeys = u ++ [hosts.headscale-oracldn];
+    "restic-core-oracldn-token.age".publicKeys = u ++ [hosts.core-oracldn];
+    "restic-dev-oracfurt-token.age".publicKeys = u ++ [hosts.dev-oracfurt];
+    "restic-core-tjoda-token.age".publicKeys = u ++ [hosts.core-tjoda];
+    "restic-core-terra-token.age".publicKeys = u ++ [hosts.core-terra];
+    "restic-kramacbook-token.age".publicKeys = u;
+    "restic-kraairm2-token.age".publicKeys = u;
+    "restic-kratail-token.age".publicKeys = u;
 
-  # Wireguard
-  "wireguard-ldn.age".publicKeys = u ++ [ hosts.core-ldn ];
-  "wireguard-ntnu.age".publicKeys = u ++ [ hosts.core-ntnu ];
-  "wireguard-oracldn.age".publicKeys = u ++ [ hosts.core-oracldn ];
-  "wireguard-oracfurt.age".publicKeys = u ++ [ hosts.dev-oracfurt ];
-  "wireguard-terra.age".publicKeys = u ++ [ hosts.core-terra ];
-  "wireguard-tjoda.age".publicKeys = u ++ [ hosts.core-tjoda ];
-  "wireguard-headscale-oracldn.age".publicKeys = u ++ [ hosts.headscale-oracldn ];
-  # "wireguard-storage-bassan.age".publicKeys = u ++ [ hosts.storage-bassan ];
+    # Wireguard
+    "wireguard-ldn.age".publicKeys = u ++ [hosts.core-ldn];
+    "wireguard-ntnu.age".publicKeys = u ++ [hosts.core-ntnu];
+    "wireguard-oracldn.age".publicKeys = u ++ [hosts.core-oracldn];
+    "wireguard-oracfurt.age".publicKeys = u ++ [hosts.dev-oracfurt];
+    "wireguard-terra.age".publicKeys = u ++ [hosts.core-terra];
+    "wireguard-tjoda.age".publicKeys = u ++ [hosts.core-tjoda];
+    "wireguard-headscale-oracldn.age".publicKeys = u ++ [hosts.headscale-oracldn];
+    # "wireguard-storage-bassan.age".publicKeys = u ++ [ hosts.storage-bassan ];
 
-  # Unifi
-  "unifi-ldn-read-only.age".publicKeys = u ++ [ hosts.home-ldn ];
-  "unifi-tjoda-read-only.age".publicKeys = u ++ [ hosts.core-tjoda ];
+    # Unifi
+    "unifi-ldn-read-only.age".publicKeys = u ++ [hosts.home-ldn];
+    "unifi-tjoda-read-only.age".publicKeys = u ++ [hosts.core-tjoda];
 
-  # headscale
-  "headscale-private-key.age".publicKeys = u ++ [ hosts.headscale-oracldn ];
-  "headscale-noise-private-key.age".publicKeys = u ++ [ hosts.headscale-oracldn ];
-  "headscale-oidc-secret.age".publicKeys = u ++ [ hosts.headscale-oracldn ];
-  "matterbridge-config.age".publicKeys = u ++ [ hosts.headscale-oracldn ];
+    # headscale
+    "headscale-private-key.age".publicKeys = u ++ [hosts.headscale-oracldn];
+    "headscale-noise-private-key.age".publicKeys = u ++ [hosts.headscale-oracldn];
+    "headscale-oidc-secret.age".publicKeys = u ++ [hosts.headscale-oracldn];
+    "matterbridge-config.age".publicKeys = u ++ [hosts.headscale-oracldn];
 
-  # k3s
-  "k3s-terra.age".publicKeys = u ++ k3s-terra;
+    # k3s
+    "k3s-terra.age".publicKeys = u ++ k3s-terra;
 
-  # Grafana
-  "grafana-admin.age".publicKeys = u ++ [ hosts.core-oracldn ];
-  "grafana-admin-polar.age".publicKeys = u ++ [ hosts.core-terra ];
+    # Grafana
+    "grafana-admin.age".publicKeys = u ++ [hosts.core-oracldn];
+    "grafana-admin-polar.age".publicKeys = u ++ [hosts.core-terra];
 
-  # Step CA
-  "step-ca-password.age".publicKeys = u ++ [ hosts.core-oracldn ];
-  "step-ca-config.age".publicKeys = u ++ [ hosts.core-oracldn ];
+    # Step CA
+    "step-ca-password.age".publicKeys = u ++ [hosts.core-oracldn];
+    "step-ca-config.age".publicKeys = u ++ [hosts.core-oracldn];
 
-  # OpenVPN
-  "ovpn-oracldn-crt.age".publicKeys = u ++ [ hosts.core-oracldn ];
-  "ovpn-oracldn-key.age".publicKeys = u ++ [ hosts.core-oracldn ];
-  "ovpn-ldn-crt.age".publicKeys = u ++ [ hosts.core-ldn ];
-  "ovpn-ldn-key.age".publicKeys = u ++ [ hosts.core-ldn ];
-  "ovpn-ntnu-crt.age".publicKeys = u ++ [ hosts.core-ntnu ];
-  "ovpn-ntnu-key.age".publicKeys = u ++ [ hosts.core-ntnu ];
+    # OpenVPN
+    "ovpn-oracldn-crt.age".publicKeys = u ++ [hosts.core-oracldn];
+    "ovpn-oracldn-key.age".publicKeys = u ++ [hosts.core-oracldn];
+    "ovpn-ldn-crt.age".publicKeys = u ++ [hosts.core-ldn];
+    "ovpn-ldn-key.age".publicKeys = u ++ [hosts.core-ldn];
+    "ovpn-ntnu-crt.age".publicKeys = u ++ [hosts.core-ntnu];
+    "ovpn-ntnu-key.age".publicKeys = u ++ [hosts.core-ntnu];
 
-  # Postgres
-  "postgres-keycloak.age".publicKeys = u ++ [ hosts.core-oracldn ];
+    # Postgres
+    "postgres-keycloak.age".publicKeys = u ++ [hosts.core-oracldn];
 
-  # Nextcloud
-  "nextcloud.age".publicKeys = u ++ [ hosts.core-oracldn ];
+    # Nextcloud
+    "nextcloud.age".publicKeys = u ++ [hosts.core-oracldn];
 
-  # minio
-  "minio-oracldn.age".publicKeys = u ++ [ hosts.core-oracldn ];
+    # minio
+    "minio-oracldn.age".publicKeys = u ++ [hosts.core-oracldn];
 
-  # litestream
-  "litestream.age".publicKeys = u ++ [ hosts.core-oracldn hosts.headscale-oracldn ];
+    # litestream
+    "litestream.age".publicKeys = u ++ [hosts.core-oracldn hosts.headscale-oracldn];
 
-  # rustdesk relay
-  "rustdesk-ed25519.age".publicKeys = u ++ [ hosts.core-oracldn ];
-  "rustdesk-ed25519-pub.age".publicKeys = u ++ [ hosts.core-oracldn ];
+    # rustdesk relay
+    "rustdesk-ed25519.age".publicKeys = u ++ [hosts.core-oracldn];
+    "rustdesk-ed25519-pub.age".publicKeys = u ++ [hosts.core-oracldn];
 
-  # github
-  "github-headscale-token.age".publicKeys = u ++ [ hosts.core-terra ];
+    # github
+    "github-headscale-token.age".publicKeys = u ++ [hosts.core-terra];
 
-  # hugin
-  "hugin-tskey.age".publicKeys = u ++ [ hosts.core-terra ];
+    # hugin
+    "hugin-tskey.age".publicKeys = u ++ [hosts.core-terra];
 
-  # immich
-  "immich-env.age".publicKeys = u ++ [ hosts.core-terra ];
-  "immich-db-password.age".publicKeys = u ++ [ hosts.core-terra ];
+    # immich
+    "immich-env.age".publicKeys = u ++ [hosts.core-terra];
+    "immich-db-password.age".publicKeys = u ++ [hosts.core-terra];
 
-  # golink
-  "golink-tskey.age".publicKeys = u ++ [ hosts.core-oracldn ];
+    # golink
+    "golink-tskey.age".publicKeys = u ++ [hosts.core-oracldn];
 
-  # WIFI
-  "ldn-wifi.age".publicKeys = u ++ [ hosts.dev-ldn ];
-}
+    # WIFI
+    "ldn-wifi.age".publicKeys = u ++ [hosts.dev-ldn];
+  }

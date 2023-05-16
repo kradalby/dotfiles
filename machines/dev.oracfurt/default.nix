@@ -1,8 +1,9 @@
-{ config
-, flakes
-, pkgs
-, lib
-, ...
+{
+  config,
+  flakes,
+  pkgs,
+  lib,
+  ...
 }: {
   imports = [
     ../../common
@@ -54,8 +55,8 @@
     nat = {
       enable = true;
       externalInterface = config.my.wan;
-      internalIPs = [ "10.0.0.0/8" ];
-      internalInterfaces = [ config.my.lan "iot" ];
+      internalIPs = ["10.0.0.0/8"];
+      internalInterfaces = [config.my.lan "iot"];
       forwardPorts = [
         {
           sourcePort = 64322;
@@ -92,7 +93,7 @@
         config.networking.wireguard.interfaces.wg0.listenPort
       ];
 
-      trustedInterfaces = [ config.my.lan ];
+      trustedInterfaces = [config.my.lan];
     };
   };
 

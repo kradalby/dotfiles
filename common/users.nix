@@ -1,12 +1,11 @@
-{ pkgs
-, config
-, lib
-, ...
-}:
-let
-  sshKeys = import ../metadata/ssh.nix;
-in
 {
+  pkgs,
+  config,
+  lib,
+  ...
+}: let
+  sshKeys = import ../metadata/ssh.nix;
+in {
   options = {
     my.users = {
       storage = lib.mkOption {
@@ -29,7 +28,7 @@ in
         kradalby = {
           isNormalUser = true;
           uid = 1000;
-          extraGroups = [ "wireshark" "docker" ];
+          extraGroups = ["wireshark" "docker"];
           shell = pkgs.fish;
           openssh.authorizedKeys.keys = sshKeys.main ++ sshKeys.kradalby;
           # passwordFile = config.age.secrets.r.path;
@@ -43,7 +42,7 @@ in
         storage = lib.mkIf config.my.users.storage {
           isSystemUser = true;
           uid = 1992;
-          extraGroups = [ ];
+          extraGroups = [];
           shell = pkgs.bash;
           group = "storage";
           home = "/storage";

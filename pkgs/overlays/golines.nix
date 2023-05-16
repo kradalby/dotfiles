@@ -1,8 +1,8 @@
-{ buildGoModule
-, fetchFromGitHub
-, lib
-, installShellFiles
-,
+{
+  buildGoModule,
+  fetchFromGitHub,
+  lib,
+  installShellFiles,
 }:
 buildGoModule rec {
   pname = "golines";
@@ -19,5 +19,5 @@ buildGoModule rec {
 
   doCheck = false;
 
-  nativeBuildInputs = [ installShellFiles ];
+  nativeBuildInputs = [installShellFiles];
 }

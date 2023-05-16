@@ -61,167 +61,166 @@
     webpage.url = "github:kradalby/webpage/rust";
   };
 
-  outputs =
-    { self
-    , nixpkgs
-    , nixpkgs-unstable
-    , nixpkgs-master
-    , nixpkgs-staging
-    , nixpkgs-staging-next
-    , darwin
-    , darwin-unstable
-    , darwin-master
-    , darwin-staging
-    , home-manager
-    , home-manager-unstable
-    , ragenix
-    , nur
-    , fenix
-    , nixos-generators
-    , flake-utils
-    , deadnix
-    , alejandra
-    , headscale
-    , colmena
-    , hugin
-    , munin
-    , golink
-    , nurl
-    , nixinit
-    , devenv
-    , neovim-kradalby
-    , webpage
-    , ...
-    } @ flakes:
-    let
-      overlay-pkgs = final: prev: {
-        stable = import nixpkgs { inherit (final) system; };
-        unstable = import nixpkgs-unstable { inherit (final) system; };
-        master = import nixpkgs-master { inherit (final) system; };
-        staging = import nixpkgs-staging { inherit (final) system; };
-        staging-next = import nixpkgs-staging-next { inherit (final) system; };
+  outputs = {
+    self,
+    nixpkgs,
+    nixpkgs-unstable,
+    nixpkgs-master,
+    nixpkgs-staging,
+    nixpkgs-staging-next,
+    darwin,
+    darwin-unstable,
+    darwin-master,
+    darwin-staging,
+    home-manager,
+    home-manager-unstable,
+    ragenix,
+    nur,
+    fenix,
+    nixos-generators,
+    flake-utils,
+    deadnix,
+    alejandra,
+    headscale,
+    colmena,
+    hugin,
+    munin,
+    golink,
+    nurl,
+    nixinit,
+    devenv,
+    neovim-kradalby,
+    webpage,
+    ...
+  } @ flakes: let
+    overlay-pkgs = final: prev: {
+      stable = import nixpkgs {inherit (final) system;};
+      unstable = import nixpkgs-unstable {inherit (final) system;};
+      master = import nixpkgs-master {inherit (final) system;};
+      staging = import nixpkgs-staging {inherit (final) system;};
+      staging-next = import nixpkgs-staging-next {inherit (final) system;};
+    };
+
+    overlays = [
+      nur.overlay
+      overlay-pkgs
+      fenix.overlays.default
+      ragenix.overlays.default
+      deadnix.overlays.default
+      alejandra.overlay
+      headscale.overlay
+      colmena.overlay
+      hugin.overlay
+      munin.overlay
+      golink.overlay
+      (import ./pkgs/overlays {})
+      (final: prev: {
+        inherit (devenv.packages."${prev.system}") devenv;
+        nurl = nurl.packages."${prev.system}".default;
+        nix-init = nixinit.packages."${prev.system}".default;
+        neovim = neovim-kradalby.packages."${prev.system}".neovim-kradalby;
+        kradalby = webpage.packages."${prev.system}".kradalby;
+      })
+    ];
+
+    commonModules = pkgBase: [
+      ragenix.nixosModules.age
+
+      {
+        nixpkgs.overlays = overlays;
+      }
+      {
+        # pin system nixpkgs to the same version as the flake input
+        # (don't see a way to declaratively set channels but this seems to work fine?)
+        nix.nixPath = ["nixpkgs=${pkgBase}"];
+      }
+    ];
+
+    nixosBox = arch: pkgBase: homeBase: name:
+      pkgBase.lib.nixosSystem {
+        system = arch;
+        modules =
+          (commonModules pkgBase)
+          ++ [
+            hugin.nixosModules.default
+            golink.nixosModules.default
+            webpage.nixosModules.default
+            (import ./modules/linux.nix)
+            {
+              system.configurationRevision =
+                self.rev or "DIRTY";
+            }
+
+            (./. + "/machines/${name}")
+          ]
+          ++ (
+            if builtins.isNull homeBase
+            then []
+            else [
+              homeBase.nixosModules.home-manager
+              ./common/home.nix
+            ]
+          );
+        specialArgs = {
+          inherit flakes;
+        };
       };
 
-      overlays = [
-        nur.overlay
-        overlay-pkgs
-        fenix.overlays.default
-        ragenix.overlays.default
-        deadnix.overlays.default
-        alejandra.overlay
-        headscale.overlay
-        colmena.overlay
-        hugin.overlay
-        munin.overlay
-        golink.overlay
-        (import ./pkgs/overlays { })
-        (final: prev: {
-          inherit (devenv.packages."${prev.system}") devenv;
-          nurl = nurl.packages."${prev.system}".default;
-          nix-init = nixinit.packages."${prev.system}".default;
-          neovim = neovim-kradalby.packages."${prev.system}".neovim-kradalby;
-          kradalby = webpage.packages."${prev.system}".kradalby;
-        })
-      ];
+    macBox = machine: pkgBase: homeBase:
+      pkgBase.lib.darwinSystem {
+        system = machine.arch;
+        modules =
+          (commonModules pkgBase)
+          ++ [
+            (./. + "/machines/${machine.hostname}")
+            homeBase.darwinModules.home-manager
+          ];
+        specialArgs = {
+          inherit flakes;
+          inherit machine;
+        };
+      };
 
-      commonModules = pkgBase: [
-        ragenix.nixosModules.age
+    # homeOnly = machine: pkgBase: homeBase:
+    #   homeBase.lib.homeManagerConfiguration {
+    #     inherit (machine) username;
+    #     system = machine.arch;
+    #     homeDirectory = machine.homeDir;
+    #     configuration.imports = [ ./home ];
+    #     extraModules =
+    #       (commonModules pkgBase)
+    #       ++ [
+    #         (./. + "/machines/${machine.hostname}")
+    #       ];
+    #   };
 
-        {
-          nixpkgs.overlays = overlays;
-        }
-        {
-          # pin system nixpkgs to the same version as the flake input
-          # (don't see a way to declaratively set channels but this seems to work fine?)
-          nix.nixPath = [ "nixpkgs=${pkgBase}" ];
-        }
-      ];
+    mkColmenaFromNixOSConfigurations = nixosConfigurations:
+      {
+        meta = {
+          machinesFile = /etc/nix/machines;
+          nixpkgs = import nixpkgs {
+            system = "x86_64-linux";
+            inherit overlays;
+          };
 
-      nixosBox = arch: pkgBase: homeBase: name:
-        pkgBase.lib.nixosSystem {
-          system = arch;
-          modules =
-            (commonModules pkgBase)
-            ++ [
-              hugin.nixosModules.default
-              golink.nixosModules.default
-              webpage.nixosModules.default
-              (import ./modules/linux.nix)
-              {
-                system.configurationRevision =
-                  self.rev or "DIRTY";
-              }
-
-              (./. + "/machines/${name}")
-            ]
-            ++ (
-              if builtins.isNull homeBase
-              then [ ]
-              else [
-                homeBase.nixosModules.home-manager
-                ./common/home.nix
-              ]
-            );
           specialArgs = {
             inherit flakes;
           };
         };
-
-      macBox = machine: pkgBase: homeBase:
-        pkgBase.lib.darwinSystem {
-          system = machine.arch;
-          modules =
-            (commonModules pkgBase)
-            ++ [
-              (./. + "/machines/${machine.hostname}")
-              homeBase.darwinModules.home-manager
-            ];
-          specialArgs = {
-            inherit flakes;
-            inherit machine;
-          };
-        };
-
-      # homeOnly = machine: pkgBase: homeBase:
-      #   homeBase.lib.homeManagerConfiguration {
-      #     inherit (machine) username;
-      #     system = machine.arch;
-      #     homeDirectory = machine.homeDir;
-      #     configuration.imports = [ ./home ];
-      #     extraModules =
-      #       (commonModules pkgBase)
-      #       ++ [
-      #         (./. + "/machines/${machine.hostname}")
-      #       ];
-      #   };
-
-      mkColmenaFromNixOSConfigurations = nixosConfigurations:
-        {
-          meta = {
-            machinesFile = /etc/nix/machines;
-            nixpkgs = import nixpkgs {
-              system = "x86_64-linux";
-              inherit overlays;
-            };
-
-            specialArgs = {
-              inherit flakes;
-            };
-          };
-        }
-        // builtins.mapAttrs
-          (name: value: {
-            deployment.buildOnTarget =
-              # TODO(kradalby): aarch64 linux machines get grumpy about some
-              # delegation stuff
-              if value.config.nixpkgs.system == "aarch64-linux"
-              then true
-              else false;
-            nixpkgs.system = value.config.nixpkgs.system;
-            imports = value._module.args.modules;
-          })
-          nixosConfigurations;
-    in
+      }
+      // builtins.mapAttrs
+      (name: value: {
+        deployment.buildOnTarget =
+          # TODO(kradalby): aarch64 linux machines get grumpy about some
+          # delegation stuff
+          if value.config.nixpkgs.system == "aarch64-linux"
+          then true
+          else false;
+        nixpkgs.system = value.config.nixpkgs.system;
+        imports = value._module.args.modules;
+      })
+      nixosConfigurations;
+  in
     {
       nixosConfigurations = {
         "core.terra" = nixosBox "x86_64-linux" nixpkgs home-manager "core.terra";
@@ -244,37 +243,34 @@
 
       # darwin-rebuild switch --flake .#kramacbook
       darwinConfigurations = {
-        kramacbook =
-          let
-            machine = {
-              arch = "x86_64-darwin";
-              username = "kradalby";
-              hostname = "kramacbook";
-              homeDir = /Users/kradalby;
-            };
-          in
+        kramacbook = let
+          machine = {
+            arch = "x86_64-darwin";
+            username = "kradalby";
+            hostname = "kramacbook";
+            homeDir = /Users/kradalby;
+          };
+        in
           macBox machine darwin home-manager;
 
-        kratail =
-          let
-            machine = {
-              arch = "aarch64-darwin";
-              username = "kradalby";
-              hostname = "kratail";
-              homeDir = /Users/kradalby;
-            };
-          in
+        kratail = let
+          machine = {
+            arch = "aarch64-darwin";
+            username = "kradalby";
+            hostname = "kratail";
+            homeDir = /Users/kradalby;
+          };
+        in
           macBox machine darwin home-manager;
 
-        kraairm2 =
-          let
-            machine = {
-              arch = "aarch64-darwin";
-              username = "kradalby";
-              hostname = "kraairm2";
-              homeDir = /Users/kradalby;
-            };
-          in
+        kraairm2 = let
+          machine = {
+            arch = "aarch64-darwin";
+            username = "kradalby";
+            hostname = "kraairm2";
+            homeDir = /Users/kradalby;
+          };
+        in
           macBox machine darwin home-manager;
       };
 
@@ -295,122 +291,118 @@
       colmena = mkColmenaFromNixOSConfigurations self.nixosConfigurations;
     }
     // flake-utils.lib.eachDefaultSystem
-      (system:
-      let
-        pkgs = import nixpkgs {
-          inherit overlays;
-          inherit system;
-        };
-      in
-      rec {
-        devShell = pkgs.mkShell {
-          buildInputs = [
-            pkgs.alejandra
-            pkgs.colmena
-          ];
-        };
+    (system: let
+      pkgs = import nixpkgs {
+        inherit overlays;
+        inherit system;
+      };
+    in rec {
+      devShell = pkgs.mkShell {
+        buildInputs = [
+          pkgs.alejandra
+          pkgs.colmena
+        ];
+      };
 
-        packages =
-          let
-            name = "bootstrap";
-            modules = [
-              ./common
-              (with pkgs; {
-                networking = {
-                  hostName = name;
-                  domain = "bootstrap.fap.no";
-                  firewall.enable = lib.mkForce false;
-                };
-              })
-            ];
-          in
+      packages = let
+        name = "bootstrap";
+        modules = [
+          ./common
+          (with pkgs; {
+            networking = {
+              hostName = name;
+              domain = "bootstrap.fap.no";
+              firewall.enable = lib.mkForce false;
+            };
+          })
+        ];
+      in {
+        # nix build --system aarch64-linux .#name
+        "rpi4" =
+          nixos-generators.nixosGenerate
           {
-            # nix build --system aarch64-linux .#name
-            "rpi4" =
-              nixos-generators.nixosGenerate
+            system = "aarch64-linux";
+            modules =
+              [
+                # FIX: this is requried to build the RPi kernel:
+                # https://github.com/NixOS/nixpkgs/issues/154163
+                # https://github.com/NixOS/nixos-hardware/issues/360
                 {
-                  system = "aarch64-linux";
-                  modules =
-                    [
-                      # FIX: this is requried to build the RPi kernel:
-                      # https://github.com/NixOS/nixpkgs/issues/154163
-                      # https://github.com/NixOS/nixos-hardware/issues/360
-                      {
-                        nixpkgs.overlays = [
-                          (final: super: {
-                            makeModulesClosure = x:
-                              super.makeModulesClosure (x // { allowMissing = true; });
-                          })
-                        ];
-                      }
-                      {
-                        boot.kernelPackages = pkgs.lib.mkForce pkgs.linuxPackages_rpi4;
-                      }
-                      {
-                        networking = {
-                          # wireless = {
-                          #   enable = true;
-                          #   interfaces = ["wlan0"];
-                          #   networks = {
-                          #     "<Insert SSID>" = {
-                          #       psk = "";
-                          #     };
-                          #   };
-                          # };
-                          # interfaces.wlan0.useDHCP = true;
-                          interfaces.eth0.useDHCP = true;
-                        };
-                      }
-                      ./common/rpi4-configuration.nix
-                    ]
-                    ++ modules;
-                  specialArgs = { inherit flakes; };
-                  format = "sd-aarch64";
-                };
-            "nanopi-neo2" =
-              nixos-generators.nixosGenerate
+                  nixpkgs.overlays = [
+                    (final: super: {
+                      makeModulesClosure = x:
+                        super.makeModulesClosure (x // {allowMissing = true;});
+                    })
+                  ];
+                }
                 {
-                  system = "aarch64-linux";
-                  modules =
-                    [
-                      # FIX: this is requried to build the RPi kernel:
-                      # https://github.com/NixOS/nixpkgs/issues/154163
-                      # https://github.com/NixOS/nixos-hardware/issues/360
-                      # {
-                      #   nixpkgs.overlays = [
-                      #     (final: super: {
-                      #       makeModulesClosure = x:
-                      #         super.makeModulesClosure (x // {allowMissing = true;});
-                      #     })
-                      #   ];
-                      # }
-                      {
-                        networking = {
-                          interfaces.eth0.useDHCP = true;
-                        };
-                      }
-                      ./misc/nanopi-neo2
-                    ]
-                    ++ modules;
-                  specialArgs = { inherit flakes; };
-                  format = "sd-aarch64";
-                };
-            "vmware" =
-              nixos-generators.nixosGenerate
+                  boot.kernelPackages = pkgs.lib.mkForce pkgs.linuxPackages_rpi4;
+                }
                 {
-                  inherit system;
-                  inherit modules;
-                  specialArgs = { inherit flakes; };
-                  format = "vmware";
-                };
-            "iso" =
-              nixos-generators.nixosGenerate
-                {
-                  inherit system;
-                  inherit modules;
-                  specialArgs = { inherit flakes; };
-                  format = "install-iso";
-                };
+                  networking = {
+                    # wireless = {
+                    #   enable = true;
+                    #   interfaces = ["wlan0"];
+                    #   networks = {
+                    #     "<Insert SSID>" = {
+                    #       psk = "";
+                    #     };
+                    #   };
+                    # };
+                    # interfaces.wlan0.useDHCP = true;
+                    interfaces.eth0.useDHCP = true;
+                  };
+                }
+                ./common/rpi4-configuration.nix
+              ]
+              ++ modules;
+            specialArgs = {inherit flakes;};
+            format = "sd-aarch64";
           };
-      });
+        "nanopi-neo2" =
+          nixos-generators.nixosGenerate
+          {
+            system = "aarch64-linux";
+            modules =
+              [
+                # FIX: this is requried to build the RPi kernel:
+                # https://github.com/NixOS/nixpkgs/issues/154163
+                # https://github.com/NixOS/nixos-hardware/issues/360
+                # {
+                #   nixpkgs.overlays = [
+                #     (final: super: {
+                #       makeModulesClosure = x:
+                #         super.makeModulesClosure (x // {allowMissing = true;});
+                #     })
+                #   ];
+                # }
+                {
+                  networking = {
+                    interfaces.eth0.useDHCP = true;
+                  };
+                }
+                ./misc/nanopi-neo2
+              ]
+              ++ modules;
+            specialArgs = {inherit flakes;};
+            format = "sd-aarch64";
+          };
+        "vmware" =
+          nixos-generators.nixosGenerate
+          {
+            inherit system;
+            inherit modules;
+            specialArgs = {inherit flakes;};
+            format = "vmware";
+          };
+        "iso" =
+          nixos-generators.nixosGenerate
+          {
+            inherit system;
+            inherit modules;
+            specialArgs = {inherit flakes;};
+            format = "install-iso";
+          };
+      };
+    });
 }

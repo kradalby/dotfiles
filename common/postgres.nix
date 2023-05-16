@@ -1,18 +1,19 @@
-{ pkgs
-, lib
-, config
-, ...
+{
+  pkgs,
+  lib,
+  config,
+  ...
 }: {
   options = {
     my.postgres = {
       databases = lib.mkOption {
         type = lib.types.listOf lib.types.str;
-        default = [ ];
+        default = [];
       };
 
       extraBackups = lib.mkOption {
         type = lib.types.listOf lib.types.str;
-        default = [ ];
+        default = [];
       };
     };
   };
@@ -25,15 +26,15 @@
 
       ensureUsers =
         builtins.map
-          (
-            database: {
-              name = database;
-              ensurePermissions = {
-                "DATABASE ${database}" = "ALL PRIVILEGES";
-              };
-            }
-          )
-          config.my.postgres.databases;
+        (
+          database: {
+            name = database;
+            ensurePermissions = {
+              "DATABASE ${database}" = "ALL PRIVILEGES";
+            };
+          }
+        )
+        config.my.postgres.databases;
 
       ensureDatabases = config.my.postgres.databases;
     };

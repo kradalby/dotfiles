@@ -1,7 +1,7 @@
-{ config, ... }: {
+{config, ...}: {
   services.dhcpd4 = {
     enable = true;
-    interfaces = [ config.my.lan ];
+    interfaces = [config.my.lan];
     extraConfig = ''
       option subnet-mask 255.255.255.0;
 
