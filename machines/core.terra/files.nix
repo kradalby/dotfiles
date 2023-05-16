@@ -1,12 +1,11 @@
-{ pkgs
-, lib
-, config
-, ...
-}:
-let
-  domain = "files.kradalby.no";
-in
 {
+  pkgs,
+  lib,
+  config,
+  ...
+}: let
+  domain = "files.kradalby.no";
+in {
   security.acme.certs."${domain}".domain = domain;
 
   services.nginx.virtualHosts."${domain}" = {

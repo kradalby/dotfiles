@@ -1,8 +1,8 @@
-{ buildGoModule
-, fetchFromGitHub
-, lib
-, installShellFiles
-,
+{
+  buildGoModule,
+  fetchFromGitHub,
+  lib,
+  installShellFiles,
 }:
 buildGoModule rec {
   pname = "gitutil";
@@ -15,11 +15,11 @@ buildGoModule rec {
     sha256 = "sha256-cR5qfQcRfHiX6A1eIgBHIzeqTZXjUw1FuJlF2RVaels=";
   };
 
-  subPackages = [ "git-cleanup" "git-allgoupdate" "git-clpatch" ];
+  subPackages = ["git-cleanup" "git-allgoupdate" "git-clpatch"];
 
   vendorSha256 = "sha256-pQpattmS9VmO3ZIQUFn66az8GSmB4IvYhTTCFn6SUmo=";
 
   doCheck = false;
 
-  nativeBuildInputs = [ installShellFiles ];
+  nativeBuildInputs = [installShellFiles];
 }

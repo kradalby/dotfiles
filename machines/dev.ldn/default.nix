@@ -1,13 +1,12 @@
-{ config
-, flakes
-, pkgs
-, lib
-, ...
-}:
-let
-  sshKeys = import ../../metadata/ssh.nix;
-in
 {
+  config,
+  flakes,
+  pkgs,
+  lib,
+  ...
+}: let
+  sshKeys = import ../../metadata/ssh.nix;
+in {
   imports = [
     ../../common
     ./hardware-configuration.nix
@@ -100,7 +99,7 @@ in
         # config.networking.wireguard.interfaces.wg0.listenPort
       ];
 
-      trustedInterfaces = [ config.my.lan ];
+      trustedInterfaces = [config.my.lan];
     };
   };
 

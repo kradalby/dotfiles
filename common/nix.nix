@@ -1,8 +1,9 @@
-{ config
-, lib
-, flakes
-, pkgs
-, ...
+{
+  config,
+  lib,
+  flakes,
+  pkgs,
+  ...
 }: {
   i18n.defaultLocale = "en_US.UTF-8";
 
@@ -33,7 +34,7 @@
 
     optimise = {
       automatic = true;
-      dates = [ "03:45" ];
+      dates = ["03:45"];
     };
 
     registry = {
@@ -50,5 +51,5 @@
   # TODO: why doesnt this always work?
   # system.copySystemConfiguration = true;
 
-  imports = [ ../pkgs/system.nix ];
+  imports = [../pkgs/system.nix];
 }

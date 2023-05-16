@@ -1,5 +1,5 @@
-{ ... }: {
-  imports = [ ../../common/postgres.nix ];
+{...}: {
+  imports = [../../common/postgres.nix];
 
   my.postgres.databases = [
     "glauth"

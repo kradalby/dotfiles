@@ -1,15 +1,14 @@
-{ pkgs
-, lib
-, config
-, flakes
-, ...
-}:
-let
-  s = import ../../metadata/sites.nix { inherit lib config; };
-  consul = import ../../common/funcs/consul.nix { inherit lib; };
-  domain = "headscale.kradalby.no";
-in
 {
+  pkgs,
+  lib,
+  config,
+  flakes,
+  ...
+}: let
+  s = import ../../metadata/sites.nix {inherit lib config;};
+  consul = import ../../common/funcs/consul.nix {inherit lib;};
+  domain = "headscale.kradalby.no";
+in {
   # disabledModules = ["services/networking/headscale.nix"];
   #
   # imports = [
@@ -29,7 +28,7 @@ in
     file = ../../secrets/headscale-oidc-secret.age;
   };
 
-  environment.systemPackages = [ pkgs.headscale pkgs.sqlite-interactive pkgs.sqlite-web ];
+  environment.systemPackages = [pkgs.headscale pkgs.sqlite-interactive pkgs.sqlite-web];
 
   services.headscale = {
     enable = true;
@@ -92,12 +91,12 @@ in
         {
           consul = s.nameservers;
         }
-        // builtins.mapAttrs (site: server: [ server ]) s.consul;
+        // builtins.mapAttrs (site: server: [server]) s.consul;
     };
   };
 
   # Allow UDP for STUN
-  networking.firewall.allowedUDPPorts = [ 3478 ];
+  networking.firewall.allowedUDPPorts = [3478];
 
   systemd.services.headscale.environment = {
     # HEADSCALE_LOG_LEVEL = "trace";

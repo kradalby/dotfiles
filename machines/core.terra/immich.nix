@@ -1,9 +1,9 @@
-{ config
-, lib
-, pkgs
-, ...
-}:
-let
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}: let
   version = "v1.47.3";
   dataDir = "/var/lib/immich";
   uploadDir = "${dataDir}/upload";
@@ -27,7 +27,7 @@ let
       REDIS_PORT = toString config.services.redis.servers.immich.port;
     };
     # only secrets need to be included, e.g. DB_PASSWORD, JWT_SECRET, MAPBOX_KEY
-    environmentFiles = [ config.age.secrets.immich-env.path ];
+    environmentFiles = [config.age.secrets.immich-env.path];
     extraOptions = [
       "--network=host"
       "--add-host=immich-server:127.0.0.1"
@@ -36,15 +36,14 @@ let
       "--add-host=immich-web:127.0.0.1"
     ];
   };
-in
-{
+in {
   age.secrets.immich-env.file = ../../secrets/immich-env.age;
   age.secrets.immich-db-password.file = ../../secrets/immich-db-password.age;
 
   services.postgresql = {
     enable = true;
     enableTCPIP = true;
-    ensureDatabases = [ dbname ];
+    ensureDatabases = [dbname];
     ensureUsers = [
       {
         name = dbuser;
@@ -61,8 +60,8 @@ in
   systemd.services.immich-init = {
     enable = true;
     description = "Set up paths & database access";
-    requires = [ "postgresql.service" ];
-    after = [ "postgresql.service" ];
+    requires = ["postgresql.service"];
+    after = ["postgresql.service"];
     before = [
       "${ociBackend}-immich-server.service"
       "${ociBackend}-immich-microservices.service"
@@ -70,10 +69,10 @@ in
       "${ociBackend}-immich-web.service"
       "${ociBackend}-immich-proxy.service"
     ];
-    wantedBy = [ "multi-user.target" ];
+    wantedBy = ["multi-user.target"];
     serviceConfig = {
       Type = "oneshot";
-      LoadCredential = [ "db_password:${dbPasswordFile}" ];
+      LoadCredential = ["db_password:${dbPasswordFile}"];
     };
     script = ''
       mkdir -p ${dataDir} ${uploadDir}
@@ -89,10 +88,10 @@ in
       immichBase
       // {
         image = "altran1502/immich-server:${version}";
-        ports = [ "3001:3001" ];
+        ports = ["3001:3001"];
         entrypoint = "/bin/sh";
-        cmd = [ "./start-server.sh" ];
-        volumes = [ "${uploadDir}:/usr/src/app/upload" ];
+        cmd = ["./start-server.sh"];
+        volumes = ["${uploadDir}:/usr/src/app/upload"];
       };
 
     immich-microservices =
@@ -100,45 +99,45 @@ in
       // {
         image = "altran1502/immich-server:${version}";
         entrypoint = "/bin/sh";
-        cmd = [ "./start-microservices.sh" ];
-        volumes = [ "${uploadDir}:/usr/src/app/upload" ];
+        cmd = ["./start-microservices.sh"];
+        volumes = ["${uploadDir}:/usr/src/app/upload"];
       };
 
     # TODO not working atm
     /*
-      immich-machine-learning = immichBase // {
-      image = "bertmelis1/immich-machine-learning-noavx:${version}"; # no AVX support
-      # image = "altran1502/immich-machine-learning:${version}";
-      entrypoint = "/bin/sh";
-      cmd = [ "./entrypoint.sh" ];
-      volumes = [ "${uploadDir}:/usr/src/app/upload" ];
-      };
+    immich-machine-learning = immichBase // {
+    image = "bertmelis1/immich-machine-learning-noavx:${version}"; # no AVX support
+    # image = "altran1502/immich-machine-learning:${version}";
+    entrypoint = "/bin/sh";
+    cmd = [ "./entrypoint.sh" ];
+    volumes = [ "${uploadDir}:/usr/src/app/upload" ];
+    };
     */
 
     immich-web =
       immichBase
       // {
         image = "altran1502/immich-web:${version}";
-        ports = [ "3000:3000" ];
+        ports = ["3000:3000"];
         entrypoint = "/bin/sh";
-        cmd = [ "./entrypoint.sh" ];
+        cmd = ["./entrypoint.sh"];
       };
   };
 
   systemd.services = {
     "${ociBackend}-immich-server" = {
-      requires = [ "postgresql.service" "redis-immich.service" ];
-      after = [ "postgresql.service" "redis-immich.service" ];
+      requires = ["postgresql.service" "redis-immich.service"];
+      after = ["postgresql.service" "redis-immich.service"];
     };
 
     "${ociBackend}-immich-microservices" = {
-      requires = [ "postgresql.service" "redis-immich.service" ];
-      after = [ "postgresql.service" "redis-immich.service" ];
+      requires = ["postgresql.service" "redis-immich.service"];
+      after = ["postgresql.service" "redis-immich.service"];
     };
 
     "${ociBackend}-immich-machine-learning" = {
-      requires = [ "postgresql.service" ];
-      after = [ "postgresql.service" ];
+      requires = ["postgresql.service"];
+      after = ["postgresql.service"];
     };
   };
 
