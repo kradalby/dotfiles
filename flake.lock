@@ -838,11 +838,11 @@
         "vim:vim-vsnip": "vim:vim-vsnip"
       },
       "locked": {
-        "lastModified": 1684823865,
-        "narHash": "sha256-aEL7c6LQHaa5nYCiwUp+0obYdCbArM1uhMKgmzCcXO4=",
+        "lastModified": 1684829203,
+        "narHash": "sha256-6st3bugzVKA98t02ZCxbtZ8Bk/Q2PfiiBxIQcO+qQmA=",
         "owner": "kradalby",
         "repo": "neovim",
-        "rev": "ae3f81e9aa4884d2906e635f354751e6812ba51f",
+        "rev": "afd3cd2400129bb84f60414ccfb218d9e2787e62",
         "type": "github"
       },
       "original": {
@@ -981,11 +981,11 @@
     },
     "nixpkgs-master": {
       "locked": {
-        "lastModified": 1684822580,
-        "narHash": "sha256-FuFIT/6hg+IqpIlY8MnulAodqzUwK7Ojkkcyey9f4wk=",
+        "lastModified": 1684828652,
+        "narHash": "sha256-Bs5gK2w+NUBuc32As5acz8g3WE2IzIEPBwxOvJCbEmA=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "9f959e71548103122f028a8f3b5fe86dc529dae5",
+        "rev": "c9fb720d6a683fbf800de58cb6c9eee4409b5f95",
         "type": "github"
       },
       "original": {
@@ -1314,11 +1314,11 @@
     },
     "nur": {
       "locked": {
-        "lastModified": 1684824332,
-        "narHash": "sha256-+jW70lmtGM0dRy1V0b/d2TRKO4QBMC9pLodi2XCjBow=",
+        "lastModified": 1684824758,
+        "narHash": "sha256-XsjaDug+5cUaUQ1xHgc2jhS1w0V4HBY8UfVgs+jpFgg=",
         "owner": "nix-community",
         "repo": "NUR",
-        "rev": "532cfa785cbd42f82d600de6c7adabc75f9cc1e9",
+        "rev": "d4f6656104ef49b0eeb3c9dd6cb87773904375e7",
         "type": "github"
       },
       "original": {
