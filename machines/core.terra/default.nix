@@ -29,7 +29,7 @@
     ./restic.nix
     # ./gh-runner.nix
     ./postfix.nix
-    ./libvirt.nix
+    # ./libvirt.nix # TODO(kradalby): Figure out why it breaks coreDNS, binds 53
     ./hugin.nix
     ./postgres.nix
     ./immich.nix
