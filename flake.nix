@@ -56,6 +56,7 @@
     nurl.url = "github:nix-community/nurl";
     nixinit.url = "github:nix-community/nix-init";
     devenv.url = "github:cachix/devenv/latest";
+    nixd.url = "github:nix-community/nixd";
 
     neovim-kradalby.url = "github:kradalby/neovim";
     webpage.url = "github:kradalby/webpage/rust";
@@ -89,6 +90,7 @@
     nurl,
     nixinit,
     devenv,
+    nixd,
     neovim-kradalby,
     webpage,
     ...
@@ -118,6 +120,7 @@
         inherit (devenv.packages."${prev.system}") devenv;
         nurl = nurl.packages."${prev.system}".default;
         nix-init = nixinit.packages."${prev.system}".default;
+        nixd = nixd.packages."${prev.system}".default;
         neovim = neovim-kradalby.packages."${prev.system}".neovim-kradalby;
         kradalby = webpage.packages."${prev.system}".kradalby;
       })

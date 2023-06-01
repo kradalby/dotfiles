@@ -9,11 +9,12 @@
 
     # LSP
     efm-langserver
-    gopls
+    unstable.gopls
     nil
     nodePackages.yaml-language-server
     nodePackages.vscode-langservers-extracted
     rnix-lsp
+    nixd
     sumneko-lua-language-server
     terraform-ls
     buf-language-server
