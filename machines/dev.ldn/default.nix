@@ -48,6 +48,10 @@ in {
       "${config.my.wan}" = {
         useDHCP = true;
       };
+
+      "wlp0s20f3" = {
+        useDHCP = true;
+      };
     };
 
     wireless = {
