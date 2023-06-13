@@ -10,7 +10,14 @@
   ];
 
   boot.initrd.availableKernelModules = ["xhci_pci" "ahci" "nvme" "thunderbolt" "usb_storage" "usbhid" "sd_mod"];
-  boot.initrd.kernelModules = ["iwlwifi"];
+  # boot.initrd.kernelModules = ["iwlwifi"];
+  boot.kernelPatches = [
+    {
+      name = "iwlwifi-nuc13"; # descriptive name, required
+
+      patch = ./0001-add-AX1690i-for-NUC-13.patch;
+    }
+  ];
   boot.kernelModules = ["kvm-intel"];
   boot.extraModulePackages = [];
 
