@@ -47,7 +47,6 @@
     deadnix.url = "github:astro/deadnix";
     alejandra.url = "github:kamadorueda/alejandra";
     headscale.url = "github:juanfont/headscale";
-    # headscale.url = "github:kradalby/headscale/ios-prefix";
     colmena.url = "github:zhaofengli/colmena";
 
     hugin.url = "github:kradalby/hugin";
