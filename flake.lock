@@ -654,15 +654,16 @@
         "nixpkgs": "nixpkgs_7"
       },
       "locked": {
-        "lastModified": 1686234855,
-        "narHash": "sha256-O1r9mcGxIcsqIlHe8y+I+Ylw6hnSuPM8Als7DhhEe8I=",
+        "lastModified": 1683878976,
+        "narHash": "sha256-nqmTqe3F3Oh8rnJH0clwACD/0RpqmfOMXNubr3C8rEc=",
         "owner": "juanfont",
         "repo": "headscale",
-        "rev": "0562260fe021e7a05b9e2c6f0e2dd4f310e41ae8",
+        "rev": "b01f1f1867136d9b2d7b1392776eb363b482c525",
         "type": "github"
       },
       "original": {
         "owner": "juanfont",
+        "ref": "v0.22.3",
         "repo": "headscale",
         "type": "github"
       }
