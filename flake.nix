@@ -2,13 +2,9 @@
   description = "kradalby's system config";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.11";
-    nixpkgs-darwin.url = "github:NixOS/nixpkgs/nixpkgs-22.11-darwin";
-
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.05";
+    nixpkgs-darwin.url = "github:NixOS/nixpkgs/nixpkgs-23.05-darwin";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    nixpkgs-master.url = "github:NixOS/nixpkgs/master";
-    nixpkgs-staging.url = "github:NixOS/nixpkgs/staging";
-    nixpkgs-staging-next.url = "github:NixOS/nixpkgs/staging-next";
 
     nixpkgs-hardware.url = "github:NixOS/nixos-hardware";
 
@@ -18,62 +14,74 @@
     darwin-unstable.url = "github:lnl7/nix-darwin/master";
     darwin-unstable.inputs.nixpkgs.follows = "nixpkgs-unstable";
 
-    darwin-master.url = "github:lnl7/nix-darwin/master";
-    darwin-master.inputs.nixpkgs.follows = "nixpkgs-master";
-
-    darwin-staging.url = "github:lnl7/nix-darwin/master";
-    darwin-staging.inputs.nixpkgs.follows = "nixpkgs-staging";
-
-    home-manager.url = "github:nix-community/home-manager/release-22.11";
+    home-manager.url = "github:nix-community/home-manager/release-23.05";
     home-manager-unstable.url = "github:nix-community/home-manager/master";
     home-manager-unstable.inputs.nixpkgs.follows = "nixpkgs-unstable";
 
-    ragenix.url = "github:yaxitech/ragenix";
-
     nur.url = "github:nix-community/NUR";
-
-    fenix = {
-      url = "github:nix-community/fenix";
-      # inputs.nixpkgs.follows = "nixpkgs";
-    };
 
     nixos-generators = {
       url = "github:nix-community/nixos-generators";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    flake-utils.url = "github:numtide/flake-utils";
+    utils.url = "github:numtide/flake-utils";
 
-    deadnix.url = "github:astro/deadnix";
-    alejandra.url = "github:kamadorueda/alejandra";
-    headscale.url = "github:juanfont/headscale/v0.22.3";
-    colmena.url = "github:zhaofengli/colmena";
+    fenix = {
+      url = "github:nix-community/fenix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
-    hugin.url = "github:kradalby/hugin";
-    munin.url = "github:kradalby/munin";
-    golink.url = "github:tailscale/golink";
+    # Rust based
+    nixinit = {
+      url = "github:nix-community/nix-init";
+      inputs.fenix.follows = "fenix";
+    };
+
+    alejandra = {
+      url = "github:kamadorueda/alejandra";
+      inputs.fenix.follows = "fenix";
+    };
+
+    colmena = {
+      url = "github:zhaofengli/colmena/v0.4.0";
+      inputs."flake-utils".follows = "utils";
+    };
+
+    deadnix = {
+      url = "github:astro/deadnix";
+      inputs."utils".follows = "utils";
+    };
+
+    ragenix = {
+      url = "github:yaxitech/ragenix";
+      inputs."flake-utils".follows = "utils";
+    };
+
+    webpage = {
+      url = "github:kradalby/webpage/rust";
+      inputs."utils".follows = "utils";
+    };
+
     nurl.url = "github:nix-community/nurl";
-    nixinit.url = "github:nix-community/nix-init";
-    devenv.url = "github:cachix/devenv/latest";
-    nixd.url = "github:nix-community/nixd";
 
+    # Go based
+    headscale.url = "github:juanfont/headscale/v0.22.3";
+    hugin.url = "github:kradalby/hugin";
+    golink.url = "github:tailscale/golink";
+
+    munin.url = "github:kradalby/munin";
+    nixd.url = "github:nix-community/nixd";
+    devenv.url = "github:cachix/devenv/latest";
     neovim-kradalby.url = "github:kradalby/neovim";
-    webpage.url = "github:kradalby/webpage/rust";
   };
 
   outputs = {
     self,
     nixpkgs,
     nixpkgs-unstable,
-    nixpkgs-master,
-    nixpkgs-staging,
-    nixpkgs-staging-next,
     darwin,
-    darwin-unstable,
-    darwin-master,
-    darwin-staging,
     home-manager,
-    home-manager-unstable,
     ragenix,
     nur,
     fenix,
@@ -94,12 +102,9 @@
     webpage,
     ...
   } @ flakes: let
-    overlay-pkgs = final: prev: {
+    overlay-pkgs = final: _: {
       stable = import nixpkgs {inherit (final) system;};
       unstable = import nixpkgs-unstable {inherit (final) system;};
-      master = import nixpkgs-master {inherit (final) system;};
-      staging = import nixpkgs-staging {inherit (final) system;};
-      staging-next = import nixpkgs-staging-next {inherit (final) system;};
     };
 
     overlays = [
@@ -117,11 +122,11 @@
       (import ./pkgs/overlays {})
       (final: prev: {
         inherit (devenv.packages."${prev.system}") devenv;
+        inherit (webpage.packages."${prev.system}") kradalby;
         nurl = nurl.packages."${prev.system}".default;
         nix-init = nixinit.packages."${prev.system}".default;
         nixd = nixd.packages."${prev.system}".default;
         neovim = neovim-kradalby.packages."${prev.system}".neovim-kradalby;
-        kradalby = webpage.packages."${prev.system}".kradalby;
       })
     ];
 
@@ -213,11 +218,14 @@
       // builtins.mapAttrs
       (name: value: {
         deployment.buildOnTarget =
-          # TODO(kradalby): aarch64 linux machines get grumpy about some
-          # delegation stuff
-          if value.config.nixpkgs.system == "aarch64-linux"
-          then true
-          else false;
+          if name == "core.terra"
+          then false
+          else true;
+        # TODO(kradalby): aarch64 linux machines get grumpy about some
+        # delegation stuff
+        # if value.config.nixpkgs.system == "aarch64-linux"
+        # then true
+        # else false;
         nixpkgs.system = value.config.nixpkgs.system;
         imports = value._module.args.modules;
       })

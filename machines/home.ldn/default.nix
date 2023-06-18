@@ -55,8 +55,6 @@
     interfaces.wlan0.useDHCP = false;
   };
 
-  boot.cleanTmpDir = true;
-
   monitoring.smartctl.devices = ["/dev/sda"];
 
   # This value determines the NixOS release from which the default

@@ -37,7 +37,7 @@ in
 
     umami = prev.callPackage ./umami.nix {};
 
-    gitutil = prev.callPackage ./gitutil.nix {};
+    # gitutil = prev.callPackage ./gitutil.nix {};
 
     # osxphotos = prev.callPackage ./osxphotos.nix {};
 

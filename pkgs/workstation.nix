@@ -42,7 +42,7 @@
       nurl
       nix-init
       python310Packages.pipx
-      gitutil
+      # gitutil
       act
       devenv
       dive

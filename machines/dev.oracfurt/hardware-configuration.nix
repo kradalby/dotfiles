@@ -4,7 +4,6 @@
   # boot.binfmt.emulatedSystems = [ "amd64-linux" ];
 
   boot.growPartition = true;
-  boot.cleanTmpDir = true;
   boot.initrd.kernelModules = ["nvme"];
   boot.loader.grub = {
     efiSupport = true;

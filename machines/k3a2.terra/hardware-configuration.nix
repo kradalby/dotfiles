@@ -8,6 +8,5 @@
     fsType = "ext4";
   };
 
-  boot.cleanTmpDir = true;
   zramSwap.enable = true;
 }

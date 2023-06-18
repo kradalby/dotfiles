@@ -10,7 +10,11 @@
 
   boot = {
     kernelPackages = pkgs.linuxPackages_rpi4;
-    tmpOnTmpfs = true;
+
+    tmp = {
+      useTmpfs = true;
+    };
+
     initrd.availableKernelModules = ["xhci_pci" "uas" "usbhid" "usb_storage"];
     kernelParams = [
       "8250.nr_uarts=1"

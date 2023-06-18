@@ -12,11 +12,11 @@
 in
   # lib.mkMerge [
   {
-    disabledModules = ["services/networking/unifi.nix"];
-
-    imports = [
-      "${flakes.nixpkgs-unstable}/nixos/modules/services/networking/unifi.nix"
-    ];
+    # disabledModules = ["services/networking/unifi.nix"];
+    #
+    # imports = [
+    #   "${flakes.nixpkgs-unstable}/nixos/modules/services/networking/unifi.nix"
+    # ];
 
     services.unifi = {
       unifiPackage = pkgs.unstable.unifi.overrideAttrs (attrs: {
@@ -75,4 +75,3 @@ in
 #     '';
 #   })
 # ]
-

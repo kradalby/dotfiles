@@ -48,8 +48,6 @@
     ATTR{address}=="52:54:00:7e:ff:c8", NAME="${config.my.lan}"
   '';
 
-  boot.cleanTmpDir = true;
-
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
   # on your system were taken. It‘s perfectly fine and recommended to leave
