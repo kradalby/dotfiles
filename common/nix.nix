@@ -40,7 +40,6 @@
     registry = {
       nixos.flake = flakes.nixpkgs;
       nixos-unstable.flake = flakes.nixpkgs-unstable;
-      nixos-master.flake = flakes.nixpkgs-master;
     };
   };
 

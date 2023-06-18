@@ -18,7 +18,11 @@
   boot = {
     kernelPackages = pkgs.linuxPackagesNanopiNeo2;
     consoleLogLevel = lib.mkDefault 7;
-    tmpOnTmpfs = true;
+
+    tmp = {
+      useTmpfs = true;
+    };
+
     kernelParams = [
       "cma=32M"
       "console=ttyS2,115200n8"

@@ -22,6 +22,7 @@ in {
 
   config = {
     # age.secrets.r.file = ../secrets/r.age;
+    programs.fish.enable = true;
 
     users = {
       users = {

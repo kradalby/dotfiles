@@ -49,15 +49,15 @@ in {
       #
       #   publicHostKey = "c3NoLWVkMjU1MTkgQUFBQUMzTnphQzFsWkRJMU5URTVBQUFBSUdFenhqcHM1OGFJcncxWnhnRFV1ajFXN1QzQng2WmJPNlEzNGEweGoyQkEgcm9vdEBjb3JlCg==";
       # }
-      {
-        hostName = "core.tjoda.fap.no";
-        systems = ["x86_64-linux"];
-        sshUser = "root";
-        sshKey = "/Users/kradalby/.ssh/id_ed25519";
-        maxJobs = 3;
-        supportedFeatures = ["big-parallel" "kvm" "nixos-test"];
-        publicHostKey = "c3NoLWVkMjU1MTkgQUFBQUMzTnphQzFsWkRJMU5URTVBQUFBSUJTcUVoTExkczhzaHc4SE1PU3BOOFVNQkZqTFBUQ3lnMVRqSEtxWHZtMVcgcm9vdEBuaXhvcwo=";
-      }
+      # {
+      #   hostName = "core.tjoda.fap.no";
+      #   systems = ["x86_64-linux"];
+      #   sshUser = "root";
+      #   sshKey = "/Users/kradalby/.ssh/id_ed25519";
+      #   maxJobs = 3;
+      #   supportedFeatures = ["big-parallel" "kvm" "nixos-test"];
+      #   publicHostKey = "c3NoLWVkMjU1MTkgQUFBQUMzTnphQzFsWkRJMU5URTVBQUFBSUJTcUVoTExkczhzaHc4SE1PU3BOOFVNQkZqTFBUQ3lnMVRqSEtxWHZtMVcgcm9vdEBuaXhvcwo=";
+      # }
       {
         hostName = "core.oracldn.fap.no";
         systems = ["aarch64-linux"];

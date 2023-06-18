@@ -5,8 +5,11 @@
 }: {
   imports = [(modulesPath + "/profiles/qemu-guest.nix")];
 
-  boot.tmpOnTmpfs = lib.mkForce false;
-  boot.cleanTmpDir = true;
+  boot.tmp = {
+    useTmpfs = lib.mkForce false;
+    cleanOnBoot = true;
+  };
+
   boot.initrd.kernelModules = ["nvme"];
   boot.loader.grub = {
     efiSupport = true;

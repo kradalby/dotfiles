@@ -6,7 +6,6 @@
 }: {
   boot.loader.grub = {
     enable = true;
-    version = 2;
     device = "/dev/disk/by-id/scsi-3600508b1001c721ab38cf39e04d065d6";
   };
 
