@@ -70,7 +70,7 @@ in {
       {
         hostName = "dev.oracfurt.fap.no";
         systems = ["aarch64-linux"];
-        sshUser = "kradalby";
+        sshUser = "root";
         sshKey = "/Users/kradalby/.ssh/id_ed25519";
         maxJobs = 3;
         supportedFeatures = ["big-parallel" "kvm" "nixos-test"];
