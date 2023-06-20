@@ -217,10 +217,7 @@
       }
       // builtins.mapAttrs
       (name: value: {
-        deployment.buildOnTarget =
-          if name == "core.terra"
-          then false
-          else true;
+        deployment.buildOnTarget = false;
         # TODO(kradalby): aarch64 linux machines get grumpy about some
         # delegation stuff
         # if value.config.nixpkgs.system == "aarch64-linux"
