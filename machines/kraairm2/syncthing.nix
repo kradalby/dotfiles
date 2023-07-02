@@ -1,10 +1,4 @@
-{
-  config,
-  flakes,
-  pkgs,
-  lib,
-  ...
-}: let
+{config, ...}: let
   cfg = import ../../metadata/syncthing.nix;
 in {
   imports = [../../modules/syncthing.nix];
@@ -30,25 +24,25 @@ in {
           id = "vpgyn-cj2mg";
           path = "/Volumes/storage/software";
           devices = cfg.storage;
-          type = "sendonly";
+          type = "sendreceive";
         };
         "/storage/books" = {
           id = "ww4gn-xgy9i";
           path = "/Volumes/storage/books";
           devices = cfg.storage;
-          type = "sendonly";
+          type = "sendreceive";
         };
         "/storage/pictures" = {
           id = "orqnv-bg72d";
           path = "/Volumes/storage/pictures";
           devices = cfg.storage;
-          type = "sendonly";
+          type = "sendreceive";
         };
         "/storage/backup" = {
           id = "9bjac-k65uu";
           path = "/Volumes/storage/backup";
           devices = cfg.storage;
-          type = "sendonly";
+          type = "sendreceive";
         };
         "/fast/hugin" = {
           id = "dd5mf-nwmas";
