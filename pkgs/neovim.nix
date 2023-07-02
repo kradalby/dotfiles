@@ -13,8 +13,8 @@
     nil
     nodePackages.yaml-language-server
     nodePackages.vscode-langservers-extracted
-    rnix-lsp
-    # nixd
+    # rnix-lsp
+    nixd
     sumneko-lua-language-server
     terraform-ls
     buf-language-server
