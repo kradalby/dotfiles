@@ -21,7 +21,7 @@
   };
 
   services.ddclient = {
-    enable = true;
+    enable = false;
     domains = [config.networking.domain];
     zone = "fap.no";
     ipv6 = true;
