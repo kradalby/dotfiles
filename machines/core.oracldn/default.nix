@@ -31,7 +31,6 @@
     # ./glauth.nix
     ./nextcloud.nix
     ./minio.nix
-    ./rustdesk-server.nix
 
     # ../../modules/umami.nix
     # ./umami.nix
@@ -41,10 +40,6 @@
 
   my.wan = "enp0s3";
   my.lan = "enp1s0";
-
-  environment.systemPackages = with pkgs; [
-    rustdesk-server
-  ];
 
   networking = {
     hostName = "core";
