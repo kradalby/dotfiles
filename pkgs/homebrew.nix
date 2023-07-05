@@ -80,7 +80,7 @@ _: {
       # "tor-browser"
       # "transmission"
       # "tunnelblick"
-      # "visual-studio-code"
+      "visual-studio-code"
 
       # Decompilers and reverse engineering
       # "temurin"
