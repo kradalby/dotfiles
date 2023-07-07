@@ -39,6 +39,7 @@
     domain,
     proxyPass,
     proxyWebsockets ? true,
+    basicAuthFile ? null,
   }: {
     security.acme.certs."${domain}".domain = domain;
 
@@ -49,6 +50,7 @@
         inherit proxyPass;
         inherit proxyWebsockets;
       };
+      inherit basicAuthFile;
       extraConfig = ''
         access_log /var/log/nginx/${domain}.access.log;
       '';

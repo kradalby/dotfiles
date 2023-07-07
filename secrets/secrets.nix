@@ -124,6 +124,7 @@ in
 
     # hugin
     "hugin-tskey.age".publicKeys = u ++ [hosts.core-terra];
+    "hugin-basicauth.age".publicKeys = u ++ [hosts.core-terra];
 
     # immich
     "immich-env.age".publicKeys = u ++ [hosts.core-terra];
