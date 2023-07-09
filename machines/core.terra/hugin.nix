@@ -24,6 +24,11 @@ in
         owner = "nginx";
       };
 
+      age.secrets.hugin-tokens = {
+        file = ../../secrets/hugin-tokens.age;
+        owner = "storage";
+      };
+
       services.hugin = {
         enable = true;
         tailscaleKeyPath = config.age.secrets.hugin-tskey.path;
@@ -34,6 +39,8 @@ in
         group = "storage";
 
         album = "/fast/hugin/album";
+
+        environmentFile = config.age.secrets.hugin-tokens.path;
       };
     }
     vhost
