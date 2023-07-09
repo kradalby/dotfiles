@@ -23,7 +23,7 @@ in
         meta = attrs.meta // {license = lib.licenses.mit;};
       });
       # jrePackage = pkgs.unstable.jre8;
-      mongodbPackage = pkgs.mongodb;
+      # mongodbPackage = pkgs.mongodb;
       enable = true;
       openFirewall = true;
 
