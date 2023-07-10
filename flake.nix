@@ -38,21 +38,6 @@
       inputs.fenix.follows = "fenix";
     };
 
-    alejandra = {
-      url = "github:kamadorueda/alejandra";
-      inputs.fenix.follows = "fenix";
-    };
-
-    colmena = {
-      url = "github:zhaofengli/colmena/v0.4.0";
-      inputs."flake-utils".follows = "utils";
-    };
-
-    deadnix = {
-      url = "github:astro/deadnix";
-      inputs."utils".follows = "utils";
-    };
-
     ragenix = {
       url = "github:yaxitech/ragenix";
       inputs."flake-utils".follows = "utils";
@@ -63,15 +48,12 @@
       inputs."utils".follows = "utils";
     };
 
-    nurl.url = "github:nix-community/nurl";
-
     # Go based
     headscale.url = "github:juanfont/headscale/v0.22.3";
     hugin.url = "github:kradalby/hugin";
     golink.url = "github:tailscale/golink";
 
     munin.url = "github:kradalby/munin";
-    nixd.url = "github:nix-community/nixd";
     devenv.url = "github:cachix/devenv/latest";
     neovim-kradalby.url = "github:kradalby/neovim";
   };
@@ -87,17 +69,12 @@
     fenix,
     nixos-generators,
     flake-utils,
-    deadnix,
-    alejandra,
     headscale,
-    colmena,
     hugin,
     munin,
     golink,
-    nurl,
     nixinit,
     devenv,
-    nixd,
     neovim-kradalby,
     webpage,
     ...
@@ -112,20 +89,15 @@
       overlay-pkgs
       fenix.overlays.default
       ragenix.overlays.default
-      deadnix.overlays.default
-      alejandra.overlay
       headscale.overlay
-      colmena.overlay
       hugin.overlay
       munin.overlay
       golink.overlay
       (import ./pkgs/overlays {})
-      (final: prev: {
+      (_: prev: {
         inherit (devenv.packages."${prev.system}") devenv;
         inherit (webpage.packages."${prev.system}") kradalby;
-        nurl = nurl.packages."${prev.system}".default;
         nix-init = nixinit.packages."${prev.system}".default;
-        nixd = nixd.packages."${prev.system}".default;
         neovim = neovim-kradalby.packages."${prev.system}".neovim-kradalby;
       })
     ];
