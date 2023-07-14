@@ -44,6 +44,9 @@
         gc = "git commit -s";
         gcm = "git commit -s -m";
 
+        gt = "go test";
+        gta = "go test ./...";
+
         # Kubernetes
         k = "kubectl";
         kg = "kubectl get";
