@@ -94,6 +94,13 @@
         ju = "journalctl -u";
         jfu = "journalctl -fu";
 
+        # docker
+        dl = "docker logs";
+        dlf = "docker logs -f";
+        dka = "docker kill (docker ps -q)";
+        dsp = "docker system prune -af";
+        dnp = "docker network prune -f";
+
         m = "make";
         n = "nvim";
         o = "open";
