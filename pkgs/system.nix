@@ -41,6 +41,7 @@
       rsync
       viddy
       zstd
+      ncdu
 
       # Nix tooling
       nix-diff
@@ -58,8 +59,5 @@
     ++ lib.optionals stdenv.isLinux [
       nftables
       usbutils
-
-      # This keeps breaking on macOS
-      ncdu
     ];
 }
