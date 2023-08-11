@@ -38,6 +38,13 @@ windows:
       root: ~/git/tailscale
   - tailscale:
       root: ~/git/tailscale
+  - dev:
+      root: ~/git/headscale
+      panes:
+        - mosh:
+            - mosh kradalby@dev.ldn
+  - headscale:
+      root: ~/git/headscale
   - headscale:
       root: ~/git/headscale
   - headscale:
