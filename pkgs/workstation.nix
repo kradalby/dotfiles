@@ -69,7 +69,7 @@
       # swiftlint
       # clang-format
       # hclfmt
-      docker
+      unstable.docker_24
     ]
     ++ lib.optionals stdenv.isDarwin [
       unstable.lima
