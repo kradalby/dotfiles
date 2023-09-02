@@ -1,5 +1,4 @@
 {
-  config,
   pkgs,
   lib,
   ...
@@ -17,13 +16,15 @@
     tmuxinator.enable = true;
 
     extraConfig = ''
+
       color_status_text="colour245"
       color_window_off_status_bg="colour238"
       color_light="white" #colour015
       color_dark="colour232" # black= colour232
       color_window_off_status_current_bg="colour254"
 
-      set -as terminal-overrides ",gnome*:Tc"
+      # Fix colours within tmux
+      set -as terminal-overrides ",xterm*:Tc"
 
       new-session -n $HOST
 
@@ -104,7 +105,7 @@
 
       # }
 
-
+      set-option -g renumber-windows on
 
       # loud or quiet?
       set-option -g visual-activity off
