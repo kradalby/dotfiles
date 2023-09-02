@@ -69,7 +69,6 @@
       # swiftlint
       # clang-format
       # hclfmt
-      unstable.docker_24
     ]
     ++ lib.optionals stdenv.isDarwin [
       unstable.lima
@@ -83,6 +82,9 @@
 
       virt-manager
       qemu
+
+      # We cant use the newest docker on macOS yet
+      docker
 
       (pkgs.writeScriptBin
         "pamtouchfix"
@@ -101,5 +103,6 @@
     ]
     ++ lib.optionals stdenv.isLinux [
       # swift
+      unstable.docker_24
     ];
 }
