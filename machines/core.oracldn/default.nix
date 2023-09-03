@@ -31,6 +31,8 @@
     # ./glauth.nix
     ./nextcloud.nix
     ./minio.nix
+    ./stirling-pdf.nix
+    ./ghostfolio.nix
 
     # ../../modules/umami.nix
     # ./umami.nix

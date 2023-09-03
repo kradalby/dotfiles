@@ -5,6 +5,7 @@
     "glauth"
     "nextcloud"
     "umami"
+    "ghostfolio"
   ];
 
   my.postgres.extraBackups = [
