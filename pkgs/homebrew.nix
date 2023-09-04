@@ -82,6 +82,10 @@ _: {
       # "tunnelblick"
       "visual-studio-code"
 
+      # For quiz!
+      "vlc"
+      "audacity"
+
       # Decompilers and reverse engineering
       # "temurin"
       # "ghidra"
