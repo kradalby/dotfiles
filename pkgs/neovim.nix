@@ -24,6 +24,7 @@
     elmPackages.elm-language-server
     nodePackages.typescript-language-server
     nodePackages.typescript
+    nodePackages_latest.pyright
 
     # EFM
     buf
