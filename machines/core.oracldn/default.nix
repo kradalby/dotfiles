@@ -37,7 +37,7 @@
     # ../../modules/umami.nix
     # ./umami.nix
     ./golink.nix
-    ./webpage.nix
+    # ./webpage.nix
   ];
 
   my.wan = "enp0s3";
@@ -117,7 +117,7 @@
         21116 # Rustdesk
       ];
 
-      trustedInterfaces = [config.my.lan];
+      trustedInterfaces = [config.my.lan "docker0"];
     };
   };
 

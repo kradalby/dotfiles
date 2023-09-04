@@ -24,6 +24,12 @@
 
       package = pkgs.postgresql_14;
 
+      enableTCPIP = true;
+
+      authentication = ''
+        host  ghostfolio  ghostfolio  172.17.0.1/16   trust
+      '';
+
       ensureUsers =
         builtins.map
         (

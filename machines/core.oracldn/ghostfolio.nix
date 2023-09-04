@@ -5,7 +5,7 @@
   ...
 }: let
   domain = "folio.fap.no";
-  port = 68457;
+  port = 63457;
   nginx = import ../../common/funcs/nginx.nix {inherit config lib;};
 
   vhost = nginx.internalVhost {
@@ -42,8 +42,9 @@ in
           "3333:${toString port}/tcp"
         ];
         environment = {
-          # DATABASE_URL = "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?connect_timeout=300&sslmode=prefer";
-          DATABASE_URL = "postgres:///ghostfolio?host=/run/postgresql";
+          ACCESS_TOKEN_SALT = "bg#cnuVNbP9TqSKpPT&KD#w8m@$Y7&Yc";
+          JWT_SECRET_KEY = "F5&VA8bsLSfcQHxB!izq3qfUvm^JysQJ";
+          DATABASE_URL = "postgresql://ghostfolio@172.17.0.1/ghostfolio";
           NODE_ENV = "production";
           # REDIS_HOST = "redis";
           # REDIS_PASSWORD = config.services.redis.servers.ghostfolio.requirePass;
