@@ -136,4 +136,7 @@ in
 
     # WIFI
     "ldn-wifi.age".publicKeys = u ++ [hosts.dev-ldn];
+
+    # ghostfolio
+    "ghostfolio-env.age".publicKeys = u ++ [hosts.core-oracldn];
   }

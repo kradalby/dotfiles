@@ -5,7 +5,7 @@
   ...
 }: let
   domain = "pdf.fap.no";
-  port = 68456;
+  port = 63456;
   nginx = import ../../common/funcs/nginx.nix {inherit config lib;};
 
   vhost = nginx.internalVhost {
@@ -31,7 +31,7 @@ in
         user = config.users.users.stirling.uid;
         autoStart = true;
         ports = [
-          "8080:${toString port}/tcp"
+          "${toString port}:8080/tcp"
         ];
         environment = {};
         volumes = [
