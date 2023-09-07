@@ -78,6 +78,7 @@ _: {
       # "transmission"
       # "tunnelblick"
       "visual-studio-code"
+      "hot"
 
       # For quiz!
       "vlc"
