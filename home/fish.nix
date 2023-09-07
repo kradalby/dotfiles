@@ -44,6 +44,7 @@
       fishReorderPath = path: "fish_add_path --move --prepend ${path}";
 
       path = [
+        (fishReorderPath "/opt/homebrew/sbin")
         (fishReorderPath "/nix/var/nix/profiles/default/bin")
         (fishReorderPath "/etc/profiles/per-user/$USER/bin")
         (fishReorderPath "/run/current-system/sw/bin")
