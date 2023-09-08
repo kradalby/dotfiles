@@ -32,6 +32,7 @@ in {
   };
 
   networking = {
+    hostId = "58808be0";
     hostName = "dev";
     domain = "ldn.fap.no";
     nameservers = [
