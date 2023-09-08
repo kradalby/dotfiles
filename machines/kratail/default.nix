@@ -80,7 +80,6 @@
       "webex"
       "wireshark"
       "zoom"
-      "krispr"
     ];
   };
   system.defaults.smb.NetBIOSName = machine.hostname;
