@@ -9,23 +9,27 @@
     (modulesPath + "/installer/scan/not-detected.nix")
   ];
 
-  boot.kernelPackages = pkgs.linuxPackagesFor (pkgs.linux_6_5.override {
-    argsOverride = rec {
-      src = pkgs.fetchurl {
-        url = "mirror://kernel/linux/kernel/v6.x/linux-${version}.tar.xz";
-        sha256 = "sha256-I3Zd1EQlRizZKtvuUmcGCP1/P9GDqDslunp7SIPQRRs=";
-      };
-      version = "6.5.1";
-      modDirVersion = "6.5.1";
-    };
-  });
-  # boot.kernelPatches = [
-  #   {
-  #     name = "iwlwifi-nuc13"; # descriptive name, required
-  #
-  #     patch = ./0001-add-AX1690i-for-NUC-13.patch;
-  #   }
-  # ];
+  # boot.kernelPackages = pkgs.linuxPackagesFor (pkgs.linux_6_5.override {
+  #   argsOverride = rec {
+  #     src = pkgs.fetchurl {
+  #       url = "mirror://kernel/linux/kernel/v6.x/linux-${version}.tar.xz";
+  #       sha256 = "sha256-I3Zd1EQlRizZKtvuUmcGCP1/P9GDqDslunp7SIPQRRs=";
+  #     };
+  #     version = "6.5.1";
+  #     modDirVersion = "6.5.1";
+  #   };
+  # });
+
+  # This is fixed in modern kernels, but the ZFS module is not
+  # available for it atm, so we use whatever kernel Nixpkgs has
+  # plus this patch.
+  boot.kernelPatches = [
+    {
+      name = "iwlwifi-nuc13"; # descriptive name, required
+
+      patch = ./0001-add-AX1690i-for-NUC-13.patch;
+    }
+  ];
 
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
@@ -34,7 +38,14 @@
   boot.initrd.availableKernelModules = ["xhci_pci" "ahci" "nvme" "thunderbolt" "usb_storage" "usbhid" "sd_mod"];
   boot.kernelModules = ["kvm-intel"];
   boot.extraModulePackages = [];
-  boot.extraModprobeConfig = "options vfio-pci ids=10de:1c03,10de:10f1";
+
+  # zpool create -f -O canmount=on -O mountpoint=/fast -O compression=zstd -O atime=off -O xattr=sa -O acltype=posixacl fast /dev/nvme1n1 /dev/nvme2n1
+  # zfs create -o canmount=off fast/windows
+  # zfs create -o canmount=on -o mountpoint=/fast/vm fast/vm
+  boot.supportedFilesystems = ["zfs"];
+  boot.zfs.extraPools = [
+    "fast"
+  ];
 
   fileSystems = {
     "/" = {
@@ -45,11 +56,6 @@
     "/boot" = {
       device = "/dev/disk/by-uuid/E376-D24E";
       fsType = "vfat";
-    };
-
-    "/fast" = {
-      device = "/dev/disk/by-label/fast";
-      fsType = "ext4";
     };
   };
 

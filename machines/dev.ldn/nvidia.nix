@@ -1,4 +1,13 @@
-{pkgs, ...}: {
+{
+  pkgs,
+  lib,
+  ...
+}: let
+  gpuIDs = [
+    "10de:1c03" # Graphics
+    "10de:10f1" # Audio
+  ];
+in {
   environment.systemPackages = with pkgs; [
     cudaPackages.cudatoolkit
     pciutils
@@ -7,18 +16,29 @@
     OVMF
   ];
 
-  boot.kernelParams = ["intel_iommu=on"];
+  boot.kernelParams = ["intel_iommu=on" ("vfio-pci.ids=" + lib.concatStringsSep "," gpuIDs)];
 
+  boot.blacklistedKernelModules = ["nouveau"];
   # These modules are required for PCI passthrough, and must come before early modesetting stuff
-  boot.kernelModules = ["vfio" "vfio_iommu_type1" "vfio_pci" "vfio_virqfd"];
+  boot.kernelModules = [
+    "vfio"
+    "vfio_iommu_type1"
+    "vfio_pci"
+    "vfio_virqfd"
 
-  # CHANGE: Don't forget to put your own PCI IDs here
-  # boot.extraModprobeConfig = "options vfio-pci ids=1002:67b1,1002:aac8";
+    "nvidia"
+    "nvidia_modeset"
+    "nvidia_uvm"
+    "nvidia_drm"
+  ];
+
+  hardware.opengl.enable = true;
+  virtualisation.spiceUSBRedirection.enable = true;
 
   virtualisation.libvirtd.enable = true;
   virtualisation.libvirtd.qemu.package = pkgs.qemu_kvm;
 
-  virtualisation.libvirtd.qemuVerbatimConfig = ''
+  virtualisation.libvirtd.qemu.verbatimConfig = ''
     nvram = [ "${pkgs.OVMF}/FV/OVMF.fd:${pkgs.OVMF}/FV/OVMF_VARS.fd" ]
   '';
 
