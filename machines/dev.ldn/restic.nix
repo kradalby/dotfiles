@@ -9,13 +9,11 @@
 
   paths = [
     "/etc/nixos"
-    "/var/lib/kuma"
-    "/var/lib/step-ca"
-    config.services.postgresqlBackup.location
+    "/var/lib/libvirt/qemu/win10.xml"
   ];
 
   cfg = site: {
-    secret = "restic-dev-oracfurt-token";
+    secret = "restic-dev-ldn-token";
     inherit site;
     inherit paths;
   };

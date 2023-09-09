@@ -18,7 +18,7 @@ in {
     ../../common/coredns.nix
     ../../common/consul.nix
 
-    # ./restic.nix
+    ./restic.nix
     ./tailscale.nix
     ./nvidia.nix
     # ./syncthing.nix
