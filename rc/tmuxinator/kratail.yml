@@ -42,7 +42,7 @@ windows:
       root: ~/git/headscale
       panes:
         - mosh:
-            - mosh kradalby@dev.ldn
+            - eb -- mosh kradalby@dev.ldn
   - headscale:
       root: ~/git/headscale
   - headscale:
