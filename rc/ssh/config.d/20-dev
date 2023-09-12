@@ -1,0 +1,15 @@
+Host headscale-fran
+    HostName dev.oracfurt.fap.no
+    User kradalby
+    Port 22
+    ForwardAgent yes
+    RequestTTY yes
+    RemoteCommand tmuxinator start headscale
+
+Host headscale-ldn
+    HostName dev.ldn.fap.no
+    User kradalby
+    Port 22
+    ForwardAgent yes
+    RequestTTY yes
+    RemoteCommand tmuxinator start headscale
