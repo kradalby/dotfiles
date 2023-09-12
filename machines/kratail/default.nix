@@ -27,6 +27,7 @@
     settings = {
       trusted-users = [machine.username];
     };
+    buildMachines = import ../../common/buildmachines.nix;
   };
 
   users.users.kradalby = {
