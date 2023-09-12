@@ -1,4 +1,4 @@
-Host headscale-fran
+Host hs-fran
     HostName dev.oracfurt.fap.no
     User kradalby
     Port 22
@@ -6,7 +6,7 @@ Host headscale-fran
     RequestTTY yes
     RemoteCommand tmuxinator start headscale
 
-Host headscale-ldn
+Host hs-ldn
     HostName dev.ldn.fap.no
     User kradalby
     Port 22
