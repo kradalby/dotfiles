@@ -1,0 +1,27 @@
+---
+name: headscale
+root: ~/git/headscale
+startup_window: headscale
+
+# tmux_command: set-option mouse on
+
+windows:
+  - 0:
+  - headscale:
+      root: ~/git/headscale
+      panes:
+        - dev:
+            - git fetch origin
+            - git fetch upstream
+  - headscale:
+      root: ~/git/headscale
+      layout: 606b,263x72,0,0{131x72,0,0,9,131x72,132,0[131x36,132,0,12,131x35,132,37,13]}
+      panes:
+        - run:
+            - docker ps
+        - watch:
+            - watch docker ps
+        - other:
+            - git status
+  - headscale:
+      root: ~/git/headscale
