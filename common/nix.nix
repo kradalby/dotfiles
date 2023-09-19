@@ -41,6 +41,12 @@
       nixos.flake = flakes.nixpkgs;
       nixos-unstable.flake = flakes.nixpkgs-unstable;
     };
+
+    # This is an attempt to make nix-index work:
+    # https://github.com/nix-community/nix-index/issues/212
+    # currently does not look like its working on Darwin
+    nixPath = ["nixpkgs=${pkgs.outPath}"];
+    channel.enable = true;
   };
 
   nixpkgs.config = {
