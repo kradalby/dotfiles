@@ -25,6 +25,7 @@
     nodePackages.typescript-language-server
     nodePackages.typescript
     nodePackages_latest.pyright
+    ansible-language-server
 
     # EFM
     buf
