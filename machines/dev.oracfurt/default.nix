@@ -19,6 +19,7 @@
     ./restic.nix
     ./wireguard.nix
     ./tailscale.nix
+    ./tailscale-headscale.nix
     # ./openvpn.nix
     ./syncthing.nix
     ./webpage.nix
