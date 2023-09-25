@@ -140,4 +140,10 @@ in
 
     # ghostfolio
     "ghostfolio-env.age".publicKeys = u ++ [hosts.core-oracldn];
+
+    # Pre authenticated keys for joining my tailscale/headscale network
+    # this file is only used upon joining and will contain an expired key,
+    # or a key that can only be used once.
+    "tailscale-preauthkey.age".publicKeys = global;
+    "headscale-client-preauthkey.age".publicKeys = global;
   }
