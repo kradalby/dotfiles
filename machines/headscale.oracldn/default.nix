@@ -15,6 +15,7 @@
     ./restic.nix
     ./wireguard.nix
     ./tailscale.nix
+    ./tailscale-headscale.nix
     ./headscale.nix
     ./matterbridge.nix
     ./litestream.nix
