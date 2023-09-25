@@ -49,7 +49,7 @@
     };
 
     # Go based
-    headscale.url = "github:juanfont/headscale/v0.22.3";
+    headscale.url = "github:juanfont/headscale";
     hugin.url = "github:kradalby/hugin";
     golink.url = "github:tailscale/golink";
 
