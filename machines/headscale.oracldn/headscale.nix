@@ -8,6 +8,28 @@
   s = import ../../metadata/sites.nix {inherit lib config;};
   consul = import ../../common/funcs/consul.nix {inherit lib;};
   domain = "headscale.kradalby.no";
+  aclConfig = {
+    acls = [
+      {
+        action = "accept";
+        src = ["*"];
+        dst = ["*:*"];
+      }
+    ];
+
+    ssh = [
+      {
+        action = "accept";
+        src = ["kristoffer"];
+        dst = ["*"];
+        users = ["kradalby" "root"];
+      }
+    ];
+  };
+  aclPath = pkgs.writeTextFile {
+    name = "acl.hujson";
+    text = builtins.toJSON aclConfig;
+  };
 in {
   # disabledModules = ["services/networking/headscale.nix"];
   #
@@ -35,6 +57,8 @@ in {
 
     settings = {
       server_url = "https://${domain}";
+
+      acl_policy_path = aclPath;
 
       private_key_file = config.age.secrets.headscale-private-key.path;
 
