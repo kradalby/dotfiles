@@ -67,7 +67,12 @@ in {
   };
 
   config = mkIf cfg.enable {
-    environment.systemPackages = [cfg.package]; # for the CLI
+    environment.systemPackages = [
+      cfg.package
+      (pkgs.writeShellScriptBin "tailscale2" ''
+        ${cfg.package}/bin/tailscale --socket=${cfg.socketFile} "$@"
+      '')
+    ]; # for the CLI
     systemd.packages = [cfg.package];
     systemd.services.tailscaled2 = {
       wantedBy = ["multi-user.target"];
