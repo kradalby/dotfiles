@@ -20,6 +20,7 @@
     ./restic.nix
     ./wireguard.nix
     ./tailscale.nix
+    ./tailscale-headscale.nix
     ./kuma.nix
     ./monitoring.nix
     ./loki.nix
@@ -37,7 +38,7 @@
     # ../../modules/umami.nix
     # ./umami.nix
     ./golink.nix
-    # ./webpage.nix
+    ./webpage.nix
   ];
 
   my.wan = "enp0s3";
