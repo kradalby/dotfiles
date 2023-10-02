@@ -24,8 +24,8 @@ in {
     # ./syncthing.nix
   ];
 
-  my.wan = "enp2s0";
-  my.lan = "enp3s0";
+  my.wan = "enp3s0";
+  my.lan = "enp4s0";
 
   age.secrets.ldn-wifi = {
     file = ../../secrets/ldn-wifi.age;
@@ -42,6 +42,10 @@ in {
     usePredictableInterfaceNames = lib.mkForce true;
     interfaces = {
       "${config.my.wan}" = {
+        useDHCP = true;
+      };
+
+      "${config.my.lan}" = {
         useDHCP = true;
       };
 
