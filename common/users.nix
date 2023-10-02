@@ -24,12 +24,31 @@ in {
     # age.secrets.r.file = ../secrets/r.age;
     programs.fish.enable = true;
 
+    security.sudo = {
+      enable = true;
+      extraRules = [
+        {
+          commands = [
+            {
+              command = "${pkgs.systemd}/bin/reboot";
+              options = ["NOPASSWD"];
+            }
+            {
+              command = "${pkgs.systemd}/bin/poweroff";
+              options = ["NOPASSWD"];
+            }
+          ];
+          groups = ["wheel"];
+        }
+      ];
+    };
+
     users = {
       users = {
         kradalby = {
           isNormalUser = true;
           uid = 1000;
-          extraGroups = ["wireshark" "docker"];
+          extraGroups = ["wireshark" "docker" "wheel"];
           shell = pkgs.fish;
           openssh.authorizedKeys.keys = sshKeys.main ++ sshKeys.kradalby;
           # passwordFile = config.age.secrets.r.path;
