@@ -441,15 +441,16 @@
         "nixpkgs": "nixpkgs_3"
       },
       "locked": {
-        "lastModified": 1695677244,
-        "narHash": "sha256-CQNoF/ivCI0kqNbNsCUbnbtoAi7ZNbp85ej2+HxuCg8=",
-        "owner": "juanfont",
+        "lastModified": 1695855375,
+        "narHash": "sha256-zgBsD7T2CTObKF0TyrWp26+fFxNpq1MsnE1VWDSfdIU=",
+        "owner": "kradalby",
         "repo": "headscale",
-        "rev": "01b85e52322e11727d93e7935cb5f47163ef6190",
+        "rev": "908245010e75756972b5b639cac1573f4fece5eb",
         "type": "github"
       },
       "original": {
-        "owner": "juanfont",
+        "owner": "kradalby",
+        "ref": "1561-online-issue",
         "repo": "headscale",
         "type": "github"
       }
@@ -970,11 +971,11 @@
     },
     "nur": {
       "locked": {
-        "lastModified": 1695844033,
-        "narHash": "sha256-UX5sbK9dc/bOupgDGWer75zBjoh7eWIheyGGCjD7FIg=",
+        "lastModified": 1695851106,
+        "narHash": "sha256-JAKNZCfH6hgfC/PF6nAMHykwoLFEgX6XPBfkxRUCsl8=",
         "owner": "nix-community",
         "repo": "NUR",
-        "rev": "f08568d903901b7ac1017572b9af9855e935155a",
+        "rev": "89e685d13d231f644cf82f7181e85393019a426a",
         "type": "github"
       },
       "original": {
