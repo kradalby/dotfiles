@@ -20,6 +20,7 @@ in {
 
     ./restic.nix
     ./tailscale.nix
+    ./tailscale-headscale.nix
     ./nvidia.nix
     # ./syncthing.nix
   ];

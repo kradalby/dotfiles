@@ -22,6 +22,7 @@
     # ./scrypted.nix
     ./unifi.nix
     ./tailscale.nix
+    ./tailscale-headscale.nix
   ];
 
   my.lan = "eth0";
