@@ -15,7 +15,7 @@ in {
     ../../common/nginx.nix
     ../../common/containers.nix
 
-    ../../common/coredns.nix
+    # ../../common/coredns.nix
     ../../common/consul.nix
 
     ./restic.nix
