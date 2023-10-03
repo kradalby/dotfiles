@@ -11,7 +11,7 @@ in {
   imports = [
     ../modules/blocklist.nix
   ];
-  services.blocklist-downloader.enable = true;
+  services.blocklist-downloader.enable = false;
 
   services.coredns = {
     enable = true;
