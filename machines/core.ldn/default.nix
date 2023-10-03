@@ -19,6 +19,7 @@
 
     ./wireguard.nix
     ./tailscale.nix
+    ./tailscale-headscale.nix
     ./corerad.nix
     ./dhcp.nix
     ./avahi.nix

@@ -20,6 +20,7 @@
     ./zfs.nix
     ./wireguard.nix
     ./tailscale.nix
+    ./tailscale-headscale.nix
     ./corerad.nix
     ./dhcp.nix
     # ./openvpn.nix
