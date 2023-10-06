@@ -71,7 +71,11 @@ in {
           denial 4096
         }
         prometheus :9153
-        import blacklist
+        ${
+        if config.services.blocklist-downloader.enable
+        then "import blacklist"
+        else ""
+      }
         import cloudflare
       }
     '';
