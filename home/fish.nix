@@ -235,6 +235,18 @@
         git commit -m "nix: flake update"
         git push
       '';
+
+      docker-clean = ''
+        docker images | ag none | awk '{print $3}' | xargs docker rmi
+        docker rm -f (docker ps -a -q)
+        docker network prune -f
+      '';
+
+      docker-reset = ''
+        docker system prune -af
+        colima stop
+        colima start --vm-type vz --cpu 6 --memory 12 --disk 100
+      '';
     };
   };
 }
