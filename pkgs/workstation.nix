@@ -46,6 +46,7 @@
       act
       devenv
       dive
+      gotestsum
 
       # (fenix.complete.withComponents
       #   [
