@@ -20,9 +20,10 @@
     ./zigbee2mqtt.nix
     ./homebridge.nix
     # ./scrypted.nix
-    ./unifi.nix
+    # ./unifi.nix
     ./tailscale.nix
     ./tailscale-headscale.nix
+    ./iSponsorBlockTV.nix
   ];
 
   my.lan = "eth0";
