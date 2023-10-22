@@ -85,7 +85,7 @@
       enable = true;
       interfaces = ["wlan0"];
       networks = {
-        kPhone = {
+        kPhone15 = {
           # Not really critical since my phone is not stationary and this is not
           # an important password
           pskRaw = "97f4d338b47d77ba29c03305c1e21e3f21e7749d34071fd1fc516fda5a5e8e49";
