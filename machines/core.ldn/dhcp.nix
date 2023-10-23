@@ -33,12 +33,18 @@
         ethernetAddress = "dc:a6:32:a8:e8:f9";
       }
       {
-        hostName = "kramacbook";
-        ipAddress = "10.65.0.50";
-        ethernetAddress = "b8:e8:56:3e:8f:da";
+        hostName = "dev";
+        ipAddress = "10.65.0.26";
+        # Wireless
+        ethernetAddress = "28:6b:35:88:11:93";
       }
       {
-        hostName = "gr-laptop";
+        hostName = "kraairm2";
+        ipAddress = "10.65.0.50";
+        ethernetAddress = "1c:57:dc:5a:db:ef";
+      }
+      {
+        hostName = "kratail";
         ipAddress = "10.65.0.53";
         ethernetAddress = "c8:34:8e:51:8b:43";
       }
@@ -113,6 +119,16 @@
         ipAddress = "10.65.0.85";
         ethernetAddress = "50:02:91:5e:a5:90";
       }
+      {
+        hostName = "office-eufy-2k";
+        ipAddress = "10.65.0.86";
+        ethernetAddress = "04:17:b6:0e:7f:be";
+      }
+      {
+        hostName = "power-p1-meter";
+        ipAddress = "10.65.0.87";
+        ethernetAddress = "3c:39:e7:2b:23:38";
+      }
 
       # Media
       {
@@ -123,7 +139,10 @@
       {
         hostName = "apple-tv";
         ipAddress = "10.65.0.102";
-        ethernetAddress = "90:dd:5d:9b:46:49";
+        # Wired
+        # ethernetAddress = "90:dd:5d:9b:46:49";
+        # Wireless
+        ethernetAddress = "90:dd:5d:aa:b1:28";
       }
       {
         hostName = "philips-tv";
