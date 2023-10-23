@@ -19,7 +19,7 @@
     ./mqtt.nix
     ./zigbee2mqtt.nix
     ./homebridge.nix
-    # ./scrypted.nix
+    ./scrypted.nix
     # ./unifi.nix
     ./tailscale.nix
     ./tailscale-headscale.nix
