@@ -25,6 +25,7 @@
     terraform-ls
     unstable.gopls
     unstable.nixd
+    nodePackages."@tailwindcss/language-server"
 
     ## null-ls
     # curlylint
