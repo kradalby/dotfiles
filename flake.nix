@@ -50,6 +50,11 @@
       inputs."utils".follows = "utils";
     };
 
+    hvor = {
+      url = "github:kradalby/hvor";
+      inputs."utils".follows = "utils";
+    };
+
     # Go based
     # headscale.url = "github:juanfont/headscale";
     headscale.url = "github:kradalby/headscale/1561-online-issue";
@@ -80,6 +85,7 @@
     devenv,
     neovim-kradalby,
     webpage,
+    hvor,
     ...
   } @ flakes: let
     overlay-pkgs = final: _: {
@@ -101,6 +107,7 @@
       (_: prev: {
         inherit (devenv.packages."${prev.system}") devenv;
         inherit (webpage.packages."${prev.system}") kradalby;
+        inherit (hvor.packages."${prev.system}") hvor;
         nix-init = nixinit.packages."${prev.system}".default;
         neovim = neovim-kradalby.packages."${prev.system}".neovim-kradalby;
       })
@@ -128,6 +135,7 @@
             hugin.nixosModules.default
             golink.nixosModules.default
             webpage.nixosModules.default
+            hvor.nixosModules.default
             (import ./modules/linux.nix)
             {
               system.configurationRevision =

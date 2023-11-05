@@ -39,6 +39,7 @@
     # ./umami.nix
     ./golink.nix
     ./webpage.nix
+    ./hvor.nix
   ];
 
   my.wan = "enp0s3";
