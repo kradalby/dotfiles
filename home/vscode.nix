@@ -26,7 +26,9 @@
     ];
 
     userSettings = {
+      explorer.confirmDelete = false;
       workbench.iconTheme = "vscode-icons";
+      vsicons.dontShowNewVersionMessage = true;
       "[typescriptreact]" = {
         "editor.defaultFormatter" = "esbenp.prettier-vscode";
       };
