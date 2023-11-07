@@ -182,6 +182,7 @@
     ./starship.nix
     ./kitty.nix
     ./tmux.nix
+    ./vscode.nix
 
     ../pkgs/workstation.nix
     ../pkgs/common.nix
