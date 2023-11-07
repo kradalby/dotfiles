@@ -20,6 +20,8 @@
     home-manager-unstable.url = "github:nix-community/home-manager/master";
     home-manager-unstable.inputs.nixpkgs.follows = "nixpkgs-unstable";
 
+    vscode-extensions.url = "github:nix-community/nix-vscode-extensions";
+
     nur.url = "github:nix-community/NUR";
 
     nixos-generators = {
@@ -73,6 +75,7 @@
     darwin,
     home-manager,
     ragenix,
+    vscode-extensions,
     nur,
     fenix,
     nixos-generators,
@@ -103,6 +106,7 @@
       hugin.overlay
       munin.overlay
       golink.overlay
+      vscode-extensions.overlays.default
       (import ./pkgs/overlays {})
       (_: prev: {
         inherit (devenv.packages."${prev.system}") devenv;

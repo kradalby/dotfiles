@@ -77,7 +77,7 @@ _: {
       # "tor-browser"
       # "transmission"
       # "tunnelblick"
-      "visual-studio-code"
+      # "visual-studio-code"
       "hot"
 
       # For quiz!
