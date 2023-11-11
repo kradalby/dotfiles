@@ -139,6 +139,10 @@ in
     "hvor-tskey.age".publicKeys = u ++ [hosts.core-oracldn];
     "hvor-env.age".publicKeys = u ++ [hosts.core-oracldn];
 
+    # krapage
+    "krapage-tskey.age".publicKeys = u ++ [hosts.core-oracldn];
+    "krapage-env.age".publicKeys = u ++ [hosts.core-oracldn];
+
     # WIFI
     "ldn-wifi.age".publicKeys = u ++ [hosts.dev-ldn];
 
