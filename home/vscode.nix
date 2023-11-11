@@ -8,7 +8,6 @@
     mutableExtensionsDir = true;
     extensions = with pkgs.vscode-marketplace; [
       arrterian.nix-env-selector
-      bbenoist.nix
       bradlc.vscode-tailwindcss
       eamodio.gitlens
       editorconfig.editorconfig
@@ -23,6 +22,7 @@
       redhat.ansible
       vscode-icons-team.vscode-icons
       vscodevim.vim
+      jnoortheen.nix-ide
     ];
 
     userSettings = {
@@ -35,6 +35,27 @@
       editor = {
         formatOnSave = true;
         formatOnSaveMode = "modificationsIfAvailable";
+      };
+
+      "nix.enableLanguageServer" = true;
+      "nix.serverPath" = "nixd";
+      "nix.serverSettings" = {
+        "nixd" = {
+          "eval" = {
+          };
+          "formatting" = {
+            "command" = "alejandra";
+          };
+          "options" = {
+            "enable" = true;
+            "target" = {
+              "args" = [];
+              "installable" = "<flakeref>#nixosConfigurations.<name>.options";
+              # "installable" = "<flakeref>#debug.options";
+              # "installable" = "<flakeref>#homeConfigurations.<name>.options";
+            };
+          };
+        };
       };
     };
   };
