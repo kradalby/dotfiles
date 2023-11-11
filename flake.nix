@@ -47,8 +47,8 @@
       inputs."flake-utils".follows = "utils";
     };
 
-    webpage = {
-      url = "github:kradalby/webpage/rust";
+    krapage = {
+      url = "github:kradalby/kra";
       inputs."utils".follows = "utils";
     };
 
@@ -87,7 +87,7 @@
     nixinit,
     devenv,
     neovim-kradalby,
-    webpage,
+    krapage,
     hvor,
     ...
   } @ flakes: let
@@ -110,7 +110,7 @@
       (import ./pkgs/overlays {})
       (_: prev: {
         inherit (devenv.packages."${prev.system}") devenv;
-        inherit (webpage.packages."${prev.system}") kradalby;
+        inherit (krapage.packages."${prev.system}") krapage;
         inherit (hvor.packages."${prev.system}") hvor;
         nix-init = nixinit.packages."${prev.system}".default;
         neovim = neovim-kradalby.packages."${prev.system}".neovim-kradalby;
@@ -138,7 +138,7 @@
           ++ [
             hugin.nixosModules.default
             golink.nixosModules.default
-            webpage.nixosModules.default
+            krapage.nixosModules.default
             hvor.nixosModules.default
             (import ./modules/linux.nix)
             {

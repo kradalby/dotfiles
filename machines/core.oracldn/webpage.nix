@@ -9,13 +9,36 @@
 
   vhost = nginx.externalVhost {
     inherit domain;
-    proxyPass = "http://127.0.0.1:${toString config.services.kradalby.port}";
+    proxyPass = "http://127.0.0.1:${toString config.services.krapage.localhostPort}";
   };
 in
   lib.mkMerge [
     {
-      services.kradalby = {
+      age.secrets.krapage-tskey = {
+        file = ../../secrets/krapage-tskey.age;
+        owner = config.services.krapage.user;
+      };
+
+      age.secrets.krapage-env = {
+        file = ../../secrets/krapage-env.age;
+        owner = config.services.krapage.user;
+      };
+
+      users.users.krapage = {
+        home = config.services.krapage.dataDir;
+        createHome = true;
+        inherit (config.services.krapage) group;
+        isSystemUser = true;
+        isNormalUser = false;
+        description = "krapage";
+      };
+
+      users.groups.krapage = {};
+
+      services.krapage = {
         enable = true;
+        tailscaleKeyPath = config.age.secrets.krapage-tskey.path;
+        environmentFile = config.age.secrets.krapage-env.path;
       };
     }
     vhost
