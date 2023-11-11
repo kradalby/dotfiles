@@ -577,11 +577,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1699382592,
-        "narHash": "sha256-hT3JIBDebt6+/PL+ZuzWbZ707xpd/YliY01Jpn5GPPk=",
+        "lastModified": 1699689380,
+        "narHash": "sha256-CyPQLbHK/dRnMIrtyPjBw2UWcpoxQ6wiBUW2MXY9uS8=",
         "owner": "kradalby",
         "repo": "kra",
-        "rev": "f88245ab7b0fc3ee4ee482e33507b78b4d8d2be2",
+        "rev": "6c962a6940c529e879a00890cdef67191b160617",
         "type": "github"
       },
       "original": {
