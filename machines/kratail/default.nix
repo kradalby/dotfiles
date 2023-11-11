@@ -41,7 +41,10 @@
     useUserPackages = true;
     useGlobalPkgs = true;
     users."${machine.username}" = {
-      imports = [../../home];
+      imports = [
+        ../../home
+        # ./scripts.nix
+      ];
 
       # home.file = {
       #   ".ssh/authorized_keys".text = lib.concatStringsSep "\n" (sshKeys.main ++ sshKeys.kradalby);
