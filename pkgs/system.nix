@@ -46,6 +46,7 @@
       # Nix tooling
       nix-diff
       nix-tree
+      fast-flake-update
 
       (let
         my-python-packages = python-packages:
