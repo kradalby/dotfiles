@@ -3,39 +3,21 @@ in
   final: prev: {
     golines = prev.callPackage ./golines.nix {};
 
-    # headscale = prev.callPackage ./headscale.nix {
-    #   buildGoModule = prev.unstable.buildGo119Module;
-    # };
-
-    # tailscale-nginx-auth = prev.callPackage ./tailscale-nginx-auth.nix {
-    #   buildGoModule = prev.unstable.buildGo119Module;
-    # };
-
     tailscale-tools = prev.callPackage ./tailscale-tools.nix {
       buildGoModule = prev.unstable.buildGo121Module;
     };
 
-    act = prev.callPackage ./act.nix {
-      # buildGoModule = prev.buildGo118Module;
-    };
-
-    # imapchive = prev.callPackage ./imapchive.nix {
-    #   buildGoModule = prev.buildGo118Module;
-    # };
+    act = prev.callPackage ./act.nix {};
 
     homebridge = prev.callPackage ./homebridge/override.nix {};
 
     homebridgePlugins = prev.callPackage ./homebridge-plugins {};
-
-    rustdesk-server = prev.callPackage ./rustdesk-server.nix {};
 
     eb = prev.callPackage ./eb.nix {};
 
     cook-cli = prev.callPackage ./cook.nix {};
 
     umami = prev.callPackage ./umami.nix {};
-
-    # gitutil = prev.callPackage ./gitutil.nix {};
 
     # osxphotos = prev.callPackage ./osxphotos.nix {};
 
