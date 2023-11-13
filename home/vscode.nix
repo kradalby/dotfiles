@@ -1,6 +1,6 @@
 {pkgs, ...}: {
   programs.vscode = {
-    enable = true;
+    enable = pkgs.stdenv.isDarwin;
     enableUpdateCheck = false;
 
     package = pkgs.unstable.vscodium;
