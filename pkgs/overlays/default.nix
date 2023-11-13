@@ -11,7 +11,7 @@ in
     #   buildGoModule = prev.unstable.buildGo119Module;
     # };
 
-    tailscale-tools = prev.callPackage ./proxy-to-grafana.nix {
+    tailscale-tools = prev.callPackage ./tailscale-tools.nix {
       buildGoModule = prev.unstable.buildGo121Module;
     };
 
