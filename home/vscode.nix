@@ -1,9 +1,16 @@
-{pkgs, ...}: {
+{
+  pkgs,
+  lib,
+  ...
+}: {
   programs.vscode = {
+    # Only install vscode on Macs for now.
     enable = pkgs.stdenv.isDarwin;
     enableUpdateCheck = false;
 
-    package = pkgs.unstable.vscodium;
+    package = pkgs.unstable.vscode.overrideAttrs (attrs: {
+      meta = attrs.meta // {license = lib.licenses.mit;};
+    });
 
     mutableExtensionsDir = true;
     extensions = with pkgs.vscode-marketplace; [
@@ -24,6 +31,7 @@
       vscodevim.vim
       jnoortheen.nix-ide
       tailscale.vscode-tailscale
+      ms-vscode-remote.remote-ssh
     ];
 
     userSettings = {
