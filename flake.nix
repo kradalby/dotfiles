@@ -2,6 +2,8 @@
   description = "kradalby's system config";
 
   inputs = {
+    utils.url = "github:numtide/flake-utils";
+
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.05";
     nixpkgs-darwin.url = "github:NixOS/nixpkgs/nixpkgs-23.05-darwin";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
@@ -20,52 +22,66 @@
     home-manager-unstable.url = "github:nix-community/home-manager/master";
     home-manager-unstable.inputs.nixpkgs.follows = "nixpkgs-unstable";
 
-    vscode-extensions.url = "github:nix-community/nix-vscode-extensions";
-
-    nur.url = "github:nix-community/NUR";
-
     nixos-generators = {
       url = "github:nix-community/nixos-generators";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    utils.url = "github:numtide/flake-utils";
-
-    fenix = {
-      url = "github:nix-community/fenix";
+    vscode-extensions = {
+      url = "github:nix-community/nix-vscode-extensions";
+      inputs."flake-utils".follows = "utils";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Rust based
-    nixinit = {
-      url = "github:nix-community/nix-init";
-      inputs.fenix.follows = "fenix";
+    fast-flake-update = {
+      url = "github:Mic92/fast-flake-update";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     ragenix = {
       url = "github:yaxitech/ragenix";
       inputs."flake-utils".follows = "utils";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     krapage = {
       url = "github:kradalby/kra";
       inputs."utils".follows = "utils";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
     hvor = {
       url = "github:kradalby/hvor";
       inputs."utils".follows = "utils";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
     # Go based
-    headscale.url = "github:juanfont/headscale";
-    # headscale.url = "github:kradalby/headscale/1561-online-issue";
-    hugin.url = "github:kradalby/hugin";
-    golink.url = "github:tailscale/golink";
+    headscale = {
+      url = "github:juanfont/headscale";
+      # url = "github:kradalby/headscale/1561-online-issue";
+      inputs."utils".follows = "utils";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
 
-    munin.url = "github:kradalby/munin";
-    devenv.url = "github:cachix/devenv/latest";
-    neovim-kradalby.url = "github:kradalby/neovim";
+    hugin = {
+      url = "github:kradalby/hugin";
+      inputs."flake-utils".follows = "utils";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+
+    golink = {
+      url = "github:tailscale/golink";
+      inputs."flake-utils".follows = "utils";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+
+    # munin.url = "github:kradalby/munin";
+    neovim-kradalby = {
+      url = "github:kradalby/neovim";
+      inputs."flake-utils".follows = "utils";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = {
@@ -76,16 +92,13 @@
     home-manager,
     ragenix,
     vscode-extensions,
-    nur,
-    fenix,
+    fast-flake-update,
     nixos-generators,
     flake-utils,
     headscale,
     hugin,
-    munin,
+    # munin,
     golink,
-    nixinit,
-    devenv,
     neovim-kradalby,
     krapage,
     hvor,
@@ -98,21 +111,18 @@
     };
 
     overlays = [
-      nur.overlay
       overlay-pkgs
-      fenix.overlays.default
       ragenix.overlays.default
       headscale.overlay
       hugin.overlay
-      munin.overlay
+      # munin.overlay
       golink.overlay
       vscode-extensions.overlays.default
       (import ./pkgs/overlays {})
       (_: prev: {
-        inherit (devenv.packages."${prev.system}") devenv;
         inherit (krapage.packages."${prev.system}") krapage;
         inherit (hvor.packages."${prev.system}") hvor;
-        nix-init = nixinit.packages."${prev.system}".default;
+        fast-flake-update = fast-flake-update.packages."${prev.system}".default;
         neovim = neovim-kradalby.packages."${prev.system}".neovim-kradalby;
       })
     ];
