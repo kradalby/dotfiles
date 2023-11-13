@@ -11,6 +11,14 @@
 in
   lib.mkMerge [
     {
+      services.tailscale-proxies.prometheus = {
+        enable = true;
+        tailscaleKeyPath = config.age.secrets.ts-authkey.path;
+
+        hostname = "prom";
+        backendPort = config.services.prometheus.port;
+      };
+
       services.prometheus = {
         enable = true;
 
