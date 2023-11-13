@@ -53,6 +53,9 @@ in
     "r.age".publicKeys = global;
     "ca.age".publicKeys = global;
 
+    # Short expiry reusable keys
+    "ts-authkey.age".publicKeys = global;
+
     # Restic
     "restic-home-ldn-token.age".publicKeys = u ++ [hosts.home-ldn];
     "restic-headscale-oracldn-token.age".publicKeys = u ++ [hosts.headscale-oracldn];

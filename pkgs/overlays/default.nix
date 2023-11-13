@@ -1,29 +1,27 @@
 {...}: let
 in
   final: prev: {
-    golines = prev.callPackage ./golines.nix {
-      # buildGoModule = prev.buildGo117Module;
-    };
+    golines = prev.callPackage ./golines.nix {};
 
     # headscale = prev.callPackage ./headscale.nix {
     #   buildGoModule = prev.unstable.buildGo119Module;
     # };
 
-    tailscale-nginx-auth = prev.callPackage ./tailscale-nginx-auth.nix {
-      buildGoModule = prev.unstable.buildGo119Module;
+    # tailscale-nginx-auth = prev.callPackage ./tailscale-nginx-auth.nix {
+    #   buildGoModule = prev.unstable.buildGo119Module;
+    # };
+
+    tailscale-tools = prev.callPackage ./proxy-to-grafana.nix {
+      buildGoModule = prev.unstable.buildGo121Module;
     };
 
     act = prev.callPackage ./act.nix {
-      buildGoModule = prev.buildGo118Module;
+      # buildGoModule = prev.buildGo118Module;
     };
 
-    imapchive = prev.callPackage ./imapchive.nix {
-      buildGoModule = prev.buildGo118Module;
-    };
-
-    junos_exporter = prev.callPackage ./junos_exporter.nix {
-      buildGoModule = prev.buildGo118Module;
-    };
+    # imapchive = prev.callPackage ./imapchive.nix {
+    #   buildGoModule = prev.buildGo118Module;
+    # };
 
     homebridge = prev.callPackage ./homebridge/override.nix {};
 

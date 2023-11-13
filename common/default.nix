@@ -4,29 +4,30 @@
   ...
 }: {
   require = [
+    ./avahi.nix
     ./ca.nix
-    ./dns-ready.nix
-    ./network.nix
+    ./consul.nix
     ./cpufreq.nix
-    ./users.nix
-    ./ssh.nix
-    ./mosh.nix
+    ./dns-ready.nix
     ./environment.nix
+    ./fail2ban.nix
     ./firewall.nix
     ./lldp.nix
-    ./node-exporter.nix
-    ./smartctl-exporter.nix
-    ./systemd-exporter.nix
-    ./promtail.nix
+    ./mosh.nix
+    ./network.nix
     ./nix.nix
+    ./node-exporter.nix
+    ./postfix.nix
+    ./promtail.nix
+    ./smartctl-exporter.nix
+    ./ssh.nix
+    ./systemd-exporter.nix
     ./time.nix
     ./timezone.nix
     ./tmp.nix
+    ./tskey.nix
+    ./users.nix
     ./util.nix
-    ./postfix.nix
-    ./consul.nix
-    ./avahi.nix
-    ./fail2ban.nix
     # ./sendmail.nix
     # ./senddiscord.nix
   ];

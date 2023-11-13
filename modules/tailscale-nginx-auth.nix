@@ -15,7 +15,7 @@ in {
       description = ''
         Package to use
       '';
-      default = pkgs.tailscale-nginx-auth;
+      default = pkgs.tailscale-tools;
     };
 
     authConfig = mkOption {
