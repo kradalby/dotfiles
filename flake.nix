@@ -5,17 +5,16 @@
     utils.url = "github:numtide/flake-utils";
 
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.05";
-    nixpkgs-darwin.url = "github:NixOS/nixpkgs/nixpkgs-23.05-darwin";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
     nixpkgs-hardware.url = "github:NixOS/nixos-hardware";
 
     nixpkgs-unifi.url = "github:NixOS/nixpkgs/12bdeb01ff9e2d3917e6a44037ed7df6e6c3df9d";
 
-    darwin.url = "github:lnl7/nix-darwin/master";
-    darwin.inputs.nixpkgs.follows = "nixpkgs-darwin";
+    darwin.url = "github:lnl7/nix-darwin";
+    darwin.inputs.nixpkgs.follows = "nixpkgs";
 
-    darwin-unstable.url = "github:lnl7/nix-darwin/master";
+    darwin-unstable.url = "github:lnl7/nix-darwin";
     darwin-unstable.inputs.nixpkgs.follows = "nixpkgs-unstable";
 
     home-manager.url = "github:nix-community/home-manager/release-23.05";
@@ -43,6 +42,7 @@
       url = "github:yaxitech/ragenix";
       inputs."flake-utils".follows = "utils";
       inputs.nixpkgs.follows = "nixpkgs";
+      # inputs."agenix".inputs."nixpkgs".follows = "nixpkgs";
     };
 
     krapage = {
@@ -61,7 +61,7 @@
     headscale = {
       url = "github:juanfont/headscale";
       # url = "github:kradalby/headscale/1561-online-issue";
-      inputs."utils".follows = "utils";
+      inputs."flake-utils".follows = "utils";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
