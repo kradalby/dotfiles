@@ -7,18 +7,6 @@
 }: let
   nginx = import ../../common/funcs/nginx.nix {inherit config lib;};
   domain = "homebridge.${config.networking.domain}";
-  # dataDir = "/var/lib/homebridge";
-  #
-  # homebridgeConfig = import ./homebridgeConfig.nix;
-  # configFile = pkgs.writeText "config.json" (builtins.toJSON homebridgeConfig);
-  #
-  # homebridgeUIPort = (builtins.elemAt homebridgeConfig.platforms 0).port;
-  # startupFile = pkgs.writeText "startup.sh" ''
-  #   #!/bin/sh
-  #   npm install --unsafe-perm homebridge-mqttthing
-  #   npm install --unsafe-perm homebridge-xiaomi-roborock-vacuum@latest
-  #   npm install --unsafe-perm homebridge-philips-tv6
-  # '';
 in
   {
     imports = [
