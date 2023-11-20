@@ -4,8 +4,8 @@
   ...
 }: let
 in {
-  age.secrets.ts-authkey = {
-    file = ../secrets/ts-authkey.age;
+  age.secrets.tailscale-preauthkey = {
+    file = ../secrets/tailscale-preauthkey.age;
     mode = "444";
   };
 }

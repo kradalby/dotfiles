@@ -17,7 +17,7 @@ buildGoModule rec {
     sha256 = "sha256-bmalF5NnXjXzyF8WIIN8burmaYYeZwzDIFoNrZAXX8I=";
   };
 
-  vendorSha256 = "sha256-kc8EU+TkwRlsKM2+ljm/88aWe5h2QMgd/ZGPSgdd9QQ=";
+  vendorHash = "sha256-kc8EU+TkwRlsKM2+ljm/88aWe5h2QMgd/ZGPSgdd9QQ=";
 
   ldflags = ["-s" "-w" "-X github.com/juanfont/headscale/cmd/headscale/cli.Version=v${version}-${src.rev}"];
 

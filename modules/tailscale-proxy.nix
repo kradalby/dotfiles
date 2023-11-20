@@ -65,8 +65,11 @@ in {
         nameValuePair svcName
         {
           inherit (svcConfig) enable;
+          wantedBy = ["multi-user.target"];
+          after = ["network.target"];
           restartTriggers = [svcConfig.package];
           script = ''
+            mkdir -p ${dataDir}
             export TS_AUTHKEY=`cat ${svcConfig.tailscaleKeyPath}`
             ${svcConfig.package}/bin/proxy-to-grafana \
               --hostname=${svcConfig.hostname} \
@@ -74,13 +77,12 @@ in {
               --state-dir=${dataDir} \
               --use-https=false
           '';
-          wantedBy = ["multi-user.target"];
-          after = ["network.target"];
           serviceConfig = {
             User = username;
+            Group = username;
             Restart = "always";
             RestartSec = "15";
-            WorkingDirectory = dataDir;
+            WorkingDirectory = baseDataDir;
           };
         }
     );

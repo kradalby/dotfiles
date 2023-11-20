@@ -13,7 +13,7 @@ in
     {
       services.tailscale-proxies.prometheus = {
         enable = true;
-        tailscaleKeyPath = config.age.secrets.ts-authkey.path;
+        tailscaleKeyPath = config.age.secrets.tailscale-preauthkey.path;
 
         hostname = "prom";
         backendPort = config.services.prometheus.port;
