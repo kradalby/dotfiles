@@ -15,6 +15,14 @@ in
         owner = "grafana";
       };
 
+      services.tailscale-proxies.grafana = {
+        enable = true;
+        tailscaleKeyPath = config.age.secrets.tailscale-preauthkey.path;
+
+        hostname = "grafana";
+        backendPort = config.services.grafana.settings.server.http_port;
+      };
+
       services.grafana = {
         enable = true;
 
@@ -33,6 +41,16 @@ in
             anonymous_enabled = true;
             anonymous_org_name = "Main Org.";
             anonymous_org_role = "Viewer";
+          };
+
+          "auth.proxy" = {
+            enabled = true;
+            header_name = "X-WEBAUTH-USER";
+            header_property = "username";
+            auto_sign_up = true;
+            whitelist = "127.0.0.1";
+            headers = "Name:X-WEBAUTH-NAME";
+            enable_login_token = true;
           };
 
           security.admin_password = "$__file{${config.age.secrets.grafana-admin.path}}";
