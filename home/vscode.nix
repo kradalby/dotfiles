@@ -37,6 +37,8 @@
     userSettings = {
       explorer.confirmDelete = false;
       workbench.iconTheme = "vscode-icons";
+      workbench.startupEditor = "none";
+      workbench.sideBar.location = "right";
       editor.fontFamily = "JetBrainsMono Nerd Font, monospace";
       github.gitProtocol = "ssh";
       git.autofetch = true;

@@ -72,6 +72,7 @@
       ".golangci.yaml".source = ../rc/golangci.yaml;
       ".minirc.dfl".source = ../rc/minirc.dfl;
       ".npmrc".source = ../rc/npmrc;
+      ".sqliterc".source = ../rc/sqliterc;
 
       # ".tmux.conf".source = ../rc/tmux.conf;
       ".tmuxinator" = {
