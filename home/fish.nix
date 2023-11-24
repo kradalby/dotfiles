@@ -247,6 +247,11 @@
         colima stop
         colima start --vm-type vz --cpu 6 --memory 12 --disk 100
       '';
+
+      cajq = ''
+        set file $argv[1]
+        cat $file | ${pkgs.jq}/bin/jq
+      '';
     };
   };
 }
