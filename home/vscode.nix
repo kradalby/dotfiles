@@ -32,6 +32,7 @@
       jnoortheen.nix-ide
       tailscale.vscode-tailscale
       ms-vscode-remote.remote-ssh
+      ms-vsliveshare.vsliveshare
     ];
 
     userSettings = {
