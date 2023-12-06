@@ -77,6 +77,7 @@
   homebrew = {
     casks = [
       "google-chrome"
+      "imageoptim"
       "logi-options-plus"
       "monitorcontrol"
       "tigervnc-viewer"
