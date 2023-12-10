@@ -60,8 +60,6 @@ in {
 
       acl_policy_path = aclPath;
 
-      private_key_file = config.age.secrets.headscale-private-key.path;
-
       # database.path = "file:/var/lib/headscale/db.sqlite?cache=shared&mode=rwc&_journal_mode=WAL&_busy_timeout=5000";
       # database.path = "file:/var/lib/headscale/db.sqlite?_journal_mode=WAL&_busy_timeout=5000";
 
@@ -104,6 +102,7 @@ in {
           region_code = "fap";
           region_name = "headscale.oracldn.fap.no";
           stun_listen_addr = "0.0.0.0:3478";
+          private_key_path = config.age.secrets.headscale-private-key.path;
         };
       };
 
