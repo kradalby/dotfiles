@@ -60,7 +60,7 @@
     # Go based
     headscale = {
       url = "github:juanfont/headscale";
-      # url = "github:kradalby/headscale/1561-online-issue";
+      # url = "github:kradalby/headscale/debug-hostinfo-unmarshal";
       inputs."flake-utils".follows = "utils";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
