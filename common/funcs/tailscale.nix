@@ -54,6 +54,7 @@
         ++ lib.optional ssh "--ssh"
         ++ lib.optional acceptDns "--accept-dns=false"
         ++ lib.optional exitNode ''--advertise-exit-node ''
+        ++ lib.optional exitNode ''--advertise-connector ''
         ++ lib.optional ((builtins.length advertiseRoutes) > 0) ''--advertise-routes=${builtins.concatStringsSep "," advertiseRoutes}''
         ++ lib.optional ((builtins.length tags) > 0) ''--advertise-tags=${builtins.concatStringsSep "," tags}'';
     };
