@@ -37,7 +37,8 @@ in
 
       services.krapage = {
         enable = true;
-        tailscaleKeyPath = config.age.secrets.krapage-tskey.path;
+        verbose = false;
+        tailscaleKeyPath = config.age.secrets.tailscale-preauthkey.path;
         environmentFile = config.age.secrets.krapage-env.path;
       };
     }
