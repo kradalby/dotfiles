@@ -1,6 +1,7 @@
 result/
 result
 *.log
+.vscode/
 
 rc/nvim/plugin/packer_compiled.lua
 
