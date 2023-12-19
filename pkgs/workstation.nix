@@ -47,6 +47,7 @@
       dive
       gotestsum
       difftastic
+      setec
 
       # (fenix.complete.withComponents
       #   [

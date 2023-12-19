@@ -7,6 +7,10 @@ in
       buildGoModule = prev.unstable.buildGo121Module;
     };
 
+    setec = prev.callPackage ./setec.nix {
+      buildGoModule = prev.unstable.buildGo121Module;
+    };
+
     act = prev.callPackage ./act.nix {};
 
     homebridge = prev.callPackage ./homebridge/override.nix {};
