@@ -4,5 +4,6 @@
     ./blocklist.nix
     ./mqtt-exporter
     ./tailscale-proxy.nix
+    ./setec.nix
   ];
 }
