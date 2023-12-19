@@ -14,11 +14,6 @@
 in
   lib.mkMerge [
     {
-      age.secrets.krapage-tskey = {
-        file = ../../secrets/krapage-tskey.age;
-        owner = config.services.krapage.user;
-      };
-
       age.secrets.krapage-env = {
         file = ../../secrets/krapage-env.age;
         owner = config.services.krapage.user;
