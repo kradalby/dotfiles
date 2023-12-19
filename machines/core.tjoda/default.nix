@@ -22,7 +22,7 @@
     ./tailscale.nix
     ./tailscale-headscale.nix
     ./corerad.nix
-    ./dhcp.nix
+    ./dnsmasq.nix
     # ./openvpn.nix
     ./unifi.nix
     ./syncthing.nix

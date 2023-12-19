@@ -41,9 +41,9 @@ in {
         hosts {
           ${
         lib.concatMapStrings (host: ''
-          ${host.ipAddress} ${host.hostName}.${currentSite}
+          ${host.ipAddress} ${host.hostname}.${currentSite}
         '')
-        config.services.dhcpd4.machines
+        config.my.machines
       }
         }
       }
