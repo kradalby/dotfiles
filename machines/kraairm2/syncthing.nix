@@ -5,7 +5,6 @@ in {
 
   services = {
     syncthing = {
-      inherit (cfg) devices;
       enable = true;
       user = "kradalby";
       dataDir = "/Users/kradalby";
@@ -13,6 +12,7 @@ in {
       # guiAddress = "0.0.0.0:8443";
       overrideDevices = true;
       overrideFolders = true;
+      inherit (cfg) devices;
       folders = {
         "Sync" = {
           id = "xTDuT-kZeuK";

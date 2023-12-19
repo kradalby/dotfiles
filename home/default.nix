@@ -169,8 +169,6 @@
     aria2.enable = true;
     gpg.enable = true;
 
-    exa.enable = true;
-
     less.enable = true;
     lesspipe.enable = true;
     man.enable = true;
@@ -186,7 +184,6 @@
     ./vscode.nix
 
     ../pkgs/workstation.nix
-    ../pkgs/common.nix
     ../pkgs/neovim.nix
   ];
 }

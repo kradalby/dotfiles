@@ -4,11 +4,11 @@ in
     golines = prev.callPackage ./golines.nix {};
 
     tailscale-tools = prev.callPackage ./tailscale-tools.nix {
-      buildGoModule = prev.unstable.buildGo121Module;
+      buildGoModule = prev.buildGo121Module;
     };
 
     setec = prev.callPackage ./setec.nix {
-      buildGoModule = prev.unstable.buildGo121Module;
+      buildGoModule = prev.buildGo121Module;
     };
 
     act = prev.callPackage ./act.nix {};

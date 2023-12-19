@@ -11,7 +11,7 @@ in {
   environment.systemPackages = with pkgs; [
     cudaPackages.cudatoolkit
     pciutils
-    virtmanager
+    virt-manager
     qemu
     OVMF
   ];

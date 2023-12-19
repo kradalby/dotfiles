@@ -21,10 +21,9 @@
   };
 
   services.ddclient = {
-    enable = false;
+    enable = true;
     domains = [config.networking.domain];
     zone = "fap.no";
-    ipv6 = true;
     server = "www.cloudflare.com";
     username = "kradalby@kradalby.no";
     passwordFile = config.age.secrets.cloudflare-ddns-token.path;

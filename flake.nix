@@ -4,7 +4,7 @@
   inputs = {
     utils.url = "github:numtide/flake-utils";
 
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
     nixpkgs-hardware.url = "github:NixOS/nixos-hardware";
@@ -17,7 +17,7 @@
     darwin-unstable.url = "github:lnl7/nix-darwin";
     darwin-unstable.inputs.nixpkgs.follows = "nixpkgs-unstable";
 
-    home-manager.url = "github:nix-community/home-manager/release-23.05";
+    home-manager.url = "github:nix-community/home-manager/release-23.11";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     home-manager-unstable.url = "github:nix-community/home-manager/master";
     home-manager-unstable.inputs.nixpkgs.follows = "nixpkgs-unstable";
@@ -30,11 +30,6 @@
     vscode-extensions = {
       url = "github:nix-community/nix-vscode-extensions";
       inputs."flake-utils".follows = "utils";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    fast-flake-update = {
-      url = "github:Mic92/fast-flake-update";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -93,7 +88,6 @@
     home-manager,
     ragenix,
     vscode-extensions,
-    fast-flake-update,
     nixos-generators,
     flake-utils,
     headscale,
@@ -123,7 +117,6 @@
       (_: prev: {
         inherit (krapage.packages."${prev.system}") krapage;
         inherit (hvor.packages."${prev.system}") hvor;
-        fast-flake-update = fast-flake-update.packages."${prev.system}".default;
         neovim = neovim-kradalby.packages."${prev.system}".neovim-kradalby;
       })
     ];
@@ -240,7 +233,7 @@
         # nixos-generate --system aarch64-linux -f sd-aarch64 -I nixpkgs=channel:nixos
         "home.ldn" = nixosBox "aarch64-linux" nixpkgs null "home.ldn";
         "core.ldn" = nixosBox "aarch64-linux" nixpkgs null "core.ldn";
-        "dev.ldn" = nixosBox "x86_64-linux" nixpkgs home-manager "dev.ldn";
+        # "dev.ldn" = nixosBox "x86_64-linux" nixpkgs home-manager "dev.ldn";
 
         # "storage.bassan" = nixosBox "aarch64-linux" nixpkgs null "storage.bassan";
         "core.tjoda" = nixosBox "x86_64-linux" nixpkgs null "core.tjoda";

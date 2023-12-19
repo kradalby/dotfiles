@@ -23,8 +23,8 @@
     rust-analyzer
     sumneko-lua-language-server
     terraform-ls
-    unstable.gopls
-    unstable.nixd
+    gopls
+    nixd
     nodePackages."@tailwindcss/language-server"
 
     ## null-ls
@@ -35,7 +35,7 @@
     beautysh
     black
     buf
-    cbfmt
+    # cbfmt
     clang
     commitlint
     deadnix

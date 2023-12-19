@@ -4,7 +4,7 @@
   lib,
   flakes,
 }: let
-  package = pkgs.unstable.tailscale;
+  package = pkgs.tailscale;
   tailscale = {
     hostname ? ''${builtins.replaceStrings [".fap.no"] [""] config.networking.fqdn}'',
     loginServer ? "",
@@ -16,12 +16,6 @@
     ssh ? true,
     tags ? [],
   }: {
-    disabledModules = ["services/networking/tailscale.nix"];
-
-    imports = [
-      "${flakes.nixpkgs-unstable}/nixos/modules/services/networking/tailscale.nix"
-    ];
-
     age.secrets.tailscale-preauthkey.file = ../../secrets/tailscale-preauthkey.age;
 
     networking.firewall = {

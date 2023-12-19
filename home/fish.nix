@@ -72,7 +72,7 @@
       cat = "${pkgs.bat}/bin/bat";
       du = "du -hs";
       ipython = "ipython --no-banner";
-      ls = "${pkgs.exa}/bin/exa";
+      ls = "${pkgs.eza}/bin/eza";
       mkdir = "mkdir -p";
       nvim = "nvim -p";
       ping = "${pkgs.prettyping}/bin/prettyping";

@@ -14,7 +14,7 @@ in {
 
   services.grafana = {
     enable = true;
-    package = pkgs.unstable.grafana;
+    package = pkgs.grafana;
 
     inherit domain;
     rootUrl = "https://${domain}";

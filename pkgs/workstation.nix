@@ -38,7 +38,6 @@
       qrencode
       ragenix
       step-cli
-      unstable.dotnet-sdk # omnisharp
       nurl
       nix-init
       python310Packages.pipx
@@ -73,7 +72,7 @@
       # hclfmt
     ]
     ++ lib.optionals stdenv.isDarwin [
-      unstable.lima
+      lima
       unstable.colima
       terminal-notifier
       syncthing
@@ -105,7 +104,7 @@
     ]
     ++ lib.optionals stdenv.isLinux [
       # swift
-      unstable.docker_24
+      docker
     ]
     ++ [
       (writeShellApplication {
