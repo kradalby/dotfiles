@@ -20,9 +20,7 @@ in
 
       services.nextcloud = {
         enable = true;
-        package = pkgs.nextcloud26;
-
-        enableBrokenCiphersForSSE = false;
+        package = pkgs.nextcloud27;
 
         hostName = domain;
         # Enable built-in virtual host management
@@ -89,14 +87,16 @@ in
         guiAddress = "0.0.0.0:8443";
         overrideDevices = true;
         overrideFolders = true;
-        inherit (cfg) devices;
-        folders = {
-          "kradalby - Sync" = {
-            id = "xTDuT-kZeuK";
-            # Name of folder in Syncthing, also the folder ID
-            path = "${config.services.nextcloud.datadir}/syncthing/Sync"; # Which folder to add to Syncthing
-            devices = builtins.attrNames config.services.syncthing.devices; # Which devices to share the folder with
-            type = "receiveonly"; # sendreceive
+        settings = {
+          inherit (cfg) devices;
+          folders = {
+            "kradalby - Sync" = {
+              id = "xTDuT-kZeuK";
+              # Name of folder in Syncthing, also the folder ID
+              path = "${config.services.nextcloud.datadir}/syncthing/Sync";
+              devices = builtins.attrNames config.services.syncthing.settings.devices;
+              type = "receiveonly"; # sendreceive
+            };
           };
         };
       };

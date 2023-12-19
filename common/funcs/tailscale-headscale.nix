@@ -4,7 +4,7 @@
   lib,
   flakes,
 }: let
-  package = pkgs.unstable.tailscale;
+  package = pkgs.tailscale;
   tailscale = {
     hostname ? ''${builtins.replaceStrings [".fap.no"] [""] config.networking.fqdn}'',
     loginServer ? "https://headscale.kradalby.no",

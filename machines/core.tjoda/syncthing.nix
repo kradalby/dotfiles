@@ -14,47 +14,49 @@ in
     {
       services = {
         syncthing = {
-          inherit (cfg) devices;
           user = "storage";
           group = "storage";
           dataDir = "/storage";
           enable = true;
           overrideDevices = true;
           overrideFolders = true;
-          folders = {
-            "/storage/software" = {
-              id = "vpgyn-cj2mg";
-              path = "/storage/software";
-              devices = cfg.storage;
-              type = "sendreceive";
-            };
+          settings = {
+            inherit (cfg) devices;
+            folders = {
+              "/storage/software" = {
+                id = "vpgyn-cj2mg";
+                path = "/storage/software";
+                devices = cfg.storage;
+                type = "sendreceive";
+              };
 
-            "/storage/pictures" = {
-              id = "orqnv-bg72d";
-              path = "/storage/pictures";
-              devices = cfg.storage;
-              type = "sendreceive";
-            };
+              "/storage/pictures" = {
+                id = "orqnv-bg72d";
+                path = "/storage/pictures";
+                devices = cfg.storage;
+                type = "sendreceive";
+              };
 
-            "/storage/backup" = {
-              id = "9bjac-k65uu";
-              path = "/storage/backup";
-              devices = cfg.storage;
-              type = "sendreceive";
-            };
+              "/storage/backup" = {
+                id = "9bjac-k65uu";
+                path = "/storage/backup";
+                devices = cfg.storage;
+                type = "sendreceive";
+              };
 
-            "/storage/books" = {
-              id = "ww4gn-xgy9i";
-              path = "/storage/books";
-              devices = cfg.storage;
-              type = "sendreceive";
-            };
+              "/storage/books" = {
+                id = "ww4gn-xgy9i";
+                path = "/storage/books";
+                devices = cfg.storage;
+                type = "sendreceive";
+              };
 
-            "kradalby - Sync" = {
-              id = "xTDuT-kZeuK";
-              path = "/storage/sync/kradalby";
-              devices = builtins.attrNames config.services.syncthing.devices;
-              type = "sendreceive";
+              "kradalby - Sync" = {
+                id = "xTDuT-kZeuK";
+                path = "/storage/sync/kradalby";
+                devices = builtins.attrNames config.services.syncthing.settings.devices;
+                type = "sendreceive";
+              };
             };
           };
         };

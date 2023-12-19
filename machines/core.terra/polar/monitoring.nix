@@ -85,7 +85,7 @@
 in {
   services.prometheus = {
     enable = true;
-    package = pkgs.unstable.prometheus;
+    package = pkgs.prometheus;
 
     retentionTime = "14d";
 

@@ -24,7 +24,7 @@
   # The GitHub Actions self-hosted runner service.
   services.github-runners.headscale = {
     enable = true;
-    package = pkgs.unstable.github-runner;
+    package = pkgs.github-runner;
     url = "https://github.com/juanfont/headscale";
     replace = true;
     extraLabels = ["nixos" "docker"];
