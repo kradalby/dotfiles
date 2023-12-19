@@ -1,7 +1,7 @@
 {config, ...}: {
   services.avahi = {
     reflector = true;
-    interfaces = [config.my.lan "iot" "tailscale0" "wg0"];
+    allowInterfaces = [config.my.lan "iot" "tailscale0" "wg0"];
     extraServiceFiles = {
       timemachine-tjoda = ''
         <?xml version="1.0" standalone='no'?>

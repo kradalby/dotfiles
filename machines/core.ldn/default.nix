@@ -21,7 +21,7 @@
     ./tailscale.nix
     ./tailscale-headscale.nix
     ./corerad.nix
-    ./dhcp.nix
+    ./dnsmasq.nix
     ./avahi.nix
     ./openvpn.nix
   ];
