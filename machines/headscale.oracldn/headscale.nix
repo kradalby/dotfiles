@@ -50,6 +50,11 @@ in {
     file = ../../secrets/headscale-oidc-secret.age;
   };
 
+  age.secrets.headscale-envfile = {
+    owner = "headscale";
+    file = ../../secrets/headscale-envfile.age;
+  };
+
   environment.systemPackages = [pkgs.headscale pkgs.sqlite-interactive pkgs.sqlite-web];
 
   services.headscale = {
@@ -121,10 +126,13 @@ in {
   # Allow UDP for STUN
   networking.firewall.allowedUDPPorts = [3478];
 
+  systemd.services.headscale.serviceConfig.EnvironmentFile = config.age.secrets.headscale-envfile.path;
   systemd.services.headscale.environment = {
     # HEADSCALE_LOG_LEVEL = "trace";
     # GRPC_GO_LOG_VERBOSITY_LEVEL = "2";
     # GRPC_GO_LOG_SEVERITY_LEVEL = "info";
+    HEADSCALE_DEBUG_TAILSQL_STATE_DIR = "${config.users.users.headscale.home}/tailsql";
+    HEADSCALE_DEBUG_TAILSQL_ENABLED = "1";
   };
 
   my.consulServices.headscale = consul.prometheusExporter "headscale" 9090;
