@@ -83,6 +83,8 @@ in
     "headscale-private-key.age".publicKeys = u ++ [hosts.headscale-oracldn];
     "headscale-noise-private-key.age".publicKeys = u ++ [hosts.headscale-oracldn];
     "headscale-oidc-secret.age".publicKeys = u ++ [hosts.headscale-oracldn];
+    "headscale-envfile.age".publicKeys = u ++ [hosts.headscale-oracldn];
+
     "matterbridge-config.age".publicKeys = u ++ [hosts.headscale-oracldn];
 
     # k3s
