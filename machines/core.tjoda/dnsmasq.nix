@@ -3,6 +3,19 @@
   lib,
   ...
 }: {
+  my.machines = [
+    {
+      hostname = "hus-kontor-printer";
+      ipAddress = "10.62.0.9";
+      mac = "78:e7:d1:a7:a9:55";
+    }
+    {
+      hostname = "love-kontor-printer";
+      ipAddress = "10.62.0.6";
+      mac = "60:12:8b:d2:ee:72";
+    }
+  ];
+
   # Allow DNS from selskap
   networking.firewall.interfaces."selskap".allowedUDPPorts = [67 68];
 
@@ -12,7 +25,7 @@
     # don't use it locally for dns
     resolveLocalQueries = lib.mkDefault false;
     settings = let
-      lan = config.my.lan;
+      inherit (config.my) lan;
       selskap = "selskap";
     in {
       interface = [
