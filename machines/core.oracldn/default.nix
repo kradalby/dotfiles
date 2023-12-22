@@ -28,14 +28,11 @@
     ./step-ca.nix
     ./openvpn.nix
     ./postgres.nix
-    ./keycloak.nix
-    # ./glauth.nix
     ./nextcloud.nix
     ./minio.nix
     ./stirling-pdf.nix
     ./ghostfolio.nix
 
-    # ../../modules/umami.nix
     # ./umami.nix
     ./golink.nix
     ./webpage.nix
@@ -108,15 +105,12 @@
         21116
         21117
         21118
-        21119 # Rustdesk
       ];
 
       allowedUDPPorts = lib.mkForce [
         443 # HTTPS
         config.services.tailscale.port
         config.networking.wireguard.interfaces.wg0.listenPort
-
-        21116 # Rustdesk
       ];
 
       trustedInterfaces = [config.my.lan "docker0"];
