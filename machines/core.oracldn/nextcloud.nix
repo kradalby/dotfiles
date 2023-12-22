@@ -20,6 +20,8 @@ in
 
       services.nextcloud = {
         enable = true;
+
+        # NOTE: manual update required
         package = pkgs.nextcloud28;
 
         hostName = domain;
