@@ -1,8 +1,6 @@
 {...}: let
 in
   final: prev: {
-    golines = prev.callPackage ./golines.nix {};
-
     tailscale-tools = prev.callPackage ./tailscale-tools.nix {
       buildGoModule = prev.buildGo121Module;
     };
@@ -11,8 +9,6 @@ in
       buildGoModule = prev.buildGo121Module;
     };
 
-    act = prev.callPackage ./act.nix {};
-
     homebridge = prev.callPackage ./homebridge/override.nix {};
 
     homebridgePlugins = prev.callPackage ./homebridge-plugins {};
@@ -20,8 +16,6 @@ in
     eb = prev.callPackage ./eb.nix {};
 
     cook-cli = prev.callPackage ./cook.nix {};
-
-    umami = prev.callPackage ./umami.nix {};
 
     # osxphotos = prev.callPackage ./osxphotos.nix {};
 

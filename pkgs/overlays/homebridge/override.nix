@@ -9,11 +9,6 @@
 
   homebridgePackages =
     nodePackages;
-  # // {
-  #   "homebridge-camera-ffmpeg" = nodePackages."homebridge-camera-ffmpeg".override {
-  #     buildInputs = [pkgs.ffmpeg];
-  #   };
-  # };
 
   packageModulePath = package: "${package}/lib/node_modules/";
   nodeModulePaths = map packageModulePath (builtins.attrValues homebridgePackages);

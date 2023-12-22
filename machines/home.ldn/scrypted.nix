@@ -12,7 +12,9 @@ in
   lib.mkMerge [
     {
       virtualisation.oci-containers.containers.scrypted = {
-        image = "koush/scrypted:latest";
+        # NOTE: manual update required
+        # https://hub.docker.com/r/koush/scrypted/tags
+        image = "koush/scrypted:18-jammy-full.s6-v0.72.0";
         # user = config.users.users.stirling.uid;
         autoStart = true;
         # ports = [
