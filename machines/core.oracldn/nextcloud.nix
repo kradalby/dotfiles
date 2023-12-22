@@ -20,7 +20,7 @@ in
 
       services.nextcloud = {
         enable = true;
-        package = pkgs.nextcloud27;
+        package = pkgs.nextcloud28;
 
         hostName = domain;
         # Enable built-in virtual host management

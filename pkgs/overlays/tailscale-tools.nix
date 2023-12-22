@@ -6,7 +6,9 @@
 }:
 buildGoModule rec {
   name = "tailscale-tools";
-  version = "1.52.1";
+  # NOTE: manual update required
+  # https://github.com/tailscale/tailscale/releases
+  version = "1.56.1";
 
   src = fetchFromGitHub {
     owner = "tailscale";

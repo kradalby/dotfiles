@@ -42,7 +42,9 @@ in
       };
 
       virtualisation.oci-containers.containers.ghostfolio = {
-        image = "ghostfolio/ghostfolio:1.305.0";
+        # NOTE: manual update required
+        # https://hub.docker.com/r/ghostfolio/ghostfolio/tags
+        image = "ghostfolio/ghostfolio:2.31.0";
         user = config.users.users.ghostfolio.uid;
         # workdir = "/home/podmanager";
         autoStart = true;

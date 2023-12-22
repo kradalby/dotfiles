@@ -571,15 +571,6 @@ let
         sha512 = "5tdhKF6DbU7iIzrIOa1AOUt39ZRm13cmL1cGEh//aqR8x9+tNfbywRf0n5FD/18OKMdo7DNEtrX2t22ZAkI+eg==";
       };
     };
-    "deep-equal-2.2.2" = {
-      name = "deep-equal";
-      packageName = "deep-equal";
-      version = "2.2.2";
-      src = fetchurl {
-        url = "https://registry.npmjs.org/deep-equal/-/deep-equal-2.2.2.tgz";
-        sha512 = "xjVyBf0w5vH0I42jdAZzOKVldmPgSulmiyPRywoyq7HXC9qdgo17kxJE+rdnif5Tz6+pIrpJI8dCpMNLIGkUiA==";
-      };
-    };
     "deep-equal-2.2.3" = {
       name = "deep-equal";
       packageName = "deep-equal";
@@ -949,13 +940,13 @@ let
         sha512 = "bw8smrX+XlAoo9o1JAksBwX+hi/RG15J+NTSxmNPIclKC3ZVK6C2afwY8OSdRvOK0+ZLecUJYtj2MmjOt3Dm0w==";
       };
     };
-    "gcp-metadata-6.0.0" = {
+    "gcp-metadata-6.1.0" = {
       name = "gcp-metadata";
       packageName = "gcp-metadata";
-      version = "6.0.0";
+      version = "6.1.0";
       src = fetchurl {
-        url = "https://registry.npmjs.org/gcp-metadata/-/gcp-metadata-6.0.0.tgz";
-        sha512 = "Ozxyi23/1Ar51wjUT2RDklK+3HxqDr8TLBNK8rBBFQ7T85iIGnXnVusauj06QyqCXRFZig8LZC+TUddWbndlpQ==";
+        url = "https://registry.npmjs.org/gcp-metadata/-/gcp-metadata-6.1.0.tgz";
+        sha512 = "Jh/AIwwgaxan+7ZUUmRLCjtchyDiqh4KjBJ5tW3plBZb5iL/BPcso8A5DlzeD9qlw0duCamnNdpFjxwaT0KyKg==";
       };
     };
     "get-caller-file-2.0.5" = {
@@ -994,22 +985,22 @@ let
         sha512 = "nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==";
       };
     };
-    "google-auth-library-9.2.0" = {
+    "google-auth-library-9.4.1" = {
       name = "google-auth-library";
       packageName = "google-auth-library";
-      version = "9.2.0";
+      version = "9.4.1";
       src = fetchurl {
-        url = "https://registry.npmjs.org/google-auth-library/-/google-auth-library-9.2.0.tgz";
-        sha512 = "1oV3p0JhNEhVbj26eF3FAJcv9MXXQt4S0wcvKZaDbl4oHq5V3UJoSbsGZGQNcjoCdhW4kDSwOs11wLlHog3fgQ==";
+        url = "https://registry.npmjs.org/google-auth-library/-/google-auth-library-9.4.1.tgz";
+        sha512 = "Chs7cuzDuav8W/BXOoRgSXw4u0zxYtuqAHETDR5Q6dG1RwNwz7NUKjsDDHAsBV3KkiiJBtJqjbzy1XU1L41w1g==";
       };
     };
-    "googleapis-128.0.0" = {
+    "googleapis-129.0.0" = {
       name = "googleapis";
       packageName = "googleapis";
-      version = "128.0.0";
+      version = "129.0.0";
       src = fetchurl {
-        url = "https://registry.npmjs.org/googleapis/-/googleapis-128.0.0.tgz";
-        sha512 = "+sLtVYNazcxaSD84N6rihVX4QiGoqRdnlz2SwmQQkadF31XonDfy4ufk3maMg27+FiySrH0rd7V8p+YJG6cknA==";
+        url = "https://registry.npmjs.org/googleapis/-/googleapis-129.0.0.tgz";
+        sha512 = "gFatrzby+oh/GxEeMhJOKzgs9eG7yksRcTon9b+kPie4ZnDSgGQ85JgtUaBtLSBkcKpUKukdSP6Km1aCjs4y4Q==";
       };
     };
     "googleapis-common-7.0.1" = {
@@ -1138,13 +1129,13 @@ let
         sha512 = "vUptKVTpIJhcczKBbgnS+RtcuYMB8+oNzPK2/Hp3hanz8JmpATdmmgLgSaadVREkDm+e2giHwY3ZRkyjSIDDFA==";
       };
     };
-    "hb-lib-tools-1.2.0" = {
+    "hb-lib-tools-1.2.1" = {
       name = "hb-lib-tools";
       packageName = "hb-lib-tools";
-      version = "1.2.0";
+      version = "1.2.1";
       src = fetchurl {
-        url = "https://registry.npmjs.org/hb-lib-tools/-/hb-lib-tools-1.2.0.tgz";
-        sha512 = "axUNWFSaesTWWuxBUukK99oONGlS/A78m0RA3xzKUmdrxBcOT9t4upJcAyl8G70bEIhXb9OieWiTs6DuOIxjkw==";
+        url = "https://registry.npmjs.org/hb-lib-tools/-/hb-lib-tools-1.2.1.tgz";
+        sha512 = "zaKJOOK+xLXxj2BKMYb5HmTM/UB0pUh1VoSqRzdua9PSbU8fCy4O/syDkjV382jlRqIMLsGnHT8uRzjftael4A==";
       };
     };
     "help-me-3.0.0" = {
@@ -1156,13 +1147,13 @@ let
         sha512 = "hx73jClhyk910sidBB7ERlnhMlFsJJIBqSVMFDwPN8o2v9nmp5KgLq1Xz1Bf1fCMMZ6mPrX159iG0VLy/fPMtQ==";
       };
     };
-    "homebridge-lib-6.7.0" = {
+    "homebridge-lib-6.7.3" = {
       name = "homebridge-lib";
       packageName = "homebridge-lib";
-      version = "6.7.0";
+      version = "6.7.3";
       src = fetchurl {
-        url = "https://registry.npmjs.org/homebridge-lib/-/homebridge-lib-6.7.0.tgz";
-        sha512 = "nC+9lZqAfibeJI1JxnxOXkwS2rdk27OYZEpfxA0uO4lFewKQsnlF+ovIxqT5f0xKqqbOgedQlPn/GV0bw0n19w==";
+        url = "https://registry.npmjs.org/homebridge-lib/-/homebridge-lib-6.7.3.tgz";
+        sha512 = "1G2FR3T+/GpRPYD2JU4dJWgf2OFbX/5dzx8doyVS9htkSbZWN4l+rXSVVU2K2KBidnj3NNOVBj21uw/20XGOgQ==";
       };
     };
     "http-signature-1.2.0" = {
@@ -1741,13 +1732,13 @@ let
         sha512 = "DJYjlXODVXtSDecN8jnNzi6ItX3+ufGsEs9OB3YV24HtkRrh7kpx8L5M1LuyF0KzaiGtWr2PzDcMGAY60KGOSA==";
       };
     };
-    "mqtt-4.3.7" = {
+    "mqtt-4.3.8" = {
       name = "mqtt";
       packageName = "mqtt";
-      version = "4.3.7";
+      version = "4.3.8";
       src = fetchurl {
-        url = "https://registry.npmjs.org/mqtt/-/mqtt-4.3.7.tgz";
-        sha512 = "ew3qwG/TJRorTz47eW46vZ5oBw5MEYbQZVaEji44j5lAUSQSqIEoul7Kua/BatBW0H0kKQcC9kwUHa1qzaWHSw==";
+        url = "https://registry.npmjs.org/mqtt/-/mqtt-4.3.8.tgz";
+        sha512 = "2xT75uYa0kiPEF/PE0VPdavmEkoBzMT/UL9moid0rAvlCtV48qBwxD62m7Ld/4j8tSkIO1E/iqRl/S72SEOhOw==";
       };
     };
     "mqtt-packet-6.10.0" = {
@@ -1849,13 +1840,13 @@ let
         sha512 = "c4FRfUm/dbcWZ7U+1Wq0AwCyFL+3nt2bEw05wfxSz+DWpWsitgmSgYmy2dQdWyKC1694ELPqMs/YzUSNozLt8A==";
       };
     };
-    "node-gyp-build-4.6.1" = {
+    "node-gyp-build-4.7.1" = {
       name = "node-gyp-build";
       packageName = "node-gyp-build";
-      version = "4.6.1";
+      version = "4.7.1";
       src = fetchurl {
-        url = "https://registry.npmjs.org/node-gyp-build/-/node-gyp-build-4.6.1.tgz";
-        sha512 = "24vnklJmyRS8ViBNI8KbtK/r/DmXQMRiOMXTNz2nrTnAYUwjmEEbnnpB/+kt+yWRv73bPsSPRFddrcIbAxSiMQ==";
+        url = "https://registry.npmjs.org/node-gyp-build/-/node-gyp-build-4.7.1.tgz";
+        sha512 = "wTSrZ+8lsRRa3I3H8Xr65dLWSgCvY2l4AOnaeKdPA9TB/WYMPaTcrzf3rXvFoVvjKNVnu0CcWSx54qq9GKRUYg==";
       };
     };
     "node-xmpp-client-3.2.0" = {
@@ -1930,13 +1921,13 @@ let
         sha512 = "NuAESUOUMrlIXOfHKzD6bpPu3tYt3xvjNdRIQ+FeT0lNb4K8WR70CaDxhuNguS2XG+GjkyMwOzsN5ZktImfhLA==";
       };
     };
-    "object.assign-4.1.4" = {
+    "object.assign-4.1.5" = {
       name = "object.assign";
       packageName = "object.assign";
-      version = "4.1.4";
+      version = "4.1.5";
       src = fetchurl {
-        url = "https://registry.npmjs.org/object.assign/-/object.assign-4.1.4.tgz";
-        sha512 = "1mxKf0e58bvyjSCtKYY4sRe9itRk3PJpquJOjeIkz885CczcI4IvJJDLPS72oowuSh+pBxUFROpX+TU++hxhZQ==";
+        url = "https://registry.npmjs.org/object.assign/-/object.assign-4.1.5.tgz";
+        sha512 = "byy+U7gp+FVwmyzKPYhW2h5l3crpmGsxl7X2s8y43IgxvG4g3QZ6CffDtsNQy1WsmZpQbO+ybo0AlW7TY6DcBQ==";
       };
     };
     "once-1.4.0" = {
@@ -2861,10 +2852,10 @@ in
   homebridge-mqttthing = nodeEnv.buildNodePackage {
     name = "homebridge-mqttthing";
     packageName = "homebridge-mqttthing";
-    version = "1.1.44";
+    version = "1.1.47";
     src = fetchurl {
-      url = "https://registry.npmjs.org/homebridge-mqttthing/-/homebridge-mqttthing-1.1.44.tgz";
-      sha512 = "9tduTok1eDk10UquaHPxo2v5GLNwGiMKU0UzcDE+NgkhAIrV+rHTjXavAsrv8K7GuFY4/0RJxtS0hTDffvJCfQ==";
+      url = "https://registry.npmjs.org/homebridge-mqttthing/-/homebridge-mqttthing-1.1.47.tgz";
+      sha512 = "QsyDgg9EuGzMJBv5mbmxWUGHoWjTcrUv6AG7F7omVeWMArbLhgv073dvX5SD8m7XhppeIDSjIRlGc+OZLv49Wg==";
     };
     dependencies = [
       sources."@homebridge/plugin-ui-utils-1.0.0"
@@ -2926,11 +2917,11 @@ in
       sources."function-bind-1.1.2"
       sources."functions-have-names-1.2.3"
       sources."gaxios-6.1.1"
-      sources."gcp-metadata-6.0.0"
+      sources."gcp-metadata-6.1.0"
       sources."get-intrinsic-1.2.2"
       sources."glob-7.2.3"
-      sources."google-auth-library-9.2.0"
-      sources."googleapis-128.0.0"
+      sources."google-auth-library-9.4.1"
+      sources."googleapis-129.0.0"
       sources."googleapis-common-7.0.1"
       sources."gopd-1.0.1"
       sources."gtoken-7.0.1"
@@ -2941,9 +2932,9 @@ in
       sources."has-symbols-1.0.3"
       sources."has-tostringtag-1.0.0"
       sources."hasown-2.0.0"
-      sources."hb-lib-tools-1.2.0"
+      sources."hb-lib-tools-1.2.1"
       sources."help-me-3.0.0"
-      sources."homebridge-lib-6.7.0"
+      sources."homebridge-lib-6.7.3"
       (sources."https-proxy-agent-7.0.2" // {
         dependencies = [
           sources."debug-4.3.4"
@@ -2983,7 +2974,7 @@ in
       sources."lru-cache-6.0.0"
       sources."minimatch-3.1.2"
       sources."minimist-1.2.8"
-      (sources."mqtt-4.3.7" // {
+      (sources."mqtt-4.3.8" // {
         dependencies = [
           sources."debug-4.3.4"
         ];
@@ -2997,7 +2988,7 @@ in
       sources."multicast-dns-7.2.5"
       sources."multicast-dns-service-types-1.1.0"
       sources."node-fetch-2.7.0"
-      sources."node-gyp-build-4.6.1"
+      sources."node-gyp-build-4.7.1"
       (sources."number-allocator-1.0.14" // {
         dependencies = [
           sources."debug-4.3.4"
@@ -3006,7 +2997,7 @@ in
       sources."object-inspect-1.13.1"
       sources."object-is-1.1.5"
       sources."object-keys-1.1.1"
-      sources."object.assign-4.1.4"
+      sources."object.assign-4.1.5"
       sources."once-1.4.0"
       sources."optionator-0.8.3"
       sources."path-is-absolute-1.0.1"
@@ -3113,7 +3104,7 @@ in
       sources."mqtt-4.2.8"
       sources."mqtt-packet-6.10.0"
       sources."ms-2.1.2"
-      sources."node-gyp-build-4.6.1"
+      sources."node-gyp-build-4.7.1"
       sources."once-1.4.0"
       sources."path-is-absolute-1.0.1"
       sources."pick-port-1.0.1"
@@ -3264,10 +3255,10 @@ in
   homebridge-xiaomi-roborock-vacuum = nodeEnv.buildNodePackage {
     name = "homebridge-xiaomi-roborock-vacuum";
     packageName = "homebridge-xiaomi-roborock-vacuum";
-    version = "0.31.0";
+    version = "0.31.1";
     src = fetchurl {
-      url = "https://registry.npmjs.org/homebridge-xiaomi-roborock-vacuum/-/homebridge-xiaomi-roborock-vacuum-0.31.0.tgz";
-      sha512 = "udNGnwTps8eXjYxNGrC1wqa+bFSDfR6TNBYQ3enBmugObt9N2TxqbOkCBx9rXh0Gnw5i66ZGJvZGxcEkx1Pijg==";
+      url = "https://registry.npmjs.org/homebridge-xiaomi-roborock-vacuum/-/homebridge-xiaomi-roborock-vacuum-0.31.1.tgz";
+      sha512 = "44oPMgS40ZdEfEiZucc79477j3gbeisW48sGoWZ3xSi1uLDLeqWmWW/9xias3k5QjYaJ8++LtbU4tH4xFwJRSg==";
     };
     dependencies = [
       (sources."abstract-things-0.9.0" // {
@@ -3302,7 +3293,7 @@ in
         ];
       })
       sources."decamelize-1.2.0"
-      (sources."deep-equal-2.2.2" // {
+      (sources."deep-equal-2.2.3" // {
         dependencies = [
           sources."isarray-2.0.5"
         ];
@@ -3377,7 +3368,7 @@ in
       sources."object-inspect-1.13.1"
       sources."object-is-1.1.5"
       sources."object-keys-1.1.1"
-      sources."object.assign-4.1.4"
+      sources."object.assign-4.1.5"
       sources."once-1.4.0"
       sources."p-limit-2.3.0"
       sources."p-locate-4.1.0"

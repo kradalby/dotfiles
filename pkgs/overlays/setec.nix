@@ -6,6 +6,8 @@
 }:
 buildGoModule rec {
   name = "setec";
+  # NOTE: manual update required
+  # https://github.com/tailscale/setec/commits/main/
   version = "1ab725da5f50038d66480ae017d85bccb514cde5";
 
   src = fetchFromGitHub {
