@@ -33,7 +33,7 @@
     ./stirling-pdf.nix
     ./ghostfolio.nix
 
-    # ./umami.nix
+    ./umami.nix
     ./golink.nix
     ./webpage.nix
     ./hvor.nix

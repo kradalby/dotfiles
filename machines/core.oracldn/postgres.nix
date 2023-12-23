@@ -8,7 +8,5 @@
     "ghostfolio"
   ];
 
-  my.postgres.extraBackups = [
-    "keycloak"
-  ];
+  my.postgres.extraBackups = [];
 }
