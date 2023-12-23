@@ -73,6 +73,7 @@ in {
   homebrew = {
     casks = [
       # "vmware-fusion"
+      "battle-net"
       "macfuse"
       "transmission"
       "garmin-express"
