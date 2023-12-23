@@ -38,6 +38,8 @@ in
         ];
         environment = {
           DATABASE_URL = "postgresql://umami@172.17.0.1/umami";
+          DISABLE_TELEMETRY = "1";
+          DISABLE_UPDATES = "1";
         };
         environmentFiles = [];
         volumes = [];
