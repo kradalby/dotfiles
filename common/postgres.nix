@@ -28,6 +28,7 @@
 
       authentication = ''
         host  ghostfolio  ghostfolio  172.17.0.1/16   trust
+        host  umami  umami  172.17.0.1/16   trust
       '';
 
       ensureUsers =
@@ -35,9 +36,7 @@
         (
           database: {
             name = database;
-            ensurePermissions = {
-              "DATABASE ${database}" = "ALL PRIVILEGES";
-            };
+            ensureDBOwnership = true;
           }
         )
         config.my.postgres.databases;
