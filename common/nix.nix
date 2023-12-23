@@ -28,7 +28,7 @@
 
     gc = {
       automatic = true;
-      dates = "03:15";
+      dates = "2weeks";
       options = "--delete-older-than 10d";
     };
 
