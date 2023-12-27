@@ -33,7 +33,7 @@
     # ./libvirt.nix # TODO(kradalby): Figure out why it breaks coreDNS, binds 53
     ./hugin.nix
     ./postgres.nix
-    ./immich.nix
+    # ./immich.nix
     ./files.nix
 
     # ./polar
