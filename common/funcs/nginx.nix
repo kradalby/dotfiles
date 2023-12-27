@@ -40,6 +40,7 @@
     proxyPass,
     proxyWebsockets ? true,
     basicAuthFile ? null,
+    allowCors ? false,
   }: {
     security.acme.certs."${domain}".domain = domain;
 
@@ -49,10 +50,11 @@
       locations."/" = {
         inherit proxyPass;
         inherit proxyWebsockets;
-        extraConfig = ''
-          proxy_set_header X-Real-IP $remote_addr;
-          proxy_set_header Host $host;
-          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        extraConfig = lib.optionalString allowCors ''
+          add_header 'Access-Control-Allow-Origin' '*' always;
+          add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS' always;
+          add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range' always;
+          add_header 'Access-Control-Expose-Headers' 'Content-Length,Content-Range' always;
         '';
       };
       inherit basicAuthFile;
