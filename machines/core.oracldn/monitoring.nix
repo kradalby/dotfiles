@@ -102,37 +102,37 @@ in
               {
                 targets = [
                   # Unifi
-                  "hus-kontor-printer"
-                  "love-kontor-printer"
-                  "hus-kontor-switch"
-                  "love-loft-switch"
-                  "love-kontor-switch"
-                  "love-scene-switch"
-                  "bryggerhus-switch"
-                  "hus-kontor-ap"
-                  "hus-spisestue-ap"
-                  "love-scene-ap"
-                  "love-selskap-ap"
-                  "love-lager-ap"
-                  "bryggerhus-ap"
+                  "hus-kontor-printer.tjoda"
+                  "love-kontor-printer.tjoda"
+                  "hus-kontor-switch.tjoda"
+                  "love-loft-switch.tjoda"
+                  "love-kontor-switch.tjoda"
+                  "love-scene-switch.tjoda"
+                  "bryggerhus-switch.tjoda"
+                  "hus-kontor-ap.tjoda"
+                  "hus-spisestue-ap.tjoda"
+                  "love-scene-ap.tjoda"
+                  "love-selskap-ap.tjoda"
+                  "love-lager-ap.tjoda"
+                  "bryggerhus-ap.tjoda"
 
                   # Sonos hus
-                  "hus-kjokken-sonos"
-                  "hus-salong-sonos"
-                  "hus-spisestue-sonos"
-                  "hus-kontor-sonos"
-                  "hus-gang-sonos"
-                  "hus-hage-sonos"
+                  "hus-kjokken-sonos.tjoda"
+                  "hus-salong-sonos.tjoda"
+                  "hus-spisestue-sonos.tjoda"
+                  "hus-kontor-sonos.tjoda"
+                  "hus-gang-sonos.tjoda"
+                  "hus-hage-sonos.tjoda"
 
                   # Sonos låve
-                  "love-kontor-bridge-sonos"
-                  "love-salong-sonos"
-                  "love-spisestue-sonos"
-                  "love-dansegulv-sonos"
-                  # "love-loft-sonos"
+                  "love-kontor-bridge-sonos.tjoda"
+                  "love-salong-sonos.tjoda"
+                  "love-spisestue-sonos.tjoda"
+                  "love-dansegulv-sonos.tjoda"
+                  # "love-loft-sonos.tjoda"
 
                   # Atlas probe
-                  "atlas-probe"
+                  "atlas-probe.tjoda"
                 ];
               }
             ];
@@ -298,6 +298,24 @@ in
                         summary = "systemd unit is activating too long (instance {{ $labels.instance }})";
                         description = ''
                           systemd unit is activating for more than 5 minutes
+
+                          LABELS: {{ $labels }}
+                        '';
+                      };
+                    }
+                    {
+                      alert = "TjodaPingDown";
+                      expr = ''probe_success{job="tjoda-ping"} == 0'';
+                      for = "10m";
+                      labels = {
+                        severity = "warning";
+                        frequency = "15m";
+                      };
+                      annotations = {
+                        summary = "Tjodalyng device has not responded for 10m (instance {{ $labels.instance }})";
+                        description = ''
+                          A device in Tjodalyng, typically Unifi networking or Sonos has not responded
+                          for over 10m.
 
                           LABELS: {{ $labels }}
                         '';
