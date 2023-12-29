@@ -14,10 +14,10 @@ rustPlatform.buildRustPackage rec {
     owner = "cooklang";
     repo = pname;
     rev = version;
-    sha256 = "";
+    sha256 = "sha256-d+jPaPYvtFaiWaNyyOpazmhR3LSe5DfKjdM4dkdaQHw=";
   };
 
-  cargoSha256 = "";
+  cargoSha256 = "sha256-xVXQJsmJ4Exnqqe4Z43quxlZBWHAQt6qMrhceOAvUiw=";
 
   meta = with lib; {
     description = "Command line program which provides a suite of tools to create shopping lists and maintain recipes.";
