@@ -17,7 +17,6 @@ in {
   config = mkIf (builtins.length config.monitoring.smartctl.devices > 0) {
     services.prometheus.exporters.smartctl = {
       enable = true;
-      openFirewall = true;
 
       user = "smartctl-exporter";
       group = "disk";

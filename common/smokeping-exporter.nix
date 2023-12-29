@@ -7,7 +7,6 @@
 in {
   services.prometheus.exporters.smokeping = {
     enable = true;
-    openFirewall = true;
 
     hosts = [
       "core.terra.fap.no"
