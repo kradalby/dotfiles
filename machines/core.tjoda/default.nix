@@ -35,14 +35,13 @@
   # TODO: Figure a way to allowlist some URLs
   services.blocklist-downloader.enable = lib.mkForce false;
 
-  my.wan = "enp1s0f0";
-  my.lan = "enp1s0f1";
+  my = {
+    wan = "enp1s0f0";
+    lan = "enp1s0f1";
 
-  my.users.storage = true;
-  my.users.timemachine = true;
-
-  environment.systemPackages = with pkgs; [
-  ];
+    users.storage = true;
+    users.timemachine = true;
+  };
 
   services.resolved.enable = false;
 
@@ -177,7 +176,15 @@
       # Allow DNS from selskap
       interfaces."selskap".allowedUDPPorts = [53];
     };
+
+    nftables = {
+      enable = true;
+    };
   };
+
+  # TODO: Enable when miniupnpd supports nftables
+  # https://github.com/NixOS/nixpkgs/pull/239028
+  services.miniupnpd.enable = lib.mkForce false;
 
   monitoring.smartctl.devices = ["/dev/sda"];
 

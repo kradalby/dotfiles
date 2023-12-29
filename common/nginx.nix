@@ -72,7 +72,6 @@ in {
 
       prometheus.exporters.nginxlog = {
         enable = true;
-        openFirewall = true;
 
         group = "nginx";
         user = "nginx";
