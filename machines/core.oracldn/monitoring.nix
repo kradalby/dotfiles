@@ -8,6 +8,23 @@
 
   prometheusDomain = "prometheus.${config.networking.domain}";
   pushgatewayDomain = "pushgateway.${config.networking.domain}";
+
+  blackboxConfigFile = pkgs.writeText "blackbox.conf" ''
+    modules:
+      http_prometheus:
+        prober: http
+        timeout: 5s
+        http:
+          method: GET
+          valid_http_versions: ["HTTP/1.1", "HTTP/2"]
+          fail_if_ssl: false
+          fail_if_not_ssl: false
+      icmp:
+        prober: icmp
+        timeout: 10s
+        icmp:
+          preferred_ip_protocol: ip4
+  '';
 in
   lib.mkMerge [
     {
@@ -72,6 +89,65 @@ in
                   "__meta_consul_service"
                 ];
                 target_label = "job";
+              }
+            ];
+          }
+          {
+            job_name = "tjoda-ping";
+            metrics_path = "/probe";
+            params = {
+              module = ["icmp"];
+            };
+            static_configs = [
+              {
+                targets = [
+                  # Unifi
+                  "hus-kontor-printer"
+                  "love-kontor-printer"
+                  "hus-kontor-switch"
+                  "love-loft-switch"
+                  "love-kontor-switch"
+                  "love-scene-switch"
+                  "bryggerhus-switch"
+                  "hus-kontor-ap"
+                  "hus-spisestue-ap"
+                  "love-scene-ap"
+                  "love-selskap-ap"
+                  "love-lager-ap"
+                  "bryggerhus-ap"
+
+                  # Sonos hus
+                  "hus-kjokken-sonos"
+                  "hus-salong-sonos"
+                  "hus-spisestue-sonos"
+                  "hus-kontor-sonos"
+                  "hus-gang-sonos"
+                  "hus-hage-sonos"
+
+                  # Sonos låve
+                  "love-kontor-bridge-sonos"
+                  "love-salong-sonos"
+                  "love-spisestue-sonos"
+                  "love-dansegulv-sonos"
+                  # "love-loft-sonos"
+
+                  # Atlas probe
+                  "atlas-probe"
+                ];
+              }
+            ];
+            relabel_configs = [
+              {
+                source_labels = ["__address__"];
+                target_label = "__param_target";
+              }
+              {
+                source_labels = ["__param_target"];
+                target_label = "instance";
+              }
+              {
+                target_label = "__address__";
+                replacement = "127.0.0.1:9115";
               }
             ];
           }
@@ -233,6 +309,12 @@ in
             }
           )
         ];
+
+        exporters.blackbox = {
+          enable = true;
+          listenAddress = "127.0.0.1";
+          configFile = blackboxConfigFile;
+        };
 
         alertmanager = {
           enable = true;
