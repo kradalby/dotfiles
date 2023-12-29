@@ -15,6 +15,8 @@ in
 
     eb = prev.callPackage ./eb.nix {};
 
+    # elm-review = prev.callPackage ./node-elm-review.nix {};
+
     cook-cli = prev.callPackage ./cook.nix {};
 
     # osxphotos = prev.callPackage ./osxphotos.nix {};
