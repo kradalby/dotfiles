@@ -27,6 +27,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    dream2nix = {
+      url = "github:nix-community/dream2nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     vscode-extensions = {
       url = "github:nix-community/nix-vscode-extensions";
       inputs."flake-utils".follows = "utils";
@@ -87,8 +92,9 @@
     darwin,
     home-manager,
     ragenix,
-    vscode-extensions,
     nixos-generators,
+    dream2nix,
+    vscode-extensions,
     flake-utils,
     headscale,
     hugin,
