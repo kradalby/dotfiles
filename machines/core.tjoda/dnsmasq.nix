@@ -142,7 +142,7 @@
   ];
 
   # Allow DNS from selskap
-  networking.firewall.interfaces."selskap".allowedUDPPorts = [67 68];
+  networking.firewall.interfaces."selskap0".allowedUDPPorts = [67 68];
 
   services.dnsmasq = {
     enable = true;
@@ -151,7 +151,7 @@
     resolveLocalQueries = lib.mkDefault false;
     settings = let
       inherit (config.my) lan;
-      selskap = "selskap";
+      selskap = "selskap0";
     in {
       interface = [
         lan
