@@ -29,6 +29,7 @@
       ipv4 = "10.62.0.1";
     }
     {name = "tailscale0";}
+    {name = "wg0";}
   ];
   untrusted_lans = [
     {
@@ -75,6 +76,8 @@ in {
       table inet filter {
         # Incoming connections to router itself.
         chain input {
+          meta nftrace set 1
+
           type filter hook input priority 0
           policy drop
 

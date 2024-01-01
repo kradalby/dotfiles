@@ -7,7 +7,6 @@
 in {
   services.avahi = {
     enable = true;
-    openFirewall = true;
 
     hostName = "${config.networking.hostName}-${site}";
 
