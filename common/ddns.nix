@@ -22,11 +22,13 @@
 
   services.ddclient = {
     enable = true;
+    verbose = true;
     domains = [config.networking.domain];
     zone = "fap.no";
     server = "www.cloudflare.com";
     username = "kradalby@kradalby.no";
     passwordFile = config.age.secrets.cloudflare-ddns-token.path;
     protocol = "cloudflare";
+    use = "web, web=api.ipify.org";
   };
 }
