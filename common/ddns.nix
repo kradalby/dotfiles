@@ -21,8 +21,8 @@
   };
 
   services.ddclient = {
-    enable = true;
-    verbose = true;
+    enable = false;
+    verbose = false;
     domains = [config.networking.domain];
     zone = "fap.no";
     server = "www.cloudflare.com";
