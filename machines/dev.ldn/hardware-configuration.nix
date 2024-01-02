@@ -23,29 +23,33 @@
   # This is fixed in modern kernels, but the ZFS module is not
   # available for it atm, so we use whatever kernel Nixpkgs has
   # plus this patch.
-  boot.kernelPatches = [
-    {
-      name = "iwlwifi-nuc13"; # descriptive name, required
+  boot = {
+    kernelPatches = [
+      {
+        name = "iwlwifi-nuc13"; # descriptive name, required
 
-      patch = ./0001-add-AX1690i-for-NUC-13.patch;
-    }
-  ];
+        patch = ./0001-add-AX1690i-for-NUC-13.patch;
+      }
+    ];
 
-  # Use the systemd-boot EFI boot loader.
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
+    # Use the systemd-boot EFI boot loader.
+    loader.systemd-boot.enable = true;
+    loader.efi.canTouchEfiVariables = true;
 
-  boot.initrd.availableKernelModules = ["xhci_pci" "ahci" "nvme" "thunderbolt" "usb_storage" "usbhid" "sd_mod"];
-  boot.kernelModules = ["kvm-intel"];
-  boot.extraModulePackages = [];
+    initrd.availableKernelModules = ["xhci_pci" "ahci" "nvme" "thunderbolt" "usb_storage" "usbhid" "sd_mod"];
+    kernelModules = ["kvm-intel"];
+    extraModulePackages = [];
 
-  # zpool create -f -O canmount=on -O mountpoint=/fast -O compression=zstd -O atime=off -O xattr=sa -O acltype=posixacl fast /dev/nvme1n1 /dev/nvme2n1
-  # zfs create -o canmount=off fast/windows
-  # zfs create -o canmount=on -o mountpoint=/fast/vm fast/vm
-  boot.supportedFilesystems = ["zfs"];
-  boot.zfs.extraPools = [
-    "fast"
-  ];
+    # zpool create -f -O canmount=on -O mountpoint=/fast -O compression=zstd -O atime=off -O xattr=sa -O acltype=posixacl fast /dev/nvme1n1 /dev/nvme2n1
+    # zfs create -o canmount=off fast/windows
+    # zfs create -o canmount=on -o mountpoint=/fast/vm fast/vm
+    supportedFilesystems = ["zfs"];
+    zfs.extraPools = [
+      "fast"
+    ];
+  };
+
+  powerManagement.powertop.enable = true;
 
   fileSystems = {
     "/" = {

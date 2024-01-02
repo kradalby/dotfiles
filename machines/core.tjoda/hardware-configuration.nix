@@ -4,20 +4,24 @@
   pkgs,
   ...
 }: {
-  boot.loader.grub = {
-    enable = true;
-    device = "/dev/sda";
+  boot = {
+    loader.grub = {
+      enable = true;
+      device = "/dev/sda";
+    };
+
+    kernelPackages = config.boot.zfs.package.latestCompatibleLinuxPackages;
+    initrd.availableKernelModules = ["xhci_pci" "ehci_pci" "ahci" "usbhid" "uas" "sd_mod"];
+    initrd.kernelModules = [];
+    kernelModules = ["kvm-intel"];
+    extraModulePackages = [];
+    supportedFilesystems = ["zfs"];
+    zfs.extraPools = [
+      "storage"
+    ];
   };
 
-  boot.kernelPackages = config.boot.zfs.package.latestCompatibleLinuxPackages;
-  boot.initrd.availableKernelModules = ["xhci_pci" "ehci_pci" "ahci" "usbhid" "uas" "sd_mod"];
-  boot.initrd.kernelModules = [];
-  boot.kernelModules = ["kvm-intel"];
-  boot.extraModulePackages = [];
-  boot.supportedFilesystems = ["zfs"];
-  boot.zfs.extraPools = [
-    "storage"
-  ];
+  powerManagement.powertop.enable = true;
 
   fileSystems."/" = {
     device = "/dev/disk/by-uuid/6fb6cb76-2e0e-4592-acee-d4e328d7fcd8";
