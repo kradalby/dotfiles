@@ -77,7 +77,7 @@
       terminal-notifier
       syncthing
 
-      cook-cli
+      # cook-cli
 
       silicon
 

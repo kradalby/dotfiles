@@ -65,7 +65,7 @@ _: {
       "signal"
       "slack"
       "obsidian"
-      "slowquitapps"
+      # "slowquitapps"
       "steam"
       "the-unarchiver"
       "transmit"
