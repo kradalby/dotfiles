@@ -11,7 +11,7 @@
   vhost = nginx.externalVhost {
     inherit domain;
     proxyPass = "http://localhost:${toString port}";
-    allowCors = true;
+    allowCors = false;
   };
 in
   lib.mkMerge [
