@@ -24,6 +24,7 @@
     ./tailscale.nix
     ./tailscale-headscale.nix
     ./iSponsorBlockTV.nix
+    ./tasmota-exporter.nix
   ];
 
   my.lan = "eth0";
