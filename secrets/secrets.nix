@@ -147,6 +147,7 @@ in
 
     # WIFI
     "ldn-wifi.age".publicKeys = u ++ [hosts.dev-ldn];
+    "kphone15-wifi.age".publicKeys = u ++ [hosts.core-ldn];
 
     # ghostfolio
     "ghostfolio-env.age".publicKeys = u ++ [hosts.core-oracldn];
