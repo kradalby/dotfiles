@@ -28,7 +28,7 @@
     {
       hostname = "kratail";
       ipAddress = "10.65.0.53";
-      mac = "c8:34:8e:51:8b:43";
+      mac = "1c:57:dc:5d:3a:71";
     }
     {
       hostname = "kradell";
@@ -82,9 +82,9 @@
       mac = "78:11:dc:5f:f6:05";
     }
     {
-      hostname = "bedroom-desk-light";
+      hostname = "living-room-corner";
       ipAddress = "10.65.0.82";
-      mac = "a4:cf:12:c3:87:21";
+      mac = "4c:eb:d6:8f:8a:c1";
     }
     {
       hostname = "living-room-shelf";
@@ -92,14 +92,14 @@
       mac = "2c:f4:32:6b:b3:57";
     }
     {
-      hostname = "kitchen-fairy-light";
+      hostname = "living-room-drawer";
       ipAddress = "10.65.0.84";
-      mac = "a4:cf:12:c3:94:99";
+      mac = "4c:eb:d6:8f:9d:84";
     }
     {
-      hostname = "bedroom-nook-light";
+      hostname = "office-light";
       ipAddress = "10.65.0.85";
-      mac = "50:02:91:5e:a5:90";
+      mac = "4c:eb:d6:8f:62:9a";
     }
     {
       hostname = "office-eufy-2k";
@@ -110,6 +110,11 @@
       hostname = "power-p1-meter";
       ipAddress = "10.65.0.87";
       mac = "3c:39:e7:2b:23:38";
+    }
+    {
+      hostname = "office-air";
+      ipAddress = "10.65.0.88";
+      mac = "4c:eb:d6:97:42:9b";
     }
 
     # Media
@@ -142,19 +147,19 @@
       mac = "78:28:ca:d1:3c:88";
     }
     {
-      hostname = "counter";
+      hostname = "kitchen-homepod";
       ipAddress = "10.65.0.106";
       mac = "e0:2b:96:9c:54:3d";
     }
     {
-      hostname = "bedroom-airport";
+      hostname = "living-room-homepod";
       ipAddress = "10.65.0.107";
-      mac = "ac:7f:3e:ed:b4:10";
+      mac = "58:d3:49:45:f7:87";
     }
     {
-      hostname = "living-room-airport";
+      hostname = "living-room-homepod2";
       ipAddress = "10.65.0.108";
-      mac = "00:f7:6f:d3:ac:e3";
+      mac = "58:d3:49:18:dd:68";
     }
   ];
 
