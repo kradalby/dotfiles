@@ -1,8 +1,6 @@
 {
   buildGoModule,
   fetchFromGitHub,
-  lib,
-  installShellFiles,
 }:
 buildGoModule rec {
   name = "setec";
