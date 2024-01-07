@@ -290,6 +290,29 @@
         "type": "github"
       }
     },
+    "homewizard-p1-exporter": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs-unstable"
+        ],
+        "utils": [
+          "utils"
+        ]
+      },
+      "locked": {
+        "lastModified": 1704646731,
+        "narHash": "sha256-fnXsITWX797IxhICoq9SpVo0PuLnSnfYltgAOoR3O84=",
+        "owner": "kradalby",
+        "repo": "homewizard-p1-exporter",
+        "rev": "e306bae2b4bd4dff36b7ff1ffab18662eae9ec7d",
+        "type": "github"
+      },
+      "original": {
+        "owner": "kradalby",
+        "repo": "homewizard-p1-exporter",
+        "type": "github"
+      }
+    },
     "hugin": {
       "inputs": {
         "flake-utils": [
@@ -602,6 +625,7 @@
         "headscale": "headscale",
         "home-manager": "home-manager",
         "home-manager-unstable": "home-manager-unstable",
+        "homewizard-p1-exporter": "homewizard-p1-exporter",
         "hugin": "hugin",
         "hvor": "hvor",
         "krapage": "krapage",
