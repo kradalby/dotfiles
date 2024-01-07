@@ -101,7 +101,9 @@ in {
       };
     };
 
-    networking.firewall.allowedTCPPorts = [80];
+    networking.firewall.allowedTCPPorts =
+      lib.mkIf config.networking.firewall.enable
+      [80 config.services.prometheus.exporters.nginxlog.port];
 
     # services.prometheus.exporters.nginx = {
     #   enable = true;

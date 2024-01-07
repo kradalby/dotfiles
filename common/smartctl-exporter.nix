@@ -24,5 +24,8 @@ in {
     };
 
     my.consulServices.smartctl_exporter = consul.prometheusExporter "smartctl" config.services.prometheus.exporters.smartctl.port;
+    networking.firewall.allowedTCPPorts =
+      lib.mkIf config.networking.firewall.enable
+      [config.services.prometheus.exporters.smartctl.port];
   };
 }
