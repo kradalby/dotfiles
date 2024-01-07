@@ -63,6 +63,12 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
+    homewizard-p1-exporter = {
+      url = "github:kradalby/homewizard-p1-exporter";
+      inputs."utils".follows = "utils";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+
     # Go based
     headscale = {
       url = "github:juanfont/headscale";
@@ -110,6 +116,7 @@
     krapage,
     hvor,
     tasmota-exporter,
+    homewizard-p1-exporter,
     ...
   } @ flakes: let
     overlay-pkgs = final: _: {
@@ -131,6 +138,7 @@
         inherit (krapage.packages."${prev.system}") krapage;
         inherit (hvor.packages."${prev.system}") hvor;
         inherit (tasmota-exporter.packages."${prev.system}") tasmota-exporter;
+        inherit (homewizard-p1-exporter.packages."${prev.system}") homewizard-p1-exporter;
         neovim = neovim-kradalby.packages."${prev.system}".neovim-kradalby;
       })
     ];
@@ -159,6 +167,7 @@
             krapage.nixosModules.default
             hvor.nixosModules.default
             tasmota-exporter.nixosModules.default
+            homewizard-p1-exporter.nixosModules.default
             (import ./modules/linux.nix)
             {
               system.configurationRevision =
