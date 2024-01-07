@@ -16,7 +16,7 @@ in {
           monitor = true;
         })
         # Downstream advertising interfaces.
-        ++ lib.forEach [config.my.lan "iot"]
+        ++ lib.forEach [config.my.lan "iot0"]
         (ifi: {
           name = ifi;
           advertise = true;
