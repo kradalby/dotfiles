@@ -10,4 +10,7 @@ in {
   };
 
   my.consulServices.systemd_exporter = consul.prometheusExporter "systemd" config.services.prometheus.exporters.systemd.port;
+  networking.firewall.allowedTCPPorts =
+    lib.mkIf config.networking.firewall.enable
+    [config.services.prometheus.exporters.systemd.port];
 }
