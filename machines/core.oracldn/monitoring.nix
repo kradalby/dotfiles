@@ -151,6 +151,36 @@ in
               }
             ];
           }
+          {
+            job_name = "tasmota";
+            metrics_path = "/probe";
+            scrape_interval = "10s";
+            static_configs = [
+              {
+                targets = [
+                  "living-room-corner.ldn"
+                  "living-room-shelf.ldn"
+                  "living-room-drawer.ldn"
+                  "office-light.ldn"
+                  "office-air.ldn"
+                ];
+              }
+            ];
+            relabel_configs = [
+              {
+                source_labels = ["__address__"];
+                target_label = "__param_target";
+              }
+              {
+                source_labels = ["__param_target"];
+                target_label = "instance";
+              }
+              {
+                target_label = "__address__";
+                replacement = "127.0.0.1:63459";
+              }
+            ];
+          }
         ];
 
         rules = [

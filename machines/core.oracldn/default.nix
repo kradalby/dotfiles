@@ -37,6 +37,7 @@
     ./golink.nix
     ./webpage.nix
     ./hvor.nix
+    ./tasmota-exporter.nix
   ];
 
   my.wan = "enp0s3";

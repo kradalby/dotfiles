@@ -24,7 +24,6 @@
     ./tailscale.nix
     ./tailscale-headscale.nix
     ./iSponsorBlockTV.nix
-    ./tasmota-exporter.nix
   ];
 
   my.lan = "eth0";
@@ -57,6 +56,8 @@
     };
     interfaces.wlan0.useDHCP = false;
   };
+
+  services.blueman.enable = true;
 
   monitoring.smartctl.devices = ["/dev/sda"];
 
