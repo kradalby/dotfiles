@@ -124,11 +124,11 @@
         "pyproject-nix": "pyproject-nix"
       },
       "locked": {
-        "lastModified": 1704632447,
-        "narHash": "sha256-Ls/ketEPV17CvuR7+9PYWdWZ6Hp9gP4WiTlFeEupaRo=",
+        "lastModified": 1704634428,
+        "narHash": "sha256-KqavtP8q7z1RdY9rCuu51rn4T8jl49/sVl3X16gnib0=",
         "owner": "nix-community",
         "repo": "dream2nix",
-        "rev": "935df57a46f1456a6d4fedb136d1e1eb8727c0de",
+        "rev": "28f44827e4124bb5c6bb989c19becf020ce471a7",
         "type": "github"
       },
       "original": {
@@ -300,11 +300,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1704646731,
-        "narHash": "sha256-fnXsITWX797IxhICoq9SpVo0PuLnSnfYltgAOoR3O84=",
+        "lastModified": 1704647322,
+        "narHash": "sha256-fGIVR7irT2eXygatrGmmxHnyeeMjE2fVknnLGDe/o/Y=",
         "owner": "kradalby",
         "repo": "homewizard-p1-exporter",
-        "rev": "e306bae2b4bd4dff36b7ff1ffab18662eae9ec7d",
+        "rev": "7eef4135a435e69697e82e11d5bff5bd83a75d35",
         "type": "github"
       },
       "original": {
@@ -728,11 +728,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1704632660,
-        "narHash": "sha256-s1bK8hs6YSZChaZbYzFp4Ikl/undKFBog2UFUeIf9jE=",
+        "lastModified": 1704643402,
+        "narHash": "sha256-yiEQoSvZl5K035w+URqLdIfcOhmAZ/5GThkwHFtYi3k=",
         "owner": "kradalby",
         "repo": "tasmota-exporter",
-        "rev": "ee89b2398c4ffb45b7a97ab8d0f9ada176e78300",
+        "rev": "2e597bed35c09fdfd7d29749af425f06180b122c",
         "type": "github"
       },
       "original": {
