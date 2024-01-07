@@ -116,6 +116,11 @@
       ipAddress = "10.65.0.88";
       mac = "4c:eb:d6:97:42:9b";
     }
+    {
+      hostname = "living-room-tv";
+      ipAddress = "10.65.0.89";
+      mac = "50:02:91:5e:a5:90";
+    }
 
     # Media
     {
