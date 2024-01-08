@@ -257,7 +257,7 @@ in
               startPub = [
                 {
                   topic = "cmnd/${topic}/POWER";
-                  message = "off";
+                  message = "";
                 }
                 {
                   topic = "stat/${topic}/POWER";
