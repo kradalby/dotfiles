@@ -121,6 +121,31 @@
       ipAddress = "10.65.0.89";
       mac = "50:02:91:5e:a5:90";
     }
+    {
+      hostname = "office-fridge";
+      ipAddress = "10.65.0.90";
+      mac = "80:64:6f:9d:8c:0e";
+    }
+    {
+      hostname = "office-workstation";
+      ipAddress = "10.65.0.91";
+      mac = "80:64:6f:9d:8c:c6";
+    }
+    {
+      hostname = "tasmota-1";
+      ipAddress = "10.65.0.92";
+      mac = "80:64:6f:9d:8c:49";
+    }
+    {
+      hostname = "tasmota-2";
+      ipAddress = "10.65.0.93";
+      mac = "80:64:6f:9d:8c:9b";
+    }
+    {
+      hostname = "staircase-servers";
+      ipAddress = "10.65.0.94";
+      mac = "a4:cf:12:c3:87:21";
+    }
 
     # Media
     {
