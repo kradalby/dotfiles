@@ -329,6 +329,7 @@
       packages = let
         name = "bootstrap";
         modules = [
+          ragenix.nixosModules.age
           ./common
           (with pkgs; {
             networking = {
