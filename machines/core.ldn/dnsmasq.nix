@@ -21,6 +21,11 @@
       mac = "28:6b:35:88:11:93";
     }
     {
+      hostname = "lenovo";
+      ipAddress = "10.65.0.27";
+      mac = "6c:4b:90:2b:c7:d2";
+    }
+    {
       hostname = "kraairm2";
       ipAddress = "10.65.0.50";
       mac = "1c:57:dc:5a:db:ef";
