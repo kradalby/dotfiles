@@ -19,6 +19,10 @@
     # ./tailscale-headscale.nix
   ];
 
+  age.secrets.ldn-wifi = {
+    file = ../../secrets/ldn-wifi.age;
+  };
+
   networking = {
     hostName = "eye";
     domain = "ldn.fap.no";

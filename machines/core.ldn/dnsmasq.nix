@@ -26,6 +26,11 @@
       mac = "6c:4b:90:2b:c7:d2";
     }
     {
+      hostname = "eye";
+      ipAddress = "10.65.0.28";
+      mac = "dc:a6:32:a8:d3:7e";
+    }
+    {
       hostname = "kraairm2";
       ipAddress = "10.65.0.50";
       mac = "1c:57:dc:5a:db:ef";
