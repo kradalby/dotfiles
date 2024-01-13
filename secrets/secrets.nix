@@ -18,6 +18,7 @@ with builtins; let
     core-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICRRxykpKi6wemG1DPI+9gpWtbGQWGP1D5xb6oATreAv";
     home-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINSfUa0k5lySBwBhx2BfovlKhpkCBCgY5BkzagPJNVhd";
     dev-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIF3nRXqXfloVsl17WZWxKIkU9Aa6/9sU12mYKBtpSx66";
+    eye-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDe2WAzC0HAlgMN3l2D6xjVme/mwYTVCJSq+0V1HCbAW";
 
     core-oracldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGEe9eIMf462ZQhE8Nl9jyUscRtTTYeAIPRN2kvO3cdC";
 
@@ -146,7 +147,7 @@ in
     "krapage-env.age".publicKeys = u ++ [hosts.core-oracldn];
 
     # WIFI
-    "ldn-wifi.age".publicKeys = u ++ [hosts.dev-ldn];
+    "ldn-wifi.age".publicKeys = u ++ [hosts.dev-ldn hosts.eye-ldn];
     "kphone15-wifi.age".publicKeys = u ++ [hosts.core-ldn];
 
     # ghostfolio
