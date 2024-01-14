@@ -15,6 +15,8 @@
 
     ../../common/rpi4-configuration.nix
 
+    ./mediamtx.nix
+
     # ./tailscale.nix
     # ./tailscale-headscale.nix
   ];
