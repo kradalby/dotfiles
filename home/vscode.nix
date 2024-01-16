@@ -33,6 +33,7 @@
       tailscale.vscode-tailscale
       ms-vscode-remote.remote-ssh
       ms-vsliveshare.vsliveshare
+      streetsidesoftware.code-spell-checker
     ];
 
     userSettings = {
@@ -67,6 +68,8 @@
       vim = {
         enableNeovim = true;
       };
+
+      "cSpell.language" = "en-GB";
 
       "nix.enableLanguageServer" = true;
       "nix.serverPath" = "nixd";
