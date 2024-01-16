@@ -55,7 +55,7 @@
     {
       hostname = "tv-switch";
       ipAddress = "10.65.0.71";
-      mac = "f4:92:bf:a3:6a:23";
+      mac = "38:94:ed:11:6a:53";
     }
     {
       hostname = "stue-ap";
@@ -167,9 +167,9 @@
       hostname = "apple-tv";
       ipAddress = "10.65.0.102";
       # Wired
-      # mac = "90:dd:5d:9b:46:49";
+      mac = "90:dd:5d:9b:46:49";
       # Wireless
-      mac = "90:dd:5d:aa:b1:28";
+      # mac = "90:dd:5d:aa:b1:28";
     }
     {
       hostname = "philips-tv";
