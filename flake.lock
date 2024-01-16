@@ -518,22 +518,6 @@
         "type": "github"
       }
     },
-    "nixpkgs-unifi": {
-      "locked": {
-        "lastModified": 1697379843,
-        "narHash": "sha256-RcnGuJgC2K/UpTy+d32piEoBXq2M+nVFzM3ah/ZdJzg=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "12bdeb01ff9e2d3917e6a44037ed7df6e6c3df9d",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "12bdeb01ff9e2d3917e6a44037ed7df6e6c3df9d",
-        "type": "github"
-      }
-    },
     "nixpkgs-unstable": {
       "locked": {
         "lastModified": 1705303754,
@@ -633,7 +617,6 @@
         "nixos-generators": "nixos-generators",
         "nixpkgs": "nixpkgs",
         "nixpkgs-hardware": "nixpkgs-hardware",
-        "nixpkgs-unifi": "nixpkgs-unifi",
         "nixpkgs-unstable": "nixpkgs-unstable",
         "ragenix": "ragenix",
         "tasmota-exporter": "tasmota-exporter",

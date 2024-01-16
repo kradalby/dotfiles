@@ -10,35 +10,19 @@
 
   domain = "unifi.${config.networking.domain}";
 in
-  {
-    disabledModules = ["services/networking/unifi.nix"];
-
-    imports = [
-      "${flakes.nixpkgs-unifi}/nixos/modules/services/networking/unifi.nix"
-    ];
-  }
-  // lib.mkMerge [
+  lib.mkMerge [
     {
-      services.unifi = {
-        unifiPackage = pkgs.unifi.unifi.overrideAttrs (attrs: {
-          meta = attrs.meta // {license = lib.licenses.mit;};
-        });
+      # Disable unifi when not used.
+      systemd.services.unifi.wantedBy = lib.mkForce [];
 
-        # jrePackage = pkgs.jdk17_headless.overrideAttrs {
-        #   swingSupport = false; # don't need swing things
-        #   guiSupport = false; # don't need GUI things
-        # };
-        #
-        mongodbPackage = pkgs.mongodb-4_4.overrideAttrs {
-          jsEngine = "none"; # can't cross compile mozjs
-          allocator = "system"; # can't cross compile gperftools
-        };
+      services.unifi = {
+        unifiPackage = pkgs.unstable.unifi8;
 
         enable = true;
         openFirewall = true;
 
-        # initialJavaHeapSize = 1024;
-        # maximumJavaHeapSize = 1536;
+        initialJavaHeapSize = 1024;
+        maximumJavaHeapSize = 1536;
       };
 
       # TODO: Remove 8443 when nginx can correctly proxy
@@ -82,9 +66,16 @@ in
         proxy_set_header Accept-Encoding "";
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forward-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header Front-End-Https on;
         proxy_redirect off;
+
+
+        proxy_set_header Host $host;
+        proxy_set_header Upgrade $http_upgrade;
+        # proxy_http_version 1.1;
+        proxy_set_header Connection "upgrade";
       '';
     })
   ]
