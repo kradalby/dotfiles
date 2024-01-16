@@ -16,6 +16,7 @@
         src = pkgs.fetchFromGitHub {
           owner = "lilyball";
           repo = "nix-env.fish";
+          # NOTE: manual update required
           rev = "7b65bd228429e852c8fdfa07601159130a818cfa";
           sha256 = "sha256-RG/0rfhgq6aEKNZ0XwIqOaZ6K5S4+/Y5EEMnIdtfPhk=";
         };
@@ -25,8 +26,9 @@
         src = pkgs.fetchFromGitHub {
           owner = "gazorby";
           repo = "fish-abbreviation-tips";
-          rev = "75f7f66ca092d53197c1a97c7d8e93b1402fdc15";
-          sha256 = "sha256-uo8pAIwq7FRQNWHh+cvXAR9Imd2PvNmlrqEiDQHWvEY=";
+          # NOTE: manual update required
+          rev = "8ed76a62bb044ba4ad8e3e6832640178880df485";
+          sha256 = "sha256-F1t81VliD+v6WEWqj1c1ehFBXzqLyumx5vV46s/FZRU=";
         };
       }
       {
@@ -34,8 +36,9 @@
         src = pkgs.fetchFromGitHub {
           owner = "franciscolourenco";
           repo = "done";
-          rev = "d6abb267bb3fb7e987a9352bc43dcdb67bac9f06";
-          sha256 = "sha256-6oeyN9ngXWvps1c5QAUjlyPDQwRWAoxBiVTNmZ4sG8E=";
+          # NOTE: manual update required
+          rev = "d47f4d6551cccb0e46edfb14213ca0097ee22f9a";
+          sha256 = "sha256-VSCYsGjNPSFIZSdLrkc7TU7qyPVm8UupOoav5UqXPMk=";
         };
       }
     ];
@@ -113,70 +116,8 @@
     shellAbbrs = config.my.shellAliases // {};
 
     # TODO: Figure out what this is renamed to
-    functions = let
-      oofTime =
-        pkgs.writers.writePython3 "test_python3"
-        {
-          libraries = [];
-        } ''
-          import datetime
-          import math
-
-          start = 7
-          end = 17
-
-          target_start = 18
-          target_end = 23
-
-
-          def time_in_range(
-                  start: datetime.time,
-                  end: datetime.time,
-                  time: datetime.time) -> bool:
-              """Return true if time is in the range [start, end]"""
-              if start <= end:
-                  return start <= time <= end
-              else:
-                  return start <= time or time <= end
-
-
-          def new_time(now: datetime.datetime) -> datetime.datetime:
-
-              new_value = ((now.hour - start) / (end - start)) * \
-                  (target_end - target_start) + target_start
-
-              new_date = now - datetime.timedelta(days=1)
-
-              return new_date.replace(hour=math.ceil(new_value))
-
-
-          if __name__ == "__main__":
-              now = datetime.datetime.now()
-
-              start_time = datetime.time(start, 0, 0)
-              end_time = datetime.time(end, 0, 0)
-
-              if time_in_range(start_time, end_time, now.time()):
-                  print(new_time(now).strftime("%Y-%m-%dT%H:%M:%S"), end="")
-              else:
-                  print(now.strftime("%Y-%m-%dT%H:%M:%S"), end="")
-        '';
-    in {
+    functions = {
       mkcd = "mkdir -p $argv[1]; and cd $argv[1]";
-
-      lcqjob = ''
-        set query (printf '{job=~"%s.*"}' $argv[1])
-        lcq $query $argv[2..-1]
-      '';
-
-      lcqapp = ''
-        set query (printf '{app=~"%s.*"}' $argv[1])
-        lcq $query $argv[2..-1]
-      '';
-
-      dtgc = ''
-        env GIT_AUTHOR_DATE=(${oofTime}) GIT_COMMITTER_DATE=(${oofTime}) ${pkgs.git}/bin/git commit $argv
-      '';
 
       gi = ''${pkgs.curl}/bin/curl -L -s https://www.gitignore.io/api/$argv'';
 
@@ -185,32 +126,6 @@
 
       rmkh = ''
         ${pkgs.gnused}/bin/sed -i $argv'd' ~/.ssh/known_hosts
-      '';
-
-      k3s-fetch-merge-config = ''
-        set host $argv[1]
-        set target $argv[2]
-
-        echo "Updating target $target with config from $host"
-
-        set rconfig (ssh $host "cat /etc/rancher/k3s/k3s.yaml | yq -c")
-
-        set cert_auth_data (echo $rconfig | ${pkgs.jq}/bin/jq -r '.clusters[0].cluster."certificate-authority-data"')
-        set client_cert_data (echo $rconfig | ${pkgs.jq}/bin/jq -r '.users[0].user."client-certificate-data"')
-        set client_key_data (echo $rconfig | ${pkgs.jq}/bin/jq -r '.users[0].user."client-key-data"')
-
-        set lconfig (cat $HOME/.kube/config | ${pkgs.yq}/bin/yq -c)
-
-        echo "Moving $HOME/.kube/config to $HOME/.kube/config.bak"
-        mv $HOME/.kube/config $HOME/.kube/config.bak
-
-        echo "Writing new config to $HOME/.kube/config"
-        echo $lconfig \
-          | ${pkgs.jq}/bin/jq "(.clusters[] | select(.name == \"$target\")).cluster.\"certificate-authority-data\" |= \"$cert_auth_data\"" \
-          | ${pkgs.jq}/bin/jq "(.users[] | select(.name == \"$target-admin\")).user.\"client-certificate-data\" |= \"$client_cert_data\"" \
-          | ${pkgs.jq}/bin/jq "(.users[] | select(.name == \"$target-admin\")).user.\"client-key-data\" |= \"$client_key_data\"" \
-          | ${pkgs.yq}/bin/yq --yaml-output \
-          > $HOME/.kube/config
       '';
 
       ragenix-update-key = ''
