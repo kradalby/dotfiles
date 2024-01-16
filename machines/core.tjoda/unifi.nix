@@ -10,30 +10,11 @@
 
   domain = "unifi.${config.networking.domain}";
 in
-  {
-    disabledModules = ["services/networking/unifi.nix"];
-
-    imports = [
-      "${flakes.nixpkgs-unifi}/nixos/modules/services/networking/unifi.nix"
-    ];
-  }
-  // lib.mkMerge [
+  lib.mkMerge [
     {
       services.unifi = {
-        unifiPackage = pkgs.unifi.unifi.overrideAttrs (attrs: {
-          meta = attrs.meta // {license = lib.licenses.mit;};
-        });
+        unifiPackage = pkgs.unstable.unifi8;
 
-        # jrePackage = pkgs.jdk17_headless.overrideAttrs {
-        #   swingSupport = false; # don't need swing things
-        #   guiSupport = false; # don't need GUI things
-        # };
-        #
-        # mongodbPackage = pkgs.mongodb.overrideAttrs {
-        #   jsEngine = "none"; # can't cross compile mozjs
-        #   allocator = "system"; # can't cross compile gperftools
-        # };
-        #
         enable = true;
         openFirewall = true;
 

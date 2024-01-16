@@ -9,8 +9,6 @@
 
     nixpkgs-hardware.url = "github:NixOS/nixos-hardware";
 
-    nixpkgs-unifi.url = "github:NixOS/nixpkgs/12bdeb01ff9e2d3917e6a44037ed7df6e6c3df9d";
-
     darwin.url = "github:lnl7/nix-darwin";
     darwin.inputs.nixpkgs.follows = "nixpkgs";
 
@@ -120,9 +118,14 @@
     ...
   } @ flakes: let
     overlay-pkgs = final: _: {
-      stable = import nixpkgs {inherit (final) system;};
-      unstable = import nixpkgs-unstable {inherit (final) system;};
-      unifi = import flakes.nixpkgs-unifi {inherit (final) system;};
+      stable = import nixpkgs {
+        inherit (final) system;
+        config = {allowUnfree = true;};
+      };
+      unstable = import nixpkgs-unstable {
+        inherit (final) system;
+        config = {allowUnfree = true;};
+      };
     };
 
     overlays = [
@@ -147,7 +150,10 @@
       ragenix.nixosModules.age
 
       {
-        nixpkgs.overlays = overlays;
+        nixpkgs = {
+          inherit overlays;
+          config.allowUnfree = true;
+        };
       }
       {
         # pin system nixpkgs to the same version as the flake input
