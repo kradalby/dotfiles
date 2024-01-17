@@ -11,10 +11,11 @@
 in
   lib.mkMerge [
     {
+      networking.firewall.allowedTCPPorts = [48463];
       virtualisation.oci-containers.containers.scrypted = {
         # NOTE: manual update required
         # https://hub.docker.com/r/koush/scrypted/tags
-        image = "koush/scrypted:18-jammy-full.s6-v0.72.0";
+        image = "koush/scrypted:18-jammy-full.s6-v0.85.0";
         # user = config.users.users.stirling.uid;
         autoStart = true;
         # ports = [
@@ -22,7 +23,8 @@ in
         # ];
 
         environment = {
-          SCRYPTED_DOCKER_AVAHI = "true";
+          SCRYPTED_DOCKER_AVAHI = "false";
+          HOSTNAME = "scrypted";
         };
         ports = [
           "10443:10443/tcp"
