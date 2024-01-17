@@ -17,8 +17,8 @@
 
     ./mediamtx.nix
 
-    # ./tailscale.nix
-    # ./tailscale-headscale.nix
+    ./tailscale.nix
+    ./tailscale-headscale.nix
   ];
 
   age.secrets.ldn-wifi = {
