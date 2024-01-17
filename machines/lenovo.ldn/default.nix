@@ -17,8 +17,8 @@ in {
 
     ../../common/consul.nix
 
-    # ./tailscale.nix
-    # ./tailscale-headscale.nix
+    ./tailscale.nix
+    ./tailscale-headscale.nix
   ];
 
   networking = {
