@@ -76,7 +76,7 @@ in
             #   friendly_name = "bedroom-switch";
             # };
             "0xec1bbdfffe269185" = {
-              friendly_name = "office-speaker-light";
+              friendly_name = "living-room-speaker-light";
             };
 
             "0x00158d0007ed50e9" = {
