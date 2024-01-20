@@ -14,6 +14,7 @@
     config.services.golink.dataDir
     config.services.postgresqlBackup.location
     config.services.minio.configDir
+    config.services.grafana.dataDir
   ];
 
   cfg = site: {
