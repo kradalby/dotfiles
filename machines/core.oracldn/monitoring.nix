@@ -161,12 +161,12 @@ in
                   "living-room-corner.ldn"
                   "living-room-shelf.ldn"
                   "living-room-drawer.ldn"
+                  "living-room-sofa.ldn"
                   "office-light.ldn"
                   "office-air.ldn"
                   "living-room-tv.ldn"
                   "office-fridge.ldn"
                   "office-workstation.ldn"
-                  "tasmota-1.ldn"
                   "tasmota-2.ldn"
                   "staircase-servers.ldn"
                 ];
