@@ -355,7 +355,7 @@ in
 
             # (mqttthingTradfriTemperature "Living Room Shelf" "lightbulb" "living-room-shelf-light")
 
-            (mqttthingTradfriColour "Office Speaker" "lightbulb" "office-speaker-light")
+            (mqttthingTradfriColour "Living Room Speaker" "lightbulb" "office-speaker-light")
 
             (mqttthingTradfri "Living Room Ceiling Inner" "lightbulb" "living-inner-light")
             (mqttthingTradfri "Living Room Ceiling Window" "lightbulb" "living-window-light")
@@ -369,6 +369,7 @@ in
 
             (mqttthingAthomV2Outlet "Living Room Corner" "outlet" "tasmota_8F8AC1")
             (mqttthingAthomV2Outlet "Living Room Drawer" "outlet" "tasmota_8F9D84")
+            (mqttthingAthomV2Outlet "Living Room Sofa" "outlet" "tasmota_9D8C49")
 
             (mqttthingAqaraOccupOutlet "Office motion" "office-motion")
 
