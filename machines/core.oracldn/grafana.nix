@@ -30,7 +30,7 @@ in
           server = {
             inherit domain;
             root_url = "https://${domain}";
-            enforce_domain = true;
+            enforce_domain = false;
             enable_gzip = true;
             http_addr = "127.0.0.1";
           };
