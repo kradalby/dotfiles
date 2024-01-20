@@ -142,7 +142,7 @@
       mac = "80:64:6f:9d:8c:c6";
     }
     {
-      hostname = "tasmota-1";
+      hostname = "living-room-sofa";
       ipAddress = "10.65.0.92";
       mac = "80:64:6f:9d:8c:49";
     }
