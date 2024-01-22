@@ -264,7 +264,7 @@
         "home.ldn" = nixosBox "aarch64-linux" nixpkgs null "home.ldn";
         "core.ldn" = nixosBox "aarch64-linux" nixpkgs null "core.ldn";
         "dev.ldn" = nixosBox "x86_64-linux" nixpkgs home-manager "dev.ldn";
-        "lenovo.ldn" = nixosBox "x86_64-linux" nixpkgs null "dev.ldn";
+        "lenovo.ldn" = nixosBox "x86_64-linux" nixpkgs null "lenovo.ldn";
         "eye.ldn" = nixosBox "aarch64-linux" nixpkgs null "eye.ldn";
 
         # "storage.bassan" = nixosBox "aarch64-linux" nixpkgs null "storage.bassan";
