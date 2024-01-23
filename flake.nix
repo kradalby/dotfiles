@@ -344,6 +344,7 @@
               hostName = name;
               domain = "bootstrap.fap.no";
               firewall.enable = lib.mkForce false;
+              useDHCP = lib.mkForce true;
             };
           })
         ];
@@ -380,8 +381,6 @@
                     #     };
                     #   };
                     # };
-                    # interfaces.wlan0.useDHCP = true;
-                    interfaces.eth0.useDHCP = true;
                   };
                 }
                 ./common/rpi4-configuration.nix
@@ -407,11 +406,6 @@
                 #     })
                 #   ];
                 # }
-                {
-                  networking = {
-                    interfaces.eth0.useDHCP = true;
-                  };
-                }
                 ./misc/nanopi-neo2
               ]
               ++ modules;
