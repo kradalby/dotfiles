@@ -15,6 +15,7 @@
     "/storage/pictures"
     "/storage/software"
     "/storage/sync"
+    "/fast/files"
     # "/storage/restic"
     config.services.postgresqlBackup.location
   ];
