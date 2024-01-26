@@ -30,17 +30,17 @@ jobs:
       #     git config --global url."https://${{ secrets.GH_TOKEN }}@github.com".insteadOf https://github.com
 
       - uses: DeterminateSystems/nix-installer-action@main
-        # with:
-        #   # We set our custom GitHub token for any private flake inputs we might have
-        #   github-token: ${{ secrets.GH_TOKEN }}
-        #   # We add all the config for extra platforms, other binary caches and to raise the number of connections that can be made
-        #   extra-conf: |
-        #     fallback = true
-        #     http-connections = 128
-        #     max-substitution-jobs = 128
-        #     extra-platforms = aarch64-linux
-        #     substituters = https://<your fly app name>.fly.dev/system?priority=43 https://nix-community.cachix.org?priority=41 https://numtide.cachix.org?priority=42 https://cache.nixos.org/
-        #     trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= system:5M8uBPjS68HTadSbeCs0Jiu0Z1tJBNdahtKBCXhl+Z0= nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs= numtide.cachix.org-1:2ps1kLBUWjxIneOy1Ik6cQjb41X0iXVXeHigGmycPPE=
+        with:
+          # We set our custom GitHub token for any private flake inputs we might have
+          github-token: ${{ secrets.GH_TOKEN }}
+          # We add all the config for extra platforms, other binary caches and to raise the number of connections that can be made
+          extra-conf: |
+            fallback = true
+            http-connections = 128
+            max-substitution-jobs = 128
+            extra-platforms = aarch64-linux
+            # substituters = https://<your fly app name>.fly.dev/system?priority=43 https://nix-community.cachix.org?priority=41 https://numtide.cachix.org?priority=42 https://cache.nixos.org/
+            # trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= system:5M8uBPjS68HTadSbeCs0Jiu0Z1tJBNdahtKBCXhl+Z0= nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs= numtide.cachix.org-1:2ps1kLBUWjxIneOy1Ik6cQjb41X0iXVXeHigGmycPPE=
 
       # - uses: DeterminateSystems/magic-nix-cache-action@main
       # # We make sure that any git-crypted files are decrypted before we begin to build
