@@ -131,7 +131,7 @@ in {
           udp dport {
             ${ports.https},
             ${toString config.services.tailscale.port},
-            ${toString config.networking.wireguard.interfaces.wg0.listenPort},
+            51820,
           } counter accept comment "router WAN UDP"
 
           # router DHCPv6 client
