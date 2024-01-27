@@ -139,6 +139,9 @@ in
     # golink
     "golink-tskey.age".publicKeys = u ++ [hosts.core-oracldn];
 
+    # attic
+    "attic-env.age".publicKeys = u ++ [hosts.dev-oracfurt];
+
     # hvor
     "hvor-tskey.age".publicKeys = u ++ [hosts.core-oracldn];
     "hvor-env.age".publicKeys = u ++ [hosts.core-oracldn];
