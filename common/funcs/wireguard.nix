@@ -1,35 +1,53 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }: let
   consul = import ./consul.nix {inherit lib;};
 
-  serverPeer = name: let
+  serverPeer = netd: name: let
     wireguardHosts = import ../../metadata/wireguard.nix;
     wireguardConfig = wireguardHosts.servers."${name}";
-  in {
-    publicKey = wireguardConfig.public_key;
-    allowedIPs = wireguardConfig.addresses ++ wireguardConfig.additional_networks;
-    endpoint = "${wireguardConfig.endpoint_address}:${toString wireguardConfig.endpoint_port}";
-  };
+  in
+    if netd
+    then {
+      wireguardPeerConfig = {
+        PublicKey = wireguardConfig.public_key;
+        AllowedIPs = wireguardConfig.addresses ++ wireguardConfig.additional_networks;
+        Endpoint = "${wireguardConfig.endpoint_address}:${toString wireguardConfig.endpoint_port}";
+      };
+    }
+    else {
+      publicKey = wireguardConfig.public_key;
+      allowedIPs = wireguardConfig.addresses ++ wireguardConfig.additional_networks;
+      endpoint = "${wireguardConfig.endpoint_address}:${toString wireguardConfig.endpoint_port}";
+    };
 
-  clientPeer = name: let
+  clientPeer = netd: name: let
     wireguardHosts = import ../../metadata/wireguard.nix;
     wireguardConfig = wireguardHosts.clients."${name}";
-  in {
-    publicKey = wireguardConfig.public_key;
-    allowedIPs = wireguardConfig.addresses ++ wireguardConfig.additional_networks;
-  };
+  in
+    if netd
+    then {
+      wireguardPeerConfig = {
+        PublicKey = wireguardConfig.public_key;
+        AllowedIPs = wireguardConfig.addresses ++ wireguardConfig.additional_networks;
+      };
+    }
+    else {
+      publicKey = wireguardConfig.public_key;
+      allowedIPs = wireguardConfig.addresses ++ wireguardConfig.additional_networks;
+    };
 
   server = name: privateKeyPath: let
     wireguardHosts = import ../../metadata/wireguard.nix;
     wireguardConfig = wireguardHosts.servers."${name}";
 
-    clients = map clientPeer (builtins.attrNames wireguardHosts.clients);
+    clients = map (clientPeer false) (builtins.attrNames wireguardHosts.clients);
 
     # We need to filter out the current host
-    servers = map serverPeer (builtins.filter (host: host != name) (builtins.attrNames wireguardHosts.servers));
+    servers = map (serverPeer false) (builtins.filter (host: host != name) (builtins.attrNames wireguardHosts.servers));
   in {
     ips = wireguardConfig.addresses ++ wireguardConfig.additional_networks;
     listenPort = wireguardConfig.endpoint_port;
@@ -41,7 +59,7 @@
     wireguardHosts = import ../../metadata/wireguard.nix;
     wireguardConfig = wireguardHosts.clients."${name}";
 
-    servers = map serverPeer (builtins.attrNames wireguardHosts.servers);
+    servers = map (serverPeer false) (builtins.attrNames wireguardHosts.servers);
   in {
     ips = wireguardConfig.addresses ++ wireguardConfig.additional_networks;
     privateKeyFile = privateKeyPath;

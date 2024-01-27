@@ -4,9 +4,7 @@
   pkgs,
   lib,
   ...
-}: let
-  sshKeys = import ../../metadata/ssh.nix;
-in {
+}: {
   imports = [
     ../../common
     ./hardware-configuration.nix
@@ -20,6 +18,8 @@ in {
     ./tailscale.nix
     ./tailscale-headscale.nix
   ];
+
+  my.lan = "enp0s31f6";
 
   networking = {
     hostName = "lenovo";
@@ -50,7 +50,20 @@ in {
         443 # HTTPS
       ];
 
-      trustedInterfaces = ["enp0s31f6"];
+      trustedInterfaces = [config.my.lan];
+    };
+  };
+
+  services.networkd-dispatcher = {
+    enable = true;
+    rules = {
+      "tailscale" = {
+        onState = ["routable"];
+        script = ''
+          #!${pkgs.runtimeShell}
+          ${pkgs.ethtool}/bin/ethtool -K ${config.my.lan} rx-udp-gro-forwarding on rx-gro-list off
+        '';
+      };
     };
   };
 
