@@ -43,6 +43,13 @@
       # inputs."agenix".inputs."nixpkgs".follows = "nixpkgs";
     };
 
+    attic = {
+      url = "github:zhaofengli/attic";
+      inputs."flake-utils".follows = "utils";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # Go based
     krapage = {
       url = "github:kradalby/kra";
       inputs."utils".follows = "utils";
@@ -67,7 +74,6 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
-    # Go based
     headscale = {
       url = "github:juanfont/headscale";
       # url = "github:kradalby/headscale/tailsql";
@@ -102,6 +108,7 @@
     darwin,
     home-manager,
     ragenix,
+    attic,
     nixos-generators,
     dream2nix,
     vscode-extensions,
@@ -135,6 +142,7 @@
       hugin.overlay
       # munin.overlay
       golink.overlay
+      attic.overlays.default
       vscode-extensions.overlays.default
       (import ./pkgs/overlays {})
       (_: prev: {
@@ -174,6 +182,7 @@
             hvor.nixosModules.default
             tasmota-exporter.nixosModules.default
             homewizard-p1-exporter.nixosModules.default
+            attic.nixosModules.atticd
             (import ./modules/linux.nix)
             {
               system.configurationRevision =

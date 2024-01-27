@@ -22,6 +22,7 @@
     ./tailscale-headscale.nix
     # ./openvpn.nix
     ./syncthing.nix
+    ./attic.nix
   ];
 
   my.wan = "enp0s3";
