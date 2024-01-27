@@ -6,6 +6,8 @@
 }: let
   consul = import ./consul.nix {inherit lib;};
 
+  routingTable = "main";
+
   serverPeer = netd: name: let
     wireguardHosts = import ../../metadata/wireguard.nix;
     wireguardConfig = wireguardHosts.servers."${name}";
@@ -16,6 +18,8 @@
         PublicKey = wireguardConfig.public_key;
         AllowedIPs = wireguardConfig.addresses ++ wireguardConfig.additional_networks;
         Endpoint = "${wireguardConfig.endpoint_address}:${toString wireguardConfig.endpoint_port}";
+        PersistentKeepalive = 25;
+        RouteTable = routingTable;
       };
     }
     else {
@@ -33,6 +37,8 @@
       wireguardPeerConfig = {
         PublicKey = wireguardConfig.public_key;
         AllowedIPs = wireguardConfig.addresses ++ wireguardConfig.additional_networks;
+        PersistentKeepalive = 25;
+        RouteTable = routingTable;
       };
     }
     else {
@@ -89,11 +95,71 @@
     my.consulServices.wireguard_exporter = consul.prometheusExporter "wireguard" config.services.prometheus.exporters.wireguard.port;
   };
 
+  serviceNetworkD = name: secret: let
+    wireguardHosts = import ../../metadata/wireguard.nix;
+    all = wireguardHosts.servers // wireguardHosts.clients;
+    wireguardConfig = all."${name}";
+
+    clients = map (clientPeer true) (builtins.attrNames wireguardHosts.clients);
+
+    # We need to filter out the current host
+    servers = map (serverPeer true) (builtins.filter (host: host != name) (builtins.attrNames wireguardHosts.servers));
+  in {
+    age.secrets.${secret} = {
+      file = ../../secrets + "/${secret}.age";
+      mode = "0400";
+      owner = "systemd-network";
+    };
+
+    environment.systemPackages = [pkgs.wireguard-tools];
+
+    systemd.network = {
+      enable = true;
+      netdevs = {
+        "50-wg0" = {
+          netdevConfig = {
+            Kind = "wireguard";
+            Name = "wg0";
+            MTUBytes = "1300";
+          };
+          wireguardConfig = {
+            PrivateKeyFile = config.age.secrets.${secret}.path;
+            ListenPort = 51820;
+          };
+          wireguardPeers = servers ++ clients;
+        };
+      };
+      networks."50-wg0" = {
+        matchConfig.Name = "wg0";
+        address = wireguardConfig.addresses ++ wireguardConfig.additional_networks;
+        # address = lib.flatten (builtins.map (peer: peer.wireguardPeerConfig.AllowedIPs) (servers ++ clients));
+        DHCP = "no";
+        networkConfig = {
+          IPMasquerade = "ipv4";
+          IPForward = true;
+          IPv6AcceptRA = false;
+        };
+      };
+    };
+
+    networking.firewall = {
+      trustedInterfaces = ["wg0"];
+    };
+
+    services.prometheus.exporters.wireguard = {
+      enable = true;
+      # TODO: Remove when fixed upstream
+      # withRemoteIp = true;
+    };
+
+    my.consulServices.wireguard_exporter = consul.prometheusExporter "wireguard" config.services.prometheus.exporters.wireguard.port;
+  };
+
   clientService = name: secret:
     service name secret (client name config.age.secrets.${secret}.path);
 
   serverService = name: secret:
     service name secret (server name config.age.secrets.${secret}.path);
 in {
-  inherit clientService serverService;
+  inherit clientService serverService serviceNetworkD;
 }
