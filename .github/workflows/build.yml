@@ -7,12 +7,31 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      # Here we specify the matrix of our hosts and their target platform architectures
       matrix:
         machine:
+          # Do not actually need to build all of them
+          # as there is a lot of overlap, but most
+          # hosts added now as there are some specific
+          # stuff.
           - host: core.terra
             platform: x86-64-linux
+          - host: core.tjoda
+            platform: x86-64-linux
+          - host: headscale.oracldn
+            platform: x86-64-linux
+          - host: dev.ldn
+            platform: x86-64-linux
+          - host: lenovo.ldn
+            platform: x86-64-linux
           - host: core.ldn
+            platform: aarch64-linux
+          - host: core.oracldn
+            platform: aarch64-linux
+          - host: dev.oracfurt
+            platform: aarch64-linux
+          - host: eye.ldn
+            platform: aarch64-linux
+          - host: home.ldn
             platform: aarch64-linux
 
     steps:
@@ -22,37 +41,27 @@ jobs:
       - if: matrix.machine.platform == 'aarch64-linux'
         uses: docker/setup-qemu-action@v3
 
-      # # We make our netrc file that is used to make authorized requests to Attic
-      # # We also make sure that we use our custom GitHub token if we need to clone submodules or anything like that
-      # - run: |
-      #     sudo mkdir -p /etc/nix
-      #     echo "machine <your fly app name>.fly.dev password ${{ secrets.ATTIC_TOKEN }}" | sudo tee /etc/nix/netrc > /dev/null
-      #     git config --global url."https://${{ secrets.GH_TOKEN }}@github.com".insteadOf https://github.com
+      - name: Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
 
       - uses: DeterminateSystems/nix-installer-action@main
         with:
-          # We set our custom GitHub token for any private flake inputs we might have
-          github-token: ${{ secrets.GH_TOKEN }}
-          # We add all the config for extra platforms, other binary caches and to raise the number of connections that can be made
           extra-conf: |
             fallback = true
             http-connections = 128
             max-substitution-jobs = 128
             extra-platforms = aarch64-linux
-            # substituters = https://<your fly app name>.fly.dev/system?priority=43 https://nix-community.cachix.org?priority=41 https://numtide.cachix.org?priority=42 https://cache.nixos.org/
-            # trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= system:5M8uBPjS68HTadSbeCs0Jiu0Z1tJBNdahtKBCXhl+Z0= nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs= numtide.cachix.org-1:2ps1kLBUWjxIneOy1Ik6cQjb41X0iXVXeHigGmycPPE=
+            substituters = http://attic/system?priority=43 https://nix-community.cachix.org?priority=41 https://numtide.cachix.org?priority=42 https://cache.nixos.org/
+            trusted-public-keys = system:40arGOg81ZACFJQAksoEplo8PfgxDd6aEQpNbuHXcCg= cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs= numtide.cachix.org-1:2ps1kLBUWjxIneOy1Ik6cQjb41X0iXVXeHigGmycPPE=
 
-      # - uses: DeterminateSystems/magic-nix-cache-action@main
-      # # We make sure that any git-crypted files are decrypted before we begin to build
-      # - run: |
-      #     echo "${{ secrets.GIT_CRYPT_KEY }}" | base64 --decode > key
-      #     nix profile install nixpkgs#git-crypt
-      #     git-crypt unlock key
+      - uses: DeterminateSystems/magic-nix-cache-action@main
 
-      # We build each system in a separate job, targeting the configuration using matrix.machine.host
-      # Once built, we login to Attic and push the built system to our `system` cache!
       - name: Build and push system
         run: |
           nix build '.#nixosConfigurations."${{ matrix.machine.host }}".config.system.build.toplevel'
-          # nix run github:zhaofengli/attic#default login fly https://<your fly app name>.fly.dev ${{ secrets.ATTIC_TOKEN }}
-          # nix run github:zhaofengli/attic#default push system result -j 2
+          nix run github:zhaofengli/attic#default login kradalby http://attic ${{ secrets.ATTIC_TOKEN }}
+          nix run github:zhaofengli/attic#default push system result -j 2
