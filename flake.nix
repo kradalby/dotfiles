@@ -249,7 +249,7 @@
       // (builtins.mapAttrs
         (name: value: {
           deployment = {
-            buildOnTarget = false;
+            buildOnTarget = true;
             # Replace hostname with tailscale hostname to use tailscale auth.
             targetHost = builtins.replaceStrings ["."] ["-"] name;
           };
