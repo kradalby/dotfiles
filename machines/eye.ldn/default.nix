@@ -21,6 +21,8 @@
     ./tailscale-headscale.nix
   ];
 
+  my.lan = "eth0";
+
   age.secrets.ldn-wifi = {
     file = ../../secrets/ldn-wifi.age;
   };
