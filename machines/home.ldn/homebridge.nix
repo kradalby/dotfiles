@@ -355,7 +355,7 @@ in
 
             # (mqttthingTradfriTemperature "Living Room Shelf" "lightbulb" "living-room-shelf-light")
 
-            (mqttthingTradfriColour "Living Room Speaker" "lightbulb" "office-speaker-light")
+            (mqttthingTradfriColour "Living Room Speaker" "lightbulb" "living-room-speaker-light")
 
             (mqttthingTradfri "Living Room Ceiling Inner" "lightbulb" "living-inner-light")
             (mqttthingTradfri "Living Room Ceiling Window" "lightbulb" "living-window-light")
