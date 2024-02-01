@@ -104,7 +104,7 @@ in {
         # config.networking.wireguard.interfaces.wg0.listenPort
       ];
 
-      trustedInterfaces = [config.my.lan];
+      trustedInterfaces = [config.my.lan "podman+"];
     };
   };
 
@@ -112,7 +112,41 @@ in {
   users.users.root.openssh.authorizedKeys.keys = sshKeys.main ++ sshKeys.kradalby ++ sshKeys.work;
   users.users.kradalby.openssh.authorizedKeys.keys = sshKeys.main ++ sshKeys.kradalby ++ sshKeys.work;
 
-  virtualisation.docker.enable = true;
+  virtualisation = {
+    oci-containers.backend = lib.mkForce "podman";
+    docker.enable = false;
+    podman = {
+      enable = true;
+      dockerSocket.enable = true;
+      defaultNetwork.settings = {
+        subnets = [
+          {
+            gateway = "172.16.0.1";
+            subnet = "172.16.0.0/12";
+          }
+        ];
+        dns_enabled = true;
+      };
+    };
+  };
+  environment.systemPackages = [
+    # Do install the docker CLI to talk to podman.
+    # Not needed when virtualisation.docker.enable = true;
+    pkgs.docker-client
+  ];
+  users.users.kradalby.extraGroups = ["podman"];
+
+  security.sudo.extraRules = [
+    {
+      users = ["kradalby"];
+      commands = [
+        {
+          command = "ALL";
+          options = ["NOPASSWD"]; # "SETENV" # Adding the following could be a good idea
+        }
+      ];
+    }
+  ];
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
