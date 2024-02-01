@@ -46,12 +46,17 @@
     loginShellInit = let
       fishReorderPath = path: "fish_add_path --move --prepend ${path}";
 
-      path = [
-        (fishReorderPath "/opt/homebrew/sbin")
-        (fishReorderPath "/nix/var/nix/profiles/default/bin")
-        (fishReorderPath "/etc/profiles/per-user/$USER/bin")
-        (fishReorderPath "/run/current-system/sw/bin")
-      ];
+      path =
+        [
+          (fishReorderPath "/opt/homebrew/sbin")
+          (fishReorderPath "/nix/var/nix/profiles/default/bin")
+          (fishReorderPath "/etc/profiles/per-user/$USER/bin")
+          (fishReorderPath "/run/current-system/sw/bin")
+        ]
+        ++ lib.optionals pkgs.stdenv.isLinux [
+          # Where sudo lives, needed for linux.
+          (fishReorderPath "/run/wrappers/bin")
+        ];
     in ''
       ${builtins.concatStringsSep "\n" path}
     '';
