@@ -35,6 +35,7 @@
       ms-vsliveshare.vsliveshare
       streetsidesoftware.code-spell-checker
       stkb.rewrap
+      elmtooling.elm-ls-vscode
     ];
 
     userSettings = {
