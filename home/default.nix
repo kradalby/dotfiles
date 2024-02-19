@@ -119,6 +119,8 @@
         --platform ubuntu-18.04=ghcr.io/catthehacker/ubuntu:act-18.04
       '';
 
+      ".config/zed/settings.json".text = builtins.toJSON (import ./zed.nix);
+
       ".config/nix/nix.conf".text = ''
         experimental-features = nix-command flakes
       '';
