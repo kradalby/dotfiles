@@ -274,7 +274,7 @@
         "core.ldn" = nixosBox "aarch64-linux" nixpkgs null "core.ldn";
         "dev.ldn" = nixosBox "x86_64-linux" nixpkgs home-manager "dev.ldn";
         "lenovo.ldn" = nixosBox "x86_64-linux" nixpkgs null "lenovo.ldn";
-        "eye.ldn" = nixosBox "aarch64-linux" nixpkgs null "eye.ldn";
+        # "eye.ldn" = nixosBox "aarch64-linux" nixpkgs null "eye.ldn";
 
         # "storage.bassan" = nixosBox "aarch64-linux" nixpkgs null "storage.bassan";
         "core.tjoda" = nixosBox "x86_64-linux" nixpkgs null "core.tjoda";
