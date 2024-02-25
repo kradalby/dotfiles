@@ -147,14 +147,6 @@ in {
 
           udp dport ${ports.mdns} udp sport ${ports.mdns} counter accept comment "router untrusted mDNS"
 
-          # Drop traffic trying to cross VLANs or broadcast.
-          ${
-        lib.concatMapStrings (ifi: ''
-          iifname ${ifi.name} ip daddr != ${ifi.prefix} counter drop comment "${ifi.name} traffic leaving IPv4 VLAN"
-        '')
-        untrusted_lans
-      }
-
           # Allow only necessary router-provided services.
           tcp dport {
             ${ports.dns},
@@ -163,6 +155,15 @@ in {
           udp dport {
             ${ports.dns},
           } counter accept comment "router untrusted UDP"
+
+          # Drop traffic trying to cross VLANs or broadcast.
+          ${
+        lib.concatMapStrings (ifi: ''
+          # iifname ${ifi.name} ip daddr != ${ifi.prefix} counter drop comment "${ifi.name} traffic leaving IPv4 VLAN"
+        '')
+        untrusted_lans
+      }
+
 
           counter drop
         }
