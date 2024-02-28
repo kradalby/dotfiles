@@ -6,6 +6,7 @@
 
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nixpkgs-master.url = "github:NixOS/nixpkgs/master";
 
     nixpkgs-hardware.url = "github:NixOS/nixos-hardware";
 
@@ -105,6 +106,7 @@
     self,
     nixpkgs,
     nixpkgs-unstable,
+    nixpkgs-master,
     darwin,
     home-manager,
     ragenix,
@@ -130,6 +132,10 @@
         config = {allowUnfree = true;};
       };
       unstable = import nixpkgs-unstable {
+        inherit (final) system;
+        config = {allowUnfree = true;};
+      };
+      master = import nixpkgs-master {
         inherit (final) system;
         config = {allowUnfree = true;};
       };

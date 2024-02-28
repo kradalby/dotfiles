@@ -23,9 +23,11 @@
     rust-analyzer
     sumneko-lua-language-server
     terraform-ls
-    gopls
     nixd
     nodePackages."@tailwindcss/language-server"
+    (master.gopls.override {
+      buildGoModule = master.buildGo122Module;
+    })
 
     ## null-ls
     # curlylint
