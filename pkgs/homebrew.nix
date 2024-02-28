@@ -79,6 +79,7 @@ _: {
       # "tunnelblick"
       # "visual-studio-code"
       "hot"
+      "zed-preview"
 
       # For quiz!
       "vlc"
