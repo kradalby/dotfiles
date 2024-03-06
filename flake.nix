@@ -435,6 +435,14 @@
             specialArgs = {inherit flakes;};
             format = "vmware";
           };
+        "proxmox" =
+          nixos-generators.nixosGenerate
+          {
+            inherit system;
+            inherit modules;
+            specialArgs = {inherit flakes;};
+            format = "proxmox";
+          };
         "iso" =
           nixos-generators.nixosGenerate
           {
