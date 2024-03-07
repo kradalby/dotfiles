@@ -37,7 +37,7 @@
       tree
       unzip
       wget
-      yq
+      yq-go
       rsync
       viddy
       zstd
