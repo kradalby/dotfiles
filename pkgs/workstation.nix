@@ -47,7 +47,6 @@
       gotestsum
       difftastic
       setec
-      attic
 
       # (fenix.complete.withComponents
       #   [
