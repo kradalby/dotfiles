@@ -75,5 +75,9 @@
     dockfmt
     gh
     hadolint
+
+    # Zed
+    elmPackages.elm
+    elmPackages.elm-test
   ];
 }
