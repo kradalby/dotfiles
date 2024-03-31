@@ -2,11 +2,15 @@
 in
   final: prev: {
     tailscale-tools = prev.callPackage ./tailscale-tools.nix {
-      buildGoModule = prev.buildGo121Module;
+      buildGoModule = prev.buildGo122Module;
     };
 
     setec = prev.callPackage ./setec.nix {
-      buildGoModule = prev.buildGo121Module;
+      buildGoModule = prev.buildGo122Module;
+    };
+
+    squibble = prev.callPackage ./squibble.nix {
+      buildGoModule = prev.buildGo122Module;
     };
 
     homebridge = prev.callPackage ./homebridge/override.nix {};
