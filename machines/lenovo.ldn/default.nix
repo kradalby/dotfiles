@@ -17,6 +17,8 @@
 
     ./tailscale.nix
     ./tailscale-headscale.nix
+
+    ./k3s.nix
   ];
 
   my.lan = "enp0s31f6";
