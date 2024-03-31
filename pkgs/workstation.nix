@@ -47,6 +47,8 @@
       gotestsum
       difftastic
       setec
+      squibble
+      tailscale-tools
 
       # (fenix.complete.withComponents
       #   [
