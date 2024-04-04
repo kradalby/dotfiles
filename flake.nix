@@ -130,10 +130,12 @@
       stable = import nixpkgs {
         inherit (final) system;
         config = {allowUnfree = true;};
+        overlays = [(import ./pkgs/overlays {})];
       };
       unstable = import nixpkgs-unstable {
         inherit (final) system;
         config = {allowUnfree = true;};
+        overlays = [(import ./pkgs/overlays {})];
       };
       master = import nixpkgs-master {
         inherit (final) system;

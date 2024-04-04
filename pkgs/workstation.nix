@@ -46,9 +46,10 @@
       dive
       gotestsum
       difftastic
-      setec
-      squibble
-      tailscale-tools
+
+      unstable.setec
+      unstable.squibble
+      unstable.tailscale-tools
 
       # (fenix.complete.withComponents
       #   [
