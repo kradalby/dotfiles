@@ -47,7 +47,7 @@
     attic = {
       url = "github:zhaofengli/attic";
       inputs."flake-utils".follows = "utils";
-      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
     # Go based
@@ -135,7 +135,10 @@
       unstable = import nixpkgs-unstable {
         inherit (final) system;
         config = {allowUnfree = true;};
-        overlays = [(import ./pkgs/overlays {})];
+        overlays = [
+          (import ./pkgs/overlays {})
+          attic.overlays.default
+        ];
       };
       master = import nixpkgs-master {
         inherit (final) system;
