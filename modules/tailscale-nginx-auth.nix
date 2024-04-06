@@ -15,7 +15,7 @@ in {
       description = ''
         Package to use
       '';
-      default = pkgs.tailscale-tools;
+      default = pkgs.unstable.tailscale-tools;
     };
 
     authConfig = mkOption {
