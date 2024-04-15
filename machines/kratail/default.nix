@@ -89,7 +89,7 @@
   };
 
   system.defaults.smb.NetBIOSName = machine.hostname;
-  system.defaults.dock.orientation = "left";
+  system.defaults.dock.orientation = lib.mkForce "left";
 
   # Used for backwards compatibility, please read the changelog before changing.
   # $ darwin-rebuild changelog
