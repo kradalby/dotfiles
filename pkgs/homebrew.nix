@@ -80,6 +80,7 @@ _: {
       # "visual-studio-code"
       "hot"
       "zed-preview"
+      "hiddenbar"
 
       # For quiz!
       "vlc"
@@ -106,9 +107,11 @@ _: {
       "Refined GitHub" = 1519867270;
       # "Tailscale" = 1475387142;
       "WhatsApp" = 1147396723;
-      "WireGuard" = 1451685025;
+      # "WireGuard" = 1451685025;
       "Xcode" = 497799835;
       "Yubico Authenticator" = 1497506650;
+      "Wunderbar" = 6479203386;
+      "TestFlight" = 899247664;
     };
   };
 }
