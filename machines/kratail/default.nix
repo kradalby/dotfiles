@@ -85,6 +85,7 @@
       "webex"
       "wireshark"
       "zoom"
+      "slack-cli"
     ];
   };
 
