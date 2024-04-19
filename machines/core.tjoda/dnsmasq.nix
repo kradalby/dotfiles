@@ -125,13 +125,11 @@
       ipAddress = "192.168.200.143";
       mac = "B8:E9:37:91:29:26";
     }
-
-    # TODO: Love loft sonos?
-    # {
-    #   hostname = "love-dansegulv-sonos";
-    #   ipAddress = "192.168.200.14";
-    #   mac = "B8:E9:37:91:29:26";
-    # }
+    {
+      hostname = "love-loft-sonos";
+      ipAddress = "192.168.200.144";
+      mac = "01:38:42:0b:85:21:60";
+    }
 
     # Atlas probe
     {
