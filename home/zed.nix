@@ -3,7 +3,10 @@
     "dock" = "right";
   };
   "base_keymap" = "VSCode";
-  "theme" = "Ayu Dark";
+  "theme" = {
+    "light" = "One Light";
+    "dark" = "Ayu Dark";
+  };
   "telemetry" = {
     "diagnostics" = false;
     "metrics" = false;
