@@ -181,7 +181,7 @@
       }
     ];
 
-    nixosBox = arch: pkgBase: homeBase: name:
+    nixosBox = arch: pkgBase: homeBase: name: tags:
       pkgBase.lib.nixosSystem {
         system = arch;
         modules =
@@ -201,6 +201,12 @@
             }
 
             (./. + "/machines/${name}")
+
+            {
+              _module.args = {
+                inherit tags;
+              };
+            }
           ]
           ++ (
             if builtins.isNull homeBase
@@ -230,19 +236,6 @@
         };
       };
 
-    # homeOnly = machine: pkgBase: homeBase:
-    #   homeBase.lib.homeManagerConfiguration {
-    #     inherit (machine) username;
-    #     system = machine.arch;
-    #     homeDirectory = machine.homeDir;
-    #     configuration.imports = [ ./home ];
-    #     extraModules =
-    #       (commonModules pkgBase)
-    #       ++ [
-    #         (./. + "/machines/${machine.hostname}")
-    #       ];
-    #   };
-
     mkColmenaFromNixOSConfigurations = nixosConfigurations:
       {
         meta = {
@@ -263,6 +256,7 @@
             buildOnTarget = true;
             # Replace hostname with tailscale hostname to use tailscale auth.
             targetHost = builtins.replaceStrings ["."] ["-"] name;
+            inherit (value._module.args) tags;
           };
           nixpkgs.system = value.config.nixpkgs.system;
           imports = value._module.args.modules;
@@ -271,24 +265,24 @@
   in
     {
       nixosConfigurations = {
-        "core.terra" = nixosBox "x86_64-linux" nixpkgs home-manager "core.terra";
+        "core.terra" = nixosBox "x86_64-linux" nixpkgs home-manager "core.terra" ["x86" "router" "terra"];
 
-        "core.oracldn" = nixosBox "aarch64-linux" nixpkgs home-manager "core.oracldn";
-        "headscale.oracldn" = nixosBox "x86_64-linux" nixpkgs null "headscale.oracldn";
+        "core.oracldn" = nixosBox "aarch64-linux" nixpkgs home-manager "core.oracldn" ["arm64" "oracle" "oracldn"];
+        "headscale.oracldn" = nixosBox "x86_64-linux" nixpkgs null "headscale.oracldn" ["x86" "oracle" "oracldn"];
 
-        "dev.oracfurt" = nixosBox "aarch64-linux" nixpkgs home-manager "dev.oracfurt";
+        "dev.oracfurt" = nixosBox "aarch64-linux" nixpkgs home-manager "dev.oracfurt" ["arm64" "oracle" "oracfurt"];
 
         # "core.ntnu" = nixosBox "x86_64-linux" nixpkgs null "core.ntnu";
 
         # nixos-generate --system aarch64-linux -f sd-aarch64 -I nixpkgs=channel:nixos
-        "home.ldn" = nixosBox "aarch64-linux" nixpkgs null "home.ldn";
-        "core.ldn" = nixosBox "aarch64-linux" nixpkgs null "core.ldn";
-        "dev.ldn" = nixosBox "x86_64-linux" nixpkgs home-manager "dev.ldn";
-        "lenovo.ldn" = nixosBox "x86_64-linux" nixpkgs null "lenovo.ldn";
+        "home.ldn" = nixosBox "aarch64-linux" nixpkgs null "home.ldn" ["arm64" "ldn"];
+        "core.ldn" = nixosBox "aarch64-linux" nixpkgs null "core.ldn" ["arm64" "router" "ldn"];
+        "dev.ldn" = nixosBox "x86_64-linux" nixpkgs home-manager "dev.ldn" ["x86" "ldn"];
+        "lenovo.ldn" = nixosBox "x86_64-linux" nixpkgs null "lenovo.ldn" ["x86" "ldn"];
         # "eye.ldn" = nixosBox "aarch64-linux" nixpkgs null "eye.ldn";
 
         # "storage.bassan" = nixosBox "aarch64-linux" nixpkgs null "storage.bassan";
-        "core.tjoda" = nixosBox "x86_64-linux" nixpkgs null "core.tjoda";
+        "core.tjoda" = nixosBox "x86_64-linux" nixpkgs null "core.tjoda" ["x86" "router" "tjoda"];
       };
 
       # darwin-rebuild switch --flake .#kramacbook
