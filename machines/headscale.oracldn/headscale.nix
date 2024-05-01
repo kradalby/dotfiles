@@ -91,10 +91,10 @@ in {
         private_key_path = config.age.secrets.headscale-noise-private-key.path;
       };
 
-      ip_prefixes = [
-        "fd7a:115c:a1e0::/48"
-        "100.64.0.0/10"
-      ];
+      prefixes = {
+        ipv6 = "fd7a:115c:a1e0::/48";
+        ipv4 = "100.64.0.0/10";
+      };
 
       dns_config = {
         override_local_dns = true;
