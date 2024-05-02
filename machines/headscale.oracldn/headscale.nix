@@ -97,8 +97,13 @@ in {
       };
 
       prefixes = {
-        ipv6 = "fd7a:115c:a1e0::/48";
-        ipv4 = "100.64.0.0/10";
+        v6 = "fd7a:115c:a1e0::/48";
+        v4 = "100.64.0.0/10";
+      };
+
+      database = {
+        type = "sqlite";
+        sqlite.path = "${config.users.users.headscale.home}/db.sqlite";
       };
 
       dns_config = {
