@@ -30,6 +30,10 @@
     name = "acl.hujson";
     text = builtins.toJSON aclConfig;
   };
+
+  cfg = config.services.headscale;
+  settingsFormat = pkgs.formats.yaml {};
+  configFile = settingsFormat.generate "headscale.yaml" cfg.settings;
 in {
   # disabledModules = ["services/networking/headscale.nix"];
   #
@@ -37,22 +41,23 @@ in {
   #   "${flakes.nixpkgs-headscale-test}/nixos/modules/services/networking/headscale.nix"
   # ];
 
-  age.secrets.headscale-private-key = {
-    owner = "headscale";
-    file = ../../secrets/headscale-private-key.age;
-  };
-  age.secrets.headscale-noise-private-key = {
-    owner = "headscale";
-    file = ../../secrets/headscale-noise-private-key.age;
-  };
-  age.secrets.headscale-oidc-secret = {
-    owner = "headscale";
-    file = ../../secrets/headscale-oidc-secret.age;
-  };
-
-  age.secrets.headscale-envfile = {
-    owner = "headscale";
-    file = ../../secrets/headscale-envfile.age;
+  age.secrets = {
+    headscale-private-key = {
+      owner = "headscale";
+      file = ../../secrets/headscale-private-key.age;
+    };
+    headscale-noise-private-key = {
+      owner = "headscale";
+      file = ../../secrets/headscale-noise-private-key.age;
+    };
+    headscale-oidc-secret = {
+      owner = "headscale";
+      file = ../../secrets/headscale-oidc-secret.age;
+    };
+    headscale-envfile = {
+      owner = "headscale";
+      file = ../../secrets/headscale-envfile.age;
+    };
   };
 
   environment.systemPackages = [pkgs.headscale pkgs.sqlite-interactive pkgs.sqlite-web];
@@ -104,7 +109,7 @@ in {
         server = {
           enabled = true;
           region_id = 999;
-          region_code = "fap";
+          region_code = "ldn-fap";
           region_name = "headscale.oracldn.fap.no";
           stun_listen_addr = "0.0.0.0:3478";
           private_key_path = config.age.secrets.headscale-private-key.path;
@@ -139,6 +144,10 @@ in {
       # GRPC_GO_LOG_SEVERITY_LEVEL = "info";
       HEADSCALE_DEBUG_TAILSQL_STATE_DIR = "${config.users.users.headscale.home}/tailsql";
       HEADSCALE_DEBUG_TAILSQL_ENABLED = "1";
+
+      # force the service to restart if the config has
+      # changed.
+      HEADSCALE_CONFIG_HASH = builtins.hashFile "md5" configFile;
     };
   };
 
