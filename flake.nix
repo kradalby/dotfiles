@@ -76,8 +76,8 @@
     };
 
     headscale = {
-      # url = "github:juanfont/headscale";
-      url = "github:kradalby/headscale/kradalby/slow-shutdown";
+      url = "github:juanfont/headscale";
+      # url = "github:kradalby/headscale/kradalby/slow-shutdown";
       inputs."flake-utils".follows = "utils";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
