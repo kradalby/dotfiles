@@ -38,6 +38,7 @@
     ./webpage.nix
     ./hvor.nix
     ./exporter.nix
+    ./monica.nix
   ];
 
   my.wan = "enp0s3";
