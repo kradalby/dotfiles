@@ -162,4 +162,7 @@ in
     # or a key that can only be used once.
     "tailscale-preauthkey.age".publicKeys = global;
     "headscale-client-preauthkey.age".publicKeys = global;
+
+    # monica
+    "monica-app-key.age".publicKeys = u ++ [hosts.core-oracldn];
   }
