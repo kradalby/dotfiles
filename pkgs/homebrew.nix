@@ -45,7 +45,6 @@ _: {
       "alacritty"
       "anki"
       "balenaetcher"
-      "calibre"
       "discord"
       "element"
       # "docker" // TODO: remove if colima + docker works
