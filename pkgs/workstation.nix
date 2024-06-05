@@ -33,6 +33,7 @@
       nodePackages.node2nix
       nodePackages.prettier
       nodejs # ansiblels
+      yarn
       pre-commit
       prettyping
       qrencode

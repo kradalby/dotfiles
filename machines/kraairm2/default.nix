@@ -77,6 +77,7 @@ in {
       "macfuse"
       "transmission"
       "garmin-express"
+      "calibre"
     ];
   };
 
