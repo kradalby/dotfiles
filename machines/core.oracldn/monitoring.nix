@@ -213,6 +213,21 @@ in
               }
             ];
           }
+          {
+            job_name = "living-room-window-plant";
+            metrics_path = "/";
+            scrape_interval = "10s";
+            static_configs = [
+              {
+                targets = [
+                  "living-room-window-moisture.ldn"
+                ];
+                labels = {
+                  plant = "living-room-window";
+                };
+              }
+            ];
+          }
         ];
 
         rules = [

@@ -156,6 +156,11 @@
       ipAddress = "10.65.0.94";
       mac = "a4:cf:12:c3:87:21";
     }
+    {
+      hostname = "living-room-window-moisture";
+      ipAddress = "10.65.0.95";
+      mac = "a0:20:a6:06:76:8b";
+    }
 
     # Media
     {
