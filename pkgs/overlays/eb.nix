@@ -5,6 +5,8 @@
   rustPlatform,
 }:
 rustPlatform.buildRustPackage rec {
+  # NOTE: manual update required
+  # https://github.com/rye/eb
   pname = "eb";
   version = "v0.5.0";
 
