@@ -345,6 +345,7 @@
         buildInputs = [
           pkgs.alejandra
           pkgs.colmena
+          pkgs.webrepl_cli
         ];
       };
 

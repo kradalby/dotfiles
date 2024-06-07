@@ -25,5 +25,8 @@ in
 
     cook-cli = prev.callPackage ./cook.nix {};
 
+    webrepl_cli = prev.callPackage ./webrepl_cli.nix {
+    };
+
     # osxphotos = prev.callPackage ./osxphotos.nix {};
   }
