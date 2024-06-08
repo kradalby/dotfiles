@@ -17,4 +17,14 @@
   "assistant" = {
     "default_open_ai_model" = "gpt-4-0613";
   };
+  languages = {
+    Nix = {
+      formatter = {
+        external = {
+          command = "alejandra";
+          arguments = [];
+        };
+      };
+    };
+  };
 }
