@@ -55,5 +55,5 @@
   };
 
   monitoring.smartctl.devices = ["/dev/sda"];
-  system.stateVersion = "20.09"; # Did you read the comment?
+  system.stateVersion = "24.05";
 }

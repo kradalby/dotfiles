@@ -9,29 +9,7 @@
     (modulesPath + "/installer/scan/not-detected.nix")
   ];
 
-  # boot.kernelPackages = pkgs.linuxPackagesFor (pkgs.linux_6_5.override {
-  #   argsOverride = rec {
-  #     src = pkgs.fetchurl {
-  #       url = "mirror://kernel/linux/kernel/v6.x/linux-${version}.tar.xz";
-  #       sha256 = "sha256-I3Zd1EQlRizZKtvuUmcGCP1/P9GDqDslunp7SIPQRRs=";
-  #     };
-  #     version = "6.5.1";
-  #     modDirVersion = "6.5.1";
-  #   };
-  # });
-
-  # This is fixed in modern kernels, but the ZFS module is not
-  # available for it atm, so we use whatever kernel Nixpkgs has
-  # plus this patch.
   boot = {
-    kernelPatches = [
-      {
-        name = "iwlwifi-nuc13"; # descriptive name, required
-
-        patch = ./0001-add-AX1690i-for-NUC-13.patch;
-      }
-    ];
-
     # Use the systemd-boot EFI boot loader.
     loader.systemd-boot.enable = true;
     loader.efi.canTouchEfiVariables = true;
