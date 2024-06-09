@@ -10,7 +10,7 @@ in {
 
     hostName = "${config.networking.hostName}-${site}";
 
-    nssmdns = true;
+    nssmdns4 = true;
     allowPointToPoint = true;
 
     publish = {
