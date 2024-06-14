@@ -80,6 +80,7 @@ _: {
       "hot"
       "zed-preview"
       "hiddenbar"
+      "chatgpt"
 
       # For quiz!
       "vlc"
