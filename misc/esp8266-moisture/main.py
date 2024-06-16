@@ -1,15 +1,33 @@
 import socket
+import time
 
-import machine
+from machine import ADC, Pin
+
+HIGH = 1
+LOW = 0
+
+MOISTURE_PIN = 0
+MOISTURE_POWER_PIN = 13  # D7 https://www.bouvet.no/bouvet-deler/redd-plantene
+
+moisture_power = Pin(MOISTURE_POWER_PIN, Pin.OUT)
+moisture_sensor = ADC(MOISTURE_PIN)
+
+moisture_power.value(LOW)
+
+
+def read_with_power():
+    moisture_power.value(HIGH)
+    time.sleep_ms(300)
+    val = moisture_sensor.read()
+    moisture_power.value(LOW)
+    return val
 
 
 def read():
-    p = machine.ADC(0)
-
     count = 10
     raw = 0
     for _ in range(count):
-        raw += p.read()
+        raw += moisture_sensor.read()
 
     raw /= count
 
@@ -37,7 +55,7 @@ while True:
         """# HELP sensor_moisture is the value read from pin 0, connected to moisture sensor
 # TYPE sensor_moisture gauge
 sensor_moisture {}""".format(
-            read()
+            read_with_power()
         )
     )
     cl.close()
