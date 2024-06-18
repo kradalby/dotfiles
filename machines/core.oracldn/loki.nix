@@ -46,7 +46,7 @@ in {
         lifecycler.interface_names = [config.my.lan "wg0" "tailscale0" "enp1s0"];
         chunk_encoding = "snappy";
         # Disable block transfers on shutdown
-        max_transfer_retries = 0;
+        # max_transfer_retries = 0;
       };
 
       storage_config = {
@@ -60,7 +60,7 @@ in {
       };
 
       chunk_store_config = {
-        max_look_back_period = retention;
+        # max_look_back_period = retention;
       };
 
       table_manager = {
