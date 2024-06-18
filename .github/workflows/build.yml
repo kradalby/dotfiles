@@ -68,6 +68,7 @@ jobs:
 
       - name: Build and push system
         run: |
+          nix run github:zhaofengli/attic#default watch-store system &
           nix build '.#nixosConfigurations."${{ matrix.machine.host }}".config.system.build.toplevel'
           nix run github:zhaofengli/attic#default login kradalby http://attic.bee-velociraptor.ts.net ${{ secrets.ATTIC_TOKEN }}
           nix run github:zhaofengli/attic#default push system result -j 2
