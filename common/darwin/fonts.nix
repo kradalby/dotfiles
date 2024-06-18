@@ -1,6 +1,5 @@
 {pkgs, ...}: {
   fonts = {
-    fontDir.enable = true;
-    fonts = [pkgs.jetbrains-mono pkgs.nerdfonts];
+    packages = [pkgs.jetbrains-mono pkgs.nerdfonts];
   };
 }
