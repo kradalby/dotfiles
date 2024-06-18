@@ -27,6 +27,7 @@ in {
             object_store = "filesystem";
             schema = "v11";
             index = {
+              type = "tsdb";
               prefix = "index_";
               period = retention;
             };
@@ -69,6 +70,7 @@ in {
       };
 
       limits_config = {
+        allow_structured_metadata = false;
         split_queries_by_interval = "24h";
         ingestion_burst_size_mb = 16;
       };
