@@ -16,7 +16,8 @@ in
       systemd.services.unifi.wantedBy = lib.mkForce [];
 
       services.unifi = {
-        unifiPackage = pkgs.unstable.unifi8;
+        unifiPackage = pkgs.unifi8;
+        mongodbPackage = pkgs.mongodb;
 
         enable = true;
         openFirewall = true;
