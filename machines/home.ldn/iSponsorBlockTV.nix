@@ -5,7 +5,7 @@
   virtualisation.oci-containers.containers.isponsorblocktv = {
     # NOTE: manual update required
     # https://github.com/dmunozv04/iSponsorBlockTV/pkgs/container/isponsorblocktv
-    image = "ghcr.io/dmunozv04/isponsorblocktv:v2.0.4";
+    image = "ghcr.io/dmunozv04/isponsorblocktv:v2.0.7";
     # user = config.users.users.stirling.uid;
     autoStart = true;
     # ports = [
