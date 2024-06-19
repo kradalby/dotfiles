@@ -30,7 +30,7 @@ in
       virtualisation.oci-containers.containers.umami = {
         # NOTE: manual update required
         # https://github.com/umami-software/umami/pkgs/container/umami
-        image = "ghcr.io/umami-software/umami:postgresql-v2.9.0";
+        image = "ghcr.io/umami-software/umami:postgresql-v2.11.2";
         user = config.users.users.umami.uid;
         # workdir = "/home/podmanager";
         autoStart = true;

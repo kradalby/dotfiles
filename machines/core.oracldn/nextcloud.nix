@@ -22,7 +22,8 @@ in
         enable = true;
 
         # NOTE: manual update required
-        package = pkgs.nextcloud28;
+        # https://search.nixos.org/packages?channel=24.05&from=0&size=50&sort=relevance&type=packages&query=nextcloud
+        package = pkgs.nextcloud29;
 
         hostName = domain;
         # Enable built-in virtual host management
