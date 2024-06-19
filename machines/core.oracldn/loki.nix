@@ -9,7 +9,7 @@
   domain = "loki.oracldn.fap.no";
 in {
   services.loki = {
-    enable = true;
+    enable = false;
 
     configuration = {
       server = {

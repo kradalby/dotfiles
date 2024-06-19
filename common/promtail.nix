@@ -2,7 +2,7 @@
   site = builtins.replaceStrings [".fap.no"] [""] config.networking.domain;
 in {
   services.promtail = {
-    enable = true;
+    enable = false;
 
     extraFlags = [
       "--client.external-labels=host=${config.networking.hostName}.${site}"
