@@ -30,7 +30,15 @@
     };
   };
 
-  hardware.enableRedistributableFirmware = true;
+  hardware = {
+    enableRedistributableFirmware = true;
+    bluetooth = {
+      powerOnBoot = true;
+      enable = true;
+    };
+  };
+
+  services.blueman.enable = true;
 
   systemd.services.btattach = {
     before = ["bluetooth.service"];
