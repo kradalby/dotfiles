@@ -12,7 +12,6 @@
     buf-language-server
     dhall-lsp-server
     efm-langserver
-    elmPackages.elm-language-server
     golangci-lint-langserver
     nil
     nodePackages.typescript
@@ -77,7 +76,8 @@
     hadolint
 
     # Zed
-    elmPackages.elm
+    # elmPackages.elm
     elmPackages.elm-test
+    elmPackages.elm-language-server
   ];
 }
