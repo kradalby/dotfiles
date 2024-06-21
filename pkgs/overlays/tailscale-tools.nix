@@ -8,15 +8,15 @@ buildGoModule rec {
   name = "tailscale-tools";
   # NOTE: manual update required
   # https://github.com/tailscale/tailscale/releases
-  version = "1.56.1";
+  version = "fe661281001b5d57fa603d43b2be69222d896e04";
 
   src = fetchFromGitHub {
     owner = "tailscale";
     repo = "tailscale";
-    rev = "v${version}";
-    sha256 = "sha256-hscKV4jhJ+tqgTFuOEThABpu8iqK3+av7+DcuSmZwQ4=";
+    rev = "${version}";
+    sha256 = "sha256-oij826VlNiXNwE9cDgk/oic6YRvKk/yWoi0DVAktk0o=";
   };
-  vendorHash = "sha256-WGZkpffwe4I8FewdBHXGaLbKQP/kHr7UF2lCXBTcNb4=";
+  vendorHash = "sha256-ye8puuEDd/CRSy/AHrtLdKVxVASJAdpt6bW3jU2OUvw=";
   CGO_ENABLED = 0;
   subPackages = ["cmd/proxy-to-grafana" "cmd/nginx-auth" "cmd/nardump"];
   doCheck = false;
