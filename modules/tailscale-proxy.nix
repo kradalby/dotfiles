@@ -30,6 +30,12 @@ in {
             description = "Hostname to use, presented via MagicDNS";
           };
 
+          loginServer = mkOption {
+            type = types.str;
+            default = "";
+            description = "Tailscale Control server to connect to";
+          };
+
           backendPort = mkOption {
             type = types.port;
             description = "Port to proxy onto the tailscale network";
@@ -75,6 +81,7 @@ in {
               --hostname=${svcConfig.hostname} \
               --backend-addr=localhost:${toString svcConfig.backendPort} \
               --state-dir=${dataDir} \
+              --login-server=${svcConfig.loginServer} \
               --use-https=false
           '';
           serviceConfig = {
