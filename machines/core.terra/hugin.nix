@@ -14,11 +14,6 @@
 in
   lib.mkMerge [
     {
-      age.secrets.hugin-tskey = {
-        file = ../../secrets/hugin-tskey.age;
-        owner = "storage";
-      };
-
       age.secrets.hugin-basicauth = {
         file = ../../secrets/hugin-basicauth.age;
         owner = "nginx";
@@ -31,7 +26,7 @@ in
 
       services.hugin = {
         enable = true;
-        tailscaleKeyPath = config.age.secrets.hugin-tskey.path;
+        tailscaleKeyPath = config.age.secrets.tailscale-preauthkey.path;
 
         verbose = true;
 

@@ -115,7 +115,7 @@ in
     "nextcloud.age".publicKeys = u ++ [hosts.core-oracldn];
 
     # minio
-    "minio-oracldn.age".publicKeys = u ++ [hosts.core-oracldn];
+    "minio-oracldn.age".publicKeys = u ++ [hosts.core-oracldn hosts.core-tjoda];
 
     # litestream
     "litestream.age".publicKeys = u ++ [hosts.core-oracldn hosts.headscale-oracldn];
@@ -128,7 +128,6 @@ in
     "github-headscale-token.age".publicKeys = u ++ [hosts.core-terra];
 
     # hugin
-    "hugin-tskey.age".publicKeys = u ++ [hosts.core-terra];
     "hugin-basicauth.age".publicKeys = u ++ [hosts.core-terra];
     "hugin-tokens.age".publicKeys = u ++ [hosts.core-terra];
 

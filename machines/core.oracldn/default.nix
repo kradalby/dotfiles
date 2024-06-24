@@ -16,6 +16,7 @@
     ../../common/coredns.nix
     ../../common/consul-server.nix
     ../../common/miniupnp.nix
+    ../../common/minio.nix
 
     ./restic.nix
     ./wireguard.nix
@@ -29,9 +30,9 @@
     ./openvpn.nix
     ./postgres.nix
     ./nextcloud.nix
-    ./minio.nix
     ./stirling-pdf.nix
     ./ghostfolio.nix
+    ./litestream.nix
 
     ./umami.nix
     ./golink.nix
