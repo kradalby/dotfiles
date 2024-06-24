@@ -17,6 +17,9 @@
     "/storage/software"
     "/storage/sync"
     # "/storage/restic"
+
+    # Covered by /storage/backup
+    # config.services.minio.configDir
   ];
 
   cfg = {

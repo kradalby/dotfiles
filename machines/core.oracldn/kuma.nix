@@ -11,6 +11,23 @@ in {
     enable = true;
   };
 
+  users.users.uptime-kuma = {
+    name = "uptime-kuma";
+    isSystemUser = true;
+    home = "/var/lib/uptime-kuma";
+    homeMode = "770";
+    createHome = true;
+    group = "uptime-kuma";
+  };
+  users.groups.uptime-kuma = {};
+
+  systemd.services.uptime-kuma.serviceConfig = {
+    DynamicUser = lib.mkForce false;
+    User = config.users.users.uptime-kuma.name;
+    Group = config.users.users.uptime-kuma.name;
+    WorkingDirectory = config.users.users.uptime-kuma.home;
+  };
+
   security.acme.certs."${domain}".domain = domain;
 
   services.nginx.virtualHosts."${domain}" = {

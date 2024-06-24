@@ -32,6 +32,7 @@
     ./samba.nix
     ./avahi.nix
     ./restic.nix
+    ./minio.nix
   ];
 
   # TODO: Figure a way to allowlist some URLs

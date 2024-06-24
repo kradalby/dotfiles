@@ -4,7 +4,7 @@
   config,
   ...
 }: let
-  nginx = import ../../common/funcs/nginx.nix {inherit config lib;};
+  nginx = import ./funcs/nginx.nix {inherit config lib;};
 
   domain = "minio.${config.networking.domain}";
 
@@ -17,7 +17,7 @@ in
   lib.mkMerge [
     {
       age.secrets.minio-oracldn = {
-        file = ../../secrets/minio-oracldn.age;
+        file = ../secrets/minio-oracldn.age;
       };
 
       services.minio = {

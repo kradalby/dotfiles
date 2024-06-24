@@ -7,7 +7,7 @@
   boot = {
     loader.grub = {
       enable = true;
-      device = "/dev/sda";
+      device = "/dev/disk/by-id/ata-LITEONIT_LCT-256M3S_2.5_7mm_256GB_TW0DFVVG550853AO0052";
     };
 
     kernelPackages = config.boot.zfs.package.latestCompatibleLinuxPackages;

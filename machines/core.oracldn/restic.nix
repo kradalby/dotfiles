@@ -7,15 +7,17 @@
   restic = import ../../common/funcs/restic.nix {inherit config lib pkgs;};
   helpers = import ../../common/funcs/helpers.nix {inherit pkgs lib;};
 
-  paths = [
-    "/etc/nixos"
-    "/var/lib/private/uptime-kuma"
-    "/var/lib/step-ca"
-    config.services.golink.dataDir
-    config.services.postgresqlBackup.location
-    config.services.minio.configDir
-    config.services.grafana.dataDir
-  ];
+  paths =
+    [
+      "/etc/nixos"
+      "/var/lib/private/uptime-kuma"
+      "/var/lib/step-ca"
+      config.services.golink.dataDir
+      config.services.postgresqlBackup.location
+      config.services.minio.configDir
+      config.services.grafana.dataDir
+    ]
+    ++ config.services.minio.dataDir;
 
   cfg = site: {
     secret = "restic-core-oracldn-token";
