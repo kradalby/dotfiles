@@ -14,6 +14,8 @@
     loader.systemd-boot.enable = true;
     loader.efi.canTouchEfiVariables = true;
 
+    binfmt.emulatedSystems = ["aarch64-linux"];
+
     initrd.availableKernelModules = ["xhci_pci" "ahci" "nvme" "thunderbolt" "usb_storage" "usbhid" "sd_mod"];
     kernelModules = ["kvm-intel"];
     extraModulePackages = [];
