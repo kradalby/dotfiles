@@ -36,6 +36,11 @@ in
         backendPort = config.services.prometheus.port;
       };
 
+      age.secrets.alertmanager-env = {
+        file = ../../secrets/alertmanager-env.age;
+        owner = config.systemd.services.prometheus.serviceConfig.User;
+      };
+
       services.prometheus = {
         enable = true;
 
@@ -414,40 +419,27 @@ in
         alertmanager = {
           enable = true;
 
-          listenAddress = "localhost";
+          listenAddress = "0.0.0.0";
 
-          webExternalUrl = "https://alertmanager.oracldn.fap.no";
+          webExternalUrl = "http://core.oracldn:9093";
+
+          # environmentFile interpolation is done after the check config
+          # is done, which means it will fail with a missing discord webhook.
+          checkConfig = false;
+          environmentFile = config.age.secrets.alertmanager-env.path;
 
           configuration = {
-            global = {
-              smtp_smarthost = "localhost:25";
-              smtp_from = "alertmanager@${config.networking.domain}";
-              smtp_require_tls = false;
-            };
             route = {
-              receiver = "email";
-              routes = [
-                {
-                  # in the future, when nixpkgs gets more up to date, we should use
-                  # matchers. currently amtool throws its hand in the air.
-                  match = {severity = "critical";};
-                  receiver = "pager";
-                }
-              ];
+              group_by = ["alertname" "job"];
+              receiver = "discord";
             };
             receivers = [
               {
-                name = "email";
-                email_configs = [
-                  {to = "kristoffer@dalby.cc";}
-                ];
-              }
-              # this should eventually be handled by sachet whenever nixpkgs has
-              # it upstream
-              {
-                name = "pager";
-                email_configs = [
-                  {to = "kristoffer@dalby.cc";}
+                name = "discord";
+                discord_configs = [
+                  {
+                    webhook_url = "$DISCORD_WEBHOOK_URL";
+                  }
                 ];
               }
             ];

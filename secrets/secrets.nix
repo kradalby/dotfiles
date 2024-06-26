@@ -96,6 +96,8 @@ in
     "grafana-admin.age".publicKeys = u ++ [hosts.core-oracldn];
     "grafana-admin-polar.age".publicKeys = u ++ [hosts.core-terra];
 
+    "alertmanager-env.age".publicKeys = u ++ [hosts.core-oracldn];
+
     # Step CA
     "step-ca-password.age".publicKeys = u ++ [hosts.core-oracldn];
     "step-ca-config.age".publicKeys = u ++ [hosts.core-oracldn];
