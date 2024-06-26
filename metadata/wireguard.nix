@@ -1,14 +1,5 @@
 {
   servers = {
-    ntnu = {
-      additional_networks = ["10.61.0.0/16"];
-      addresses = ["10.69.0.201/32" "2a03:94e0:200d:69::201/128"];
-      dns = "10.61.0.1";
-      endpoint_address = "ntnu.fap.no";
-      endpoint_port = 51820;
-      public_key = "Vs52WDNND1jBNuMjuHY0/oRg/bLK0f4SWDAmvk4yv28=";
-    };
-
     oracleldn = {
       additional_networks = ["10.66.0.0/16"];
       addresses = ["10.69.0.206/32" "2a03:94e0:200d:69::206/128"];
@@ -38,7 +29,7 @@
       additional_networks = [
         "10.62.0.0/16"
         # Advertise "selskap", Asparges guest network
-        # "192.168.200.0/24"
+        "192.168.200.0/24"
       ];
       addresses = ["10.69.0.202/32"];
       dns = "10.62.0.1";
