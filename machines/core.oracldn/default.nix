@@ -26,7 +26,7 @@
     ./monitoring.nix
     ./loki.nix
     ./grafana.nix
-    ./step-ca.nix
+    # ./step-ca.nix
     ./openvpn.nix
     ./postgres.nix
     ./nextcloud.nix
