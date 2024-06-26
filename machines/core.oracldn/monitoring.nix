@@ -421,7 +421,7 @@ in
 
           listenAddress = "0.0.0.0";
 
-          webExternalUrl = "http://core.oracldn:9093";
+          webExternalUrl = "http://core-oracldn:9093";
 
           # environmentFile interpolation is done after the check config
           # is done, which means it will fail with a missing discord webhook.
