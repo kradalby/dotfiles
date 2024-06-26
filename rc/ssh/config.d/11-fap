@@ -30,16 +30,6 @@ Host *.tjoda
     User root
     Port 22
 
-Host *.n
-    HostName %htnu.fap.no
-    User root
-    Port 22
-
-Host *.ntnu
-    HostName %h.fap.no
-    User root
-    Port 22
-
 Host *.l
     HostName %hdn.fap.no
     User root
@@ -70,32 +60,12 @@ Host *.oracfurt
     User root
     Port 22
 
-Host *.v
-    HostName %hpn.fap.no
-    User root
-    Port 22
-
-Host kramacbook.v
-    HostName %hpn.fap.no
-    User kradalby
-    Port 22
-
 Host devf
     HostName dev.oracfurt.fap.no
     User kradalby
     Port 22
 
-###################
-# Tjodalyng       #
-###################
-
-Host tupo
-    HostName %h.tjoda.fap.no
-    User root
+Host devl
+    HostName dev.ldn.fap.no
+    User kradalby
     Port 22
-    KexAlgorithms +diffie-hellman-group1-sha1
-
-Host 192.168.1.3
-    User root
-    Port 22
-    KexAlgorithms +diffie-hellman-group1-sha1

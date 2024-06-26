@@ -1,0 +1,5 @@
+Host *.s
+    HostName %handefjordfiber.no
+    User root
+    Port 22
+    ProxyJump core.terra.fap.no
