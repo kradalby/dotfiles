@@ -145,7 +145,7 @@ in {
     };
 
     # Tailscale readiness and DNS tweaks.
-    network.wait-online.ignoredInterfaces = ["tailscale0"];
+    network.wait-online.ignoredInterfaces = ["tailscale0" "wg0"];
     services.tailscaled.after = ["network-online.target" "systemd-resolved.service"];
   };
 }
