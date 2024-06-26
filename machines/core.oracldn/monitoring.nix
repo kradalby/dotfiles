@@ -45,6 +45,7 @@ in
         enable = true;
 
         retentionTime = "365d";
+        webExternalUrl = "http://prom/";
 
         alertmanagers = [
           {
