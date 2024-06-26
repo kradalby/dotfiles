@@ -62,6 +62,8 @@ in {
 
   environment.systemPackages = [pkgs.headscale pkgs.sqlite-interactive pkgs.sqlite-web];
 
+  # Ensure groups (litestream) have access for backups.
+  users.users.headscale.homeMode = "770";
   services.headscale = {
     enable = true;
 
