@@ -51,7 +51,5 @@ in {
         dbs = builtins.map replicate config.my.litestream.databases;
       };
     };
-
-    my.consulServices.litestreamExporter = consul.prometheusExporter "litestream" port;
   };
 }
