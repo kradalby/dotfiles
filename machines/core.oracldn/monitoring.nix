@@ -234,6 +234,18 @@ in
               }
             ];
           }
+          {
+            job_name = "litestream";
+            metrics_path = "/metrics";
+            static_configs = [
+              {
+                targets = [
+                  "core-oracldn:54909"
+                  "headscale-oracldn:54909"
+                ];
+              }
+            ];
+          }
         ];
 
         rules = [
