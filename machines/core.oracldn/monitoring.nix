@@ -223,6 +223,7 @@ in
             job_name = "living-room-window-plant";
             metrics_path = "/";
             scrape_interval = "10s";
+            scrape_timeout = "3s";
             static_configs = [
               {
                 targets = [
