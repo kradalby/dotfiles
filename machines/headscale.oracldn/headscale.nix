@@ -72,6 +72,8 @@ in {
 
       acl_policy_path = aclPath;
 
+      metrics_listen_addr = ":54910";
+
       # database.path = "file:/var/lib/headscale/db.sqlite?cache=shared&mode=rwc&_journal_mode=WAL&_busy_timeout=5000";
       # database.path = "file:/var/lib/headscale/db.sqlite?_journal_mode=WAL&_busy_timeout=5000";
 
@@ -157,8 +159,6 @@ in {
       HEADSCALE_CONFIG_HASH = builtins.hashFile "md5" configFile;
     };
   };
-
-  my.consulServices.headscale = consul.prometheusExporter "headscale" 9090;
 
   security.acme.certs."${domain}".domain = domain;
 

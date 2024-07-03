@@ -246,6 +246,17 @@ in
               }
             ];
           }
+          {
+            job_name = "headscale";
+            metrics_path = "/metrics";
+            static_configs = [
+              {
+                targets = [
+                  "headscale-oracldn:54910"
+                ];
+              }
+            ];
+          }
         ];
 
         rules = [
