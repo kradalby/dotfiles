@@ -20,10 +20,14 @@
     ./zigbee2mqtt.nix
     ./homebridge.nix
     ./scrypted.nix
-    ./unifi.nix
     ./tailscale.nix
     ./tailscale-headscale.nix
     ./iSponsorBlockTV.nix
+
+    # Disable unifi, it is impossible to
+    # compile mongodb for arm with my current
+    # infra.
+    # ./unifi.nix
   ];
 
   my.lan = "eth0";
