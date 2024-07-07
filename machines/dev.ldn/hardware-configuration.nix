@@ -20,7 +20,7 @@
     kernelModules = ["kvm-intel"];
     extraModulePackages = [];
 
-    # zpool create -f -O canmount=on -O mountpoint=/fast -O compression=zstd -O atime=off -O xattr=sa -O acltype=posixacl fast /dev/nvme1n1 /dev/nvme2n1
+    # zpool create -f -O canmount=on -O mountpoint=/fast -O compression=zstd -O atime=off -O xattr=sa -O acltype=posixacl -O utf8only=on -O normalization=formD fast /dev/nvme1n1 /dev/nvme2n1
     # zfs create -o canmount=off fast/windows
     # zfs create -o canmount=on -o mountpoint=/fast/vm fast/vm
     supportedFilesystems = ["zfs"];
