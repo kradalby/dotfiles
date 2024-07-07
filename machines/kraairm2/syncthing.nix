@@ -48,7 +48,7 @@ in {
           id = "dd5mf-nwmas";
           path = "/Volumes/storage/hugin";
           devices = ["core.terra"];
-          type = "sendreceive";
+          type = "sendonly";
         };
       };
     };

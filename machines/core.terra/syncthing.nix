@@ -53,7 +53,7 @@ in
                 id = "dd5mf-nwmas";
                 path = "/fast/hugin";
                 devices = ["kraairm2"];
-                type = "sendreceive";
+                type = "receiveonly";
               };
 
               "kradalby - Sync" = {
