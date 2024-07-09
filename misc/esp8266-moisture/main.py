@@ -1,7 +1,9 @@
 import socket
+import select
 import time
-
+import network
 from machine import ADC, Pin
+
 
 HIGH = 1
 LOW = 0
@@ -33,29 +35,41 @@ def read():
 
     return raw
 
-
-addr = socket.getaddrinfo("0.0.0.0", 80)[0][-1]
-
-s = socket.socket()
-s.bind(addr)
-s.listen(5)
-
-print("listening on", addr)
-
-while True:
-    cl, addr = s.accept()
-    print("client connected from", addr)
-    cl_file = cl.makefile("rwb", 0)
-    while True:
-        line = cl_file.readline()
-        if not line or line == b"\r\n":
-            break
-    cl.send("HTTP/1.0 200 OK\r\nContent-type: text/plain\r\n\r\n")
-    cl.send(
-        """# HELP sensor_moisture is the value read from pin 0, connected to moisture sensor
+def req_handler(cs):
+    try:
+       req = cs.read()
+       if req:
+          print('Request:\n', req)
+          cs.send('HTTP/1.1 200 OK\n')
+          cs.send('Content-Type: text/plain\n')
+          cs.send('Connection: close\n\n')
+          cs.send(
+              """# HELP sensor_moisture is the value read from pin 0, connected to moisture sensor
 # TYPE sensor_moisture gauge
 sensor_moisture {}""".format(
-            read_with_power()
-        )
-    )
-    cl.close()
+                  read_with_power()
+              )
+          )
+       else:
+          print('Client close connection')
+    except Exception as e:
+        print('Err:', e)
+    cs.close()
+
+
+def cln_handler(srv):
+    cs, ca = srv.accept()
+    print('Serving:', ca)
+    cs.setblocking(False)
+    cs.setsockopt(socket.SOL_SOCKET, 20, req_handler)
+
+
+if __name__ == "__main__":
+    port = 80
+    address = socket.getaddrinfo("0.0.0.0", port)[0][-1]
+    srv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    srv.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    srv.bind(address)
+    srv.listen(5) # at most 5 clients
+    srv.setblocking(False)
+    srv.setsockopt(socket.SOL_SOCKET, 20, cln_handler)
