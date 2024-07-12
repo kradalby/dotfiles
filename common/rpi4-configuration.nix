@@ -16,9 +16,14 @@
     };
 
     initrd.availableKernelModules = ["xhci_pci" "uas" "usbhid" "usb_storage"];
-    kernelParams = [
+    kernelParams = lib.mkForce [
       "8250.nr_uarts=1"
-      "console=ttyAMA0,115200"
+
+      # Using ttyAMA0 here breaks bluetooth
+      # https://github.com/NixOS/nixpkgs/issues/123725#issuecomment-1287563755
+      # "console=ttyAMA0,115200"
+      "console=ttyS0,115200"
+
       "console=tty1"
       # Some gui programs need this
       "cma=128M"
@@ -30,24 +35,24 @@
     };
   };
 
-  hardware = {
-    enableRedistributableFirmware = true;
-    bluetooth = {
-      powerOnBoot = true;
-      enable = true;
-    };
-  };
-
-  services.blueman.enable = true;
-
-  systemd.services.btattach = {
-    before = ["bluetooth.service"];
-    after = ["dev-ttyAMA0.device"];
-    wantedBy = ["multi-user.target"];
-    serviceConfig = {
-      ExecStart = "${pkgs.bluez}/bin/btattach -B /dev/ttyAMA0 -P bcm -S 3000000";
-    };
-  };
+  # hardware = {
+  #   enableRedistributableFirmware = true;
+  #   bluetooth = {
+  #     powerOnBoot = true;
+  #     enable = true;
+  #   };
+  # };
+  #
+  # services.blueman.enable = true;
+  #
+  # systemd.services.btattach = {
+  #   before = ["bluetooth.service"];
+  #   after = ["dev-ttyAMA0.device"];
+  #   wantedBy = ["multi-user.target"];
+  #   serviceConfig = {
+  #     ExecStart = "${pkgs.bluez}/bin/btattach -B /dev/ttyAMA0 -P bcm -S 3000000";
+  #   };
+  # };
 
   fileSystems = {
     "/" = {
