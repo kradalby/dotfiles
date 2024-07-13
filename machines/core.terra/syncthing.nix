@@ -19,6 +19,7 @@ in
           overrideDevices = true;
           overrideFolders = true;
           settings = {
+            gui.insecureSkipHostcheck = true;
             inherit (cfg) devices;
             folders = {
               "/storage/software" = {
