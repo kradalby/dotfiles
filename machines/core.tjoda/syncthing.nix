@@ -22,6 +22,7 @@ in
           overrideFolders = true;
           settings = {
             inherit (cfg) devices;
+            gui.insecureSkipHostcheck = true;
             folders = {
               "/storage/software" = {
                 id = "vpgyn-cj2mg";
