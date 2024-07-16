@@ -92,6 +92,27 @@
         "type": "github"
       }
     },
+    "crane_3": {
+      "inputs": {
+        "nixpkgs": [
+          "sql-studio",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1717535930,
+        "narHash": "sha256-1hZ/txnbd/RmiBPNUs7i8UQw2N89uAK3UzrGAWdnFfU=",
+        "owner": "ipetkov",
+        "repo": "crane",
+        "rev": "55e7754ec31dac78980c8be45f8a28e80e370946",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ipetkov",
+        "repo": "crane",
+        "type": "github"
+      }
+    },
     "darwin": {
       "inputs": {
         "nixpkgs": [
@@ -708,6 +729,7 @@
         "nixpkgs-master": "nixpkgs-master",
         "nixpkgs-unstable": "nixpkgs-unstable",
         "ragenix": "ragenix",
+        "sql-studio": "sql-studio",
         "tasmota-exporter": "tasmota-exporter",
         "utils": "utils",
         "vscode-extensions": "vscode-extensions"
@@ -738,6 +760,31 @@
         "type": "github"
       }
     },
+    "rust-overlay_2": {
+      "inputs": {
+        "flake-utils": [
+          "sql-studio",
+          "flake-utils"
+        ],
+        "nixpkgs": [
+          "sql-studio",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1717813066,
+        "narHash": "sha256-wqbRwq3i7g5EHIui0bIi84mdqZ/It1AXBSLJ5tafD28=",
+        "owner": "oxalica",
+        "repo": "rust-overlay",
+        "rev": "6dc3e45fe4aee36efeed24d64fc68b1f989d5465",
+        "type": "github"
+      },
+      "original": {
+        "owner": "oxalica",
+        "repo": "rust-overlay",
+        "type": "github"
+      }
+    },
     "slimlock": {
       "inputs": {
         "nixpkgs": [
@@ -757,6 +804,31 @@
       "original": {
         "owner": "thomashoneyman",
         "repo": "slimlock",
+        "type": "github"
+      }
+    },
+    "sql-studio": {
+      "inputs": {
+        "crane": "crane_3",
+        "flake-utils": [
+          "utils"
+        ],
+        "nixpkgs": [
+          "nixpkgs-unstable"
+        ],
+        "rust-overlay": "rust-overlay_2"
+      },
+      "locked": {
+        "lastModified": 1721058520,
+        "narHash": "sha256-tJRsJMBBtPxW9SlrwSAdbNpkjA5HNUJ1fsAHY0Y6x3Y=",
+        "owner": "frectonz",
+        "repo": "sql-studio",
+        "rev": "f999f8946e3c4a123de54fd704b609353adf9816",
+        "type": "github"
+      },
+      "original": {
+        "owner": "frectonz",
+        "repo": "sql-studio",
         "type": "github"
       }
     },
