@@ -50,6 +50,12 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
+    sql-studio = {
+      url = "github:frectonz/sql-studio";
+      inputs."flake-utils".follows = "utils";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+
     # Go based
     krapage = {
       url = "github:kradalby/kra";
@@ -111,6 +117,7 @@
     home-manager,
     ragenix,
     attic,
+    sql-studio,
     nixos-generators,
     dream2nix,
     vscode-extensions,
@@ -161,13 +168,13 @@
         inherit (hvor.packages."${prev.system}") hvor;
         inherit (tasmota-exporter.packages."${prev.system}") tasmota-exporter;
         inherit (homewizard-p1-exporter.packages."${prev.system}") homewizard-p1-exporter;
+        sql-studio = sql-studio.packages."${prev.system}".default;
         neovim = neovim-kradalby.packages."${prev.system}".neovim-kradalby;
       })
     ];
 
     commonModules = pkgBase: [
       ragenix.nixosModules.age
-
       {
         nixpkgs = {
           inherit overlays;
