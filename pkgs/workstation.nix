@@ -3,7 +3,11 @@
   lib,
   # , flakes
   ...
-}: {
+}: let
+  sql-studio-mac = pkgs.sql-studio.overrideAttrs (o: {
+    nativeBuildInputs = [pkgs.darwin.apple_sdk.frameworks.SystemConfiguration] ++ o.nativeBuildInputs;
+  });
+in {
   home.packages = with pkgs;
     [
       # act
@@ -52,28 +56,7 @@
       unstable.squibble
       unstable.tailscale-tools
 
-      # (fenix.complete.withComponents
-      #   [
-      #     "cargo"
-      #     "clippy"
-      #     "rust-src"
-      #     "rustc"
-      #     "rustfmt"
-      #   ])
-
-      # gofumpt
-      # golangci-lint
-      # gox
-      # golines
-
-      # Tailscale stuff
-      redo-apenwarr
-
       clang
-
-      # swiftlint
-      # clang-format
-      # hclfmt
     ]
     ++ lib.optionals stdenv.isDarwin [
       lima
@@ -87,6 +70,8 @@
 
       virt-manager
       qemu
+
+      sql-studio-mac
 
       # We cant use the newest docker on macOS yet
       docker
