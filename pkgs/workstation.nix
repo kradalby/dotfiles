@@ -112,7 +112,10 @@ in {
           img=$2
 
           exiftool -use MWG \
-            -Copyright="Image by $author. All rights to the respective authors." \
+            "-filecreatedate<datetimeoriginal" \
+            "-filemodifydate<datetimeoriginal" \
+            -overwrite_original \
+            -Copyright="Photo by $author. All rights to the respective authors." \
             -Creator="$author" \
             -Owner="$author" \
             -ownername="$author" \
