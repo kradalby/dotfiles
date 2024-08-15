@@ -42,7 +42,10 @@
   }
   {
     hostName = "dev.ldn.fap.no";
-    systems = ["x86_64-linux" "aarch64-linux"];
+    systems = [
+      "x86_64-linux"
+      # "aarch64-linux"
+    ];
     sshUser = "root";
     sshKey = "/Users/kradalby/.ssh/id_ed25519";
     maxJobs = 3;
