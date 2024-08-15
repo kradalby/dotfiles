@@ -68,7 +68,7 @@ in
     "restic-kratail-token.age".publicKeys = u;
 
     # Wireguard
-    "wireguard-ldn.age".publicKeys = u ++ [hosts.core-ldn];
+    "wireguard-ldn.age".publicKeys = u ++ [hosts.core-ldn hosts.dev-ldn];
     "wireguard-ntnu.age".publicKeys = u ++ [hosts.core-ntnu];
     "wireguard-oracldn.age".publicKeys = u ++ [hosts.core-oracldn];
     "wireguard-oracfurt.age".publicKeys = u ++ [hosts.dev-oracfurt];
@@ -105,8 +105,8 @@ in
     # OpenVPN
     "ovpn-oracldn-crt.age".publicKeys = u ++ [hosts.core-oracldn];
     "ovpn-oracldn-key.age".publicKeys = u ++ [hosts.core-oracldn];
-    "ovpn-ldn-crt.age".publicKeys = u ++ [hosts.core-ldn];
-    "ovpn-ldn-key.age".publicKeys = u ++ [hosts.core-ldn];
+    "ovpn-ldn-crt.age".publicKeys = u ++ [hosts.core-ldn hosts.dev-ldn];
+    "ovpn-ldn-key.age".publicKeys = u ++ [hosts.core-ldn hosts.dev-ldn];
     "ovpn-ntnu-crt.age".publicKeys = u ++ [hosts.core-ntnu];
     "ovpn-ntnu-key.age".publicKeys = u ++ [hosts.core-ntnu];
 
@@ -153,7 +153,7 @@ in
 
     # WIFI
     "ldn-wifi.age".publicKeys = u ++ [hosts.dev-ldn hosts.eye-ldn];
-    "kphone15-wifi.age".publicKeys = u ++ [hosts.core-ldn];
+    "kphone15-wifi.age".publicKeys = u ++ [hosts.core-ldn hosts.dev-ldn];
 
     # ghostfolio
     "ghostfolio-env.age".publicKeys = u ++ [hosts.core-oracldn];

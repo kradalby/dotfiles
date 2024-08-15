@@ -18,94 +18,38 @@ in {
     # ../../common/coredns.nix
     ../../common/consul.nix
 
+    # ./syncthing.nix
     ./restic.nix
     ./tailscale.nix
     ./tailscale-headscale.nix
     ./nvidia.nix
-    # ./syncthing.nix
+    ./wireguard.nix
+    ./corerad.nix
+    ./dnsmasq.nix
+    ./avahi.nix
+    ./networking.nix
+    ./nft.nix
   ];
 
-  my.wan = "enp3s0";
-  my.lan = "enp4s0";
+  my.wan = "wan0";
+  my.lan = "lan0";
 
-  age.secrets.ldn-wifi = {
-    file = ../../secrets/ldn-wifi.age;
-  };
+  boot.kernel.sysctl = {
+    # if you use ipv4, this is all you need
+    "net.ipv4.conf.all.forwarding" = true;
 
-  networking = {
-    hostId = "58808be0";
-    hostName = "dev";
-    domain = "ldn.fap.no";
-    nameservers = [
-      "1.1.1.1"
-      "1.0.0.1"
-    ];
-    usePredictableInterfaceNames = lib.mkForce true;
-    interfaces = {
-      "${config.my.wan}" = {
-        useDHCP = true;
-      };
+    # If you want to use it for ipv6
+    "net.ipv6.conf.all.forwarding" = true;
 
-      "${config.my.lan}" = {
-        useDHCP = true;
-      };
+    # source: https://github.com/mdlayher/homelab/blob/master/nixos/routnerr-2/configuration.nix#L52
+    # By default, not automatically configure any IPv6 addresses.
+    "net.ipv6.conf.all.accept_ra" = 0;
+    "net.ipv6.conf.all.autoconf" = 0;
+    "net.ipv6.conf.all.use_tempaddr" = 0;
 
-      "wlp0s20f3" = {
-        useDHCP = true;
-      };
-    };
-
-    wireless = {
-      enable = true;
-      environmentFile = config.age.secrets.ldn-wifi.path;
-      networks = {
-        "_kad".psk = "@PSK_UNDERSCORE_KAD@";
-      };
-    };
-
-    nat = {
-      enable = true;
-      externalInterface = config.my.wan;
-      # internalIPs = [ "10.0.0.0/8" ];
-      # internalInterfaces = [ config.my.lan "iot" ];
-      # forwardPorts = [
-      #   {
-      #     sourcePort = 64322;
-      #     destination = "10.67.0.1:22";
-      #     proto = "tcp";
-      #   }
-      #   {
-      #     sourcePort = 500;
-      #     destination = "10.67.0.1:51820";
-      #     proto = "udp";
-      #   }
-      #   {
-      #     sourcePort = 4500;
-      #     destination = "10.67.0.1:51820";
-      #     proto = "udp";
-      #   }
-      # ];
-    };
-
-    firewall = {
-      enable = lib.mkForce true;
-      # This is a special override for gateway machines as we
-      # dont want to use "openFirewall" here since it makes
-      # everything world available.
-      allowedTCPPorts = lib.mkForce [
-        22 # SSH
-        80 # HTTP
-        443 # HTTPS
-      ];
-
-      allowedUDPPorts = lib.mkForce [
-        443 # HTTPS
-        config.services.tailscale.port
-        # config.networking.wireguard.interfaces.wg0.listenPort
-      ];
-
-      trustedInterfaces = [config.my.lan "podman+"];
-    };
+    # On WAN, allow IPv6 autoconfiguration and tempory address use.
+    "net.ipv6.conf.${config.my.wan}.accept_ra" = 2;
+    "net.ipv6.conf.${config.my.wan}.autoconf" = 1;
   };
 
   # Also add work SSH keys
@@ -142,7 +86,7 @@ in {
       commands = [
         {
           command = "ALL";
-          options = ["NOPASSWD"]; # "SETENV" # Adding the following could be a good idea
+          options = ["NOPASSWD"]; # "SETENV"
         }
       ];
     }
