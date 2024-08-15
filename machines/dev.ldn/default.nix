@@ -15,8 +15,11 @@ in {
     ../../common/nginx.nix
     ../../common/containers.nix
 
-    # ../../common/coredns.nix
     ../../common/consul.nix
+    ../../common/ddns.nix
+    # ../../common/smokeping-exporter.nix
+    ../../common/coredns.nix
+    ../../common/miniupnp.nix
 
     # ./syncthing.nix
     ./restic.nix
