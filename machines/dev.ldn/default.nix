@@ -21,7 +21,6 @@ in {
     ../../common/coredns.nix
     ../../common/miniupnp.nix
 
-    # ./syncthing.nix
     ./restic.nix
     ./tailscale.nix
     ./tailscale-headscale.nix
@@ -32,10 +31,18 @@ in {
     ./avahi.nix
     ./networking.nix
     ./nft.nix
+    ./samba.nix
+    ./zfs.nix
+    ./syncthing.nix
   ];
 
-  my.wan = "wan0";
-  my.lan = "lan0";
+  my = {
+    wan = "wan0";
+    lan = "lan0";
+
+    users.storage = true;
+    users.timemachine = true;
+  };
 
   boot.kernel.sysctl = {
     # if you use ipv4, this is all you need
