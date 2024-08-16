@@ -24,6 +24,11 @@
         value = {useTemplate = ["normal"];};
       }) [
         "fast/win10"
+        "storage/backup"
+        "storage/libraries"
+        "storage/pictures"
+        "storage/software"
+        "storage/sync"
       ]);
   };
 }

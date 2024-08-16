@@ -7,9 +7,10 @@
     "core.oracldn" = {id = "PODB2YZ-L5ZSWOZ-LJA5SOY-YXW2DKD-WVAOEUL-2DSJH52-I2QP6H5-PDXDVAO";};
     "dev.terra" = {id = "IMAN3KP-YRAZ7OA-OZEXWO2-VALZ6IB-JNLEANA-CHSMUP4-24WNQ33-SXU2MAE";};
     "dev.oracfurt" = {id = "5CUHKVK-U5FYJQU-7N7TEMB-QSUOI6M-5NEGQR5-MEFDJHH-DIPVQCD-PBWXWQ4";};
+    "dev.ldn" = {id = "YQJMTP4-K6URWRP-S4BMCXI-YWBWOK6-WTLOKTC-5AK5ULJ-MIF3FC5-ML6PTAM";};
   };
 
-  storage = ["kramacbook" "kraairm2" "core.tjoda" "core.terra"];
+  storage = ["kramacbook" "kraairm2" "core.tjoda" "core.terra" "dev.ldn"];
 
   folders = {};
 }

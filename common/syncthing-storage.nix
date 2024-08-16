@@ -5,9 +5,9 @@
   lib,
   ...
 }: let
-  nginx = import ../../common/funcs/nginx.nix {inherit config lib;};
+  nginx = import ./funcs/nginx.nix {inherit config lib;};
 
-  cfg = import ../../metadata/syncthing.nix;
+  cfg = import ../metadata/syncthing.nix;
   domain = "syncthing.core.${config.networking.domain}";
 in
   lib.mkMerge [

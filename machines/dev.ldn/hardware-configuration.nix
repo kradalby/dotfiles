@@ -26,6 +26,7 @@
     supportedFilesystems = ["zfs"];
     zfs.extraPools = [
       "fast"
+      "storage"
     ];
   };
 

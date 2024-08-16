@@ -15,6 +15,7 @@
     ../../common/smokeping-exporter.nix
     ../../common/coredns.nix
     ../../common/miniupnp.nix
+    ../../common/syncthing-storage.nix
 
     ./hardware-configuration.nix
     ./zfs.nix
@@ -27,7 +28,6 @@
     ./networking.nix
     # ./openvpn.nix
     ./unifi.nix
-    ./syncthing.nix
     ./rest-server.nix
     ./samba.nix
     ./avahi.nix
