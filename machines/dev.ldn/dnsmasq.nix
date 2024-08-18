@@ -219,7 +219,14 @@
     settings = {
       interface = [
         config.my.lan
-        "iot"
+        # "iot0"
+      ];
+      # Only reserve the ports on the interfaces
+      # served by dnsmasq and not wildcard.
+      bind-interfaces = true;
+
+      except-interface = [
+        "virbr0"
       ];
 
       # disable dns

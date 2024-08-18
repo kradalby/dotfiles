@@ -18,7 +18,6 @@ in {
     ../../common/consul.nix
     ../../common/ddns.nix
     # ../../common/smokeping-exporter.nix
-    ../../common/coredns.nix
     ../../common/miniupnp.nix
 
     ./restic.nix
@@ -34,6 +33,7 @@ in {
     ./samba.nix
     ./zfs.nix
     ./syncthing.nix
+    ./coredns.nix
   ];
 
   my = {
