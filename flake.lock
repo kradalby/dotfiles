@@ -37,11 +37,11 @@
         "nixpkgs-stable": "nixpkgs-stable"
       },
       "locked": {
-        "lastModified": 1723558887,
-        "narHash": "sha256-FBaRmikNnCX+HQJXAfNJyiOl3sM1NrlxvcFwQDqwCyk=",
+        "lastModified": 1724086414,
+        "narHash": "sha256-jcY81r8PdMQ9dCGhT0YLZzxPj3kQJXyWCmvQLXbR1EI=",
         "owner": "zhaofengli",
         "repo": "attic",
-        "rev": "26b9417bde03edc6280d1f7ce709cd619cdb72d4",
+        "rev": "acf3c351f8de47c6857f31948ab253f9c7ce2a6f",
         "type": "github"
       },
       "original": {
@@ -58,11 +58,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1717025063,
-        "narHash": "sha256-dIubLa56W9sNNz0e8jGxrX3CAkPXsq7snuFA/Ie6dn8=",
+        "lastModified": 1722960479,
+        "narHash": "sha256-NhCkJJQhD5GUib8zN9JrmYGMwt4lCRp6ZVNzIiYCl0Y=",
         "owner": "ipetkov",
         "repo": "crane",
-        "rev": "480dff0be03dac0e51a8dfc26e882b0d123a450e",
+        "rev": "4c6c77920b8d44cd6660c1621dea6b3fc4b4c4f4",
         "type": "github"
       },
       "original": {
@@ -201,11 +201,11 @@
     "flake-compat": {
       "flake": false,
       "locked": {
-        "lastModified": 1673956053,
-        "narHash": "sha256-4gtG9iQuiKITOjNQQeQIpoIB6b16fm+504Ch3sNKLd8=",
+        "lastModified": 1696426674,
+        "narHash": "sha256-kvjfFW7WAETZlt09AgDn1MrtKzP7t90Vf7vypd3OL1U=",
         "owner": "edolstra",
         "repo": "flake-compat",
-        "rev": "35bb57c0c8d8b62bbfd284272c928ceb64ddbde9",
+        "rev": "0f9255e01c2351cc7d116c072cb317785dd33b33",
         "type": "github"
       },
       "original": {
@@ -581,11 +581,11 @@
     },
     "nixpkgs-hardware": {
       "locked": {
-        "lastModified": 1723310128,
-        "narHash": "sha256-IiH8jG6PpR4h9TxSGMYh+2/gQiJW9MwehFvheSb5rPc=",
+        "lastModified": 1724067415,
+        "narHash": "sha256-WJBAEFXAtA41RMpK8mvw0cQ62CJkNMBtzcEeNIJV7b0=",
         "owner": "NixOS",
         "repo": "nixos-hardware",
-        "rev": "c54cf53e022b0b3c1d3b8207aa0f9b194c24f0cf",
+        "rev": "b09c46430ffcf18d575acf5c339b38ac4e1db5d2",
         "type": "github"
       },
       "original": {
@@ -596,11 +596,11 @@
     },
     "nixpkgs-master": {
       "locked": {
-        "lastModified": 1724050343,
-        "narHash": "sha256-tGRPGJKwczrM7793zaR74KnuYLMHArJvYXmGu8Wo9oI=",
+        "lastModified": 1724134343,
+        "narHash": "sha256-FqItXtX8lPmZuaJ0lTYYX561R4nnqzyhejJZt9ce3ZQ=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "ed434d7889eddb68002d81bc25212f26ff8f2862",
+        "rev": "bffee014a141b8dca216d2b1c6def9be04977739",
         "type": "github"
       },
       "original": {
@@ -612,11 +612,11 @@
     },
     "nixpkgs-stable": {
       "locked": {
-        "lastModified": 1711460390,
-        "narHash": "sha256-akSgjDZL6pVHEfSE6sz1DNSXuYX6hq+P/1Z5IoYWs7E=",
+        "lastModified": 1720535198,
+        "narHash": "sha256-zwVvxrdIzralnSbcpghA92tWu2DV2lwv89xZc8MTrbg=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "44733514b72e732bd49f5511bd0203dea9b9a434",
+        "rev": "205fd4226592cc83fd4c0885a3e4c9c400efabb5",
         "type": "github"
       },
       "original": {
@@ -628,11 +628,11 @@
     },
     "nixpkgs-unstable": {
       "locked": {
-        "lastModified": 1724015816,
-        "narHash": "sha256-hVESnM7Eiz93+4DeiE0a1TwMeaeph1ytRJ5QtqxYRWg=",
+        "lastModified": 1724047581,
+        "narHash": "sha256-BypLrnMS2QvvdVhwWixppTOM3fLPC8eyJse0BNSbbfI=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "9aa35efbea27d320d0cdc5f922f0890812affb60",
+        "rev": "e9b5094b8f6e06a46f9f53bb97a9573b7cedf2a2",
         "type": "github"
       },
       "original": {
@@ -1538,11 +1538,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1724031032,
-        "narHash": "sha256-nr5UsMemoNTd/17RYf4T+WOaV3A4DRZKpU4ezEa8CF8=",
+        "lastModified": 1724117347,
+        "narHash": "sha256-/nfm6P0owPtCRjT8ktq/8OChtg2HpkrvNaDJGm9N1Lk=",
         "owner": "nix-community",
         "repo": "nix-vscode-extensions",
-        "rev": "2410e61d988b9a1e24a1baca6d191560c4eab0ab",
+        "rev": "2ef60116ef361d988317cbe52a09acfeda7d3416",
         "type": "github"
       },
       "original": {
