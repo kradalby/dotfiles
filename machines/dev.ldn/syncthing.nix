@@ -8,7 +8,7 @@
       id = "dd5mf-nwmas";
       path = "/storage/hugin";
       devices = ["kraairm2" "core.terra"];
-      type = "sendreceive";
+      type = "receiveonly";
     };
   };
 }
