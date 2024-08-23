@@ -29,7 +29,7 @@
       additional_networks = [
         "10.62.0.0/16"
         # Advertise "selskap", Asparges guest network
-        "192.168.200.0/24"
+        # "192.168.200.0/24"
       ];
       addresses = ["10.69.0.202/32"];
       dns = "10.62.0.1";
