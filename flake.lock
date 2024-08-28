@@ -100,11 +100,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1717535930,
-        "narHash": "sha256-1hZ/txnbd/RmiBPNUs7i8UQw2N89uAK3UzrGAWdnFfU=",
+        "lastModified": 1724537630,
+        "narHash": "sha256-gpqINM71zp3kw5XYwUXa84ZtPnCmLLnByuFoYesT1bY=",
         "owner": "ipetkov",
         "repo": "crane",
-        "rev": "55e7754ec31dac78980c8be45f8a28e80e370946",
+        "rev": "3e08f4b1fc9aaede5dd511d8f5f4ef27501e49b0",
         "type": "github"
       },
       "original": {
@@ -596,11 +596,11 @@
     },
     "nixpkgs-master": {
       "locked": {
-        "lastModified": 1724832612,
-        "narHash": "sha256-RJdfTCc5DVW7yry+dgxvxJ6HGn+MmcwqbVVS/puFzHg=",
+        "lastModified": 1724854525,
+        "narHash": "sha256-0NmdOlc0xRT1+ktDm0BerM6H4P340unJjMeOF0D8Og4=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "2893de7dd8e4fa77c7a4c1e7f3e4adb49fa42c95",
+        "rev": "fded2e8f7c61204b57a4ba6e7d87a7544ff1a789",
         "type": "github"
       },
       "original": {
@@ -762,21 +762,17 @@
     },
     "rust-overlay_2": {
       "inputs": {
-        "flake-utils": [
-          "sql-studio",
-          "flake-utils"
-        ],
         "nixpkgs": [
           "sql-studio",
           "nixpkgs"
         ]
       },
       "locked": {
-        "lastModified": 1717813066,
-        "narHash": "sha256-wqbRwq3i7g5EHIui0bIi84mdqZ/It1AXBSLJ5tafD28=",
+        "lastModified": 1724811750,
+        "narHash": "sha256-PvhVgQ1rm3gfhK7ts4emprhh/KMkFwXogmgsQ3srR7g=",
         "owner": "oxalica",
         "repo": "rust-overlay",
-        "rev": "6dc3e45fe4aee36efeed24d64fc68b1f989d5465",
+        "rev": "6a1c4915dca7149e7258d8c7f3ac634d8c65f6c6",
         "type": "github"
       },
       "original": {
@@ -819,11 +815,11 @@
         "rust-overlay": "rust-overlay_2"
       },
       "locked": {
-        "lastModified": 1724821022,
-        "narHash": "sha256-1BxQyrG+0L6h88SATIVZvmqv/oc/uMNbtaoYNIK7vis=",
+        "lastModified": 1724852852,
+        "narHash": "sha256-+pjuq8xzVvGRwcpBrfGRxkSsU8P15OP+HWGfBu9pa8k=",
         "owner": "frectonz",
         "repo": "sql-studio",
-        "rev": "753ce3ca9a7a78d122a2566ae7cade2e1e9eb71d",
+        "rev": "4a01b37986fd9752babf9d38300ff4266ebee564",
         "type": "github"
       },
       "original": {
