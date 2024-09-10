@@ -312,16 +312,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1725688610,
-        "narHash": "sha256-FUPRljdEUVzX+kyJ5Y4CeJ8EYEJf2ayq5hu05fWQqMY=",
-        "owner": "kradalby",
+        "lastModified": 1725884949,
+        "narHash": "sha256-esIpnLiQcEfbYnx/ZDOx6Kj2k85rPQCllXaDprltL3Y=",
+        "owner": "juanfont",
         "repo": "headscale",
-        "rev": "7e6042499ef8aa42a43a8a474f857bb9ce81109f",
+        "rev": "7be8796d87d2f65cdac200e3fa26febe1260bf72",
         "type": "github"
       },
       "original": {
-        "owner": "kradalby",
-        "ref": "kradalby/cli-only-config",
+        "owner": "juanfont",
+        "ref": "v0.23.0-beta.4",
         "repo": "headscale",
         "type": "github"
       }
