@@ -35,11 +35,11 @@
   settingsFormat = pkgs.formats.yaml {};
   configFile = settingsFormat.generate "headscale.yaml" cfg.settings;
 in {
-  # disabledModules = ["services/networking/headscale.nix"];
-  #
-  # imports = [
-  #   "${flakes.nixpkgs-headscale-test}/nixos/modules/services/networking/headscale.nix"
-  # ];
+  disabledModules = ["services/networking/headscale.nix"];
+
+  imports = [
+    "${flakes.nixpkgs-kradalby}/nixos/modules/services/networking/headscale.nix"
+  ];
 
   age.secrets = {
     headscale-private-key = {
@@ -70,12 +70,9 @@ in {
     settings = {
       server_url = "https://${domain}";
 
-      acl_policy_path = aclPath;
+      policy.path = aclPath;
 
       metrics_listen_addr = ":54910";
-
-      # database.path = "file:/var/lib/headscale/db.sqlite?cache=shared&mode=rwc&_journal_mode=WAL&_busy_timeout=5000";
-      # database.path = "file:/var/lib/headscale/db.sqlite?_journal_mode=WAL&_busy_timeout=5000";
 
       oidc = {
         # issuer = "https://id.kradalby.no/dex";
@@ -91,6 +88,13 @@ in {
 
       dns = {
         base_domain = "fap";
+        nameservers = {
+          split =
+            {
+              consul = s.nameservers;
+            }
+            // builtins.mapAttrs (site: server: [server]) s.consul;
+        };
       };
 
       grpc_listen_addr = "127.0.0.1:50443";
@@ -103,15 +107,12 @@ in {
       prefixes = {
         v6 = "fd7a:115c:a1e0::/48";
         v4 = "100.64.0.0/10";
+        allocation = "random";
       };
 
       database = {
         type = "sqlite";
         sqlite.path = "${config.users.users.headscale.home}/db.sqlite";
-      };
-
-      dns_config = {
-        override_local_dns = true;
       };
 
       derp = {
@@ -128,12 +129,6 @@ in {
       oidc = {
         only_start_if_oidc_is_available = false;
       };
-
-      restricted_nameservers =
-        {
-          consul = s.nameservers;
-        }
-        // builtins.mapAttrs (site: server: [server]) s.consul;
     };
   };
 

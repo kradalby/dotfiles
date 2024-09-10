@@ -7,6 +7,7 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.05";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     nixpkgs-master.url = "github:NixOS/nixpkgs/master";
+    nixpkgs-kradalby.url = "github:kradalby/nixpkgs/kradalby/headscale-023";
 
     nixpkgs-hardware.url = "github:NixOS/nixos-hardware";
 
@@ -82,8 +83,8 @@
     };
 
     headscale = {
-      # url = "github:juanfont/headscale";
-      url = "github:kradalby/headscale";
+      url = "github:juanfont/headscale/v0.23.0-beta.4";
+      # url = "github:kradalby/headscale/kradalby/shutdown-1968";
       inputs."flake-utils".follows = "utils";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
@@ -113,6 +114,7 @@
     nixpkgs,
     nixpkgs-unstable,
     nixpkgs-master,
+    nixpkgs-kradalby,
     darwin,
     home-manager,
     ragenix,
@@ -136,7 +138,9 @@
     overlay-pkgs = final: _: {
       stable = import nixpkgs {
         inherit (final) system;
-        config = {allowUnfree = true;};
+        config = {
+          allowUnfree = true;
+        };
         overlays = [(import ./pkgs/overlays {})];
       };
       unstable = import nixpkgs-unstable {
