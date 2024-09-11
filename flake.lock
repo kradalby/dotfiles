@@ -112,11 +112,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1725975477,
-        "narHash": "sha256-sBnXxmYBb0S85Vkny97z2TFLd5SJW5o0k6KQNwpSLb0=",
+        "lastModified": 1726011153,
+        "narHash": "sha256-OOxKWn1ZgdBMW1RX2hoBqCirIJutbh1WpRF7BdiBsLs=",
         "owner": "lnl7",
         "repo": "nix-darwin",
-        "rev": "5b2d8e9a47c3e17514650d1ce7d5e907114db82b",
+        "rev": "8220423c0220d4edcf62dec059ec41e84c7851ef",
         "type": "github"
       },
       "original": {
@@ -132,11 +132,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1725975477,
-        "narHash": "sha256-sBnXxmYBb0S85Vkny97z2TFLd5SJW5o0k6KQNwpSLb0=",
+        "lastModified": 1726011153,
+        "narHash": "sha256-OOxKWn1ZgdBMW1RX2hoBqCirIJutbh1WpRF7BdiBsLs=",
         "owner": "lnl7",
         "repo": "nix-darwin",
-        "rev": "5b2d8e9a47c3e17514650d1ce7d5e907114db82b",
+        "rev": "8220423c0220d4edcf62dec059ec41e84c7851ef",
         "type": "github"
       },
       "original": {
@@ -626,11 +626,11 @@
     },
     "nixpkgs-master": {
       "locked": {
-        "lastModified": 1725995960,
-        "narHash": "sha256-FUoffqvmOSL/Al8gIdBYD/pT/C7jngr+AujY4QRvens=",
+        "lastModified": 1726029325,
+        "narHash": "sha256-tYG2Z/NQdUvePUiuL4Z1YznUm5HtnMmCwRYYYeN8O/c=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "193a7602d8cb837c8d9903eadf5cc865000980d5",
+        "rev": "d2df1fd9415aecc5959965c16f6af3941deb3b8b",
         "type": "github"
       },
       "original": {
@@ -1561,11 +1561,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1725932651,
-        "narHash": "sha256-TQXR4UbFegmFqOTmD1zvhlsKecZUcRmI+lKFh4yM+8M=",
+        "lastModified": 1726018610,
+        "narHash": "sha256-ZzHoplvYlnpbdp0GbJFJPcAHX30DwkJb0ddKDxFy/1c=",
         "owner": "nix-community",
         "repo": "nix-vscode-extensions",
-        "rev": "fd9e191cbc65896105d9eb0647a6023b631a12e4",
+        "rev": "b25d873f9b0b451403d60dca7c37984971746ddb",
         "type": "github"
       },
       "original": {
