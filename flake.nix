@@ -47,7 +47,6 @@
 
     attic = {
       url = "github:zhaofengli/attic";
-      inputs."flake-utils".follows = "utils";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
@@ -83,7 +82,7 @@
     };
 
     headscale = {
-      url = "github:juanfont/headscale/v0.23.0-beta.4";
+      url = "github:juanfont/headscale/v0.23.0";
       # url = "github:kradalby/headscale/kradalby/shutdown-1968";
       inputs."flake-utils".follows = "utils";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
