@@ -11,7 +11,7 @@ in {
     hosts = [
       "core.terra.fap.no"
       "core.oracldn.fap.no"
-      "core.ldn.fap.no"
+      "dev.ldn.fap.no"
       "core.tjoda.fap.no"
       # "core.ntnu.fap.no"
       "vg.no"
