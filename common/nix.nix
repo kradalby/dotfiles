@@ -64,6 +64,10 @@
 
   nixpkgs.config = {
     allowUnfree = true;
+    permittedInsecurePackages = [
+      "litestream-0.3.13"
+      "olm-3.2.16"
+    ];
   };
 
   # TODO: why doesnt this always work?
