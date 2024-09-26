@@ -45,7 +45,6 @@ in {
       step-cli
       nurl
       nix-init
-      python310Packages.pipx
       # gitutil
       act
       dive
@@ -56,6 +55,8 @@ in {
       unstable.setec
       unstable.squibble
       unstable.tailscale-tools
+
+      python312Packages.pipx
 
       clang
     ]

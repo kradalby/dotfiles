@@ -55,14 +55,15 @@
     nodePackages.stylelint
     nodePackages.write-good
     proselint
-    python310Packages.flake8
-    python310Packages.pylama
     shellcheck
     shellharden
     shfmt
     statix
     vale
     yamllint
+
+    python312Packages.flake8
+    python312Packages.pylama
 
     ## Debug
 
