@@ -55,6 +55,7 @@ in {
       unstable.setec
       unstable.squibble
       unstable.tailscale-tools
+      ffmpeg
 
       python312Packages.pipx
 
