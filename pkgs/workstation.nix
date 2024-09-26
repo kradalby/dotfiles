@@ -51,6 +51,7 @@ in {
       dive
       gotestsum
       difftastic
+      git-absorb
 
       unstable.setec
       unstable.squibble
