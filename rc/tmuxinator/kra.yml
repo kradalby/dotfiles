@@ -76,3 +76,7 @@ windows:
   # - core.te: eb -- mosh core.te
   # - core.tj: eb -- mosh core.tj
   - devf: eb -- mosh devf
+  - colima:
+      panes:
+        - up:
+          - colima start --vm-type vz --cpu 4 --memory 12 --disk 100; colima ssh -- top
