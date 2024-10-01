@@ -38,7 +38,7 @@ in {
 
   my = {
     wan = "wan0";
-    lan = "lan0";
+    lan = "lanbr0";
 
     users.storage = true;
     users.timemachine = true;

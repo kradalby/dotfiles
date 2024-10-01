@@ -25,7 +25,7 @@
   # LAN interfaces, segmented into trusted and untrusted groups.
   trusted_lans = [
     {
-      name = "lan0";
+      name = "lanbr0";
       ipv4 = "10.65.0.1";
     }
     {name = "tailscale0";}

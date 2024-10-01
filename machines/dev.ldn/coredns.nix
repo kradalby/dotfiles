@@ -3,5 +3,5 @@
     ../../common/coredns.nix
   ];
 
-  my.coredns.bind = ["lan0" "iot0"];
+  my.coredns.bind = ["lanbr0" "iot0"];
 }
