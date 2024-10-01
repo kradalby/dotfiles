@@ -76,6 +76,7 @@ in {
         # Physical LAN. For physical LANs, we have to make sure to match
         # on both Type and MACAddress since VLANs would share the same MAC.
         "10-lan0" = ethLink "lan0" "48:21:0b:52:0b:9f";
+        "10-lan1" = ethLink "lan1" "48:21:0b:52:0b:a0";
 
         # "14-wan0" = ethLink "wan0" "48:21:0b:52:0b:a0";
         "15-wan1" = {
@@ -92,6 +93,12 @@ in {
       netdevs = {
         "15-wan0" = vlanNetdev "wan0" 3;
         "25-iot0" = vlanNetdev "iot0" 156;
+        "20-lanbr0" = {
+          netdevConfig = {
+            Kind = "bridge";
+            Name = "lanbr0";
+          };
+        };
       };
 
       networks = {
@@ -113,15 +120,36 @@ in {
         "10-lan0" = {
           matchConfig.Name = "lan0";
 
-          address = ["10.65.0.1/24"];
-
           # VLANs associated with this physical interface.
           vlan = ["wan0" "iot0"];
 
+          linkConfig.RequiredForOnline = "enslaved";
+          networkConfig.Bridge = "lanbr0";
+        };
+        "10-lan1" = {
+          matchConfig.Name = "lan1";
+
+          # VLANs associated with this physical interface.
+          # vlan = ["wan0" "iot0"];
+
+          linkConfig.RequiredForOnline = "enslaved";
+          networkConfig.Bridge = "lanbr0";
+        };
+
+        "11-lanbr0" = {
+          matchConfig.Name = "lanbr0";
+
+          address = ["10.65.0.1/24"];
+
+          bridgeConfig = {};
           networkConfig = {
             DHCPPrefixDelegation = true;
             DHCPServer = false;
             IPv6AcceptRA = false;
+          };
+
+          linkConfig = {
+            RequiredForOnline = "carrier";
           };
         };
 
