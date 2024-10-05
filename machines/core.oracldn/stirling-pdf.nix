@@ -35,9 +35,7 @@ in
       users.groups.stirling = {};
 
       virtualisation.oci-containers.containers.stirling = {
-        # NOTE: manual update required
-        # https://hub.docker.com/r/frooodle/s-pdf/tags
-        image = "frooodle/s-pdf:0.26.1";
+        image = (import ../../metadata/versions.nix).stirling;
         user = config.users.users.stirling.uid;
         autoStart = true;
         ports = [

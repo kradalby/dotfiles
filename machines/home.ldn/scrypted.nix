@@ -13,14 +13,8 @@ in
     {
       networking.firewall.allowedTCPPorts = [48463];
       virtualisation.oci-containers.containers.scrypted = {
-        # NOTE: manual update required
-        # https://hub.docker.com/r/koush/scrypted/tags
-        image = "koush/scrypted:18-jammy-full.s6-v0.85.0";
-        # user = config.users.users.stirling.uid;
+        image = (import ../../metadata/versions.nix).scrypted;
         autoStart = true;
-        # ports = [
-        #   "${toString port}:8080/tcp"
-        # ];
 
         environment = {
           SCRYPTED_DOCKER_AVAHI = "false";
