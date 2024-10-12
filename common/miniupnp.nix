@@ -14,12 +14,6 @@ in {
       config.my.lan
     ];
 
-    appendConfig = ''
-      upnp_forward_chain=MINIUPNPD
-      upnp_nat_chain=MINIUPNPD
-      upnp_nat_postrouting_chain=MINIUPNPD-POSTROUTING
-    '';
-
     externalInterface = config.my.wan;
   };
 }
