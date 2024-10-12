@@ -19,7 +19,7 @@
     {
       hostname = "hus-kontor-switch";
       ipAddress = "10.62.0.110";
-      mac = "b4:fb:e4:24:f9:61";
+      mac = "f4:e2:c6:ca:9b:d6";
     }
     {
       hostname = "love-loft-switch";
