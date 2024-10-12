@@ -98,10 +98,6 @@ in {
   };
 
   config = mkIf cfg.enable {
-    # TODO: Enable when miniupnpd supports nftables
-    # https://github.com/NixOS/nixpkgs/pull/239028
-    services.miniupnpd.enable = lib.mkForce false;
-
     # TODO: drop ipv6 traffic between vlan
     # iifname ${ifi.name} ip6 daddr != {
     #   ${ifi.ipv6.lla},
