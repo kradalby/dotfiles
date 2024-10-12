@@ -5,5 +5,6 @@
     ./mqtt-exporter
     ./tailscale-proxy.nix
     ./setec.nix
+    ./faptables.nix
   ];
 }
