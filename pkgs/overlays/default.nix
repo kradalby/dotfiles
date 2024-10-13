@@ -1,17 +1,11 @@
 {...}: let
 in
   final: prev: {
-    tailscale-tools = prev.callPackage ./tailscale-tools.nix {
-      buildGoModule = prev.buildGo122Module;
-    };
+    tailscale-tools = prev.callPackage ./tailscale-tools.nix {};
 
-    setec = prev.callPackage ./setec.nix {
-      buildGoModule = prev.buildGo122Module;
-    };
+    setec = prev.callPackage ./setec.nix {};
 
-    squibble = prev.callPackage ./squibble.nix {
-      buildGoModule = prev.buildGo122Module;
-    };
+    squibble = prev.callPackage ./squibble.nix {};
 
     homebridge = prev.callPackage ./homebridge/override.nix {};
 
@@ -25,8 +19,7 @@ in
 
     cook-cli = prev.callPackage ./cook.nix {};
 
-    webrepl_cli = prev.callPackage ./webrepl_cli.nix {
-    };
+    webrepl_cli = prev.callPackage ./webrepl_cli.nix {};
 
     # osxphotos = prev.callPackage ./osxphotos.nix {};
   }
