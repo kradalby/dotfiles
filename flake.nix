@@ -173,6 +173,9 @@
         });
       in {
         go = final.go_1_23;
+        gopls = final.gopls.override {
+          buildGoModule = final.buildGo123Module;
+        };
         buildGoModules = final.buildGo123Modules;
         hugin = hugin.packages."${final.system}".hugin.override {
           buildGoModule = final.buildGo123Module;
