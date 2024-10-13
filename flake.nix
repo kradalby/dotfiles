@@ -160,19 +160,37 @@
       overlay-pkgs
       ragenix.overlays.default
       headscale.overlay
-      hugin.overlay
+      # hugin.overlay
       # munin.overlay
       golink.overlay
       attic.overlays.default
       vscode-extensions.overlays.default
       (import ./pkgs/overlays {})
-      (_: prev: {
-        inherit (krapage.packages."${prev.system}") krapage;
-        inherit (hvor.packages."${prev.system}") hvor;
-        inherit (tasmota-exporter.packages."${prev.system}") tasmota-exporter;
-        inherit (homewizard-p1-exporter.packages."${prev.system}") homewizard-p1-exporter;
-        sql-studio = sql-studio.packages."${prev.system}".default;
-        neovim = neovim-kradalby.packages."${prev.system}".neovim-kradalby;
+      (_: final: let
+        # TODO(kradalby): figure out why this doesnt work
+        goOver = name: ("${name}".packages."${final.system}"."${name}".override {
+          buildGoModule = final.buildGo123Module;
+        });
+      in {
+        go = final.go_1_23;
+        buildGoModules = final.buildGo123Modules;
+        hugin = hugin.packages."${final.system}".hugin.override {
+          buildGoModule = final.buildGo123Module;
+        };
+        krapage = krapage.packages."${final.system}".krapage.override {
+          buildGoModule = final.buildGo123Module;
+        };
+        hvor = hvor.packages."${final.system}".hvor.override {
+          buildGoModule = final.buildGo123Module;
+        };
+        tasmota-exporter = tasmota-exporter.packages."${final.system}".tasmota-exporter.override {
+          buildGoModule = final.buildGo123Module;
+        };
+        homewizard-p1-exporter = homewizard-p1-exporter.packages."${final.system}".homewizard-p1-exporter.override {
+          buildGoModule = final.buildGo123Module;
+        };
+        sql-studio = sql-studio.packages."${final.system}".default;
+        neovim = neovim-kradalby.packages."${final.system}".neovim-kradalby;
       })
     ];
 
