@@ -16,7 +16,7 @@
     nil
     nodePackages.typescript
     nodePackages.typescript-language-server
-    nodePackages.vscode-langservers-extracted
+    # nodePackages.vscode-langservers-extracted
     nodePackages.yaml-language-server
     nodePackages_latest.pyright
     rust-analyzer
@@ -24,9 +24,7 @@
     terraform-ls
     nixd
     nodePackages."@tailwindcss/language-server"
-    (master.gopls.override {
-      buildGoModule = master.buildGo122Module;
-    })
+    gopls
 
     ## null-ls
     # curlylint
