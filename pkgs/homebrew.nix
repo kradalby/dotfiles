@@ -81,6 +81,7 @@ _: {
       "zed@preview"
       "hiddenbar"
       "chatgpt"
+      "deskpad"
 
       # For quiz!
       "vlc"
