@@ -148,11 +148,27 @@
         overlays = [
           (import ./pkgs/overlays {})
           attic.overlays.default
+          (
+            _: final: {
+              gopls = final.gopls.override {
+                buildGoModule = final.buildGo123Module;
+              };
+            }
+          )
         ];
       };
       master = import nixpkgs-master {
         inherit (final) system;
         config = {allowUnfree = true;};
+        overlays = [
+          (
+            _: final: {
+              gopls = final.gopls.override {
+                buildGoModule = final.buildGo123Module;
+              };
+            }
+          )
+        ];
       };
     };
 
@@ -173,9 +189,6 @@
         });
       in {
         go = final.go_1_23;
-        gopls = final.gopls.override {
-          buildGoModule = final.buildGo122Module;
-        };
         buildGoModules = final.buildGo123Modules;
         hugin = hugin.packages."${final.system}".hugin.override {
           buildGoModule = final.buildGo123Module;
