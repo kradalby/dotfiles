@@ -24,7 +24,7 @@
     terraform-ls
     nixd
     nodePackages."@tailwindcss/language-server"
-    gopls
+    master.gopls
 
     ## null-ls
     # curlylint
