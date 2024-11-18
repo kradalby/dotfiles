@@ -66,6 +66,8 @@ in {
   users.users.root.openssh.authorizedKeys.keys = sshKeys.main ++ sshKeys.kradalby ++ sshKeys.work;
   users.users.kradalby.openssh.authorizedKeys.keys = sshKeys.main ++ sshKeys.kradalby ++ sshKeys.work;
 
+  services.attic-watch.enable = true;
+
   virtualisation = {
     oci-containers.backend = lib.mkForce "podman";
     docker.enable = false;

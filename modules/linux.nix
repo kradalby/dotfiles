@@ -6,5 +6,6 @@
     ./tailscale-proxy.nix
     ./setec.nix
     ./faptables.nix
+    ./attic-watch.nix
   ];
 }
