@@ -36,6 +36,8 @@ in {
       };
     };
 
+    attic-watch.enable = true;
+
     # https://lgug2z.com/articles/deploying-a-cloudflare-r2-backed-nix-binary-cache-attic-on-fly-io/
     # https://lgug2z.com/articles/building-and-privately-caching-x86-and-aarch64-nixos-systems-on-github-actions/
 
