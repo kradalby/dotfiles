@@ -8,7 +8,7 @@
     libiconv # rnix-lsp
 
     ## LSP
-    ansible-language-server
+    # ansible-language-server
     buf-language-server
     dhall-lsp-server
     efm-langserver
