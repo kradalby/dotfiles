@@ -664,11 +664,11 @@
     },
     "nixpkgs-master": {
       "locked": {
-        "lastModified": 1732476014,
-        "narHash": "sha256-4Ri20qO2sho8qAcHnAPXhbE7DLwk8+dGr9ATcfzBpzc=",
+        "lastModified": 1732478318,
+        "narHash": "sha256-FHZn3Grio4vWDzLvBNRe1v5Ju/wfh5xmj8fpKGR8i8A=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "260c65a04da7348542237c832ed81b844a479813",
+        "rev": "719c7cd9634902f6c71371ea7af0e667671fc983",
         "type": "github"
       },
       "original": {
@@ -949,11 +949,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1732476304,
-        "narHash": "sha256-kX+NODKTUwdgOSts/r925z74ge4y3G4WjOPMkeAPH60=",
+        "lastModified": 1732478317,
+        "narHash": "sha256-PMrf0RhBVeze73JSlBl6a7OQQuK6H/3QAwfuPXQz/Ck=",
         "owner": "kradalby",
         "repo": "tasmota-exporter",
-        "rev": "d4843670a02078d1db2776c25230f30c434940e4",
+        "rev": "3f840c2efd76a5390e62ce6417529530034a87ef",
         "type": "github"
       },
       "original": {

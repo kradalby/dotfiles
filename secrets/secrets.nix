@@ -29,7 +29,7 @@ with builtins; let
     core-ntnu = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICXhYsZfTX/h7v9eDo3vmtoTtKH1GkXhwf6uVnpi+Fj7";
 
     # Oracle London hosts
-    headscale-oracldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIN2wiCW3z5MpNw7sVrs2ot2uThEdM0LlCJCr/IJRXlty";
+    headscale-oracldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEktSTKX3EnWnU4oi/VaBenvd8DYM8tYFjZ6qm27JDU3";
 
     # Storage at bassan
     # storage-bassan = "";
@@ -82,10 +82,10 @@ in
     "unifi-tjoda-read-only.age".publicKeys = u ++ [hosts.core-tjoda];
 
     # headscale
-    "headscale-private-key.age".publicKeys = u ++ [hosts.headscale-oracldn];
-    "headscale-noise-private-key.age".publicKeys = u ++ [hosts.headscale-oracldn];
-    "headscale-oidc-secret.age".publicKeys = u ++ [hosts.headscale-oracldn];
-    "headscale-envfile.age".publicKeys = u ++ [hosts.headscale-oracldn];
+    "headscale-private-key.age".publicKeys = u ++ [hosts.core-oracldn];
+    "headscale-noise-private-key.age".publicKeys = u ++ [hosts.core-oracldn];
+    "headscale-oidc-secret.age".publicKeys = u ++ [hosts.core-oracldn];
+    "headscale-envfile.age".publicKeys = u ++ [hosts.core-oracldn];
 
     "matterbridge-config.age".publicKeys = u ++ [hosts.headscale-oracldn];
 
