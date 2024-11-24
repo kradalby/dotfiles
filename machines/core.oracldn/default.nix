@@ -34,6 +34,7 @@
     ./ghostfolio.nix
     ./litestream.nix
 
+    ./headscale.nix
     ./umami.nix
     ./golink.nix
     ./webpage.nix

@@ -17,12 +17,16 @@
       name = "golink.db";
       path = config.services.golink.databaseFile;
     }
+    {
+      name = "headscale.sqlite";
+      path = "/var/lib/headscale/db.sqlite";
+    }
   ];
 
   users = {
     users = {
       litestream = {
-        extraGroups = ["uptime-kuma" config.services.golink.group];
+        extraGroups = ["uptime-kuma" config.services.golink.group "headscale"];
       };
     };
   };

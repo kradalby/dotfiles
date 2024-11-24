@@ -242,7 +242,7 @@ in
               {
                 targets = [
                   "core-oracldn:54909"
-                  "headscale-oracldn:54909"
+                  # "headscale-oracldn:54909"
                 ];
               }
             ];
@@ -253,7 +253,7 @@ in
             static_configs = [
               {
                 targets = [
-                  "headscale-oracldn:54910"
+                  "core-oracldn:54910"
                 ];
               }
             ];

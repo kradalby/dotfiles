@@ -59,9 +59,9 @@ in {
       ];
     };
   };
-  services.udev.extraRules = ''
-    ATTR{address}=="02:00:17:02:df:1c", NAME="ens3"
-  '';
+  # services.udev.extraRules = ''
+  #   ATTR{address}=="02:00:17:10:e8:06", NAME="ens3"
+  # '';
 
   users.users.root.openssh.authorizedKeys.keys = sshKeys.main ++ sshKeys.kradalby ++ sshKeys.work;
   users.users.kradalby.openssh.authorizedKeys.keys = sshKeys.main ++ sshKeys.kradalby ++ sshKeys.work;
