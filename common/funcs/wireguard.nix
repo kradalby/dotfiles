@@ -136,7 +136,6 @@
         DHCP = "no";
         networkConfig = {
           IPMasquerade = "ipv4";
-          IPForward = true;
           IPv6AcceptRA = false;
         };
       };
