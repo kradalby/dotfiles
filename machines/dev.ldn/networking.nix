@@ -42,10 +42,10 @@ in {
 
     wireless = {
       enable = true;
-      environmentFile = config.age.secrets.kphone15-wifi.path;
+      secretsFile = config.age.secrets.kphone15-wifi.path;
       interfaces = ["wan1"];
       networks = {
-        kPhone15.psk = "@PSK_KPHONE15@";
+        kPhone15.pskRaw = "ext:kphone15";
       };
     };
 
