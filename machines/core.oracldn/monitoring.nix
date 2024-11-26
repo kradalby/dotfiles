@@ -25,6 +25,15 @@
         icmp:
           preferred_ip_protocol: ip4
   '';
+  scrapeJob = name: targets: {
+    job_name = name;
+    metrics_path = "/metrics";
+    static_configs = [
+      {
+        targets = targets;
+      }
+    ];
+  };
 in
   lib.mkMerge [
     {
@@ -235,29 +244,13 @@ in
               }
             ];
           }
-          {
-            job_name = "litestream";
-            metrics_path = "/metrics";
-            static_configs = [
-              {
-                targets = [
-                  "core-oracldn:54909"
-                  # "headscale-oracldn:54909"
-                ];
-              }
-            ];
-          }
-          {
-            job_name = "headscale";
-            metrics_path = "/metrics";
-            static_configs = [
-              {
-                targets = [
-                  "core-oracldn:54910"
-                ];
-              }
-            ];
-          }
+          (scrapeJob "litestream" [
+            "core-oracldn:54909"
+            # "headscale-oracldn:54909"
+          ])
+          (scrapeJob "headscale" [
+            "core-oracldn:54910"
+          ])
         ];
 
         rules = [

@@ -6,6 +6,7 @@
     "nextcloud"
     "umami"
     "ghostfolio"
+    "keycloak"
   ];
 
   my.postgres.extraBackups = [];
