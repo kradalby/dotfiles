@@ -303,7 +303,7 @@
         "core.terra" = nixosBox "x86_64-linux" nixpkgs home-manager "core.terra" ["x86" "router" "terra"];
 
         "core.oracldn" = nixosBox "aarch64-linux" nixpkgs home-manager "core.oracldn" ["arm64" "oracle" "oracldn"];
-        "headscale.oracldn" = nixosBox "x86_64-linux" nixpkgs null "headscale.oracldn" ["x86" "oracle" "oracldn"];
+        # "headscale.oracldn" = nixosBox "x86_64-linux" nixpkgs null "headscale.oracldn" ["x86" "oracle" "oracldn"];
 
         "dev.oracfurt" = nixosBox "aarch64-linux" nixpkgs home-manager "dev.oracfurt" ["arm64" "oracle" "oracfurt"];
 
@@ -313,7 +313,7 @@
         "home.ldn" = nixosBox "aarch64-linux" nixpkgs null "home.ldn" ["arm64" "ldn"];
         # "core.ldn" = nixosBox "aarch64-linux" nixpkgs null "core.ldn" ["arm64" "router" "ldn"];
         "dev.ldn" = nixosBox "x86_64-linux" nixpkgs home-manager "dev.ldn" ["x86" "ldn"];
-        "lenovo.ldn" = nixosBox "x86_64-linux" nixpkgs null "lenovo.ldn" ["x86" "ldn"];
+        # "lenovo.ldn" = nixosBox "x86_64-linux" nixpkgs null "lenovo.ldn" ["x86" "ldn"];
         # "eye.ldn" = nixosBox "aarch64-linux" nixpkgs null "eye.ldn";
 
         # "storage.bassan" = nixosBox "aarch64-linux" nixpkgs null "storage.bassan";
