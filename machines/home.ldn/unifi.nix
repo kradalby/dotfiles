@@ -16,7 +16,7 @@ in
       systemd.services.unifi.wantedBy = lib.mkForce [];
 
       services.unifi = {
-        unifiPackage = pkgs.unifi8;
+        unifiPackage = pkgs.unifi;
         mongodbPackage = pkgs.mongodb;
 
         enable = true;
