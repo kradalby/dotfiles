@@ -21,12 +21,16 @@
       name = "headscale.sqlite";
       path = "/var/lib/headscale/db.sqlite";
     }
+    {
+      name = "kanidm.db";
+      path = "/var/lib/kanidm/kanidm.db";
+    }
   ];
 
   users = {
     users = {
       litestream = {
-        extraGroups = ["uptime-kuma" config.services.golink.group "headscale"];
+        extraGroups = ["uptime-kuma" config.services.golink.group "headscale" "kanidm"];
       };
     };
   };

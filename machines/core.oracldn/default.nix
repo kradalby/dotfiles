@@ -33,6 +33,7 @@
     ./stirling-pdf.nix
     ./ghostfolio.nix
     ./litestream.nix
+    ./kanidm.nix
 
     ./headscale.nix
     ./umami.nix

@@ -16,6 +16,7 @@
       config.services.postgresqlBackup.location
       config.services.minio.configDir
       config.services.grafana.dataDir
+      "/var/lib/kanidm/backup"
     ]
     ++ config.services.minio.dataDir;
 
