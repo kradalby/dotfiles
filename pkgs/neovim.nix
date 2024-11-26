@@ -9,7 +9,7 @@
 
     ## LSP
     # ansible-language-server
-    buf-language-server
+    buf
     dhall-lsp-server
     efm-langserver
     golangci-lint-langserver
@@ -18,7 +18,7 @@
     nodePackages.typescript-language-server
     # nodePackages.vscode-langservers-extracted
     nodePackages.yaml-language-server
-    nodePackages_latest.pyright
+    pyright
     rust-analyzer
     sumneko-lua-language-server
     terraform-ls
