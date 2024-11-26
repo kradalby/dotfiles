@@ -45,7 +45,7 @@
       # Nix tooling
       nix-diff
       nix-tree
-      unstable.attic
+      attic-client
 
       (let
         my-python-packages = python-packages:
