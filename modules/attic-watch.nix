@@ -18,7 +18,7 @@
       description = "Attic Watch Store Service";
       wantedBy = ["multi-user.target"];
       serviceConfig = {
-        ExecStart = "${pkgs.attic}/bin/attic watch-store ${config.services.attic-watch.target}";
+        ExecStart = "${pkgs.attic-client}/bin/attic watch-store ${config.services.attic-watch.target}";
         Restart = "always";
         RestartSec = "5s";
       };

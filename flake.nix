@@ -45,11 +45,6 @@
       # inputs."agenix".inputs."nixpkgs".follows = "nixpkgs";
     };
 
-    attic = {
-      url = "github:zhaofengli/attic";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-    };
-
     sql-studio = {
       url = "github:frectonz/sql-studio";
       inputs."flake-utils".follows = "utils";
@@ -117,7 +112,6 @@
     darwin,
     home-manager,
     ragenix,
-    attic,
     sql-studio,
     nixos-generators,
     dream2nix,
@@ -147,7 +141,6 @@
         config = {allowUnfree = true;};
         overlays = [
           (import ./pkgs/overlays {})
-          attic.overlays.default
           (
             _: final: {
               gopls = final.gopls.override {
@@ -179,7 +172,6 @@
       # hugin.overlay
       # munin.overlay
       golink.overlay
-      attic.overlays.default
       vscode-extensions.overlays.default
       (import ./pkgs/overlays {})
       (_: final: let
@@ -237,7 +229,6 @@
             hvor.nixosModules.default
             tasmota-exporter.nixosModules.default
             homewizard-p1-exporter.nixosModules.default
-            attic.nixosModules.atticd
             (import ./modules/linux.nix)
             {
               system.configurationRevision =

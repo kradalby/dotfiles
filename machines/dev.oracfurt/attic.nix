@@ -5,8 +5,6 @@
 }: let
   port = 56789;
 in {
-  environment.systemPackages = [pkgs.attic];
-
   age.secrets.attic = {
     file = ../../secrets/attic-env.age;
   };
@@ -47,7 +45,7 @@ in {
     atticd = {
       enable = true;
 
-      credentialsFile = config.age.secrets.attic.path;
+      environmentFile = config.age.secrets.attic.path;
 
       settings = {
         listen = "[::]:${toString port}";
