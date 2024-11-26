@@ -29,7 +29,7 @@ in {
       description = lib.mdDoc "Username or user ID of the user allowed to to fetch Tailscale TLS certificates for the node.";
     };
 
-    package = lib.mkPackageOptionMD pkgs "tailscale" {};
+    package = lib.mkPackageOption pkgs "tailscale" {};
 
     authKeyFile = mkOption {
       type = types.nullOr types.path;
