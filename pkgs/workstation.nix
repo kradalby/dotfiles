@@ -52,6 +52,7 @@ in {
       bat
       viddy
       eza
+      git-toolbelt
 
       unstable.setec
       unstable.squibble
