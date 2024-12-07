@@ -17,7 +17,7 @@ rustPlatform.buildRustPackage rec {
     sha256 = "sha256-d+jPaPYvtFaiWaNyyOpazmhR3LSe5DfKjdM4dkdaQHw=";
   };
 
-  cargoSha256 = "sha256-xVXQJsmJ4Exnqqe4Z43quxlZBWHAQt6qMrhceOAvUiw=";
+  cargoHash = "";
 
   meta = with lib; {
     description = "Command line program which provides a suite of tools to create shopping lists and maintain recipes.";

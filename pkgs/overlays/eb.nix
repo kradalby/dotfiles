@@ -17,7 +17,7 @@ rustPlatform.buildRustPackage rec {
     sha256 = "sha256-kHN9W4oKlSIiJlbu3Jd9HAIQjk1jTk/2sHr1eLlydD8=";
   };
 
-  cargoSha256 = "sha256-9ZbL+FlpRKUcMcpFigR3JwAbAs5w55iapJwpuqVyI14=";
+  cargoHash = "sha256-9ZbL+FlpRKUcMcpFigR3JwAbAs5w55iapJwpuqVyI14=";
 
   meta = with lib; {
     description = "♻️ Run commands with exponential backoff 📈";
