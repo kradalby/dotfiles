@@ -57,6 +57,8 @@ in {
       unstable.tailscale-tools
       ffmpeg
 
+      ts-preauthkey
+
       python312Packages.pipx
 
       clang
