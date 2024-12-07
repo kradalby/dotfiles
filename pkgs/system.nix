@@ -55,6 +55,14 @@
         python-with-my-packages = python3.withPackages my-python-packages;
       in
         python-with-my-packages)
+
+      (writeShellApplication {
+        name = "fake-editor";
+        text = ''
+          cat >"$1"
+          exit 0
+        '';
+      })
     ]
     ++ lib.optionals stdenv.isLinux [
       nftables
