@@ -21,14 +21,14 @@ jobs:
             platform: x86-64-linux
           - host: core.tjoda
             platform: x86-64-linux
-          - host: headscale.oracldn
-            platform: x86-64-linux
+          # - host: headscale.oracldn
+          #   platform: x86-64-linux
           - host: dev.ldn
             platform: x86-64-linux
-          - host: lenovo.ldn
-            platform: x86-64-linux
-          - host: core.ldn
-            platform: aarch64-linux
+          # - host: lenovo.ldn
+          #   platform: x86-64-linux
+          # - host: core.ldn
+          #   platform: aarch64-linux
           - host: core.oracldn
             platform: aarch64-linux
           - host: dev.oracfurt
