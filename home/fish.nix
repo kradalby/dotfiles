@@ -103,17 +103,6 @@
       ts = "tailscale";
       tss = "tailscale status";
       tsp = "tailscale ping";
-
-      headscale-integration = ''
-        docker run \
-          -t --rm \
-          -v ~/.cache/hs-integration-go:/go \
-          --name headscale-test-suite \
-          -v $PWD:$PWD -w $PWD/integration \
-          -v /var/run/docker.sock:/var/run/docker.sock \
-          golang:1 \
-          go test -tags ts2019 -failfast ./... -timeout 120m -parallel 1 -run
-      '';
     };
 
     # Abbreviate commonly used functions
@@ -166,11 +155,6 @@
         docker system prune -af
         colima stop
         colima start --vm-type vz --cpu 6 --memory 12 --disk 100
-      '';
-
-      cajq = ''
-        set file $argv[1]
-        cat $file | ${pkgs.jq}/bin/jq
       '';
     };
   };

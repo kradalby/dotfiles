@@ -19,25 +19,24 @@ in {
       # poetry
       # rnix-lsp
       # yarn
+      # grpcurl
+      # nodejs # ansiblels
+      # yarn
+      # gitutil
       ansible
       colmena
-      drone-cli
       dyff
       eb
       entr
       exiftool
       gh
       git-open
-      grpcurl
       headscale
       ipcalc
       kubectl
       kubernetes-helm
       nmap
       nodePackages.node2nix
-      nodePackages.prettier
-      nodejs # ansiblels
-      yarn
       pre-commit
       prettyping
       qrencode
@@ -45,12 +44,14 @@ in {
       step-cli
       nurl
       nix-init
-      # gitutil
       act
       dive
       gotestsum
       difftastic
       git-absorb
+      bat
+      viddy
+      eza
 
       unstable.setec
       unstable.squibble
@@ -60,6 +61,8 @@ in {
       ts-preauthkey
 
       python312Packages.pipx
+
+      docker
 
       clang
     ]
@@ -78,9 +81,6 @@ in {
 
       sql-studio-mac
 
-      # We cant use the newest docker on macOS yet
-      docker
-
       (pkgs.writeScriptBin
         "pamtouchfix"
         ''
@@ -98,7 +98,6 @@ in {
     ]
     ++ lib.optionals stdenv.isLinux [
       # swift
-      docker
     ]
     ++ [
       (writeShellApplication {

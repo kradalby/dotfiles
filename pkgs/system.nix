@@ -11,12 +11,9 @@
 
       # jemalloc, which bind depends on is broken on darwin aarch64
       (lib.mkIf (! (pkgs.stdenv.isDarwin && pkgs.stdenv.isAarch64)) dig)
-      vim
       babelfish
-      bat
       coreutils
       dos2unix
-      eza
       fd
       fdupes
       fish
@@ -31,18 +28,16 @@
       rclone
       restic
       ripgrep
+      rsync
       socat
       tldr
       tmux
       tree
       unzip
+      vim
       wget
       yq-go
-      rsync
-      viddy
       zstd
-
-      # Nix tooling
       nix-diff
       nix-tree
       attic-client

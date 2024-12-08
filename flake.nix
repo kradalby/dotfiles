@@ -300,12 +300,12 @@
   in
     {
       nixosConfigurations = {
-        "core.terra" = nixosBox "x86_64-linux" nixpkgs home-manager "core.terra" ["x86" "router" "terra"];
+        "core.terra" = nixosBox "x86_64-linux" nixpkgs null "core.terra" ["x86" "router" "terra"];
 
-        "core.oracldn" = nixosBox "aarch64-linux" nixpkgs home-manager "core.oracldn" ["arm64" "oracle" "oracldn"];
+        "core.oracldn" = nixosBox "aarch64-linux" nixpkgs null "core.oracldn" ["arm64" "oracle" "oracldn"];
         # "headscale.oracldn" = nixosBox "x86_64-linux" nixpkgs null "headscale.oracldn" ["x86" "oracle" "oracldn"];
 
-        "dev.oracfurt" = nixosBox "aarch64-linux" nixpkgs home-manager "dev.oracfurt" ["arm64" "oracle" "oracfurt"];
+        "dev.oracfurt" = nixosBox "aarch64-linux" nixpkgs null "dev.oracfurt" ["arm64" "oracle" "oracfurt"];
 
         # "core.ntnu" = nixosBox "x86_64-linux" nixpkgs null "core.ntnu";
 
