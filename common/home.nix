@@ -25,11 +25,11 @@
           };
         };
       };
-      root = {
-        imports = [
-          ../home
-        ];
-      };
+      # root = {
+      #   imports = [
+      #     ../home
+      #   ];
+      # };
     };
   };
 }

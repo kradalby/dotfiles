@@ -45,19 +45,13 @@
 
       ANSIBLE_HOST_KEY_CHECKING = "False";
       ANSIBLE_CONFIG = "$HOME/.ansible.cfg";
-      GO111MODULE = "on";
 
       TF_X_HELM_MANIFEST = 1;
-
-      SOPS_AGE_KEY_FILE = "$HOME/.config/sops/age/keys.txt";
 
       GIT_SSH_COMMAND = "ssh";
 
       SSH_AUTH_SOCK = "/Users/kradalby/Library/Containers/com.maxgoedjen.Secretive.SecretAgent/Data/socket.ssh";
     };
-
-    packages = [
-    ];
 
     language = {
       base = "en_US.UTF-8";
@@ -79,25 +73,6 @@
         source = ../rc/tmuxinator;
         recursive = true;
       };
-
-      # ".config/nvim" = {
-      #   source = ../rc/nvim;
-      #   recursive = true;
-      #   # onChange = ''
-      #   #   mkdir -p ~/logs
-      #   #   nvim --headless -c "autocmd User PackerComplete quitall" -c "PackerSync" > ~/logs/nvim_packer.log 2>&1
-      #   #   nvim --headless -c "lua require('tools').install_servers()" -c "quitall" > ~/logs/nvim_lsp.log 2>&1
-      #   # '';
-      # };
-
-      # # nvim.sqlite needs to know where to find libsqlite3
-      # ".config/nvim/lua/nix.lua".text = ''
-      #   vim.g.sqlite_clib_path = "${pkgs.sqlite.out}/lib/${
-      #     if pkgs.stdenv.isDarwin
-      #     then "libsqlite3.dylib"
-      #     else "libsqlite3.so"
-      #   }"
-      # '';
 
       ".ssh/config" = {
         source = ../rc/ssh/config;
@@ -181,10 +156,9 @@
     ./go.nix
     ./fish.nix
     ./starship.nix
-    ./kitty.nix
     ./tmux.nix
 
     ../pkgs/workstation.nix
-    ../pkgs/neovim.nix
+    ../pkgs/editor-tooling.nix
   ];
 }
