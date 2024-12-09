@@ -10,62 +10,52 @@
 in {
   home.packages = with pkgs;
     [
-      # act
-      # buf
+      # gitutil
       # go-jsonnet
+      # grpcurl
       # imapchive
       # logcli
       # nodejs
       # poetry
       # rnix-lsp
       # yarn
-      # grpcurl
-      # nodejs # ansiblels
-      # yarn
-      # gitutil
+      act
       ansible
+      bat
       colmena
+      difftastic
+      dive
+      docker
       dyff
       eb
       entr
       exiftool
+      eza
+      ffmpeg
       gh
+      git-absorb
       git-open
+      git-toolbelt
+      gotestsum
       headscale
       ipcalc
       kubectl
       kubernetes-helm
+      nix-init
       nmap
       nodePackages.node2nix
+      nurl
       pre-commit
       prettyping
+      python312Packages.pipx
       qrencode
       ragenix
       step-cli
-      nurl
-      nix-init
-      act
-      dive
-      gotestsum
-      difftastic
-      git-absorb
-      bat
-      viddy
-      eza
-      git-toolbelt
-
+      ts-preauthkey
       unstable.setec
       unstable.squibble
       unstable.tailscale-tools
-      ffmpeg
-
-      ts-preauthkey
-
-      python312Packages.pipx
-
-      docker
-
-      clang
+      viddy
     ]
     ++ lib.optionals stdenv.isDarwin [
       lima
