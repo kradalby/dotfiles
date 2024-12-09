@@ -90,8 +90,9 @@
       ".actrc".text = ''
         --container-daemon-socket unix:///Users/kradalby/.colima/default/docker.sock
         --platform ubuntu-latest=ghcr.io/catthehacker/ubuntu:act-latest
-        --platform ubuntu-latest=ghcr.io/catthehacker/ubuntu:act-20.04
-        --platform ubuntu-18.04=ghcr.io/catthehacker/ubuntu:act-18.04
+        --platform ubuntu-24.04=ghcr.io/catthehacker/ubuntu:act-24.04
+        --platform ubuntu-22.04=ghcr.io/catthehacker/ubuntu:act-22.04
+        --platform ubuntu-20.04=ghcr.io/catthehacker/ubuntu:act-20.04
       '';
 
       ".config/zed/settings.json".text = builtins.toJSON (import ./zed.nix);
