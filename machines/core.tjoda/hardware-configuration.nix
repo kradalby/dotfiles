@@ -10,7 +10,6 @@
       device = "/dev/disk/by-id/ata-LITEONIT_LCT-256M3S_2.5_7mm_256GB_TW0DFVVG550853AO0052";
     };
 
-    kernelPackages = config.boot.zfs.package.latestCompatibleLinuxPackages;
     initrd.availableKernelModules = ["xhci_pci" "ehci_pci" "ahci" "usbhid" "uas" "sd_mod"];
     initrd.kernelModules = [];
     kernelModules = ["kvm-intel"];
