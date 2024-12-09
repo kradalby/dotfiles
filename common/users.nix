@@ -43,12 +43,24 @@ in {
       ];
     };
 
+    # UID allocations in kradalby world
+    # 21xxx - User accounts
+    # 21000 - kradalby
+    #
+    # 22xxx - Service accounts
+    # 22000 - storage user and group
+    #
+    # 225xx - timemachine
+    # 22500 - timemachine group
+    # 22501 - kristine
+    # 22502 - imma
+
     users = {
       users = {
         kradalby = {
           isNormalUser = true;
-          uid = 1000;
-          extraGroups = ["wireshark" "docker" "wheel"];
+          uid = 21000;
+          extraGroups = ["wireshark" "docker" "wheel" "storage"];
           shell = pkgs.fish;
           openssh.authorizedKeys.keys = sshKeys.main ++ sshKeys.kradalby;
           # passwordFile = config.age.secrets.r.path;
@@ -61,7 +73,7 @@ in {
 
         storage = lib.mkIf config.my.users.storage {
           isSystemUser = true;
-          uid = 1992;
+          uid = 22000;
           extraGroups = [];
           shell = pkgs.bash;
           group = "storage";
@@ -70,7 +82,7 @@ in {
 
         kristine = lib.mkIf config.my.users.timemachine {
           isNormalUser = true;
-          uid = 2500;
+          uid = 22501;
           group = "timemachine";
           home = "/storage/timemachine/kristine";
           shell = "/run/current-system/sw/bin/nologin";
@@ -79,7 +91,7 @@ in {
 
         imma = lib.mkIf config.my.users.timemachine {
           isNormalUser = true;
-          uid = 2501;
+          uid = 22502;
           group = "timemachine";
           home = "/storage/timemachine/imma";
           shell = "/run/current-system/sw/bin/nologin";
@@ -89,11 +101,11 @@ in {
 
       groups = {
         storage = lib.mkIf config.my.users.storage {
-          gid = 1992;
+          gid = 22000;
         };
 
         timemachine = lib.mkIf config.my.users.timemachine {
-          gid = 2500;
+          gid = 22500;
         };
       };
     };
