@@ -12,7 +12,6 @@
 
     binfmt.emulatedSystems = ["aarch64-linux"];
 
-    kernelPackages = config.boot.zfs.package.latestCompatibleLinuxPackages;
     initrd.availableKernelModules = ["uhci_hcd" "ehci_pci" "hpsa" "usb_storage" "usbhid" "sd_mod"];
     initrd.kernelModules = [];
     kernelModules = ["kvm-intel"];
