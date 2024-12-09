@@ -42,6 +42,27 @@
     "crane_2": {
       "inputs": {
         "nixpkgs": [
+          "redlib",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1717025063,
+        "narHash": "sha256-dIubLa56W9sNNz0e8jGxrX3CAkPXsq7snuFA/Ie6dn8=",
+        "owner": "ipetkov",
+        "repo": "crane",
+        "rev": "480dff0be03dac0e51a8dfc26e882b0d123a450e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ipetkov",
+        "repo": "crane",
+        "type": "github"
+      }
+    },
+    "crane_3": {
+      "inputs": {
+        "nixpkgs": [
           "sql-studio",
           "nixpkgs"
         ]
@@ -656,6 +677,32 @@
         "type": "github"
       }
     },
+    "redlib": {
+      "inputs": {
+        "crane": "crane_2",
+        "flake-utils": [
+          "utils"
+        ],
+        "nixpkgs": [
+          "nixpkgs-unstable"
+        ],
+        "rust-overlay": "rust-overlay_2"
+      },
+      "locked": {
+        "lastModified": 1731707580,
+        "narHash": "sha256-QXcjpIO1y6mi+4E2BC6O16TaLFfpcPcCHumuJBXmcoU=",
+        "owner": "redlib-org",
+        "repo": "redlib",
+        "rev": "6c64ebd56b98f5616c2014e2e0567fa37791844c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "redlib-org",
+        "repo": "redlib",
+        "rev": "6c64ebd56b98f5616c2014e2e0567fa37791844c",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "darwin": "darwin",
@@ -678,6 +725,7 @@
         "nixpkgs-master": "nixpkgs-master",
         "nixpkgs-unstable": "nixpkgs-unstable",
         "ragenix": "ragenix",
+        "redlib": "redlib",
         "sql-studio": "sql-studio",
         "tasmota-exporter": "tasmota-exporter",
         "utils": "utils",
@@ -706,6 +754,31 @@
       }
     },
     "rust-overlay_2": {
+      "inputs": {
+        "flake-utils": [
+          "redlib",
+          "flake-utils"
+        ],
+        "nixpkgs": [
+          "redlib",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1717121863,
+        "narHash": "sha256-/3sxIe7MZqF/jw1RTQCSmgTjwVod43mmrk84m50MJQ4=",
+        "owner": "oxalica",
+        "repo": "rust-overlay",
+        "rev": "2a7b53172ed08f856b8382d7dcfd36a4e0cbd866",
+        "type": "github"
+      },
+      "original": {
+        "owner": "oxalica",
+        "repo": "rust-overlay",
+        "type": "github"
+      }
+    },
+    "rust-overlay_3": {
       "inputs": {
         "nixpkgs": [
           "sql-studio",
@@ -750,14 +823,14 @@
     },
     "sql-studio": {
       "inputs": {
-        "crane": "crane_2",
+        "crane": "crane_3",
         "flake-utils": [
           "utils"
         ],
         "nixpkgs": [
           "nixpkgs-unstable"
         ],
-        "rust-overlay": "rust-overlay_2"
+        "rust-overlay": "rust-overlay_3"
       },
       "locked": {
         "lastModified": 1730828286,

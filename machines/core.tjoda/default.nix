@@ -33,6 +33,7 @@
     ./avahi.nix
     ./restic.nix
     ./minio.nix
+    ./redlib.nix
   ];
 
   # TODO: Figure a way to allowlist some URLs

@@ -51,6 +51,13 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
+    redlib = {
+      url = "github:redlib-org/redlib/6c64ebd56b98f5616c2014e2e0567fa37791844c";
+      # url = "github:redlib-org/redlib";
+      inputs."flake-utils".follows = "utils";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+
     # Go based
     krapage = {
       url = "github:kradalby/kra";
@@ -113,6 +120,7 @@
     home-manager,
     ragenix,
     sql-studio,
+    redlib,
     nixos-generators,
     dream2nix,
     vscode-extensions,
@@ -198,6 +206,7 @@
           buildGoModule = final.buildGo123Module;
         };
         sql-studio = sql-studio.packages."${final.system}".default;
+        redlib = redlib.packages."${final.system}".default;
         neovim = neovim-kradalby.packages."${final.system}".neovim-kradalby;
       })
     ];
