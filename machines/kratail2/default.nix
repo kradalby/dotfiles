@@ -12,6 +12,7 @@
 
     ../../pkgs/system.nix
     ../../pkgs/homebrew.nix
+    ./syncthing.nix
   ];
 
   # on macOS, we need to make sure all SSH references
