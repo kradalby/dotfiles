@@ -2,6 +2,7 @@
   devices = {
     "kramacbook" = {id = "FN7I426-TXAW62Y-NB623TQ-GW23CIO-MWVQM7Q-TSFNI42-XEIZ4NM-HLX2PAE";};
     "kraairm2" = {id = "LJWJDFC-DI7P425-EGO7AWD-RWTJFMU-QYQCT2N-AANHDJG-63WWYPJ-UZQYSQZ";};
+    "kratail2" = {id = "JE6KCCC-C4UPRRJ-QKXGGWJ-7VSUSP4-SB4ZMDS-EONA44U-NDMVKAB-74QTDQG";};
     "core.tjoda" = {id = "T77O75Z-XR4MUNF-R6C2AD6-747KQ3X-M4J24YA-YFH3NVC-WDPYMEN-KCH5NAI";};
     "core.terra" = {id = "EJBC4LG-JL3MYOO-OKUOAT3-UYNIPR2-PXVPQPZ-MHKCCEL-YO3TBLS-52NXVQA";};
     "core.oracldn" = {id = "PODB2YZ-L5ZSWOZ-LJA5SOY-YXW2DKD-WVAOEUL-2DSJH52-I2QP6H5-PDXDVAO";};
@@ -10,7 +11,7 @@
     "dev.ldn" = {id = "YQJMTP4-K6URWRP-S4BMCXI-YWBWOK6-WTLOKTC-5AK5ULJ-MIF3FC5-ML6PTAM";};
   };
 
-  storage = ["kramacbook" "kraairm2" "core.tjoda" "core.terra" "dev.ldn"];
+  storage = ["kratail2" "kraairm2" "core.tjoda" "core.terra" "dev.ldn"];
 
   folders = {};
 }
