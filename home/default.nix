@@ -141,6 +141,21 @@
     fzf = {
       enable = true;
       enableFishIntegration = true;
+
+      changeDirWidgetCommand = "${pkgs.fd}/bin/fd --type d";
+      defaultCommand = "${pkgs.fd}/bin/fd --type f --strip-cwd-prefix";
+      defaultOptions = [
+        "--tmux center,85%"
+      ];
+
+      fileWidgetOptions = [
+        "--preview '${pkgs.bat}/bin/bat -n --color=always {}'"
+        "--bind 'ctrl-/:change-preview-window(down|hidden|)'"
+      ];
+
+      tmux = {
+        enableShellIntegration = true;
+      };
     };
 
     htop.enable = true;
