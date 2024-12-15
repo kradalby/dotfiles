@@ -62,6 +62,8 @@
     # extraSpecialArgs = { inherit machine; };
   };
 
+  security.pam.enableSudoTouchIdAuth = true;
+
   networking = {
     hostName = machine.hostname;
     computerName = machine.hostname;
@@ -76,7 +78,6 @@
       "monitorcontrol"
       "tigervnc-viewer"
       "utm"
-      "webex"
       "wireshark"
       "zoom"
       "slack-cli"
