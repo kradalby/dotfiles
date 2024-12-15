@@ -26,6 +26,10 @@ in {
   nix = {
     extraOptions = lib.mkForce ''
       experimental-features = nix-command flakes
+
+      # x86 requires rosetta
+      # softwareupdate --install-rosetta --agree-to-license
+      extra-platforms = x86_64-darwin aarch64-darwin
     '';
 
     settings = {
@@ -41,6 +45,8 @@ in {
     home = machine.homeDir;
   };
 
+  security.pam.enableSudoTouchIdAuth = true;
+
   home-manager = {
     verbose = true;
     backupFileExtension = "hm_bak~";
@@ -51,14 +57,6 @@ in {
 
       home.file = {
         ".ssh/authorized_keys".text = lib.concatStringsSep "\n" (sshKeys.main ++ sshKeys.kradalby);
-      };
-
-      programs.git = {
-        extraConfig = {
-          user = {
-            signingkey = lib.mkForce "/Users/kradalby/Library/Containers/com.maxgoedjen.Secretive.SecretAgent/Data/PublicKeys/7e4532c4047204869abea854f115a302.pub";
-          };
-        };
       };
     };
     # extraSpecialArgs = { inherit machine; };

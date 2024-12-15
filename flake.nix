@@ -52,8 +52,8 @@
     };
 
     redlib = {
-      url = "github:redlib-org/redlib/6c64ebd56b98f5616c2014e2e0567fa37791844c";
-      # url = "github:redlib-org/redlib";
+      # url = "github:redlib-org/redlib/6c64ebd56b98f5616c2014e2e0567fa37791844c";
+      url = "github:redlib-org/redlib";
       inputs."flake-utils".follows = "utils";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
@@ -341,11 +341,11 @@
         in
           macBox machine darwin home-manager;
 
-        kratail = let
+        kratail2 = let
           machine = {
             arch = "aarch64-darwin";
             username = "kradalby";
-            hostname = "kratail";
+            hostname = "kratail2";
             homeDir = /Users/kradalby;
           };
         in
