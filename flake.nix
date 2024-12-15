@@ -27,6 +27,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    nix-rosetta-builder = {
+      url = "github:cpick/nix-rosetta-builder";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     dream2nix = {
       url = "github:nix-community/dream2nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -54,8 +59,8 @@
     redlib = {
       # url = "github:redlib-org/redlib/6c64ebd56b98f5616c2014e2e0567fa37791844c";
       url = "github:redlib-org/redlib";
-      inputs."flake-utils".follows = "utils";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
+      # inputs."flake-utils".follows = "utils";
+      # inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
     # Go based
@@ -122,6 +127,7 @@
     sql-studio,
     redlib,
     nixos-generators,
+    nix-rosetta-builder,
     dream2nix,
     vscode-extensions,
     flake-utils,
@@ -273,6 +279,7 @@
           ++ [
             (./. + "/machines/${machine.hostname}")
             homeBase.darwinModules.home-manager
+            # nix-rosetta-builder.darwinModules.default
           ];
         specialArgs = {
           inherit flakes;
