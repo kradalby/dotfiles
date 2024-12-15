@@ -689,17 +689,16 @@
         "rust-overlay": "rust-overlay_2"
       },
       "locked": {
-        "lastModified": 1731707580,
-        "narHash": "sha256-QXcjpIO1y6mi+4E2BC6O16TaLFfpcPcCHumuJBXmcoU=",
+        "lastModified": 1733156997,
+        "narHash": "sha256-bAsSLZWGLMrD21xdQtD5NyNsNSZwLOd/+6ujZpbsyQg=",
         "owner": "redlib-org",
         "repo": "redlib",
-        "rev": "6c64ebd56b98f5616c2014e2e0567fa37791844c",
+        "rev": "d7ec07cd0d713fc308e1004663b0053db8f00a0f",
         "type": "github"
       },
       "original": {
         "owner": "redlib-org",
         "repo": "redlib",
-        "rev": "6c64ebd56b98f5616c2014e2e0567fa37791844c",
         "type": "github"
       }
     },

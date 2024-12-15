@@ -38,11 +38,6 @@ windows:
       root: ~/git/tailscale
   - tailscale:
       root: ~/git/tailscale
-  - dev:
-      root: ~/git/headscale
-      panes:
-        - mosh:
-            - eb -- mosh kradalby@dev.ldn
   - headscale:
       root: ~/git/headscale
       panes:
@@ -61,7 +56,3 @@ windows:
             - git status
   - headscale:
       root: ~/git/headscale
-  - colima:
-      panes:
-        - up:
-          - colima start --vm-type vz --cpu 4 --memory 12 --disk 100; colima ssh -- top

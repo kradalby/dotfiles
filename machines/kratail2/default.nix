@@ -52,12 +52,6 @@
 
       programs.git = {
         userEmail = lib.mkForce "kristoffer@tailscale.com";
-
-        extraConfig = {
-          user = {
-            signingkey = lib.mkForce "/Users/kradalby/Library/Containers/com.maxgoedjen.Secretive.SecretAgent/Data/PublicKeys/84675f6c5d4035e4e790ed5d73dd74e3.pub";
-          };
-        };
       };
 
       home.sessionVariables = {
@@ -79,7 +73,6 @@
     casks = [
       "google-chrome"
       "imageoptim"
-      "logi-options-plus"
       "monitorcontrol"
       "tigervnc-viewer"
       "utm"
