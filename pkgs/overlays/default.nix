@@ -23,5 +23,7 @@ in
 
     ts-preauthkey = prev.callPackage ./ts-preauthkey {};
 
+    tailscale-restic-proxy = prev.callPackage ./tailscale-restic-proxy.nix {};
+
     # osxphotos = prev.callPackage ./osxphotos.nix {};
   }
