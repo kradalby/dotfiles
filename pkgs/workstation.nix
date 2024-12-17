@@ -22,7 +22,7 @@ in {
       act
       ansible
       bat
-      colmena
+      unstable.colmena
       difftastic
       dive
       docker
