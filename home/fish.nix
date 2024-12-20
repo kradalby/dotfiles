@@ -61,12 +61,6 @@
       ${builtins.concatStringsSep "\n" path}
     '';
 
-    shellInit = ''
-      if test -f $HOME/Sync/fish/tokens.fish
-          source $HOME/Sync/fish/tokens.fish
-      end
-    '';
-
     shellAliases = let
       pyyaml =
         pkgs.python3.withPackages
