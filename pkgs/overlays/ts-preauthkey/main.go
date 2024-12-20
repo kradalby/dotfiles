@@ -86,7 +86,12 @@ func main() {
 		cmd := exec.Command(
 			"bash",
 			"-c",
-			fmt.Sprintf(`echo "%s" | ragenix --editor=fake-editor --rules=%s --edit=%s`, key, secretRulesPath, tsKeyPath),
+			fmt.Sprintf(
+				`echo "%s" | ragenix --editor=fake-editor --rules=%s --edit=%s`,
+				key,
+				secretRulesPath,
+				tsKeyPath,
+			),
 		)
 		output, err := cmd.Output()
 		if err != nil {
@@ -96,7 +101,12 @@ func main() {
 
 		if *commit {
 			cmd := exec.Command(
-				"git", "commit", "--signoff", "--message", "secret: rotate tailscale preauth key", tsKeyPath,
+				"git",
+				"commit",
+				"--signoff",
+				"--message",
+				"secret: rotate tailscale preauth key",
+				tsKeyPath,
 			)
 			output, err := cmd.Output()
 			if err != nil {
@@ -107,7 +117,7 @@ func main() {
 
 		log.Printf("key rotated, expiring: %s", meta.Expires.Format(time.RFC3339))
 	} else {
-		log.Printf("key rotated, expiring: %s\n", meta.Expires.Format(time.RFC3339))
+		log.Printf("\nkey rotated, expiring: %s\n", meta.Expires.Format(time.RFC3339))
 		// Write key to stdout so it can be used in scripts
 		os.Stdout.WriteString(key)
 	}
