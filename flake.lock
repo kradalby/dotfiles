@@ -282,16 +282,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1726648988,
-        "narHash": "sha256-5tlnVNpn+hJayxHjTpbOO3kRInOYOFz0pe9pwjXZlBE=",
-        "owner": "juanfont",
+        "lastModified": 1734672195,
+        "narHash": "sha256-Ww+x5MyPJctY+TwLhMflvt8ae6CZNGzTCuWYCoc5bwk=",
+        "owner": "Rorical",
         "repo": "headscale",
-        "rev": "10a72e8d542af68c0c280f2a6ccc84849719b24c",
+        "rev": "27bc260a52ff05d8ad7715cb46e26d7e33651fd2",
         "type": "github"
       },
       "original": {
-        "owner": "juanfont",
-        "ref": "v0.23.0",
+        "owner": "Rorical",
+        "ref": "main",
         "repo": "headscale",
         "type": "github"
       }
@@ -777,16 +777,17 @@
         "rust-overlay": "rust-overlay_2"
       },
       "locked": {
-        "lastModified": 1733156997,
-        "narHash": "sha256-bAsSLZWGLMrD21xdQtD5NyNsNSZwLOd/+6ujZpbsyQg=",
+        "lastModified": 1731707580,
+        "narHash": "sha256-QXcjpIO1y6mi+4E2BC6O16TaLFfpcPcCHumuJBXmcoU=",
         "owner": "redlib-org",
         "repo": "redlib",
-        "rev": "d7ec07cd0d713fc308e1004663b0053db8f00a0f",
+        "rev": "6c64ebd56b98f5616c2014e2e0567fa37791844c",
         "type": "github"
       },
       "original": {
         "owner": "redlib-org",
         "repo": "redlib",
+        "rev": "6c64ebd56b98f5616c2014e2e0567fa37791844c",
         "type": "github"
       }
     },

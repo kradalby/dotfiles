@@ -75,15 +75,16 @@ in {
       metrics_listen_addr = ":54910";
 
       oidc = {
-        # issuer = "https://id.kradalby.no/dex";
-        # clientId = "headscale";
-        issuer = "https://nextcloud.kradalby.no";
-        client_id = "Pxc5EeJ8gYTcfESmsYysJoFEy2Usu2mDu51jULbzVIksR5WEXKOMwI0MNLM9E9md";
-        client_secret_file = config.age.secrets.headscale-oidc-secret.path;
-
-        domain_map = {
-          ".*" = "fap";
+        issuer = "https://auth.kradalby.no/oauth2/openid/headscale";
+        client_id = "headscale";
+        client_secret_path = config.age.secrets.headscale-oidc-secret.path;
+        pkce = {
+          enabled = true;
         };
+
+        map_legacy_users = false;
+        strip_email_domain = false;
+        only_start_if_oidc_is_available = true;
       };
 
       dns = {
@@ -124,10 +125,6 @@ in {
           stun_listen_addr = "0.0.0.0:3478";
           private_key_path = config.age.secrets.headscale-private-key.path;
         };
-      };
-
-      oidc = {
-        only_start_if_oidc_is_available = false;
       };
     };
   };

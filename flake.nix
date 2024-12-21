@@ -57,8 +57,8 @@
     };
 
     redlib = {
-      # url = "github:redlib-org/redlib/6c64ebd56b98f5616c2014e2e0567fa37791844c";
-      url = "github:redlib-org/redlib";
+      url = "github:redlib-org/redlib/6c64ebd56b98f5616c2014e2e0567fa37791844c";
+      # url = "github:redlib-org/redlib";
       # inputs."flake-utils".follows = "utils";
       # inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
@@ -89,8 +89,8 @@
     };
 
     headscale = {
-      url = "github:juanfont/headscale/v0.23.0";
-      # url = "github:kradalby/headscale/kradalby/shutdown-1968";
+      # url = "github:juanfont/headscale/v0.24.0-beta.2";
+      url = "github:Rorical/headscale/main";
       inputs."flake-utils".follows = "utils";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };

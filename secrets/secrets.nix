@@ -167,4 +167,8 @@ in
 
     # monica
     "monica-app-key.age".publicKeys = u ++ [hosts.core-oracldn];
+
+    # kanidm
+    "kanidm-admin-password.age".publicKeys = u ++ [hosts.core-oracldn];
+    "kanidm-idm-admin-password.age".publicKeys = u ++ [hosts.core-oracldn];
   }
