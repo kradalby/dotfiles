@@ -19,7 +19,7 @@ in
       };
 
       services.nextcloud = {
-        enable = true;
+        enable = false;
 
         # NOTE: manual update required
         # https://search.nixos.org/packages?channel=24.05&from=0&size=50&sort=relevance&type=packages&query=nextcloud
