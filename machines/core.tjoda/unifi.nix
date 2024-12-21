@@ -13,9 +13,10 @@ in
   lib.mkMerge [
     {
       services.unifi = {
-        unifiPackage = pkgs.unstable.unifi;
+        unifiPackage = pkgs.unifi;
+        mongodbPackage = pkgs.mongodb-7_0;
 
-        enable = false;
+        enable = true;
         openFirewall = true;
 
         # initialJavaHeapSize = 1024;

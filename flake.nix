@@ -5,6 +5,7 @@
     utils.url = "github:numtide/flake-utils";
 
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
+    nixpkgs-old-stable.url = "github:NixOS/nixpkgs/nixos-24.05";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     nixpkgs-master.url = "github:NixOS/nixpkgs/master";
     nixpkgs-kradalby.url = "github:kradalby/nixpkgs/kradalby/headscale-023";
@@ -118,6 +119,7 @@
   outputs = {
     self,
     nixpkgs,
+    nixpkgs-old-stable,
     nixpkgs-unstable,
     nixpkgs-master,
     nixpkgs-kradalby,
@@ -149,6 +151,20 @@
           allowUnfree = true;
         };
         overlays = [(import ./pkgs/overlays {})];
+      };
+      old-stable = import nixpkgs-old-stable {
+        inherit (final) system;
+        config = {allowUnfree = true;};
+        overlays = [
+          (import ./pkgs/overlays {})
+          (
+            _: final: {
+              gopls = final.gopls.override {
+                buildGoModule = final.buildGo123Module;
+              };
+            }
+          )
+        ];
       };
       unstable = import nixpkgs-unstable {
         inherit (final) system;
