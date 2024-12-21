@@ -53,6 +53,9 @@ in {
       idmAdminPasswordFile = config.age.secrets.kanidm-idm-admin-password.path;
 
       persons = {
+        # Generate a credentials reset link:
+        # nix-shell -p kanidm
+        # kanidm person credential create-reset-token <USERNAME> --name idm_admin
         kradalby = {
           displayName = "Kristoffer Dalby";
           mailAddresses = ["kristoffer@dalby.cc"];
