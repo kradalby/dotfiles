@@ -15,10 +15,10 @@
 
     ../../common/coredns.nix
     ../../common/consul-server.nix
+    ../../common/tailscale.nix
 
     ./restic.nix
     ./wireguard.nix
-    ./tailscale.nix
     ./tailscale-headscale.nix
     # ./openvpn.nix
     ./syncthing.nix
@@ -96,6 +96,14 @@
 
       trustedInterfaces = [config.my.lan];
     };
+  };
+
+  services.tailscale = let
+    wireguardHosts = import ../../metadata/wireguard.nix;
+    wireguardConfig = wireguardHosts.servers.oraclefurt;
+  in {
+    advertiseRoutes = wireguardConfig.additional_networks;
+    tags = ["tag:oracfurt" "tag:gateway" "tag:server"];
   };
 
   virtualisation.docker.enable = true;

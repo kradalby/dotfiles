@@ -17,10 +17,10 @@
     ../../common/consul-server.nix
     ../../common/miniupnp.nix
     ../../common/minio.nix
+    ../../common/tailscale.nix
 
     ./restic.nix
     ./wireguard.nix
-    ./tailscale.nix
     ./tailscale-headscale.nix
     ./kuma.nix
     ./monitoring.nix
@@ -120,6 +120,14 @@
 
       trustedInterfaces = [config.my.lan "docker0"];
     };
+  };
+
+  services.tailscale = let
+    wireguardHosts = import ../../metadata/wireguard.nix;
+    wireguardConfig = wireguardHosts.servers.oracleldn;
+  in {
+    advertiseRoutes = wireguardConfig.additional_networks;
+    tags = ["tag:oracldn" "tag:gateway" "tag:server"];
   };
 
   # This value determines the NixOS release from which the default
