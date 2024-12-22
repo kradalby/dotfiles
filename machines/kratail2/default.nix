@@ -15,19 +15,13 @@
     ./syncthing.nix
   ];
 
-  # on macOS, we need to make sure all SSH references
-  # are empty so age dont go looking for services.openssh
-  # which doesnt exist.
-  # age.identityPaths = [ "/Users/kradalby/.ssh/id_ed25519" ];
-
   nix = {
-    extraOptions = lib.mkForce ''
-      experimental-features = nix-command flakes
-    '';
-
     settings = {
       trusted-users = [machine.username];
+      builders = "@/etc/nix/machines";
     };
+
+    distributedBuilds = true;
     buildMachines = import ../../common/buildmachines.nix;
   };
 
@@ -47,10 +41,6 @@
         # ./scripts.nix
       ];
 
-      # home.file = {
-      #   ".ssh/authorized_keys".text = lib.concatStringsSep "\n" (sshKeys.main ++ sshKeys.kradalby);
-      # };
-
       programs.git = {
         userEmail = lib.mkForce "kristoffer@tailscale.com";
       };
@@ -60,7 +50,6 @@
         TS_NIX_SHELL_XCODE_WRAPPER_DISABLED = "1";
       };
     };
-    # extraSpecialArgs = { inherit machine; };
   };
 
   security.pam.enableSudoTouchIdAuth = true;
