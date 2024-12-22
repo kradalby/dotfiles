@@ -35,12 +35,12 @@ in {
         "--advertise-exit-node"
         "--advertise-connector"
         "--webclient=true"
+        ''--hostname=${builtins.replaceStrings [".fap.no"] [""] config.networking.fqdn}''
       ]
       ++ lib.optional ((builtins.length cfg.advertiseRoutes) > 0) ''--advertise-routes=${builtins.concatStringsSep "," cfg.advertiseRoutes}'';
 
     extraUpFlags =
       [
-        ''--hostname=${builtins.replaceStrings [".fap.no"] [""] config.networking.fqdn}''
       ]
       ++ lib.optional ((builtins.length cfg.tags) > 0) ''--advertise-tags=${builtins.concatStringsSep "," cfg.tags}'';
   };
