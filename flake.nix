@@ -343,6 +343,7 @@
 
         # nixos-generate --system aarch64-linux -f sd-aarch64 -I nixpkgs=channel:nixos
         "home.ldn" = nixosBox "aarch64-linux" nixpkgs null "home.ldn" ["arm64" "ldn"];
+        "rpi.vetle" = nixosBox "aarch64-linux" nixpkgs null "home.ldn" ["arm64" "ldn"];
         # "core.ldn" = nixosBox "aarch64-linux" nixpkgs null "core.ldn" ["arm64" "router" "ldn"];
         "dev.ldn" = nixosBox "x86_64-linux" nixpkgs home-manager "dev.ldn" ["x86" "ldn"];
         # "lenovo.ldn" = nixosBox "x86_64-linux" nixpkgs null "lenovo.ldn" ["x86" "ldn"];
