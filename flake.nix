@@ -438,12 +438,15 @@
             system = "aarch64-linux";
             modules =
               [
+                ./common/tailscale.nix
+                ./common/ssh.nix
+                ./common/users.nix
                 # FIX: this is requried to build the RPi kernel:
                 # https://github.com/NixOS/nixpkgs/issues/154163
                 # https://github.com/NixOS/nixos-hardware/issues/360
                 {
                   nixpkgs.overlays = [
-                    (final: super: {
+                    (_: super: {
                       makeModulesClosure = x:
                         super.makeModulesClosure (x // {allowMissing = true;});
                     })
@@ -451,9 +454,15 @@
                 }
                 {
                   boot.kernelPackages = pkgs.lib.mkForce pkgs.linuxPackages_rpi4;
-                }
-                {
+
+                  services.tailscale = let
+                    authKey = pkgs.writeText "authkey" "";
+                  in {
+                    authKeyFile = pkgs.lib.mkForce authKey;
+                  };
+
                   networking = {
+                    useDHCP = true;
                     # wireless = {
                     #   enable = true;
                     #   interfaces = ["wlan0"];
