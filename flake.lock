@@ -282,15 +282,15 @@
         ]
       },
       "locked": {
-        "lastModified": 1734880301,
-        "narHash": "sha256-Ha74+YsG4biMOwOH/wPmGG/sjRS1qhLW0Sgr22QMGn8=",
-        "owner": "Rorical",
+        "lastModified": 1734885996,
+        "narHash": "sha256-XVTR6JDtx2NLeGm9fFUeMWAdptFnFW4OMsxlDFRGvJQ=",
+        "owner": "juanfont",
         "repo": "headscale",
-        "rev": "80d0f39bf5ede3fbaa6b8b0b1ad6b90a1ab2cde8",
+        "rev": "b81420bef1e8d042f5bc126565c70b58f7321900",
         "type": "github"
       },
       "original": {
-        "owner": "Rorical",
+        "owner": "juanfont",
         "ref": "main",
         "repo": "headscale",
         "type": "github"
