@@ -19,9 +19,9 @@ in {
     ../../common/ddns.nix
     # ../../common/smokeping-exporter.nix
     ../../common/miniupnp.nix
+    ../../common/tailscale.nix
 
     ./restic.nix
-    ./tailscale.nix
     ./tailscale-headscale.nix
     ./nvidia.nix
     ./wireguard.nix
@@ -67,6 +67,14 @@ in {
   users.users.kradalby.openssh.authorizedKeys.keys = sshKeys.main ++ sshKeys.kradalby ++ sshKeys.work;
 
   services.attic-watch.enable = true;
+
+  services.tailscale = let
+    wireguardHosts = import ../../metadata/wireguard.nix;
+    wireguardConfig = wireguardHosts.clients.ldn;
+  in {
+    advertiseRoutes = wireguardConfig.additional_networks;
+    tags = ["tag:ldn" "tag:gateway" "tag:server"];
+  };
 
   virtualisation = {
     oci-containers.backend = lib.mkForce "podman";

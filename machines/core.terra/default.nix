@@ -15,11 +15,11 @@
     ../../common/smokeping-exporter.nix
     ../../common/coredns.nix
     ../../common/miniupnp.nix
+    ../../common/tailscale.nix
 
     ./hardware-configuration.nix
     ./zfs.nix
     ./wireguard.nix
-    ./tailscale.nix
     ./tailscale-headscale.nix
     # ./corerad.nix
     ./dnsmasq.nix
@@ -180,6 +180,14 @@
 
       trustedInterfaces = [config.my.lan];
     };
+  };
+
+  services.tailscale = let
+    wireguardHosts = import ../../metadata/wireguard.nix;
+    wireguardConfig = wireguardHosts.servers.terra;
+  in {
+    advertiseRoutes = wireguardConfig.additional_networks;
+    tags = ["tag:terra" "tag:gateway" "tag:server"];
   };
 
   # TODO: Fix disk monitoring somehow

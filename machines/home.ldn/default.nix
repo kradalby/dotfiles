@@ -12,6 +12,7 @@
     ../../common/acme.nix
     ../../common/nginx.nix
     ../../common/containers.nix
+    ../../common/tailscale.nix
 
     ../../common/rpi4-configuration.nix
 
@@ -20,7 +21,6 @@
     ./zigbee2mqtt.nix
     ./homebridge.nix
     ./scrypted.nix
-    ./tailscale.nix
     ./tailscale-headscale.nix
     ./iSponsorBlockTV.nix
 
@@ -59,6 +59,10 @@
       ];
     };
     interfaces.wlan0.useDHCP = false;
+  };
+
+  services.tailscale = {
+    tags = ["tag:ldn" "tag:server"];
   };
 
   services.blueman.enable = true;

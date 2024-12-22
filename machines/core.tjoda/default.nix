@@ -16,17 +16,16 @@
     ../../common/coredns.nix
     ../../common/miniupnp.nix
     ../../common/syncthing-storage.nix
+    ../../common/tailscale.nix
 
     ./hardware-configuration.nix
     ./zfs.nix
     ./wireguard.nix
-    ./tailscale.nix
     ./tailscale-headscale.nix
     ./corerad.nix
     ./dnsmasq.nix
     ./nft.nix
     ./networking.nix
-    # ./openvpn.nix
     ./unifi.nix
     ./rest-server.nix
     ./samba.nix
@@ -65,7 +64,15 @@
     "net.ipv6.conf.${config.my.wan}.autoconf" = 1;
   };
 
+  services.tailscale = let
+    wireguardHosts = import ../../metadata/wireguard.nix;
+    wireguardConfig = wireguardHosts.servers.tjoda;
+  in {
+    advertiseRoutes = wireguardConfig.additional_networks;
+    tags = ["tag:tjoda" "tag:gateway" "tag:server"];
+  };
+
   monitoring.smartctl.devices = ["/dev/sda"];
 
-  system.stateVersion = "24.05";
+  system.stateVersion = "24.11";
 }
