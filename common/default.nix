@@ -1,8 +1,4 @@
-{
-  lib,
-  flakes,
-  ...
-}: {
+{lib, ...}: {
   require = [
     ./avahi.nix
     ./ca.nix

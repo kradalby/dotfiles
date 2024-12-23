@@ -2,7 +2,6 @@
   pkgs,
   config,
   lib,
-  flakes,
   ...
 }: let
   nginx = import ../../common/funcs/nginx.nix {inherit config lib;};

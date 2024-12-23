@@ -2,7 +2,6 @@
   pkgs,
   config,
   lib,
-  flakes,
   ...
 }: let
   consul = import ../../common/funcs/consul.nix {inherit lib;};

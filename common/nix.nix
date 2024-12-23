@@ -1,7 +1,6 @@
 {
   config,
   lib,
-  flakes,
   pkgs,
   ...
 }: {
@@ -48,11 +47,6 @@
     optimise = {
       automatic = true;
       dates = ["03:45"];
-    };
-
-    registry = {
-      nixos.flake = flakes.nixpkgs;
-      nixos-unstable.flake = flakes.nixpkgs-unstable;
     };
 
     # This is an attempt to make nix-index work:
