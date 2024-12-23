@@ -12,13 +12,13 @@
         config.my.shellAliases
         // {
           s = ''${pkgs.findutils}/bin/xargs ${pkgs.perl}/bin/perl -pi -E'';
-          ag = "rg";
-          cat = "bat";
+          ag = "${pkgs.ripgrep}/bin/rg";
+          cat = "${pkgs.bat}/bin/bat";
           du = "du -hs";
           mkdir = "mkdir -p";
-          nvim = "nvim -p";
-          vim = "nvim -p";
-          watch = "viddy --differences";
+          nvim = "${pkgs.neovim}/bin/nvim -p";
+          vim = "${pkgs.neovim}/bin/nvim -p";
+          watch = "${pkgs.viddy}/bin/viddy --differences";
         };
 
       shells = [pkgs.bashInteractive pkgs.zsh pkgs.fish];
