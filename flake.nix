@@ -119,29 +119,10 @@
   outputs = {
     self,
     nixpkgs,
-    nixpkgs-old-stable,
-    nixpkgs-unstable,
-    nixpkgs-master,
-    nixpkgs-kradalby,
     darwin,
     home-manager,
-    ragenix,
-    sql-studio,
-    redlib,
     nixos-generators,
-    nix-rosetta-builder,
-    dream2nix,
-    vscode-extensions,
-    flake-utils,
-    headscale,
-    hugin,
-    # munin,
-    golink,
-    neovim-kradalby,
-    krapage,
-    hvor,
-    tasmota-exporter,
-    homewizard-p1-exporter,
+    utils,
     ...
   } @ inputs: let
     overlay-pkgs = final: _: {
@@ -152,7 +133,7 @@
         };
         overlays = [(import ./pkgs/overlays {})];
       };
-      old-stable = import nixpkgs-old-stable {
+      old-stable = import inputs.nixpkgs-old-stable {
         inherit (final) system;
         config = {allowUnfree = true;};
         overlays = [
@@ -166,7 +147,7 @@
           )
         ];
       };
-      unstable = import nixpkgs-unstable {
+      unstable = import inputs.nixpkgs-unstable {
         inherit (final) system;
         config = {allowUnfree = true;};
         overlays = [
@@ -180,7 +161,7 @@
           )
         ];
       };
-      master = import nixpkgs-master {
+      master = import inputs.nixpkgs-master {
         inherit (final) system;
         config = {allowUnfree = true;};
         overlays = [
@@ -195,7 +176,7 @@
       };
     };
 
-    overlays = [
+    overlays = with inputs; [
       overlay-pkgs
       ragenix.overlays.default
       headscale.overlay
@@ -234,7 +215,7 @@
     ];
   in
     {
-      lib = nixpkgs-unstable.lib.extend (
+      lib = inputs.nixpkgs-unstable.lib.extend (
         final: _: {
           box = import ./lib/box.nix {
             pkgs = nixpkgs;
@@ -248,7 +229,7 @@
           arch = "x86_64-linux";
           name = "core.terra";
           tags = ["x86" "router" "terra"];
-          modules = [
+          modules = with inputs; [
             hugin.nixosModules.default
           ];
         };
@@ -257,7 +238,7 @@
           arch = "aarch64-linux";
           name = "core.oracldn";
           tags = ["arm64" "oracle" "oracldn"];
-          modules = [
+          modules = with inputs; [
             golink.nixosModules.default
             krapage.nixosModules.default
             hvor.nixosModules.default
@@ -333,7 +314,7 @@
 
       colmena = self.lib.box.mkColmenaFromNixOSConfigurations self.nixosConfigurations;
     }
-    // flake-utils.lib.eachDefaultSystem
+    // utils.lib.eachDefaultSystem
     (system: let
       pkgs = import nixpkgs {
         inherit overlays;
@@ -351,7 +332,7 @@
       packages = let
         name = "bootstrap";
         modules = [
-          ragenix.nixosModules.age
+          inputs.ragenix.nixosModules.age
           ./common
           ./common/tailscale.nix
           (with pkgs; {
