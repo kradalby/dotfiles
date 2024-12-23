@@ -1,7 +1,5 @@
 {
   config,
-  flakes,
-  pkgs,
   lib,
   ...
 }: let

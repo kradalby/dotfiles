@@ -1,7 +1,6 @@
 {
   pkgs,
   config,
-  flakes,
   ...
 }: {
   # disabledModules = ["services/continuous-integration/github-runners.nix"];

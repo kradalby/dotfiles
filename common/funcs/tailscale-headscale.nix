@@ -2,7 +2,6 @@
   config,
   pkgs,
   lib,
-  flakes,
 }: let
   package = pkgs.tailscale;
   tailscale = {

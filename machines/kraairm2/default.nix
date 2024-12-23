@@ -4,7 +4,6 @@
   machine,
   lib,
   stdenv,
-  flakes,
   ...
 }: let
   sshKeys = import ../../metadata/ssh.nix;

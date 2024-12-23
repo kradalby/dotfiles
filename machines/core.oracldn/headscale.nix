@@ -2,7 +2,6 @@
   pkgs,
   lib,
   config,
-  flakes,
   ...
 }: let
   s = import ../../metadata/sites.nix {inherit lib config;};
@@ -35,12 +34,6 @@
   settingsFormat = pkgs.formats.yaml {};
   configFile = settingsFormat.generate "headscale.yaml" cfg.settings;
 in {
-  disabledModules = ["services/networking/headscale.nix"];
-
-  imports = [
-    "${flakes.nixpkgs-kradalby}/nixos/modules/services/networking/headscale.nix"
-  ];
-
   age.secrets = {
     headscale-private-key = {
       owner = "headscale";

@@ -1,6 +1,5 @@
 {
   config,
-  flakes,
   pkgs,
   lib,
   ...

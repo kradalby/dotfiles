@@ -1,7 +1,6 @@
 {
   pkgs,
   lib,
-  # , flakes
   ...
 }: let
   sql-studio-mac = pkgs.sql-studio.overrideAttrs (o: {

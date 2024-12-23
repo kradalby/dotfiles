@@ -2,10 +2,9 @@
   config,
   pkgs,
   lib,
-  flakes,
   ...
 }:
-(import ../../common/funcs/tailscale.nix {inherit config pkgs lib flakes;}).tailscale
+(import ../../common/funcs/tailscale.nix {inherit config pkgs lib;}).tailscale
 {
   reauth = false;
   exitNode = true;
