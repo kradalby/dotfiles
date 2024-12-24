@@ -13,10 +13,10 @@
 in
   lib.mkMerge [
     {
-      age.secrets.nextcloud = {
-        file = ../../secrets/nextcloud.age;
-        owner = "nextcloud";
-      };
+      # age.secrets.nextcloud = {
+      #   file = ../../secrets/nextcloud.age;
+      #   owner = "nextcloud";
+      # };
 
       services.nextcloud = {
         enable = false;
