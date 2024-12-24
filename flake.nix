@@ -213,19 +213,22 @@
         neovim = neovim-kradalby.packages."${final.system}".neovim-kradalby;
       })
     ];
+
+    lib = nixpkgs.lib.extend (
+      final: _: {
+        k = import ./k.nix {};
+      }
+    );
+
+    box = import ./lib/box.nix {
+      pkgs = nixpkgs;
+      inherit inputs overlays lib;
+      rev = nixpkgs.lib.mkIf (self ? rev) self.rev;
+    };
   in
     {
-      lib = inputs.nixpkgs-unstable.lib.extend (
-        final: _: {
-          box = import ./lib/box.nix {
-            pkgs = nixpkgs;
-            inherit inputs overlays;
-          };
-        }
-      );
-
       nixosConfigurations = {
-        "core.terra" = self.lib.box.nixosBox {
+        "core.terra" = box.nixosBox {
           arch = "x86_64-linux";
           name = "core.terra";
           tags = ["x86" "router" "terra"];
@@ -234,7 +237,7 @@
           ];
         };
 
-        "core.oracldn" = self.lib.box.nixosBox {
+        "core.oracldn" = box.nixosBox {
           arch = "aarch64-linux";
           name = "core.oracldn";
           tags = ["arm64" "oracle" "oracldn"];
@@ -247,32 +250,32 @@
           ];
         };
 
-        "dev.oracfurt" = self.lib.box.nixosBox {
+        "dev.oracfurt" = box.nixosBox {
           arch = "aarch64-linux";
           name = "dev.oracfurt";
           tags = ["arm64" "oracle" "oracfurt"];
         };
 
-        "home.ldn" = self.lib.box.nixosBox {
+        "home.ldn" = box.nixosBox {
           arch = "aarch64-linux";
           name = "home.ldn";
           tags = ["arm64" "ldn"];
         };
 
-        "rpi.vetle" = self.lib.box.nixosBox {
+        "rpi.vetle" = box.nixosBox {
           arch = "aarch64-linux";
           name = "home.ldn";
           tags = ["arm64" "ldn"];
         };
 
-        "dev.ldn" = self.lib.box.nixosBox {
+        "dev.ldn" = box.nixosBox {
           arch = "x86_64-linux";
           homeBase = home-manager;
           name = "dev.ldn";
           tags = ["x86" "ldn"];
         };
 
-        "core.tjoda" = self.lib.box.nixosBox {
+        "core.tjoda" = box.nixosBox {
           arch = "x86_64-linux";
           name = "core.tjoda";
           tags = ["x86" "router" "tjoda"];
@@ -289,7 +292,7 @@
             homeDir = /Users/kradalby;
           };
         in
-          self.lib.box.macBox machine darwin home-manager;
+          box.macBox machine darwin home-manager;
 
         kratail2 = let
           machine = {
@@ -299,7 +302,7 @@
             homeDir = /Users/kradalby;
           };
         in
-          self.lib.box.macBox machine darwin home-manager;
+          box.macBox machine darwin home-manager;
 
         kraairm2 = let
           machine = {
@@ -309,10 +312,10 @@
             homeDir = /Users/kradalby;
           };
         in
-          self.lib.box.macBox machine darwin home-manager;
+          box.macBox machine darwin home-manager;
       };
 
-      colmena = self.lib.box.mkColmenaFromNixOSConfigurations self.nixosConfigurations;
+      colmena = box.mkColmenaFromNixOSConfigurations self.nixosConfigurations;
     }
     // utils.lib.eachDefaultSystem
     (system: let

@@ -2,6 +2,8 @@
   pkgs,
   inputs,
   overlays,
+  lib,
+  rev ? "DIRTY",
   ...
 }: let
   commonModules = pkgBase: [
@@ -21,12 +23,11 @@
 in {
   nixosBox = {
     arch,
-    nixpkgs ? inputs.nixpkgs,
+    nixpkgs ? pkgs,
     homeBase ? null,
     name,
     tags ? [],
     modules ? [],
-    rev ? "DIRTY",
   }:
     nixpkgs.lib.nixosSystem {
       system = arch;
