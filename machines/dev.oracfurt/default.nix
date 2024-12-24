@@ -22,6 +22,7 @@
     # ./openvpn.nix
     ./syncthing.nix
     ./attic.nix
+    ./proton.nix
   ];
 
   my.wan = "enp0s3";
