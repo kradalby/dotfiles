@@ -1,9 +1,20 @@
 {
   pkgs,
   lib,
+  config,
   ...
 }: {
-  # services.protonmail-bridge.enable = true;
+  users.users.proton = {
+    home = "/var/lib/proton";
+    createHome = true;
+    group = "proton";
+    isSystemUser = true;
+    isNormalUser = false;
+    description = "proton";
+    shell = pkgs.bash;
+  };
+
+  users.groups.proton = {};
 
   systemd.services.protonmail-bridge = {
     enable = true;
@@ -14,13 +25,19 @@
     script = "${lib.getExe pkgs.protonmail-bridge} --noninteractive --log-level debug";
 
     serviceConfig = {
-      DynamicUser = true;
+      User = "proton";
+      Group = "proton";
       Restart = "always";
       RestartSec = "15";
+      WorkingDirectory = config.users.users.proton.home;
     };
 
-    path = [pkgs.pass];
+    environment = {
+      HOME = config.users.users.proton.home;
+    };
+
+    path = [pkgs.pass pkgs.pass-secret-service pkgs.dbus];
   };
 
-  environment.systemPackages = [pkgs.protonmail-bridge pkgs.pass];
+  environment.systemPackages = [pkgs.protonmail-bridge];
 }
