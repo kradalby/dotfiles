@@ -32,7 +32,7 @@ in {
     extraSetFlags =
       [
         "--ssh=true"
-        "--accept-dns=false"
+        "--accept-dns=true"
         "--advertise-exit-node"
         "--advertise-connector"
         "--webclient=true"
