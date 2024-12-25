@@ -1,4 +1,5 @@
 {
+  pkgs,
   config,
   lib,
   ...
@@ -7,6 +8,17 @@ with lib; let
   consul = import ./funcs/consul.nix {inherit lib;};
 
   site = builtins.replaceStrings [".fap.no"] [""] config.networking.domain;
+
+  nextdns-config = pkgs.writeTextFile {
+    name = "nextdns-config";
+    text = ''
+      listen :53535
+      setup-router no
+      report-client-info yes
+
+      profile 842cee
+    '';
+  };
 in {
   imports = [
     ../modules/blocklist.nix
@@ -21,6 +33,13 @@ in {
 
   config = {
     services.blocklist-downloader.enable = false;
+
+    services.nextdns = {
+      enable = true;
+      arguments = [
+        "-config-file=${nextdns-config}"
+      ];
+    };
 
     services.coredns = {
       enable = true;
@@ -84,6 +103,12 @@ in {
           }
         }
 
+        (nextdns) {
+          forward . dns://127.0.0.1:53535 {
+            health_check 5s
+          }
+        }
+
         (blacklist) {
           hosts ${config.services.blocklist-downloader.dataDir}/${config.services.blocklist-downloader.fileName} {
             reload 3600s
@@ -104,7 +129,7 @@ in {
           else ""
         }
           import b
-          import cloudflare
+          import nextdns
         }
       '';
     };
