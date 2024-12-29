@@ -15,7 +15,9 @@ buildGoModule rec {
     sha256 = "sha256-laf4lhMQ7VLYHTWlNBBWwGVeDx2DVRxvJiwDzLPEanc=";
   };
   vendorHash = "sha256-1/HevghGmpGesbqHNHerlhhzdjN1JxdMihJZeMDmQZI=";
-  CGO_ENABLED = 0;
+  env = {
+    CGO_ENABLED = 0;
+  };
   subPackages = ["cmd/setec"];
   doCheck = false;
 }
