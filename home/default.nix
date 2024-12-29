@@ -97,6 +97,7 @@
       '';
 
       ".config/zed/settings.json".text = builtins.toJSON (import ./zed.nix);
+      ".config/ghostty/config".source = ../rc/ghostty;
 
       ".config/nix/nix.conf".text = ''
         experimental-features = nix-command flakes
