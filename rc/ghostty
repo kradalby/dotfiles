@@ -1,0 +1,25 @@
+theme = Mathias
+font-size = 11
+
+window-decoration = false
+mouse-hide-while-typing = true
+window-padding-x = 0
+window-padding-y = 0
+macos-window-shadow = false
+
+keybind = super+right=text:\x02n
+keybind = super+left=text:\x02p
+
+keybind = super+t=text:\x02c
+keybind = super+w=text:\x02x
+
+# Tmux: jump to tmux panes [1-9]
+keybind = super+one=text:\x02\x31
+keybind = super+two=text:\x02\x32
+keybind = super+three=text:\x02\x33
+keybind = super+four=text:\x02\x34
+keybind = super+five=text:\x02\x35
+keybind = super+six=text:\x02\x36
+keybind = super+seven=text:\x02\x37
+keybind = super+eight=text:\x02\x38
+keybind = super+nine=text:\x02\x39
