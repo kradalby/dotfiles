@@ -15,7 +15,9 @@ buildGoModule rec {
     sha256 = "sha256-/H4bitzrru9rbNyzZbmzBuyWb8KaLFQ78TI5hd3uyUs=";
   };
   vendorHash = "sha256-gA9ODAGuvR05CW+efhFuTFVXnMHVXIlfRq2FqzxZqCY=";
-  CGO_ENABLED = 0;
+  env = {
+    CGO_ENABLED = 0;
+  };
   subPackages = ["cmd/squibble"];
   doCheck = false;
 }
