@@ -69,7 +69,8 @@ in {
         ++ [
           (./.. + "/machines/${machine.hostname}")
           homeBase.darwinModules.home-manager
-          # nix-rosetta-builder.darwinModules.default
+          # inputs.nix-rosetta-builder.darwinModules.default
+          # {nix.linux-builder.enable = true;}
         ];
       specialArgs = {
         inherit inputs;
