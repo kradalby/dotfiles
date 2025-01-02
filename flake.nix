@@ -262,11 +262,11 @@
           tags = ["arm64" "ldn"];
         };
 
-        "rpi.vetle" = box.nixosBox {
-          arch = "aarch64-linux";
-          name = "home.ldn";
-          tags = ["arm64" "ldn"];
-        };
+        # "rpi.vetle" = box.nixosBox {
+        #   arch = "aarch64-linux";
+        #   name = "home.ldn";
+        #   tags = ["arm64" "ldn"];
+        # };
 
         "dev.ldn" = box.nixosBox {
           arch = "x86_64-linux";
