@@ -9,7 +9,7 @@ in {
       user = "kradalby";
       dataDir = "/Users/kradalby";
       configDir = "/Users/kradalby/Library/Application Support/Syncthing";
-      # guiAddress = "0.0.0.0:8443";
+      guiAddress = "0.0.0.0:38443";
       overrideDevices = true;
       overrideFolders = true;
       inherit (cfg) devices;
