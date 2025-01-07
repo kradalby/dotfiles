@@ -73,6 +73,7 @@ _: {
       "the-unarchiver"
       "transmit"
       "zed@preview"
+      "youtube-to-mp3"
       # "docker" // TODO: remove if colima + docker works
       # "free-ruler"
       # "hex-fiend"
