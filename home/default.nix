@@ -49,8 +49,6 @@
       TF_X_HELM_MANIFEST = 1;
 
       GIT_SSH_COMMAND = "ssh";
-
-      SSH_AUTH_SOCK = "/Users/kradalby/Library/Containers/com.maxgoedjen.Secretive.SecretAgent/Data/socket.ssh";
     };
 
     language = {
