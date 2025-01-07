@@ -182,7 +182,7 @@ in
                   "living-room-tv.ldn"
                   "office-fridge.ldn"
                   "office-workstation.ldn"
-                  "tasmota-2.ldn"
+                  "office-fan-heater.ldn"
                   "staircase-servers.ldn"
                 ];
               }
