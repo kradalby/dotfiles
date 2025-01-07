@@ -147,7 +147,7 @@
       mac = "80:64:6f:9d:8c:49";
     }
     {
-      hostname = "tasmota-2";
+      hostname = "office-fan-heater";
       ipAddress = "10.65.0.93";
       mac = "80:64:6f:9d:8c:9b";
     }
