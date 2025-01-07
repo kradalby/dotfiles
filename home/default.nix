@@ -72,14 +72,6 @@
         recursive = true;
       };
 
-      ".ssh/config" = {
-        source = ../rc/ssh/config;
-      };
-      ".ssh/config.d" = {
-        source = ../rc/ssh/config.d;
-        recursive = true;
-      };
-
       ".ssh/allowed_signers".text = ''
         kristoffer@dalby.cc ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBV4ZjlUvRDs70qHD/Ldi6OTkFpDEFgfbXbqSnaL2Qup
         kristoffer@tailscale.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBOm0+vlPKTRMQm9teF/bCrTPEDEqs1m+B5kMZtuLKh2rDLYM2uwsLPjNjaIlFQfkUn2vyAqGovyKOVR7Q/Z28yo=
@@ -171,6 +163,7 @@
     ./fish.nix
     ./starship.nix
     ./tmux.nix
+    ./ssh.nix
 
     ../pkgs/workstation.nix
     ../pkgs/editor-tooling.nix

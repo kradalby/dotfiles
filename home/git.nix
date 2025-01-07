@@ -62,6 +62,7 @@
 
       gpg = {
         format = "ssh";
+        ssh.program = "/Applications/1Password.app/Contents/MacOS/op-ssh-sign";
       };
 
       "gpg \"ssh\"" = {
