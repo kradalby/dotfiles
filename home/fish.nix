@@ -31,16 +31,20 @@
           sha256 = "sha256-F1t81VliD+v6WEWqj1c1ehFBXzqLyumx5vV46s/FZRU=";
         };
       }
-      {
-        name = "done";
-        src = pkgs.fetchFromGitHub {
-          owner = "franciscolourenco";
-          repo = "done";
-          # NOTE: manual update required
-          rev = "d47f4d6551cccb0e46edfb14213ca0097ee22f9a";
-          sha256 = "sha256-VSCYsGjNPSFIZSdLrkc7TU7qyPVm8UupOoav5UqXPMk=";
-        };
-      }
+      # Does not work with ghostty yet
+      # https://github.com/julienXX/terminal-notifier/issues/301
+      # https://github.com/franciscolourenco/done/issues/148
+      # https://github.com/ghostty-org/ghostty/issues/1917
+      # {
+      #   name = "done";
+      #   src = pkgs.fetchFromGitHub {
+      #     owner = "franciscolourenco";
+      #     repo = "done";
+      #     # NOTE: manual update required
+      #     rev = "eb32ade85c0f2c68cbfcff3036756bbf27a4f366";
+      #     sha256 = "sha256-DMIRKRAVOn7YEnuAtz4hIxrU93ULxNoQhW6juxCoh4o=";
+      #   };
+      # }
     ];
 
     loginShellInit = let
