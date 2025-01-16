@@ -154,6 +154,22 @@
         colima stop
         colima start --vm-type vz --cpu 6 --memory 12 --disk 100
       '';
+
+      tsdev = ''
+        set num $argv[1]
+        set rest $argv[2..-1]
+        set dir /tmp/"ts$num"
+        mkdir -p $dir
+        go run ./cmd/tailscale --socket=$dir/ts.sock $rest
+      '';
+
+      tsddev = ''
+        set num $argv[1]
+        set rest $argv[2..-1]
+        set dir /tmp/"ts$num"
+        mkdir -p $dir
+        go run ./cmd/tailscaled --socket=$dir/ts.sock --statedir=$dir --state=$dir/ts.state --tun=userspace-networking --verbose 10 $rest
+      '';
     };
   };
 }
