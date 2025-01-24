@@ -92,6 +92,7 @@ _: {
       # "temurin"
       # "ghidra"
       # "machoview"
+      "vmware-fusion"
     ];
 
     masApps = {
