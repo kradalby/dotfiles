@@ -24,6 +24,7 @@
         syntax-theme = "Monokai Extended";
       };
     };
+    lfs.enable = true;
 
     extraConfig = {
       core = {
@@ -55,6 +56,7 @@
         insteadOf = "gh:";
         pushInsteadOf = "gh:";
       };
+      github = {user = "kradalby";};
 
       commit = {
         gpgsign = config.programs.git.extraConfig.user.signingkey != "";
