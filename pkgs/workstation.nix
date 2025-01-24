@@ -3,9 +3,9 @@
   lib,
   ...
 }: let
-  sql-studio-mac = pkgs.sql-studio.overrideAttrs (o: {
-    nativeBuildInputs = [pkgs.darwin.apple_sdk.frameworks.SystemConfiguration] ++ o.nativeBuildInputs;
-  });
+  # sql-studio-mac = pkgs.sql-studio.overrideAttrs (o: {
+  #   nativeBuildInputs = [pkgs.darwin.apple_sdk.frameworks.SystemConfiguration] ++ o.nativeBuildInputs;
+  # });
 in {
   home.packages = with pkgs;
     [
@@ -55,6 +55,7 @@ in {
       unstable.squibble
       unstable.tailscale-tools
       viddy
+      mitmproxy
     ]
     ++ lib.optionals stdenv.isDarwin [
       lima
@@ -69,7 +70,7 @@ in {
       virt-manager
       qemu
 
-      sql-studio-mac
+      # sql-studio-mac
 
       (pkgs.writeScriptBin
         "pamtouchfix"
