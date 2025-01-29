@@ -7,43 +7,65 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  build-x86:
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
         machine:
-          # Do not actually need to build all of them
-          # as there is a lot of overlap, but most
-          # hosts added now as there are some specific
-          # stuff.
           - host: core.terra
             platform: x86-64-linux
           - host: core.tjoda
             platform: x86-64-linux
-          # - host: headscale.oracldn
-          #   platform: x86-64-linux
           - host: dev.ldn
             platform: x86-64-linux
-          # - host: lenovo.ldn
-          #   platform: x86-64-linux
-          # - host: core.ldn
-          #   platform: aarch64-linux
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+
+      - run: tailscale ping attic.bee-velociraptor.ts.net
+
+      - uses: DeterminateSystems/nix-installer-action@main
+        with:
+          extra-conf: |
+            fallback = true
+            http-connections = 128
+            max-substitution-jobs = 128
+            extra-platforms = aarch64-linux
+            substituters = http://attic.bee-velociraptor.ts.net/system?priority=43 https://nix-community.cachix.org?priority=41 https://numtide.cachix.org?priority=42 https://cache.nixos.org/
+            trusted-public-keys = system:40arGOg81ZACFJQAksoEplo8PfgxDd6aEQpNbuHXcCg= cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs= numtide.cachix.org-1:2ps1kLBUWjxIneOy1Ik6cQjb41X0iXVXeHigGmycPPE=
+
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+
+      - name: Build and push system
+        run: |
+          nix run github:zhaofengli/attic#default login kradalby http://attic.bee-velociraptor.ts.net ${{ secrets.ATTIC_TOKEN }}
+          nix run github:zhaofengli/attic#default watch-store system &
+          nix build '.#nixosConfigurations."${{ matrix.machine.host }}".config.system.build.toplevel'
+          nix run github:zhaofengli/attic#default push system result -j 2
+
+  build-arm64:
+    runs-on: ubuntu-22.04-arm
+    strategy:
+      fail-fast: false
+      matrix:
+        machine:
           - host: core.oracldn
             platform: aarch64-linux
           - host: dev.oracfurt
             platform: aarch64-linux
-          # - host: eye.ldn
-          #   platform: aarch64-linux
           - host: home.ldn
             platform: aarch64-linux
 
     steps:
       - uses: actions/checkout@v4
-
-      # We only run this if we are building an aarch64-linux system
-      - if: matrix.machine.platform == 'aarch64-linux'
-        uses: docker/setup-qemu-action@v3
 
       - name: Tailscale
         uses: tailscale/github-action@v2
