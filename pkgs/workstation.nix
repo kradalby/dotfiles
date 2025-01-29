@@ -56,6 +56,7 @@ in {
       unstable.tailscale-tools
       viddy
       mitmproxy
+      ollama
     ]
     ++ lib.optionals stdenv.isDarwin [
       lima
