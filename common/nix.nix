@@ -21,7 +21,7 @@
       substituters = [
         "https://nix-community.cachix.org?priority=41"
         "https://numtide.cachix.org?priority=42"
-        "http://attic.bee-velociraptor.ts.net/system?priority=43"
+        "http://attic.dalby.ts.net/system?priority=43"
       ];
       trusted-public-keys = [
         "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="

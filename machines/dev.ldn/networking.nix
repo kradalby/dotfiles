@@ -58,7 +58,7 @@ in {
   services.resolved = {
     enable = true;
     # TODO: ts domain
-    domains = ["bee-velociraptor.ts.net"];
+    domains = ["dalby.ts.net"];
     extraConfig = ''
       DNS=::1 127.0.0.1
       DNSStubListener=no

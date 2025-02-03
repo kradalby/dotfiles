@@ -74,7 +74,7 @@ in {
           }
         }
 
-        bee-velociraptor.ts.net {
+        dalby.ts.net {
           import b
           forward . 100.100.100.100:53 {
             health_check 5s
