@@ -7,5 +7,6 @@
     ./setec.nix
     ./faptables.nix
     ./attic-watch.nix
+    ./tsidp.nix
   ];
 }

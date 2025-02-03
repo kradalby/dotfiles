@@ -106,6 +106,8 @@
     tags = ["tag:oracfurt" "tag:gateway" "tag:server"];
   };
 
+  services.tsidp.enable = true;
+
   virtualisation.docker.enable = true;
 
   # This value determines the NixOS release from which the default
