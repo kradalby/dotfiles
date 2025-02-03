@@ -28,13 +28,13 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nix-rosetta-builder = {
-      url = "github:cpick/nix-rosetta-builder";
+    microvm = {
+      url = "github:astro/microvm.nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    dream2nix = {
-      url = "github:nix-community/dream2nix";
+    nix-rosetta-builder = {
+      url = "github:cpick/nix-rosetta-builder";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -273,6 +273,15 @@
           homeBase = home-manager;
           name = "dev.ldn";
           tags = ["x86" "ldn"];
+        };
+
+        "lenovo.ldn" = box.nixosBox {
+          arch = "x86_64-linux";
+          name = "lenovo.ldn";
+          tags = ["x86" "ldn"];
+          modules = with inputs; [
+            microvm.nixosModules.host
+          ];
         };
 
         "core.tjoda" = box.nixosBox {
