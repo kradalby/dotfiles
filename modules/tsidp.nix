@@ -20,6 +20,17 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
+    users.users.tsidp = {
+      home = cfg.dataDir;
+      createHome = true;
+      group = "tsidp";
+      isSystemUser = false;
+      isNormalUser = true;
+      description = "Tailscale IdP";
+    };
+
+    users.groups.tsidp = {};
+
     systemd.services.tsidp = {
       enable = true;
       description = "Tailscale OpenID Connect service";
@@ -31,15 +42,16 @@ in {
         TS_HOSTNAME = "idp";
         TS_USERSPACE = "false";
         TAILSCALE_USE_WIP_CODE = "1";
-        TS_STATE_DIR = "${cfg.dataDir}";
       };
 
       serviceConfig = {
         Type = "simple";
         RestartSec = 5;
         Restart = "always";
-        User = "root";
-        ExecStart = "${pkgs.tailscale}/bin/tsidp";
+        User = "tsidp";
+        Group = "tsidp";
+        ExecStart = "${pkgs.tailscale-tools}/bin/tsidp";
+        WorkingDirectory = cfg.dataDir;
       };
     };
   };
