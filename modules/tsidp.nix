@@ -1,7 +1,7 @@
 {
   config,
   lib,
-  pkgs-unstable,
+  pkgs,
   ...
 }
 : let
@@ -39,7 +39,7 @@ in {
         RestartSec = 5;
         Restart = "always";
         User = "root";
-        ExecStart = "${pkgs-unstable.tailscale}/bin/tsidp";
+        ExecStart = "${pkgs.tailscale}/bin/tsidp";
       };
     };
   };
