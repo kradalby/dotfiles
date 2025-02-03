@@ -21,7 +21,7 @@
     enable = false;
 
     appKeyFile = config.age.secrets.monica-app-key.path;
-    appURL = "http://monica.bee-velociraptor.ts.net";
+    appURL = "http://monica.dalby.ts.net";
 
     database.createLocally = false;
 
