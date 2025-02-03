@@ -17,9 +17,6 @@ buildGoModule rec {
     sha256 = "sha256-gCYZlxE0eswyuEEoIIM7elNT8gNu6aISY/bh2NFWRPU=";
   };
   vendorHash = "sha256-GWzaAtZW7puyX62jsZaFiyvCUh7X/D4Ea9RDzyxAAiI=";
-  env = {
-    CGO_ENABLED = 0;
-  };
   subPackages = [
     "cmd/proxy-to-grafana"
     "cmd/nginx-auth"
