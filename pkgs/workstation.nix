@@ -57,6 +57,7 @@ in {
       viddy
       mitmproxy
       ollama
+      tinygo
     ]
     ++ lib.optionals stdenv.isDarwin [
       lima
