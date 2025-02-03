@@ -3,7 +3,10 @@
   pkgs,
   lib,
   ...
-}: {
+}: let
+  lan = "enp0s31f6";
+  maxVMs = 64;
+in {
   imports = [
     ../../common
     ./hardware-configuration.nix
@@ -11,16 +14,17 @@
     ../../common/acme.nix
     ../../common/nginx.nix
     ../../common/containers.nix
+    ../../common/tailscale.nix
 
     ../../common/consul.nix
 
-    ./tailscale.nix
     ./tailscale-headscale.nix
 
-    ./k3s.nix
+    ./microvm.nix
+    # ./k3s.nix
   ];
 
-  my.lan = "enp0s31f6";
+  my.lan = lan;
 
   networking = {
     hostName = "lenovo";
@@ -35,6 +39,8 @@
         useDHCP = true;
       };
     };
+
+    useNetworkd = true;
 
     firewall = {
       enable = lib.mkForce true;
@@ -53,22 +59,48 @@
 
       trustedInterfaces = [config.my.lan];
     };
-  };
 
-  services.networkd-dispatcher = {
-    enable = true;
-    rules = {
-      "tailscale" = {
-        onState = ["routable"];
-        script = ''
-          #!${pkgs.runtimeShell}
-          ${pkgs.ethtool}/bin/ethtool -K ${config.my.lan} rx-udp-gro-forwarding on rx-gro-list off
-        '';
-      };
+    nat = {
+      enable = true;
+      internalIPs = ["172.16.0.0/24"];
+      # Change this to the interface with upstream Internet access
+      externalInterface = lan;
     };
   };
 
-  virtualisation.docker.enable = true;
+  systemd.network.networks = builtins.listToAttrs (
+    map (index: {
+      name = "30-vm${toString index}";
+      value = {
+        matchConfig.Name = "vm${toString index}";
+        # Host's addresses
+        address = [
+          "172.16.0.0/32"
+          "fec0::/128"
+        ];
+        # Setup routes to the VM
+        routes = [
+          {
+            Destination = "172.16.0.${toString index}/32";
+          }
+          {
+            Destination = "fec0::${lib.toHexString index}/128";
+          }
+        ];
+        # Enable routing
+        networkConfig = {
+          IPv4Forwarding = true;
+          IPv6Forwarding = true;
+        };
+      };
+    }) (lib.genList (i: i + 1) maxVMs)
+  );
+
+  services.tailscale = {
+    tags = ["tag:ldn" "tag:server"];
+  };
+
+  virtualisation.docker.enable = lib.mkForce false;
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
