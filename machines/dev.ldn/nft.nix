@@ -19,6 +19,9 @@
         {name = "tailscale0";}
         {name = "wg0";}
         {name = "podman*";}
+        {name = "docker*";}
+        # Bridges made by docker for extra networks
+        {name = "br-*";}
       ];
       untrusted = [
         {
