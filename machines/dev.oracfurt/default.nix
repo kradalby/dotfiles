@@ -23,6 +23,7 @@
     ./syncthing.nix
     ./attic.nix
     ./proton.nix
+    ./mealie.nix
   ];
 
   my.wan = "enp0s3";
