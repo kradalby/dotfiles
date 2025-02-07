@@ -12,4 +12,8 @@
   stirling = "frooodle/s-pdf:0.29.0";
   # https://hub.docker.com/r/ghostfolio/ghostfolio/tags
   ghostfolio = "ghostfolio/ghostfolio:2.112.0";
+
+  ## dev.oracfurt
+  # https://github.com/mealie-recipes/mealie/releases/tag/v2.6.0
+  mealie = "ghcr.io/mealie-recipes/mealie:v2.6.0";
 }

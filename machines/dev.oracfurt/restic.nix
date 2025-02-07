@@ -11,6 +11,7 @@
     "/etc/nixos"
     "/var/lib/kuma"
     "/var/lib/step-ca"
+    "/var/lib/mealie"
     config.services.postgresqlBackup.location
   ];
 
