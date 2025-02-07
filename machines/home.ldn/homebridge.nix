@@ -366,7 +366,7 @@ in
 
             (mqttthingAthomV2Outlet "Office Ceiling" "outlet" "tasmota_8F629A")
             (mqttthingAthomV2Outlet "Office Air Purifier" "outlet" "tasmota_97429B")
-            (mqttthingAthomV2Outlet "Office Fan Heater" "outlet" "tasmota_9D8C9B")
+            (mqttthingAthomV2Outlet "Office Heater" "outlet" "tasmota_9D8C9B")
 
             (mqttthingAthomV2Outlet "Living Room Corner" "outlet" "tasmota_8F8AC1")
             (mqttthingAthomV2Outlet "Living Room Drawer" "outlet" "tasmota_8F9D84")
