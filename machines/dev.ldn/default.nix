@@ -75,29 +75,11 @@ in {
     tags = ["tag:ldn" "tag:gateway" "tag:server"];
   };
 
-  virtualisation = {
-    oci-containers.backend = lib.mkForce "podman";
-    docker.enable = false;
-    podman = {
-      enable = true;
-      dockerSocket.enable = true;
-      defaultNetwork.settings = {
-        subnets = [
-          {
-            gateway = "172.16.0.1";
-            subnet = "172.16.0.0/12";
-          }
-        ];
-        dns_enabled = true;
-      };
-    };
-  };
   environment.systemPackages = [
     # Do install the docker CLI to talk to podman.
     # Not needed when virtualisation.docker.enable = true;
     pkgs.docker-client
   ];
-  users.users.kradalby.extraGroups = ["podman"];
 
   security.sudo.extraRules = [
     {

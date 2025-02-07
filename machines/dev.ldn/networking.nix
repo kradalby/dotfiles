@@ -57,7 +57,6 @@ in {
   # Use resolved for local DNS lookups, querying through CoreDNS.
   services.resolved = {
     enable = true;
-    # TODO: ts domain
     domains = ["dalby.ts.net"];
     extraConfig = ''
       DNS=::1 127.0.0.1
