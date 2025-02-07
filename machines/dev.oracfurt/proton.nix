@@ -4,6 +4,10 @@
   config,
   ...
 }: {
+  # Setup:
+  # su - proton
+  # protonmail-bridge --cli
+
   users.users.proton = {
     home = "/var/lib/proton";
     createHome = true;
