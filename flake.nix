@@ -275,14 +275,14 @@
           tags = ["x86" "ldn"];
         };
 
-        "lenovo.ldn" = box.nixosBox {
-          arch = "x86_64-linux";
-          name = "lenovo.ldn";
-          tags = ["x86" "ldn"];
-          modules = with inputs; [
-            microvm.nixosModules.host
-          ];
-        };
+        # "lenovo.ldn" = box.nixosBox {
+        #   arch = "x86_64-linux";
+        #   name = "lenovo.ldn";
+        #   tags = ["x86" "ldn"];
+        #   modules = with inputs; [
+        #     microvm.nixosModules.host
+        #   ];
+        # };
 
         "core.tjoda" = box.nixosBox {
           arch = "x86_64-linux";
