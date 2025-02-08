@@ -2,7 +2,7 @@
 
 # This script ships this directory to the machines, useful if Colmena isnt behaving
 
-rg "= nixosBox" --no-heading | awk '{print $2}' | rg -v "#" | tr -d '"' | while read host
+rg "= box.nixosBox" --no-heading | awk '{print $2}' | rg -v "#" | tr -d '"' | while read host
     if [ $host != "=" ]
         # echo "adding host to list: $host"
         set -a hosts $host
