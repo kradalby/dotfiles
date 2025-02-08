@@ -86,7 +86,7 @@
         --platform ubuntu-20.04=ghcr.io/catthehacker/ubuntu:act-20.04
       '';
 
-      ".config/zed/settings.json".text = builtins.toJSON (import ./zed.nix);
+      # ".config/zed/settings.json".text = builtins.toJSON (import ./zed.nix);
       ".config/ghostty/config".source = ../rc/ghostty;
 
       ".config/nix/nix.conf".text = ''
