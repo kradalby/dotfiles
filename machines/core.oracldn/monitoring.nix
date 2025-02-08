@@ -37,12 +37,21 @@
 in
   lib.mkMerge [
     {
-      services.tailscale-proxies.prometheus = {
-        enable = true;
-        tailscaleKeyPath = config.age.secrets.tailscale-preauthkey.path;
+      services.tailscale-proxies = {
+        prometheus = {
+          enable = true;
+          tailscaleKeyPath = config.age.secrets.tailscale-preauthkey.path;
 
-        hostname = "prom";
-        backendPort = config.services.prometheus.port;
+          hostname = "prom";
+          backendPort = config.services.prometheus.port;
+        };
+        alertmanager = {
+          enable = true;
+          tailscaleKeyPath = config.age.secrets.tailscale-preauthkey.path;
+
+          hostname = "alertmanager";
+          backendPort = config.services.prometheus.alertmanager.port;
+        };
       };
 
       age.secrets.alertmanager-env = {
