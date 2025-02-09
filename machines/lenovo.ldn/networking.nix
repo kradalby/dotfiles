@@ -53,7 +53,7 @@ in {
       enable = true;
       internalIPs = ["172.16.0.0/24"];
       # Change this to the interface with upstream Internet access
-      externalInterface = lan;
+      externalInterface = "lan0";
     };
   };
 
