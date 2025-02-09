@@ -211,6 +211,9 @@
   # Allow DNS from selskap
   networking.firewall.interfaces."iot".allowedUDPPorts = [67 68];
 
+  # Ensure that lanbr0 is up before dnsmasq starts.
+  systemd.services.dnsmasq.after = ["network-online.target" "sys-devices-virtual-net-lanbr0.device"];
+  systemd.services.dnsmasq.wants = ["network-online.target" "sys-devices-virtual-net-lanbr0.device"];
   services.dnsmasq = {
     enable = true;
 
