@@ -403,11 +403,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1739112917,
-        "narHash": "sha256-1psNZPBk71koRg+f9TkJQMFqMLghprPs0IId7vwR+Bg=",
+        "lastModified": 1739113742,
+        "narHash": "sha256-mp2nGpDUZR01YO+p0gmiJ/wz1/4n3dpC2u34OdfZ85g=",
         "owner": "kradalby",
         "repo": "kra",
-        "rev": "2c4696f7b82fffbcf2c2910ca11bb8ed4ec4fccb",
+        "rev": "4d38ccb202477bc45e06baccf96c8380938e6333",
         "type": "github"
       },
       "original": {
