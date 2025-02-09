@@ -127,7 +127,7 @@ in
     "rustdesk-ed25519-pub.age".publicKeys = u ++ [hosts.core-oracldn];
 
     # github
-    "github-headscale-token.age".publicKeys = u ++ [hosts.core-terra];
+    "github-headscale-token.age".publicKeys = u ++ [hosts.lenovo-ldn];
 
     # hugin
     "hugin-basicauth.age".publicKeys = u ++ [hosts.core-terra];
