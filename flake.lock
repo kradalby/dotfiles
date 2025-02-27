@@ -387,6 +387,30 @@
         "type": "github"
       }
     },
+    "jujutsu": {
+      "inputs": {
+        "flake-utils": [
+          "utils"
+        ],
+        "nixpkgs": [
+          "nixpkgs-unstable"
+        ],
+        "rust-overlay": "rust-overlay"
+      },
+      "locked": {
+        "lastModified": 1740490604,
+        "narHash": "sha256-kuHP/p6GyLvOCXbTC1K0Mt2V+/MjKuwN5VeLKWzT7MA=",
+        "owner": "jj-vcs",
+        "repo": "jj",
+        "rev": "f7ceac3bf417c2a8d1f36a7f18d3e0169677732b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "jj-vcs",
+        "repo": "jj",
+        "type": "github"
+      }
+    },
     "krapage": {
       "inputs": {
         "nixpkgs": [
@@ -709,7 +733,7 @@
         "nixpkgs": [
           "nixpkgs"
         ],
-        "rust-overlay": "rust-overlay"
+        "rust-overlay": "rust-overlay_2"
       },
       "locked": {
         "lastModified": 1726755133,
@@ -730,7 +754,7 @@
         "crane": "crane_2",
         "flake-utils": "flake-utils_2",
         "nixpkgs": "nixpkgs_2",
-        "rust-overlay": "rust-overlay_2"
+        "rust-overlay": "rust-overlay_3"
       },
       "locked": {
         "lastModified": 1731707580,
@@ -758,6 +782,7 @@
         "homewizard-p1-exporter": "homewizard-p1-exporter",
         "hugin": "hugin",
         "hvor": "hvor",
+        "jujutsu": "jujutsu",
         "krapage": "krapage",
         "microvm": "microvm",
         "neovim-kradalby": "neovim-kradalby",
@@ -780,6 +805,27 @@
     "rust-overlay": {
       "inputs": {
         "nixpkgs": [
+          "jujutsu",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1737685583,
+        "narHash": "sha256-p+NVABRpGi+pT+xxf9HcLcFVxG6L+vEEy+NwzB9T0f8=",
+        "owner": "oxalica",
+        "repo": "rust-overlay",
+        "rev": "eb64cbcc8eee0fa87ebded92805280d2ec97415a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "oxalica",
+        "repo": "rust-overlay",
+        "type": "github"
+      }
+    },
+    "rust-overlay_2": {
+      "inputs": {
+        "nixpkgs": [
           "ragenix",
           "nixpkgs"
         ]
@@ -798,7 +844,7 @@
         "type": "github"
       }
     },
-    "rust-overlay_2": {
+    "rust-overlay_3": {
       "inputs": {
         "flake-utils": [
           "redlib",
@@ -823,7 +869,7 @@
         "type": "github"
       }
     },
-    "rust-overlay_3": {
+    "rust-overlay_4": {
       "inputs": {
         "nixpkgs": [
           "sql-studio",
@@ -869,7 +915,7 @@
         "nixpkgs": [
           "nixpkgs-unstable"
         ],
-        "rust-overlay": "rust-overlay_3"
+        "rust-overlay": "rust-overlay_4"
       },
       "locked": {
         "lastModified": 1740296606,

@@ -51,6 +51,13 @@
       # inputs."agenix".inputs."nixpkgs".follows = "nixpkgs";
     };
 
+    jujutsu = {
+      url = "github:jj-vcs/jj";
+      inputs."flake-utils".follows = "utils";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+      # inputs."agenix".inputs."nixpkgs".follows = "nixpkgs";
+    };
+
     sql-studio = {
       url = "github:frectonz/sql-studio";
       inputs."flake-utils".follows = "utils";
@@ -179,6 +186,7 @@
     overlays = with inputs; [
       overlay-pkgs
       ragenix.overlays.default
+      jujutsu.overlays.default
       headscale.overlay
       # hugin.overlay
       # munin.overlay
