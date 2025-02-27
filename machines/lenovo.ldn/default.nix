@@ -17,7 +17,7 @@
 
     ./tailscale-headscale.nix
 
-    ./networking.nix
+    # ./networking.nix
     ./microvm.nix
     # ./k3s.nix
   ];

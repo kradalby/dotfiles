@@ -3,22 +3,6 @@
   config,
   ...
 }: let
-  ethLink = name: (mac: {
-    matchConfig = {
-      Type = "ether";
-      MACAddress = mac;
-    };
-    linkConfig = {
-      Name = name;
-
-      # Hardware tuning. Note that wan0/wan1/mgmt0 all happen to support a max
-      # of 4096 since the NixOS option won't allow "max".
-      RxBufferSize = 4096;
-      TxBufferSize = 4096;
-    };
-  });
-
-  lan = "enp0s31f6";
   maxVMs = 5;
 in {
   networking = {
@@ -74,37 +58,8 @@ in {
 
       config.networkConfig.SpeedMeter = "yes";
 
-      links = {
-        "10-lan0" = ethLink "lan0" "6c:4b:90:2b:c7:d2";
-      };
-
       networks =
         {
-          # Loopback.
-          "5-lo" = {
-            matchConfig.Name = "lo";
-            routes = [
-              {
-                # We own the ULA /48, create a blanket unreachable route which will be
-                # superseded by more specific /64s.
-                routeConfig = {
-                  Destination = "fd9e:1a04:f01d::/48";
-                  Type = "unreachable";
-                };
-              }
-            ];
-          };
-
-          "10-lan0" = {
-            matchConfig.Name = "lan0";
-            networkConfig.DHCP = "yes";
-            # Never accept ISP DNS or search domains for any DHCP/RA family.
-            dhcpV4Config = {
-              UseDNS = true;
-              UseDomains = false;
-              SendRelease = false;
-            };
-          };
         }
         // (builtins.listToAttrs (
           map (index: {
