@@ -42,7 +42,6 @@ _: {
     casks = [
       "1password"
       "1password-cli"
-      "alacritty"
       "anki"
       "balenaetcher"
       "chatgpt"

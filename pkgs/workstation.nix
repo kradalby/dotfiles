@@ -35,6 +35,7 @@ in {
       git-absorb
       git-open
       git-toolbelt
+      jujutsu
       gotestsum
       headscale
       ipcalc
