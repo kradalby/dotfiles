@@ -30,7 +30,7 @@ jobs:
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
           tags: tag:ci
 
-      - run: tailscale ping attic.bee-velociraptor.ts.net
+      - run: tailscale ping attic.dalby.ts.net
 
       - uses: DeterminateSystems/nix-installer-action@main
         with:
@@ -39,14 +39,14 @@ jobs:
             http-connections = 128
             max-substitution-jobs = 128
             extra-platforms = aarch64-linux
-            substituters = http://attic.bee-velociraptor.ts.net/system?priority=43 https://nix-community.cachix.org?priority=41 https://numtide.cachix.org?priority=42 https://cache.nixos.org/
+            substituters = http://attic.dalby.ts.net/system?priority=43 https://nix-community.cachix.org?priority=41 https://numtide.cachix.org?priority=42 https://cache.nixos.org/
             trusted-public-keys = system:40arGOg81ZACFJQAksoEplo8PfgxDd6aEQpNbuHXcCg= cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs= numtide.cachix.org-1:2ps1kLBUWjxIneOy1Ik6cQjb41X0iXVXeHigGmycPPE=
 
       - uses: DeterminateSystems/magic-nix-cache-action@main
 
       - name: Build and push system
         run: |
-          nix run github:zhaofengli/attic#default login kradalby http://attic.bee-velociraptor.ts.net ${{ secrets.ATTIC_TOKEN }}
+          nix run github:zhaofengli/attic#default login kradalby http://attic.dalby.ts.net ${{ secrets.ATTIC_TOKEN }}
           nix run github:zhaofengli/attic#default watch-store system &
           nix build '.#nixosConfigurations."${{ matrix.machine.host }}".config.system.build.toplevel'
           nix run github:zhaofengli/attic#default push system result -j 2
@@ -74,7 +74,7 @@ jobs:
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
           tags: tag:ci
 
-      - run: tailscale ping attic.bee-velociraptor.ts.net
+      - run: tailscale ping attic.dalby.ts.net
 
       - uses: DeterminateSystems/nix-installer-action@main
         with:
@@ -83,14 +83,14 @@ jobs:
             http-connections = 128
             max-substitution-jobs = 128
             extra-platforms = aarch64-linux
-            substituters = http://attic.bee-velociraptor.ts.net/system?priority=43 https://nix-community.cachix.org?priority=41 https://numtide.cachix.org?priority=42 https://cache.nixos.org/
+            substituters = http://attic.dalby.ts.net/system?priority=43 https://nix-community.cachix.org?priority=41 https://numtide.cachix.org?priority=42 https://cache.nixos.org/
             trusted-public-keys = system:40arGOg81ZACFJQAksoEplo8PfgxDd6aEQpNbuHXcCg= cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs= numtide.cachix.org-1:2ps1kLBUWjxIneOy1Ik6cQjb41X0iXVXeHigGmycPPE=
 
       - uses: DeterminateSystems/magic-nix-cache-action@main
 
       - name: Build and push system
         run: |
-          nix run github:zhaofengli/attic#default login kradalby http://attic.bee-velociraptor.ts.net ${{ secrets.ATTIC_TOKEN }}
+          nix run github:zhaofengli/attic#default login kradalby http://attic.dalby.ts.net ${{ secrets.ATTIC_TOKEN }}
           nix run github:zhaofengli/attic#default watch-store system &
           nix build '.#nixosConfigurations."${{ matrix.machine.host }}".config.system.build.toplevel'
           nix run github:zhaofengli/attic#default push system result -j 2
