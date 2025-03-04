@@ -190,7 +190,7 @@
       headscale.overlay
       # hugin.overlay
       # munin.overlay
-      golink.overlay
+      golink.overlays.default
       vscode-extensions.overlays.default
       (import ./pkgs/overlays {})
       (_: final: let
