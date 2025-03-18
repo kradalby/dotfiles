@@ -45,6 +45,7 @@ _: {
       "anki"
       "balenaetcher"
       "chatgpt"
+      "claude"
       "deskpad"
       "discord"
       "element"
