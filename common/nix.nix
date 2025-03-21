@@ -59,6 +59,7 @@
   nixpkgs.config = {
     allowUnfree = true;
     permittedInsecurePackages = [
+      "kanidm-with-secret-provisioning-1.4.6"
       "litestream-0.3.13"
       "olm-3.2.16"
     ];
