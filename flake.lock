@@ -459,6 +459,7 @@
         "vim:cmp-path": "vim:cmp-path",
         "vim:cmp-vsnip": "vim:cmp-vsnip",
         "vim:co-author.nvim": "vim:co-author.nvim",
+        "vim:cwebster2/github-coauthors.nvim": "vim:cwebster2/github-coauthors.nvim",
         "vim:gitsigns.nvim": "vim:gitsigns.nvim",
         "vim:lsp-status.nvim": "vim:lsp-status.nvim",
         "vim:lspkind-nvim": "vim:lspkind-nvim",
@@ -488,11 +489,11 @@
         "vim:vim-vsnip": "vim:vim-vsnip"
       },
       "locked": {
-        "lastModified": 1742894429,
-        "narHash": "sha256-7x7dcnIqHQLAkL1zbWi4DH2Ul0kru6O7m/ofJDznPHQ=",
+        "lastModified": 1742896342,
+        "narHash": "sha256-gIbho4/xFWRHlwenj8V0swBmC2ooJj/kcjDefVug4Pg=",
         "owner": "kradalby",
         "repo": "neovim",
-        "rev": "ac20a83608f518578c3d2ed1053751ef8afee5f9",
+        "rev": "9b889d0de7b9e35fdd177493b7027ed74d92334f",
         "type": "github"
       },
       "original": {
@@ -1233,6 +1234,22 @@
       "original": {
         "owner": "2KAbhishek",
         "repo": "co-author.nvim",
+        "type": "github"
+      }
+    },
+    "vim:cwebster2/github-coauthors.nvim": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1670948652,
+        "narHash": "sha256-dZ2VCyRZXXLbtK2I9hk2ZM8qqbMgv1Va1mbiJSc/4Cw=",
+        "owner": "cwebster2",
+        "repo": "github-coauthors.nvim",
+        "rev": "3cf0bf406fcbb9b442589c05b306bfe11e1d27b0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "cwebster2",
+        "repo": "github-coauthors.nvim",
         "type": "github"
       }
     },
