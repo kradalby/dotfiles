@@ -61,7 +61,6 @@
       ".ansible.cfg".source = ../rc/ansible.cfg;
       ".editorconfig".source = ../rc/editorconfig;
       ".eslintrc.json".source = ../rc/eslintrc.json;
-      ".golangci.yaml".source = ../rc/golangci.yaml;
       ".minirc.dfl".source = ../rc/minirc.dfl;
       ".npmrc".source = ../rc/npmrc;
       ".sqliterc".source = ../rc/sqliterc;
