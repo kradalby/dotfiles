@@ -170,6 +170,16 @@
         mkdir -p $dir
         go run ./cmd/tailscaled --socket=$dir/ts.sock --statedir=$dir --state=$dir/ts.state --tun=userspace-networking --verbose 10 $rest
       '';
+
+      z = ''
+        if command -v zed-preview > /dev/null
+            zed-preview $argv
+        else if command -v zed > /dev/null
+            zed $argv
+        else
+            echo "Zed editor is not installed. Please install zed or zed-preview."
+        end
+      '';
     };
   };
 }
