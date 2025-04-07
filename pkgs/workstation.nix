@@ -59,6 +59,7 @@ in {
       mitmproxy
       ollama
       tinygo
+      sqldiff
     ]
     ++ lib.optionals stdenv.isDarwin [
       lima
