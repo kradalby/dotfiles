@@ -117,6 +117,7 @@ _: {
       "Yubico Authenticator" = 1497506650;
       "Wunderbar" = 6479203386;
       "TestFlight" = 899247664;
+      "Boop" = 1518425043;
     };
   };
 }

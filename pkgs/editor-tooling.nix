@@ -4,6 +4,7 @@
     master.gopls
     master.delve
     golangci-lint-langserver
+    golangci-lint
     go-tools # staticcheck
     gofumpt
     golines
