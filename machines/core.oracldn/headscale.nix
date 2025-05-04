@@ -75,8 +75,6 @@ in {
           enabled = true;
         };
 
-        map_legacy_users = false;
-        strip_email_domain = false;
         only_start_if_oidc_is_available = true;
       };
 
