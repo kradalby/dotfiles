@@ -97,7 +97,7 @@
     };
 
     headscale = {
-      url = "github:juanfont/headscale/v0.24.1";
+      url = "github:juanfont/headscale/v0.26.0-beta.1";
       # url = "github:juanfont/headscale/main";
       inputs."flake-utils".follows = "utils";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
