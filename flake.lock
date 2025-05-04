@@ -222,16 +222,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1737645489,
-        "narHash": "sha256-s6s+0RHgAPxmSidfAoAne1d7DRwbC3d9udki3TlPmlY=",
+        "lastModified": 1746389204,
+        "narHash": "sha256-1PVhb6C3o/KAgxD8hJJSH+fxDfq8LZsJAv+XZwiVIK8=",
         "owner": "juanfont",
         "repo": "headscale",
-        "rev": "f22a48bcfef3cd037dee905a6feacc52a3a67068",
+        "rev": "1dddd3e93b38e5ec592e91eba136075a9e488382",
         "type": "github"
       },
       "original": {
         "owner": "juanfont",
-        "ref": "v0.24.1",
+        "ref": "v0.26.0-beta.1",
         "repo": "headscale",
         "type": "github"
       }
