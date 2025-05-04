@@ -60,6 +60,9 @@ in {
       ollama
       tinygo
       sqldiff
+
+      unstable.codex
+      unstable.claude-code
     ]
     ++ lib.optionals stdenv.isDarwin [
       lima
