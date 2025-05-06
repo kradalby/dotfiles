@@ -148,7 +148,7 @@
           (
             _: final: {
               gopls = final.gopls.override {
-                buildGoModule = final.buildGo123Module;
+                buildGoModule = final.buildGo124Module;
               };
             }
           )
@@ -162,7 +162,7 @@
           (
             _: final: {
               gopls = final.gopls.override {
-                buildGoModule = final.buildGo123Module;
+                buildGoModule = final.buildGo124Module;
               };
             }
           )
@@ -175,7 +175,7 @@
           (
             _: final: {
               gopls = final.gopls.override {
-                buildGoModule = final.buildGo123Module;
+                buildGoModule = final.buildGo124Module;
               };
             }
           )
@@ -196,25 +196,25 @@
       (_: final: let
         # TODO(kradalby): figure out why this doesnt work
         goOver = name: ("${name}".packages."${final.system}"."${name}".override {
-          buildGoModule = final.buildGo123Module;
+          buildGoModule = final.buildGo124Module;
         });
       in {
         go = final.go_1_23;
-        buildGoModules = final.buildGo123Modules;
+        buildGoModules = final.buildGo124Modules;
         hugin = hugin.packages."${final.system}".hugin.override {
-          buildGoModule = final.buildGo123Module;
+          buildGoModule = final.buildGo124Module;
         };
         krapage = krapage.packages."${final.system}".krapage.override {
-          buildGoModule = final.buildGo123Module;
+          buildGoModule = final.buildGo124Module;
         };
         hvor = hvor.packages."${final.system}".hvor.override {
-          buildGoModule = final.buildGo123Module;
+          buildGoModule = final.buildGo124Module;
         };
         tasmota-exporter = tasmota-exporter.packages."${final.system}".tasmota-exporter.override {
-          buildGoModule = final.buildGo123Module;
+          buildGoModule = final.buildGo124Module;
         };
         homewizard-p1-exporter = homewizard-p1-exporter.packages."${final.system}".homewizard-p1-exporter.override {
-          buildGoModule = final.buildGo123Module;
+          buildGoModule = final.buildGo124Module;
         };
         sql-studio = sql-studio.packages."${final.system}".default;
         redlib = redlib.packages."${final.system}".default;
