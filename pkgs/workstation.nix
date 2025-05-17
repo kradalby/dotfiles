@@ -2,11 +2,7 @@
   pkgs,
   lib,
   ...
-}: let
-  # sql-studio-mac = pkgs.sql-studio.overrideAttrs (o: {
-  #   nativeBuildInputs = [pkgs.darwin.apple_sdk.frameworks.SystemConfiguration] ++ o.nativeBuildInputs;
-  # });
-in {
+}: {
   home.packages = with pkgs;
     [
       # gitutil
@@ -60,6 +56,7 @@ in {
       ollama
       tinygo
       sqldiff
+      sql-studio
 
       unstable.codex
       unstable.claude-code
