@@ -4,50 +4,47 @@
   inputs = {
     utils.url = "github:numtide/flake-utils";
 
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
-    nixpkgs-old-stable.url = "github:NixOS/nixpkgs/nixos-24.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/release-25.05";
+    nixpkgs-nixos.url = "github:NixOS/nixpkgs/nixos-25.05";
+    nixpkgs-darwin.url = "github:NixOS/nixpkgs/nixpkgs-25.05-darwin";
+    # nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
+    nixpkgs-old-stable.url = "github:NixOS/nixpkgs/nixos-24.11";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     nixpkgs-master.url = "github:NixOS/nixpkgs/master";
-    nixpkgs-kradalby.url = "github:kradalby/nixpkgs/kradalby/headscale-023";
+    nixpkgs-kradalby.url = "github:kradalby/nixpkgs/headscale-026";
 
     nixpkgs-hardware.url = "github:NixOS/nixos-hardware";
 
     darwin.url = "github:lnl7/nix-darwin/nix-darwin-24.11";
-    darwin.inputs.nixpkgs.follows = "nixpkgs";
+    darwin.inputs.nixpkgs.follows = "nixpkgs-darwin";
 
     darwin-unstable.url = "github:lnl7/nix-darwin";
     darwin-unstable.inputs.nixpkgs.follows = "nixpkgs-unstable";
 
-    home-manager.url = "github:nix-community/home-manager/release-24.11";
+    home-manager.url = "github:nix-community/home-manager/release-25.05";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     home-manager-unstable.url = "github:nix-community/home-manager/master";
     home-manager-unstable.inputs.nixpkgs.follows = "nixpkgs-unstable";
 
     nixos-generators = {
       url = "github:nix-community/nixos-generators";
-      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nixpkgs.follows = "nixpkgs-nixos";
     };
 
     microvm = {
       url = "github:astro/microvm.nix";
-      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nixpkgs.follows = "nixpkgs-nixos";
     };
 
     nix-rosetta-builder = {
       url = "github:cpick/nix-rosetta-builder";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    vscode-extensions = {
-      url = "github:nix-community/nix-vscode-extensions";
-      inputs."flake-utils".follows = "utils";
-      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nixpkgs.follows = "nixpkgs-darwin";
     };
 
     ragenix = {
       url = "github:yaxitech/ragenix";
       inputs."flake-utils".follows = "utils";
-      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
       # inputs."agenix".inputs."nixpkgs".follows = "nixpkgs";
     };
 
@@ -56,12 +53,6 @@
       inputs."flake-utils".follows = "utils";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
       # inputs."agenix".inputs."nixpkgs".follows = "nixpkgs";
-    };
-
-    sql-studio = {
-      url = "github:frectonz/sql-studio";
-      inputs."flake-utils".follows = "utils";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
     redlib = {
@@ -119,13 +110,14 @@
     neovim-kradalby = {
       url = "github:kradalby/neovim";
       inputs."flake-utils".follows = "utils";
-      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
   };
 
   outputs = {
     self,
-    nixpkgs,
+    nixpkgs-nixos,
+    nixpkgs-darwin,
     darwin,
     home-manager,
     nixos-generators,
@@ -133,7 +125,7 @@
     ...
   } @ inputs: let
     overlay-pkgs = final: _: {
-      stable = import nixpkgs {
+      stable = import nixpkgs-nixos {
         inherit (final) system;
         config = {
           allowUnfree = true;
@@ -191,7 +183,6 @@
       # hugin.overlay
       # munin.overlay
       golink.overlays.default
-      vscode-extensions.overlays.default
       (import ./pkgs/overlays {})
       (_: final: let
         # TODO(kradalby): figure out why this doesnt work
@@ -216,22 +207,21 @@
         homewizard-p1-exporter = homewizard-p1-exporter.packages."${final.system}".homewizard-p1-exporter.override {
           buildGoModule = final.buildGo124Module;
         };
-        sql-studio = sql-studio.packages."${final.system}".default;
         redlib = redlib.packages."${final.system}".default;
         neovim = neovim-kradalby.packages."${final.system}".neovim-kradalby;
       })
     ];
 
-    lib = nixpkgs.lib.extend (
+    lib = nixpkgs-nixos.lib.extend (
       final: _: {
         k = import ./k.nix {};
       }
     );
 
     box = import ./lib/box.nix {
-      pkgs = nixpkgs;
+      pkgs = nixpkgs-nixos;
       inherit inputs overlays lib;
-      rev = nixpkgs.lib.mkIf (self ? rev) self.rev;
+      rev = nixpkgs-nixos.lib.mkIf (self ? rev) self.rev;
     };
   in
     {
@@ -316,7 +306,7 @@
     }
     // utils.lib.eachDefaultSystem
     (system: let
-      pkgs = import nixpkgs {
+      pkgs = import nixpkgs-nixos {
         inherit overlays;
         inherit system;
       };
