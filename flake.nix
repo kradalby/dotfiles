@@ -301,31 +301,11 @@
 
       # darwin-rebuild switch --flake .#kramacbook
       darwinConfigurations = {
-        kramacbook = let
-          machine = {
-            arch = "x86_64-darwin";
-            username = "kradalby";
-            hostname = "kramacbook";
-            homeDir = /Users/kradalby;
-          };
-        in
-          box.macBox machine darwin home-manager;
-
         kratail2 = let
           machine = {
             arch = "aarch64-darwin";
             username = "kradalby";
             hostname = "kratail2";
-            homeDir = /Users/kradalby;
-          };
-        in
-          box.macBox machine darwin home-manager;
-
-        kraairm2 = let
-          machine = {
-            arch = "aarch64-darwin";
-            username = "kradalby";
-            hostname = "kraairm2";
             homeDir = /Users/kradalby;
           };
         in
