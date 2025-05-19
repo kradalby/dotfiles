@@ -57,6 +57,7 @@
       tinygo
       sqldiff
       sql-studio
+      zizmor
 
       unstable.codex
       unstable.claude-code
