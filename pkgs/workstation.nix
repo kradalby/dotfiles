@@ -54,7 +54,6 @@
       viddy
       mitmproxy
       ollama
-      tinygo
       sqldiff
       sql-studio
       zizmor

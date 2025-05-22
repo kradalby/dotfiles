@@ -1,8 +1,4 @@
 {pkgs, ...}: {
-  services.nix-daemon = {
-    enable = true;
-  };
-
   nix = {
     settings = {
       substituters = [
