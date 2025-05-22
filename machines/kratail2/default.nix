@@ -51,7 +51,7 @@
     };
   };
 
-  security.pam.enableSudoTouchIdAuth = true;
+  security.pam.services.sudo_local.touchIdAuth = true;
 
   networking = {
     hostName = machine.hostname;
@@ -74,6 +74,7 @@
   };
 
   system = {
+    primaryUser = "kradalby";
     defaults = {
       smb.NetBIOSName = machine.hostname;
       dock.orientation = lib.mkForce "left";
