@@ -56,3 +56,19 @@ windows:
             - git status
   - headscale:
       root: ~/git/headscale
+  - colima:
+      panes:
+        - up:
+          - colima start --vm-type vz --cpu 8 --memory 24 --disk 100; colima ssh -- top
+  - sf:
+      root: ~/git/sfiber
+      layout: 606b,263x72,0,0{131x72,0,0,9,131x72,132,0[131x36,132,0,12,131x35,132,37,13]}
+      panes:
+        - run:
+            - git status
+        - watch:
+            - fiberdev
+        - other:
+            - git status
+  - sf:
+      root: ~/git/sfiber
