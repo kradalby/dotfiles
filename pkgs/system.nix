@@ -42,6 +42,7 @@
       nix-diff
       nix-tree
       attic-client
+      wush
 
       (let
         my-python-packages = python-packages:
