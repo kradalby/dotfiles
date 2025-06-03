@@ -67,7 +67,7 @@ windows:
         - run:
             - git status
         - watch:
-            - fiberdev
+            - fiberdbdev
         - other:
             - git status
   - sf:
