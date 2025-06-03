@@ -64,6 +64,7 @@
       ".minirc.dfl".source = ../rc/minirc.dfl;
       ".npmrc".source = ../rc/npmrc;
       ".sqliterc".source = ../rc/sqliterc;
+      ".finicky.js".source = ../rc/finicky.js;
 
       # ".tmux.conf".source = ../rc/tmux.conf;
       ".tmuxinator" = {
