@@ -25,7 +25,7 @@
     ./dnsmasq.nix
     ./nft.nix
     ./networking.nix
-    ./unifi.nix
+    # ./unifi.nix
     ./rest-server.nix
     ./samba.nix
     ./avahi.nix
