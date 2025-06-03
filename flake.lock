@@ -731,7 +731,7 @@
           "utils"
         ],
         "nixpkgs": [
-          "nixpkgs-unstable"
+          "nixpkgs-old-stable"
         ],
         "rust-overlay": "rust-overlay_2"
       },

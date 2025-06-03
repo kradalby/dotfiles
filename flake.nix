@@ -44,7 +44,8 @@
     ragenix = {
       url = "github:yaxitech/ragenix";
       inputs."flake-utils".follows = "utils";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
+      # inputs.nixpkgs.follows = "nixpkgs-unstable";
+      inputs.nixpkgs.follows = "nixpkgs-old-stable";
       # inputs."agenix".inputs."nixpkgs".follows = "nixpkgs";
     };
 
@@ -255,6 +256,7 @@
         };
 
         "home.ldn" = box.nixosBox {
+          nixpkgs = inputs.nixpkgs-old-stable;
           arch = "aarch64-linux";
           name = "home.ldn";
           tags = ["arm64" "ldn"];
