@@ -76,6 +76,7 @@ _: {
       "youtube-to-mp3"
       "ollama"
       "finicky"
+      "cursor"
       # "docker" // TODO: remove if colima + docker works
       # "free-ruler"
       # "hex-fiend"
