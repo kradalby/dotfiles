@@ -13,6 +13,7 @@ windows:
         - jotta:
             - set -xg RESTIC_REPOSITORY rclone:Jotta:4e8bb5107054b95e58d809060cb72911
             - set -xg RESTIC_PASSWORD (op read "op://Private/restic - kratail/password")
+            - restic unlock
             - |
               while true
                   restic backup $HOME/git $HOME/Pictures
