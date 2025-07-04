@@ -54,9 +54,6 @@
     useDHCP = false;
     interfaces = {
       "eth0" = {
-        useDHCP = true;
-      };
-      "eth2" = {
         useDHCP = false;
         ipv4 = {
           addresses = [
