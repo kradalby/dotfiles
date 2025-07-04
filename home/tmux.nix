@@ -28,6 +28,7 @@
 
       new-session -n $HOST
 
+      setw -g mode-keys vi
 
       # colon :
       bind : command-prompt
