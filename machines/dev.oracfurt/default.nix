@@ -21,7 +21,7 @@
     ./tailscale-headscale.nix
     # ./openvpn.nix
     ./syncthing.nix
-    ./attic.nix
+    # ./attic.nix
     ./proton.nix
     ./mealie.nix
   ];
