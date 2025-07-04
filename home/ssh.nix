@@ -1,4 +1,8 @@
-{pkgs, ...}: let
+{
+  pkgs,
+  lib,
+  ...
+}: let
   isWorkstation = pkgs.stdenv.isDarwin && pkgs.stdenv.isAarch64;
   kradalbyLogin = hostname: {
     hostname = hostname;
@@ -11,6 +15,10 @@
     port = 22;
   };
 in {
+  home.sessionVariables = lib.mkIf isWorkstation {
+    SSH_AUTH_SOCK = "$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock";
+  };
+
   programs.ssh = {
     enable = true;
     forwardAgent = isWorkstation;
@@ -36,6 +44,21 @@ in {
       "*.ldn" = fapRoot;
       "*.oracldn" = fapRoot;
       "*.oracfurt" = fapRoot;
+
+      # Tailscale configuration
+      "bunny*" = {
+        user = "ubuntu";
+      };
+      "control*" = {
+        user = "ubuntu";
+      };
+      "kradalby-workstation*" = {
+        user = "ubuntu";
+      };
+      "tailscale-proxy" = {
+        match = "host !bunny.corp.tailscale.com,*.tailscale.com,control,shard*,derp*,trunkd*";
+        proxyCommand = "/Users/kradalby/go/bin/ts-ssh-proxy %r %h %p";
+      };
     };
   };
 }
