@@ -138,13 +138,6 @@
         config = {allowUnfree = true;};
         overlays = [
           (import ./pkgs/overlays {})
-          (
-            _: final: {
-              gopls = final.gopls.override {
-                buildGoModule = final.buildGo124Module;
-              };
-            }
-          )
         ];
       };
       unstable = import inputs.nixpkgs-unstable {
@@ -154,9 +147,9 @@
           (import ./pkgs/overlays {})
           (
             _: final: {
-              gopls = final.gopls.override {
-                buildGoModule = final.buildGo124Module;
-              };
+              # gopls = final.gopls.override {
+              #   buildGoModule = final.buildGo124Module;
+              # };
             }
           )
         ];
@@ -167,9 +160,9 @@
         overlays = [
           (
             _: final: {
-              gopls = final.gopls.override {
-                buildGoModule = final.buildGo124Module;
-              };
+              # gopls = final.gopls.override {
+              #   buildGoModule = final.buildGo124Module;
+              # };
             }
           )
         ];
@@ -191,7 +184,7 @@
           buildGoModule = final.buildGo124Module;
         });
       in {
-        go = final.go_1_23;
+        go = final.go_1_24;
         buildGoModules = final.buildGo124Modules;
         hugin = hugin.packages."${final.system}".hugin.override {
           buildGoModule = final.buildGo124Module;
@@ -255,12 +248,12 @@
           tags = ["arm64" "oracle" "oracfurt"];
         };
 
-        "home.ldn" = box.nixosBox {
-          nixpkgs = inputs.nixpkgs-old-stable;
-          arch = "aarch64-linux";
-          name = "home.ldn";
-          tags = ["arm64" "ldn"];
-        };
+        # "home.ldn" = box.nixosBox {
+        #   nixpkgs = inputs.nixpkgs-old-stable;
+        #   arch = "aarch64-linux";
+        #   name = "home.ldn";
+        #   tags = ["arm64" "ldn"];
+        # };
 
         # "rpi.vetle" = box.nixosBox {
         #   arch = "aarch64-linux";
