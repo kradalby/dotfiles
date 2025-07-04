@@ -67,9 +67,10 @@
       "monitorcontrol"
       "tigervnc-viewer"
       "utm"
-      "wireshark"
+      # "wireshark"
       "zoom"
       "slack-cli"
+      "logi-options+"
     ];
   };
 
