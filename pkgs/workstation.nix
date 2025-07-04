@@ -52,14 +52,14 @@
       unstable.squibble
       unstable.tailscale-tools
       viddy
-      mitmproxy
+      # mitmproxy
       ollama
       sqldiff
       sql-studio
       zizmor
-
-      unstable.codex
-      unstable.claude-code
+      nodejs_24
+      uv
+      mongodb-tools
     ]
     ++ lib.optionals stdenv.isDarwin [
       lima
