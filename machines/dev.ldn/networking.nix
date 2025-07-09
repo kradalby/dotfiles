@@ -203,7 +203,8 @@ in {
     # Tailscale readiness and DNS tweaks.
     # Ignore wan1 as it is only available if my iPhone
     # is broadcasting a hotspot
-    network.wait-online.ignoredInterfaces = ["tailscale0" "wg0" "wan1"];
+    # Ignore microvm-br0 as it's a virtual bridge that may not have immediate connectivity
+    network.wait-online.ignoredInterfaces = ["tailscale0" "wg0" "wan1" "microvm-br0"];
     services.tailscaled.after = ["network-online.target" "systemd-resolved.service"];
   };
 }
