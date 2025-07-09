@@ -1,6 +1,15 @@
 {
   description = "kradalby's system config";
 
+  # nixConfig = {
+  #   extra-substituters = [
+  #     # "http://attic.dalby.ts.net/system?priority=43"
+  #   ];
+  #   extra-trusted-public-keys = [
+  #     # "system:40arGOg81ZACFJQAksoEplo8PfgxDd6aEQpNbuHXcCg="
+  #   ];
+  # };
+
   inputs = {
     utils.url = "github:numtide/flake-utils";
 
@@ -282,6 +291,7 @@
           name = "core.tjoda";
           tags = ["x86" "router" "tjoda"];
         };
+
       };
 
       # darwin-rebuild switch --flake .#kramacbook
@@ -375,6 +385,7 @@
             specialArgs = {inherit inputs;};
             format = "sd-aarch64";
           };
+        
       };
     });
 }
