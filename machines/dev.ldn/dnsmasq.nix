@@ -223,6 +223,8 @@
       interface = [
         config.my.lan
         # "iot0"
+        # MicroVM bridge interface - provides DHCP for isolated MicroVM network
+        "microvm-br0"
       ];
       # Only reserve the ports on the interfaces
       # served by dnsmasq and not wildcard.
@@ -238,12 +240,16 @@
       dhcp-range = [
         "interface:${config.my.lan},10.65.0.171,10.65.0.250,255.255.255.0,12h"
         "interface:iot,192.168.156.100,192.168.156.200,255.255.255.0,12h"
+        # MicroVM network DHCP range - isolated from main LAN to avoid conflicts
+        "interface:microvm-br0,192.168.130.100,192.168.130.200,255.255.255.0,12h"
       ];
 
       dhcp-option = [
         # gateway
         "interface:${config.my.lan},option:router,10.65.0.1"
         "interface:iot,option:router,192.168.156.1"
+        # MicroVM network gateway - provides internet access via NAT
+        "interface:microvm-br0,option:router,192.168.130.1"
 
         # dns server
         # "interface:${lan},option:dns-server,10.62.0.1"

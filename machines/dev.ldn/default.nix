@@ -19,6 +19,7 @@ in {
     # ../../common/smokeping-exporter.nix
     ../../common/miniupnp.nix
     ../../common/tailscale.nix
+    ../../modules/microvm-host.nix
 
     ./restic.nix
     ./tailscale-headscale.nix
@@ -43,6 +44,7 @@ in {
     users.timemachine = true;
   };
 
+
   boot.kernel.sysctl = {
     # if you use ipv4, this is all you need
     "net.ipv4.conf.all.forwarding" = true;
@@ -65,7 +67,8 @@ in {
   users.users.root.openssh.authorizedKeys.keys = sshKeys.main ++ sshKeys.kradalby ++ sshKeys.work;
   users.users.kradalby.openssh.authorizedKeys.keys = sshKeys.main ++ sshKeys.kradalby ++ sshKeys.work;
 
-  services.attic-watch.enable = true;
+  # Temporarily disabled - attic server is not currently running
+  services.attic-watch.enable = false;
 
   services.tailscale = let
     wireguardHosts = import ../../metadata/wireguard.nix;

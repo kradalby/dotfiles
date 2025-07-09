@@ -16,6 +16,12 @@
           name = "lanbr0";
           ipv4 = "10.65.0.1";
         }
+        # MicroVM bridge - trusted network for isolated container workloads
+        # Provides dedicated network segment separate from main LAN
+        {
+          name = "microvm-br0";
+          ipv4 = "192.168.130.1";
+        }
         {name = "tailscale0";}
         {name = "wg0";}
         {name = "podman*";}
