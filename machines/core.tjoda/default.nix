@@ -16,6 +16,7 @@
     ../../common/miniupnp.nix
     ../../common/syncthing-storage.nix
     ../../common/tailscale.nix
+    ../../modules/microvm-host.nix
 
     ./hardware-configuration.nix
     ./zfs.nix
@@ -28,6 +29,8 @@
     ./minio.nix
     ./redlib.nix
   ];
+
+  systemd.network.enable = true;
 
   # TODO: Figure a way to allowlist some URLs
   services.blocklist-downloader.enable = lib.mkForce false;
@@ -44,32 +47,14 @@
     hostName = "core";
     domain = "tjoda.fap.no";
     hostId = "14889c5c";
-    nameservers = [
-      "10.62.0.1"
-    ];
-    defaultGateway = "10.62.0.1";
-    defaultGateway6 = "";
-    dhcpcd.enable = false;
-    usePredictableInterfaceNames = lib.mkForce true;
-    useDHCP = false;
-    interfaces = {
-      "eth0" = {
-        useDHCP = false;
-        ipv4 = {
-          addresses = [
-            {
-              address = "10.62.0.2";
-              prefixLength = 24;
-            }
-          ];
-          routes = [
-            {
-              address = "10.62.0.1";
-              prefixLength = 32;
-            }
-          ];
-        };
-      };
+  };
+
+  systemd.network.networks = {
+    "10-eth0" = {
+      matchConfig.Name = "eth0";
+      address = [ "10.62.0.2/24" ];
+      gateway = [ "10.62.0.1" ];
+      dns = [ "10.62.0.1" ];
     };
   };
 
@@ -90,6 +75,16 @@
   };
 
   monitoring.smartctl.devices = ["/dev/sda"];
+
+  # MicroVM networking configuration for core.tjoda
+  # Uses systemd-networkd DHCP server (configured in microvm-host.nix)
+  # so need standard firewall rules and NAT for internet access
+  networking.firewall.allowedUDPPorts = [ 67 ];  # DHCP server
+  networking.nat = {
+    enable = true;
+    enableIPv6 = true;
+    internalInterfaces = [ "microvm-br0" ];  # NAT for MicroVM bridge
+  };
 
   system.stateVersion = "24.11";
 }
