@@ -44,7 +44,6 @@ in {
     users.timemachine = true;
   };
 
-
   boot.kernel.sysctl = {
     # if you use ipv4, this is all you need
     "net.ipv4.conf.all.forwarding" = true;
@@ -82,6 +81,7 @@ in {
     # Do install the docker CLI to talk to podman.
     # Not needed when virtualisation.docker.enable = true;
     pkgs.docker-client
+    pkgs.lima
   ];
 
   security.sudo.extraRules = [
