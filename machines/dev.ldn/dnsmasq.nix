@@ -226,9 +226,9 @@
         # MicroVM bridge interface - provides DHCP for isolated MicroVM network
         "microvm-br0"
       ];
-      # Only reserve the ports on the interfaces
-      # served by dnsmasq and not wildcard.
-      bind-interfaces = true;
+      # Bind dynamically to interfaces as they become available
+      # Don't fail if interfaces in the list are not available at startup
+      bind-dynamic = true;
 
       except-interface = [
         "virbr0"
