@@ -316,11 +316,38 @@
         inherit system;
       };
     in {
-      devShell = pkgs.mkShell {
+      devShell = let
+        hostNames = builtins.attrNames self.nixosConfigurations;
+      in pkgs.mkShell {
         buildInputs = [
           pkgs.alejandra
           pkgs.colmena
           pkgs.webrepl_cli
+          
+          (pkgs.writeShellScriptBin
+            "ship"
+            ''
+              #!/usr/bin/env bash
+              set -euo pipefail
+
+              # Host list from nixosConfigurations
+              hosts=(${builtins.concatStringsSep " " hostNames})
+              target_hosts=("''${hosts[@]}")
+
+              if [ $# -eq 1 ]; then
+                  if [[ " ''${hosts[*]} " =~ " $1 " ]]; then
+                      target_hosts=("$1")
+                  else
+                      echo "Error: '$1' is not a valid host. Choose from: ''${hosts[*]}"
+                      exit 1
+                  fi
+              fi
+
+              for host in "''${target_hosts[@]}"; do
+                  echo "Shipping to $host..."
+                  rsync -ah --delete --cvs-exclude --filter=':- .gitignore' . "root@$host:/etc/nixos/."
+              done
+            '')
         ];
       };
 

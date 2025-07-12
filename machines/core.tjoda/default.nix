@@ -18,6 +18,7 @@
     ../../common/tailscale.nix
     ../../modules/microvm-host.nix
 
+    ./microvm.nix
     ./hardware-configuration.nix
     ./zfs.nix
     ./wireguard.nix

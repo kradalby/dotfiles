@@ -19,13 +19,18 @@
         # MicroVM bridge - trusted network for isolated container workloads
         # Provides dedicated network segment separate from main LAN
         {
-          name = "microvm-br0";
+          name = "microvm-br*";
           ipv4 = "192.168.130.1";
         }
         {name = "tailscale0";}
         {name = "wg0";}
         {name = "podman*";}
         {name = "docker*";}
+
+        # Multipass bridge
+        {name = "mpqemubr*";}
+        {name = "tap-*";}
+
         # Bridges made by docker for extra networks
         {name = "br-*";}
       ];

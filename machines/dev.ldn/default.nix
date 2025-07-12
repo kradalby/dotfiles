@@ -21,6 +21,7 @@ in {
     ../../common/tailscale.nix
     ../../modules/microvm-host.nix
 
+    ./microvm.nix
     ./restic.nix
     ./tailscale-headscale.nix
     ./nvidia.nix
@@ -82,7 +83,10 @@ in {
     # Not needed when virtualisation.docker.enable = true;
     pkgs.docker-client
     pkgs.lima
+    pkgs.nodejs_24
   ];
+
+  virtualisation.multipass.enable = true;
 
   security.sudo.extraRules = [
     {
