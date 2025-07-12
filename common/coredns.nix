@@ -47,7 +47,7 @@ in {
         sites = import ../metadata/consul.nix;
         currentSite = builtins.replaceStrings [".fap.no"] [""] config.networking.domain;
 
-        s = import ../metadata/sites.nix {inherit lib config;};
+        s = import ../metadata/ipam.nix {inherit lib config;};
         peers = s.consulPeers;
 
         peer = name: ip: ''

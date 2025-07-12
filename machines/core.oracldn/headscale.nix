@@ -4,7 +4,7 @@
   config,
   ...
 }: let
-  s = import ../../metadata/sites.nix {inherit lib config;};
+  s = import ../../metadata/ipam.nix {inherit lib config;};
   consul = import ../../common/funcs/consul.nix {inherit lib;};
   domain = "headscale.kradalby.no";
   aclConfig = {

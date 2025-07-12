@@ -8,7 +8,7 @@ with lib builtins; let
 
   domain = "consul.${config.networking.domain}";
 
-  s = import ../metadata/sites.nix {inherit lib config;};
+  s = import ../metadata/ipam.nix {inherit lib config;};
   peers = s.consulPeers;
 in {
   imports = [./consul.nix];
