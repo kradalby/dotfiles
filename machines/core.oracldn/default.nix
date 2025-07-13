@@ -122,7 +122,7 @@
   };
 
   services.tailscale = let
-    wireguardHosts = import ../../metadata/wireguard.nix;
+    wireguardHosts = import ../../metadata/wireguard.nix {inherit lib config;};
     wireguardConfig = wireguardHosts.servers.oracleldn;
   in {
     advertiseRoutes = wireguardConfig.additional_networks;

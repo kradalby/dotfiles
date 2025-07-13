@@ -71,7 +71,7 @@ in {
   services.attic-watch.enable = false;
 
   services.tailscale = let
-    wireguardHosts = import ../../metadata/wireguard.nix;
+    wireguardHosts = import ../../metadata/wireguard.nix {inherit lib config;};
     wireguardConfig = wireguardHosts.clients.ldn;
   in {
     advertiseRoutes = wireguardConfig.additional_networks;

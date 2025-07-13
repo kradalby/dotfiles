@@ -82,13 +82,22 @@ with builtins; let
   };
 
   # Derive sites from hosts for backward compatibility
-  sites = mapAttrs (hostname: host: {
-    name = host.site;
-    nameservers = [host.gateway];
-    consul = host.consul;
-    openvpn = host.routes.openvpn;
-    ipv4Gateway = host.gateway;
-  }) (filterAttrs (hostname: host: hasAttr "consul" host) hosts);
+  sites = 
+    let
+      hostsWithConsul = filterAttrs (hostname: host: hasAttr "consul" host) hosts;
+      siteConfigs = mapAttrs (hostname: host: {
+        name = host.site;
+        nameservers = [host.gateway];
+        consul = host.consul;
+        openvpn = host.routes.openvpn;
+        ipv4Gateway = host.gateway;
+      }) hostsWithConsul;
+    in
+      # Re-key by site name instead of hostname
+      listToAttrs (map (hostname: 
+        let host = getAttr hostname hostsWithConsul;
+        in nameValuePair host.site (getAttr hostname siteConfigs)
+      ) (attrNames hostsWithConsul));
 
   # Legacy compatibility
   baseDomain = ".fap.no";
