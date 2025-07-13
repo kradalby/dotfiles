@@ -100,7 +100,7 @@
   };
 
   services.tailscale = let
-    wireguardHosts = import ../../metadata/wireguard.nix;
+    wireguardHosts = import ../../metadata/wireguard.nix {inherit lib config;};
     wireguardConfig = wireguardHosts.servers.oraclefurt;
   in {
     advertiseRoutes = wireguardConfig.additional_networks;

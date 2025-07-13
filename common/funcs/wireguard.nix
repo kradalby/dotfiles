@@ -9,7 +9,7 @@
   routingTable = "main";
 
   serverPeer = netd: name: let
-    wireguardHosts = import ../../metadata/wireguard.nix;
+    wireguardHosts = import ../../metadata/wireguard.nix {inherit lib config;};
     wireguardConfig = wireguardHosts.servers."${name}";
   in
     if netd
@@ -29,7 +29,7 @@
     };
 
   clientPeer = netd: name: let
-    wireguardHosts = import ../../metadata/wireguard.nix;
+    wireguardHosts = import ../../metadata/wireguard.nix {inherit lib config;};
     wireguardConfig = wireguardHosts.clients."${name}";
   in
     if netd
@@ -47,7 +47,7 @@
     };
 
   server = name: privateKeyPath: let
-    wireguardHosts = import ../../metadata/wireguard.nix;
+    wireguardHosts = import ../../metadata/wireguard.nix {inherit lib config;};
     wireguardConfig = wireguardHosts.servers."${name}";
 
     clients = map (clientPeer false) (builtins.attrNames wireguardHosts.clients);
@@ -62,7 +62,7 @@
   };
 
   client = name: privateKeyPath: let
-    wireguardHosts = import ../../metadata/wireguard.nix;
+    wireguardHosts = import ../../metadata/wireguard.nix {inherit lib config;};
     wireguardConfig = wireguardHosts.clients."${name}";
 
     servers = map (serverPeer false) (builtins.attrNames wireguardHosts.servers);
@@ -96,7 +96,7 @@
   };
 
   serviceNetworkD = name: secret: let
-    wireguardHosts = import ../../metadata/wireguard.nix;
+    wireguardHosts = import ../../metadata/wireguard.nix {inherit lib config;};
     all = wireguardHosts.servers // wireguardHosts.clients;
     wireguardConfig = all."${name}";
 

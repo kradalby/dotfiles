@@ -68,7 +68,7 @@
   };
 
   services.tailscale = let
-    wireguardHosts = import ../../metadata/wireguard.nix;
+    wireguardHosts = import ../../metadata/wireguard.nix {inherit lib config;};
     wireguardConfig = wireguardHosts.servers.tjoda;
   in {
     advertiseRoutes = wireguardConfig.additional_networks;
