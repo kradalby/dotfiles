@@ -106,6 +106,31 @@ with builtins; let
   consul = mapAttrs (key: value: value.consul) (filterAttrs (key: hasAttr "consul") sites);
   nameservers = lib.unique (lib.flatten (attrValues (mapAttrs (name: site: site.nameservers) sites)));
 
+  # Helper functions for network manipulation
+  helpers = {
+    # Extract network address from CIDR (e.g., "192.168.130.0/24" -> "192.168.130.0")
+    getNetwork = cidr: lib.head (lib.splitString "/" cidr);
+    
+    # Extract prefix length from CIDR (e.g., "192.168.130.0/24" -> "24")
+    getPrefixLength = cidr: lib.last (lib.splitString "/" cidr);
+    
+    # Extract network prefix without last octet (e.g., "192.168.130.0/24" -> "192.168.130")
+    getNetworkPrefix = cidr: let
+      network = lib.head (lib.splitString "/" cidr);
+    in lib.concatStringsSep "." (lib.take 3 (lib.splitString "." network));
+    
+    # Build an IP address with a specific host part (e.g., "192.168.130.0/24", 1 -> "192.168.130.1")
+    makeHostIP = cidr: host: let
+      prefix = helpers.getNetworkPrefix cidr;
+    in "${prefix}.${toString host}";
+    
+    # Build an IP address with CIDR notation (e.g., "192.168.130.0/24", 1 -> "192.168.130.1/24")
+    makeHostIPWithCIDR = cidr: host: let
+      prefix = helpers.getNetworkPrefix cidr;
+      prefixLen = helpers.getPrefixLength cidr;
+    in "${prefix}.${toString host}/${prefixLen}";
+  };
+
 in {
-  inherit hosts sites baseDomain currentSite consulPeers consul nameservers;
+  inherit hosts sites baseDomain currentSite consulPeers consul nameservers helpers;
 }
