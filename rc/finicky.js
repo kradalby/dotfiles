@@ -9,16 +9,51 @@ module.exports = {
       browser: "Safari"
     },
     {
-      match: /^https?:\/\/youtube\.com\/.*$/,
+      match: finicky.matchHostnames(["youtube.com", "youtu.be"]),
       browser: "Firefox"
     },
     {
-      match: /^https?:\/\/proton\.com\/.*$/,
+      match: finicky.matchHostnames(["proton.com", "protonmail.com", "proton.me"]),
       browser: "Safari"
     },
     {
-      match: /^https?:\/\/proton\.me\/.*$/,
+      match: finicky.matchHostnames([
+        "cdn.discordapp.com",
+        "discord.gg",
+        "discordapp.com",
+        "discord.com",
+        "discordcdn.com"
+      ]),
+      browser: "Safari"
+    },
+    {
+      match: finicky.matchHostnames(["sandefjordfiber.no", "*.sandefjordfiber.no"]),
+      browser: "Safari"
+    },
+    {
+      // osascript -e 'id of app "ChatGPT"'
+      match: ({ opener }) =>
+        ["com.hnc.Discord", "com.anthropic.claudefordesktop", "com.openai.chat"].includes(opener.bundleId),
       browser: "Safari"
     }
   ]
+  ,
+  rewrite: [{
+    match: () => true, // Execute rewrite on all incoming urls to make this example easier to understand
+    url: ({ url }) => {
+      const removeKeysStartingWith = ["utm_", "uta_"]; // Remove all query parameters beginning with these strings
+      const removeKeys = ["fbclid", "gclid"]; // Remove all query parameters matching these keys
+
+      const search = url.search
+        .split("&")
+        .map((parameter) => parameter.split("="))
+        .filter(([key]) => !removeKeysStartingWith.some((startingWith) => key.startsWith(startingWith)))
+        .filter(([key]) => !removeKeys.some((removeKey) => key === removeKey));
+
+      return {
+        ...url,
+        search: search.map((parameter) => parameter.join("=")).join("&"),
+      };
+    },
+  }]
 }
