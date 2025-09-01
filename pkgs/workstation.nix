@@ -60,6 +60,7 @@
       nodejs_24
       uv
       mongodb-tools
+      cloc
     ]
     ++ lib.optionals stdenv.isDarwin [
       lima
