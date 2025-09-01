@@ -9,20 +9,35 @@ module.exports = {
       browser: "Safari"
     },
     {
-      match: finicky.matchHostnames(["youtube.com", "youtu.be"]),
+      match: finicky.matchHostnames([
+        "youtube.com",
+        "*.youtube.com",
+        "youtu.be",
+        "*.youtu.be",
+      ]),
       browser: "Firefox"
     },
     {
-      match: finicky.matchHostnames(["proton.com", "protonmail.com", "proton.me"]),
+      match: finicky.matchHostnames([
+        "proton.com",
+        "*.proton.com",
+        "protonmail.com",
+        "*.protonmail.com",
+        "proton.me",
+        "*.proton.me",
+      ]),
       browser: "Safari"
     },
     {
       match: finicky.matchHostnames([
-        "cdn.discordapp.com",
         "discord.gg",
+        "*.discord.gg",
         "discordapp.com",
+        "*.discordapp.com",
         "discord.com",
+        "*.discord.com",
         "discordcdn.com"
+        "*.discordcdn.com"
       ]),
       browser: "Safari"
     },
