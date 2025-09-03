@@ -36,8 +36,8 @@ module.exports = {
         "*.discordapp.com",
         "discord.com",
         "*.discord.com",
-        "discordcdn.com"
-        "*.discordcdn.com"
+        "discordcdn.com",
+        "*.discordcdn.com",
       ]),
       browser: "Safari"
     },
