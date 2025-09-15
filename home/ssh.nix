@@ -57,7 +57,6 @@ in {
       };
       "tailscale-proxy" = {
         match = "host !bunny.corp.tailscale.com,*.tailscale.com,control,shard*,derp*,trunkd*";
-        proxyCommand = "/Users/kradalby/go/bin/ts-ssh-proxy %r %h %p";
       };
     };
   };
