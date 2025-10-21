@@ -2,6 +2,7 @@
   pkgs,
   lib,
   config,
+  inputs,
   ...
 }: let
   s = import ../../metadata/ipam.nix {inherit lib config;};
@@ -34,6 +35,12 @@
   settingsFormat = pkgs.formats.yaml {};
   configFile = settingsFormat.generate "headscale.yaml" cfg.settings;
 in {
+  disabledModules = ["services/networking/headscale.nix"];
+
+  imports = [
+    (inputs.nixpkgs-master + "/nixos/modules/services/networking/headscale.nix")
+  ];
+
   age.secrets = {
     headscale-private-key = {
       owner = "headscale";
@@ -42,10 +49,6 @@ in {
     headscale-noise-private-key = {
       owner = "headscale";
       file = ../../secrets/headscale-noise-private-key.age;
-    };
-    headscale-oidc-secret = {
-      owner = "headscale";
-      file = ../../secrets/headscale-oidc-secret.age;
     };
     headscale-envfile = {
       owner = "headscale";
@@ -66,17 +69,6 @@ in {
       policy.path = aclPath;
 
       metrics_listen_addr = ":54910";
-
-      oidc = {
-        issuer = "https://auth.kradalby.no/oauth2/openid/headscale";
-        client_id = "headscale";
-        client_secret_path = config.age.secrets.headscale-oidc-secret.path;
-        pkce = {
-          enabled = true;
-        };
-
-        only_start_if_oidc_is_available = true;
-      };
 
       dns = {
         base_domain = "fap";

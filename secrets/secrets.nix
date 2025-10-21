@@ -84,7 +84,6 @@ in
     # headscale
     "headscale-private-key.age".publicKeys = u ++ [hosts.core-oracldn];
     "headscale-noise-private-key.age".publicKeys = u ++ [hosts.core-oracldn];
-    "headscale-oidc-secret.age".publicKeys = u ++ [hosts.core-oracldn];
     "headscale-envfile.age".publicKeys = u ++ [hosts.core-oracldn];
 
     "matterbridge-config.age".publicKeys = u ++ [hosts.headscale-oracldn];
@@ -167,8 +166,4 @@ in
 
     # monica
     "monica-app-key.age".publicKeys = u ++ [hosts.core-oracldn];
-
-    # kanidm
-    "kanidm-admin-password.age".publicKeys = u ++ [hosts.core-oracldn];
-    "kanidm-idm-admin-password.age".publicKeys = u ++ [hosts.core-oracldn];
   }
