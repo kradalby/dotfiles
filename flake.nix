@@ -303,6 +303,16 @@
           };
         in
           box.macBox machine darwin home-manager;
+
+        krair = let
+          machine = {
+            arch = "aarch64-darwin";
+            username = "kradalby";
+            hostname = "krair";
+            homeDir = /Users/kradalby;
+          };
+        in
+          box.macBox machine darwin home-manager;
       };
 
       colmena = box.mkColmenaFromNixOSConfigurations self.nixosConfigurations;
