@@ -32,7 +32,7 @@
       git-open
       git-toolbelt
       jujutsu
-      gotestsum
+      unstable.gotestsum
       headscale
       ipcalc
       kubectl
