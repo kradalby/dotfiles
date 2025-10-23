@@ -55,6 +55,7 @@
     defaults = {
       smb.NetBIOSName = machine.hostname;
       dock.orientation = lib.mkForce "left";
+      trackpad.TrackpadThreeFingerDrag = true;
     };
 
     # Used for backwards compatibility, please read the changelog before changing.
