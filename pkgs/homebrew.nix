@@ -11,10 +11,6 @@ _: {
     taps = [
       "apparition47/tap"
       "dteoh/sqa"
-      "homebrew/bundle"
-      "homebrew/cask-fonts"
-      "homebrew/cask-versions"
-      "homebrew/services"
       "ibm-swift/kitura"
       "jotta/cli"
       "kradalby/tap"
@@ -36,7 +32,6 @@ _: {
 
       # CI/VM
       # "tart"
-      "softnet"
     ];
 
     casks = [
@@ -60,7 +55,6 @@ _: {
       "hiddenbar"
       "hot"
       "iina"
-      "logitech-g-hub"
       "maccy"
       "obsidian"
       "ollama"
@@ -96,7 +90,6 @@ _: {
       # "temurin"
       # "ghidra"
       # "machoview"
-      "vmware-fusion"
     ];
 
     masApps = {
@@ -106,14 +99,13 @@ _: {
       "Disk Speed Test" = 425264550;
       "Key Codes" = 414568915;
       "MQTT Explorer" = 1455214828;
-      "Messenger" = 1480068668;
       "Microsoft Remote Desktop" = 1295203466;
       "Octotree" = 1457450145;
       "Patterns" = 429449079;
       "Pixelmator Pro" = 1289583905;
       "Refined GitHub" = 1519867270;
       # "Tailscale" = 1475387142;
-      "WhatsApp" = 1147396723;
+      "WhatsApp" = 310633997;
       # "WireGuard" = 1451685025;
       "Xcode" = 497799835;
       "Yubico Authenticator" = 1497506650;

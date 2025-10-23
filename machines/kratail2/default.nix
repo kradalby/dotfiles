@@ -29,7 +29,6 @@
       # "wireshark"
       "zoom"
       "slack-cli"
-      "logi-options+"
     ];
   };
 }
