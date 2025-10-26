@@ -10,49 +10,50 @@ windows:
       root: ~/
       layout: main-vertical
       panes:
-        - terra:
-            - set -xg RESTIC_REPOSITORY rest:https://restic.core.terra.fap.no/
-            - set -xg RESTIC_PASSWORD_FILE ~/.config/restic.p
-            - |
-              while true
-                  restic backup $HOME/git $HOME/Sync
+        # - terra:
+        #     - set -xg RESTIC_REPOSITORY rest:https://restic.core.terra.fap.no/
+        #     - set -xg RESTIC_PASSWORD_FILE ~/.config/restic.p
+        #     - |
+        #       while true
+        #           restic backup $HOME/git $HOME/Sync
 
-                  if string match -q -- "*AC Power*" (pmset -g ps)
-                    restic forget --prune \
-                      --keep-daily 7 \
-                      --keep-weekly 5 \
-                      --keep-monthly 12 \
-                      --keep-yearly 75
-                    restic check
-                  end
+        #           if string match -q -- "*AC Power*" (pmset -g ps)
+        #             restic forget --prune \
+        #               --keep-daily 7 \
+        #               --keep-weekly 5 \
+        #               --keep-monthly 12 \
+        #               --keep-yearly 75
+        #             restic check
+        #           end
 
-                  sleep 3600
-              end
-        - tjoda:
-            - set -xg RESTIC_REPOSITORY rest:https://restic.core.tjoda.fap.no/
-            - set -xg RESTIC_PASSWORD_FILE ~/.config/restic.p
-            - restic backup $HOME/git $HOME/Sync
-            - |
-              while true
-                  restic backup $HOME/git $HOME/Sync
+        #           sleep 3600
+        #       end
+        # - tjoda:
+        #     - set -xg RESTIC_REPOSITORY rest:https://restic.core.tjoda.fap.no/
+        #     - set -xg RESTIC_PASSWORD_FILE ~/.config/restic.p
+        #     - restic backup $HOME/git $HOME/Sync
+        #     - |
+        #       while true
+        #           restic backup $HOME/git $HOME/Sync
 
-                  if string match -q -- "*AC Power*" (pmset -g ps)
-                    restic forget --prune \
-                      --keep-daily 7 \
-                      --keep-weekly 5 \
-                      --keep-monthly 12 \
-                      --keep-yearly 75
-                    restic check
-                  end
+        #           if string match -q -- "*AC Power*" (pmset -g ps)
+        #             restic forget --prune \
+        #               --keep-daily 7 \
+        #               --keep-weekly 5 \
+        #               --keep-monthly 12 \
+        #               --keep-yearly 75
+        #             restic check
+        #           end
 
-                  sleep 3600
-              end
+        #           sleep 3600
+        #       end
         - jotta:
-            - set -xg RESTIC_REPOSITORY rclone:Jotta:56497300b2108b1b4f0278fe761ae155
-            - set -xg RESTIC_PASSWORD_FILE ~/.config/restic.p
+            - set -xg RESTIC_REPOSITORY rclone:Jotta:5ac5edab2737c974f87e0146690b74b0 # krair
+            - set -xg RESTIC_PASSWORD (op read "op://Private/restic - krair/password")
+            - restic unlock
             - |
               while true
-                  restic backup $HOME/git $HOME/Sync $HOME/Pictures
+                  restic backup $HOME/git $HOME/Pictures
 
                   if string match -q -- "*AC Power*" (pmset -g ps)
                     restic forget --prune \
