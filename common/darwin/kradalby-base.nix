@@ -39,6 +39,16 @@
       imports = [
         ../../home
       ];
+
+      # macOS Safari settings - disable autofill and password manager
+      targets.darwin.defaults = {
+        "com.apple.Safari" = {
+          AutoFillPasswords = false;
+          AutoFillCreditCardData = false;
+          AutoFillMiscellaneousForms = false;
+          AutoFillFromAddressBook = false;
+        };
+      };
     };
   };
 
