@@ -68,6 +68,17 @@
       trackpad.TrackpadThreeFingerDrag = true;
     };
 
+    # Enable Apple Remote Management for user kradalby
+    activationScripts.remoteManagement.text = ''
+      # Enable Apple Remote Management (ARD)
+      echo "Configuring Apple Remote Management..."
+      /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart \
+        -activate \
+        -configure -allowAccessFor -specifiedUsers \
+        -configure -users kradalby -access -on -privs -all \
+        -restart -agent -console 2>&1 || echo "Note: Remote Management may require manual approval in System Preferences on macOS 10.14+"
+    '';
+
     # Used for backwards compatibility, please read the changelog before changing.
     # $ darwin-rebuild changelog
     stateVersion = 5;
