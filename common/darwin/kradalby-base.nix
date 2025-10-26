@@ -66,6 +66,9 @@
       smb.NetBIOSName = machine.hostname;
       dock.orientation = lib.mkForce "left";
       trackpad.TrackpadThreeFingerDrag = true;
+
+      # Finder: Open folders in new windows instead of tabs
+      finder.FinderSpawnTab = false;
     };
 
     # Enable Apple Remote Management for user kradalby
