@@ -14,13 +14,11 @@
   in
     if netd
     then {
-      wireguardPeerConfig = {
-        PublicKey = wireguardConfig.public_key;
-        AllowedIPs = wireguardConfig.addresses ++ wireguardConfig.additional_networks;
-        Endpoint = "${wireguardConfig.endpoint_address}:${toString wireguardConfig.endpoint_port}";
-        PersistentKeepalive = 25;
-        RouteTable = routingTable;
-      };
+      PublicKey = wireguardConfig.public_key;
+      AllowedIPs = wireguardConfig.addresses ++ wireguardConfig.additional_networks;
+      Endpoint = "${wireguardConfig.endpoint_address}:${toString wireguardConfig.endpoint_port}";
+      PersistentKeepalive = 25;
+      RouteTable = routingTable;
     }
     else {
       publicKey = wireguardConfig.public_key;
@@ -34,12 +32,10 @@
   in
     if netd
     then {
-      wireguardPeerConfig = {
-        PublicKey = wireguardConfig.public_key;
-        AllowedIPs = wireguardConfig.addresses ++ wireguardConfig.additional_networks;
-        PersistentKeepalive = 25;
-        RouteTable = routingTable;
-      };
+      PublicKey = wireguardConfig.public_key;
+      AllowedIPs = wireguardConfig.addresses ++ wireguardConfig.additional_networks;
+      PersistentKeepalive = 25;
+      RouteTable = routingTable;
     }
     else {
       publicKey = wireguardConfig.public_key;
