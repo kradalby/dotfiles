@@ -7,7 +7,7 @@
   };
 in {
   services.samba = {
-    shares = {
+    settings = {
       storage = {
         path = "/storage";
         browsable = "yes";
