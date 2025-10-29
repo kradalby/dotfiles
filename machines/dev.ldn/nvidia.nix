@@ -32,7 +32,7 @@ in {
     "nvidia_drm"
   ];
 
-  hardware.opengl.enable = true;
+  hardware.graphics.enable = true;
   virtualisation.spiceUSBRedirection.enable = true;
 
   virtualisation.libvirtd.enable = true;
