@@ -108,10 +108,8 @@ in {
             {
               # We own the ULA /48, create a blanket unreachable route which will be
               # superseded by more specific /64s.
-              routeConfig = {
-                Destination = "fd9e:1a04:f01d::/48";
-                Type = "unreachable";
-              };
+              Destination = "fd9e:1a04:f01d::/48";
+              Type = "unreachable";
             }
           ];
         };
@@ -159,11 +157,8 @@ in {
 
           routes = [
             {
-              routeConfig = {
-                Gateway = "192.168.2.254";
-
-                Metric = 300;
-              };
+              Gateway = "192.168.2.254";
+              Metric = 300;
             }
           ];
         };
