@@ -5,7 +5,7 @@
   ];
 
   services.samba = {
-    shares = {
+    settings = {
       TimeMachineLeiden = {
         path = "/storage/timemachine/%U";
         "valid users" = "%U";
