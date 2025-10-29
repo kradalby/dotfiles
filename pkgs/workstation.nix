@@ -48,7 +48,7 @@
       ragenix
       step-cli
       ts-preauthkey
-      unstable.setec
+      # unstable.setec
       unstable.squibble
       unstable.tailscale-tools
       viddy
