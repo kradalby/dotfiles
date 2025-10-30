@@ -53,8 +53,7 @@
     ragenix = {
       url = "github:yaxitech/ragenix";
       inputs."flake-utils".follows = "utils";
-      # inputs.nixpkgs.follows = "nixpkgs-unstable";
-      inputs.nixpkgs.follows = "nixpkgs-old-stable";
+      inputs.nixpkgs.follows = "nixpkgs";
       # inputs."agenix".inputs."nixpkgs".follows = "nixpkgs";
     };
 
