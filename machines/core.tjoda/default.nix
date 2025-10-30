@@ -13,7 +13,6 @@
     ../../common/ddns.nix
     ../../common/smokeping-exporter.nix
     ../../common/coredns.nix
-    ../../common/miniupnp.nix
     ../../common/syncthing-storage.nix
     ../../common/tailscale.nix
     ../../modules/microvm-host.nix
@@ -35,7 +34,6 @@
   services.blocklist-downloader.enable = lib.mkForce false;
 
   my = {
-    wan = "wan0";
     lan = "lan0";
 
     users.storage = true;
@@ -50,6 +48,9 @@
 
   systemd.network = {
     enable = true;
+
+    # Ignore virtual interfaces that are not required for system to be online
+    wait-online.ignoredInterfaces = ["tailscale0" "wg0" "microvm-br0"];
 
     links = {
       "10-lan0" = {
