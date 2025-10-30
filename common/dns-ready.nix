@@ -10,6 +10,7 @@
     };
 
     after = ["nss-lookup.target" "network-online.target"];
+    wants = ["network-online.target"];
     wantedBy = ["multi-user.target"];
 
     serviceConfig = {
