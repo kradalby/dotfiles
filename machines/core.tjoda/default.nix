@@ -31,8 +31,6 @@
     ./redlib.nix
   ];
 
-  systemd.network.enable = true;
-
   # TODO: Figure a way to allowlist some URLs
   services.blocklist-downloader.enable = lib.mkForce false;
 
@@ -50,12 +48,26 @@
     hostId = "14889c5c";
   };
 
-  systemd.network.networks = {
-    "10-eth0" = {
-      matchConfig.Name = "eth0";
-      address = [ "10.62.0.2/24" ];
-      gateway = [ "10.62.0.1" ];
-      dns = [ "10.62.0.1" ];
+  systemd.network = {
+    enable = true;
+
+    links = {
+      "10-lan0" = {
+        matchConfig = {
+          Type = "ether";
+          MACAddress = "30:85:a9:40:0f:0b";
+        };
+        linkConfig.Name = "lan0";
+      };
+    };
+
+    networks = {
+      "10-lan0" = {
+        matchConfig.Name = "lan0";
+        address = [ "10.62.0.2/24" ];
+        gateway = [ "10.62.0.1" ];
+        dns = [ "10.62.0.1" ];
+      };
     };
   };
 
