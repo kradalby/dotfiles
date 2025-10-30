@@ -15,9 +15,9 @@ in {
     ../../common/containers.nix
 
     ../../common/consul.nix
-    ../../common/ddns.nix
+    # ../../common/ddns.nix  # Disabled - no longer acting as router
     # ../../common/smokeping-exporter.nix
-    ../../common/miniupnp.nix
+    # ../../common/miniupnp.nix  # Disabled - no longer acting as router
     ../../common/tailscale.nix
     ../../modules/microvm-host.nix
 
@@ -26,11 +26,11 @@ in {
     ./tailscale-headscale.nix
     ./nvidia.nix
     ./wireguard.nix
-    ./corerad.nix
-    ./dnsmasq.nix
+    # ./corerad.nix  # Disabled - no longer acting as IPv6 router
+    ./dnsmasq.nix  # Config kept, service disabled
     ./avahi.nix
     ./networking.nix
-    ./nft.nix
+    ./nft.nix  # Config kept, faptables disabled
     ./samba.nix
     ./zfs.nix
     ./syncthing.nix
@@ -39,7 +39,8 @@ in {
   ];
 
   my = {
-    wan = "wan0";
+    # No longer acting as router - wan interface not needed
+    # wan = "wan0";
     lan = "lanbr0";
 
     users.storage = true;
@@ -59,9 +60,9 @@ in {
     "net.ipv6.conf.all.autoconf" = 0;
     "net.ipv6.conf.all.use_tempaddr" = 0;
 
-    # On WAN, allow IPv6 autoconfiguration and tempory address use.
-    "net.ipv6.conf.${config.my.wan}.accept_ra" = 2;
-    "net.ipv6.conf.${config.my.wan}.autoconf" = 1;
+    # Disabled - no longer have WAN interface
+    # "net.ipv6.conf.${config.my.wan}.accept_ra" = 2;
+    # "net.ipv6.conf.${config.my.wan}.autoconf" = 1;
   };
 
   # Also add work SSH keys

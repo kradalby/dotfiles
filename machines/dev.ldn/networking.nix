@@ -40,26 +40,32 @@ in {
     useNetworkd = true;
     useDHCP = false;
 
-    wireless = {
-      enable = true;
-      secretsFile = config.age.secrets.kphone15-wifi.path;
-      interfaces = ["wan1"];
-      networks = {
-        kPhone15.pskRaw = "ext:kphone15";
-      };
-    };
+    # Disabled - no longer acting as router with WAN interfaces
+    # wireless = {
+    #   enable = true;
+    #   secretsFile = config.age.secrets.kphone15-wifi.path;
+    #   interfaces = ["wan1"];
+    #   networks = {
+    #     kPhone15.pskRaw = "ext:kphone15";
+    #   };
+    # };
 
-    # Use nftables instead.
-    nat.enable = false;
-    firewall.enable = lib.mkForce false;
+    # Standard firewall enabled (faptables disabled)
+    # NAT for MicroVM network (192.168.130.0/24) through LAN IP
+    nat = {
+      enable = true;
+      externalInterface = "lanbr0";
+      internalInterfaces = ["microvm-br0"];
+    };
+    firewall.enable = true;
   };
 
-  # Use resolved for local DNS lookups, querying through CoreDNS.
+  # Use resolved for DNS lookups, querying through gateway
   services.resolved = {
     enable = true;
     domains = ["dalby.ts.net"];
     extraConfig = ''
-      DNS=::1 127.0.0.1
+      DNS=10.65.0.1
       DNSStubListener=no
     '';
   };
@@ -90,8 +96,11 @@ in {
       };
 
       netdevs = {
-        "15-wan0" = vlanNetdev "wan0" 3;
-        "25-iot0" = vlanNetdev "iot0" 156;
+        # Disabled - no longer acting as router
+        # "15-wan0" = vlanNetdev "wan0" 3;
+        # "25-iot0" = vlanNetdev "iot0" 156;
+
+        # Bridge for VMs and physical LAN
         "20-lanbr0" = {
           netdevConfig = {
             Kind = "bridge";
@@ -117,17 +126,15 @@ in {
         "10-lan0" = {
           matchConfig.Name = "lan0";
 
-          # VLANs associated with this physical interface.
-          vlan = ["wan0" "iot0"];
+          # No VLANs, just bridge for VMs
+          # vlan = [];
 
           linkConfig.RequiredForOnline = "enslaved";
           networkConfig.Bridge = "lanbr0";
         };
+
         "10-lan1" = {
           matchConfig.Name = "lan1";
-
-          # VLANs associated with this physical interface.
-          # vlan = ["wan0" "iot0"];
 
           linkConfig.RequiredForOnline = "enslaved";
           networkConfig.Bridge = "lanbr0";
@@ -136,70 +143,74 @@ in {
         "11-lanbr0" = {
           matchConfig.Name = "lanbr0";
 
-          address = ["10.65.0.1/24"];
+          address = [
+            "10.65.0.24/24"
+            "192.168.1.24/24"
+          ];
 
           bridgeConfig = {};
           networkConfig = {
-            DHCPPrefixDelegation = true;
+            DHCP = "no";
             DHCPServer = false;
             IPv6AcceptRA = false;
           };
-
-          linkConfig = {
-            RequiredForOnline = "carrier";
-          };
-        };
-
-        "15-wan0" = {
-          matchConfig.Name = "wan0";
-          networkConfig.DHCP = "no";
-          networkConfig.Address = "192.168.2.2/24";
 
           routes = [
             {
-              Gateway = "192.168.2.254";
-              Metric = 300;
+              Gateway = "10.65.0.1";
+              GatewayOnLink = true;
             }
           ];
-        };
 
-        "15-wan1" = {
-          matchConfig.Name = "wan1";
-          networkConfig.DHCP = "yes";
-
-          dhcpV4Config = {
-            UseDNS = false;
-            UseDomains = false;
-
-            # Don't release IPv4 address on restart/reboots to avoid churn.
-            SendRelease = false;
-
-            # Prioritise WLAN (kPhone) when available IPv4.
-            RouteMetric = 100;
+          linkConfig = {
+            RequiredForOnline = "routable";
           };
         };
 
-        "25-iot0" = {
-          matchConfig.Name = "iot0";
-          address = [
-            "fd9e:1a04:f01d:156::1/64"
-            "fe80::1/64"
-            "192.168.156.1/24"
-          ];
-          networkConfig = {
-            DHCPPrefixDelegation = true;
-            DHCPServer = false;
-            IPv6AcceptRA = false;
-          };
-        };
+        # Disabled - no longer acting as router
+        # "15-wan0" = {
+        #   matchConfig.Name = "wan0";
+        #   networkConfig.DHCP = "no";
+        #   networkConfig.Address = "192.168.2.2/24";
+        #   routes = [
+        #     {
+        #       Gateway = "192.168.2.254";
+        #       Metric = 300;
+        #     }
+        #   ];
+        # };
+
+        # "15-wan1" = {
+        #   matchConfig.Name = "wan1";
+        #   networkConfig.DHCP = "yes";
+        #   dhcpV4Config = {
+        #     UseDNS = false;
+        #     UseDomains = false;
+        #     SendRelease = false;
+        #     RouteMetric = 100;
+        #   };
+        # };
+
+        # "25-iot0" = {
+        #   matchConfig.Name = "iot0";
+        #   address = [
+        #     "fd9e:1a04:f01d:156::1/64"
+        #     "fe80::1/64"
+        #     "192.168.156.1/24"
+        #   ];
+        #   networkConfig = {
+        #     DHCPPrefixDelegation = true;
+        #     DHCPServer = false;
+        #     IPv6AcceptRA = false;
+        #   };
+        # };
       };
     };
 
     # Tailscale readiness and DNS tweaks.
-    # Ignore wan1 as it is only available if my iPhone
-    # is broadcasting a hotspot
     # Ignore microvm-br0 as it's a virtual bridge that may not have immediate connectivity
-    network.wait-online.ignoredInterfaces = ["tailscale0" "wg0" "wan1" "microvm-br0"];
+    network.wait-online.ignoredInterfaces = ["tailscale0" "wg0" "microvm-br0"];
     services.tailscaled.after = ["network-online.target" "systemd-resolved.service"];
+    services.tailscaled.wants = ["network-online.target"];
   };
 }

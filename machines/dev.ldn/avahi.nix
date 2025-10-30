@@ -1,7 +1,8 @@
 {config, ...}: {
   services.avahi = {
     reflector = true;
-    allowInterfaces = [config.my.lan "iot" "tailscale0" "wg0"];
+    # Removed iot0 - no longer acting as router
+    allowInterfaces = [config.my.lan "tailscale0" "wg0"];
     extraServiceFiles = {
       timemachine-tjoda = ''
         <?xml version="1.0" standalone='no'?>
