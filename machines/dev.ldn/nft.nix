@@ -4,7 +4,8 @@
   ...
 }: {
   networking.faptables = {
-    enable = true;
+    # Disabled - no longer acting as router/gateway
+    enable = false;
     trace = false;
     wans = [
       {name = "wan0";}

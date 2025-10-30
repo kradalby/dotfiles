@@ -9,6 +9,7 @@ with builtins; let
   host = ipam.hosts."dev.ldn";
 in {
   # Override microvm bridge to use IPAM-defined range
+  # DHCPServer remains enabled from microvm-host.nix for MicroVM connectivity
   systemd.network.networks."microvm-br0" = {
     addresses = lib.mkForce [
       {
@@ -18,9 +19,5 @@ in {
         Address = "fd12:3456:789a::1/64";
       }
     ];
-    # Disable systemd-networkd DHCPServer since we use dnsmasq
-    networkConfig = {
-      DHCPServer = lib.mkForce false;
-    };
   };
 }
