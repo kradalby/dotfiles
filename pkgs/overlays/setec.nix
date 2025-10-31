@@ -6,15 +6,15 @@ buildGoModule rec {
   name = "setec";
   # NOTE: manual update required
   # https://github.com/tailscale/setec/commits/main/
-  version = "1ab725da5f50038d66480ae017d85bccb514cde5";
+  version = "bc7a01a47c9cda0acbff2a49eda50708f59a47b1";
 
   src = fetchFromGitHub {
     owner = "tailscale";
     repo = "setec";
     rev = "${version}";
-    sha256 = "sha256-laf4lhMQ7VLYHTWlNBBWwGVeDx2DVRxvJiwDzLPEanc=";
+    sha256 = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
   };
-  vendorHash = "sha256-1/HevghGmpGesbqHNHerlhhzdjN1JxdMihJZeMDmQZI=";
+  vendorHash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
   env = {
     CGO_ENABLED = 0;
   };

@@ -6,15 +6,15 @@ buildGoModule rec {
   name = "squibble";
   # NOTE: manual update required
   # https://github.com/tailscale/squibble/commits/main/
-  version = "06b7fb49994db7c5c56b9b500dddfb05f4d11a01";
+  version = "4d5df9caa9931e8341ce65d7467681c0b225d22b";
 
   src = fetchFromGitHub {
     owner = "tailscale";
     repo = "squibble";
     rev = "${version}";
-    sha256 = "sha256-/H4bitzrru9rbNyzZbmzBuyWb8KaLFQ78TI5hd3uyUs=";
+    sha256 = "sha256-6zLQBVbQHZmUgFWdoj8Jz7dNol60RDXXUFd+bVeNelc=";
   };
-  vendorHash = "sha256-gA9ODAGuvR05CW+efhFuTFVXnMHVXIlfRq2FqzxZqCY=";
+  vendorHash = "sha256-b9lm7SdRJb+jElnzOugx/PpL/x8/UX/87oPgPk2PRiY=";
   env = {
     CGO_ENABLED = 0;
   };
