@@ -48,6 +48,10 @@
       # Mouse
       set -g mouse on
 
+      # Enable mouse wheel scrollback (automatically enter copy mode)
+      bind -n WheelUpPane if-shell -F -t = "#{mouse_any_flag}" "send-keys -M" "if -Ft= '#{pane_in_mode}' 'send-keys -M' 'select-pane -t=; copy-mode -e; send-keys -M'"
+      bind -n WheelDownPane select-pane -t= \; send-keys -M
+
       # panes
       set -g pane-border-style fg=black
       set -g pane-active-border-style fg=brightred
