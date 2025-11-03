@@ -15,9 +15,11 @@
     port = 22;
   };
 in {
-  home.sessionVariables = lib.mkIf isWorkstation {
-    SSH_AUTH_SOCK = "$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock";
-  };
+  # Set SSH_AUTH_SOCK to 1Password agent only if not already set
+  # This allows forwarded agents (ssh -A) to take priority
+  home.sessionVariablesExtra = lib.mkIf isWorkstation ''
+    export SSH_AUTH_SOCK="''${SSH_AUTH_SOCK:-$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock}"
+  '';
 
   programs.ssh = {
     enable = true;
