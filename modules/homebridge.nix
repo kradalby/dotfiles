@@ -46,12 +46,29 @@ in {
         options = {
           enable = mkEnableOption "Enable homebridge";
 
+          plugins = mkOption {
+            type = types.listOf types.package;
+            description = ''
+              List of homebridge plugins to include for this instance.
+              Available plugins: pkgs.homebridgePlugins.homebridge-*
+            '';
+            default = [];
+            example = literalExpression ''
+              with pkgs.homebridgePlugins; [
+                homebridge-mqttthing
+                homebridge-camera-ffmpeg
+              ]
+            '';
+          };
+
           package = mkOption {
             type = types.package;
             description = ''
-              Package to use
+              Homebridge package to use. Usually you don't need to set this directly,
+              instead configure the 'plugins' option and the package will be built automatically.
             '';
-            default = pkgs.homebridge;
+            default = pkgs.homebridge-with-plugins.withPlugins v.plugins;
+            defaultText = literalExpression "pkgs.homebridge-with-plugins.withPlugins config.plugins";
           };
 
           # dataDir = mkOption {

@@ -16,11 +16,11 @@ in
   // lib.mkMerge [
     {
       services.homebridges.roborock = {
-        enable = true;
+        enable = false;
 
-        package = pkgs.homebridge.override {
-          plugins = [pkgs.homebridgePlugins.homebridge-xiaomi-roborock-vacuum];
-        };
+        plugins = with pkgs.homebridgePlugins; [
+          homebridge-xiaomi-roborock-vacuum
+        ];
 
         port = 51781;
         uiPort = 56811;
@@ -46,9 +46,9 @@ in
       services.homebridges.nefit = {
         enable = true;
 
-        package = pkgs.homebridge.override {
-          plugins = [pkgs.homebridgePlugins.homebridge-nefit-easy];
-        };
+        plugins = with pkgs.homebridgePlugins; [
+          homebridge-nefit-easy
+        ];
 
         port = 51782;
         uiPort = 56812;
@@ -73,9 +73,9 @@ in
       services.homebridges.phillips = {
         enable = false;
 
-        package = pkgs.homebridge.override {
-          plugins = [pkgs.homebridgePlugins.homebridge-philips-tv6];
-        };
+        plugins = with pkgs.homebridgePlugins; [
+          homebridge-philips-tv6
+        ];
 
         port = 51783;
         uiPort = 56813;
@@ -86,14 +86,9 @@ in
       services.homebridges.webcam = {
         enable = false;
 
-        # package = pkgs.homebridge.override {
-        #   plugins = [
-        #     pkgs.homebridgePlugins.homebridge-camera-ffmpeg.override
-        #     {
-        #       buildInputs = [pkgs.ffmpeg];
-        #     }
-        #   ];
-        # };
+        plugins = with pkgs.homebridgePlugins; [
+          homebridge-camera-ffmpeg
+        ];
 
         port = 51784;
         uiPort = 56814;
@@ -137,9 +132,9 @@ in
       services.homebridges.mqttthing = {
         enable = true;
 
-        package = pkgs.homebridge.override {
-          plugins = [pkgs.homebridgePlugins.homebridge-mqttthing];
-        };
+        plugins = with pkgs.homebridgePlugins; [
+          homebridge-mqttthing
+        ];
 
         port = 51785;
         uiPort = 56815;
