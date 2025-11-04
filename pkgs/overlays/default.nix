@@ -7,9 +7,12 @@ in
 
     squibble = prev.callPackage ./squibble.nix {};
 
-    homebridge = prev.callPackage ./homebridge/override.nix {};
+    # Modern homebridge package (using buildNpmPackage)
+    # Usage: homebridge-with-plugins.withPlugins [ plugins.homebridge-mqttthing ]
+    homebridge-with-plugins = prev.callPackage ../homebridge {};
 
-    homebridgePlugins = prev.callPackage ./homebridge-plugins {};
+    # Individual homebridge plugins
+    homebridgePlugins = prev.callPackage ../homebridge/plugins.nix {};
 
     eb = prev.callPackage ./eb.nix {};
 
