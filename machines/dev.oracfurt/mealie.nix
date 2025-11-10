@@ -6,7 +6,10 @@
   port = 56799;
 in {
   services.tailscale.services."svc:oppskrift" = {
-    endpoints."tcp:443" = "http://localhost:${toString port}";
+    endpoints = {
+      "tcp:80" = "http://localhost:${toString port}";
+      "tcp:443" = "http://localhost:${toString port}";
+    };
   };
 
   virtualisation = {

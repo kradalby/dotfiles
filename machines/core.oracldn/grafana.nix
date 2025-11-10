@@ -16,7 +16,10 @@ in
       };
 
       services.tailscale.services."svc:grafana" = {
-        endpoints."tcp:443" = "http://localhost:${toString config.services.grafana.settings.server.http_port}";
+        endpoints = {
+          "tcp:80" = "http://localhost:${toString config.services.grafana.settings.server.http_port}";
+          "tcp:443" = "http://localhost:${toString config.services.grafana.settings.server.http_port}";
+        };
       };
 
       services.grafana = {
