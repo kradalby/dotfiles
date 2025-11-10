@@ -98,7 +98,8 @@
 
     headscale = {
       # url = "github:juanfont/headscale/v0.26.0-beta.1";
-      url = "github:juanfont/headscale/main";
+      # url = "github:juanfont/headscale/main";
+      url = "github:kradalby/headscale/kradalby/nixos-module";
       inputs."flake-utils".follows = "utils";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
@@ -115,7 +116,7 @@
     };
 
     tailscale = {
-      url = "github:tailscale/tailscale/mikeodr/add-nixos-modules";
+      url = "github:tailscale/tailscale/v1.90.6";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
@@ -247,6 +248,7 @@
           name = "core.oracldn";
           tags = ["arm64" "oracle" "oracldn"];
           modules = with inputs; [
+            headscale.nixosModules.default
             golink.nixosModules.default
             krapage.nixosModules.default
             hvor.nixosModules.default

@@ -16,7 +16,10 @@ in
   lib.mkMerge [
     {
       services.tailscale.services."svc:pdf" = {
-        endpoints."tcp:443" = "http://localhost:${toString port}";
+        endpoints = {
+          "tcp:80" = "http://localhost:${toString port}";
+          "tcp:443" = "http://localhost:${toString port}";
+        };
       };
 
       users.users.stirling = {

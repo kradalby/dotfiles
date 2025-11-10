@@ -39,10 +39,16 @@ in
     {
       services.tailscale.services = {
         "svc:prom" = {
-          endpoints."tcp:443" = "http://localhost:${toString config.services.prometheus.port}";
+          endpoints = {
+            "tcp:80" = "http://localhost:${toString config.services.prometheus.port}";
+            "tcp:443" = "http://localhost:${toString config.services.prometheus.port}";
+          };
         };
         "svc:alertmanager" = {
-          endpoints."tcp:443" = "http://localhost:${toString config.services.prometheus.alertmanager.port}";
+          endpoints = {
+            "tcp:80" = "http://localhost:${toString config.services.prometheus.alertmanager.port}";
+            "tcp:443" = "http://localhost:${toString config.services.prometheus.alertmanager.port}";
+          };
         };
       };
 

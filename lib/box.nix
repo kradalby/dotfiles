@@ -8,8 +8,6 @@
 }: let
   commonModules = pkgBase: [
     inputs.ragenix.nixosModules.age
-    # TODO: Re-enable when tailscale PR #17679 is merged and mkOverride bug is fixed
-    # inputs.tailscale.nixosModules.default
     {
       nixpkgs = {
         inherit overlays;

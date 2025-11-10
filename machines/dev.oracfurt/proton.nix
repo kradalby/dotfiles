@@ -43,5 +43,16 @@
     path = [pkgs.pass pkgs.pass-secret-service pkgs.dbus];
   };
 
+  # Tailscale Services configuration for Proton Bridge
+  # Service must be pre-defined in Tailscale admin console at https://login.tailscale.com/admin/services
+  services.tailscale.services = {
+    "svc:proton-bridge" = {
+      endpoints = {
+        "tcp:25" = "tcp://127.0.0.1:1025";   # SMTP with TLS
+        "tcp:143" = "tcp://127.0.0.1:1143";  # IMAP with TLS
+      };
+    };
+  };
+
   environment.systemPackages = [pkgs.protonmail-bridge];
 }
