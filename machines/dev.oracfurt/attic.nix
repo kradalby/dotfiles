@@ -15,15 +15,11 @@ in {
   };
 
   services = {
+    tailscale.services."svc:attic" = {
+      endpoints."tcp:443" = "http://localhost:${toString port}";
+    };
+
     tailscale-proxies = {
-      attic = {
-        enable = true;
-        tailscaleKeyPath = config.age.secrets.tailscale-preauthkey.path;
-
-        hostname = "attic";
-        backendPort = port;
-      };
-
       attic-sfiber = {
         enable = true;
         tailscaleKeyPath = config.age.secrets.headscale-sfiber-authkey.path;

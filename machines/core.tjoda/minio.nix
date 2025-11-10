@@ -18,6 +18,8 @@
         "/storage/backup/minio"
       ];
     };
+
+    # Keep tailscale-proxies for headscale network (sfiber)
     tailscale-proxies = {
       minio-sfiber = {
         enable = true;

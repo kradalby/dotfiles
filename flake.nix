@@ -114,6 +114,11 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
+    tailscale = {
+      url = "github:tailscale/tailscale/mikeodr/add-nixos-modules";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+
     # munin.url = "github:kradalby/munin";
     neovim-kradalby = {
       url = "github:kradalby/neovim";
@@ -210,6 +215,7 @@
         };
         redlib = redlib.packages."${final.system}".default;
         neovim = neovim-kradalby.packages."${final.system}".neovim-kradalby;
+        tailscale = tailscale.packages."${final.system}".tailscale;
       })
     ];
 

@@ -4,14 +4,6 @@
   config,
   ...
 }: {
-  # services.tailscale-proxies.monica = {
-  #   enable = true;
-  #   tailscaleKeyPath = config.age.secrets.tailscale-preauthkey.path;
-  #
-  #   hostname = "monica";
-  #   backendPort = port;
-  # };
-
   # age.secrets.monica-app-key = {
   #   file = ../../secrets/monica-app-key.age;
   #   owner = config.services.monica.user;

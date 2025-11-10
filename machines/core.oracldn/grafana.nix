@@ -15,12 +15,8 @@ in
         owner = "grafana";
       };
 
-      services.tailscale-proxies.grafana = {
-        enable = true;
-        tailscaleKeyPath = config.age.secrets.tailscale-preauthkey.path;
-
-        hostname = "grafana";
-        backendPort = config.services.grafana.settings.server.http_port;
+      services.tailscale.services."svc:grafana" = {
+        endpoints."tcp:443" = "http://localhost:${toString config.services.grafana.settings.server.http_port}";
       };
 
       services.grafana = {
