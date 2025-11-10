@@ -43,32 +43,33 @@ in
         };
       };
 
-      services.homebridges.nefit = {
-        enable = true;
-
-        plugins = with pkgs.homebridgePlugins; [
-          homebridge-nefit-easy
-        ];
-
-        port = 51782;
-        uiPort = 56812;
-        username = "CB:22:3D:E2:CE:12";
-        pin = "033-44-252";
-
-        settings = {
-          accessories = [
-            {
-              accessory = "NefitEasy";
-              name = "Thermostat";
-              options = {
-                serialNumber = "455010082";
-                accessKey = "z4FpZ8hvP6fLX6Hd";
-                password = "Atomike1";
-              };
-            }
-          ];
-        };
-      };
+      # Nefit - being migrated
+      # services.homebridges.nefit = {
+      #   enable = true;
+      #
+      #   plugins = with pkgs.homebridgePlugins; [
+      #     homebridge-nefit-easy
+      #   ];
+      #
+      #   port = 51782;
+      #   uiPort = 56812;
+      #   username = "CB:22:3D:E2:CE:12";
+      #   pin = "033-44-252";
+      #
+      #   settings = {
+      #     accessories = [
+      #       {
+      #         accessory = "NefitEasy";
+      #         name = "Thermostat";
+      #         options = {
+      #           serialNumber = "455010082";
+      #           accessKey = "z4FpZ8hvP6fLX6Hd";
+      #           password = "Atomike1";
+      #         };
+      #       }
+      #     ];
+      #   };
+      # };
 
       services.homebridges.phillips = {
         enable = false;
@@ -355,17 +356,16 @@ in
             (mqttthingTradfri "Living Room Ceiling Inner" "lightbulb" "living-inner-light")
             (mqttthingTradfri "Living Room Ceiling Window" "lightbulb" "living-window-light")
 
+            # Tasmota devices - commented out, only Zigbee2MQTT devices active
             # (mqttthingAvatarOutlet "Bedroom Nook" "outlet" "tasmota_C39499")
             # (mqttthingAvatarOutlet "Kitchen Fairy Lights" "outlet" "tasmota_5EA590")
-            (mqttthingAvatarOutlet "Living Room Shelf Lamp" "outlet" "tasmota_6BB357")
-
-            (mqttthingAthomV2Outlet "Office Ceiling" "outlet" "tasmota_8F629A")
-            (mqttthingAthomV2Outlet "Office Air Purifier" "outlet" "tasmota_97429B")
-            (mqttthingAthomV2Outlet "Office Heater" "outlet" "tasmota_9D8C9B")
-
-            (mqttthingAthomV2Outlet "Living Room Corner" "outlet" "tasmota_8F8AC1")
-            (mqttthingAthomV2Outlet "Living Room Drawer" "outlet" "tasmota_8F9D84")
-            (mqttthingAthomV2Outlet "Living Room Sofa" "outlet" "tasmota_9D8C49")
+            # (mqttthingAvatarOutlet "Living Room Shelf Lamp" "outlet" "tasmota_6BB357")
+            # (mqttthingAthomV2Outlet "Office Ceiling" "outlet" "tasmota_8F629A")
+            # (mqttthingAthomV2Outlet "Office Air Purifier" "outlet" "tasmota_97429B")
+            # (mqttthingAthomV2Outlet "Office Heater" "outlet" "tasmota_9D8C9B")
+            # (mqttthingAthomV2Outlet "Living Room Corner" "outlet" "tasmota_8F8AC1")
+            # (mqttthingAthomV2Outlet "Living Room Drawer" "outlet" "tasmota_8F9D84")
+            # (mqttthingAthomV2Outlet "Living Room Sofa" "outlet" "tasmota_9D8C49")
 
             (mqttthingAqaraOccupOutlet "Office motion" "office-motion")
 
