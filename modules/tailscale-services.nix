@@ -25,6 +25,7 @@ in {
             Endpoint mappings for this service.
 
             Key format: "tcp:PORT" or "tcp:START-END"
+            TODO: Update to support "http:PORT" and "https:PORT" when Tailscale Services exits beta
 
             Value format: "tcp://host:port" or "http://host:port" or "https://host:port"
           '';

@@ -1,0 +1,571 @@
+// https://tailscale.com/kb/1337/policy-syntax
+{
+	"randomizeClientPort": true,
+
+	"tagOwners": {
+		// All nodes that has some sort of server/allways on function
+		"tag:server": ["kradalby@kradalby.no"],
+
+		// Exit nodes
+		"tag:gateway": ["kradalby@kradalby.no"],
+
+		// Clients, but no user
+		"tag:client": ["kradalby@kradalby.no"],
+
+		"tag:dev": ["kradalby@kradalby.no"],
+
+		// Others nodes in my network
+		"tag:progym": ["kradalby@kradalby.no"],
+
+		// Location
+		"tag:ldn": ["kradalby@kradalby.no"],
+
+		"tag:terra":    ["kradalby@kradalby.no"],
+		"tag:tjoda":    ["kradalby@kradalby.no"],
+		"tag:oracldn":  ["kradalby@kradalby.no"],
+		"tag:oracfurt": ["kradalby@kradalby.no"],
+		"tag:bassan":   ["kradalby@kradalby.no"],
+		"tag:vetle":    ["kradalby@kradalby.no", "vsdalby@gmail.com"],
+		"tag:tsnet":    ["kradalby@kradalby.no"],
+
+		// App connector, by country
+		"tag:norway-connector": ["kradalby@kradalby.no"],
+
+		"tag:england-connector":     ["kradalby@kradalby.no"],
+		"tag:netherlands-connector": ["kradalby@kradalby.no"],
+
+		// Service type
+		"tag:golinks": ["kradalby@kradalby.no"],
+
+		"tag:pdf":             ["kradalby@kradalby.no"],
+		"tag:hvor":            ["kradalby@kradalby.no"],
+		"tag:hugin":           ["kradalby@kradalby.no"],
+		"tag:secrets":         ["kradalby@kradalby.no"],
+		"tag:tailsql":         ["kradalby@kradalby.no"],
+		"tag:samba":           ["kradalby@kradalby.no"],
+		"tag:restic":          ["kradalby@kradalby.no"],
+		"tag:monitoring":      ["kradalby@kradalby.no"],
+		"tag:ci":              ["kradalby@kradalby.no"],
+		"tag:attic":           ["kradalby@kradalby.no"],
+		"tag:headscale":       ["kradalby@kradalby.no"],
+		"tag:idp":             ["kradalby@kradalby.no"],
+		"tag:oppskrift":       ["kradalby@kradalby.no"],
+		"tag:k8s-operator":    [],
+		"tag:k8s":             ["tag:k8s-operator"],
+		"tag:headscale-debug": ["kradalby@kradalby.no"],
+		"tag:kvm":             ["group:kradalby"],
+	},
+
+	// Declare static groups of users beyond those in the identity service.
+	"groups": {
+		"group:kradalby": ["kradalby@kradalby.no", "kristoffer@tailscale.com"],
+
+		"group:family": [
+			"vsdalby@gmail.com",
+			"kristine@klatrerosen.no",
+			"anders@klatrerosen.no",
+			"imma.dalby@gmail.com",
+		],
+
+		"group:!/-123": [],
+	},
+
+	// Declare convenient hostname aliases to use in place of IP addresses.
+	"hosts": {
+		"openmediavault": "100.78.173.22",
+		"kraairm2":       "100.72.54.128",
+		"core-terra":     "100.96.65.78",
+		"kphone15":       "100.85.201.66",
+		"kratail":        "100.99.56.21",
+		"kramacbook":     "100.69.227.34",
+		"dev-oracfurt":   "100.64.157.14",
+		"dev-ldn":        "100.126.222.100",
+		"terra":          "10.60.0.0/16",
+		"tjoda":          "10.62.0.0/16",
+		"ldn":            "10.65.0.0/16",
+	},
+
+	"ssh": [
+		{
+			"action": "accept",
+			"src":    ["group:kradalby", "tag:dev"],
+			"dst":    ["tag:server", "tag:client"],
+			"users":  ["autogroup:nonroot", "root"],
+		},
+	],
+
+	"grants": [
+		{
+			"src": ["group:kradalby"],
+			"dst": [
+				"svc:prom",
+				"svc:alertmanager",
+				"svc:grafana",
+				"svc:pdf",
+				"svc:oppskrift",
+				"svc:attic",
+				"svc:redlib",
+			],
+			"ip": ["*"],
+		},
+
+		{
+			"src": ["kraairm2", "core-terra"],
+			"dst": ["tag:progym"],
+			"ip":  ["*"],
+		},
+		{
+			"src": ["kraairm2", "kratail"],
+			"dst": ["tag:headscale-debug"],
+			"ip":  ["*"],
+		},
+		{
+			"src": ["group:family"],
+
+			"dst": [
+				"tag:gateway",
+				"tag:norway-connector",
+				"tag:england-connector",
+				"tag:netherlands-connector",
+				"kraairm2",
+			],
+
+			"ip": ["*"],
+		},
+		{
+			"src": ["group:family"],
+
+			"dst": [
+				"tag:golinks",
+				"tag:hugin",
+				"tag:hvor",
+				"tag:idp",
+			],
+
+			"ip": ["*:80", "*:443"],
+		},
+		{
+			"src": ["group:family"],
+			"dst": ["tag:samba"],
+
+			"ip": [
+				"*:137",
+				"*:138",
+				"*:139",
+				"*:445",
+			],
+		},
+		{
+			"src": ["group:kradalby"],
+			"dst": ["*"],
+			"ip":  ["*"],
+		},
+		{
+			"src": ["tag:dev"],
+			"dst": ["kratail"],
+			"ip":  ["*"],
+		},
+		{
+			"src": ["tag:monitoring"],
+			"dst": ["tag:server", "tag:tsnet"],
+
+			"ip": [
+				"tcp:80", // Allow http for uptime kuma
+				"tcp:443", // Allow https for uptime kuma
+				"igmp:*",
+				"icmp:*", // Allow ping for uptime kuma
+			],
+		},
+		{
+			"src": ["tag:monitoring"],
+			"dst": ["tag:headscale"],
+
+			"ip": [
+				"tcp:54909", // Allow litestream metrics
+				"tcp:54910", // Allow headscale metrics
+			],
+		},
+		{
+			"src": ["*"],
+			"dst": ["tag:attic"],
+			"ip":  ["*"],
+		},
+		{
+			"src": [
+				// Servers need to be able to get IDP
+				// webfinger.
+				"tag:server",
+				"tag:oppskrift",
+			],
+
+			"dst": ["tag:idp"],
+			"ip":  ["tcp:443"],
+		},
+		// App connectors
+		{
+			"src": ["autogroup:members"],
+			"dst": ["autogroup:internet"],
+			"ip":  ["*"],
+		},
+		{
+			"src": ["group:kradalby"],
+			"dst": ["tag:golinks"],
+			"app": {"tailscale.com/cap/golink": [{"admin": true}]},
+		},
+		{
+			"src": ["group:kradalby"],
+			"dst": ["tag:tailsql"],
+
+			"app": {
+				"tailscale.com/cap/tailsql": [
+					{
+						"dataSrc": ["*"], // allow all
+					},
+				],
+			},
+		},
+		{
+			"src": ["group:kradalby"],
+			"dst": ["tag:secrets"],
+
+			"app": {
+				"tailscale.com/cap/secrets": [
+					{
+						"action": ["put", "activate"],
+						"secret": ["prod/*"],
+					},
+				],
+			},
+		},
+		{
+			"src": ["group:kradalby"],
+			"dst": ["tag:k8s-operator"],
+			"app": {
+				"tailscale.com/cap/kubernetes": [{"impersonate": {"groups": ["system:masters"]}}],
+			},
+		},
+		// Proton mail
+		{
+			"src": ["kphone15"],
+			"dst": ["svc:proton-bridge"],
+			"ip":  ["tcp:25", "tcp:143"],
+		},
+		{
+			"src": ["autogroup:members"],
+			"dst": ["autogroup:self"],
+
+			"app": {
+				"tailscale.com/cap/drive": [
+					{
+						"shares": ["*"],
+						"access": "rw",
+					},
+				],
+			},
+		},
+		{
+			"src": ["group:kradalby"],
+			"dst": ["*"],
+
+			"app": {
+				"tailscale.com/cap/drive": [
+					{
+						"shares": ["*"],
+						"access": "rw",
+					},
+				],
+			},
+		},
+		{
+			"src": ["group:family"],
+			"dst": ["*"],
+
+			"app": {
+				"tailscale.com/cap/drive": [
+					{
+						"shares": [
+							"books",
+							"pictures",
+							"software",
+							"libraries",
+						],
+
+						"access": "ro",
+					},
+				],
+			},
+		},
+		{
+			"src": ["kradalby@kradalby.no"],
+			"dst": ["tag:kvm"],
+			"ip":  ["*"],
+		},
+		{
+			"src": ["group:family"],
+			"dst": [
+				"svc:pdf",
+				"svc:oppskrift",
+			],
+			"ip": ["80", "443"],
+		},
+		{
+			"src": ["tag:monitoring"],
+			"dst": [
+				"svc:prom",
+				"svc:alertmanager",
+				"svc:grafana",
+			],
+			"ip": ["80", "443"],
+		},
+		{
+			"src": ["*"],
+			"dst": ["svc:attic"],
+			"ip":  ["80", "443"],
+		},
+	],
+
+	"tests": [
+		// Ensure monitoring server can ping servers
+		{
+			"src":    "tag:monitoring",
+			"proto":  "icmp",
+			"accept": ["tag:server:0"],
+			"deny":   [],
+		},
+		{
+			"src":    "tag:ci",
+			"proto":  "tcp",
+			"accept": ["tag:attic:80"],
+			"deny":   ["tag:pdf:80"],
+		},
+		{
+			"src":    "kratail",
+			"proto":  "tcp",
+			"accept": ["tag:attic:80"],
+			"deny":   [],
+		},
+		{
+			"src":    "tag:monitoring",
+			"proto":  "igmp",
+			"accept": ["tag:server:0"],
+			"deny":   [],
+		},
+		{
+			"src":    "tag:monitoring",
+			"proto":  "tcp",
+			"accept": ["tag:tsnet:80", "tag:tsnet:443", "tag:attic:80"],
+			"deny":   ["kraairm2:80"],
+		},
+		{
+			"src": "group:family",
+
+			"accept": [
+				"tag:samba:139",
+				"tag:samba:445",
+				"tag:golinks:80",
+				// Should be allowed to access all, but
+				// test one port.
+				"tag:gateway:80",
+				"tag:hugin:80",
+				"svc:pdf:80",
+				"svc:pdf:443",
+				"svc:oppskrift:80",
+				"svc:oppskrift:443",
+				"tag:hvor:80",
+			],
+
+			"deny": [
+				"tag:progym:22",
+				"tag:progym:3389",
+				"tag:samba:80",
+			],
+		},
+		// Test kradalby group access to services
+		{
+			"src":    "kratail",
+			"proto":  "tcp",
+			"accept": [
+				"svc:prom:80",
+				"svc:prom:443",
+				"svc:alertmanager:80",
+				"svc:alertmanager:443",
+				"svc:grafana:80",
+				"svc:grafana:443",
+				"svc:pdf:80",
+				"svc:pdf:443",
+				"svc:oppskrift:80",
+				"svc:oppskrift:443",
+				"svc:attic:80",
+				"svc:attic:443",
+				"svc:redlib:80",
+				"svc:redlib:443",
+			],
+			"deny": [],
+		},
+		// Test monitoring access to services
+		{
+			"src":    "tag:monitoring",
+			"proto":  "tcp",
+			"accept": [
+				"svc:prom:80",
+				"svc:prom:443",
+				"svc:alertmanager:80",
+				"svc:alertmanager:443",
+				"svc:grafana:80",
+				"svc:grafana:443",
+			],
+			"deny": [
+				"svc:pdf:80",
+				"svc:oppskrift:80",
+			],
+		},
+		// Test proton-bridge service
+		{
+			"src":    "kphone15",
+			"proto":  "tcp",
+			"accept": [
+				"svc:proton-bridge:25",
+				"svc:proton-bridge:143",
+			],
+			"deny": [],
+		},
+		// Test family can access services but not unrestricted ports
+		{
+			"src": "group:family",
+			"proto": "tcp",
+			"accept": [
+				"svc:pdf:80",
+				"svc:pdf:443",
+				"svc:oppskrift:80",
+				"svc:oppskrift:443",
+			],
+			"deny": [
+				// Family should NOT have wildcard access to services on other ports
+				"svc:pdf:22",
+				"svc:oppskrift:22",
+				"svc:prom:80",
+				"svc:alertmanager:80",
+			],
+		},
+		// Test that attic is accessible to everyone
+		{
+			"src": "group:family",
+			"proto": "tcp",
+			"accept": [
+				"svc:attic:80",
+				"svc:attic:443",
+			],
+			"deny": [],
+		},
+		// Test service isolation - monitoring should NOT access user-facing services
+		{
+			"src": "tag:monitoring",
+			"proto": "tcp",
+			"accept": [
+				"svc:prom:80",
+				"svc:alertmanager:80",
+				"svc:grafana:80",
+				"svc:attic:80", // Everyone has access to attic including monitoring
+			],
+			"deny": [
+				"svc:pdf:80",
+				"svc:oppskrift:80",
+				"svc:redlib:80",
+			],
+		},
+		// Test that non-members cannot access restricted services
+		{
+			"src": "tag:ci",
+			"proto": "tcp",
+			"accept": [
+				"svc:attic:80",
+				"svc:attic:443",
+			],
+			"deny": [
+				"svc:prom:80",
+				"svc:pdf:80",
+				"svc:oppskrift:80",
+				"svc:grafana:80",
+				"svc:alertmanager:80",
+				"svc:proton-bridge:25",
+			],
+		},
+	],
+
+	"autoApprovers": {
+		"routes": {
+			// Auto approve app connectors
+			"0.0.0.0/0": ["tag:norway-connector", "tag:england-connector", "tag:netherlands-connector"],
+
+			"::/0": ["tag:norway-connector", "tag:england-connector", "tag:netherlands-connector"],
+
+			// Auto approve my network
+			"10.0.0.0/8": ["tag:gateway"],
+		},
+
+		"exitNode": ["tag:server"],
+	},
+
+	"nodeAttrs": [
+		{
+			"target": ["autogroup:members", "tag:server"],
+			"attr":   ["funnel"],
+		},
+		{
+			"target": [
+				"group:kradalby",
+				"group:family",
+			],
+
+			"attr": ["mullvad"],
+		},
+		{
+			"target": ["*"],
+
+			"app": {
+				"tailscale.com/app-connectors": [
+					{
+						"name":       "nrk",
+						"connectors": ["tag:norway-connector"],
+						"domains":    ["nrk.no", "*.nrk.no", "*.dna.contentdelivery.net"],
+					},
+					{
+						"name":       "bbc",
+						"connectors": ["tag:england-connector"],
+
+						"domains": [
+							"bbc.com",
+							"*.bbc.com",
+							"bbc.co.uk",
+							"*.bbc.co.uk",
+							"*.files.bbci.co.uk",
+							"*.bbci.co.uk",
+							"*.ibl.api.bbc.co.uk",
+							"*.api.bbc.co.uk",
+							"*.live.bbc.co.uk",
+							"*.live.cf.md.bbci.co.uk",
+							"vod-dash-uk.live.cf.md.bbci.co.uk",
+							"vod-thumb-uk-live.akamaized.net",
+							"vod-hls-uk-live.akamaized.net",
+							"*.live.bidi.net.uk",
+						],
+					},
+
+					// {
+					//  "name":       "sjekkip",
+					//  "connectors": ["tag:norway-connector"],
+					//  "domains":    ["sjekkip.no", "*.sjekkip.no"],
+					// },
+				],
+			},
+		},
+		{
+			"target": ["autogroup:members"],
+			"attr":   ["drive:share", "drive:access"],
+		},
+		{
+			"target": ["tag:server"],
+			"attr":   ["drive:share", "drive:access"],
+		},
+	],
+}
