@@ -5,16 +5,8 @@
 }: let
   port = 56799;
 in {
-  services = {
-    tailscale-proxies = {
-      mealie = {
-        enable = true;
-        tailscaleKeyPath = config.age.secrets.tailscale-preauthkey.path;
-
-        hostname = "oppskrift";
-        backendPort = port;
-      };
-    };
+  services.tailscale.services."svc:oppskrift" = {
+    endpoints."tcp:443" = "http://localhost:${toString port}";
   };
 
   virtualisation = {

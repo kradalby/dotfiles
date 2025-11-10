@@ -15,12 +15,8 @@
 in
   lib.mkMerge [
     {
-      services.tailscale-proxies.stirling-pdf = {
-        enable = true;
-        tailscaleKeyPath = config.age.secrets.tailscale-preauthkey.path;
-
-        hostname = "pdf";
-        backendPort = port;
+      services.tailscale.services."svc:pdf" = {
+        endpoints."tcp:443" = "http://localhost:${toString port}";
       };
 
       users.users.stirling = {
