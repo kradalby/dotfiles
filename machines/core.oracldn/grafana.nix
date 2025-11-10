@@ -15,6 +15,7 @@ in
         owner = "grafana";
       };
 
+      # TODO: When Tailscale Services exits beta, use "http:80" and "https:443" instead of "tcp:"
       services.tailscale.services."svc:grafana" = {
         endpoints = {
           "tcp:80" = "http://localhost:${toString config.services.grafana.settings.server.http_port}";

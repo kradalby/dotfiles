@@ -37,6 +37,7 @@
 in
   lib.mkMerge [
     {
+      # TODO: When Tailscale Services exits beta, use "http:80" and "https:443" instead of "tcp:"
       services.tailscale.services = {
         "svc:prom" = {
           endpoints = {
