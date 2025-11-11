@@ -7,7 +7,7 @@
     "/fast/hugin" = {
       id = "dd5mf-nwmas";
       path = "/fast/hugin";
-      devices = ["kraairm2" "dev.ldn"];
+      devices = ["krair" "dev.ldn"];
       type = "receiveonly";
     };
   };
