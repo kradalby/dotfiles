@@ -207,6 +207,5 @@ index 000000000..06ffbbd29
 +	usb0_vbus-supply = <&reg_usb0_vbus>;
 +	status = "okay";
 +};
--- 
+--
 2.35.3
-

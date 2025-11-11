@@ -19,18 +19,18 @@ index 05486ccce..39331229c 100644
 -			default-state = "on";
 +			linux,default-trigger = "default-on";
  		};
- 
+
  		led-1 {
  			label = "nanopi:blue:status";
  			gpios = <&pio 0 10 GPIO_ACTIVE_HIGH>;
 +			linux,default-trigger = "heartbeat";
  		};
  	};
- 
+
 @@ -51,6 +52,22 @@ reg_vcc3v3: vcc3v3 {
  		regulator-max-microvolt = <3300000>;
  	};
- 
+
 +	vdd_cpux: gpio-regulator {
 +		compatible = "regulator-gpio";
 +		pinctrl-names = "default";
@@ -53,7 +53,7 @@ index 05486ccce..39331229c 100644
 @@ -62,6 +79,10 @@ reg_usb0_vbus: usb0-vbus {
  	};
  };
- 
+
 +&cpu0 {
 +	cpu-supply = <&vdd_cpux>;
 +};
@@ -61,6 +61,5 @@ index 05486ccce..39331229c 100644
  &ehci0 {
  	status = "okay";
  };
--- 
+--
 2.35.3
-
