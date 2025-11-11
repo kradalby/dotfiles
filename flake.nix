@@ -337,6 +337,9 @@
         pkgs.mkShell {
           buildInputs = [
             pkgs.alejandra
+            pkgs.unstable.prek
+            pkgs.nodePackages.prettier
+            pkgs.shfmt
             pkgs.colmena
             pkgs.webrepl_cli
 
