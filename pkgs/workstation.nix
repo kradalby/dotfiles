@@ -61,6 +61,10 @@
       uv
       mongodb-tools
       cloc
+      unstable.prek
+      alejandra
+      nodePackages.prettier
+      shfmt
     ]
     ++ lib.optionals stdenv.isDarwin [
       lima
