@@ -31,7 +31,7 @@
       git-absorb
       git-open
       git-toolbelt
-      jujutsu
+      # jujutsu # Temporarily disabled due to rust build issue
       unstable.gotestsum
       headscale
       ipcalc
