@@ -20,8 +20,8 @@
     ssh = [
       {
         action = "accept";
-        src = ["kristoffer"];
-        dst = ["*"];
+        src = ["autogroup:member"];
+        dst = ["autogroup:self"];
         users = ["kradalby" "root"];
       }
     ];
@@ -35,12 +35,6 @@
   settingsFormat = pkgs.formats.yaml {};
   configFile = settingsFormat.generate "headscale.yaml" cfg.settings;
 in {
-  disabledModules = ["services/networking/headscale.nix"];
-
-  imports = [
-    (inputs.nixpkgs-master + "/nixos/modules/services/networking/headscale.nix")
-  ];
-
   age.secrets = {
     headscale-private-key = {
       owner = "headscale";
@@ -73,6 +67,7 @@ in {
       dns = {
         base_domain = "fap";
         nameservers = {
+          global = ["1.1.1.1"];
           split =
             {
               consul = s.nameservers;
