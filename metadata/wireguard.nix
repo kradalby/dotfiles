@@ -5,17 +5,17 @@
 with lib;
 with builtins; let
   ipam = import ./ipam.nix {inherit lib config;};
-  
+
   # Generate WireGuard configs from IPAM hosts
   hostsToWireguard = mapAttrs (hostname: host: {
-    additional_networks = attrValues (filterAttrs (name: cidr: 
+    additional_networks = attrValues (filterAttrs (name: cidr:
       name != "openvpn" && name != "microvm_bridge" && name != "iot_network"
     ) host.routes);
-    addresses = 
-      if hasAttr "ipv6_address" host.wireguard 
+    addresses =
+      if hasAttr "ipv6_address" host.wireguard
       then [host.wireguard.address host.wireguard.ipv6_address]
       else [host.wireguard.address];
-    dns = 
+    dns =
       if hasAttr "consul" host && host.consul != null
       then host.consul
       else null;

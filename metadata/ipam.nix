@@ -20,7 +20,7 @@ with builtins; let
         ipv6_address = "2a03:94e0:200d:69::200/128";
       };
     };
-    
+
     "dev.ldn" = {
       site = "ldn";
       gateway = "10.65.0.1";
@@ -37,7 +37,7 @@ with builtins; let
         ipv6_address = "2a03:94e0:200d:69::205/128";
       };
     };
-    
+
     "core.tjoda" = {
       site = "tjoda";
       gateway = "10.62.0.1";
@@ -51,7 +51,7 @@ with builtins; let
         address = "10.69.0.202/32";
       };
     };
-    
+
     "core.oracldn" = {
       site = "oracldn";
       gateway = "10.66.0.1";
@@ -65,7 +65,7 @@ with builtins; let
         ipv6_address = "2a03:94e0:200d:69::206/128";
       };
     };
-    
+
     "core.oracfurt" = {
       site = "oracfurt";
       gateway = "10.67.0.1";
@@ -82,7 +82,7 @@ with builtins; let
   };
 
   # Derive sites from hosts for backward compatibility
-  sites = 
+  sites =
     let
       hostsWithConsul = filterAttrs (hostname: host: hasAttr "consul" host) hosts;
       siteConfigs = mapAttrs (hostname: host: {
@@ -94,7 +94,7 @@ with builtins; let
       }) hostsWithConsul;
     in
       # Re-key by site name instead of hostname
-      listToAttrs (map (hostname: 
+      listToAttrs (map (hostname:
         let host = getAttr hostname hostsWithConsul;
         in nameValuePair host.site (getAttr hostname siteConfigs)
       ) (attrNames hostsWithConsul));
@@ -110,20 +110,20 @@ with builtins; let
   helpers = {
     # Extract network address from CIDR (e.g., "192.168.130.0/24" -> "192.168.130.0")
     getNetwork = cidr: lib.head (lib.splitString "/" cidr);
-    
+
     # Extract prefix length from CIDR (e.g., "192.168.130.0/24" -> "24")
     getPrefixLength = cidr: lib.last (lib.splitString "/" cidr);
-    
+
     # Extract network prefix without last octet (e.g., "192.168.130.0/24" -> "192.168.130")
     getNetworkPrefix = cidr: let
       network = lib.head (lib.splitString "/" cidr);
     in lib.concatStringsSep "." (lib.take 3 (lib.splitString "." network));
-    
+
     # Build an IP address with a specific host part (e.g., "192.168.130.0/24", 1 -> "192.168.130.1")
     makeHostIP = cidr: host: let
       prefix = helpers.getNetworkPrefix cidr;
     in "${prefix}.${toString host}";
-    
+
     # Build an IP address with CIDR notation (e.g., "192.168.130.0/24", 1 -> "192.168.130.1/24")
     makeHostIPWithCIDR = cidr: host: let
       prefix = helpers.getNetworkPrefix cidr;
