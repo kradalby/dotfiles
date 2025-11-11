@@ -234,14 +234,14 @@
   in
     {
       nixosConfigurations = {
-        "core.terra" = box.nixosBox {
-          arch = "x86_64-linux";
-          name = "core.terra";
-          tags = ["x86" "router" "terra"];
-          modules = with inputs; [
-            hugin.nixosModules.default
-          ];
-        };
+        # "core.terra" = box.nixosBox {
+        #   arch = "x86_64-linux";
+        #   name = "core.terra";
+        #   tags = ["x86" "router" "terra"];
+        #   modules = with inputs; [
+        #     hugin.nixosModules.default
+        #   ];
+        # };
 
         "core.oracldn" = box.nixosBox {
           arch = "aarch64-linux";
