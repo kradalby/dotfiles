@@ -180,6 +180,27 @@
             echo "Zed editor is not installed. Please install zed or zed-preview."
         end
       '';
+
+      ssh-rebind = ''
+        # Find all SSH agent sockets from forwarded sessions
+        set -l agent_sockets (${pkgs.findutils}/bin/find /tmp/ssh-* -type s -name "agent.*" 2>/dev/null)
+
+        if test (count $agent_sockets) -eq 0
+            echo "Error: No forwarded SSH agent found" >&2
+            return 1
+        end
+
+        # Get the most recently modified socket
+        set -l newest_socket (${pkgs.coreutils}/bin/ls -t $agent_sockets | head -n 1)
+
+        # Test if the socket is functional
+        if test -S "$newest_socket"
+            set -gx SSH_AUTH_SOCK $newest_socket
+        else
+            echo "Error: Found socket but it's not valid: $newest_socket" >&2
+            return 1
+        end
+      '';
     };
   };
 }

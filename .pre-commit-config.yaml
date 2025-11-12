@@ -15,8 +15,6 @@ repos:
       - id: check-symlinks
       - id: check-merge-conflict
       - id: detect-private-key
-      - id: no-commit-to-branch
-        args: ['--branch', 'master', '--branch', 'main']
       - id: check-executables-have-shebangs
       # Additional hooks not in prek builtins yet
       - id: check-ast

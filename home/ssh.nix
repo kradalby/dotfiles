@@ -22,12 +22,6 @@ in {
   programs.ssh = {
     enable = true;
     forwardAgent = isWorkstation;
-    extraConfig =
-      if isWorkstation
-      then ''
-        IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
-      ''
-      else "";
 
     matchBlocks = {
       "sprocket" = kradalbyLogin "sprocket.nvg.ntnu.no";
