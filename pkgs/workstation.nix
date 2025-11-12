@@ -67,7 +67,7 @@
       shfmt
     ]
     ++ lib.optionals stdenv.isDarwin [
-      lima
+      unstable.lima
       unstable.colima
       terminal-notifier
       syncthing
