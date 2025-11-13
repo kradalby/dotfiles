@@ -16,6 +16,8 @@ in
 
     eb = prev.callPackage ./eb.nix {};
 
+    ssh-agent-mux = prev.callPackage ./ssh-agent-mux.nix {};
+
     tasmota-exporter = prev.callPackage ./tasmota-exporter.nix {};
 
     # elm-review = prev.callPackage ./node-elm-review.nix {};

@@ -13,6 +13,7 @@
     ../../pkgs/system.nix
     ../../pkgs/homebrew.nix
     ./syncthing.nix
+    ../../modules/macos.nix
   ];
 
   nix = {
