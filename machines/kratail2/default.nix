@@ -1,6 +1,7 @@
 # Work Mac configuration (Tailscale)
 {
   lib,
+  pkgs,
   ...
 }: {
   imports = [
@@ -18,6 +19,16 @@
       TS_NIX_SHELL_XCODE_WRAPPER_DISABLED = "1";
     };
   };
+
+  # Persistent SSH connection to krair with agent forwarding
+  services.autossh.sessions = [
+    {
+      name = "krair-agent-forward";
+      user = "kradalby";
+      monitoringPort = 0; # Disable AutoSSH monitoring, rely on SSH keep-alive
+      extraArguments = "-A -N -o ServerAliveInterval=30 -o ServerAliveCountMax=3 krair";
+    }
+  ];
 
   homebrew = {
     casks = [
