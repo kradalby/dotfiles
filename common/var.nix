@@ -34,10 +34,15 @@
         gstc = "git stash clear";
         gm = "git merge --no-ff";
         gr = "git rebase";
-        grom = "git rebase origin/main";
+        grom = "git rebase -i origin/main";
+        grum = "git rebase -i upstream/main";
         gri = "git rebase --interactive";
         grc = "git rebase --continue";
         gra = "git rebase --abort";
+        gwa = "git worktree add";
+        gwab = "git worktree add -b";
+        gwl = "git worktree list";
+        gwr = "git worktree remove";
         gfo = "git fetch origin";
         gfu = "git fetch upstream";
         gcum = "git checkout upstream/main";
