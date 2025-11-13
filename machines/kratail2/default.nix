@@ -37,7 +37,6 @@
       "monitorcontrol"
       "tigervnc-viewer"
       "utm"
-      # "wireshark"
       "zoom"
       "slack-cli"
     ];
