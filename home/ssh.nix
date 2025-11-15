@@ -1,6 +1,7 @@
 {
   pkgs,
   lib,
+  osConfig,
   ...
 }: let
   isWorkstation = pkgs.stdenv.isDarwin && pkgs.stdenv.isAarch64;
@@ -49,5 +50,10 @@ in {
         match = "host !bunny.corp.tailscale.com,*.tailscale.com,control,shard*,derp*,trunkd*";
       };
     };
+  };
+
+  # Set SSH_AUTH_SOCK to point to ssh-agent-mux socket on macOS workstations
+  home.sessionVariables = lib.mkIf (isWorkstation && osConfig.services.ssh-agent-mux.enable) {
+    SSH_AUTH_SOCK = osConfig.services.ssh-agent-mux.socketPath;
   };
 }
