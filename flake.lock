@@ -192,6 +192,24 @@
         "type": "github"
       }
     },
+    "flake-utils_3": {
+      "inputs": {
+        "systems": "systems_5"
+      },
+      "locked": {
+        "lastModified": 1731533236,
+        "narHash": "sha256-l0KFg5HjrsfsO/JpG+r7fRrqm12kzFHyUHqHCVpMMbI=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "11707dc2f618dd54ca8739b309ec4fc024de578b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "type": "github"
+      }
+    },
     "golink": {
       "inputs": {
         "nixpkgs": [
@@ -813,6 +831,7 @@
         "nixpkgs-unstable": "nixpkgs-unstable",
         "ragenix": "ragenix",
         "redlib": "redlib",
+        "ssh-agent-mux": "ssh-agent-mux",
         "tailscale": "tailscale",
         "tasmota-exporter": "tasmota-exporter",
         "utils": "utils"
@@ -885,6 +904,27 @@
         "type": "github"
       }
     },
+    "rust-overlay_4": {
+      "inputs": {
+        "nixpkgs": [
+          "ssh-agent-mux",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1763174172,
+        "narHash": "sha256-u6dcvXk2K6eYVYhmfiN3xmhIf3yUo5KPwm79UOD37Jo=",
+        "owner": "oxalica",
+        "repo": "rust-overlay",
+        "rev": "89af6762b01409edbb595888a69311e8e5954110",
+        "type": "github"
+      },
+      "original": {
+        "owner": "oxalica",
+        "repo": "rust-overlay",
+        "type": "github"
+      }
+    },
     "spectrum": {
       "flake": false,
       "locked": {
@@ -899,6 +939,28 @@
       "original": {
         "type": "git",
         "url": "https://spectrum-os.org/git/spectrum"
+      }
+    },
+    "ssh-agent-mux": {
+      "inputs": {
+        "flake-utils": "flake-utils_3",
+        "nixpkgs": [
+          "nixpkgs-unstable"
+        ],
+        "rust-overlay": "rust-overlay_4"
+      },
+      "locked": {
+        "lastModified": 1763244819,
+        "narHash": "sha256-v7iyMxe+sz3ndOvRVS/XyYAEC2wLlGYO3KHR+nM/8q4=",
+        "owner": "kradalby",
+        "repo": "ssh-agent-mux",
+        "rev": "b7b94024f9ed0f04407ec13576ca92db66c51c8e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "kradalby",
+        "repo": "ssh-agent-mux",
+        "type": "github"
       }
     },
     "systems": {
@@ -991,13 +1053,28 @@
         "type": "github"
       }
     },
+    "systems_7": {
+      "locked": {
+        "lastModified": 1681028828,
+        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default",
+        "type": "github"
+      }
+    },
     "tailscale": {
       "inputs": {
         "flake-compat": "flake-compat_2",
         "nixpkgs": [
           "nixpkgs-unstable"
         ],
-        "systems": "systems_5"
+        "systems": "systems_6"
       },
       "locked": {
         "lastModified": 1761945483,
@@ -1055,7 +1132,7 @@
     },
     "utils": {
       "inputs": {
-        "systems": "systems_6"
+        "systems": "systems_7"
       },
       "locked": {
         "lastModified": 1731533236,

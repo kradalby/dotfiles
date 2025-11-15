@@ -16,6 +16,7 @@
       "~/Library/Containers/com.maxgoedjen.Secretive.SecretAgent/Data/socket.ssh"
       "~/.ssh/yubikey-agent.sock"
     ];
+    watchForSSHForward = true; # Automatically detect and use forwarded agents
   };
 
   # Work-specific overrides

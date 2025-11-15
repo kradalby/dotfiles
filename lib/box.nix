@@ -61,11 +61,12 @@ in {
       };
     };
 
-  macBox = machine: pkgBase: homeBase:
+  macBox = machine: pkgBase: homeBase: additionalModules:
     pkgBase.lib.darwinSystem {
       system = machine.arch;
       modules =
         (commonModules pkgBase)
+        ++ additionalModules
         ++ [
           (./.. + "/machines/${machine.hostname}")
           homeBase.darwinModules.home-manager

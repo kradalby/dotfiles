@@ -119,6 +119,11 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
+    ssh-agent-mux = {
+      url = "github:kradalby/ssh-agent-mux";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+
     # munin.url = "github:kradalby/munin";
     neovim-kradalby = {
       url = "github:kradalby/neovim";
@@ -216,6 +221,7 @@
         redlib = redlib.packages."${final.system}".default;
         neovim = neovim-kradalby.packages."${final.system}".neovim-kradalby;
         tailscale = tailscale.packages."${final.system}".tailscale;
+        ssh-agent-mux = inputs.ssh-agent-mux.packages."${final.system}".default;
       })
     ];
 
@@ -308,7 +314,9 @@
             homeDir = /Users/kradalby;
           };
         in
-          box.macBox machine darwin home-manager;
+          box.macBox machine darwin home-manager [
+            inputs.ssh-agent-mux.darwinModules.default
+          ];
 
         krair = let
           machine = {
@@ -318,7 +326,9 @@
             homeDir = /Users/kradalby;
           };
         in
-          box.macBox machine darwin home-manager;
+          box.macBox machine darwin home-manager [
+            inputs.ssh-agent-mux.darwinModules.default
+          ];
       };
 
       colmena = box.mkColmenaFromNixOSConfigurations self.nixosConfigurations;
