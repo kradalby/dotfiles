@@ -130,6 +130,18 @@
       inputs."flake-utils".follows = "utils";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
+
+    nefit-homekit = {
+      url = "github:kradalby/nefit-homekit";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+      inputs."flake-utils".follows = "utils";
+    };
+
+    # tasmota-nefit = {
+    #   url = "github:kradalby/tasmota-nefit";
+    #   inputs.nixpkgs.follows = "nixpkgs-unstable";
+    #   inputs."flake-utils".follows = "utils";
+    # };
   };
 
   outputs = {
@@ -222,6 +234,8 @@
         neovim = neovim-kradalby.packages."${final.system}".neovim-kradalby;
         tailscale = tailscale.packages."${final.system}".tailscale;
         ssh-agent-mux = inputs.ssh-agent-mux.packages."${final.system}".default;
+        nefit-homekit = inputs.nefit-homekit.packages."${final.system}".default;
+        # tasmota-nefit = inputs.tasmota-nefit.packages."${final.system}".default;
       })
     ];
 
@@ -268,12 +282,12 @@
           tags = ["arm64" "oracle" "oracfurt"];
         };
 
-        # "home.ldn" = box.nixosBox {
-        #   nixpkgs = inputs.nixpkgs-old-stable;
-        #   arch = "aarch64-linux";
-        #   name = "home.ldn";
-        #   tags = ["arm64" "ldn"];
-        # };
+        "home.ldn" = box.nixosBox {
+          arch = "x86_64-linux";
+          name = "home.ldn";
+          tags = ["x86" "ldn"];
+          targetHost = "10.65.0.80";
+        };
 
         # "rpi.vetle" = box.nixosBox {
         #   arch = "aarch64-linux";
@@ -286,6 +300,13 @@
           homeBase = home-manager;
           name = "dev.ldn";
           tags = ["x86" "ldn"];
+        };
+
+        "unifi.ldn" = box.nixosBox {
+          arch = "x86_64-linux";
+          name = "unifi.ldn";
+          tags = ["x86" "ldn"];
+          targetHost = "10.65.0.81";
         };
 
         # "lenovo.ldn" = box.nixosBox {
