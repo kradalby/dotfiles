@@ -56,6 +56,11 @@
         "com.apple.finder" = {
           FinderSpawnTab = false;
         };
+
+        # Accessibility - zoom with scroll gesture
+        "com.apple.universalaccess" = {
+          closeViewScrollWheelToggle = true;
+        };
       };
 
       dock = {
