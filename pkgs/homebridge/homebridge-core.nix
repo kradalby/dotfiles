@@ -23,8 +23,15 @@ buildNpmPackage rec {
     python3
   ];
 
-  # Homebridge has a build step
-  npmBuildScript = "build";
+  # Run tsc directly instead of build script that tries to install rimraf
+  buildPhase = ''
+    runHook preBuild
+
+    # Run TypeScript compiler directly
+    npx tsc
+
+    runHook postBuild
+  '';
 
   # Install the built files
   postInstall = ''
