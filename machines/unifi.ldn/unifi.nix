@@ -25,6 +25,14 @@ in
       # TODO: Remove 8443 when nginx can correctly proxy
       networking.firewall.allowedTCPPorts = [8443 9130];
 
+      # TODO: When Tailscale Services exits beta, use "http:80" and "https:443" instead of "tcp:"
+      services.tailscale.services."svc:unifi-ldn" = {
+        endpoints = {
+          "tcp:80" = "https://localhost:8443";
+          "tcp:443" = "https://localhost:8443";
+        };
+      };
+
       # age.secrets.unifi-ldn-read-only = {
       #   file = ../../secrets/unifi-ldn-read-only.age;
       #   mode = "0400";
