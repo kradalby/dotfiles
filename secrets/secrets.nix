@@ -16,8 +16,9 @@ with builtins; let
 
     # Leiden hosts
     core-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICRRxykpKi6wemG1DPI+9gpWtbGQWGP1D5xb6oATreAv";
-    home-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINSfUa0k5lySBwBhx2BfovlKhpkCBCgY5BkzagPJNVhd";
+    home-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHu09mrhWvwMYopG4syZcQ1/8Qj/DIx6d13oIJ1Kv1qK";
     dev-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIF3nRXqXfloVsl17WZWxKIkU9Aa6/9sU12mYKBtpSx66";
+    unifi-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMcbIvzTOS0ijD20NjlngYBKd6MjaEwn6F1tPjlsZblM";
     eye-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDe2WAzC0HAlgMN3l2D6xjVme/mwYTVCJSq+0V1HCbAW";
     lenovo-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJTZ76SNK6QJ2ptArkXstRNOdY1PxNHHon9gh3k+fDo+";
 
@@ -61,6 +62,7 @@ in
     "restic-core-oracldn-token.age".publicKeys = u ++ [hosts.core-oracldn];
     "restic-dev-oracfurt-token.age".publicKeys = u ++ [hosts.dev-oracfurt];
     "restic-dev-ldn-token.age".publicKeys = u ++ [hosts.dev-ldn];
+    "restic-unifi-ldn-token.age".publicKeys = u ++ [hosts.unifi-ldn];
     "restic-core-tjoda-token.age".publicKeys = u ++ [hosts.core-tjoda];
     "restic-core-terra-token.age".publicKeys = u ++ [hosts.core-terra];
     "restic-kramacbook-token.age".publicKeys = u;
@@ -78,7 +80,7 @@ in
     # "wireguard-storage-bassan.age".publicKeys = u ++ [ hosts.storage-bassan ];
 
     # Unifi
-    "unifi-ldn-read-only.age".publicKeys = u ++ [hosts.home-ldn];
+    "unifi-ldn-read-only.age".publicKeys = u ++ [hosts.unifi-ldn];
     "unifi-tjoda-read-only.age".publicKeys = u ++ [hosts.core-tjoda];
 
     # headscale
