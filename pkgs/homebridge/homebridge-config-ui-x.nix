@@ -17,7 +17,7 @@ buildNpmPackage rec {
     hash = "sha256-PV2vkPDYClsRD6u0fZ9CIdjLNkJRaCmbZkxD0PbW4do=";
   };
 
-  npmDepsHash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="; # Will be replaced with correct hash from build error
+  npmDepsHash = "sha256-33pbyktTl+g9Hidu84ZkEvjaf6Lyy/tUJsF7ft8g6PE=";
 
   nativeBuildInputs = [
     python3
