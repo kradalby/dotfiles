@@ -25,10 +25,10 @@ buildNpmPackage rec {
     makeWrapper
   ];
 
-  # Patch the UI build script to use npx ng instead of ng
+  # Patch the UI build script to use node_modules/.bin/ng instead of ng
   preBuild = ''
     substituteInPlace ui/package.json \
-      --replace '"ng build' '"npx ng build'
+      --replace '"ng build' '"../node_modules/.bin/ng build'
   '';
 
   npmBuildScript = "build";
