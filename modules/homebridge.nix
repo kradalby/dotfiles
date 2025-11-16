@@ -42,7 +42,7 @@ in {
   options.services.homebridges = mkOption {
     default = {};
     type = with types;
-      attrsOf (submodule {
+      attrsOf (submodule ({config, ...}: {
         options = {
           enable = mkEnableOption "Enable homebridge";
 
@@ -67,7 +67,7 @@ in {
               Homebridge package to use. Usually you don't need to set this directly,
               instead configure the 'plugins' option and the package will be built automatically.
             '';
-            default = pkgs.homebridge-with-plugins.withPlugins v.plugins;
+            default = pkgs.homebridge-with-plugins.withPlugins config.plugins;
             defaultText = literalExpression "pkgs.homebridge-with-plugins.withPlugins config.plugins";
           };
 
@@ -111,7 +111,7 @@ in {
             default = {};
           };
         };
-      });
+      }));
     description = lib.mdDoc ''
       Multiple Homebridges
     '';

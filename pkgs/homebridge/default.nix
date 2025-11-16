@@ -7,9 +7,9 @@
 }:
 
 let
-  # Use upstream nixpkgs packages for homebridge core
-  homebridge = callPackage ({pkgs}: pkgs.homebridge) {};
-  homebridge-config-ui-x = callPackage ({pkgs}: pkgs.homebridge-config-ui-x) {};
+  # Build homebridge core packages locally
+  homebridge = callPackage ./homebridge-core.nix {};
+  homebridge-config-ui-x = callPackage ./homebridge-config-ui-x.nix {};
 
   # Helper to get node_modules path for a package
   packageModulePath = package: "${package}/lib/node_modules/";
