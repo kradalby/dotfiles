@@ -25,13 +25,9 @@ buildNpmPackage rec {
     makeWrapper
   ];
 
-  # Patch the UI build script to use node_modules/.bin/ng instead of ng
-  preBuild = ''
-    substituteInPlace ui/package.json \
-      --replace '"ng build' '"../node_modules/.bin/ng build'
-  '';
-
-  npmBuildScript = "build";
+  # Skip UI build - it's complex and not currently used
+  # Only build the server component
+  npmBuildScript = "build:server";
 
   # Install the built files
   postInstall = ''
