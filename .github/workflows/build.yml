@@ -13,12 +13,14 @@ jobs:
       fail-fast: false
       matrix:
         machine:
-          - host: core.terra
-            platform: x86-64-linux
-          - host: core.tjoda
-            platform: x86-64-linux
           - host: dev.ldn
-            platform: x86-64-linux
+            platform: x86_64-linux
+          - host: home.ldn
+            platform: x86_64-linux
+          - host: unifi.ldn
+            platform: x86_64-linux
+          - host: core.tjoda
+            platform: x86_64-linux
 
     steps:
       - uses: actions/checkout@v4
@@ -60,8 +62,6 @@ jobs:
           - host: core.oracldn
             platform: aarch64-linux
           - host: dev.oracfurt
-            platform: aarch64-linux
-          - host: home.ldn
             platform: aarch64-linux
 
     steps:
