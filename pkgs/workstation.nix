@@ -98,6 +98,7 @@
     ]
     ++ lib.optionals stdenv.isLinux [
       # swift
+      incus
     ]
     ++ [
       (writeShellApplication {
