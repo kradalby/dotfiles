@@ -32,6 +32,9 @@ _: {
 
       # CI/VM
       # "tart"
+
+      # Incus isnt buildable from nixpkgs for macOS
+      "incus"
     ];
 
     casks = [
