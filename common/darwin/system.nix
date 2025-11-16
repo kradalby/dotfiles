@@ -1,7 +1,13 @@
-{...}: {
+{
+  lib,
+  machine,
+  ...
+}: {
   # Available options
   # https://daiderd.com/nix-darwin/manual/index.html#sec-options
   system = {
+    primaryUser = "kradalby";
+
     defaults = {
       LaunchServices = {
         LSQuarantine = false;
@@ -23,16 +29,49 @@
         NSNavPanelExpandedStateForSaveMode = true; # Default to expanded "save" windows
         NSNavPanelExpandedStateForSaveMode2 = true; # don't ask
       };
+      CustomUserPreferences = {
+        # Screenshot settings
+        "com.apple.screencapture" = {
+          location = "~/Pictures/Screenshots";
+          type = "png";
+          disable-shadow = true;
+        };
+
+        # Prevent .DS_Store files on network and USB volumes
+        "com.apple.desktopservices" = {
+          DSDontWriteNetworkStores = true;
+          DSDontWriteUSBStores = true;
+        };
+
+        # Menu bar clock
+        "com.apple.menuextra.clock" = {
+          Show24Hour = true;
+          ShowDate = 1; # Always show date
+          DateFormat = "EEE d MMM HH:mm:ss";
+          FlashDateSeparators = false;
+          IsAnalog = false;
+        };
+
+        # Finder - open folders in new windows instead of tabs
+        "com.apple.finder" = {
+          FinderSpawnTab = false;
+        };
+      };
+
       dock = {
         autohide = true;
-        orientation = "right";
+        orientation = "left";
         show-recents = false;
         tilesize = 16;
       };
       finder = {
-        QuitMenuItem = true;
-
         AppleShowAllExtensions = true;
+        AppleShowAllFiles = true;
+        FXEnableExtensionChangeWarning = false;
+        FXPreferredViewStyle = "Nlsv"; # List view
+        QuitMenuItem = true;
+        ShowPathbar = true;
+        ShowStatusBar = true;
         _FXShowPosixPathInTitle = true;
       };
       trackpad = {
@@ -40,6 +79,8 @@
         TrackpadThreeFingerDrag = true;
       };
       loginwindow.GuestEnabled = false;
+
+      smb.NetBIOSName = machine.hostname;
     };
 
     keyboard = {

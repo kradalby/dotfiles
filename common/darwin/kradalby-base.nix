@@ -52,6 +52,12 @@
           AutoFillCreditCardData = false;
           AutoFillMiscellaneousForms = false;
           AutoFillFromAddressBook = false;
+          AutoOpenSafeDownloads = false;
+          ShowOverlayStatusBar = true;
+          ShowFullURLInSmartSearchField = true;
+          IncludeDevelopMenu = true;
+          WebKitDeveloperExtrasEnabledPreferenceKey = true;
+          "com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled" = true;
         };
       };
     };
@@ -65,30 +71,7 @@
     localHostName = machine.hostname;
   };
 
-  system = {
-    primaryUser = "kradalby";
-    defaults = {
-      smb.NetBIOSName = machine.hostname;
-      dock.orientation = lib.mkForce "left";
-      trackpad.TrackpadThreeFingerDrag = true;
-
-      # Finder: Open folders in new windows instead of tabs
-      # finder.FinderSpawnTab = false;
-    };
-
-    # Enable Apple Remote Management for user kradalby
-    activationScripts.remoteManagement.text = ''
-      # Enable Apple Remote Management (ARD)
-      echo "Configuring Apple Remote Management..."
-      /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart \
-        -activate \
-        -configure -allowAccessFor -specifiedUsers \
-        -configure -users kradalby -access -on -privs -all \
-        -restart -agent -console 2>&1 || echo "Note: Remote Management may require manual approval in System Preferences on macOS 10.14+"
-    '';
-
-    # Used for backwards compatibility, please read the changelog before changing.
-    # $ darwin-rebuild changelog
-    stateVersion = 5;
-  };
+  # Used for backwards compatibility, please read the changelog before changing.
+  # $ darwin-rebuild changelog
+  system.stateVersion = 5;
 }
