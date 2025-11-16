@@ -4,6 +4,7 @@
   fetchFromGitHub,
   python3,
   nodejs,
+  makeWrapper,
 }:
 
 buildNpmPackage rec {
@@ -21,9 +22,15 @@ buildNpmPackage rec {
 
   nativeBuildInputs = [
     python3
+    makeWrapper
   ];
 
-  # This package has a build step
+  # Patch the UI build script to use npx ng instead of ng
+  preBuild = ''
+    substituteInPlace ui/package.json \
+      --replace '"ng build' '"npx ng build'
+  '';
+
   npmBuildScript = "build";
 
   # Install the built files
