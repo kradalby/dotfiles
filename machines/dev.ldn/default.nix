@@ -35,7 +35,6 @@ in {
     ./zfs.nix
     ./syncthing.nix
     ./coredns.nix
-    ./unifi.nix
   ];
 
   my = {
