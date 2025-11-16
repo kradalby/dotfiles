@@ -15,7 +15,7 @@ buildNpmPackage rec {
     hash = "sha256-qlXIuyrygE6nvntSurP8IqCMQUjIhW6X6RdH+Jij1uI=";
   };
 
-  npmDepsHash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="; # Will be replaced with correct hash from build error
+  npmDepsHash = "sha256-HxqTAve8I+m8o7DPPAXHJGeWEa26P0olbTszrMvXIME=";
 
   dontNpmBuild = true; # No build script needed for this plugin
 
