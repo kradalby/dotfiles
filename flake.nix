@@ -286,7 +286,7 @@
           arch = "x86_64-linux";
           name = "home.ldn";
           tags = ["x86" "ldn"];
-          targetHost = "10.65.0.82";
+          targetHost = "10.65.0.26";
         };
 
         # "rpi.vetle" = box.nixosBox {
@@ -306,7 +306,7 @@
           arch = "x86_64-linux";
           name = "unifi.ldn";
           tags = ["x86" "ldn"];
-          targetHost = "10.65.0.83";
+          targetHost = "10.65.0.24";
         };
 
         # "lenovo.ldn" = box.nixosBox {
