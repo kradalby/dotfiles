@@ -457,6 +457,29 @@
         "type": "github"
       }
     },
+    "nefit-homekit": {
+      "inputs": {
+        "flake-utils": [
+          "utils"
+        ],
+        "nixpkgs": [
+          "nixpkgs-unstable"
+        ]
+      },
+      "locked": {
+        "lastModified": 1762995668,
+        "narHash": "sha256-oqZX9ZNKjvfU0+DEgmMYAPWgfU6j1CUkYTvqoZwfpSk=",
+        "owner": "kradalby",
+        "repo": "nefit-homekit",
+        "rev": "9a9600351dcbc45b5ffcb29ef91e532cd97ed76f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "kradalby",
+        "repo": "nefit-homekit",
+        "type": "github"
+      }
+    },
     "neovim-kradalby": {
       "inputs": {
         "flake-compat": "flake-compat",
@@ -818,6 +841,7 @@
         "jujutsu": "jujutsu",
         "krapage": "krapage",
         "microvm": "microvm",
+        "nefit-homekit": "nefit-homekit",
         "neovim-kradalby": "neovim-kradalby",
         "nix-rosetta-builder": "nix-rosetta-builder",
         "nixos-generators": "nixos-generators_2",
