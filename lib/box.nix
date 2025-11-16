@@ -28,6 +28,7 @@ in {
     name,
     tags ? [],
     modules ? [],
+    targetHost ? null,
   }:
     nixpkgs.lib.nixosSystem {
       system = arch;
@@ -45,6 +46,7 @@ in {
           {
             _module.args = {
               inherit tags;
+              inherit targetHost;
             };
           }
         ]
@@ -80,29 +82,35 @@ in {
     };
 
   mkColmenaFromNixOSConfigurations = nixosConfigurations:
-    {
-      meta = {
-        machinesFile = /etc/nix/machines;
-        nixpkgs = import pkgs {
-          system = "x86_64-linux";
-          inherit overlays;
-        };
+    let
+      base = {
+        meta = {
+          machinesFile = /etc/nix/machines;
+          nixpkgs = import pkgs {
+            system = "x86_64-linux";
+            inherit overlays;
+          };
 
-        specialArgs = {
-          inherit inputs;
+          specialArgs = {
+            inherit inputs;
+          };
         };
-      };
-    }
-    // (builtins.mapAttrs
-      (name: value: {
-        deployment = {
-          buildOnTarget = true;
-          # Replace hostname with tailscale hostname to use tailscale auth.
-          targetHost = builtins.replaceStrings ["."] ["-"] name;
-          inherit (value._module.args) tags;
-        };
-        nixpkgs.system = value.config.nixpkgs.system;
-        imports = value._module.args.modules;
-      })
-      nixosConfigurations);
+      }
+      // (builtins.mapAttrs
+        (name: value: {
+          deployment = {
+            buildOnTarget = true;
+            # Replace hostname with tailscale hostname to use tailscale auth.
+            targetHost =
+              if value._module.args.targetHost != null
+              then value._module.args.targetHost
+              else builtins.replaceStrings ["."] ["-"] name;
+            inherit (value._module.args) tags;
+          };
+          nixpkgs.system = value.config.nixpkgs.system;
+          imports = value._module.args.modules;
+        })
+        nixosConfigurations);
+    in
+      base;
 }
