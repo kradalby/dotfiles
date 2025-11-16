@@ -9,15 +9,22 @@
   ];
 
   boot = {
-    loader.grub.enable = true;
-    loader.grub.device = "/dev/sda";
+    loader.systemd-boot.enable = true;
+    loader.efi.canTouchEfiVariables = true;
 
     initrd.availableKernelModules = ["virtio_pci" "virtio_scsi" "ahci" "sd_mod"];
   };
 
-  fileSystems."/" = {
-    device = "/dev/sda2";
-    fsType = "ext4";
+  fileSystems = {
+    "/" = {
+      device = "/dev/sda2";
+      fsType = "ext4";
+    };
+
+    "/boot" = {
+      device = "/dev/sda1";
+      fsType = "vfat";
+    };
   };
 
   swapDevices = [];
