@@ -159,6 +159,9 @@ in
     # ghostfolio
     "ghostfolio-env.age".publicKeys = u ++ [hosts.core-oracldn];
 
+    # nefit-homekit
+    "nefit-homekit-env.age".publicKeys = u ++ [hosts.home-ldn];
+
     # Pre authenticated keys for joining my tailscale/headscale network
     # this file is only used upon joining and will contain an expired key,
     # or a key that can only be used once.
