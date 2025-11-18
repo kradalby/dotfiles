@@ -65,6 +65,7 @@
       alejandra
       nodePackages.prettier
       shfmt
+      unstable.codex
     ]
     ++ lib.optionals stdenv.isDarwin [
       unstable.lima
