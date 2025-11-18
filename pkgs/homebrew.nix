@@ -102,7 +102,6 @@ _: {
       "Disk Speed Test" = 425264550;
       "Key Codes" = 414568915;
       "MQTT Explorer" = 1455214828;
-      "Microsoft Remote Desktop" = 1295203466;
       "Octotree" = 1457450145;
       "Patterns" = 429449079;
       "Pixelmator Pro" = 1289583905;
