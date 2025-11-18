@@ -7,11 +7,11 @@
     ../../common/tskey.nix
   ];
 
-  age.secrets.tasmota-homekit-env = {
-    file = ../../secrets/tasmota-homekit-env.age;
-    mode = "0400";
-    owner = "tasmota-homekit";
-  };
+  # age.secrets.tasmota-homekit-env = {
+  #   file = ../../secrets/tasmota-homekit-env.age;
+  #   mode = "0400";
+  #   owner = "tasmota-homekit";
+  # };
 
   services.tasmota-homekit = {
     enable = true;
@@ -19,7 +19,7 @@
 
     openFirewall = true;
 
-    environmentFile = config.age.secrets.tasmota-homekit-env.path;
+    # environmentFile = config.age.secrets.tasmota-homekit-env.path;
 
     ports = {
       hap = 51828;
