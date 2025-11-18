@@ -2,48 +2,38 @@
   config,
   pkgs,
   lib,
+  inputs,
   ...
 }: let
   sshKeys = import ../../metadata/ssh.nix;
 in {
   imports = [
     ../../common
-    ./hardware-configuration.nix
+    ../../common/incus-vm-ldn.nix
 
-    ../../common/acme.nix
-    ../../common/nginx.nix
     ../../common/containers.nix
 
-    ../../common/consul.nix
-    # ../../common/ddns.nix  # Disabled - no longer acting as router
-    # ../../common/smokeping-exporter.nix
-    # ../../common/miniupnp.nix  # Disabled - no longer acting as router
     ../../common/tailscale.nix
-    ../../modules/microvm-host.nix
-
-    ./microvm.nix
-    ./restic.nix
-    ./tailscale-headscale.nix
-    ./nvidia.nix
-    ./wireguard.nix
-    # ./corerad.nix  # Disabled - no longer acting as IPv6 router
-    ./dnsmasq.nix  # Config kept, service disabled
-    ./avahi.nix
-    ./networking.nix
-    ./nft.nix  # Config kept, faptables disabled
-    ./samba.nix
-    ./zfs.nix
-    ./syncthing.nix
-    ./coredns.nix
+    inputs.ssh-agent-mux.nixosModules.default
   ];
 
-  my = {
-    # No longer acting as router - wan interface not needed
-    # wan = "wan0";
-    lan = "lanbr0";
-
-    users.storage = true;
-    users.timemachine = true;
+  networking = {
+    hostName = "dev";
+    interfaces."${config.my.lan}" = {
+      useDHCP = false;
+      ipv4.addresses = [
+        {
+          address = "10.65.0.27";
+          prefixLength = 24;
+        }
+      ];
+      ipv4.routes = [
+        {
+          address = "10.65.0.1";
+          prefixLength = 32;
+        }
+      ];
+    };
   };
 
   boot.kernel.sysctl = {
@@ -79,6 +69,11 @@ in {
     tags = ["tag:ldn" "tag:gateway" "tag:server"];
   };
 
+  services.ssh-agent-mux = {
+    enable = true;
+    watchForSSHForward = true;
+  };
+
   environment.systemPackages = [
     # Do install the docker CLI to talk to podman.
     # Not needed when virtualisation.docker.enable = true;
@@ -86,8 +81,6 @@ in {
     pkgs.unstable.lima
     pkgs.nodejs_24
   ];
-
-  virtualisation.multipass.enable = true;
 
   security.sudo.extraRules = [
     {

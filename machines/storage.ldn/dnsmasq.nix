@@ -214,9 +214,9 @@ in {
   # Disabled - no longer have iot interface
   # networking.firewall.interfaces."iot".allowedUDPPorts = [67 68];
 
-  # Ensure that lanbr0 is up before dnsmasq starts.
-  systemd.services.dnsmasq.after = ["network-online.target" "sys-devices-virtual-net-lanbr0.device"];
-  systemd.services.dnsmasq.wants = ["network-online.target" "sys-devices-virtual-net-lanbr0.device"];
+  # Ensure network is up before dnsmasq starts.
+  systemd.services.dnsmasq.after = ["network-online.target"];
+  systemd.services.dnsmasq.wants = ["network-online.target"];
   services.dnsmasq = {
     # Disabled - no longer acting as DHCP server
     enable = false;
