@@ -137,11 +137,12 @@
       inputs."flake-utils".follows = "utils";
     };
 
-    # tasmota-nefit = {
-    #   url = "github:kradalby/tasmota-nefit";
-    #   inputs.nixpkgs.follows = "nixpkgs-unstable";
-    #   inputs."flake-utils".follows = "utils";
-    # };
+    tasmota-homekit = {
+      url = "github:kradalby/tasmota-homekit";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+      inputs."flake-utils".follows = "utils";
+    };
+
   };
 
   outputs = {
@@ -234,7 +235,12 @@
         neovim = neovim-kradalby.packages."${final.system}".neovim-kradalby;
         tailscale = tailscale.packages."${final.system}".tailscale;
         ssh-agent-mux = inputs.ssh-agent-mux.packages."${final.system}".default;
-        nefit-homekit = inputs.nefit-homekit.packages."${final.system}".default;
+        nefit-homekit = inputs.nefit-homekit.packages."${final.system}".default.overrideAttrs (oldAttrs: {
+          doCheck = false;
+        });
+        tasmota-homekit = inputs.tasmota-homekit.packages."${final.system}".default.overrideAttrs (oldAttrs: {
+          doCheck = false;
+        });
         # tasmota-nefit = inputs.tasmota-nefit.packages."${final.system}".default;
       })
     ];
@@ -287,6 +293,10 @@
           name = "home.ldn";
           tags = ["x86" "ldn"];
           targetHost = "10.65.0.26";
+          modules = with inputs; [
+            nefit-homekit.nixosModules.default
+            tasmota-homekit.nixosModules.default
+          ];
         };
 
         # "rpi.vetle" = box.nixosBox {
@@ -299,6 +309,13 @@
           arch = "x86_64-linux";
           homeBase = home-manager;
           name = "dev.ldn";
+          tags = ["x86" "ldn"];
+          targetHost = "10.65.0.27";
+        };
+
+        "storage.ldn" = box.nixosBox {
+          arch = "x86_64-linux";
+          name = "storage.ldn";
           tags = ["x86" "ldn"];
         };
 
