@@ -30,6 +30,10 @@
 
       setw -g mode-keys vi
 
+      # Name windows after the current directory unless renamed manually.
+      set -g automatic-rename on
+      set -g automatic-rename-format "#{b:pane_current_path}"
+
       # colon :
       bind : command-prompt
 
