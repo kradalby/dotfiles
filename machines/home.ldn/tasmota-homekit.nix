@@ -2,41 +2,9 @@
   config,
   pkgs,
   ...
-}: {
-  imports = [
-    ../../common/tskey.nix
-  ];
-
-  services.tasmota-homekit = {
-    enable = true;
-    package = pkgs.tasmota-homekit;
-
-    openFirewall = true;
-
-    ports = {
-      hap = 51828;
-      web = 51829;
-      mqtt = 51830;
-    };
-
-    hap = {
-      pin = "03145155";
-      storagePath = "/var/lib/tasmota-homekit";
-    };
-
-    plugsConfig = /etc/tasmota-homekit/plugs.hujson;
-
-    tailscale = {
-      hostname = "tasmota-homekit";
-      authKeyFile = config.age.secrets.tailscale-preauthkey.path;
-    };
-
-    log.level = "debug";
-  };
-
-  # Create plugs configuration file
-  environment.etc."tasmota-homekit/plugs.hujson" = {
-    text = builtins.toJSON {
+}: let
+  plugsFile = pkgs.writeText "tasmota-homekit-plugs.hujson" (
+    builtins.toJSON {
       plugs = [
         # Living Room plugs
         {
@@ -154,7 +122,43 @@
           };
         }
       ];
+    }
+  );
+in {
+  imports = [
+    ../../common/tskey.nix
+  ];
+
+  services.tasmota-homekit = {
+    enable = true;
+    package = pkgs.tasmota-homekit;
+
+    openFirewall = true;
+
+    ports = {
+      hap = 51828;
+      web = 51829;
+      mqtt = 51830;
     };
+
+    hap = {
+      pin = "03145155";
+      storagePath = "/var/lib/tasmota-homekit";
+    };
+
+    plugsConfig = plugsFile;
+
+    tailscale = {
+      hostname = "tasmota-homekit";
+      authKeyFile = config.age.secrets.tailscale-preauthkey.path;
+    };
+
+    log.level = "debug";
+  };
+
+  # Create plugs configuration file
+  environment.etc."tasmota-homekit/plugs.hujson" = {
+    source = plugsFile;
   };
 
 }
