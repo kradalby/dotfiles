@@ -8,15 +8,6 @@ _: {
       upgrade = true;
     };
 
-    taps = [
-      # "apparition47/tap"
-      # "dteoh/sqa"
-      # "lukakerr/things"
-      # "minio/stable"
-      # "sachaos/tap"
-      # "cirruslabs/cli"
-    ];
-
     brews = [
       # cdrkit in nixpkgs is only available for Linux
       "cdrtools"
