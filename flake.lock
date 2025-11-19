@@ -974,11 +974,11 @@
         "rust-overlay": "rust-overlay_4"
       },
       "locked": {
-        "lastModified": 1763555184,
-        "narHash": "sha256-yJ9CHGZPDVgFeGkouSwDyipL2L/g8OdCYJQ5EJn8Za0=",
+        "lastModified": 1763556826,
+        "narHash": "sha256-r3OFSPfreS6c9wETDq83ZnJ1wuIg3yx2ddD3IwRUSDM=",
         "owner": "kradalby",
         "repo": "ssh-agent-mux",
-        "rev": "804075d67f7aca917352218d9ff49ebee1689479",
+        "rev": "b05602e609ddbb103a00edd4341674d2253beacd",
         "type": "github"
       },
       "original": {
