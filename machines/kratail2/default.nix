@@ -49,13 +49,14 @@
 
   homebrew = {
     casks = [
-      "google-chrome"
       "imageoptim"
       "monitorcontrol"
+      "raycast"
+      "slack"
+      "slack-cli"
       "tigervnc-viewer"
       "utm"
       "zoom"
-      "slack-cli"
     ];
   };
 }
