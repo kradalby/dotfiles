@@ -57,7 +57,6 @@
           ShowFullURLInSmartSearchField = true;
           IncludeDevelopMenu = true;
           WebKitDeveloperExtrasEnabledPreferenceKey = true;
-          "com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled" = true;
         };
       };
     };
