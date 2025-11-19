@@ -399,11 +399,11 @@
         "rust-overlay": "rust-overlay"
       },
       "locked": {
-        "lastModified": 1763551188,
-        "narHash": "sha256-oGrudsbn2oZ5nxiC6R9rrExSzhYXXdoe/ssr6MQZu90=",
+        "lastModified": 1763576044,
+        "narHash": "sha256-dhsToa2D2Omdq+8i/KLZDZTa1xwNQLneSzhbfa4HwIs=",
         "owner": "jj-vcs",
         "repo": "jj",
-        "rev": "5dcbd54ea28048fe64f8338679fca3749eb3a547",
+        "rev": "248effb8ff56e3b8874ce372da34ae4694151e29",
         "type": "github"
       },
       "original": {
@@ -467,11 +467,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1763469130,
-        "narHash": "sha256-aeJpfui4xImLNdOBfwUDDUFkBZRVvXnOXQ6M+hI04Sg=",
+        "lastModified": 1763572143,
+        "narHash": "sha256-7SHqA4rrM+JONE/+C4SrMcSOznNVbuuYALYAlsVCrx0=",
         "owner": "kradalby",
         "repo": "nefit-homekit",
-        "rev": "721d9d655bf243ab4099abbd0c70c6f32a4649fc",
+        "rev": "133eb33e86372dd08576b282a1fbf9bbeee60613",
         "type": "github"
       },
       "original": {
@@ -637,11 +637,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1763553709,
-        "narHash": "sha256-bqrGNZzxuHbYWW16QNRBojedH52Btz2C/fGHGjFzMTA=",
+        "lastModified": 1763577805,
+        "narHash": "sha256-DsvgLsHIhNWFbaQaao/LL1bWEnFPBF6+vTjNc6wE69k=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "f6ddc4a78bc1da955f610cb65ff7c11e57aa9adb",
+        "rev": "87205ae8582ac858698526e0a53e3f2ac825f06d",
         "type": "github"
       },
       "original": {
@@ -700,11 +700,11 @@
     },
     "nixpkgs-master": {
       "locked": {
-        "lastModified": 1763555140,
-        "narHash": "sha256-jJsG/HFzhhBj56XUgWvN7/HzAEqp0ga6wXCCFSMw2Wc=",
+        "lastModified": 1763575448,
+        "narHash": "sha256-9MOYkKGTuzALyUXw3f5/ouNE4KaLysVAWkBD+wA/TWM=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "12796c2d8f6b99a0160fa4ec3faa21d24bc40db8",
+        "rev": "6c634f7efae329841baeed19cdb6a8c2fc801ba1",
         "type": "github"
       },
       "original": {
@@ -974,11 +974,11 @@
         "rust-overlay": "rust-overlay_4"
       },
       "locked": {
-        "lastModified": 1763556826,
-        "narHash": "sha256-r3OFSPfreS6c9wETDq83ZnJ1wuIg3yx2ddD3IwRUSDM=",
+        "lastModified": 1763576220,
+        "narHash": "sha256-Zda+x6jNuwQGVJsuqYj6jrMx6eVSXWJTTbotC0BEnjw=",
         "owner": "kradalby",
         "repo": "ssh-agent-mux",
-        "rev": "b05602e609ddbb103a00edd4341674d2253beacd",
+        "rev": "2639078d9cedd316c1e96320485fc50e780809bf",
         "type": "github"
       },
       "original": {
@@ -1148,11 +1148,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1763469927,
-        "narHash": "sha256-bSScr6tYGiBF8ORHJ8/d2Bvv6OVB98+iEy1BE96BCkQ=",
+        "lastModified": 1763574198,
+        "narHash": "sha256-QhdHSfZGfAMxrYeQ1+PyKE2F2KDBWSrSmUWbHuyuZbw=",
         "owner": "kradalby",
         "repo": "tasmota-homekit",
-        "rev": "76db87d253cca88e85af112fe9692ec6e232db82",
+        "rev": "0868cbf656d08c718004ac5f72d501866b2121bd",
         "type": "github"
       },
       "original": {
