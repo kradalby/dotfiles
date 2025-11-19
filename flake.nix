@@ -235,12 +235,8 @@
         neovim = neovim-kradalby.packages."${final.system}".neovim-kradalby;
         tailscale = tailscale.packages."${final.system}".tailscale;
         ssh-agent-mux = inputs.ssh-agent-mux.packages."${final.system}".default;
-        nefit-homekit = inputs.nefit-homekit.packages."${final.system}".default.overrideAttrs (oldAttrs: {
-          doCheck = false;
-        });
-        tasmota-homekit = inputs.tasmota-homekit.packages."${final.system}".default.overrideAttrs (oldAttrs: {
-          doCheck = false;
-        });
+        nefit-homekit = inputs.nefit-homekit.packages."${final.system}".default;
+        tasmota-homekit = inputs.tasmota-homekit.packages."${final.system}".default;
         # tasmota-nefit = inputs.tasmota-nefit.packages."${final.system}".default;
       })
     ];
