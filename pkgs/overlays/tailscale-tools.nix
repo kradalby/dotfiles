@@ -24,5 +24,4 @@ buildGoModule rec {
     "cmd/nardump"
     "cmd/tsidp"
   ];
-  doCheck = false;
 }

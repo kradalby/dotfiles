@@ -14,7 +14,6 @@
       sha256 = "0vy2xy78nqqqwbgk96cfrb5lgivjldc5ba5mf81w1bi32v4930ia";
     };
     format = "setuptools";
-    doCheck = false;
     buildInputs = [];
     checkInputs = [];
     nativeBuildInputs = [];
@@ -28,7 +27,6 @@
       sha256 = "00fwahfrq64a7wz471jax2lba56z88plawr7ksl24a184pbdwbsj";
     };
     format = "wheel";
-    doCheck = false;
     buildInputs = [];
     checkInputs = [];
     nativeBuildInputs = [];

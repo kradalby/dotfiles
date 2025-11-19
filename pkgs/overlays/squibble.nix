@@ -19,5 +19,4 @@ buildGoModule rec {
     CGO_ENABLED = 0;
   };
   subPackages = ["cmd/squibble"];
-  doCheck = false;
 }

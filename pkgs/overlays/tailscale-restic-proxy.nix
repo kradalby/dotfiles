@@ -17,5 +17,4 @@ buildGoModule rec {
   vendorHash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
   CGO_ENABLED = 0;
   subPackages = ["cmd/ts-restic-proxy"];
-  doCheck = false;
 }
