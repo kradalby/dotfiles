@@ -41,6 +41,12 @@
     }
   ];
 
+  # Launchd logs: /Users/kradalby/Library/Logs/autossh-krair-agent-forward[-error].log
+  launchd.daemons.autossh-krair-agent-forward.serviceConfig = {
+    StandardOutPath = "/Users/kradalby/Library/Logs/autossh-krair-agent-forward.log";
+    StandardErrorPath = "/Users/kradalby/Library/Logs/autossh-krair-agent-forward-error.log";
+  };
+
   homebrew = {
     casks = [
       "google-chrome"
