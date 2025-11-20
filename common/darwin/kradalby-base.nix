@@ -36,10 +36,6 @@
     backupFileExtension = "hm_bak~";
     useUserPackages = true;
     useGlobalPkgs = true;
-    extraSpecialArgs = {
-      # Pass darwin config to home-manager so it can access services.ssh-agent-mux.socketPath
-      osConfig = config;
-    };
     users."${machine.username}" = {
       imports = [
         ../../home

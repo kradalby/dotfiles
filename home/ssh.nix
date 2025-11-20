@@ -1,7 +1,6 @@
 {
   pkgs,
   lib,
-  osConfig,
   ...
 }: let
   isWorkstation = pkgs.stdenv.isDarwin && pkgs.stdenv.isAarch64;
@@ -52,8 +51,9 @@ in {
     };
   };
 
-  # Set SSH_AUTH_SOCK to point to ssh-agent-mux socket on macOS workstations
-  home.sessionVariables = lib.mkIf (isWorkstation && osConfig.services.ssh-agent-mux.enable) {
-    SSH_AUTH_SOCK = osConfig.services.ssh-agent-mux.socketPath;
-  };
+  # Set SSH_AUTH_SOCK to 1Password agent only if not already set
+  # This allows forwarded agents (ssh -A) to take priority
+  home.sessionVariablesExtra = lib.mkIf isWorkstation ''
+    export SSH_AUTH_SOCK="''${SSH_AUTH_SOCK:-$HOME/.ssh/ssh-agent-mux.sock}"
+  '';
 }
