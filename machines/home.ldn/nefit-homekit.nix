@@ -31,9 +31,7 @@
 
     hapPin = "03145154";
 
-    log = {
-      level = "debug";
-    };
+    log.level = lib.mkForce "debug";
 
     tailscale = {
       hostname = "nefit-homekit";

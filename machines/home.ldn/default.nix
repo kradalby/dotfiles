@@ -40,5 +40,6 @@
       ];
     };
     interfaces.wlan0.useDHCP = false;
+    firewall.enable = lib.mkForce false;
   };
 }
