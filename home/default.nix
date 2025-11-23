@@ -165,7 +165,6 @@
     ./tmux.nix
     ./ssh.nix
 
-    ../pkgs/workstation.nix
-    ../pkgs/editor-tooling.nix
+    ../pkgs/home-packages.nix
   ];
 }
