@@ -112,14 +112,14 @@ in
     "ovpn-ntnu-crt.age".publicKeys = u ++ [hosts.core-ntnu];
     "ovpn-ntnu-key.age".publicKeys = u ++ [hosts.core-ntnu];
 
-    # Postgres
-    "postgres-keycloak.age".publicKeys = u ++ [hosts.core-oracldn];
-
     # Nextcloud
     "nextcloud.age".publicKeys = u ++ [hosts.core-oracldn];
 
     # minio
     "minio-oracldn.age".publicKeys = u ++ [hosts.core-oracldn hosts.core-tjoda];
+
+    # Postgres
+    "postgres-keycloak.age".publicKeys = u ++ [hosts.core-oracldn];
 
     # litestream
     "litestream.age".publicKeys = u ++ [hosts.core-oracldn hosts.headscale-oracldn];
@@ -142,6 +142,9 @@ in
     # golink
     "golink-tskey.age".publicKeys = u ++ [hosts.core-oracldn];
 
+    # ghostfolio
+    "ghostfolio-env.age".publicKeys = u ++ [hosts.core-oracldn];
+
     # attic
     "attic-env.age".publicKeys = u ++ [hosts.dev-oracfurt];
 
@@ -156,9 +159,6 @@ in
     # WIFI
     "ldn-wifi.age".publicKeys = u ++ [hosts.dev-ldn hosts.eye-ldn];
     "kphone15-wifi.age".publicKeys = u ++ [hosts.core-ldn hosts.dev-ldn];
-
-    # ghostfolio
-    "ghostfolio-env.age".publicKeys = u ++ [hosts.core-oracldn];
 
     # nefit-homekit
     "nefit-homekit-env.age".publicKeys = u ++ [hosts.home-ldn];

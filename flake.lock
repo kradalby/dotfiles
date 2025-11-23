@@ -467,11 +467,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1763588618,
-        "narHash": "sha256-i1kFn6PEyNnkumlG60hg6Z/ORjA47N0L/cBoT9yla8M=",
+        "lastModified": 1763931110,
+        "narHash": "sha256-mfScovZoSLRwxRwS4pRXgOEvQXOgJevDSRT/U4fd9nE=",
         "owner": "kradalby",
         "repo": "nefit-homekit",
-        "rev": "7c0e2a2cc80e0029c7478f8bcc50a9ed88878e8e",
+        "rev": "c12225fa68081a138b855afeeb04a69dee7db7d3",
         "type": "github"
       },
       "original": {
@@ -1148,11 +1148,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1763915729,
-        "narHash": "sha256-MXMuYGRIkD3hYQw/GmCM66/QvWBNJJCXRQWj4Ndcz0Y=",
+        "lastModified": 1763931000,
+        "narHash": "sha256-ErgKAzetrWrRUbYdVUqOA/eNGCls7ylmEHu07Jmkv0k=",
         "owner": "kradalby",
         "repo": "tasmota-homekit",
-        "rev": "e9a8004ee1613575661563c0e834dfa54d485a95",
+        "rev": "3d8d91b8f7e6c0dbfd6a9e817ab3e354fff74078",
         "type": "github"
       },
       "original": {

@@ -3,9 +3,7 @@
 
   my.postgres.databases = [
     "glauth"
-    "nextcloud"
     "umami"
-    "ghostfolio"
     "keycloak"
   ];
 

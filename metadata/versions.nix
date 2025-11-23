@@ -19,8 +19,6 @@
   };
 
   ## home.ldn
-  # https://hub.docker.com/r/koush/scrypted/tags
-  scrypted = "koush/scrypted:18-jammy-full.s6-v0.118.0";
   # https://github.com/dmunozv04/iSponsorBlockTV/pkgs/container/isponsorblocktv
   isponsor = "ghcr.io/dmunozv04/isponsorblocktv:v2.2.1";
 
@@ -29,8 +27,6 @@
   umami = "ghcr.io/umami-software/umami:postgresql-v2.13.2";
   # https://hub.docker.com/r/frooodle/s-pdf/tags
   stirling = "frooodle/s-pdf:0.29.0";
-  # https://hub.docker.com/r/ghostfolio/ghostfolio/tags
-  ghostfolio = "ghostfolio/ghostfolio:2.112.0";
   # https://hub.docker.com/r/kradalby/glauth/tags
   glauth = "kradalby/glauth:v2.0.0-040322-arm64";
   # https://hub.docker.com/r/glauth/glauth/tags

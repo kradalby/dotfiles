@@ -28,9 +28,7 @@
     # ./step-ca.nix
     ./openvpn.nix
     ./postgres.nix
-    ./nextcloud.nix
     ./stirling-pdf.nix
-    ./ghostfolio.nix
     ./litestream.nix
 
     ./headscale.nix
