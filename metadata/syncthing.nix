@@ -9,9 +9,12 @@
     "dev.terra" = {id = "IMAN3KP-YRAZ7OA-OZEXWO2-VALZ6IB-JNLEANA-CHSMUP4-24WNQ33-SXU2MAE";};
     "dev.oracfurt" = {id = "5CUHKVK-U5FYJQU-7N7TEMB-QSUOI6M-5NEGQR5-MEFDJHH-DIPVQCD-PBWXWQ4";};
     "dev.ldn" = {id = "YQJMTP4-K6URWRP-S4BMCXI-YWBWOK6-WTLOKTC-5AK5ULJ-MIF3FC5-ML6PTAM";};
+    "storage.ldn" = {
+      id = "3CWYJRN-SD4JSV5-CBDNDUR-PIF4TNC-SFEL67Q-W3YIRPK-ZZV27KX-2O3MZAH";
+    };
   };
 
-  storage = ["kratail2" "krair" "core.tjoda" "core.terra" "dev.ldn"];
+  storage = ["kratail2" "krair" "core.tjoda" "core.terra" "dev.ldn" "storage.ldn"];
 
   folders = {};
 }

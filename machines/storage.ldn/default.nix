@@ -16,15 +16,32 @@ in {
 
     ../../common/consul.nix
     ../../common/tailscale.nix
+    ../../common/syncthing-storage.nix
 
     ./restic.nix
     ./samba.nix
+    ./zfs.nix
     # ./dnsmasq.nix  # Config kept, service disabled
   ];
 
   networking = {
     hostName = "storage";
-    interfaces."${config.my.lan}".useDHCP = true;
+    hostId = "007f0200";
+    interfaces."${config.my.lan}" = {
+      useDHCP = false;
+      ipv4.addresses = [
+        {
+          address = "10.65.0.28";
+          prefixLength = 24;
+        }
+      ];
+      ipv4.routes = [
+        {
+          address = "10.65.0.1";
+          prefixLength = 32;
+        }
+      ];
+    };
   };
 
   my.users = {

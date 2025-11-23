@@ -237,7 +237,6 @@
         ssh-agent-mux = inputs.ssh-agent-mux.packages."${final.system}".default;
         nefit-homekit = inputs.nefit-homekit.packages."${final.system}".default;
         tasmota-homekit = inputs.tasmota-homekit.packages."${final.system}".default;
-        # tasmota-nefit = inputs.tasmota-nefit.packages."${final.system}".default;
       })
     ];
 
@@ -313,6 +312,7 @@
           arch = "x86_64-linux";
           name = "storage.ldn";
           tags = ["x86" "ldn"];
+          targetHost = "10.65.0.28";
         };
 
         "unifi.ldn" = box.nixosBox {
