@@ -21,6 +21,7 @@ with builtins; let
     unifi-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMj/UEXnWrt5J+VU39eVaWeXKuUzwLN8sl31FLLHmB7z";
     eye-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDe2WAzC0HAlgMN3l2D6xjVme/mwYTVCJSq+0V1HCbAW";
     lenovo-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJTZ76SNK6QJ2ptArkXstRNOdY1PxNHHon9gh3k+fDo+";
+    storage-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDadg5UD0EKQZS3V+MdwRXISeipo4szoim1PQorKSjmP";
 
     core-oracldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGEe9eIMf462ZQhE8Nl9jyUscRtTTYeAIPRN2kvO3cdC";
 
