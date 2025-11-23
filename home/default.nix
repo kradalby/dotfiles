@@ -3,7 +3,9 @@
   pkgs,
   lib,
   ...
-}: {
+}: let
+  versions = import ../metadata/versions.nix;
+in {
   # Available options
   # https://nix-community.github.io/home-manager/options.html
 
@@ -79,11 +81,11 @@
 
       ".actrc".text = ''
         --container-daemon-socket unix:///Users/kradalby/.colima/default/docker.sock
-        --platform ubuntu-latest=ghcr.io/catthehacker/ubuntu:act-latest
-        --platform linux=ghcr.io/catthehacker/ubuntu:act-latest
-        --platform ubuntu-24.04=ghcr.io/catthehacker/ubuntu:act-24.04
-        --platform ubuntu-22.04=ghcr.io/catthehacker/ubuntu:act-22.04
-        --platform ubuntu-20.04=ghcr.io/catthehacker/ubuntu:act-20.04
+        --platform ubuntu-latest=${versions.act.ubuntuLatest}
+        --platform linux=${versions.act.linux}
+        --platform ubuntu-24.04=${versions.act.ubuntu2404}
+        --platform ubuntu-22.04=${versions.act.ubuntu2204}
+        --platform ubuntu-20.04=${versions.act.ubuntu2004}
       '';
 
       # ".config/zed/settings.json".text = builtins.toJSON (import ./zed.nix);

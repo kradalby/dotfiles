@@ -20,6 +20,9 @@ _: {
 
       # Incus isnt buildable from nixpkgs for macOS
       "incus"
+
+      # Terminal notifications for done.fish integration
+      "terminal-notifier"
     ];
 
     casks = [

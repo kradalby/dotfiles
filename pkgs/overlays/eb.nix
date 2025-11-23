@@ -3,12 +3,14 @@
   stdenv,
   fetchFromGitHub,
   rustPlatform,
-}:
+}: let
+  versions = import ../../metadata/versions.nix;
+in
 rustPlatform.buildRustPackage rec {
   # NOTE: manual update required
   # https://github.com/rye/eb
   pname = "eb";
-  version = "v0.5.0";
+  version = versions.pkgs.overlays.eb;
 
   src = fetchFromGitHub {
     owner = "rye";

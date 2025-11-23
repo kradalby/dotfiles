@@ -5,11 +5,12 @@
   python3,
   nodejs,
   makeWrapper,
-}:
-
+}: let
+  versions = import ../../../metadata/versions.nix;
+in
 buildNpmPackage rec {
   pname = "homebridge-config-ui-x";
-  version = "4.56.4";
+  version = versions.pkgs.homebridge.configUi;
 
   src = fetchFromGitHub {
     owner = "homebridge";

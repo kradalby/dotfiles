@@ -3,10 +3,12 @@
   fetchFromGitHub,
   lib,
   installShellFiles,
-}:
+}: let
+  versions = import ../../metadata/versions.nix;
+in
 buildGoModule rec {
   pname = "gitutil";
-  version = "1625713288102f8642c0619f12fc83ad609bf71b";
+  version = versions.pkgs.overlays.gitutil;
 
   src = fetchFromGitHub {
     owner = "bradfitz";

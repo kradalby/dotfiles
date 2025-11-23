@@ -4,6 +4,7 @@
   lib,
   ...
 }: let
+  versions = import ../../metadata/versions.nix;
   domain = "ldap.kradalby.no";
 
   ui = {
@@ -26,8 +27,8 @@ in {
   users.groups.glauth = {};
 
   virtualisation.oci-containers.containers.glauth = {
-    # image = "glauth/glauth:v2.0.0";
-    image = "kradalby/glauth:v2.0.0-040322-arm64";
+    # image = versions.glauthUpstream;
+    image = versions.glauth;
     user = config.users.users.glauth.uid;
     # workdir = "/home/podmanager";
     autoStart = true;
@@ -43,7 +44,7 @@ in {
   };
 
   # virtualisation.oci-containers.containers.glauth-ui = {
-  #   image = "kradalby/glauth-ui:040322-2-arm64";
+  #   image = versions.glauthUi;
   #   user = config.users.users.glauth.uid;
   #   # workdir = " /home/podmanager ";
   #   autoStart = true;

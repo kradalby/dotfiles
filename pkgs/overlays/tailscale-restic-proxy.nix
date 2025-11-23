@@ -1,12 +1,14 @@
 {
   buildGoModule,
   fetchFromGitHub,
-}:
+}: let
+  versions = import ../../metadata/versions.nix;
+in
 buildGoModule rec {
   name = "tailscale-restic-proxy";
   # NOTE: manual update required
   # https://github.com/JonaEnz/tailscale-restic-proxy/commits/main/
-  version = "7568fa9106768a017465ac6a00b5e20865bd4b4f";
+  version = versions.pkgs.overlays.tailscaleResticProxy;
 
   src = fetchFromGitHub {
     owner = "JonaEnz";

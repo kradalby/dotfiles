@@ -3,7 +3,9 @@
   lib,
   config,
   ...
-}: {
+}: let
+  versions = import ../metadata/versions.nix;
+in {
   imports = [../common/var.nix];
 
   programs.fish = {
@@ -17,7 +19,7 @@
           owner = "lilyball";
           repo = "nix-env.fish";
           # NOTE: manual update required
-          rev = "7b65bd228429e852c8fdfa07601159130a818cfa";
+          rev = versions.fishPlugins.nixEnv;
           sha256 = "sha256-RG/0rfhgq6aEKNZ0XwIqOaZ6K5S4+/Y5EEMnIdtfPhk=";
         };
       }
@@ -27,24 +29,20 @@
           owner = "gazorby";
           repo = "fish-abbreviation-tips";
           # NOTE: manual update required
-          rev = "8ed76a62bb044ba4ad8e3e6832640178880df485";
+          rev = versions.fishPlugins.abbrTips;
           sha256 = "sha256-F1t81VliD+v6WEWqj1c1ehFBXzqLyumx5vV46s/FZRU=";
         };
       }
-      # Does not work with ghostty yet
-      # https://github.com/julienXX/terminal-notifier/issues/301
-      # https://github.com/franciscolourenco/done/issues/148
-      # https://github.com/ghostty-org/ghostty/issues/1917
-      # {
-      #   name = "done";
-      #   src = pkgs.fetchFromGitHub {
-      #     owner = "franciscolourenco";
-      #     repo = "done";
-      #     # NOTE: manual update required
-      #     rev = "eb32ade85c0f2c68cbfcff3036756bbf27a4f366";
-      #     sha256 = "sha256-DMIRKRAVOn7YEnuAtz4hIxrU93ULxNoQhW6juxCoh4o=";
-      #   };
-      # }
+      {
+        name = "done";
+        src = pkgs.fetchFromGitHub {
+          owner = "franciscolourenco";
+          repo = "done";
+          # NOTE: manual update required
+          rev = versions.fishPlugins.done;
+          sha256 = "sha256-WA6DBrPBuXRIloO05UBunTJ9N01d6tO1K1uqojjO0mo=";
+        };
+      }
     ];
 
     loginShellInit = let

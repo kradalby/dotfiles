@@ -1,12 +1,14 @@
 {
   buildGoModule,
   fetchFromGitHub,
-}:
+}: let
+  versions = import ../../metadata/versions.nix;
+in
 buildGoModule rec {
   name = "squibble";
   # NOTE: manual update required
   # https://github.com/tailscale/squibble/commits/main/
-  version = "4d5df9caa9931e8341ce65d7467681c0b225d22b";
+  version = versions.pkgs.overlays.squibble;
 
   src = fetchFromGitHub {
     owner = "tailscale";

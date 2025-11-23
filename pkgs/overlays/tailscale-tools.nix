@@ -3,13 +3,15 @@
   fetchFromGitHub,
   lib,
   installShellFiles,
-}:
+}: let
+  versions = import ../../metadata/versions.nix;
+in
 buildGoModule rec {
   name = "tailscale-tools";
   # NOTE: manual update required
   # https://github.com/tailscale/tailscale/releases
   # Keeping at previous version - v1.90.4 requires Go 1.25.3 which is not available yet
-  version = "d8324674610231c36dc010854e82f0c087637df1";
+  version = versions.pkgs.overlays.tailscaleTools;
 
   src = fetchFromGitHub {
     owner = "tailscale";

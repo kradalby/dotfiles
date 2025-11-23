@@ -1,12 +1,14 @@
 {
   buildGoModule,
   fetchFromGitHub,
-}:
+}: let
+  versions = import ../../metadata/versions.nix;
+in
 buildGoModule rec {
   name = "setec";
   # NOTE: manual update required
   # https://github.com/tailscale/setec/commits/main/
-  version = "bc7a01a47c9cda0acbff2a49eda50708f59a47b1";
+  version = versions.pkgs.overlays.setec;
 
   src = fetchFromGitHub {
     owner = "tailscale";

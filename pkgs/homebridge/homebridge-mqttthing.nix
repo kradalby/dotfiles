@@ -2,11 +2,12 @@
   lib,
   buildNpmPackage,
   fetchFromGitHub,
-}:
-
+}: let
+  versions = import ../../../metadata/versions.nix;
+in
 buildNpmPackage rec {
   pname = "homebridge-mqttthing";
-  version = "1.1.47"; # NOTE: manual update required
+  version = versions.pkgs.homebridge.mqttthing; # NOTE: manual update required
 
   src = fetchFromGitHub {
     owner = "arachnetech";

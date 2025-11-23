@@ -3,12 +3,14 @@
   stdenv,
   fetchFromGitHub,
   rustPlatform,
-}:
+}: let
+  versions = import ../../metadata/versions.nix;
+in
 rustPlatform.buildRustPackage rec {
   pname = "cookcli";
   # NOTE: manual update required
   # https://github.com/cooklang/cookcli/releases
-  version = "v0.18.2";
+  version = versions.pkgs.overlays.cook;
 
   src = fetchFromGitHub {
     owner = "cooklang";

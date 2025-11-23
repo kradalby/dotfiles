@@ -1,10 +1,12 @@
 {
 pkgs,
 fetchFromGitHub,
-}:
+}: let
+  versions = import ../../metadata/versions.nix;
+in
 pkgs.stdenv.mkDerivation rec {
     pname = "webrepl";
-    version = "1e09d9a1d90fe52aba11d1e659afbc95a50cf088";
+    version = versions.pkgs.overlays.webreplCli;
 
     src = fetchFromGitHub rec {
       inherit pname version;

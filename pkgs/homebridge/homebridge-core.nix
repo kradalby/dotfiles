@@ -4,11 +4,12 @@
   fetchFromGitHub,
   python3,
   nodejs,
-}:
-
+}: let
+  versions = import ../../../metadata/versions.nix;
+in
 buildNpmPackage rec {
   pname = "homebridge";
-  version = "1.8.4";
+  version = versions.pkgs.homebridge.core;
 
   src = fetchFromGitHub {
     owner = "homebridge";
