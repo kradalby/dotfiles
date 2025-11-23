@@ -16,7 +16,7 @@ in
   // lib.mkMerge [
     {
       services.homebridges.mqttthing = {
-        enable = true;
+        enable = false;
 
         plugins = with pkgs.homebridgePlugins; [
           homebridge-mqttthing

@@ -20,7 +20,7 @@
 
     environmentFile = config.age.secrets.nefit-homekit-env.path;
 
-    storagePath = "/var/lib/nefit-homekit";
+    dataDir = "/var/lib/nefit-homekit";
 
     openFirewall = true;
 

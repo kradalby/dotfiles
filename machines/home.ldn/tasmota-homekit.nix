@@ -144,6 +144,7 @@ in {
     package = pkgs.tasmota-homekit;
 
     openFirewall = true;
+    dataDir = "/var/lib/tasmota-homekit";
 
     ports = {
       hap = 51828;
@@ -153,7 +154,6 @@ in {
 
     hap = {
       pin = "03145155";
-      storagePath = "/var/lib/tasmota-homekit";
     };
 
     plugsConfig = plugsFile;

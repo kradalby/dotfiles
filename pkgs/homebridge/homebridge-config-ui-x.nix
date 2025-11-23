@@ -6,7 +6,7 @@
   nodejs,
   makeWrapper,
 }: let
-  versions = import ../../../metadata/versions.nix;
+  versions = import ../../metadata/versions.nix;
 in
 buildNpmPackage rec {
   pname = "homebridge-config-ui-x";

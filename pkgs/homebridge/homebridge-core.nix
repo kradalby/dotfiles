@@ -5,7 +5,7 @@
   python3,
   nodejs,
 }: let
-  versions = import ../../../metadata/versions.nix;
+  versions = import ../../metadata/versions.nix;
 in
 buildNpmPackage rec {
   pname = "homebridge";
