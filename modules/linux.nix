@@ -9,5 +9,6 @@
     ./faptables.nix
     ./attic-watch.nix
     ./tsidp.nix
+    ./vhost.nix
   ];
 }
