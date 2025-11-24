@@ -241,11 +241,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1763460469,
-        "narHash": "sha256-TcMrvFR+LpBt4zjIbrg1oloO09XQpnltgcZQ322mCrw=",
+        "lastModified": 1763963002,
+        "narHash": "sha256-oH1IQElWaY/gAZ2M5Ju2rFA6ADsIALZjCd29jzw8dQM=",
         "owner": "juanfont",
         "repo": "headscale",
-        "rev": "72d5fd04a74fae6ec248aeaf1b8ad8a5c6920375",
+        "rev": "9c4c017eac2e81908d2ae7d8d777e143a13a1772",
         "type": "github"
       },
       "original": {
@@ -283,11 +283,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1763906693,
-        "narHash": "sha256-inm7paa3myo8gE4TzjM8OPvsEg8xocWreIZBgBPEKgo=",
+        "lastModified": 1763963090,
+        "narHash": "sha256-zR7uDZdQUUC+gBOi4byefMvIZuSBeMC6GswGNsTgQlM=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "3d6c1c8fa0bea3a1a7ba23d6fa5993116766073b",
+        "rev": "7702d14879e8f0148fa168e38f3eaa2650fa0d85",
         "type": "github"
       },
       "original": {
@@ -399,11 +399,11 @@
         "rust-overlay": "rust-overlay"
       },
       "locked": {
-        "lastModified": 1763866812,
-        "narHash": "sha256-sFaaiJKU/68w5KNEJhLX+84bnW0J51e9obvatsJ7tCs=",
+        "lastModified": 1763948372,
+        "narHash": "sha256-/rrw8MVtwCHbDhXx4Tncec5saMg0wj6Elh04VdfWlOQ=",
         "owner": "jj-vcs",
         "repo": "jj",
-        "rev": "19527a06167a17801b48ceca33a7646b8ec4e2f3",
+        "rev": "c93682f218ea4e8a8a7aa4041618051f613a9d45",
         "type": "github"
       },
       "original": {
@@ -422,11 +422,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1763449676,
-        "narHash": "sha256-S4W6zG6IGKrCNeT/ap5+n3dCD5eGGuM1e+FMIJEIZFA=",
+        "lastModified": 1763930341,
+        "narHash": "sha256-U12pUHJOlzjipTTRT0C+eiY6BTtafmmdn8OLis8Jn7o=",
         "owner": "kradalby",
         "repo": "kra",
-        "rev": "04da6791666a2a6dd10f9293993faa810c4d07e9",
+        "rev": "fcb00e81f17fc0db073dfef44e7460c50e62f45a",
         "type": "github"
       },
       "original": {
@@ -444,11 +444,11 @@
         "spectrum": "spectrum"
       },
       "locked": {
-        "lastModified": 1763864859,
-        "narHash": "sha256-LevKM+WWayw2kQuZqj38VUNFtlJNm4b3jbK47litZpY=",
+        "lastModified": 1763928900,
+        "narHash": "sha256-4+5LVMFWSUppY5yvFFdV+T8Lc/rgSYEGx38/9Y20+EI=",
         "owner": "astro",
         "repo": "microvm.nix",
-        "rev": "fa89701287bdb0bc51f989b0c67fa70691ed7b5f",
+        "rev": "e3e222005b29a78f85128573f3c6f09a11270c91",
         "type": "github"
       },
       "original": {
@@ -467,11 +467,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1763931110,
-        "narHash": "sha256-mfScovZoSLRwxRwS4pRXgOEvQXOgJevDSRT/U4fd9nE=",
+        "lastModified": 1763964816,
+        "narHash": "sha256-1wlS/YDtb1pHcpVgU1qWiG+86CrSiVCzeREC374FS0g=",
         "owner": "kradalby",
         "repo": "nefit-homekit",
-        "rev": "c12225fa68081a138b855afeeb04a69dee7db7d3",
+        "rev": "2b1e4b181e04dbe01338ed20ca84f4b1c14e51aa",
         "type": "github"
       },
       "original": {
@@ -637,11 +637,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1763915946,
-        "narHash": "sha256-+OuUIRQynqY8LGrjfBOGEtgcAdhg39qs09Z+2wsJrNY=",
+        "lastModified": 1763961993,
+        "narHash": "sha256-pwpUu8xwa8AP7MgNT6mOBHIrJaYcvIuGE+QUfG0wyl4=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "5caa2dc53caade85ee8f56f8ea9555b55a67af89",
+        "rev": "465d4c0017f684886a508c96095231be490a8bca",
         "type": "github"
       },
       "original": {
@@ -653,11 +653,11 @@
     },
     "nixpkgs-darwin": {
       "locked": {
-        "lastModified": 1763771804,
-        "narHash": "sha256-G2ZslaqBWgqZX3kExPs6va0QZY1Q7DGa/JNZzDfjiRc=",
+        "lastModified": 1763927997,
+        "narHash": "sha256-exWM223/zmAJ94mHdIcf7KVXydlz5w4xgBLwTLPEzSI=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "5324b04045884fc756817f0760e90a24165d4018",
+        "rev": "3fd758b24d9f5079e5e46a44d26f00a27950f2d6",
         "type": "github"
       },
       "original": {
@@ -700,11 +700,11 @@
     },
     "nixpkgs-master": {
       "locked": {
-        "lastModified": 1763915620,
-        "narHash": "sha256-OwuK+7Pls3FzYZdtmcYh1m/6IdeEFRpESl+54i401Sk=",
+        "lastModified": 1763964338,
+        "narHash": "sha256-5HsjjnOM6RgIxMBlIxXyvnhOFOMkVQjGAEQri+vJ6bM=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "e2e2ccdbf102da63f59b5d9735ab627889910b16",
+        "rev": "d021d06d5767c3eab8dc1b54cebee355528e18ff",
         "type": "github"
       },
       "original": {
@@ -748,11 +748,11 @@
     },
     "nixpkgs-unstable": {
       "locked": {
-        "lastModified": 1763618868,
-        "narHash": "sha256-v5afmLjn/uyD9EQuPBn7nZuaZVV9r+JerayK/4wvdWA=",
+        "lastModified": 1763806073,
+        "narHash": "sha256-FHsEKDvfWpzdADWj99z7vBk4D716Ujdyveo5+A048aI=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "a8d610af3f1a5fb71e23e08434d8d61a466fc942",
+        "rev": "878e468e02bfabeda08c79250f7ad583037f2227",
         "type": "github"
       },
       "original": {
@@ -974,11 +974,11 @@
         "rust-overlay": "rust-overlay_4"
       },
       "locked": {
-        "lastModified": 1763582554,
-        "narHash": "sha256-KhC99cPn9K+ItjB6GdemGGQgEQVRHnSA510JaI+ZQDo=",
+        "lastModified": 1763964191,
+        "narHash": "sha256-yNstOzOvarmSbw7yrPYjv1fvWEZf+X5P67Y1wVSSzF8=",
         "owner": "kradalby",
         "repo": "ssh-agent-mux",
-        "rev": "a4fbcea672ff57842a226e5a1a32b41419fa3e49",
+        "rev": "97337090dc32c438a0ebb36b55bd24d6bbbe988d",
         "type": "github"
       },
       "original": {
@@ -1148,11 +1148,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1763931000,
-        "narHash": "sha256-ErgKAzetrWrRUbYdVUqOA/eNGCls7ylmEHu07Jmkv0k=",
+        "lastModified": 1763964416,
+        "narHash": "sha256-4Clgohh2YUjlSVfTwQMttUf+aAaPbnE5DQO813AigZM=",
         "owner": "kradalby",
         "repo": "tasmota-homekit",
-        "rev": "3d8d91b8f7e6c0dbfd6a9e817ab3e354fff74078",
+        "rev": "115dbdf6717722878f23ac6b91a2f88796d26b57",
         "type": "github"
       },
       "original": {
