@@ -3,10 +3,7 @@
   pkgs,
   lib,
   ...
-}: let
-  wireguardHosts = import ../../metadata/wireguard.nix {inherit lib config;};
-  wireguardConfig = wireguardHosts.servers.oraclefurt;
-in {
+}: {
   imports = [
     ../../common
     ./hardware-configuration.nix
@@ -70,7 +67,7 @@ in {
       allowedUDPPorts = lib.mkForce [
         443 # HTTPS
         config.services.tailscale.port
-        wireguardConfig.endpoint_port
+        51820 # WireGuard
       ];
 
       trustedInterfaces = [config.my.lan];
@@ -96,7 +93,10 @@ in {
     };
   };
 
-  services.tailscale = {
+  services.tailscale = let
+    wireguardHosts = import ../../metadata/wireguard.nix {inherit lib config;};
+    wireguardConfig = wireguardHosts.servers.oraclefurt;
+  in {
     advertiseRoutes = wireguardConfig.additional_networks;
     tags = ["tag:oracfurt" "tag:gateway" "tag:server"];
   };

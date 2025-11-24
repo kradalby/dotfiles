@@ -3,10 +3,7 @@
   pkgs,
   lib,
   ...
-}: let
-  wireguardHosts = import ../../metadata/wireguard.nix {inherit lib;};
-  wireguardConfig = wireguardHosts.servers.oracleldn;
-in {
+}: {
   imports = [
     ../../common
     ./hardware-configuration.nix
@@ -107,14 +104,17 @@ in {
       allowedUDPPorts = lib.mkForce [
         443 # HTTPS
         config.services.tailscale.port
-        wireguardConfig.endpoint_port
+        51820 # WireGuard
       ];
 
       trustedInterfaces = [config.my.lan "docker0"];
     };
   };
 
-  services.tailscale = {
+  services.tailscale = let
+    wireguardHosts = import ../../metadata/wireguard.nix {inherit lib;};
+    wireguardConfig = wireguardHosts.servers.oracleldn;
+  in {
     advertiseRoutes = wireguardConfig.additional_networks;
     tags = ["tag:oracldn" "tag:gateway" "tag:server"];
   };
