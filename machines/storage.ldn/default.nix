@@ -10,11 +10,6 @@ in {
     ../../common
     ../../common/incus-vm-ldn.nix
 
-    ../../common/acme.nix
-    ../../common/nginx.nix
-    ../../common/containers.nix
-
-    ../../common/consul.nix
     ../../common/tailscale.nix
     ../../common/syncthing-storage.nix
 

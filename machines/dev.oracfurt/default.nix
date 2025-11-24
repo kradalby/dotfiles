@@ -8,8 +8,6 @@
     ../../common
     ./hardware-configuration.nix
 
-    ../../common/acme.nix
-    ../../common/nginx.nix
     ../../common/containers.nix
 
     ../../common/coredns.nix

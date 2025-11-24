@@ -8,9 +8,6 @@
     ../../common
     ../../common/incus-vm-ldn.nix
 
-    ../../common/acme.nix
-    ../../common/nginx.nix
-    ../../common/containers.nix
     ../../common/tailscale.nix
 
     ./restic.nix

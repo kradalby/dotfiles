@@ -8,10 +8,6 @@
     ../../common
     ./hardware-configuration.nix
 
-    ../../common/acme.nix
-    ../../common/nginx.nix
-    ../../common/containers.nix
-
     ../../common/rpi4-configuration.nix
 
     ./mediamtx.nix

@@ -7,8 +7,6 @@
   imports = [
     ../../common
 
-    ../../common/acme.nix
-    ../../common/nginx.nix
     ../../common/consul-server.nix
     ../../common/ddns.nix
     ../../common/smokeping-exporter.nix
