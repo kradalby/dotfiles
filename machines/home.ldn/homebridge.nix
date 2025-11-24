@@ -4,11 +4,7 @@
   lib,
   system,
   ...
-}: let
-  nginx = import ../../common/funcs/nginx.nix {inherit config lib;};
-  domain = "homebridge.${config.networking.domain}";
-in
-  {
+}: {
     imports = [
       ../../modules/homebridge.nix
     ];
@@ -259,13 +255,11 @@ in
           ];
         };
       };
+      services.tailscale.services."svc:homebridge-ldn" = {
+        endpoints = {
+          "tcp:80" = "http://127.0.0.1:${toString config.services.homebridges.mqttthing.uiPort}";
+          "tcp:443" = "http://127.0.0.1:${toString config.services.homebridges.mqttthing.uiPort}";
+        };
+      };
     }
-
-    # (nginx.internalVhost {
-    #   inherit domain;
-    #   proxyPass = "http://127.0.0.1:${toString homebridgeUIPort}";
-    #   tailscaleAuth = false;
-    #
-    #   proxyWebsockets = false;
-    # })
   ]

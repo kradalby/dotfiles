@@ -4,19 +4,12 @@
   pkgs,
   inputs,
   ...
-}: let
-  nginx = import ../../common/funcs/nginx.nix {inherit config lib;};
-  domain = "zigbee2mqtt.${config.networking.domain}";
-in {
+}: {
   imports = [
     {
       disabledModules = ["services/home-automation/zigbee2mqtt.nix"];
       imports = ["${inputs.nixpkgs-unstable}/nixos/modules/services/home-automation/zigbee2mqtt.nix"];
     }
-    (nginx.internalVhost {
-      inherit domain;
-      proxyPass = "http://127.0.0.1:${toString config.services.zigbee2mqtt.settings.frontend.port}";
-    })
   ];
 
   services.zigbee2mqtt = {
@@ -130,4 +123,11 @@ in {
   };
 
   networking.firewall.allowedTCPPorts = [config.services.zigbee2mqtt.settings.frontend.port];
+
+  services.tailscale.services."svc:zigbee2mqtt-ldn" = {
+    endpoints = {
+      "tcp:80" = "http://127.0.0.1:${toString config.services.zigbee2mqtt.settings.frontend.port}";
+      "tcp:443" = "http://127.0.0.1:${toString config.services.zigbee2mqtt.settings.frontend.port}";
+    };
+  };
 }

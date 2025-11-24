@@ -4,11 +4,6 @@
   lib,
   ...
 }: let
-  nginx = import ../../common/funcs/nginx.nix {inherit config lib;};
-
-  prometheusDomain = "prometheus.${config.networking.domain}";
-  pushgatewayDomain = "pushgateway.${config.networking.domain}";
-
   blackboxConfigFile = pkgs.writeText "blackbox.conf" ''
     modules:
       http_prometheus:
@@ -34,43 +29,46 @@
       }
     ];
   };
-in
-  lib.mkMerge [
-    {
-      # TODO: When Tailscale Services exits beta, use "http:80" and "https:443" instead of "tcp:"
-      services.tailscale.services = {
-        "svc:prom" = {
-          endpoints = {
-            "tcp:80" = "http://localhost:${toString config.services.prometheus.port}";
-            "tcp:443" = "http://localhost:${toString config.services.prometheus.port}";
-          };
-        };
-        "svc:alertmanager" = {
-          endpoints = {
-            "tcp:80" = "http://localhost:${toString config.services.prometheus.alertmanager.port}";
-            "tcp:443" = "http://localhost:${toString config.services.prometheus.alertmanager.port}";
-          };
-        };
+in {
+  services.tailscale.services = {
+    "svc:prometheus" = {
+      endpoints = {
+        "tcp:80" = "http://localhost:${toString config.services.prometheus.port}";
+        "tcp:443" = "http://localhost:${toString config.services.prometheus.port}";
       };
-
-      age.secrets.alertmanager-env = {
-        file = ../../secrets/alertmanager-env.age;
-        owner = config.systemd.services.prometheus.serviceConfig.User;
+    };
+    "svc:alertmanager" = {
+      endpoints = {
+        "tcp:80" = "http://localhost:${toString config.services.prometheus.alertmanager.port}";
+        "tcp:443" = "http://localhost:${toString config.services.prometheus.alertmanager.port}";
       };
+    };
+    "svc:pushgateway" = {
+      endpoints = {
+        "tcp:80" = "http://${config.services.prometheus.pushgateway.web.listen-address}";
+        "tcp:443" = "http://${config.services.prometheus.pushgateway.web.listen-address}";
+      };
+    };
+  };
 
-      services.prometheus = {
-        enable = true;
+  age.secrets.alertmanager-env = {
+    file = ../../secrets/alertmanager-env.age;
+    owner = config.systemd.services.prometheus.serviceConfig.User;
+  };
+
+  services.prometheus = {
+    enable = true;
 
         retentionTime = "365d";
         webExternalUrl = "http://prom/";
 
-        alertmanagers = [
-          {
-            scheme = "http";
-            path_prefix = "/";
-            static_configs = [{targets = ["localhost:${toString config.services.prometheus.alertmanager.port}"];}];
-          }
-        ];
+    alertmanagers = [
+      {
+        scheme = "http";
+        path_prefix = "/";
+        static_configs = [{targets = ["localhost:${toString config.services.prometheus.alertmanager.port}"];}];
+      }
+    ];
 
         scrapeConfigs = [
           {
@@ -436,62 +434,51 @@ in
           )
         ];
 
-        exporters.blackbox = {
-          enable = true;
-          listenAddress = "127.0.0.1";
-          configFile = blackboxConfigFile;
+    exporters.blackbox = {
+      enable = true;
+      listenAddress = "127.0.0.1";
+      configFile = blackboxConfigFile;
+    };
+
+    alertmanager = {
+      enable = true;
+
+      listenAddress = "0.0.0.0";
+
+      webExternalUrl = "http://core-oracldn:9093";
+
+      # environmentFile interpolation is done after the check config
+      # is done, which means it will fail with a missing discord webhook.
+      checkConfig = false;
+      environmentFile = config.age.secrets.alertmanager-env.path;
+
+      configuration = {
+        route = {
+          group_by = ["alertname" "job"];
+          receiver = "discord";
         };
-
-        alertmanager = {
-          enable = true;
-
-          listenAddress = "0.0.0.0";
-
-          webExternalUrl = "http://core-oracldn:9093";
-
-          # environmentFile interpolation is done after the check config
-          # is done, which means it will fail with a missing discord webhook.
-          checkConfig = false;
-          environmentFile = config.age.secrets.alertmanager-env.path;
-
-          configuration = {
-            route = {
-              group_by = ["alertname" "job"];
-              receiver = "discord";
-            };
-            receivers = [
+        receivers = [
+          {
+            name = "discord";
+            discord_configs = [
               {
-                name = "discord";
-                discord_configs = [
-                  {
-                    webhook_url = "$DISCORD_WEBHOOK_URL";
-                  }
-                ];
+                webhook_url = "$DISCORD_WEBHOOK_URL";
               }
             ];
-          };
-        };
-
-        pushgateway = {
-          enable = true;
-
-          web = {
-            external-url = "https://pushgateway.oracldn.fap.no";
-            listen-address = "localhost:9091";
-          };
-
-          persistMetrics = true;
-        };
+          }
+        ];
       };
-    }
+    };
 
-    (nginx.internalVhost {
-      domain = prometheusDomain;
-      proxyPass = "http://127.0.0.1:${toString config.services.prometheus.port}";
-    })
+    pushgateway = {
+      enable = true;
 
-    (nginx.internalVhost {
-      domain = pushgatewayDomain;
-      proxyPass = "http://${config.services.prometheus.pushgateway.web.listen-address}";
-    })
-  ]
+      web = {
+        external-url = "https://pushgateway.oracldn.fap.no";
+        listen-address = "localhost:9091";
+      };
+
+      persistMetrics = true;
+    };
+  };
+}

@@ -4,27 +4,25 @@
   config,
   ...
 }: let
-  nginx = import ./funcs/nginx.nix {inherit config lib;};
-
-  domain = "minio.${config.networking.domain}";
-
-  vhost = nginx.internalVhost {
-    inherit domain;
-    proxyPass = "http://${config.services.minio.consoleAddress}";
-    tailscaleAuth = false;
+  location = lib.elemAt (lib.splitString "." config.networking.domain) 0;
+  hostname = config.networking.hostName;
+  serviceName = "svc:minio-${hostname}-${location}";
+  consoleAddress = "127.0.0.1:49005";
+in {
+  age.secrets.minio-oracldn = {
+    file = ../secrets/minio-oracldn.age;
   };
-in
-  lib.mkMerge [
-    {
-      age.secrets.minio-oracldn = {
-        file = ../secrets/minio-oracldn.age;
-      };
 
-      services.minio = {
-        enable = true;
-        consoleAddress = "127.0.0.1:49005";
-        rootCredentialsFile = config.age.secrets.minio-oracldn.path;
-      };
-    }
-    vhost
-  ]
+  services.minio = {
+    enable = true;
+    inherit consoleAddress;
+    rootCredentialsFile = config.age.secrets.minio-oracldn.path;
+  };
+
+  services.tailscale.services.${serviceName} = {
+    endpoints = {
+      "tcp:80" = "http://${consoleAddress}";
+      "tcp:443" = "http://${consoleAddress}";
+    };
+  };
+}

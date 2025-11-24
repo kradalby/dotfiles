@@ -66,7 +66,7 @@ with lib; let
     inherit paths;
     inherit owner;
     name = site;
-    repository = "rest:https://restic.core.${site}.fap.no/${name}";
+    repository = "rest:https://restic-${site}.dalby.ts.net/${name}";
   });
 in {
   inherit backupJob;

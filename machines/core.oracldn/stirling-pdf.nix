@@ -4,14 +4,7 @@
   lib,
   ...
 }: let
-  domain = "pdf.fap.no";
   port = 63456;
-  nginx = import ../../common/funcs/nginx.nix {inherit config lib;};
-
-  vhost = nginx.internalVhost {
-    inherit domain;
-    proxyPass = "http://127.0.0.1:${toString port}";
-  };
 in
   lib.mkMerge [
     {
@@ -46,5 +39,4 @@ in
         ];
       };
     }
-    vhost
   ]

@@ -4,40 +4,37 @@
   ...
 }:
 with lib builtins; let
-  nginx = import ./funcs/nginx.nix {inherit config lib;};
-
-  domain = "consul.${config.networking.domain}";
-
   s = import ../metadata/ipam.nix {inherit lib config;};
   peers = s.consulPeers;
+  location = lib.elemAt (lib.splitString "." config.networking.domain) 0;
+  serviceName = "svc:consul-${location}";
 in {
   imports = [./consul.nix];
-  config = lib.mkMerge [
-    {
-      services.consul = {
-        enable = true;
-        webUi = true;
+  config = {
+    services.consul = {
+      enable = true;
+      webUi = true;
 
-        extraConfig = {
-          server = true;
-          bootstrap = true;
+      extraConfig = {
+        server = true;
+        bootstrap = true;
 
-          bind_addr = ''{{ GetInterfaceIP "${config.my.lan}" }}'';
+        bind_addr = ''{{ GetInterfaceIP "${config.my.lan}" }}'';
 
-          retry_join = [];
-          retry_join_wan = builtins.attrValues peers;
+        retry_join = [];
+        retry_join_wan = builtins.attrValues peers;
 
-          connect = {
-            enabled = true;
-          };
+        connect = {
+          enabled = true;
         };
       };
-    }
+    };
 
-    (nginx.internalVhost {
-      inherit domain;
-      proxyPass = "http://127.0.0.1:8500";
-      allowLocal = true;
-    })
-  ];
+    services.tailscale.services.${serviceName} = {
+      endpoints = {
+        "tcp:80" = "http://127.0.0.1:8500";
+        "tcp:443" = "http://127.0.0.1:8500";
+      };
+    };
+  };
 }
