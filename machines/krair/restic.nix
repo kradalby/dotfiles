@@ -5,9 +5,6 @@
   stdenv,
   ...
 }: let
-  restic = import ../../common/funcs/restic.nix {inherit config lib pkgs;};
-  helpers = import ../../common/funcs/helpers.nix {inherit pkgs lib;};
-
   basePaths = [
     # We do not have perms to backup these folders
     # because of macOS magic
@@ -39,12 +36,16 @@
     repository = "rclone:Jotta:4e8bb5107054b95e58d809060cb72911";
     paths = jottaPaths;
   };
-in
-  {
-    imports = [../../modules/restic.nix];
-  }
-  // lib.mkMerge [
-    # (restic.commonJob cfgJotta)
-    # (restic.backupJob (cfg "tjoda"))
-    # (restic.backupJob (cfg "terra"))
-  ]
+in {
+  imports = [../../modules/restic.nix];
+
+  # Example:
+  # services.restic.jobs = {
+  #   jotta = {
+  #     repository = "rclone:Jotta:4e8bb5107054b95e58d809060cb72911";
+  #     secret = "restic-krair-token";
+  #     paths = jottaPaths;
+  #     owner = "kradalby";
+  #   };
+  # };
+}

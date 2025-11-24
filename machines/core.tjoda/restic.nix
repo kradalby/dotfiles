@@ -1,12 +1,4 @@
-{
-  pkgs,
-  config,
-  lib,
-  ...
-}: let
-  restic = import ../../common/funcs/restic.nix {inherit config lib pkgs;};
-  helpers = import ../../common/funcs/helpers.nix {inherit pkgs lib;};
-
+{ config, ... }: let
   paths = [
     "/root"
     "/etc/nixos"
@@ -22,13 +14,10 @@
     # config.services.minio.configDir
   ];
 
-  cfg = {
-    name = "jotta";
-    secret = "restic-core-tjoda-token";
+in {
+  services.restic.jobs.jotta = {
     repository = "rclone:Jotta:1d444f272fa766893d9a06cc4d392cd5";
+    secret = "restic-core-tjoda-token";
     inherit paths;
   };
-in
-  lib.mkMerge [
-    (restic.commonJob cfg)
-  ]
+}

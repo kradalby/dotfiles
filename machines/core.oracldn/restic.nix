@@ -1,12 +1,4 @@
-{
-  pkgs,
-  config,
-  lib,
-  ...
-}: let
-  restic = import ../../common/funcs/restic.nix {inherit config lib pkgs;};
-  helpers = import ../../common/funcs/helpers.nix {inherit pkgs lib;};
-
+{ config, ... }: let
   paths =
     [
       "/etc/nixos"
@@ -20,13 +12,13 @@
     ]
     ++ config.services.minio.dataDir;
 
-  cfg = site: {
+  mkJob = site: {
+    inherit site paths;
     secret = "restic-core-oracldn-token";
-    inherit site;
-    inherit paths;
   };
-in
-  lib.mkMerge [
-    (restic.backupJob (cfg "tjoda"))
-    (restic.backupJob (cfg "terra"))
-  ]
+in {
+  services.restic.jobs = {
+    tjoda = mkJob "tjoda";
+    terra = mkJob "terra";
+  };
+}

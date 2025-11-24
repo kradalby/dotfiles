@@ -10,5 +10,6 @@
     ./attic-watch.nix
     ./tsidp.nix
     ./vhost.nix
+    ./restic-jobs.nix
   ];
 }

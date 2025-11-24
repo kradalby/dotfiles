@@ -1,24 +1,16 @@
-{
-  pkgs,
-  config,
-  lib,
-  ...
-}: let
-  restic = import ../../common/funcs/restic.nix {inherit config lib pkgs;};
-  helpers = import ../../common/funcs/helpers.nix {inherit pkgs lib;};
-
+{ config, ... }: let
   paths = [
     "/etc/nixos"
     "/var/lib/libvirt/qemu/win10.xml"
   ];
 
-  cfg = site: {
+  mkJob = site: {
+    inherit site paths;
     secret = "restic-dev-ldn-token";
-    inherit site;
-    inherit paths;
   };
-in
-  lib.mkMerge [
-    (restic.backupJob (cfg "tjoda"))
-    (restic.backupJob (cfg "terra"))
-  ]
+in {
+  services.restic.jobs = {
+    tjoda = mkJob "tjoda";
+    terra = mkJob "terra";
+  };
+}
