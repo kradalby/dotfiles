@@ -1,4 +1,5 @@
 {
+  pkgs,
   config,
   lib,
   ...
@@ -8,13 +9,16 @@ with lib; let
 
   site = builtins.replaceStrings [".fap.no"] [""] config.networking.domain;
 
-  nextdnsTlsHost = "842cee.dns.nextdns.io";
-  nextdnsUpstreams = [
-    "tls://45.90.28.0"
-    "tls://45.90.30.0"
-    "tls://[2a07:a8c0::]"
-    "tls://[2a07:a8c1::]"
-  ];
+  nextdns-config = pkgs.writeTextFile {
+    name = "nextdns-config";
+    text = ''
+      listen :53535
+      setup-router no
+      report-client-info yes
+
+      profile 842cee
+    '';
+  };
 
   cloudflareTlsHost = "cloudflare-dns.com";
   cloudflareUpstreams = [
@@ -37,6 +41,13 @@ in {
 
   config = {
     services.blocklist-downloader.enable = false;
+
+    services.nextdns = {
+      enable = true;
+      arguments = [
+        "-config-file=${nextdns-config}"
+      ];
+    };
 
     services.coredns = {
       enable = true;
@@ -101,8 +112,7 @@ in {
         }
 
         (nextdns) {
-          forward . ${concatStringsSep " " nextdnsUpstreams} {
-            tls_servername ${nextdnsTlsHost}
+          forward . dns://127.0.0.1:53535 {
             health_check 5s
           }
         }

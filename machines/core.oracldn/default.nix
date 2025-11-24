@@ -14,6 +14,7 @@ in {
     ../../common/nginx.nix
     ../../common/containers.nix
 
+    ../../common/coredns.nix
     ../../common/consul-server.nix
     ../../common/miniupnp.nix
     ../../common/minio.nix

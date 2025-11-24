@@ -9,6 +9,7 @@ in {
   imports = [
     ../../common
     ../../common/incus-vm-ldn.nix
+    ../../common/coredns.nix
 
     ../../common/tailscale.nix
     ../../common/syncthing-storage.nix
