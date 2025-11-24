@@ -72,6 +72,7 @@ in {
   services.ssh-agent-mux = {
     enable = true;
     watchForSSHForward = true;
+    logLevel = "debug";
   };
 
   environment.systemPackages = [
