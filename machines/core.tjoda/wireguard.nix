@@ -1,9 +1,3 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}: let
-  wireguard = import ../../common/funcs/wireguard.nix {inherit config lib pkgs;};
-in
-  wireguard.serverService "tjoda" "wireguard-tjoda"
+{ ... }: {
+  services.wireguard.instances.tjoda.secret = "wireguard-tjoda";
+}

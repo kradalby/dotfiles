@@ -11,5 +11,6 @@
     ./tsidp.nix
     ./vhost.nix
     ./restic-jobs.nix
+    ./wireguard.nix
   ];
 }

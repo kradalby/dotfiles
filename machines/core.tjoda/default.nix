@@ -10,7 +10,6 @@
     ../../common/consul-server.nix
     ../../common/ddns.nix
     ../../common/smokeping-exporter.nix
-    ../../common/coredns.nix
     ../../common/syncthing-storage.nix
     ../../common/tailscale.nix
     ../../modules/microvm-host.nix
