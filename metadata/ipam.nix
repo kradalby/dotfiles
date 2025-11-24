@@ -12,7 +12,6 @@ with builtins; let
       routes = {
         local = "10.60.0.0/16";
         ipv6_local = "2a03:94e0:200d::/48";
-        openvpn = "10.60.200.0/24";
       };
       consul = "10.60.0.1";
       wireguard = {
@@ -27,7 +26,6 @@ with builtins; let
       routes = {
         local = "10.65.0.0/16";
         ipv6_local = "2a02:6b66:7019::/64";
-        openvpn = "10.65.200.0/24";
         iot_network = "192.168.156.0/24";
         microvm_bridge = "192.168.130.0/24";
       };
@@ -43,7 +41,6 @@ with builtins; let
       gateway = "10.62.0.1";
       routes = {
         local = "10.62.0.0/16";
-        openvpn = "10.62.200.0/24";
         microvm_bridge = "192.168.131.0/24";
       };
       consul = "10.62.0.1";
@@ -57,7 +54,6 @@ with builtins; let
       gateway = "10.66.0.1";
       routes = {
         local = "10.66.0.0/16";
-        openvpn = "10.66.200.0/24";
       };
       consul = "10.66.0.1";
       wireguard = {
@@ -71,7 +67,6 @@ with builtins; let
       gateway = "10.67.0.1";
       routes = {
         local = "10.67.0.0/16";
-        openvpn = "10.67.200.0/24";
       };
       consul = "10.67.0.1";
       wireguard = {
@@ -89,7 +84,6 @@ with builtins; let
         name = host.site;
         nameservers = [host.gateway];
         consul = host.consul;
-        openvpn = host.routes.openvpn;
         ipv4Gateway = host.gateway;
       }) hostsWithConsul;
     in

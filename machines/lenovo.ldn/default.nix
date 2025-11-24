@@ -14,7 +14,6 @@
 
     # ./networking.nix
     ./microvm.nix
-    # ./k3s.nix
   ];
 
   services.tailscale = {

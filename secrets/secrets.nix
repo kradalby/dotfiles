@@ -10,10 +10,6 @@ with builtins; let
     core-terra = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGEzxjps58aIrw1ZxgDUuj1W7T3Bx6ZbO6Q34a0xj2BA";
     dev-terra = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMWqiendEfZNjhaXu0RTrNUPcNeRJKeiu2pZ+mjAWWsM";
 
-    k3m1-terra = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINAY5rkpRN5U2ApZGQPPr6E9Mx1NVrI8EdUDUZFRLlKW";
-    k3a1-terra = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAeWP0sz11ZibeRmJsIbLgFLK/rUmia0KcXGlZKbnycp";
-    k3a2-terra = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIO1YyxAf57LjkvULrmgBAP91D/BoRtD15KWjIbfW8XrY";
-
     # Leiden hosts
     core-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICRRxykpKi6wemG1DPI+9gpWtbGQWGP1D5xb6oATreAv";
     home-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHfmOgoC9GlB9r1lTBEnDp6YO8/FDgGRMEAv+A9sB7de";
@@ -43,11 +39,6 @@ with builtins; let
   global = (attrValues users) ++ (attrValues hosts);
   u = attrValues users;
 
-  k3s-terra = [
-    hosts.k3m1-terra
-    hosts.k3a1-terra
-    hosts.k3a2-terra
-  ];
 in
   with builtins; {
     # Global secrets
@@ -91,9 +82,6 @@ in
 
     "matterbridge-config.age".publicKeys = u ++ [hosts.headscale-oracldn];
 
-    # k3s
-    "k3s-terra.age".publicKeys = u ++ k3s-terra;
-
     # Grafana
     "grafana-admin.age".publicKeys = u ++ [hosts.core-oracldn];
     "grafana-admin-polar.age".publicKeys = u ++ [hosts.core-terra];
@@ -103,14 +91,6 @@ in
     # Step CA
     "step-ca-password.age".publicKeys = u ++ [hosts.core-oracldn];
     "step-ca-config.age".publicKeys = u ++ [hosts.core-oracldn];
-
-    # OpenVPN
-    "ovpn-oracldn-crt.age".publicKeys = u ++ [hosts.core-oracldn];
-    "ovpn-oracldn-key.age".publicKeys = u ++ [hosts.core-oracldn];
-    "ovpn-ldn-crt.age".publicKeys = u ++ [hosts.core-ldn hosts.dev-ldn];
-    "ovpn-ldn-key.age".publicKeys = u ++ [hosts.core-ldn hosts.dev-ldn];
-    "ovpn-ntnu-crt.age".publicKeys = u ++ [hosts.core-ntnu];
-    "ovpn-ntnu-key.age".publicKeys = u ++ [hosts.core-ntnu];
 
     # Nextcloud
     "nextcloud.age".publicKeys = u ++ [hosts.core-oracldn];

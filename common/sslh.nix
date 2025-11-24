@@ -18,7 +18,6 @@ with lib; {
         (
           { name: "tls"; host: "localhost"; port: "60443"; log_level: 1; keepalive: true; },
           { name: "ssh"; service: "ssh"; host: "localhost"; port: "22"; log_level: 0; tfo_ok: true; keepalive: true; fork: true; },
-          { name: "openvpn"; host: "localhost"; port: "1194"; },
           { name: "anyprot"; host: "localhost"; port: "60443"; }
         );
 

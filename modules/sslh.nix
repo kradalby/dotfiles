@@ -30,7 +30,6 @@ with lib; let
     protocols:
     (
       { name: "ssh"; service: "ssh"; host: "localhost"; port: "22"; },
-      { name: "openvpn"; host: "localhost"; port: "1194"; },
       { name: "xmpp"; host: "localhost"; port: "5222"; },
       { name: "http"; host: "localhost"; port: "80"; },
       { name: "tls"; host: "localhost"; port: "443"; },

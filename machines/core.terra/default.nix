@@ -22,7 +22,6 @@
     ./tailscale-headscale.nix
     # ./corerad.nix
     ./dnsmasq.nix
-    # ./openvpn.nix
     ./syncthing.nix
     ./rest-server.nix
     ./samba.nix

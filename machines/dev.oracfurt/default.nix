@@ -17,7 +17,6 @@
     ./restic.nix
     ./wireguard.nix
     ./tailscale-headscale.nix
-    # ./openvpn.nix
     ./syncthing.nix
     # ./attic.nix
     ./proton.nix

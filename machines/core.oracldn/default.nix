@@ -26,7 +26,6 @@
     ./loki.nix
     ./grafana.nix
     # ./step-ca.nix
-    ./openvpn.nix
     ./postgres.nix
     ./stirling-pdf.nix
     ./litestream.nix
