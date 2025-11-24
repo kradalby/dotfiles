@@ -12,7 +12,6 @@
     ../../common/consul-server.nix
     ../../common/ddns.nix
     ../../common/smokeping-exporter.nix
-    ../../common/coredns.nix
     ../../common/miniupnp.nix
     ../../common/tailscale.nix
 
@@ -45,8 +44,6 @@
   my.users.storage = true;
   my.users.timemachine = true;
 
-  services.resolved.enable = false;
-
   boot.kernel.sysctl = {
     # if you use ipv4, this is all you need
     "net.ipv4.conf.all.forwarding" = true;
@@ -68,10 +65,6 @@
   networking = {
     hostName = "core";
     domain = "terra.fap.no";
-    nameservers = [
-      "1.1.1.1"
-      "1.0.0.1"
-    ];
     usePredictableInterfaceNames = lib.mkForce true;
     hostId = "0dbe8fc2";
 

@@ -174,15 +174,6 @@ in {
   #   );
   # };
 
-  services.resolved = {
-    enable = true;
-    domains = ["dalby.ts.net"];
-    extraConfig = ''
-      DNS=::1 127.0.0.1
-      DNSStubListener=no
-    '';
-  };
-
   systemd.network = {
     enable = true;
 

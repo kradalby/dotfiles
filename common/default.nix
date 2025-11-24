@@ -11,6 +11,7 @@
     ./lldp.nix
     ./mosh.nix
     ./network.nix
+    ./resolved.nix
     ./nix.nix
     ./node-exporter.nix
     ./postfix.nix

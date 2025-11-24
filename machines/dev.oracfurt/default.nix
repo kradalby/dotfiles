@@ -10,7 +10,6 @@
 
     ../../common/containers.nix
 
-    ../../common/coredns.nix
     ../../common/consul-server.nix
     ../../common/tailscale.nix
 
@@ -29,10 +28,6 @@
   networking = {
     hostName = "dev";
     domain = "oracfurt.fap.no";
-    nameservers = [
-      "1.1.1.1"
-      "1.0.0.1"
-    ];
     usePredictableInterfaceNames = lib.mkForce true;
     interfaces = {
       "${config.my.wan}" = {

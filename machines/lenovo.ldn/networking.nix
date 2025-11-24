@@ -41,16 +41,6 @@ in {
     };
   };
 
-  # Use resolved for local DNS lookups, querying through CoreDNS.
-  services.resolved = {
-    enable = true;
-    domains = ["dalby.ts.net"];
-    extraConfig = ''
-      DNS=::1 127.0.0.1
-      DNSStubListener=no
-    '';
-  };
-
   systemd = {
     # Manage network configuration with networkd.
     network = {
