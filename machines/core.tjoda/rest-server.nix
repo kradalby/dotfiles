@@ -15,7 +15,7 @@ in {
     extraFlags = ["--no-auth"];
   };
 
-  services.tailscale.services."svc:restic-core-tjoda" = {
+  services.tailscale.services."svc:restic-tjoda" = {
     endpoints = {
       "tcp:80" = "http://127.0.0.1:${toString port}";
       "tcp:443" = "http://127.0.0.1:${toString port}";

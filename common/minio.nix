@@ -5,8 +5,7 @@
   ...
 }: let
   location = lib.elemAt (lib.splitString "." config.networking.domain) 0;
-  hostname = config.networking.hostName;
-  serviceName = "svc:minio-${hostname}-${location}";
+  serviceName = "svc:minio-${location}";
   consoleAddress = "127.0.0.1:49005";
 in {
   age.secrets.minio-oracldn = {
