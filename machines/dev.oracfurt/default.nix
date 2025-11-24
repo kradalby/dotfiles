@@ -3,7 +3,10 @@
   pkgs,
   lib,
   ...
-}: {
+}: let
+  wireguardHosts = import ../../metadata/wireguard.nix {inherit lib config;};
+  wireguardConfig = wireguardHosts.servers.oraclefurt;
+in {
   imports = [
     ../../common
     ./hardware-configuration.nix
@@ -14,7 +17,6 @@
     ../../common/tailscale.nix
 
     ./restic.nix
-    ./wireguard.nix
     ./tailscale-headscale.nix
     ./syncthing.nix
     # ./attic.nix
@@ -29,22 +31,6 @@
     hostName = "dev";
     domain = "oracfurt.fap.no";
     usePredictableInterfaceNames = lib.mkForce true;
-    interfaces = {
-      "${config.my.wan}" = {
-        useDHCP = true;
-      };
-
-      ${config.my.lan} = {
-        useDHCP = false;
-        ipv4.addresses = [
-          {
-            address = "10.67.0.1";
-            prefixLength = 24;
-          }
-        ];
-        tempAddress = "disabled";
-      };
-    };
 
     nat = {
       enable = true;
@@ -84,19 +70,41 @@
       allowedUDPPorts = lib.mkForce [
         443 # HTTPS
         config.services.tailscale.port
-        config.networking.wireguard.interfaces.wg0.listenPort
+        wireguardConfig.endpoint_port
       ];
 
       trustedInterfaces = [config.my.lan];
     };
   };
 
-  services.tailscale = let
-    wireguardHosts = import ../../metadata/wireguard.nix {inherit lib config;};
-    wireguardConfig = wireguardHosts.servers.oraclefurt;
-  in {
+  systemd.network = {
+    enable = true;
+    
+    wait-online.ignoredInterfaces = ["tailscale0" "wg0"];
+
+    networks = {
+      "10-wan" = {
+        matchConfig.Name = config.my.wan;
+        DHCP = "yes";
+      };
+
+      "10-lan" = {
+        matchConfig.Name = config.my.lan;
+        address = ["10.67.0.1/24"];
+        DHCP = "no";
+      };
+    };
+  };
+
+  services.tailscale = {
     advertiseRoutes = wireguardConfig.additional_networks;
     tags = ["tag:oracfurt" "tag:gateway" "tag:server"];
+  };
+
+  services.wireguard = {
+    enable = true;
+    nodeName = "oraclefurt";
+    secretName = "wireguard-oracfurt";
   };
 
   services.tsidp.enable = true;

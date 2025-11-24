@@ -1,10 +1,10 @@
 {
   lib,
-  config,
+  config ? {},
 }:
 with lib;
 with builtins; let
-  ipam = import ./ipam.nix {inherit lib config;};
+  ipam = import ./ipam.nix { inherit lib config; };
 
   # Generate WireGuard configs from IPAM hosts
   hostsToWireguard = mapAttrs (hostname: host: {

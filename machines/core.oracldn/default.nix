@@ -3,11 +3,13 @@
   pkgs,
   lib,
   ...
-}: {
+}: let
+  wireguardHosts = import ../../metadata/wireguard.nix {inherit lib;};
+  wireguardConfig = wireguardHosts.servers.oracleldn;
+in {
   imports = [
     ../../common
     ./hardware-configuration.nix
-
     ../../common/acme.nix
     ../../common/nginx.nix
     ../../common/containers.nix
@@ -18,7 +20,6 @@
     ../../common/tailscale.nix
 
     ./restic.nix
-    ./wireguard.nix
     ./tailscale-headscale.nix
     ./kuma.nix
     ./monitoring.nix
@@ -105,19 +106,22 @@
       allowedUDPPorts = lib.mkForce [
         443 # HTTPS
         config.services.tailscale.port
-        config.networking.wireguard.interfaces.wg0.listenPort
+        wireguardConfig.endpoint_port
       ];
 
       trustedInterfaces = [config.my.lan "docker0"];
     };
   };
 
-  services.tailscale = let
-    wireguardHosts = import ../../metadata/wireguard.nix {inherit lib config;};
-    wireguardConfig = wireguardHosts.servers.oracleldn;
-  in {
+  services.tailscale = {
     advertiseRoutes = wireguardConfig.additional_networks;
     tags = ["tag:oracldn" "tag:gateway" "tag:server"];
+  };
+
+  services.wireguard = {
+    enable = true;
+    nodeName = "oracleldn";
+    secretName = "wireguard-oracldn";
   };
 
   # This value determines the NixOS release from which the default

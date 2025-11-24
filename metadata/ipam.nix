@@ -1,6 +1,6 @@
 {
   lib,
-  config,
+  config ? {},
 }:
 with lib;
 with builtins; let
@@ -95,7 +95,11 @@ with builtins; let
 
   # Legacy compatibility
   baseDomain = ".fap.no";
-  currentSite = builtins.replaceStrings [baseDomain] [""] config.networking.domain;
+  currentSite =
+    let
+      domain = lib.attrByPath ["networking" "domain"] "" config;
+    in
+      builtins.replaceStrings [baseDomain] [""] domain;
   consulPeers = mapAttrs (key: value: value.consul) (filterAttrs (key: hasAttr "consul") (removeAttrs sites [currentSite]));
   consul = mapAttrs (key: value: value.consul) (filterAttrs (key: hasAttr "consul") sites);
   nameservers = lib.unique (lib.flatten (attrValues (mapAttrs (name: site: site.nameservers) sites)));

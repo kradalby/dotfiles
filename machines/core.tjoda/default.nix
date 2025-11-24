@@ -17,7 +17,6 @@
     ./microvm.nix
     ./hardware-configuration.nix
     ./zfs.nix
-    ./wireguard.nix
     ./tailscale-headscale.nix
     ./rest-server.nix
     ./samba.nix
@@ -83,6 +82,11 @@
   in {
     advertiseRoutes = wireguardConfig.additional_networks;
     tags = ["tag:tjoda" "tag:gateway" "tag:server"];
+  };
+
+  services.wireguard = {
+    enable = true;
+    nodeName = "tjoda";
   };
 
   monitoring.smartctl.devices = ["/dev/sda"];

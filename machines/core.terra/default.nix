@@ -3,7 +3,9 @@
   pkgs,
   lib,
   ...
-}: {
+  wireguardHosts = import ../../metadata/wireguard.nix {inherit lib config;};
+  wireguardConfig = wireguardHosts.servers.terra;
+in {
   imports = [
     ../../common
 
@@ -17,7 +19,6 @@
 
     ./hardware-configuration.nix
     ./zfs.nix
-    ./wireguard.nix
     ./tailscale-headscale.nix
     # ./corerad.nix
     ./dnsmasq.nix
@@ -166,19 +167,21 @@
       allowedUDPPorts = lib.mkForce [
         443 # HTTPS
         config.services.tailscale.port
-        config.networking.wireguard.interfaces.wg0.listenPort
+        wireguardConfig.endpoint_port
       ];
 
       trustedInterfaces = [config.my.lan];
     };
   };
 
-  services.tailscale = let
-    wireguardHosts = import ../../metadata/wireguard.nix {inherit lib config;};
-    wireguardConfig = wireguardHosts.servers.terra;
-  in {
+  services.tailscale = {
     advertiseRoutes = wireguardConfig.additional_networks;
     tags = ["tag:terra" "tag:gateway" "tag:server"];
+  };
+
+  services.wireguard = {
+    enable = true;
+    nodeName = "terra";
   };
 
   # TODO: Fix disk monitoring somehow
