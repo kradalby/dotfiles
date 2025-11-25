@@ -5,9 +5,7 @@
   utils,
   ...
 }:
-with lib; let
-  helpers = import ../common/funcs/helpers.nix {inherit lib pkgs;};
-in {
+with lib; {
   options.services.restic.backups = mkOption {
     description = ''
       Periodic backups to create with Restic.

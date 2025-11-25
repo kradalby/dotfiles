@@ -6,8 +6,6 @@
   ...
 }:
 with lib; let
-  helpers = import ../common/funcs/helpers.nix {inherit lib pkgs;};
-
   cfg = config.services.syncthing;
   opt = options.services.syncthing;
 
