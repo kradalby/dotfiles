@@ -37,6 +37,7 @@
 
   my.wan = "enp0s3";
   my.lan = "enp1s0";
+  my.coredns.bind = ["10.66.0.1"];
 
   networking = {
     hostName = "core";

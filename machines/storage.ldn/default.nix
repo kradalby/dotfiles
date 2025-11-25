@@ -44,6 +44,7 @@ in {
     storage = true;
     timemachine = true;
   };
+  my.coredns.bind = ["10.65.0.28"];
 
   users.users.root.openssh.authorizedKeys.keys = sshKeys.main ++ sshKeys.kradalby ++ sshKeys.work;
   users.users.kradalby.openssh.authorizedKeys.keys = sshKeys.main ++ sshKeys.kradalby ++ sshKeys.work;
