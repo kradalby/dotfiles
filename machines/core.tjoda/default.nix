@@ -39,13 +39,27 @@
     hostName = "core";
     domain = "tjoda.fap.no";
     hostId = "14889c5c";
+
+    interfaces.${config.my.lan} = {
+      useDHCP = false;
+      ipv4.addresses = [
+        {
+          address = "10.62.0.2";
+          prefixLength = 24;
+        }
+      ];
+    };
+
+    defaultGateway = {
+      address = "10.62.0.1";
+      interface = config.my.lan;
+    };
+    nameservers = ["10.62.0.1"];
   };
 
   systemd.network = {
-    enable = true;
-
     # Ignore virtual interfaces that are not required for system to be online
-    wait-online.ignoredInterfaces = ["tailscale0" "wg0" "microvm-br0"];
+    wait-online.ignoredInterfaces = lib.mkAfter ["microvm-br0"];
 
     links = {
       "10-lan0" = {
@@ -57,14 +71,6 @@
       };
     };
 
-    networks = {
-      "10-lan0" = {
-        matchConfig.Name = "lan0";
-        address = [ "10.62.0.2/24" ];
-        gateway = [ "10.62.0.1" ];
-        dns = [ "10.62.0.1" ];
-      };
-    };
   };
 
   boot.kernel.sysctl = {

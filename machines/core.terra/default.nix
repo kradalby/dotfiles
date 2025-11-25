@@ -85,8 +85,14 @@
     #   '';
     # };
 
-    defaultGateway = "185.243.216.1";
-    defaultGateway6 = "2a03:94e0:ffff:185:243:216::1";
+    defaultGateway = {
+      address = "185.243.216.1";
+      interface = config.my.wan;
+    };
+    defaultGateway6 = {
+      address = "2a03:94e0:ffff:185:243:216::1";
+      interface = config.my.wan;
+    };
 
     bridges = {
       lan0.interfaces = [];

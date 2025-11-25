@@ -13,14 +13,12 @@
     ../../common/rpi4-configuration.nix
   ];
 
-  my.lan = "eth0";
-
   networking = {
     hostName = "rpi";
     domain = "vetle.fap.no";
     usePredictableInterfaceNames = lib.mkForce true;
-    dhcpcd.enable = true;
-    useDHCP = lib.mkDefault true;
+
+    interfaces.eth0.useDHCP = true;
   };
 
   services.tailscale = {

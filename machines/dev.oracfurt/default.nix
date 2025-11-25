@@ -27,6 +27,17 @@
     domain = "oracfurt.fap.no";
     usePredictableInterfaceNames = lib.mkForce true;
 
+    interfaces.${config.my.wan}.useDHCP = true;
+    interfaces.${config.my.lan} = {
+      useDHCP = false;
+      ipv4.addresses = [
+        {
+          address = "10.67.0.1";
+          prefixLength = 24;
+        }
+      ];
+    };
+
     nat = {
       enable = true;
       externalInterface = config.my.wan;
@@ -72,24 +83,6 @@
     };
   };
 
-  systemd.network = {
-    enable = true;
-    
-    wait-online.ignoredInterfaces = ["tailscale0" "wg0"];
-
-    networks = {
-      "10-wan" = {
-        matchConfig.Name = config.my.wan;
-        DHCP = "yes";
-      };
-
-      "10-lan" = {
-        matchConfig.Name = config.my.lan;
-        address = ["10.67.0.1/24"];
-        DHCP = "no";
-      };
-    };
-  };
 
   services.tailscale = let
     wireguardHosts = import ../../metadata/wireguard.nix {inherit lib config;};

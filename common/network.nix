@@ -1,4 +1,8 @@
-{lib, ...}: {
+{
+  lib,
+  pkgs,
+  ...
+}: {
   options = {
     my.wan = lib.mkOption {
       type = lib.types.str;
@@ -21,10 +25,11 @@
     };
   };
 
-  config = {
+  config = lib.mkIf pkgs.stdenv.isLinux {
     networking.useDHCP = false;
-
-    # TODO: Re-evaluate if it turns less buggy later
-    networking.useNetworkd = lib.mkDefault false;
+    networking.useNetworkd = lib.mkDefault true;
+    networking.dhcpcd.enable = lib.mkDefault false;
+    systemd.network.enable = lib.mkDefault true;
+    systemd.network.wait-online.ignoredInterfaces = lib.mkDefault ["tailscale0" "wg0"];
   };
 }

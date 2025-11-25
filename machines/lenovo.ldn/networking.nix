@@ -83,7 +83,7 @@ in {
     # Tailscale readiness and DNS tweaks.
     # Ignore wan1 as it is only available if my iPhone
     # is broadcasting a hotspot
-    network.wait-online.ignoredInterfaces = ["tailscale0" "wg0" "wan1"];
+    network.wait-online.ignoredInterfaces = lib.mkAfter ["wan1"];
     services.tailscaled.after = ["network-online.target" "systemd-resolved.service"];
   };
 }

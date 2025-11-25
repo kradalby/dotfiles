@@ -37,8 +37,10 @@
   networking = {
     domain = "ldn.fap.no";
     nameservers = ["10.65.0.1"];
-    defaultGateway = "10.65.0.1";
-    defaultGateway6 = "";
+    defaultGateway = {
+      address = "10.65.0.1";
+      interface = config.my.lan;
+    };
     dhcpcd.enable = false;
     usePredictableInterfaceNames = lib.mkForce true;
     useDHCP = false;
