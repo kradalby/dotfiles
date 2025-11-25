@@ -10,7 +10,6 @@
 
     ../../common/containers.nix
 
-    ../../common/consul-server.nix
     ../../common/tailscale.nix
 
     ./restic.nix

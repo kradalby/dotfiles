@@ -4,7 +4,6 @@
   config,
   ...
 }: let
-  consul = import ../../common/funcs/consul.nix {inherit lib;};
   port = 56899;
 in {
   services.restic.server = {
@@ -21,6 +20,4 @@ in {
       "tcp:443" = "http://127.0.0.1:${toString port}";
     };
   };
-
-  my.consulServices.restic_server = consul.prometheusExporter "rest-server" port;
 }

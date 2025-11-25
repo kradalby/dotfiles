@@ -15,10 +15,7 @@ with builtins; let
       if hasAttr "ipv6_address" host.wireguard
       then [host.wireguard.address host.wireguard.ipv6_address]
       else [host.wireguard.address];
-    dns =
-      if hasAttr "consul" host && host.consul != null
-      then host.consul
-      else null;
+    dns = host.gateway;
   }) ipam.hosts;
 
 in {

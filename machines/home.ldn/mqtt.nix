@@ -3,8 +3,6 @@
   lib,
   ...
 }: let
-  consul = import ../../common/funcs/consul.nix {inherit lib;};
-
   port = 1883;
 in {
   services.mosquitto = {
@@ -75,6 +73,4 @@ in {
       topicLabel = "sensor";
     };
   };
-
-  my.consulServices.mqtt_exporter = consul.prometheusExporter "mqtt" config.services.mqtt-exporter.prometheus.port;
 }

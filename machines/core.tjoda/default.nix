@@ -7,7 +7,6 @@
   imports = [
     ../../common
 
-    ../../common/consul-server.nix
     ../../common/ddns.nix
     ../../common/smokeping-exporter.nix
     ../../common/coredns.nix

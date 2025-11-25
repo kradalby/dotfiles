@@ -4,7 +4,6 @@
   pkgs,
   ...
 }: let
-  consul = import ./funcs/consul.nix {inherit lib;};
 in {
   options.my.enableSslh = lib.mkOption {
     type = lib.types.bool;
@@ -105,13 +104,5 @@ in {
       lib.mkIf config.networking.firewall.enable
       [80 config.services.prometheus.exporters.nginxlog.port];
 
-    # services.prometheus.exporters.nginx = {
-    #   enable = true;
-    #   openFirewall = true;
-    # };
-    #
-    # my.consulServices.nginx_exporter = consul.prometheusExporter "nginx" config.services.prometheus.exporters.nginx.port;
-
-    my.consulServices.nginxlog_exporter = consul.prometheusExporter "nginxlog" config.services.prometheus.exporters.nginxlog.port;
   };
 }

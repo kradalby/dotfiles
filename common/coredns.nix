@@ -5,8 +5,6 @@
   ...
 }:
 with lib; let
-  consul = import ./funcs/consul.nix {inherit lib;};
-
   site = builtins.replaceStrings [".fap.no"] [""] config.networking.domain;
 
   nextdns-config = pkgs.writeTextFile {
@@ -52,20 +50,7 @@ in {
     services.coredns = {
       enable = true;
       config = let
-        sites = import ../metadata/consul.nix;
         currentSite = builtins.replaceStrings [".fap.no"] [""] config.networking.domain;
-
-        s = import ../metadata/ipam.nix {inherit lib config;};
-        peers = s.consulPeers;
-
-        peer = name: ip: ''
-          ${name} {
-            import b
-            forward . ${ip} {
-              health_check 5s
-            }
-          }
-        '';
       in ''
         (b) {
         ${
@@ -73,13 +58,6 @@ in {
           then ''bind ${lib.concatStringsSep " " config.my.coredns.bind}''
           else ""
         }
-        }
-
-        consul {
-          import b
-          forward . 127.0.0.1:8600 {
-            health_check 5s
-          }
         }
 
         dalby.ts.net {
@@ -101,8 +79,6 @@ in {
         }
           }
         }
-
-        ${concatStringsSep "\n" (attrValues (mapAttrs peer peers))}
 
         (cloudflare) {
           forward . ${concatStringsSep " " cloudflareUpstreams} {
@@ -154,6 +130,5 @@ in {
     networking.firewall.allowedTCPPorts = [53 9153];
     networking.firewall.allowedUDPPorts = [53];
 
-    my.consulServices.coredns_exporter = consul.prometheusExporter "coredns" 9153;
   };
 }

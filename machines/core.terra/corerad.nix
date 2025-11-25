@@ -2,9 +2,7 @@
   config,
   lib,
   ...
-}: let
-  consul = import ../../common/funcs/consul.nix {inherit lib;};
-in {
+}: {
   services.corerad = {
     enable = true;
     settings = {
@@ -36,6 +34,4 @@ in {
   };
 
   networking.firewall.interfaces.enp1s0f0.allowedTCPPorts = [9430];
-
-  my.consulServices.corerad_exporter = consul.prometheusExporter "corerad" 9430;
 }

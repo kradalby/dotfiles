@@ -3,9 +3,7 @@
   config,
   lib,
   ...
-}: let
-  consul = import ../../common/funcs/consul.nix {inherit lib;};
-in
+}:
   lib.mkMerge [
     {
       # Controller upgrades unpack large archives into /tmp, so keep at least ~4GB around.

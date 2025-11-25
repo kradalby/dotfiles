@@ -72,48 +72,6 @@ in {
 
         scrapeConfigs = [
           {
-            job_name = "consul";
-            consul_sd_configs = [
-              {server = "consul.ldn.fap.no";}
-              {server = "consul.oracldn.fap.no";}
-              {server = "consul.oracfurt.fap.no";}
-              {server = "consul.tjoda.fap.no";}
-              {server = "consul.terra.fap.no";}
-            ];
-            relabel_configs = [
-              {
-                source_labels = [
-                  "__meta_consul_tags"
-                ];
-                regex = ".*,prometheus,.*";
-                action = "keep";
-              }
-              {
-                source_labels = [
-                  "__meta_consul_node"
-                  "__meta_consul_dc"
-                  "__meta_consul_service_port"
-                ];
-                regex = "([a-z]+);([a-z]+);([0-9]+)";
-                replacement = "$1.$2.fap.no:$3";
-                target_label = "instance";
-              }
-              {
-                source_labels = [
-                  "__meta_consul_dc"
-                ];
-                replacement = "$1";
-                target_label = "site";
-              }
-              {
-                source_labels = [
-                  "__meta_consul_service"
-                ];
-                target_label = "job";
-              }
-            ];
-          }
-          {
             job_name = "tjoda-ping";
             metrics_path = "/probe";
             params = {

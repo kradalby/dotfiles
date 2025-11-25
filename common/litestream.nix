@@ -5,7 +5,6 @@
   ...
 }:
 with lib; let
-  consul = import ./funcs/consul.nix {inherit lib;};
   port = 54909;
   replicate = db: {
     inherit (db) path;

@@ -4,7 +4,6 @@
   config,
   ...
 }: let
-  consul = import ../../common/funcs/consul.nix {inherit lib;};
   port = 56899;
 in {
   services.restic.server = {
@@ -55,6 +54,4 @@ in {
       WorkingDirectory = config.users.users.tailscale-restic-proxy.home;
     };
   };
-
-  my.consulServices.restic_server = consul.prometheusExporter "rest-server" port;
 }

@@ -2,7 +2,6 @@
   require = [
     ./avahi.nix
     ./ca.nix
-    ./consul.nix
     ./cpufreq.nix
     ./dns-ready.nix
     ./environment.nix

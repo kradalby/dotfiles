@@ -2,9 +2,7 @@
   config,
   lib,
   ...
-}: let
-  consul = import ./funcs/consul.nix {inherit lib;};
-in {
+}: {
   services.prometheus.exporters.smokeping = {
     enable = true;
 
@@ -26,5 +24,4 @@ in {
     after = ["network-online.target"];
   };
 
-  my.consulServices.smokeping_exporter = consul.prometheusExporter "smokeping" config.services.prometheus.exporters.smokeping.port;
 }

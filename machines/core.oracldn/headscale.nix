@@ -5,8 +5,6 @@
   inputs,
   ...
 }: let
-  s = import ../../metadata/ipam.nix {inherit lib config;};
-  consul = import ../../common/funcs/consul.nix {inherit lib;};
   domain = "headscale.kradalby.no";
   aclConfig = {
     acls = [
@@ -68,11 +66,6 @@ in {
         base_domain = "fap";
         nameservers = {
           global = ["1.1.1.1"];
-          split =
-            {
-              consul = s.nameservers;
-            }
-            // builtins.mapAttrs (site: server: [server]) s.consul;
         };
       };
 

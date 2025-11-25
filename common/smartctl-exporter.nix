@@ -3,9 +3,7 @@
   lib,
   ...
 }:
-with lib; let
-  consul = import ./funcs/consul.nix {inherit lib;};
-in {
+with lib; {
   options = {
     monitoring.smartctl.devices = mkOption {
       type = types.listOf types.str;
@@ -23,7 +21,6 @@ in {
       devices = config.monitoring.smartctl.devices;
     };
 
-    my.consulServices.smartctl_exporter = consul.prometheusExporter "smartctl" config.services.prometheus.exporters.smartctl.port;
     networking.firewall.allowedTCPPorts =
       lib.mkIf config.networking.firewall.enable
       [config.services.prometheus.exporters.smartctl.port];
