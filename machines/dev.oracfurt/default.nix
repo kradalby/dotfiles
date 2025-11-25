@@ -14,7 +14,6 @@
     ../../common/tailscale.nix
 
     ./restic.nix
-    ./tailscale-headscale.nix
     ./syncthing.nix
     # ./attic.nix
     ./proton.nix

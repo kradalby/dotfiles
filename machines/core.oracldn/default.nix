@@ -18,7 +18,6 @@
     ../../common/tailscale.nix
 
     ./restic.nix
-    ./tailscale-headscale.nix
     ./kuma.nix
     ./monitoring.nix
     ./loki.nix

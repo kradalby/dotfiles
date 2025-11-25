@@ -10,8 +10,6 @@
 
     ../../common/tailscale.nix
 
-    ./tailscale-headscale.nix
-
     # ./networking.nix
     ./microvm.nix
   ];

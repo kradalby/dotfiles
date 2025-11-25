@@ -18,7 +18,6 @@
     ./microvm.nix
     ./hardware-configuration.nix
     ./zfs.nix
-    ./tailscale-headscale.nix
     ./rest-server.nix
     ./samba.nix
     ./avahi.nix

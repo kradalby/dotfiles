@@ -17,7 +17,6 @@
 
     ./hardware-configuration.nix
     ./zfs.nix
-    ./tailscale-headscale.nix
     # ./corerad.nix
     ./dnsmasq.nix
     ./syncthing.nix

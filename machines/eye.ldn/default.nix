@@ -13,7 +13,6 @@
     ./mediamtx.nix
 
     ./tailscale.nix
-    ./tailscale-headscale.nix
   ];
 
   my.lan = "eth0";
