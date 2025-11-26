@@ -25,6 +25,9 @@ jobs:
           - host: core.tjoda
             platform: x86_64-linux
             runner: ubuntu-22.04
+          - host: storage.ldn
+            platform: x86_64-linux
+            runner: ubuntu-22.04
           - host: core.oracldn
             platform: aarch64-linux
             runner: ubuntu-22.04-arm
@@ -58,9 +61,20 @@ jobs:
           primary-key: nix-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/*.nix', '**/flake.lock') }}
           restore-prefixes-first-match: nix-${{ runner.os }}-${{ runner.arch }}
 
-      - name: Build and push system
+      - name: Build system
+        id: build
+        continue-on-error: true
         run: |
           # nix run github:zhaofengli/attic#default login kradalby http://attic.dalby.ts.net ${{ secrets.ATTIC_TOKEN }}
           # nix run github:zhaofengli/attic#default watch-store system &
           nix build '.#nixosConfigurations."${{ matrix.machine.host }}".config.system.build.toplevel'
+
+      - name: Push to cache
+        if: always()
+        run: |
           # nix run github:zhaofengli/attic#default push system result -j 2
+          echo "Explicit cache push would happen here"
+
+      - name: Fail if build failed
+        if: steps.build.outcome == 'failure'
+        run: exit 1
