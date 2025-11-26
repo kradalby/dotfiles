@@ -7,90 +7,60 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-x86:
-    runs-on: ubuntu-22.04
+  build:
+    runs-on: ${{ matrix.machine.runner }}
     strategy:
       fail-fast: false
       matrix:
         machine:
           - host: dev.ldn
             platform: x86_64-linux
+            runner: ubuntu-22.04
           - host: home.ldn
             platform: x86_64-linux
+            runner: ubuntu-22.04
           - host: unifi.ldn
             platform: x86_64-linux
+            runner: ubuntu-22.04
           - host: core.tjoda
             platform: x86_64-linux
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Tailscale
-        uses: tailscale/github-action@v2
-        with:
-          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
-          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
-          tags: tag:ci
-
-      - run: tailscale ping attic.dalby.ts.net
-
-      - uses: DeterminateSystems/nix-installer-action@main
-        with:
-          extra-conf: |
-            fallback = true
-            http-connections = 128
-            max-substitution-jobs = 128
-            extra-platforms = aarch64-linux
-            substituters = http://attic.dalby.ts.net/system?priority=43 https://nix-community.cachix.org?priority=41 https://numtide.cachix.org?priority=42 https://cache.nixos.org/
-            trusted-public-keys = system:40arGOg81ZACFJQAksoEplo8PfgxDd6aEQpNbuHXcCg= cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs= numtide.cachix.org-1:2ps1kLBUWjxIneOy1Ik6cQjb41X0iXVXeHigGmycPPE=
-
-      - uses: DeterminateSystems/magic-nix-cache-action@main
-
-      - name: Build and push system
-        run: |
-          nix run github:zhaofengli/attic#default login kradalby http://attic.dalby.ts.net ${{ secrets.ATTIC_TOKEN }}
-          nix run github:zhaofengli/attic#default watch-store system &
-          nix build '.#nixosConfigurations."${{ matrix.machine.host }}".config.system.build.toplevel'
-          nix run github:zhaofengli/attic#default push system result -j 2
-
-  build-arm64:
-    runs-on: ubuntu-22.04-arm
-    strategy:
-      fail-fast: false
-      matrix:
-        machine:
+            runner: ubuntu-22.04
           - host: core.oracldn
             platform: aarch64-linux
+            runner: ubuntu-22.04-arm
           - host: dev.oracfurt
             platform: aarch64-linux
+            runner: ubuntu-22.04-arm
 
     steps:
       - uses: actions/checkout@v4
 
       - name: Tailscale
-        uses: tailscale/github-action@v2
+        uses: tailscale/github-action@v4
         with:
           oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
           tags: tag:ci
+          # ping: attic.dalby.ts.net
 
-      - run: tailscale ping attic.dalby.ts.net
-
-      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: nixbuild/nix-quick-install-action@v34
         with:
-          extra-conf: |
-            fallback = true
-            http-connections = 128
-            max-substitution-jobs = 128
-            extra-platforms = aarch64-linux
-            substituters = http://attic.dalby.ts.net/system?priority=43 https://nix-community.cachix.org?priority=41 https://numtide.cachix.org?priority=42 https://cache.nixos.org/
-            trusted-public-keys = system:40arGOg81ZACFJQAksoEplo8PfgxDd6aEQpNbuHXcCg= cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs= numtide.cachix.org-1:2ps1kLBUWjxIneOy1Ik6cQjb41X0iXVXeHigGmycPPE=
+          nix_conf: |
+            experimental-features = nix-command flakes
+            access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
+            # substituters = http://attic.dalby.ts.net/system?priority=43 https://nix-community.cachix.org?priority=41 https://numtide.cachix.org?priority=42 https://cache.nixos.org/
+            substituters = https://nix-community.cachix.org?priority=41 https://numtide.cachix.org?priority=42 https://cache.nixos.org/
+            # trusted-public-keys = system:40arGOg81ZACFJQAksoEplo8PfgxDd6aEQpNbuHXcCg= cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs= numtide.cachix.org-1:2ps1kLBUWjxIneOy1Ik6cQjb41X0iXVXeHigGmycPPE=
+            trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs= numtide.cachix.org-1:2ps1kLBUWjxIneOy1Ik6cQjb41X0iXVXeHigGmycPPE=
 
-      - uses: DeterminateSystems/magic-nix-cache-action@main
+      - uses: nix-community/cache-nix-action@v6
+        with:
+          primary-key: nix-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/*.nix', '**/flake.lock') }}
+          restore-prefixes-first-match: nix-${{ runner.os }}-${{ runner.arch }}
 
       - name: Build and push system
         run: |
-          nix run github:zhaofengli/attic#default login kradalby http://attic.dalby.ts.net ${{ secrets.ATTIC_TOKEN }}
-          nix run github:zhaofengli/attic#default watch-store system &
+          # nix run github:zhaofengli/attic#default login kradalby http://attic.dalby.ts.net ${{ secrets.ATTIC_TOKEN }}
+          # nix run github:zhaofengli/attic#default watch-store system &
           nix build '.#nixosConfigurations."${{ matrix.machine.host }}".config.system.build.toplevel'
-          nix run github:zhaofengli/attic#default push system result -j 2
+          # nix run github:zhaofengli/attic#default push system result -j 2
