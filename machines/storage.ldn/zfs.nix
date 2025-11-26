@@ -1,4 +1,4 @@
-{...}: let
+{config, ...}: let
   storageDatasets = [
     "backup"
     "books"
@@ -10,6 +10,9 @@
     "timemachine"
   ];
 in {
+  imports = [
+    ../../common/zfs.nix
+  ];
   # Disk preparation (single 5 TB disk at /dev/sdb)
   # The disk is stably exposed as /dev/sdb inside the VM.
   # Example:
@@ -28,6 +31,8 @@ in {
   #   done
 
   boot.supportedFilesystems = ["zfs"];
+  # Don't block boot if the ZFS pool is missing (e.g., on clean machine deployment)
+  boot.zfs.forceImportAll = false;
   boot.zfs.extraPools = ["storage"];
 
   services.zfs = {

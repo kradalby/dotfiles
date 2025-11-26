@@ -385,6 +385,41 @@ in {
                         '';
                       };
                     }
+                    {
+                      alert = "ZFSPoolMissing";
+                      expr = ''absent(zfs_pool_health{pool="storage"})'';
+                      for = "5m";
+                      labels = {
+                        severity = "critical";
+                        frequency = "15m";
+                      };
+                      annotations = {
+                        summary = "ZFS pool missing on {{ $labels.instance }}";
+                        description = ''
+                          The ZFS pool 'storage' does not exist or cannot be found on {{ $labels.instance }}.
+                          This could indicate a disk failure or configuration issue.
+
+                          LABELS: {{ $labels }}
+                        '';
+                      };
+                    }
+                    {
+                      alert = "ZFSPoolUnhealthy";
+                      expr = ''zfs_pool_health == 0'';
+                      for = "2m";
+                      labels = {
+                        severity = "critical";
+                        frequency = "10m";
+                      };
+                      annotations = {
+                        summary = "ZFS pool {{ $labels.pool }} unhealthy on {{ $labels.instance }}";
+                        description = ''
+                          The ZFS pool '{{ $labels.pool }}' is in a degraded or faulted state (not ONLINE) on {{ $labels.instance }}.
+
+                          LABELS: {{ $labels }}
+                        '';
+                      };
+                    }
                   ];
                 }
               ];
