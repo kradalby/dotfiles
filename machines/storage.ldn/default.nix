@@ -20,6 +20,13 @@ in {
     # ./dnsmasq.nix  # Config kept, service disabled
   ];
 
+  boot.kernel.sysctl = {
+    "net.ipv4.ip_forward" = 1;
+    "net.ipv6.conf.all.forwarding" = 1;
+  };
+
+  services.tailscale.advertiseRoutes = ["10.65.0.0/24"];
+
   networking = {
     hostName = "storage";
     hostId = "007f0200";
