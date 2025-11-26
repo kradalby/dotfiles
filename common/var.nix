@@ -71,14 +71,14 @@
         kl = "kubectl logs";
         klf = "kubectl logs -f";
 
-        # Terraform
-        tf = "terraform";
-        tfi = "terraform init";
-        tfiu = "terraform init -upgrade";
-        tfp = "terraform plan";
-        tfa = "terraform apply";
-        tfaaa = "terraform apply -auto-approve";
-        tft = "terraform taint";
+        # Terraform (tofu)
+        tf = "tofu";
+        tfi = "tofu init";
+        tfiu = "tofu init -upgrade";
+        tfp = "tofu plan";
+        tfa = "tofu apply";
+        tfaaa = "tofu apply -auto-approve";
+        tft = "tofu taint";
 
         # Logcli / Loki
         lc = "logcli";
