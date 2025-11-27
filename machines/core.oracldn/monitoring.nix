@@ -4,6 +4,41 @@
   lib,
   ...
 }: let
+  # All NixOS hosts reachable via Tailscale
+  # These all have node_exporter and systemd_exporter enabled
+  allHosts = [
+    "core-oracldn"
+    "core-terra"
+    "core-tjoda"
+    "dev-oracfurt"
+    "dev-ldn"
+    "home-ldn"
+    "storage-ldn"
+    "unifi-ldn"
+    "eye-ldn"
+    "rpi-vetle"
+  ];
+
+  # Hosts with ZFS pools (have zfs_exporter enabled)
+  zfsHosts = [
+    "core-terra"
+    "core-tjoda"
+    "storage-ldn"
+  ];
+
+  # Hosts with smartctl monitoring enabled
+  smartctlHosts = [
+    "core-tjoda"
+    "eye-ldn"
+    "rpi-vetle"
+  ];
+
+  # Hosts with smokeping exporter
+  smokepingHosts = [
+    "core-terra"
+    "core-tjoda"
+  ];
+
   blackboxConfigFile = pkgs.writeText "blackbox.conf" ''
     modules:
       http_prometheus:
@@ -20,15 +55,24 @@
         icmp:
           preferred_ip_protocol: ip4
   '';
+
+  # Helper to create a simple scrape job with /metrics path
   scrapeJob = name: targets: {
     job_name = name;
     metrics_path = "/metrics";
-    static_configs = [
-      {
-        targets = targets;
-      }
-    ];
+    static_configs = [{inherit targets;}];
   };
+
+  # Helper to create scrape jobs for exporters across multiple hosts
+  # Takes a job name, list of hostnames, and port number
+  exporterJob = name: hosts: port: {
+    job_name = name;
+    metrics_path = "/metrics";
+    static_configs = [{
+      targets = map (host: "${host}:${toString port}") hosts;
+    }];
+  };
+
 in {
   services.tailscale.services = {
     "svc:prometheus" = {
@@ -71,6 +115,26 @@ in {
     ];
 
         scrapeConfigs = [
+          # Node exporter on all hosts (port 9100)
+          (exporterJob "nodes" allHosts 9100)
+
+          # Systemd exporter on all hosts (port 9558)
+          (exporterJob "systemd" allHosts 9558)
+
+          # ZFS exporter on hosts with ZFS pools (port 9130)
+          (exporterJob "zfs" zfsHosts 9130)
+
+          # Smartctl exporter on hosts with disk monitoring (port 9633)
+          (exporterJob "smartctl" smartctlHosts 9633)
+
+          # Smokeping exporter (port 9374)
+          (exporterJob "smokeping" smokepingHosts 9374)
+
+          # Application-specific exporters
+          (scrapeJob "litestream" ["core-oracldn:54909"])
+          (scrapeJob "headscale" ["core-oracldn:54910"])
+
+          # Blackbox ICMP probing for Tjoda devices
           {
             job_name = "tjoda-ping";
             metrics_path = "/probe";
@@ -130,6 +194,8 @@ in {
               }
             ];
           }
+
+          # Tasmota smart plugs
           {
             job_name = "tasmota";
             metrics_path = "/probe";
@@ -166,15 +232,15 @@ in {
               }
             ];
           }
+
+          # HomeWizard P1 smart meter
           {
             job_name = "homewizard";
             metrics_path = "/probe";
             scrape_interval = "10s";
             static_configs = [
               {
-                targets = [
-                  "power-p1-meter.ldn"
-                ];
+                targets = ["power-p1-meter.ldn"];
               }
             ];
             relabel_configs = [
@@ -192,29 +258,7 @@ in {
               }
             ];
           }
-          {
-            job_name = "living-room-window-plant";
-            metrics_path = "/";
-            scrape_interval = "10s";
-            scrape_timeout = "3s";
-            static_configs = [
-              {
-                targets = [
-                  "living-room-window-moisture.ldn"
-                ];
-                labels = {
-                  plant = "living-room-window";
-                };
-              }
-            ];
-          }
-          (scrapeJob "litestream" [
-            "core-oracldn:54909"
-            # "headscale-oracldn:54909"
-          ])
-          (scrapeJob "headscale" [
-            "core-oracldn:54910"
-          ])
+
         ];
 
         rules = [
