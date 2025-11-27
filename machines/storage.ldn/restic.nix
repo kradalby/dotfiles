@@ -5,7 +5,7 @@
   ];
 
   mkJob = site: {
-    enable = true;
+    enable = false;
     inherit site paths;
     secret = "restic-dev-ldn-token";
   };
