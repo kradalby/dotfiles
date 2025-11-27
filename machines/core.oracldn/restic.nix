@@ -13,6 +13,7 @@
     ++ config.services.minio.dataDir;
 
   mkJob = site: {
+    enable = true;
     inherit site paths;
     secret = "restic-core-oracldn-token";
   };

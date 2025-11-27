@@ -8,6 +8,7 @@
   ];
 
   mkJob = site: {
+    enable = true;
     inherit site paths;
     secret = "restic-dev-oracfurt-token";
   };

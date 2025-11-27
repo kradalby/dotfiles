@@ -4,6 +4,7 @@
   ];
 
   mkJob = site: {
+    enable = true;
     inherit site paths;
     secret = "restic-unifi-ldn-token";
   };
