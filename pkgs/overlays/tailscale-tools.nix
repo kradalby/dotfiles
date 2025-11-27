@@ -24,6 +24,5 @@ buildGoModule rec {
     "cmd/proxy-to-grafana"
     "cmd/nginx-auth"
     "cmd/nardump"
-    "cmd/tsidp"
   ];
 }

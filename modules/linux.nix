@@ -8,7 +8,6 @@
     ./setec.nix
     ./faptables.nix
     ./attic-watch.nix
-    ./tsidp.nix
     ./vhost.nix
     ./restic-jobs.nix
     ./wireguard.nix

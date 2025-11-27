@@ -114,6 +114,11 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
+    tsidp = {
+      url = "github:tailscale/tsidp";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+
     tailscale = {
       url = "github:tailscale/tailscale/v1.90.6";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
@@ -281,6 +286,9 @@
           arch = "aarch64-linux";
           name = "dev.oracfurt";
           tags = ["arm64" "oracle" "oracfurt"];
+          modules = with inputs; [
+            tsidp.nixosModules.default
+          ];
         };
 
         "home.ldn" = box.nixosBox {
