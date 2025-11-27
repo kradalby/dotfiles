@@ -53,7 +53,7 @@ in {
 
   # Set SSH_AUTH_SOCK to 1Password agent only if not already set
   # This allows forwarded agents (ssh -A) to take priority
-  home.sessionVariablesExtra = lib.mkIf isWorkstation ''
-    export SSH_AUTH_SOCK="''${SSH_AUTH_SOCK:-$HOME/.ssh/ssh-agent-mux.sock}"
-  '';
+  home.sessionVariables = lib.mkIf isWorkstation {
+    SSH_AUTH_SOCK = "$HOME/.ssh/ssh-agent-mux.sock";
+  };
 }
