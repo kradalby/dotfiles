@@ -4,7 +4,7 @@
     package = pkgs.starship;
     enableFishIntegration = true;
     settings = {
-      format = "$username$hostname$git_branch$git_status$nix_shell$cmd_duration$line_break$character";
+      format = "$username$hostname$directory$git_branch$git_status$nix_shell$cmd_duration$line_break$character";
       add_newline = true;
 
       username = {
@@ -17,8 +17,30 @@
         format = "[$hostname]($style) ";
       };
 
+      directory = {
+        truncation_length = 3;
+        truncate_to_repo = true;
+        fish_style_pwd_dir_length = 1;
+        format = "[$path]($style) ";
+      };
+
       git_branch = {
         format = "[$symbol$branch]($style) ";
+      };
+
+      git_status = {
+        format = "([$all_status$ahead_behind]($style) )";
+        conflicted = "🏳";
+        ahead = "⇡$count";
+        behind = "⇣$count";
+        diverged = "⇕⇡$ahead_count⇣$behind_count";
+        up_to_date = "✓";
+        untracked = "?$count";
+        stashed = "$$count";
+        modified = "!$count";
+        staged = "+$count";
+        renamed = "»$count";
+        deleted = "✘$count";
       };
 
       nix_shell = {
