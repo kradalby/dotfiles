@@ -58,9 +58,8 @@
 
       mqtt = {
         base_topic = "zigbee2mqtt";
-        server = "mqtt://127.0.0.1";
-        user = "zigbee2mqtt";
-        password = "londonderry";
+        # z2m-homekit embedded MQTT broker
+        server = "mqtt://127.0.0.1:51833";
       };
 
       devices = {

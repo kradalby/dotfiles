@@ -18,6 +18,7 @@
     ./iSponsorBlockTV.nix
     ./nefit-homekit.nix
     ./tasmota-homekit.nix
+    ./z2m-homekit.nix
   ];
 
   networking = {

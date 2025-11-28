@@ -859,7 +859,8 @@
         "tasmota-exporter": "tasmota-exporter",
         "tasmota-homekit": "tasmota-homekit",
         "tsidp": "tsidp",
-        "utils": "utils"
+        "utils": "utils",
+        "z2m-homekit": "z2m-homekit"
       }
     },
     "rust-overlay": {
@@ -1806,6 +1807,29 @@
       "original": {
         "owner": "hrsh7th",
         "repo": "vim-vsnip",
+        "type": "github"
+      }
+    },
+    "z2m-homekit": {
+      "inputs": {
+        "flake-utils": [
+          "utils"
+        ],
+        "nixpkgs": [
+          "nixpkgs-unstable"
+        ]
+      },
+      "locked": {
+        "lastModified": 1764281389,
+        "narHash": "sha256-lKEA9KZG4d4aqaLI1eAjYWjnpKMYHXm/NfDlBHM+GCQ=",
+        "owner": "kradalby",
+        "repo": "z2m-homekit",
+        "rev": "489a07fd2c29cde3cb988b825da8cc7cdbfc1457",
+        "type": "github"
+      },
+      "original": {
+        "owner": "kradalby",
+        "repo": "z2m-homekit",
         "type": "github"
       }
     }

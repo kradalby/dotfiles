@@ -148,6 +148,12 @@
       inputs."flake-utils".follows = "utils";
     };
 
+    z2m-homekit = {
+      url = "github:kradalby/z2m-homekit";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+      inputs."flake-utils".follows = "utils";
+    };
+
   };
 
   outputs = {
@@ -242,6 +248,7 @@
         ssh-agent-mux = inputs.ssh-agent-mux.packages."${final.system}".default;
         nefit-homekit = inputs.nefit-homekit.packages."${final.system}".default;
         tasmota-homekit = inputs.tasmota-homekit.packages."${final.system}".default;
+        z2m-homekit = inputs.z2m-homekit.packages."${final.system}".default;
       })
     ];
 
@@ -299,6 +306,7 @@
           modules = with inputs; [
             nefit-homekit.nixosModules.default
             tasmota-homekit.nixosModules.default
+            z2m-homekit.nixosModules.default
           ];
         };
 
