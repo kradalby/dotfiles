@@ -3,7 +3,8 @@
   config,
   lib,
   ...
-}: let
+}:
+let
   # All NixOS hosts reachable via Tailscale
   # These all have node_exporter and systemd_exporter enabled
   allHosts = [
@@ -60,7 +61,7 @@
   scrapeJob = name: targets: {
     job_name = name;
     metrics_path = "/metrics";
-    static_configs = [{inherit targets;}];
+    static_configs = [ { inherit targets; } ];
   };
 
   # Helper to create scrape jobs for exporters across multiple hosts
@@ -68,14 +69,17 @@
   exporterJob = name: hosts: port: {
     job_name = name;
     metrics_path = "/metrics";
-    static_configs = [{
-      targets = map (host: "${host}:${toString port}") hosts;
-    }];
+    static_configs = [
+      {
+        targets = map (host: "${host}:${toString port}") hosts;
+      }
+    ];
   };
 
-in {
+in
+{
   services.tailscale.services = {
-    "svc:prometheus" = {
+    "svc:prom" = {
       endpoints = {
         "tcp:80" = "http://localhost:${toString config.services.prometheus.port}";
         "tcp:443" = "http://localhost:${toString config.services.prometheus.port}";
@@ -103,373 +107,375 @@ in {
   services.prometheus = {
     enable = true;
 
-        retentionTime = "365d";
-        webExternalUrl = "http://prom/";
+    retentionTime = "365d";
+    webExternalUrl = "http://prom/";
 
     alertmanagers = [
       {
         scheme = "http";
         path_prefix = "/";
-        static_configs = [{targets = ["localhost:${toString config.services.prometheus.alertmanager.port}"];}];
+        static_configs = [
+          { targets = [ "localhost:${toString config.services.prometheus.alertmanager.port}" ]; }
+        ];
       }
     ];
 
-        scrapeConfigs = [
-          # Node exporter on all hosts (port 9100)
-          (exporterJob "nodes" allHosts 9100)
+    scrapeConfigs = [
+      # Node exporter on all hosts (port 9100)
+      (exporterJob "nodes" allHosts 9100)
 
-          # Systemd exporter on all hosts (port 9558)
-          (exporterJob "systemd" allHosts 9558)
+      # Systemd exporter on all hosts (port 9558)
+      (exporterJob "systemd" allHosts 9558)
 
-          # ZFS exporter on hosts with ZFS pools (port 9130)
-          (exporterJob "zfs" zfsHosts 9130)
+      # ZFS exporter on hosts with ZFS pools (port 9130)
+      (exporterJob "zfs" zfsHosts 9130)
 
-          # Smartctl exporter on hosts with disk monitoring (port 9633)
-          (exporterJob "smartctl" smartctlHosts 9633)
+      # Smartctl exporter on hosts with disk monitoring (port 9633)
+      (exporterJob "smartctl" smartctlHosts 9633)
 
-          # Smokeping exporter (port 9374)
-          (exporterJob "smokeping" smokepingHosts 9374)
+      # Smokeping exporter (port 9374)
+      (exporterJob "smokeping" smokepingHosts 9374)
 
-          # Application-specific exporters
-          (scrapeJob "litestream" ["core-oracldn:54909"])
-          (scrapeJob "headscale" ["core-oracldn:54910"])
+      # Application-specific exporters
+      (scrapeJob "litestream" [ "core-oracldn:54909" ])
+      (scrapeJob "headscale" [ "core-oracldn:54910" ])
 
-          # Blackbox ICMP probing for Tjoda devices
+      # Blackbox ICMP probing for Tjoda devices
+      {
+        job_name = "tjoda-ping";
+        metrics_path = "/probe";
+        params = {
+          module = [ "icmp" ];
+        };
+        static_configs = [
           {
-            job_name = "tjoda-ping";
-            metrics_path = "/probe";
-            params = {
-              module = ["icmp"];
-            };
-            static_configs = [
-              {
-                targets = [
-                  # Unifi
-                  "hus-kontor-printer.tjoda"
-                  "love-kontor-printer.tjoda"
-                  "hus-kontor-switch.tjoda"
-                  "love-loft-switch.tjoda"
-                  "love-kontor-switch.tjoda"
-                  "love-scene-switch.tjoda"
-                  "bryggerhus-switch.tjoda"
-                  "hus-kontor-ap.tjoda"
-                  "hus-spisestue-ap.tjoda"
-                  "love-scene-ap.tjoda"
-                  "love-selskap-ap.tjoda"
-                  "love-lager-ap.tjoda"
-                  "bryggerhus-ap.tjoda"
+            targets = [
+              # Unifi
+              "hus-kontor-printer.tjoda"
+              "love-kontor-printer.tjoda"
+              "hus-kontor-switch.tjoda"
+              "love-loft-switch.tjoda"
+              "love-kontor-switch.tjoda"
+              "love-scene-switch.tjoda"
+              "bryggerhus-switch.tjoda"
+              "hus-kontor-ap.tjoda"
+              "hus-spisestue-ap.tjoda"
+              "love-scene-ap.tjoda"
+              "love-selskap-ap.tjoda"
+              "love-lager-ap.tjoda"
+              "bryggerhus-ap.tjoda"
 
-                  # Sonos hus
-                  "hus-kjokken-sonos.tjoda"
-                  "hus-salong-sonos.tjoda"
-                  "hus-spisestue-sonos.tjoda"
-                  "hus-kontor-sonos.tjoda"
-                  "hus-gang-sonos.tjoda"
-                  "hus-hage-sonos.tjoda"
+              # Sonos hus
+              "hus-kjokken-sonos.tjoda"
+              "hus-salong-sonos.tjoda"
+              "hus-spisestue-sonos.tjoda"
+              "hus-kontor-sonos.tjoda"
+              "hus-gang-sonos.tjoda"
+              "hus-hage-sonos.tjoda"
 
-                  # Sonos låve
-                  "love-kontor-bridge-sonos.tjoda"
-                  "love-salong-sonos.tjoda"
-                  "love-spisestue-sonos.tjoda"
-                  "love-dansegulv-sonos.tjoda"
-                  # "love-loft-sonos.tjoda"
+              # Sonos låve
+              "love-kontor-bridge-sonos.tjoda"
+              "love-salong-sonos.tjoda"
+              "love-spisestue-sonos.tjoda"
+              "love-dansegulv-sonos.tjoda"
+              # "love-loft-sonos.tjoda"
 
-                  # Atlas probe
-                  "atlas-probe.tjoda"
-                ];
-              }
-            ];
-            relabel_configs = [
-              {
-                source_labels = ["__address__"];
-                target_label = "__param_target";
-              }
-              {
-                source_labels = ["__param_target"];
-                target_label = "instance";
-              }
-              {
-                target_label = "__address__";
-                replacement = "127.0.0.1:9115";
-              }
+              # Atlas probe
+              "atlas-probe.tjoda"
             ];
           }
-
-          # Tasmota smart plugs
-          {
-            job_name = "tasmota";
-            metrics_path = "/probe";
-            scrape_interval = "10s";
-            static_configs = [
-              {
-                targets = [
-                  "living-room-corner.ldn"
-                  "living-room-shelf.ldn"
-                  "living-room-drawer.ldn"
-                  "living-room-sofa.ldn"
-                  "office-light.ldn"
-                  "office-air.ldn"
-                  "living-room-tv.ldn"
-                  "office-fridge.ldn"
-                  "office-workstation.ldn"
-                  "office-fan-heater.ldn"
-                  "staircase-servers.ldn"
-                ];
-              }
-            ];
-            relabel_configs = [
-              {
-                source_labels = ["__address__"];
-                target_label = "__param_target";
-              }
-              {
-                source_labels = ["__param_target"];
-                target_label = "instance";
-              }
-              {
-                target_label = "__address__";
-                replacement = "127.0.0.1:63459";
-              }
-            ];
-          }
-
-          # HomeWizard P1 smart meter
-          {
-            job_name = "homewizard";
-            metrics_path = "/probe";
-            scrape_interval = "10s";
-            static_configs = [
-              {
-                targets = ["power-p1-meter.ldn"];
-              }
-            ];
-            relabel_configs = [
-              {
-                source_labels = ["__address__"];
-                target_label = "__param_target";
-              }
-              {
-                source_labels = ["__param_target"];
-                target_label = "instance";
-              }
-              {
-                target_label = "__address__";
-                replacement = "127.0.0.1:63460";
-              }
-            ];
-          }
-
         ];
+        relabel_configs = [
+          {
+            source_labels = [ "__address__" ];
+            target_label = "__param_target";
+          }
+          {
+            source_labels = [ "__param_target" ];
+            target_label = "instance";
+          }
+          {
+            target_label = "__address__";
+            replacement = "127.0.0.1:9115";
+          }
+        ];
+      }
 
-        rules = [
-          (
-            builtins.toJSON {
-              groups = [
+      # Tasmota smart plugs
+      {
+        job_name = "tasmota";
+        metrics_path = "/probe";
+        scrape_interval = "10s";
+        static_configs = [
+          {
+            targets = [
+              "living-room-corner.ldn"
+              "living-room-shelf.ldn"
+              "living-room-drawer.ldn"
+              "living-room-sofa.ldn"
+              "office-light.ldn"
+              "office-air.ldn"
+              "living-room-tv.ldn"
+              "office-fridge.ldn"
+              "office-workstation.ldn"
+              "office-fan-heater.ldn"
+              "staircase-servers.ldn"
+            ];
+          }
+        ];
+        relabel_configs = [
+          {
+            source_labels = [ "__address__" ];
+            target_label = "__param_target";
+          }
+          {
+            source_labels = [ "__param_target" ];
+            target_label = "instance";
+          }
+          {
+            target_label = "__address__";
+            replacement = "127.0.0.1:63459";
+          }
+        ];
+      }
+
+      # HomeWizard P1 smart meter
+      {
+        job_name = "homewizard";
+        metrics_path = "/probe";
+        scrape_interval = "10s";
+        static_configs = [
+          {
+            targets = [ "power-p1-meter.ldn" ];
+          }
+        ];
+        relabel_configs = [
+          {
+            source_labels = [ "__address__" ];
+            target_label = "__param_target";
+          }
+          {
+            source_labels = [ "__param_target" ];
+            target_label = "instance";
+          }
+          {
+            target_label = "__address__";
+            replacement = "127.0.0.1:63460";
+          }
+        ];
+      }
+
+    ];
+
+    rules = [
+      (builtins.toJSON {
+        groups = [
+          {
+            name = "rules";
+            rules = [
+              {
+                alert = "ExporterDown";
+                expr = ''up{} == 0'';
+                for = "1m";
+                labels = {
+                  severity = "critical";
+                  frequency = "2m";
+                };
+                annotations = {
+                  summary = "Exporter down (instance {{ $labels.instance }})";
+                  description = ''
+                    Prometheus exporter down
+
+                    VALUE = {{ $value }}
+                    LABELS: {{ $labels }}
+                  '';
+                };
+              }
+              {
+                alert = "NodeExporterDown";
+                expr = ''up{job="nodes"} == 0'';
+                for = "1m";
+                labels = {
+                  severity = "critical";
+                  frequency = "2m";
+                };
+                annotations = {
+                  summary = "Exporter down (instance {{ $labels.instance }})";
+                  description = ''
+                    Prometheus exporter down
+
+                    VALUE = {{ $value }}
+                    LABELS: {{ $labels }}
+                  '';
+                };
+              }
+              {
+                alert = "InstanceLowDiskAbs";
+                expr = ''node_filesystem_avail_bytes{fstype!~"(tmpfs|ramfs)",mountpoint!~"^/boot.?/?.*"} / 1024 / 1024 < 1024'';
+                for = "1m";
+                labels = {
+                  severity = "critical";
+                };
+                annotations = {
+                  description = "Less than 1GB of free disk space left on the root filesystem";
+                  summary = "Instance {{ $labels.instance }}: {{ $value }}MB free disk space on {{$labels.device }} @ {{$labels.mountpoint}}";
+                  value = "{{ $value }}";
+                };
+              }
+              (
+                let
+                  low_megabyte = 70;
+                in
                 {
-                  name = "rules";
-                  rules = [
-                    {
-                      alert = "ExporterDown";
-                      expr = ''up{} == 0'';
-                      for = "1m";
-                      labels = {
-                        severity = "critical";
-                        frequency = "2m";
-                      };
-                      annotations = {
-                        summary = "Exporter down (instance {{ $labels.instance }})";
-                        description = ''
-                          Prometheus exporter down
-
-                          VALUE = {{ $value }}
-                          LABELS: {{ $labels }}
-                        '';
-                      };
-                    }
-                    {
-                      alert = "NodeExporterDown";
-                      expr = ''up{job="nodes"} == 0'';
-                      for = "1m";
-                      labels = {
-                        severity = "critical";
-                        frequency = "2m";
-                      };
-                      annotations = {
-                        summary = "Exporter down (instance {{ $labels.instance }})";
-                        description = ''
-                          Prometheus exporter down
-
-                          VALUE = {{ $value }}
-                          LABELS: {{ $labels }}
-                        '';
-                      };
-                    }
-                    {
-                      alert = "InstanceLowDiskAbs";
-                      expr = ''node_filesystem_avail_bytes{fstype!~"(tmpfs|ramfs)",mountpoint!~"^/boot.?/?.*"} / 1024 / 1024 < 1024'';
-                      for = "1m";
-                      labels = {
-                        severity = "critical";
-                      };
-                      annotations = {
-                        description = "Less than 1GB of free disk space left on the root filesystem";
-                        summary = "Instance {{ $labels.instance }}: {{ $value }}MB free disk space on {{$labels.device }} @ {{$labels.mountpoint}}";
-                        value = "{{ $value }}";
-                      };
-                    }
-                    (
-                      let
-                        low_megabyte = 70;
-                      in {
-                        alert = "InstanceLowBootDiskAbs";
-                        expr = ''node_filesystem_avail_bytes{mountpoint=~"^/boot.?/?.*"} / 1024 / 1024 < ${toString low_megabyte}''; # a single kernel roughly consumes about ~40ish MB.
-                        for = "1m";
-                        labels = {
-                          severity = "critical";
-                        };
-                        annotations = {
-                          description = "Less than ${toString low_megabyte}MB of free disk space left on one of the boot filesystem";
-                          summary = "Instance {{ $labels.instance }}: {{ $value }}MB free disk space on {{$labels.device }} @ {{$labels.mountpoint}}";
-                          value = "{{ $value }}";
-                        };
-                      }
-                    )
-                    {
-                      alert = "InstanceLowDiskPerc";
-                      expr = "100 * (node_filesystem_free_bytes / node_filesystem_size_bytes) < 10";
-                      for = "1m";
-                      labels = {
-                        severity = "critical";
-                      };
-                      annotations = {
-                        description = "Less than 10% of free disk space left on a device";
-                        summary = "Instance {{ $labels.instance }}: {{ $value }}% free disk space on {{ $labels.device}}";
-                        value = "{{ $value }}";
-                      };
-                    }
-                    {
-                      alert = "InstanceLowDiskPrediction12Hours";
-                      expr = ''predict_linear(node_filesystem_free_bytes{fstype!~"(tmpfs|ramfs)"}[3h],12 * 3600) < 0'';
-                      for = "2h";
-                      labels.severity = "critical";
-                      annotations = {
-                        description = ''Disk {{ $labels.mountpoint }} ({{ $labels.device }}) will be full in less than 12 hours'';
-                        summary = ''Instance {{ $labels.instance }}: Disk {{ $labels.mountpoint }} ({{ $labels.device}}) will be full in less than 12 hours'';
-                      };
-                    }
-
-                    {
-                      alert = "InstanceLowMem";
-                      expr = "node_memory_MemAvailable_bytes / 1024 / 1024 < node_memory_MemTotal_bytes / 1024 / 1024 / 10";
-                      for = "3m";
-                      labels.severity = "critical";
-                      annotations = {
-                        description = "Less than 10% of free memory";
-                        summary = "Instance {{ $labels.instance }}: {{ $value }}MB of free memory";
-                        value = "{{ $value }}";
-                      };
-                    }
-
-                    {
-                      alert = "ServiceFailed";
-                      expr = ''node_systemd_unit_state{state="failed"} > 0'';
-                      for = "2m";
-                      labels.severity = "critical";
-                      annotations = {
-                        description = "A systemd unit went into failed state";
-                        summary = "Instance {{ $labels.instance }}: Service {{ $labels.name }} failed";
-                        value = "{{ $labels.name }}";
-                      };
-                    }
-                    {
-                      alert = "ServiceFlapping";
-                      expr = ''                        changes(node_systemd_unit_state{state="failed"}[5m])
-                                        > 5 or (changes(node_systemd_unit_state{state="failed"}[1h]) > 15
-                                        unless changes(node_systemd_unit_state{state="failed"}[30m]) < 7)
-                      '';
-                      labels.severity = "critical";
-                      annotations = {
-                        description = "A systemd service changed its state more than 5x/5min or 15x/1h";
-                        summary = "Instance {{ $labels.instance }}: Service {{ $labels.name }} is flapping";
-                        value = "{{ $labels.name }}";
-                      };
-                    }
-                    {
-                      alert = "SystemdUnitActivatingTooLong";
-                      expr = ''node_systemd_unit_state{state="activating"} == 1'';
-                      for = "5m";
-                      labels = {
-                        severity = "warning";
-                        frequency = "15m";
-                      };
-                      annotations = {
-                        summary = "systemd unit is activating too long (instance {{ $labels.instance }})";
-                        description = ''
-                          systemd unit is activating for more than 5 minutes
-
-                          LABELS: {{ $labels }}
-                        '';
-                      };
-                    }
-                    {
-                      alert = "TjodaPingDown";
-                      expr = ''probe_success{job="tjoda-ping"} == 0'';
-                      for = "10m";
-                      labels = {
-                        severity = "warning";
-                        frequency = "15m";
-                      };
-                      annotations = {
-                        summary = "Tjodalyng device has not responded for 10m (instance {{ $labels.instance }})";
-                        description = ''
-                          A device in Tjodalyng, typically Unifi networking or Sonos has not responded
-                          for over 10m.
-
-                          LABELS: {{ $labels }}
-                        '';
-                      };
-                    }
-                    {
-                      alert = "ZFSPoolMissing";
-                      expr = ''absent(zfs_pool_health{pool="storage"})'';
-                      for = "5m";
-                      labels = {
-                        severity = "critical";
-                        frequency = "15m";
-                      };
-                      annotations = {
-                        summary = "ZFS pool missing on {{ $labels.instance }}";
-                        description = ''
-                          The ZFS pool 'storage' does not exist or cannot be found on {{ $labels.instance }}.
-                          This could indicate a disk failure or configuration issue.
-
-                          LABELS: {{ $labels }}
-                        '';
-                      };
-                    }
-                    {
-                      alert = "ZFSPoolUnhealthy";
-                      expr = ''zfs_pool_health == 0'';
-                      for = "2m";
-                      labels = {
-                        severity = "critical";
-                        frequency = "10m";
-                      };
-                      annotations = {
-                        summary = "ZFS pool {{ $labels.pool }} unhealthy on {{ $labels.instance }}";
-                        description = ''
-                          The ZFS pool '{{ $labels.pool }}' is in a degraded or faulted state (not ONLINE) on {{ $labels.instance }}.
-
-                          LABELS: {{ $labels }}
-                        '';
-                      };
-                    }
-                  ];
+                  alert = "InstanceLowBootDiskAbs";
+                  expr = ''node_filesystem_avail_bytes{mountpoint=~"^/boot.?/?.*"} / 1024 / 1024 < ${toString low_megabyte}''; # a single kernel roughly consumes about ~40ish MB.
+                  for = "1m";
+                  labels = {
+                    severity = "critical";
+                  };
+                  annotations = {
+                    description = "Less than ${toString low_megabyte}MB of free disk space left on one of the boot filesystem";
+                    summary = "Instance {{ $labels.instance }}: {{ $value }}MB free disk space on {{$labels.device }} @ {{$labels.mountpoint}}";
+                    value = "{{ $value }}";
+                  };
                 }
-              ];
-            }
-          )
+              )
+              {
+                alert = "InstanceLowDiskPerc";
+                expr = "100 * (node_filesystem_free_bytes / node_filesystem_size_bytes) < 10";
+                for = "1m";
+                labels = {
+                  severity = "critical";
+                };
+                annotations = {
+                  description = "Less than 10% of free disk space left on a device";
+                  summary = "Instance {{ $labels.instance }}: {{ $value }}% free disk space on {{ $labels.device}}";
+                  value = "{{ $value }}";
+                };
+              }
+              {
+                alert = "InstanceLowDiskPrediction12Hours";
+                expr = ''predict_linear(node_filesystem_free_bytes{fstype!~"(tmpfs|ramfs)"}[3h],12 * 3600) < 0'';
+                for = "2h";
+                labels.severity = "critical";
+                annotations = {
+                  description = ''Disk {{ $labels.mountpoint }} ({{ $labels.device }}) will be full in less than 12 hours'';
+                  summary = ''Instance {{ $labels.instance }}: Disk {{ $labels.mountpoint }} ({{ $labels.device}}) will be full in less than 12 hours'';
+                };
+              }
+
+              {
+                alert = "InstanceLowMem";
+                expr = "node_memory_MemAvailable_bytes / 1024 / 1024 < node_memory_MemTotal_bytes / 1024 / 1024 / 10";
+                for = "3m";
+                labels.severity = "critical";
+                annotations = {
+                  description = "Less than 10% of free memory";
+                  summary = "Instance {{ $labels.instance }}: {{ $value }}MB of free memory";
+                  value = "{{ $value }}";
+                };
+              }
+
+              {
+                alert = "ServiceFailed";
+                expr = ''node_systemd_unit_state{state="failed"} > 0'';
+                for = "2m";
+                labels.severity = "critical";
+                annotations = {
+                  description = "A systemd unit went into failed state";
+                  summary = "Instance {{ $labels.instance }}: Service {{ $labels.name }} failed";
+                  value = "{{ $labels.name }}";
+                };
+              }
+              {
+                alert = "ServiceFlapping";
+                expr = ''
+                  changes(node_systemd_unit_state{state="failed"}[5m])
+                                  > 5 or (changes(node_systemd_unit_state{state="failed"}[1h]) > 15
+                                  unless changes(node_systemd_unit_state{state="failed"}[30m]) < 7)
+                '';
+                labels.severity = "critical";
+                annotations = {
+                  description = "A systemd service changed its state more than 5x/5min or 15x/1h";
+                  summary = "Instance {{ $labels.instance }}: Service {{ $labels.name }} is flapping";
+                  value = "{{ $labels.name }}";
+                };
+              }
+              {
+                alert = "SystemdUnitActivatingTooLong";
+                expr = ''node_systemd_unit_state{state="activating"} == 1'';
+                for = "5m";
+                labels = {
+                  severity = "warning";
+                  frequency = "15m";
+                };
+                annotations = {
+                  summary = "systemd unit is activating too long (instance {{ $labels.instance }})";
+                  description = ''
+                    systemd unit is activating for more than 5 minutes
+
+                    LABELS: {{ $labels }}
+                  '';
+                };
+              }
+              {
+                alert = "TjodaPingDown";
+                expr = ''probe_success{job="tjoda-ping"} == 0'';
+                for = "10m";
+                labels = {
+                  severity = "warning";
+                  frequency = "15m";
+                };
+                annotations = {
+                  summary = "Tjodalyng device has not responded for 10m (instance {{ $labels.instance }})";
+                  description = ''
+                    A device in Tjodalyng, typically Unifi networking or Sonos has not responded
+                    for over 10m.
+
+                    LABELS: {{ $labels }}
+                  '';
+                };
+              }
+              {
+                alert = "ZFSPoolMissing";
+                expr = ''absent(zfs_pool_health{pool="storage"})'';
+                for = "5m";
+                labels = {
+                  severity = "critical";
+                  frequency = "15m";
+                };
+                annotations = {
+                  summary = "ZFS pool missing on {{ $labels.instance }}";
+                  description = ''
+                    The ZFS pool 'storage' does not exist or cannot be found on {{ $labels.instance }}.
+                    This could indicate a disk failure or configuration issue.
+
+                    LABELS: {{ $labels }}
+                  '';
+                };
+              }
+              {
+                alert = "ZFSPoolUnhealthy";
+                expr = ''zfs_pool_health == 0'';
+                for = "2m";
+                labels = {
+                  severity = "critical";
+                  frequency = "10m";
+                };
+                annotations = {
+                  summary = "ZFS pool {{ $labels.pool }} unhealthy on {{ $labels.instance }}";
+                  description = ''
+                    The ZFS pool '{{ $labels.pool }}' is in a degraded or faulted state (not ONLINE) on {{ $labels.instance }}.
+
+                    LABELS: {{ $labels }}
+                  '';
+                };
+              }
+            ];
+          }
         ];
+      })
+    ];
 
     exporters.blackbox = {
       enable = true;
@@ -491,7 +497,10 @@ in {
 
       configuration = {
         route = {
-          group_by = ["alertname" "job"];
+          group_by = [
+            "alertname"
+            "job"
+          ];
           receiver = "discord";
         };
         receivers = [
