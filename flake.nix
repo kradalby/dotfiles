@@ -24,10 +24,10 @@
 
     nixpkgs-hardware.url = "github:NixOS/nixos-hardware";
 
-    darwin.url = "github:lnl7/nix-darwin/nix-darwin-25.05";
+    darwin.url = "github:nix-darwin/nix-darwin/nix-darwin-25.05";
     darwin.inputs.nixpkgs.follows = "nixpkgs-darwin";
 
-    darwin-unstable.url = "github:lnl7/nix-darwin";
+    darwin-unstable.url = "github:nix-darwin/nix-darwin";
     darwin-unstable.inputs.nixpkgs.follows = "nixpkgs-unstable";
 
     home-manager.url = "github:nix-community/home-manager/release-25.05";
