@@ -24,7 +24,7 @@
       networking.firewall.allowedTCPPorts = [8443 9130];
 
       # TODO: When Tailscale Services exits beta, use "http:80" and "https:443" instead of "tcp:"
-      services.tailscale.services."svc:unifi-ldn" = {
+      services.tailscale.services."svc:unifi-web-ldn" = {
         endpoints = {
           "tcp:80" = "https://localhost:8443";
           "tcp:443" = "https://localhost:8443";
