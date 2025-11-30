@@ -9,20 +9,18 @@ let
   # These all have node_exporter and systemd_exporter enabled
   allHosts = [
     "core-oracldn"
-    "core-terra"
+    # "core-terra"
     "core-tjoda"
     "dev-oracfurt"
     "dev-ldn"
     "home-ldn"
     "storage-ldn"
     "unifi-ldn"
-    "eye-ldn"
-    "rpi-vetle"
   ];
 
   # Hosts with ZFS pools (have zfs_exporter enabled)
   zfsHosts = [
-    "core-terra"
+    # "core-terra"
     "core-tjoda"
     "storage-ldn"
   ];
@@ -30,13 +28,11 @@ let
   # Hosts with smartctl monitoring enabled
   smartctlHosts = [
     "core-tjoda"
-    "eye-ldn"
-    "rpi-vetle"
   ];
 
   # Hosts with smokeping exporter
   smokepingHosts = [
-    "core-terra"
+    # "core-terra"
     "core-tjoda"
   ];
 
