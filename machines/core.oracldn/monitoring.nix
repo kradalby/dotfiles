@@ -123,8 +123,8 @@ in
       # Systemd exporter on all hosts (port 9558)
       (exporterJob "systemd" allHosts 9558)
 
-      # ZFS exporter on hosts with ZFS pools (port 9130)
-      (exporterJob "zfs" zfsHosts 9130)
+      # ZFS exporter on hosts with ZFS pools (port 9134)
+      (exporterJob "zfs" zfsHosts 9134)
 
       # Smartctl exporter on hosts with disk monitoring (port 9633)
       (exporterJob "smartctl" smartctlHosts 9633)
