@@ -1,8 +1,8 @@
-{ config, ... }: let
+{ config, ... }:
+let
   paths = [
     "/root"
     "/etc/nixos"
-    "/var/lib/unifi/data/backup"
     "/storage/backup"
     "/storage/libraries"
     "/storage/pictures"
@@ -14,7 +14,8 @@
     # config.services.minio.configDir
   ];
 
-in {
+in
+{
   services.restic.jobs.jotta = {
     enable = true;
     repository = "rclone:Jotta:1d444f272fa766893d9a06cc4d392cd5";

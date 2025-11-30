@@ -2,14 +2,12 @@
 let
   paths = [
     "/etc/nixos"
-    "/var/lib/libvirt/qemu/win10.xml"
+    "/storage/backup"
+    "/storage/libraries"
+    "/storage/pictures"
+    "/storage/software"
+    "/storage/sync"
   ];
-
-  mkJob = site: {
-    enable = false;
-    inherit site paths;
-    secret = "restic-dev-ldn-token";
-  };
 in
 {
   services.restic.jobs.jotta = {
