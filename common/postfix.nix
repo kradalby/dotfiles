@@ -10,6 +10,6 @@
     enableHeaderChecks = false;
     setSendmail = true;
     enableSubmission = false;
-    relayHost = "smtp.fap.no";
+    settings.main.relayhost = ["smtp.fap.no:25"];
   };
 }

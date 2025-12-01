@@ -63,7 +63,6 @@ in {
 
         recommendedGzipSettings = true;
         recommendedBrotliSettings = true;
-        recommendedZstdSettings = true;
 
         # Only allow PFS-enabled ciphers with AES256
         sslCiphers = "AES256+EECDH:AES256+EDH:!aNULL";

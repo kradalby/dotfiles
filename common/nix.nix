@@ -6,7 +6,7 @@
 }: {
   i18n.defaultLocale = "en_US.UTF-8";
 
-  systemd.extraConfig = "DefaultLimitNOFILE=1048576";
+  systemd.settings.Manager.DefaultLimitNOFILE = 1048576;
   security.pam.loginLimits = [
     {
       domain = "*";
