@@ -12,21 +12,26 @@
     };
   };
 
+  programs.delta = {
+    enable = true;
+    enableGitIntegration = true;
+    options = {
+      navigate = true;
+      line-numbers = true;
+      syntax-theme = "Monokai Extended";
+    };
+  };
+
   programs.git = {
     enable = true;
-    userName = "Kristoffer Dalby";
-    userEmail = "kristoffer@dalby.cc";
-    delta = {
-      enable = true;
-      options = {
-        navigate = true;
-        line-numbers = true;
-        syntax-theme = "Monokai Extended";
-      };
-    };
     lfs.enable = true;
 
-    extraConfig = {
+    settings = {
+      user = {
+        name = "Kristoffer Dalby";
+        email = "kristoffer@dalby.cc";
+        signingkey = "~/.ssh/id_ed25519.pub";
+      };
       core = {
         editor = "nvim";
         # If git uses `ssh` from Nix the macOS-specific configuration in
@@ -59,7 +64,7 @@
       github = {user = "kradalby";};
 
       commit = {
-        gpgsign = config.programs.git.extraConfig.user.signingkey != "";
+        gpgsign = config.programs.git.settings.user.signingkey != "";
       };
 
       gpg = {
@@ -69,10 +74,6 @@
 
       "gpg \"ssh\"" = {
         allowedSignersFile = "~/.ssh/allowed_signers";
-      };
-
-      user = {
-        signingkey = "~/.ssh/id_ed25519.pub";
       };
     };
 

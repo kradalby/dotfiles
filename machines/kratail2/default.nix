@@ -21,8 +21,8 @@
 
   # Work-specific overrides
   home-manager.users.kradalby = {
-    programs.git = {
-      userEmail = lib.mkForce "kristoffer@tailscale.com";
+    programs.git.settings.user = {
+      email = lib.mkForce "kristoffer@tailscale.com";
     };
 
     home.sessionVariables = {

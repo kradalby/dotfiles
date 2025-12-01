@@ -1,7 +1,9 @@
 {pkgs, ...}: {
   programs.go = {
     enable = true;
-    goPath = "go";
+    env = {
+      GOPATH = "go";
+    };
     package = pkgs.go;
   };
 }

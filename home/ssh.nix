@@ -17,9 +17,12 @@
 in {
   programs.ssh = {
     enable = true;
-    forwardAgent = isWorkstation;
+    enableDefaultConfig = false;
 
     matchBlocks = {
+      "*" = {
+        forwardAgent = isWorkstation;
+      };
       "sprocket" = kradalbyLogin "sprocket.nvg.ntnu.no";
       "devl" = kradalbyLogin "dev.ldn.fap.no";
       "devf" = kradalbyLogin "dev.oracfurt.fap.no";
