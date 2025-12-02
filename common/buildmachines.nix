@@ -24,4 +24,16 @@
     supportedFeatures = ["big-parallel" "kvm" "nixos-test"];
     publicHostKey = "c3NoLWVkMjU1MTkgQUFBQUMzTnphQzFsWkRJMU5URTVBQUFBSUhOclJpZVZmckN2bnFOYnV4RXIwNmM2RDEvbGhHbEVJdlM4Tk5RaHJtSnQ=";
   }
+  {
+    hostName = "dev-ldn.dalby.ts.net";
+    systems = [
+      "x86_64-linux"
+      # "aarch64-linux"
+    ];
+    sshUser = "root";
+    sshKey = "/Users/kradalby/.ssh/id_ed25519";
+    maxJobs = 3;
+    supportedFeatures = ["big-parallel" "kvm" "nixos-test"];
+    publicHostKey = "c3NoLWVkMjU1MTkgQUFBQUMzTnphQzFsWkRJMU5URTVBQUFBSUhOclJpZVZmckN2bnFOYnV4RXIwNmM2RDEvbGhHbEVJdlM4Tk5RaHJtSnQ=";
+  }
 ]
