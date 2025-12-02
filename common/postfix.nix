@@ -6,7 +6,7 @@
 }: {
   services.postfix = {
     enable = true;
-    hostname = "${config.networking.hostName}.${config.networking.domain}";
+    settings.main.myhostname = "${config.networking.hostName}.${config.networking.domain}";
     enableHeaderChecks = false;
     setSendmail = true;
     enableSubmission = false;

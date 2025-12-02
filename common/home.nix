@@ -16,7 +16,7 @@
           ../home
         ];
         programs.git = {
-          extraConfig = {
+          settings = {
             user = {
               signingkey = lib.mkForce "/home/kradalby/.ssh/id_ed25519.pub";
             };

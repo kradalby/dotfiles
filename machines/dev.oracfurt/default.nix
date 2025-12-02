@@ -19,6 +19,9 @@
     ./mealie.nix
   ];
 
+  # Disable built-in tsidp module in favor of the flake input
+  disabledModules = ["services/security/tsidp.nix"];
+
   my.wan = "enp0s3";
   my.lan = "enp1s0";
 
