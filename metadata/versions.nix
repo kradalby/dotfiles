@@ -15,7 +15,7 @@
     # https://github.com/gazorby/fish-abbreviation-tips
     abbrTips = "8ed76a62bb044ba4ad8e3e6832640178880df485";
     # https://github.com/franciscolourenco/done
-    done = "0bfe402753681f705a482694fcaf20c2bfc6deb7";
+    done = "8061a345d8ed5843809df127489d7d17be03f97b";
   };
 
   ## home.ldn
