@@ -81,9 +81,10 @@ with lib; let
     ''}
 
     ${cfg.package}/bin/syncthing \
-      -no-browser \
-      -gui-address=${cfg.guiAddress} \
-      -home="${cfg.configDir}" ${escapeShellArgs cfg.extraFlags}
+      --no-browser \
+      --gui-address=${cfg.guiAddress} \
+      --config="${cfg.configDir}" \
+      --data="${cfg.configDir}" ${escapeShellArgs cfg.extraFlags}
   '';
 in {
   ###### interface
@@ -501,12 +502,18 @@ in {
       syncthing = {
         # Syncthing will have to be added manually to "Allow disk access" in
         # system preferences
-        command = ''
-          ${cfg.package}/bin/syncthing \
-            -no-browser \
-            -gui-address=${cfg.guiAddress} \
-            -home="${cfg.configDir}" ${escapeShellArgs cfg.extraFlags}
-        '';
+        command = let
+          isUnixGui = (builtins.substring 0 1 cfg.guiAddress) == "/";
+          args = escapeShellArgs (
+            (lib.cli.toGNUCommandLine {} {
+              no-browser = true;
+              gui-address = (if isUnixGui then "unix://" else "") + cfg.guiAddress;
+              config = cfg.configDir;
+              data = cfg.configDir;
+            })
+            ++ cfg.extraFlags
+          );
+        in "${cfg.package}/bin/syncthing ${args}";
         environment = {
           STNORESTART = "yes";
           STNOUPGRADE = "yes";
