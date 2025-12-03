@@ -28,21 +28,6 @@
         format = "[$symbol$branch]($style) ";
       };
 
-      git_status = {
-        format = "([$all_status$ahead_behind]($style) )";
-        conflicted = "🏳";
-        ahead = "⇡$count";
-        behind = "⇣$count";
-        diverged = "⇕⇡$ahead_count⇣$behind_count";
-        up_to_date = "✓";
-        untracked = "?$count";
-        stashed = "$$count";
-        modified = "!$count";
-        staged = "+$count";
-        renamed = "»$count";
-        deleted = "✘$count";
-      };
-
       nix_shell = {
         disabled = false;
         format = "[in Nix]($style) ";
