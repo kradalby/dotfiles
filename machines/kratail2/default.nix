@@ -57,6 +57,7 @@
       "tigervnc-viewer"
       "utm"
       "zoom"
+      "krisp"
     ];
   };
 }
