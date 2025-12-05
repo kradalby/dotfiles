@@ -6,4 +6,8 @@
     };
     package = pkgs.go;
   };
+
+  home.sessionVariables = {
+    GOPATH = "$HOME/go";
+  };
 }
