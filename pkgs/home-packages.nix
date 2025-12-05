@@ -33,7 +33,22 @@
 
     # Dev / Git
     gh # github cli
-    git-absorb # git commit --fixup on steroids
+    # git-absorb from main branch
+    # https://github.com/tummychow/git-absorb/commits/main/
+    (git-absorb.overrideAttrs (old: rec {
+      version = "3a1148ea2df3ca41cb69df8848f99d25e66dc0b5";
+      src = pkgs.fetchFromGitHub {
+        owner = "tummychow";
+        repo = "git-absorb";
+        rev = version;
+        hash = "sha256-CrpLWDHSnT2PgbLFDK6UyaeKgmW1mygvSIudsl/nbbQ=";
+      };
+      cargoDeps = old.cargoDeps.overrideAttrs {
+        inherit src;
+        outputHash = "sha256-03vHVC3PSmHMLouQSirPlIG5o7BpvgWjFCtKLAGnxg8=";
+        outputHashMode = "recursive";
+      };
+    }))
     git-open # open repo in browser
     git-toolbelt # set of useful git scripts
     difftastic # structural diff tool
