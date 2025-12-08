@@ -34,11 +34,13 @@ repos:
       - id: prettier
         types_or: [markdown]
 
-  # Alejandra for Nix formatting
-  - repo: https://github.com/kamadorueda/alejandra
-    rev: 3.1.0
+  - repo: local
     hooks:
       - id: alejandra
+        name: alejandra
+        entry: alejandra
+        language: system
+        files: \.nix$
 
   - repo: https://github.com/gruntwork-io/pre-commit
     rev: v0.1.12
