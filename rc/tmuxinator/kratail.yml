@@ -10,6 +10,24 @@ windows:
       root: ~/
       layout: main-vertical
       panes:
+        - krair:
+            - |
+              while true
+                  if test (tailscale status --json | jq -r .CurrentTailnet.Name) = "kradalby.no"
+                      eb -x 15 -- ssh -A krair
+                  else
+                      sleep 5
+                  end
+              end
+        - dev-ldn:
+            - |
+              while true
+                  if test (tailscale status --json | jq -r .CurrentTailnet.Name) = "kradalby.no"
+                      eb -x 15 -- ssh -A dev-ldn
+                  else
+                      sleep 5
+                  end
+              end
         - jotta:
             - set -xg RESTIC_REPOSITORY rclone:Jotta:4e8bb5107054b95e58d809060cb72911
             - set -xg RESTIC_PASSWORD (op read "op://Private/restic - kratail/password")

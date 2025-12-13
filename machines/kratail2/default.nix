@@ -31,32 +31,6 @@
     };
   };
 
-  # Persistent SSH connections with agent forwarding
-  services.autossh.sessions = [
-    {
-      name = "krair-agent-forward";
-      user = "kradalby";
-      monitoringPort = 20000;
-      extraArguments = "-A -N -o ServerAliveInterval=30 -o ServerAliveCountMax=3 krair";
-    }
-    {
-      name = "dev-ldn-agent-forward";
-      user = "kradalby";
-      monitoringPort = 20001;
-      extraArguments = "-A -N -o ServerAliveInterval=30 -o ServerAliveCountMax=3 dev-ldn";
-    }
-  ];
-
-  # Launchd logs: /Users/kradalby/Library/Logs/autossh-*[-error].log
-  launchd.daemons.autossh-krair-agent-forward.serviceConfig = {
-    StandardOutPath = "/Users/kradalby/Library/Logs/autossh-krair-agent-forward.log";
-    StandardErrorPath = "/Users/kradalby/Library/Logs/autossh-krair-agent-forward-error.log";
-  };
-  launchd.daemons.autossh-dev-ldn-agent-forward.serviceConfig = {
-    StandardOutPath = "/Users/kradalby/Library/Logs/autossh-dev-ldn-agent-forward.log";
-    StandardErrorPath = "/Users/kradalby/Library/Logs/autossh-dev-ldn-agent-forward-error.log";
-  };
-
   homebrew = {
     casks = [
       "imageoptim"
