@@ -63,6 +63,10 @@ in {
       ${builtins.concatStringsSep "\n" path}
     '';
 
+    interactiveShellInit = ''
+      source ${../pkgs/scripts/wt.fish}
+    '';
+
     shellAliases = let
       pyyaml =
         pkgs.python3.withPackages
