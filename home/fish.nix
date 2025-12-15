@@ -33,16 +33,16 @@ in {
           sha256 = "sha256-F1t81VliD+v6WEWqj1c1ehFBXzqLyumx5vV46s/FZRU=";
         };
       }
-      {
-        name = "done";
-        src = pkgs.fetchFromGitHub {
-          owner = "franciscolourenco";
-          repo = "done";
-          # NOTE: manual update required
-          rev = versions.fishPlugins.done;
-          sha256 = "sha256-2tjFPpw8tYz/wJpquNLkKvGWrrPx3hbQUnVwwJmXepk=";
-        };
-      }
+      # {
+      #   name = "done";
+      #   src = pkgs.fetchFromGitHub {
+      #     owner = "franciscolourenco";
+      #     repo = "done";
+      #     # NOTE: manual update required
+      #     rev = versions.fishPlugins.done;
+      #     sha256 = "sha256-2tjFPpw8tYz/wJpquNLkKvGWrrPx3hbQUnVwwJmXepk=";
+      #   };
+      # }
     ];
 
     loginShellInit = let
