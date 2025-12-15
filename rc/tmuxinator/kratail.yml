@@ -10,6 +10,19 @@ windows:
       root: ~/
       layout: main-vertical
       panes:
+        - jotta:
+            - |
+              set -xg RESTIC_REPOSITORY rclone:Jotta:4e8bb5107054b95e58d809060cb72911;
+              set -xg RESTIC_PASSWORD (op read "op://Private/restic - kratail/password");
+              restic unlock;
+              while true;
+                  restic backup $HOME/git $HOME/Pictures;
+                  if string match -q -- "*AC Power*" (pmset -g ps);
+                      restic forget --prune --keep-daily 7 --keep-weekly 5 --keep-monthly 12 --keep-yearly 75;
+                      restic check;
+                  end;
+                  sleep 3600;
+              end
         - krair:
             - |
               while true
@@ -27,25 +40,6 @@ windows:
                   else
                       sleep 5
                   end
-              end
-        - jotta:
-            - set -xg RESTIC_REPOSITORY rclone:Jotta:4e8bb5107054b95e58d809060cb72911
-            - set -xg RESTIC_PASSWORD (op read "op://Private/restic - kratail/password")
-            - restic unlock
-            - |
-              while true
-                  restic backup $HOME/git $HOME/Pictures
-
-                  if string match -q -- "*AC Power*" (pmset -g ps)
-                    restic forget --prune \
-                      --keep-daily 7 \
-                      --keep-weekly 5 \
-                      --keep-monthly 12 \
-                      --keep-yearly 75
-                    restic check
-                  end
-
-                  sleep 3600
               end
   - dotfiles:
       root: ~/git/dotfiles
