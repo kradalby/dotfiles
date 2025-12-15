@@ -6,8 +6,9 @@
   # Import scripts
   pamtouchfix = import ./scripts/pamtouchfix.nix {inherit pkgs;};
   exif-set-photographer = import ./scripts/exif-set-photographer.nix {inherit pkgs;};
+  rsync-photos-backup = import ./scripts/rsync-photos-backup.nix {inherit pkgs;};
   tom = import ./scripts/tom.nix {inherit pkgs;};
-  
+
   # Go 1.25 overrides for go tools
   goTools = with pkgs.unstable; {
     gopls = gopls.override {buildGoLatestModule = pkgs.buildGo125Module;};
@@ -192,7 +193,8 @@
   ];
 
   # Darwin-specific packages
-  darwinPackages = [pamtouchfix]
+  darwinPackages =
+    [pamtouchfix rsync-photos-backup]
     ++ (with pkgs; [
       terminal-notifier # send macos user notifications
       syncthing # continuous file synchronization
