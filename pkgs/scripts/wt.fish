@@ -2,7 +2,13 @@
 # Usage: wt <command> [options]
 
 function wt --description "Git worktree helper with organized directory structure"
-    set -l WORKTREE_ROOT (test -n "$WORKTREE_ROOT" && echo $WORKTREE_ROOT || echo "$HOME/dev/worktrees")
+    # Worktrees are created as siblings of the main repo directory
+    # e.g., ~/git/headscale/main -> ~/git/headscale/<branch>
+    set -l WORKTREE_ROOT (dirname (git rev-parse --show-toplevel 2>/dev/null))
+    if test -z "$WORKTREE_ROOT" -o "$WORKTREE_ROOT" = "."
+        echo "Error: Not in a git repository" >&2
+        return 1
+    end
 
     if test (count $argv) -eq 0
         __tree_me_help
@@ -80,12 +86,8 @@ Examples:
   wt list
   wt remove old-branch
 
-Worktrees are organized at: \$WORKTREE_ROOT/<repo>/<branch>
-Set WORKTREE_ROOT to customize (default: ~/dev/worktrees)"
-end
-
-function __tree_me_get_repo_name
-    basename (git remote get-url origin 2>/dev/null || git rev-parse --show-toplevel) .git
+Worktrees are created as siblings of your main repo directory.
+e.g., ~/git/repo/main -> ~/git/repo/<branch>"
 end
 
 function __tree_me_get_default_base
@@ -96,8 +98,7 @@ end
 function __tree_me_checkout
     set -l worktree_root $argv[1]
     set -l branch $argv[2]
-    set -l repo (__tree_me_get_repo_name)
-    set -l path "$worktree_root/$repo/$branch"
+    set -l path "$worktree_root/$branch"
 
     # Check if worktree already exists
     set -l existing (git worktree list | grep "\[$branch\]" | awk '{print $1}')
@@ -123,8 +124,7 @@ function __tree_me_create
     set -l worktree_root $argv[1]
     set -l branch $argv[2]
     set -l base (test (count $argv) -ge 3 && echo $argv[3] || __tree_me_get_default_base)
-    set -l repo (__tree_me_get_repo_name)
-    set -l path "$worktree_root/$repo/$branch"
+    set -l path "$worktree_root/$branch"
 
     # Check if worktree already exists
     set -l existing (git worktree list | grep "\[$branch\]" | awk '{print $1}')
@@ -159,9 +159,8 @@ function __tree_me_pr
         return 1
     end
 
-    set -l repo (__tree_me_get_repo_name)
     set -l branch "pr-$pr_number"
-    set -l path "$worktree_root/$repo/$branch"
+    set -l path "$worktree_root/$branch"
 
     # Check if worktree already exists
     set -l existing (git worktree list | grep "\[$branch\]" | awk '{print $1}')
