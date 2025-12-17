@@ -143,6 +143,12 @@ function __tree_me_pr
     set -l worktree_root $argv[1]
     set -l input $argv[2]
 
+    # Check if gh is installed
+    if not command -v gh >/dev/null 2>&1
+        echo "Error: 'gh' CLI not found. Install it from https://cli.github.com" >&2
+        return 1
+    end
+
     # Extract PR number from URL or use directly
     set -l pr_number
     if string match -qr '^https://github.com/.*/pull/([0-9]+)' -- $input
@@ -151,11 +157,6 @@ function __tree_me_pr
         set pr_number $input
     else
         echo "Error: Invalid PR number or URL: $input" >&2
-        return 1
-    end
-
-    if not command -v gh >/dev/null 2>&1
-        echo "Error: 'gh' CLI not found. Install it from https://cli.github.com" >&2
         return 1
     end
 
@@ -170,9 +171,16 @@ function __tree_me_pr
         return 0
     end
 
-    # Fetch the PR and create worktree
-    git fetch origin "pull/$pr_number/head:$branch" 2>/dev/null; or true
-    git worktree add "$path" "$branch"
+    # Use gh to get PR info and fetch the head ref
+    set -l pr_head (gh pr view $pr_number --json headRefName,headRefOid --jq '.headRefOid')
+    if test -z "$pr_head"
+        echo "Error: Failed to get PR #$pr_number info" >&2
+        return 1
+    end
+
+    # Fetch the PR head commit and create a local branch
+    git fetch origin $pr_head
+    git worktree add "$path" -b "$branch" $pr_head
     echo "PR #$pr_number checked out at: $path"
     cd "$path"
 end
