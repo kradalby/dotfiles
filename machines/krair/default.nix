@@ -4,6 +4,8 @@
     ../../common/darwin/kradalby-base.nix
   ];
 
+  nix-rosetta-builder.enable = true;
+
   # Configure SSH agent mux for personal machine
   # Watches /tmp for forwarded agents from kratail2 and automatically updates config
   services.ssh-agent-mux = {

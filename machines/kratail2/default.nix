@@ -8,6 +8,8 @@
     ../../common/darwin/kradalby-base.nix
   ];
 
+  nix-rosetta-builder.enable = true;
+
   # Configure SSH agent mux for work machine
   services.ssh-agent-mux = {
     enable = true;

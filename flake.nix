@@ -366,6 +366,7 @@
         in
           box.macBox machine darwin home-manager [
             inputs.ssh-agent-mux.darwinModules.default
+            inputs.nix-rosetta-builder.darwinModules.default
           ];
 
         krair = let
@@ -378,6 +379,7 @@
         in
           box.macBox machine darwin home-manager [
             inputs.ssh-agent-mux.darwinModules.default
+            inputs.nix-rosetta-builder.darwinModules.default
           ];
       };
 
