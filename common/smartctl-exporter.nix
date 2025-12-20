@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }:
 with lib; {
@@ -13,6 +14,8 @@ with lib; {
   };
 
   config = mkIf (builtins.length config.monitoring.smartctl.devices > 0) {
+    environment.systemPackages = [pkgs.smartmontools];
+
     services.prometheus.exporters.smartctl = {
       enable = true;
 
