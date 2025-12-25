@@ -1,6 +1,5 @@
 {lib, ...}: {
   require = [
-    ./autoupgrade.nix
     ./avahi.nix
     ./ca.nix
     ./cpufreq.nix
