@@ -74,6 +74,12 @@ in {
           homeBase.darwinModules.home-manager
           # inputs.nix-rosetta-builder.darwinModules.default
           # {nix.linux-builder.enable = true;}
+
+          # nix.nixPath doesn't propagate to shell environment on Darwin,
+          # so we set NIX_PATH explicitly to make nix-shell -p work
+          {
+            environment.variables.NIX_PATH = "nixpkgs=${pkgBase}";
+          }
         ];
       specialArgs = {
         inherit inputs;
