@@ -133,7 +133,9 @@ let
         if jobCfg.repository != null
         then jobCfg.repository
         else if jobCfg.site != null
-        then "rest:https://restic-${jobCfg.site}.dalby.ts.net/${targetHost}"
+        # TODO(kradalbyy): Change back to https when services supports terminating
+        # and proxying http.
+        then "rest:http://restic-${jobCfg.site}.dalby.ts.net/${targetHost}"
         else null;
 
       darwinExtras =
