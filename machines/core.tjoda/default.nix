@@ -101,7 +101,8 @@
   # MicroVM networking configuration for core.tjoda
   # Uses systemd-networkd DHCP server (configured in microvm-host.nix)
   # so need standard firewall rules and NAT for internet access
-  networking.firewall.allowedUDPPorts = [ 67 ];  # DHCP server
+  networking.firewall.allowedUDPPorts = [ 67 5201 ];  # DHCP server, iperf3
+  networking.firewall.allowedTCPPorts = [ 5201 ];  # iperf3
   networking.nat = {
     enable = true;
     enableIPv6 = true;
