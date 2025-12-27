@@ -1,34 +1,44 @@
-{config, ...}: {
-  # sops.secrets.cloudflare_ddns_token = {
-  #   mode = "0400";
-  #   owner = config.users.users.cfdyndns.name;
-  #   group = config.users.users.cfdyndns.group;
-  # };
+{
+  config,
+  lib,
+  ...
+}: let
+  cfg = config.my.ddns;
+in {
+  options.my.ddns = {
+    enable = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+    };
 
-  # services.cfdyndns = {
-  #   enable = true;
-  #   email = "kradalby@kradalby.no";
-  #   apikeyFile = config.sops.secrets.cloudflare_token.path;
-  #
-  #   records = [
-  #     config.networking.domain
-  #   ];
-  # };
-
-  age.secrets.cloudflare-ddns-token = {
-    mode = "0400";
-    file = ../secrets/cloudflare-token.age;
+    domains = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [ ];
+    };
   };
 
-  services.ddclient = {
-    enable = false;
-    verbose = false;
-    domains = [config.networking.domain];
-    zone = "fap.no";
-    server = "www.cloudflare.com";
-    username = "kradalby@kradalby.no";
-    passwordFile = config.age.secrets.cloudflare-ddns-token.path;
-    protocol = "cloudflare";
-    use = "web, web=api.ipify.org";
+  config = lib.mkIf cfg.enable {
+    assertions = [
+      {
+        assertion = cfg.domains != [ ];
+        message = "my.ddns.domains must be set when my.ddns.enable is true.";
+      }
+    ];
+
+    age.secrets.cloudflare-ddns-token = {
+      mode = "0400";
+      file = ../secrets/cloudflare-token.age;
+    };
+
+    services.cloudflare-ddns = {
+      enable = true;
+      credentialsFile = config.age.secrets.cloudflare-ddns-token.path;
+      domains = cfg.domains;
+      provider = {
+        ipv4 = "cloudflare.trace";
+        ipv6 = "cloudflare.trace";
+      };
+      proxied = "false";
+    };
   };
 }

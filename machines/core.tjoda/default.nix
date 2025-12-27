@@ -35,6 +35,10 @@
     users.timemachine = true;
 
     coredns.bind = ["10.62.0.2"];
+    ddns = {
+      enable = true;
+      domains = ["tjoda.fap.no"];
+    };
   };
 
   networking = {

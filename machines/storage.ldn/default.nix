@@ -10,6 +10,7 @@ in {
     ../../common
     ../../common/incus-vm-ldn.nix
     ../../common/coredns.nix
+    ../../common/ddns.nix
 
     ../../common/tailscale.nix
     ../../common/syncthing-storage.nix
@@ -52,6 +53,10 @@ in {
     timemachine = true;
   };
   my.coredns.bind = ["10.65.0.28"];
+  my.ddns = {
+    enable = true;
+    domains = ["ldn.fap.no"];
+  };
 
   users.users.root.openssh.authorizedKeys.keys = sshKeys.main ++ sshKeys.kradalby ++ sshKeys.work;
   users.users.kradalby.openssh.authorizedKeys.keys = sshKeys.main ++ sshKeys.kradalby ++ sshKeys.work;
