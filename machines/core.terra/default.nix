@@ -187,6 +187,11 @@
   services.wireguard = {
     enable = true;
     nodeName = "terra";
+    refreshOnIdle = {
+      enable = true;
+      peers = ["tjoda"];
+      maxAgeSeconds = 21600;
+    };
   };
 
   # TODO: Fix disk monitoring somehow

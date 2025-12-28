@@ -122,6 +122,11 @@
     enable = true;
     nodeName = "oracleldn";
     secretName = "wireguard-oracldn";
+    refreshOnIdle = {
+      enable = true;
+      peers = ["tjoda"];
+      maxAgeSeconds = 21600;
+    };
   };
 
   # This value determines the NixOS release from which the default

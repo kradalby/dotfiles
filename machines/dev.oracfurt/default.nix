@@ -99,6 +99,11 @@
     enable = true;
     nodeName = "oraclefurt";
     secretName = "wireguard-oracfurt";
+    refreshOnIdle = {
+      enable = true;
+      peers = ["tjoda"];
+      maxAgeSeconds = 21600;
+    };
   };
 
   services.tsidp.enable = true;
