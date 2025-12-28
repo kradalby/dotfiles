@@ -78,7 +78,7 @@ in {
           # nix.nixPath doesn't propagate to shell environment on Darwin,
           # so we set NIX_PATH explicitly to make nix-shell -p work
           {
-            environment.variables.NIX_PATH = "nixpkgs=${pkgBase}";
+            environment.variables.NIX_PATH = ["nixpkgs=${pkgBase}"];
           }
         ];
       specialArgs = {

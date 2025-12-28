@@ -13,7 +13,8 @@
         LSQuarantine = false;
       };
       NSGlobalDomain = {
-        AppleInterfaceStyleSwitchesAutomatically = true;
+        AppleInterfaceStyle = null; # Light mode when unset
+        AppleInterfaceStyleSwitchesAutomatically = false;
         AppleKeyboardUIMode = 3; # full control
         AppleMeasurementUnits = "Centimeters";
         AppleMetricUnits = 1;
@@ -30,6 +31,10 @@
         NSNavPanelExpandedStateForSaveMode2 = true; # don't ask
       };
       CustomUserPreferences = {
+        "NSGlobalDomain" = {
+          NSAutomaticTextCorrectionEnabled = false; # No autocorrect
+        };
+
         # Screenshot settings
         "com.apple.screencapture" = {
           location = "~/Pictures/Screenshots";
