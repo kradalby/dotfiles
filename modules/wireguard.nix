@@ -40,6 +40,10 @@ let
   };
 
   peerList = mapAttrsToList mkPeer peers;
+  peerKeysForRefresh =
+    if cfg.refreshOnIdle.enable
+    then map (name: peers.${name}.public_key) cfg.refreshOnIdle.peers
+    else [];
 
   # Secret handling
   secretName = "wireguard-${cfg.nodeName}";
@@ -66,9 +70,48 @@ in {
       default = "wg0";
       description = "Interface name";
     };
+
+    refreshOnIdle = {
+      enable = mkEnableOption "Refresh WireGuard when selected peers are idle too long";
+
+      peers = mkOption {
+        type = types.listOf types.str;
+        default = [];
+        description = "Peer names from metadata/wireguard.nix to watch for idle handshakes.";
+      };
+
+      maxAgeSeconds = mkOption {
+        type = types.int;
+        default = 21600;
+        description = "Max allowed time since latest handshake before refreshing.";
+      };
+
+      interval = mkOption {
+        type = types.str;
+        default = "30min";
+        description = "Systemd timer interval between refresh checks.";
+      };
+    };
+
+    refreshDaily = {
+      enable = mkEnableOption "Refresh WireGuard once per day";
+
+      onCalendar = mkOption {
+        type = types.str;
+        default = "daily";
+        description = "Systemd OnCalendar expression for daily refresh.";
+      };
+    };
   };
 
   config = mkIf cfg.enable {
+    assertions = [
+      {
+        assertion = cfg.refreshOnIdle.enable -> all (name: hasAttr name peers) cfg.refreshOnIdle.peers;
+        message = "services.wireguard.refreshOnIdle.peers must reference peers from metadata/wireguard.nix for ${cfg.nodeName}.";
+      }
+    ];
+
     environment.systemPackages = [ pkgs.wireguard-tools ];
 
     age.secrets.${cfg.secretName} = {
@@ -107,6 +150,75 @@ in {
     networking.firewall = {
       trustedInterfaces = [ cfg.interface ];
       allowedUDPPorts = optionals isServer [ nodeConfig.endpoint_port ];
+    };
+
+    systemd.services."wireguard-refresh-${cfg.interface}" = mkIf cfg.refreshOnIdle.enable {
+      description = "Refresh WireGuard config for ${cfg.interface} when peers are idle";
+      serviceConfig = {
+        Type = "oneshot";
+      };
+      script = ''
+        set -euo pipefail
+
+        wg_bin="${pkgs.wireguard-tools}/bin/wg"
+        networkctl_bin="${pkgs.systemd}/bin/networkctl"
+        date_bin="${pkgs.coreutils}/bin/date"
+
+        now="$("$date_bin" +%s)"
+        threshold="${toString cfg.refreshOnIdle.maxAgeSeconds}"
+        watch_keys=(${concatStringsSep " " (map escapeShellArg peerKeysForRefresh)})
+
+        if [ "''${#watch_keys[@]}" -eq 0 ]; then
+          exit 0
+        fi
+
+        reload=0
+        while read -r key ts; do
+          for watch in "''${watch_keys[@]}"; do
+            if [ "$key" = "$watch" ]; then
+              if [ "$ts" = "0" ]; then
+                reload=1
+              else
+                age=$((now - ts))
+                if [ "$age" -ge "$threshold" ]; then
+                  reload=1
+                fi
+              fi
+            fi
+          done
+        done < <("$wg_bin" show ${cfg.interface} latest-handshakes)
+
+        if [ "$reload" -eq 1 ]; then
+          "$networkctl_bin" reconfigure ${cfg.interface}
+        fi
+      '';
+      wantedBy = ["multi-user.target"];
+    };
+
+    systemd.timers."wireguard-refresh-${cfg.interface}" = mkIf cfg.refreshOnIdle.enable {
+      wantedBy = ["timers.target"];
+      partOf = ["wireguard-refresh-${cfg.interface}.service"];
+      timerConfig = {
+        OnBootSec = "5min";
+        OnUnitActiveSec = cfg.refreshOnIdle.interval;
+      };
+    };
+
+    systemd.services."wireguard-refresh-daily-${cfg.interface}" = mkIf cfg.refreshDaily.enable {
+      description = "Refresh WireGuard config for ${cfg.interface} daily";
+      serviceConfig = {
+        Type = "oneshot";
+      };
+      script = ''
+        ${pkgs.systemd}/bin/networkctl reconfigure ${cfg.interface}
+      '';
+      wantedBy = ["multi-user.target"];
+    };
+
+    systemd.timers."wireguard-refresh-daily-${cfg.interface}" = mkIf cfg.refreshDaily.enable {
+      wantedBy = ["timers.target"];
+      partOf = ["wireguard-refresh-daily-${cfg.interface}.service"];
+      timerConfig.OnCalendar = cfg.refreshDaily.onCalendar;
     };
   };
 }
