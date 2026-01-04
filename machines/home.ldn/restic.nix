@@ -3,7 +3,6 @@
     "/etc/nixos"
     "/var/lib/zigbee2mqtt"
     "/var/lib/homebridge"
-    "/var/lib/unifi/data/backup"
   ];
 
   mkJob = site: {

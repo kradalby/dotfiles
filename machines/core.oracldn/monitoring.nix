@@ -15,7 +15,6 @@ let
     "dev-ldn"
     "home-ldn"
     "storage-ldn"
-    "unifi-ldn"
   ];
 
   # Hosts with ZFS pools (have zfs_exporter enabled)

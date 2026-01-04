@@ -331,13 +331,6 @@
           targetHost = "10.65.0.28";
         };
 
-        "unifi.ldn" = box.nixosBox {
-          arch = "x86_64-linux";
-          name = "unifi.ldn";
-          tags = ["x86" "ldn"];
-          targetHost = "10.65.0.24";
-        };
-
         # "lenovo.ldn" = box.nixosBox {
         #   arch = "x86_64-linux";
         #   name = "lenovo.ldn";
