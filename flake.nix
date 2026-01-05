@@ -331,14 +331,11 @@
           targetHost = "10.65.0.28";
         };
 
-        # "lenovo.ldn" = box.nixosBox {
-        #   arch = "x86_64-linux";
-        #   name = "lenovo.ldn";
-        #   tags = ["x86" "ldn"];
-        #   modules = with inputs; [
-        #     microvm.nixosModules.host
-        #   ];
-        # };
+        "lenovo.ldn" = box.nixosBox {
+          arch = "x86_64-linux";
+          name = "lenovo.ldn";
+          tags = ["x86" "ldn"];
+        };
 
         "core.tjoda" = box.nixosBox {
           arch = "x86_64-linux";

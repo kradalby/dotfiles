@@ -181,10 +181,6 @@ in {
       "10-lan0" = ethLink "lan0" "6c:4b:90:2b:c7:d2";
     };
 
-    netdevs.virbr0.netdevConfig = {
-      Kind = "bridge";
-      Name = "virbr0";
-    };
     networks = {
       "10-lan0" = {
         matchConfig.Name = "lan0";
@@ -196,23 +192,15 @@ in {
           SendRelease = false;
         };
       };
-      "20-virbr0" = {
-        matchConfig.Name = "virbr0";
-
-        addresses = [
+      "microvm-br0" = {
+        addresses = lib.mkForce [
           {
-            addressConfig.Address = "172.16.0.1/24";
+            Address = "172.16.0.1/24";
           }
           {
-            addressConfig.Address = "fd12:3456:789a::1/64";
+            Address = "fd12:3456:789a::1/64";
           }
         ];
-        # Hand out IP addresses to MicroVMs.
-        # Use `networkctl status virbr0` to see leases.
-        networkConfig = {
-          DHCPServer = true;
-          IPv6SendRA = true;
-        };
         # Let DHCP assign a statically known address to the VMs
         dhcpServerStaticLeases =
           lib.imap0 (i: hypervisor: {
@@ -222,16 +210,10 @@ in {
             };
           })
           vm;
-        # IPv6 SLAAC
-        ipv6Prefixes = [
-          {
-            ipv6PrefixConfig.Prefix = "fd12:3456:789a::/64";
-          }
-        ];
       };
       "30-microvm-eth0" = {
         matchConfig.Name = "vm-*";
-        networkConfig.Bridge = "virbr0";
+        networkConfig.Bridge = "microvm-br0";
       };
     };
   };
@@ -241,7 +223,7 @@ in {
   networking.nat = {
     enable = true;
     enableIPv6 = true;
-    internalInterfaces = ["virbr0"];
+    internalInterfaces = ["microvm-br0"];
   };
 
   networking.extraHosts =

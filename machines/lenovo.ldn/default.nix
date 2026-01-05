@@ -9,6 +9,7 @@
     ./hardware-configuration.nix
 
     ../../common/tailscale.nix
+    ../../modules/microvm-host.nix
 
     # ./networking.nix
     ./microvm.nix
