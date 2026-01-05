@@ -47,6 +47,7 @@
   lan = "enp0s31f6";
 
   secretPath = "/run/gh-runner/secrets";
+  hostStateVersion = config.system.stateVersion;
 in {
   age.secrets.github-headscale-token = {
     file = ../../secrets/github-headscale-token.age;
@@ -241,7 +242,7 @@ in {
   microvm.vms =
     builtins.mapAttrs (hypervisor: mac: {
       config = {
-        system.stateVersion = config.system.nixos.version;
+        system.stateVersion = hostStateVersion;
         networking.hostName = "${hypervisor}-microvm";
 
         microvm = {
