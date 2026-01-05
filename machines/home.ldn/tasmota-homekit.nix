@@ -3,7 +3,8 @@
   pkgs,
   lib,
   ...
-}: let
+}:
+let
   plugsFile = pkgs.writeText "tasmota-homekit-plugs.hujson" (
     builtins.toJSON {
       plugs = [
@@ -11,7 +12,7 @@
         {
           id = "living-room-corner";
           name = "Living Room Corner";
-          address = "10.65.0.82";
+          address = "living-room-corner.ldn.fap.no";
           model = "Athom Plug V2";
           features = {
             power_monitoring = true;
@@ -22,7 +23,7 @@
         {
           id = "living-room-shelf";
           name = "Living Room Shelf Lamp";
-          address = "10.65.0.83";
+          address = "living-room-shelf.ldn.fap.no";
           model = "Avatar UK 10A";
           features = {
             power_monitoring = true;
@@ -33,7 +34,7 @@
         {
           id = "living-room-drawer";
           name = "Living Room Drawer";
-          address = "10.65.0.84";
+          address = "living-room-drawer.ldn.fap.no";
           model = "Athom Plug V2";
           features = {
             power_monitoring = true;
@@ -44,7 +45,7 @@
         {
           id = "living-room-sofa";
           name = "Living Room Sofa";
-          address = "10.65.0.92";
+          address = "living-room-sofa.ldn.fap.no";
           model = "Athom Plug V2";
           features = {
             power_monitoring = true;
@@ -55,7 +56,7 @@
         {
           id = "living-room-tv";
           name = "Living Room TV";
-          address = "10.65.0.89";
+          address = "living-room-tv.ldn.fap.no";
           model = "Athom Plug V2";
           features = {
             power_monitoring = true;
@@ -68,7 +69,7 @@
         {
           id = "office-light";
           name = "Office Ceiling";
-          address = "10.65.0.85";
+          address = "office-light.ldn.fap.no";
           model = "Athom Plug V2";
           features = {
             power_monitoring = true;
@@ -79,7 +80,7 @@
         {
           id = "office-air";
           name = "Office Air Purifier";
-          address = "10.65.0.88";
+          address = "office-air.ldn.fap.no";
           model = "Athom Plug V2";
           features = {
             power_monitoring = true;
@@ -89,7 +90,7 @@
         {
           id = "office-fan-heater";
           name = "Office Heater";
-          address = "10.65.0.93";
+          address = "office-fan-heater.ldn.fap.no";
           model = "Athom Plug V2";
           features = {
             power_monitoring = true;
@@ -99,7 +100,7 @@
         {
           id = "office-fridge";
           name = "Office Fridge";
-          address = "10.65.0.90";
+          address = "office-fridge.ldn.fap.no";
           model = "Athom Plug V2";
           features = {
             power_monitoring = true;
@@ -110,7 +111,7 @@
         {
           id = "office-workstation";
           name = "Office Workstation";
-          address = "10.65.0.91";
+          address = "office-workstation.ldn.fap.no";
           model = "Athom Plug V2";
           features = {
             power_monitoring = true;
@@ -123,7 +124,7 @@
         {
           id = "staircase-servers";
           name = "Staircase Servers";
-          address = "10.65.0.94";
+          address = "staircase-servers.ldn.fap.no";
           model = "Athom Plug V2";
           features = {
             power_monitoring = true;
@@ -134,7 +135,8 @@
       ];
     }
   );
-in {
+in
+{
   imports = [
     ../../common/tskey.nix
   ];
