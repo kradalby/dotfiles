@@ -4,11 +4,13 @@
 function wt --description "Git worktree helper with organized directory structure"
     # Worktrees are created as siblings of the main repo directory
     # e.g., ~/git/headscale/main -> ~/git/headscale/<branch>
-    set -l WORKTREE_ROOT (dirname (git rev-parse --show-toplevel 2>/dev/null))
-    if test -z "$WORKTREE_ROOT" -o "$WORKTREE_ROOT" = "."
+    # Use the main worktree (first in list) to find the root, not the current worktree
+    set -l main_worktree (git worktree list --porcelain 2>/dev/null | head -n 1 | string replace 'worktree ' '')
+    if test -z "$main_worktree"
         echo "Error: Not in a git repository" >&2
         return 1
     end
+    set -l WORKTREE_ROOT (dirname "$main_worktree")
 
     if test (count $argv) -eq 0
         __tree_me_help
