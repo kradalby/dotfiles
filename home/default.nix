@@ -91,6 +91,11 @@ in {
       # ".config/zed/settings.json".text = builtins.toJSON (import ./zed.nix);
       ".config/ghostty/config".source = ../rc/ghostty;
 
+      ".claude/commands" = {
+        source = ../rc/claude/commands;
+        recursive = true;
+      };
+
       ".config/nix/nix.conf".text = ''
         experimental-features = nix-command flakes
       '';
