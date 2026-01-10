@@ -13,7 +13,7 @@ function wt --description "Git worktree helper with organized directory structur
     set -l WORKTREE_ROOT (dirname "$main_worktree")
 
     if test (count $argv) -eq 0
-        __tree_me_help
+        __wt_help
         return 0
     end
 
@@ -22,38 +22,38 @@ function wt --description "Git worktree helper with organized directory structur
 
     switch $command
         case help --help -h
-            __tree_me_help
+            __wt_help
 
         case checkout co
             if test (count $args) -lt 1
-                echo "Error: Branch name required. Usage: tree-me checkout <branch>" >&2
+                echo "Error: Branch name required. Usage: wt checkout <branch>" >&2
                 return 1
             end
-            __tree_me_checkout $WORKTREE_ROOT $args[1]
+            __wt_checkout $WORKTREE_ROOT $args[1]
 
         case create
             if test (count $args) -lt 1
-                echo "Error: Branch name required. Usage: tree-me create <branch> [base-branch]" >&2
+                echo "Error: Branch name required. Usage: wt create <branch> [base-branch]" >&2
                 return 1
             end
-            __tree_me_create $WORKTREE_ROOT $args
+            __wt_create $WORKTREE_ROOT $args
 
         case pr
             if test (count $args) -lt 1
-                echo "Error: PR number or URL required. Usage: tree-me pr <number|url>" >&2
+                echo "Error: PR number or URL required. Usage: wt pr <number|url>" >&2
                 return 1
             end
-            __tree_me_pr $WORKTREE_ROOT $args[1]
+            __wt_pr $WORKTREE_ROOT $args[1]
 
         case list ls
             git worktree list
 
         case remove rm
             if test (count $args) -lt 1
-                echo "Error: Branch name required. Usage: tree-me remove <branch>" >&2
+                echo "Error: Branch name required. Usage: wt remove <branch>" >&2
                 return 1
             end
-            __tree_me_remove $args[1]
+            __wt_remove $args[1]
 
         case prune
             git worktree prune
@@ -61,12 +61,12 @@ function wt --description "Git worktree helper with organized directory structur
 
         case '*'
             echo "Error: Unknown command '$command'" >&2
-            echo "Run 'tree-me help' for usage information" >&2
+            echo "Run 'wt help' for usage information" >&2
             return 1
     end
 end
 
-function __tree_me_help
+function __wt_help
     echo "Usage: wt <command> [options]
 
 Git-like worktree management with organized directory structure.
@@ -92,12 +92,12 @@ Worktrees are created as siblings of your main repo directory.
 e.g., ~/git/repo/main -> ~/git/repo/<branch>"
 end
 
-function __tree_me_get_default_base
+function __wt_get_default_base
     set -l base (git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@')
     test -n "$base" && echo $base || echo main
 end
 
-function __tree_me_checkout
+function __wt_checkout
     set -l worktree_root $argv[1]
     set -l branch $argv[2]
     set -l path "$worktree_root/$branch"
@@ -117,15 +117,15 @@ function __tree_me_checkout
         cd "$path"
     else
         echo "Error: Branch '$branch' does not exist" >&2
-        echo "Use 'tree-me create $branch' to create a new branch" >&2
+        echo "Use 'wt create $branch' to create a new branch" >&2
         return 1
     end
 end
 
-function __tree_me_create
+function __wt_create
     set -l worktree_root $argv[1]
     set -l branch $argv[2]
-    set -l base (test (count $argv) -ge 3 && echo $argv[3] || __tree_me_get_default_base)
+    set -l base (test (count $argv) -ge 3 && echo $argv[3] || __wt_get_default_base)
     set -l path "$worktree_root/$branch"
 
     # Check if worktree already exists
@@ -141,7 +141,7 @@ function __tree_me_create
     cd "$path"
 end
 
-function __tree_me_pr
+function __wt_pr
     set -l worktree_root $argv[1]
     set -l input $argv[2]
 
@@ -187,7 +187,7 @@ function __tree_me_pr
     cd "$path"
 end
 
-function __tree_me_remove
+function __wt_remove
     set -l branch $argv[1]
     set -l existing (git worktree list | grep "\[$branch\]" | awk '{print $1}')
     if test -z "$existing"
