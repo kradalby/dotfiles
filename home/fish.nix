@@ -209,12 +209,37 @@ in {
         # https://github.com/tmux/tmux/wiki/FAQ#tmux-says-no-sessions-when-i-try-to-attach-but-i-definitely-had-sessions
         set -l server_pid (${pkgs.procps}/bin/pgrep -f "tmux: server")
 
-        if test -n "$server_pid"
-            kill -USR1 $server_pid
-            echo "Sent SIGUSR1 to tmux server (PID: $server_pid) to recreate socket"
-        else
+        if test -z "$server_pid"
             echo "No tmux server found"
             return 1
+        end
+
+        kill -USR1 $server_pid
+        echo "Sent SIGUSR1 to tmux server (PID: $server_pid) to recreate socket"
+
+        # Find the actual socket path from the server process
+        set -l server_socket (${pkgs.gawk}/bin/awk '$NF ~ /tmux/ {print $NF}' /proc/$server_pid/net/unix)
+
+        if test -z "$server_socket"
+            echo "Warning: could not determine server socket path"
+            return 0
+        end
+
+        # Determine where the client expects the socket
+        set -l uid (id -u)
+        set -l client_dir "/tmp"
+        if set -q TMUX_TMPDIR
+            set client_dir "$TMUX_TMPDIR"
+        end
+        set -l client_socket "$client_dir/tmux-$uid/default"
+
+        if test "$server_socket" != "$client_socket"
+            echo "Server socket: $server_socket"
+            echo "Client expects: $client_socket"
+            mkdir -p (dirname $client_socket)
+            rm -f $client_socket
+            ln -s $server_socket $client_socket
+            echo "Created symlink: $client_socket -> $server_socket"
         end
       '';
     };
