@@ -6,6 +6,7 @@
   machine,
   lib,
   stdenv,
+  inputs,
   ...
 }: {
   imports = [
@@ -36,6 +37,7 @@
     backupFileExtension = "hm_bak~";
     useUserPackages = true;
     useGlobalPkgs = true;
+    sharedModules = [inputs.nix-index-database.hmModules.nix-index];
     users."${machine.username}" = {
       imports = [
         ../../home

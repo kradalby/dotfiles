@@ -2,6 +2,7 @@
   config,
   pkgs,
   lib,
+  inputs,
   ...
 }: {
   environment.homeBinInPath = true;
@@ -10,6 +11,7 @@
     backupFileExtension = "hm_bak~";
     useGlobalPkgs = true;
     useUserPackages = true;
+    sharedModules = [inputs.nix-index-database.hmModules.nix-index];
     users = {
       kradalby = {
         imports = [

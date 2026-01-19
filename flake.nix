@@ -35,6 +35,9 @@
     home-manager-unstable.url = "github:nix-community/home-manager/master";
     home-manager-unstable.inputs.nixpkgs.follows = "nixpkgs-unstable";
 
+    nix-index-database.url = "github:nix-community/nix-index-database";
+    nix-index-database.inputs.nixpkgs.follows = "nixpkgs";
+
     nixos-generators = {
       url = "github:nix-community/nixos-generators";
       inputs.nixpkgs.follows = "nixpkgs-nixos";
