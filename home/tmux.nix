@@ -118,10 +118,13 @@
 
       # loud or quiet?
       set-option -g visual-activity off
-      set-option -g visual-bell on
+      set-option -g visual-bell off
       set-option -g visual-silence off
-      set-window-option -g monitor-activity off
+      set-window-option -g monitor-activity on
       set-option -g bell-action any
+
+      # Pass focus events to applications (helps with notifications)
+      set-option -g focus-events on
 
       ${lib.optionalString pkgs.stdenv.isDarwin ''
         set-option -g default-command "${pkgs.reattach-to-user-namespace}/bin/reattach-to-user-namespace -l ${pkgs.fish}/bin/fish"
