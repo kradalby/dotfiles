@@ -203,6 +203,20 @@ in {
             return 1
         end
       '';
+
+      tmux-recreate-socket = ''
+        # Recreate tmux socket by sending SIGUSR1 to the server
+        # https://github.com/tmux/tmux/wiki/FAQ#tmux-says-no-sessions-when-i-try-to-attach-but-i-definitely-had-sessions
+        set -l server_pid (${pkgs.procps}/bin/pgrep -f "tmux: server")
+
+        if test -n "$server_pid"
+            kill -USR1 $server_pid
+            echo "Sent SIGUSR1 to tmux server (PID: $server_pid) to recreate socket"
+        else
+            echo "No tmux server found"
+            return 1
+        end
+      '';
     };
   };
 }
