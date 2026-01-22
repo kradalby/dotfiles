@@ -16,8 +16,6 @@ in
 
     eb = prev.callPackage ./eb.nix {};
 
-    tasmota-exporter = prev.callPackage ./tasmota-exporter.nix {};
-
     # elm-review = prev.callPackage ./node-elm-review.nix {};
 
     cook-cli = prev.callPackage ./cook.nix {};

@@ -169,13 +169,20 @@
     utils,
     ...
   } @ inputs: let
+    mkGoOverlay = version: final: prev: {
+      go = final."go_${version}";
+      buildGoModule = final."buildGo${builtins.replaceStrings ["_"] [""] version}Module";
+    };
+    goOverlayStable = mkGoOverlay "1_25";
+    goOverlayUnstable = mkGoOverlay "1_26";
+
     overlay-pkgs = final: _: {
       stable = import nixpkgs-nixos {
         inherit (final) system;
         config = {
           allowUnfree = true;
         };
-        overlays = [(import ./pkgs/overlays {})];
+        overlays = [goOverlayStable (import ./pkgs/overlays {})];
       };
       old-stable = import inputs.nixpkgs-old-stable {
         inherit (final) system;
@@ -187,64 +194,29 @@
       unstable = import inputs.nixpkgs-unstable {
         inherit (final) system;
         config = {allowUnfree = true;};
-        overlays = [
-          (import ./pkgs/overlays {})
-          (
-            _: final: {
-              # gopls = final.gopls.override {
-              #   buildGoModule = final.buildGo124Module;
-              # };
-            }
-          )
-        ];
+        overlays = [goOverlayUnstable (import ./pkgs/overlays {})];
       };
       master = import inputs.nixpkgs-master {
         inherit (final) system;
         config = {allowUnfree = true;};
-        overlays = [
-          (
-            _: final: {
-              # gopls = final.gopls.override {
-              #   buildGoModule = final.buildGo124Module;
-              # };
-            }
-          )
-        ];
+        overlays = [goOverlayUnstable];
       };
     };
 
     overlays = with inputs; [
       overlay-pkgs
+      goOverlayStable
       ragenix.overlays.default
       jujutsu.overlays.default
-      headscale.overlay
-      # hugin.overlay
-      # munin.overlay
+      headscale.overlays.default
       golink.overlays.default
+      hugin.overlay
+      krapage.overlay
+      hvor.overlay
+      tasmota-exporter.overlay
+      homewizard-p1-exporter.overlay
       (import ./pkgs/overlays {})
-      (_: final: let
-        # TODO(kradalby): figure out why this doesnt work
-        goOver = name: ("${name}".packages."${final.system}"."${name}".override {
-          buildGoModule = final.buildGo124Module;
-        });
-      in {
-        go = final.go_1_24;
-        buildGoModules = final.buildGo124Modules;
-        hugin = hugin.packages."${final.system}".hugin.override {
-          buildGoModule = final.buildGo124Module;
-        };
-        krapage = krapage.packages."${final.system}".krapage.override {
-          buildGoModule = final.buildGo124Module;
-        };
-        hvor = hvor.packages."${final.system}".hvor.override {
-          buildGoModule = final.buildGo124Module;
-        };
-        tasmota-exporter = tasmota-exporter.packages."${final.system}".tasmota-exporter.override {
-          buildGoModule = final.buildGo124Module;
-        };
-        homewizard-p1-exporter = homewizard-p1-exporter.packages."${final.system}".homewizard-p1-exporter.override {
-          buildGoModule = final.buildGo124Module;
-        };
+      (_: final: {
         redlib = redlib.packages."${final.system}".default;
         neovim = neovim-kradalby.packages."${final.system}".neovim-kradalby;
         tailscale = tailscale.packages."${final.system}".tailscale;

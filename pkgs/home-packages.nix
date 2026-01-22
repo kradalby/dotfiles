@@ -9,19 +9,6 @@
   rsync-photos-backup = import ./scripts/rsync-photos-backup.nix {inherit pkgs;};
   tom = import ./scripts/tom.nix {inherit pkgs;};
 
-  # Go 1.25 overrides for go tools
-  goTools = with pkgs.unstable; {
-    gopls = gopls.override {buildGoLatestModule = pkgs.buildGo125Module;};
-    delve = delve.override {buildGoModule = pkgs.buildGo125Module;};
-    golangci-lint = golangci-lint.override {buildGo125Module = pkgs.buildGo125Module;};
-    golangci-lint-langserver = golangci-lint-langserver.override {buildGoModule = pkgs.buildGo125Module;};
-    go-tools = go-tools.override {buildGoModule = pkgs.buildGo125Module;};
-    gofumpt = gofumpt.override {buildGoModule = pkgs.buildGo125Module;};
-    golines = golines.override {buildGoModule = pkgs.buildGo125Module;};
-    gotools = gotools.override {buildGoModule = pkgs.buildGo125Module;};
-    gotestsum = gotestsum.override {buildGoModule = pkgs.buildGo125Module;};
-  };
-
   # Stable packages
   stablePackages = with pkgs; [
     # CLI / Shell Enhancements
@@ -108,8 +95,8 @@
     claude-monitor # Monitor for Claude
   ];
 
-  # Go tools (with Go 1.25)
-  goPackages = with goTools; [
+  # Go tools (from unstable, inheriting Go 1.26)
+  goPackages = with pkgs.unstable; [
     gopls # go language server
     delve # go debugger
     golangci-lint-langserver # golangci-lint language server
@@ -143,7 +130,7 @@
     lua-language-server # lua language server
     terraform-ls # terraform language server
     efm-langserver # general purpose language server
-    buf # protobuf tool
+    (buf.override {buildGoModule = pkgs.buildGo125Module;}) # protobuf tool
 
     # YAML
     nodePackages.yaml-language-server # yaml language server
