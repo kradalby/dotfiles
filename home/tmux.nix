@@ -116,14 +116,18 @@
 
       set-option -g renumber-windows on
 
-      # loud or quiet?
+      # Notifications - use bell-based (explicit) rather than activity-based (noisy)
       set-option -g visual-activity off
       set-option -g visual-bell off
       set-option -g visual-silence off
-      set-window-option -g monitor-activity on
+      set-window-option -g monitor-activity off
+      set-window-option -g monitor-bell on
       set-option -g bell-action any
 
-      # Pass focus events to applications (helps with notifications)
+      # Style for windows with bell - makes them visible in status bar
+      set-window-option -g window-status-bell-style 'fg=colour1,bold'
+
+      # Pass focus events to applications
       set-option -g focus-events on
 
       ${lib.optionalString pkgs.stdenv.isDarwin ''
