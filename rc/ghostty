@@ -4,7 +4,7 @@ theme = ayu
 background = 000000
 font-size = 11
 
-window-decoration = false
+window-decoration = true
 mouse-hide-while-typing = true
 window-padding-x = 0
 window-padding-y = 0
@@ -14,8 +14,8 @@ copy-on-select = clipboard
 keybind = super+right=text:\x02n
 keybind = super+left=text:\x02p
 
-keybind = super+t=text:\x02c
-keybind = super+w=text:\x02x
+# keybind = super+t=text:\x02c
+# keybind = super+w=text:\x02x
 
 # Tmux: jump to tmux panes [1-9]
 keybind = super+one=text:\x02\x31
