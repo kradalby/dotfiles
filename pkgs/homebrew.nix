@@ -64,6 +64,7 @@ _: {
       "vlc" # swiss-army media player
       "openttd" # Transport Tycoon game
       "steam" # game launcher
+      "calibre" # book management
 
       # AI & experiments
       "chatgpt" # OpenAI desktop client
