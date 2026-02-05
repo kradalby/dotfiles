@@ -211,7 +211,7 @@
       headscale.overlays.default
       golink.overlays.default
       hugin.overlay
-      krapage.overlay
+      krapage.overlays.default
       hvor.overlay
       tasmota-exporter.overlay
       homewizard-p1-exporter.overlay
