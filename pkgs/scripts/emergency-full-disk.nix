@@ -11,7 +11,7 @@ pkgs.writeShellApplication {
 
     if command -v docker &> /dev/null
     then
-      docker system prune -af
+      docker system prune -af || echo "Docker not available, skipping prune..."
     fi
 
     nix-env -p /nix/var/nix/profiles/system --delete-generations +2
