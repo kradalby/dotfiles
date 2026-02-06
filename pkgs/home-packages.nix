@@ -86,8 +86,8 @@
     ragenix # age encryption for nix
   ];
 
-  # AI tools
-  aiTools = with pkgs.unstable; [
+  # AI tools (from master for latest versions)
+  aiTools = with pkgs.master; [
     codex # OpenAI CLI
     gemini-cli # Gemini CLI
     claude-code # Anthropic CLI
