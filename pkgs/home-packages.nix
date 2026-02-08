@@ -18,6 +18,7 @@
     prettyping # ping with a graph
     entr # run arbitrary commands when files change
     eb # exp backoff
+    nushell # modern shell
 
     # Dev / Git
     gh # github cli
