@@ -75,6 +75,7 @@
 
   # Unstable tools
   unstableTools = with pkgs.unstable; [
+    tmuxinator # pinned to unstable for tmux 3.6a support
     # setec
     squibble # sqlite lib tool
     tailscale-tools # tailscale tools

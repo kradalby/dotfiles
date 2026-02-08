@@ -13,8 +13,6 @@
 
     sensibleOnTop = true;
 
-    tmuxinator.enable = true;
-
     extraConfig = ''
 
       color_status_text="colour245"
