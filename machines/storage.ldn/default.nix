@@ -16,6 +16,7 @@ in {
     ../../common/syncthing-storage.nix
 
     ./restic.nix
+    ./rest-server.nix
     ./samba.nix
     ./zfs.nix
     # ./dnsmasq.nix  # Config kept, service disabled
