@@ -4,6 +4,7 @@
     "/var/lib/kuma"
     "/var/lib/step-ca"
     "/var/lib/mealie"
+    "/var/lib/tsidp"
     config.services.postgresqlBackup.location
   ];
 
