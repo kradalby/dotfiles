@@ -1,17 +1,13 @@
 { config, ... }: let
   paths = [
-    "/etc/nixos"
-    "/var/lib/kuma"
-    "/var/lib/step-ca"
-    "/var/lib/mealie"
-    "/var/lib/tsidp"
-    config.services.postgresqlBackup.location
+    "/home/kradalby"
+    "/root"
   ];
 
   mkJob = site: {
     enable = true;
     inherit site paths;
-    secret = "restic-dev-oracfurt-token";
+    secret = "restic-dev-ldn-token";
   };
 in {
   services.restic.jobs = {

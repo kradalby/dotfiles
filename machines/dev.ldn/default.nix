@@ -15,6 +15,8 @@ in {
 
     ../../common/tailscale.nix
     inputs.ssh-agent-mux.nixosModules.default
+
+    ./restic.nix
   ];
 
   networking = {

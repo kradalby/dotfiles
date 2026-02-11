@@ -20,6 +20,6 @@
 in {
   services.restic.jobs = {
     tjoda = mkJob "tjoda";
-    # terra = mkJob "terra"; # disabled - terra is down
+    ldn = mkJob "ldn";
   };
 }
