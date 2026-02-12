@@ -46,7 +46,7 @@
       # https://github.com/micropython/webrepl
       webreplCli = "1e09d9a1d90fe52aba11d1e659afbc95a50cf088";
       # https://github.com/cooklang/cookcli/releases
-      cook = "v0.18.2";
+      cook = "0.22.0";
       # https://github.com/bradfitz/gitutil
       gitutil = "1625713288102f8642c0619f12fc83ad609bf71b";
       # https://github.com/JonaEnz/tailscale-restic-proxy
