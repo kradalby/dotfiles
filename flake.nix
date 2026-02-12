@@ -3,10 +3,10 @@
 
   # nixConfig = {
   #   extra-substituters = [
-  #     # "http://attic.dalby.ts.net/system?priority=43"
+  #     "http://nix-cache.dalby.ts.net/?priority=30"
   #   ];
   #   extra-trusted-public-keys = [
-  #     # "system:40arGOg81ZACFJQAksoEplo8PfgxDd6aEQpNbuHXcCg="
+  #     "nix-cache:XXXXXXXX="
   #   ];
   # };
 
@@ -305,6 +305,13 @@
           tags = ["x86" "ldn"];
           targetHost = "10.65.0.28";
         };
+
+        # "nix-cache.ldn" = box.nixosBox {
+        #   arch = "x86_64-linux";
+        #   name = "nix-cache.ldn";
+        #   tags = ["x86" "ldn"];
+        #   targetHost = "10.65.0.29";
+        # };
 
         # "lenovo.ldn" = box.nixosBox {
         #   arch = "x86_64-linux";

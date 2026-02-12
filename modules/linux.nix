@@ -7,7 +7,7 @@
     ./tailscale-proxy.nix
     ./setec.nix
     ./faptables.nix
-    ./attic-watch.nix
+    ./nix-push.nix
     ./vhost.nix
     ./restic-jobs.nix
     ./wireguard.nix

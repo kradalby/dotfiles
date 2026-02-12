@@ -62,7 +62,13 @@ in {
   users.users.root.openssh.authorizedKeys.keys = sshKeys.main ++ sshKeys.kradalby ++ sshKeys.work;
   users.users.kradalby.openssh.authorizedKeys.keys = sshKeys.main ++ sshKeys.kradalby ++ sshKeys.work;
 
-  services.attic-watch.enable = false;
+  age.secrets.nix-push-key = {
+    file = ../../secrets/nix-push-key.age;
+  };
+  services.nix-push = {
+    enable = true;
+    sshKeyFile = config.age.secrets.nix-push-key.path;
+  };
 
   environment.systemPackages = [
     pkgs.docker-client
