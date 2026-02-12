@@ -59,6 +59,7 @@
     ffmpeg # video/audio converter
     exiftool # read/write meta information in files
     qrencode # qr code generator
+    cook-cli # cooklang recipe CLI
 
     # Language / Runtime
     nodejs_24 # javascript runtime
