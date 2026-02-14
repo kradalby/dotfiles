@@ -306,6 +306,12 @@
           targetHost = "10.65.0.28";
         };
 
+        "claw.ldn" = box.nixosBox {
+          arch = "x86_64-linux";
+          name = "claw.ldn";
+          tags = ["x86" "ldn"];
+        };
+
         # "nix-cache.ldn" = box.nixosBox {
         #   arch = "x86_64-linux";
         #   name = "nix-cache.ldn";
