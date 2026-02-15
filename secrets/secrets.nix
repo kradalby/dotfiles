@@ -18,7 +18,8 @@ let
     eye-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDe2WAzC0HAlgMN3l2D6xjVme/mwYTVCJSq+0V1HCbAW";
     lenovo-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJTZ76SNK6QJ2ptArkXstRNOdY1PxNHHon9gh3k+fDo+";
     storage-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIO9UALifE1IUfQCAxPj2GIY3QwKcGgW8IFGag8dKOc46";
-    nix-cache-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAA_PLACEHOLDER_ADD_AFTER_VM_BOOTSTRAP";
+    # nix-cache-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAA_PLACEHOLDER_ADD_AFTER_VM_BOOTSTRAP";
+    claw-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBkdjnDepvje7QZNktXWwWtIlX+fC/KuKUKefqzjboc7";
 
     core-oracldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGEe9eIMf462ZQhE8Nl9jyUscRtTTYeAIPRN2kvO3cdC";
 
@@ -136,7 +137,7 @@ with builtins;
   "ghostfolio-env.age".publicKeys = u ++ [ hosts.core-oracldn ];
 
   # harmonia signing key (nix-cache.ldn)
-  "harmonia-signing-key.age".publicKeys = u ++ [ hosts.nix-cache-ldn ];
+  # "harmonia-signing-key.age".publicKeys = u ++ [ hosts.nix-cache-ldn ];
 
   # nix-push SSH key (all pushing machines)
   "nix-push-key.age".publicKeys = global;
