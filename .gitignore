@@ -54,7 +54,6 @@ Session.vim
 # Edit at https://www.toptal.com/developers/gitignore?templates=direnv
 
 .direnv
-.envrc
 
 # Tailscale policy files (may contain sensitive info)
 tailscale_policy.hujson
