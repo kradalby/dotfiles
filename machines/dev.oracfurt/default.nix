@@ -17,6 +17,7 @@
     # ./attic.nix
     ./proton.nix
     ./mealie.nix
+    ./cook.nix
   ];
 
   # Disable built-in tsidp module in favor of the flake input
