@@ -156,6 +156,11 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
       inputs."flake-utils".follows = "utils";
     };
+
+    opencode = {
+      url = "github:anomalyco/opencode";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
   };
 
   outputs = {
@@ -225,6 +230,7 @@
         nefit-homekit = inputs.nefit-homekit.packages."${system}".default;
         tasmota-homekit = inputs.tasmota-homekit.packages."${system}".default;
         z2m-homekit = inputs.z2m-homekit.packages."${system}".default;
+        opencode = inputs.opencode.packages."${system}".default;
       })
     ];
 
