@@ -59,6 +59,7 @@ in {
   # Also add work SSH keys
   users.users.root.openssh.authorizedKeys.keys = sshKeys.main ++ sshKeys.kradalby ++ sshKeys.work;
   users.users.kradalby.openssh.authorizedKeys.keys = sshKeys.main ++ sshKeys.kradalby ++ sshKeys.work;
+  users.users.kradalby.linger = true;
 
   # age.secrets.nix-push-key = {
   #   file = ../../secrets/nix-push-key.age;
@@ -91,6 +92,21 @@ in {
   ];
 
   home-manager.users.kradalby = {
+    systemd.user.services.opencode-serve = {
+      Unit = {
+        Description = "OpenCode serve";
+      };
+      Service = {
+        Type = "simple";
+        ExecStart = "${pkgs.opencode}/bin/opencode serve --hostname 0.0.0.0";
+        Restart = "always";
+        RestartSec = 15;
+        WorkingDirectory = "/home/kradalby";
+      };
+      Install = {
+        WantedBy = ["default.target"];
+      };
+    };
   };
 
   security.sudo.extraRules = [
