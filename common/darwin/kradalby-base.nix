@@ -18,7 +18,7 @@
   #    This builds and enables the rosetta-based builder which is faster
   #
   # To bootstrap: temporarily set to false, rebuild, then set back to true
-  useRosettaBuilder = false;
+  useRosettaBuilder = true;
 in {
   imports = [
     ../darwin.nix
