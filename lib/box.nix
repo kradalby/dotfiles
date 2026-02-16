@@ -31,11 +31,11 @@ in {
     targetHost ? null,
   }:
     nixpkgs.lib.nixosSystem {
-      system = arch;
       modules =
         (commonModules nixpkgs)
         ++ modules
         ++ [
+          {nixpkgs.hostPlatform = arch;}
           (import ../modules/linux.nix)
           {
             system.configurationRevision = rev;
@@ -65,11 +65,11 @@ in {
 
   macBox = machine: pkgBase: homeBase: additionalModules:
     pkgBase.lib.darwinSystem {
-      system = machine.arch;
       modules =
         (commonModules pkgBase)
         ++ additionalModules
         ++ [
+          {nixpkgs.hostPlatform = machine.arch;}
           (./.. + "/machines/${machine.hostname}")
           homeBase.darwinModules.home-manager
           # inputs.nix-rosetta-builder.darwinModules.default
@@ -87,9 +87,9 @@ in {
       };
     };
 
-  mkColmenaFromNixOSConfigurations = nixosConfigurations:
-    let
-      base = {
+  mkColmenaFromNixOSConfigurations = nixosConfigurations: let
+    base =
+      {
         meta = {
           machinesFile = /etc/nix/machines;
           nixpkgs = import pkgs {
@@ -113,10 +113,10 @@ in {
               else builtins.replaceStrings ["."] ["-"] name;
             inherit (value._module.args) tags;
           };
-          nixpkgs.system = value.config.nixpkgs.system;
+          nixpkgs.system = value.config.nixpkgs.hostPlatform.system;
           imports = value._module.args.modules;
         })
         nixosConfigurations);
-    in
-      base;
+  in
+    base;
 }

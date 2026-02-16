@@ -156,7 +156,6 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
       inputs."flake-utils".follows = "utils";
     };
-
   };
 
   outputs = {
@@ -178,26 +177,26 @@
 
     overlay-pkgs = final: _: {
       stable = import nixpkgs-nixos {
-        inherit (final) system;
+        system = final.stdenv.hostPlatform.system;
         config = {
           allowUnfree = true;
         };
         overlays = [goOverlayStable (import ./pkgs/overlays {})];
       };
       old-stable = import inputs.nixpkgs-old-stable {
-        inherit (final) system;
+        system = final.stdenv.hostPlatform.system;
         config = {allowUnfree = true;};
         overlays = [
           (import ./pkgs/overlays {})
         ];
       };
       unstable = import inputs.nixpkgs-unstable {
-        inherit (final) system;
+        system = final.stdenv.hostPlatform.system;
         config = {allowUnfree = true;};
         overlays = [goOverlayUnstable (import ./pkgs/overlays {})];
       };
       master = import inputs.nixpkgs-master {
-        inherit (final) system;
+        system = final.stdenv.hostPlatform.system;
         config = {allowUnfree = true;};
         overlays = [goOverlayUnstable];
       };
@@ -216,14 +215,16 @@
       tasmota-exporter.overlay
       homewizard-p1-exporter.overlay
       (import ./pkgs/overlays {})
-      (_: final: {
-        redlib = redlib.packages."${final.system}".default;
-        neovim = neovim-kradalby.packages."${final.system}".neovim-kradalby;
-        tailscale = tailscale.packages."${final.system}".tailscale;
-        ssh-agent-mux = inputs.ssh-agent-mux.packages."${final.system}".default;
-        nefit-homekit = inputs.nefit-homekit.packages."${final.system}".default;
-        tasmota-homekit = inputs.tasmota-homekit.packages."${final.system}".default;
-        z2m-homekit = inputs.z2m-homekit.packages."${final.system}".default;
+      (_: final: let
+        system = final.stdenv.hostPlatform.system;
+      in {
+        redlib = redlib.packages."${system}".default;
+        neovim = neovim-kradalby.packages."${system}".neovim-kradalby;
+        tailscale = tailscale.packages."${system}".tailscale;
+        ssh-agent-mux = inputs.ssh-agent-mux.packages."${system}".default;
+        nefit-homekit = inputs.nefit-homekit.packages."${system}".default;
+        tasmota-homekit = inputs.tasmota-homekit.packages."${system}".default;
+        z2m-homekit = inputs.z2m-homekit.packages."${system}".default;
       })
     ];
 
