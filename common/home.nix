@@ -11,7 +11,7 @@
     backupFileExtension = "hm_bak~";
     useGlobalPkgs = true;
     useUserPackages = true;
-    sharedModules = [inputs.nix-index-database.hmModules.nix-index];
+    sharedModules = [inputs.nix-index-database.homeModules.nix-index];
     users = {
       kradalby = {
         imports = [

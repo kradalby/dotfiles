@@ -54,7 +54,7 @@ in {
     backupFileExtension = "hm_bak~";
     useUserPackages = true;
     useGlobalPkgs = true;
-    sharedModules = [inputs.nix-index-database.hmModules.nix-index];
+    sharedModules = [inputs.nix-index-database.homeModules.nix-index];
     users."${machine.username}" = {
       imports = [
         ../../home
