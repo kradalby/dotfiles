@@ -1,5 +1,5 @@
 {lib, ...}: {
-  require = [
+  imports = [
     ./avahi.nix
     ./ca.nix
     ./cpufreq.nix

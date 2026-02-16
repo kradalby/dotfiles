@@ -1,5 +1,5 @@
 {...}: {
-  require = [
+  imports = [
     ./darwin/environment.nix
     ./darwin/system.nix
     ./darwin/fonts.nix
