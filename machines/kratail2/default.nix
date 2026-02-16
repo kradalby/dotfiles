@@ -29,12 +29,6 @@
       TS_NIX_SHELL_XCODE_VERSION = "15.4";
       TS_NIX_SHELL_XCODE_WRAPPER_DISABLED = "1";
     };
-
-    # AI tools - all on work laptop
-    my.ai-tools = {
-      cli = true;
-      desktop = true;
-    };
   };
 
   homebrew = {

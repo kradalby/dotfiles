@@ -18,10 +18,5 @@
   };
 
   home-manager.users.kradalby = {
-    # AI tools - all on personal Mac
-    my.ai-tools = {
-      cli = true;
-      desktop = true;
-    };
   };
 }

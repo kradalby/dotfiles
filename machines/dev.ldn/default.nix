@@ -91,11 +91,6 @@ in {
   ];
 
   home-manager.users.kradalby = {
-    # AI tools - CLI only on dev server
-    my.ai-tools = {
-      cli = true;
-      desktop = false;
-    };
   };
 
   security.sudo.extraRules = [
