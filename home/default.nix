@@ -90,6 +90,7 @@ in {
 
       # ".config/zed/settings.json".text = builtins.toJSON (import ./zed.nix);
       ".config/ghostty/config".source = ../rc/ghostty;
+      ".config/opencode/opencode.json".source = ../rc/opencode/opencode.json;
 
       ".claude/commands" = {
         source = ../rc/claude/commands;
