@@ -38,7 +38,7 @@
       "raycast"
       "slack"
       "slack-cli"
-      "tigervnc-viewer"
+      "tigervnc"
       "utm"
       "zoom"
       "krisp"
