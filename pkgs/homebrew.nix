@@ -2,6 +2,10 @@ _: {
   homebrew = {
     enable = true;
 
+    taps = [
+      "anomalyco/tap"
+    ];
+
     onActivation = {
       cleanup = "zap"; # zap;
       autoUpdate = true;
@@ -72,6 +76,7 @@ _: {
       "cursor" # AI-focused code editor
       "ollama-app" # local LLM runner GUI
       "antigravity" # Google's experimental VSCode fork
+      "opencode-desktop" # AI code editor
     ];
 
     masApps = {
