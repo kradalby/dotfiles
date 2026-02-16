@@ -38,6 +38,10 @@ in {
       "*.oracldn" = fapRoot;
       "*.oracfurt" = fapRoot;
 
+      "kradalby-llm" = {
+        forwardAgent = false;
+      };
+
       # Tailscale configuration
       "bunny*" = {
         user = "ubuntu";
