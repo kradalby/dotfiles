@@ -31,6 +31,15 @@
     };
   };
 
+  services.syncthing.folders = {
+    "llm-git" = {
+      id = "f6vv9-fsjeq";
+      path = "/Users/kradalby/llm-git";
+      devices = ["kradalby-llm"];
+      type = "sendreceive";
+    };
+  };
+
   homebrew = {
     casks = [
       "imageoptim"
