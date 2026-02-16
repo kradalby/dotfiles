@@ -1,3 +1,7 @@
+---
+description: Commit current work with Go-style messages
+---
+
 commit the current work
 
 - Group it into logical chunks

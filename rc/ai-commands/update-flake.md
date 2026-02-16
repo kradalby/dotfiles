@@ -1,3 +1,7 @@
+---
+description: Update all nix and flake dependencies
+---
+
 update all nix and flake dependencies
 
 - run `nix flake update`

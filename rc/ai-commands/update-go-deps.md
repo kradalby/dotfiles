@@ -1,3 +1,7 @@
+---
+description: Update all Go dependencies
+---
+
 update all golang dependencies
 
 - systematically upgrade all dependencies by upgrading them one by one or in logical groups
