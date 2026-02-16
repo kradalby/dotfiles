@@ -8,8 +8,6 @@
     ../../common/darwin/kradalby-base.nix
   ];
 
-  nix-rosetta-builder.enable = true;
-
   # Configure SSH agent mux for work machine
   services.ssh-agent-mux = {
     enable = true;
@@ -30,6 +28,12 @@
     home.sessionVariables = {
       TS_NIX_SHELL_XCODE_VERSION = "15.4";
       TS_NIX_SHELL_XCODE_WRAPPER_DISABLED = "1";
+    };
+
+    # AI tools - all on work laptop
+    my.ai-tools = {
+      cli = true;
+      desktop = true;
     };
   };
 

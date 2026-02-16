@@ -173,5 +173,6 @@ in {
     ./ssh.nix
 
     ../pkgs/home-packages.nix
+    ../pkgs/ai-tools.nix
   ];
 }

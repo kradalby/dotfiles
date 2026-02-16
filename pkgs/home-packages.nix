@@ -89,15 +89,6 @@
     ragenix # age encryption for nix
   ];
 
-  # AI tools (from master for latest versions)
-  aiTools = with pkgs.master; [
-    codex # OpenAI CLI
-    gemini-cli # Gemini CLI
-    claude-code # Anthropic CLI
-    claude-code-acp # Bridge for Claude and Zed
-    claude-monitor # Monitor for Claude
-  ];
-
   # Go tools (from unstable, inheriting Go 1.26)
   goPackages = with pkgs.unstable; [
     gopls # go language server
@@ -206,7 +197,6 @@ in {
   home.packages =
     stablePackages
     ++ unstableTools
-    ++ aiTools
     ++ goPackages
     ++ editorTooling
     ++ lib.optionals pkgs.stdenv.isDarwin darwinPackages

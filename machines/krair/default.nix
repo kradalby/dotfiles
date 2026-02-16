@@ -4,8 +4,6 @@
     ../../common/darwin/kradalby-base.nix
   ];
 
-  nix-rosetta-builder.enable = true;
-
   # Configure SSH agent mux for personal machine
   # Watches /tmp for forwarded agents from kratail2 and automatically updates config
   services.ssh-agent-mux = {
@@ -17,5 +15,13 @@
       "~/.ssh/yubikey-agent.sock"
     ];
     watchForSSHForward = true; # Automatically detect and use forwarded agents
+  };
+
+  home-manager.users.kradalby = {
+    # AI tools - all on personal Mac
+    my.ai-tools = {
+      cli = true;
+      desktop = true;
+    };
   };
 }
