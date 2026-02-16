@@ -60,13 +60,13 @@ in {
   users.users.root.openssh.authorizedKeys.keys = sshKeys.main ++ sshKeys.kradalby ++ sshKeys.work;
   users.users.kradalby.openssh.authorizedKeys.keys = sshKeys.main ++ sshKeys.kradalby ++ sshKeys.work;
 
-  age.secrets.nix-push-key = {
-    file = ../../secrets/nix-push-key.age;
-  };
-  services.nix-push = {
-    enable = true;
-    sshKeyFile = config.age.secrets.nix-push-key.path;
-  };
+  # age.secrets.nix-push-key = {
+  #   file = ../../secrets/nix-push-key.age;
+  # };
+  # services.nix-push = {
+  #   enable = true;
+  #   sshKeyFile = config.age.secrets.nix-push-key.path;
+  # };
 
   services.tailscale = let
     wireguardHosts = import ../../metadata/wireguard.nix {inherit lib config;};
