@@ -84,6 +84,7 @@ in {
       '';
       wantedBy = ["multi-user.target" "docker-glauth.service"];
       after = ["network-online.target"];
+      wants = ["network-online.target"];
       serviceConfig = {
         User = cfg.user;
         Group = cfg.group;

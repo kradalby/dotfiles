@@ -58,6 +58,7 @@ in {
       description = "Cook recipe server";
       wantedBy = ["multi-user.target"];
       after = ["network-online.target"];
+      wants = ["network-online.target"];
 
       script = ''
         exec ${cfg.package}/bin/cook server --port ${toString cfg.port} --host
