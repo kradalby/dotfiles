@@ -36,6 +36,11 @@ with lib; let
       )
       cfg.folders);
 
+  folderIgnores =
+    filter (f: f.ignorePatterns != null)
+    (mapAttrsToList (_: folder: {inherit (folder) id ignorePatterns;})
+      (filterAttrs (_: f: f.enable) cfg.folders));
+
   copyKeys = pkgs.writers.writeBash "syncthing-copy-keys" ''
     install -dm700 -o ${cfg.user} -g ${cfg.group} ${cfg.configDir}
     ${optionalString (cfg.cert != null) ''
@@ -73,6 +78,11 @@ with lib; let
        ${pkgs.jq}/bin/jq -e .requiresRestart > /dev/null; then
         curl -X POST ${cfg.guiAddress}/rest/system/restart
     fi
+    # Push ignore patterns for folders that define them
+    ${concatMapStrings (folder: ''
+        curl -X POST -d '${builtins.toJSON {ignore = folder.ignorePatterns;}}' '${cfg.guiAddress}/rest/db/ignores?folder=${folder.id}'
+      '')
+      folderIgnores}
   '';
 
   syncthingScript = pkgs.writers.writeBash "run-syncthing" ''
@@ -371,6 +381,15 @@ in {
                 See <link xlink:href="https://docs.syncthing.net/advanced/folder-ignoredelete.html"/>.
               '';
             };
+
+            ignorePatterns = mkOption {
+              type = types.nullOr (types.listOf types.str);
+              default = null;
+              description = ''
+                Ignore patterns for this folder. Each string is one line
+                in the .stignore file.
+              '';
+            };
           };
         }));
       };
@@ -507,7 +526,13 @@ in {
           args = escapeShellArgs (
             (lib.cli.toGNUCommandLine {} {
               no-browser = true;
-              gui-address = (if isUnixGui then "unix://" else "") + cfg.guiAddress;
+              gui-address =
+                (
+                  if isUnixGui
+                  then "unix://"
+                  else ""
+                )
+                + cfg.guiAddress;
               config = cfg.configDir;
               data = cfg.configDir;
             })
