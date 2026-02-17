@@ -50,6 +50,7 @@
       path = "/Users/kradalby/git";
       devices = ["kradalby-llm"];
       type = "sendreceive";
+      ignorePatterns = [".DS_Store" "._*" ".Spotlight-V100" ".Trashes" ".fseventsd" ".TemporaryItems"];
     };
   };
 
