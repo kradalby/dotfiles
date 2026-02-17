@@ -15,7 +15,7 @@
     };
   };
 
-  storage = ["kratail2" "krair" "core.tjoda" "core.terra" "dev.ldn" "storage.ldn"];
+  storage = ["krair" "core.tjoda" "core.terra" "dev.ldn" "storage.ldn"];
 
   folders = {};
 }

@@ -32,9 +32,15 @@
   };
 
   services.syncthing.folders = {
+    "/storage/software".enable = false;
+    "/storage/books".enable = false;
+    "/storage/pictures".enable = false;
+    "/storage/backup".enable = false;
+    "/fast/hugin".enable = false;
+
     "llm-git" = {
       id = "f6vv9-fsjeq";
-      path = "/Users/kradalby/llm-git";
+      path = "/Users/kradalby/git";
       devices = ["kradalby-llm"];
       type = "sendreceive";
     };
