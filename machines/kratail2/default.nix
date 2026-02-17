@@ -1,5 +1,6 @@
 # Work Mac configuration (Tailscale)
 {
+  config,
   lib,
   pkgs,
   ...
@@ -31,12 +32,18 @@
     };
   };
 
+  services.syncthing.devices = {
+    "kradalby-llm" = {id = "NCR7O6Z-XRY3NIN-XKHAZOE-2EUNNP5-PZ7H53H-47BK2YF-PDWEMQB-FLC4DQU";};
+  };
+
   services.syncthing.folders = {
     "/storage/software".enable = false;
     "/storage/books".enable = false;
     "/storage/pictures".enable = false;
     "/storage/backup".enable = false;
     "/fast/hugin".enable = false;
+
+    "Sync".devices = lib.mkForce (builtins.filter (d: d != "kradalby-llm") (builtins.attrNames config.services.syncthing.devices));
 
     "llm-git" = {
       id = "f6vv9-fsjeq";

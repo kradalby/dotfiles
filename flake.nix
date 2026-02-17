@@ -313,7 +313,6 @@
           targetHost = "10.65.0.28";
         };
 
-
         # "nix-cache.ldn" = box.nixosBox {
         #   arch = "x86_64-linux";
         #   name = "nix-cache.ldn";
@@ -361,6 +360,23 @@
             inputs.ssh-agent-mux.darwinModules.default
             inputs.nix-rosetta-builder.darwinModules.default
           ];
+      };
+
+      homeConfigurations = {
+        "kradalby@kradalby-llm" = home-manager.lib.homeManagerConfiguration {
+          pkgs = import nixpkgs-nixos {
+            system = "x86_64-linux";
+            inherit overlays;
+            config.allowUnfree = true;
+          };
+          modules = [
+            inputs.nix-index-database.homeModules.nix-index
+            ./machines/kradalby-llm
+          ];
+          extraSpecialArgs = {
+            inherit inputs;
+          };
+        };
       };
 
       colmena = box.mkColmenaFromNixOSConfigurations self.nixosConfigurations;
