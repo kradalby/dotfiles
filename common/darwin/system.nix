@@ -73,6 +73,7 @@
         orientation = "left";
         show-recents = false;
         tilesize = 16;
+        wvous-br-corner = 1;
       };
       finder = {
         AppleShowAllExtensions = true;
