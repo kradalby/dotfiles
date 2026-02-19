@@ -14,7 +14,10 @@ in {
     overrideFolders = true;
     settings = {
       inherit (cfg) devices;
-      gui.insecureSkipHostcheck = true;
+      gui = {
+        insecureSkipHostcheck = true;
+        insecureAdminAccess = true;
+      };
       folders = {
         "kradalby - Sync" = {
           id = "xTDuT-kZeuK";

@@ -4,11 +4,10 @@
   ...
 }: let
   cfg = import ../metadata/syncthing.nix;
-  location =
-    let
-      components = lib.splitString "." config.networking.domain;
-    in
-      lib.elemAt components 0;
+  location = let
+    components = lib.splitString "." config.networking.domain;
+  in
+    lib.elemAt components 0;
   tailscaleService = "svc:syncthing-${location}";
 in {
   services = {
@@ -21,7 +20,10 @@ in {
       overrideFolders = true;
       settings = {
         inherit (cfg) devices;
-        gui.insecureSkipHostcheck = true;
+        gui = {
+          insecureSkipHostcheck = true;
+          insecureAdminAccess = true;
+        };
         folders = {
           "/storage/software" = {
             id = "vpgyn-cj2mg";

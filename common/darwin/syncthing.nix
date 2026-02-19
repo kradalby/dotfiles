@@ -13,6 +13,9 @@ in {
       guiAddress = "0.0.0.0:38443";
       overrideDevices = true;
       overrideFolders = true;
+      extraOptions = {
+        gui.insecureAdminAccess = true;
+      };
       inherit (cfg) devices;
       folders = {
         "Sync" = {
