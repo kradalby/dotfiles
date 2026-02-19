@@ -75,10 +75,12 @@ in {
           # inputs.nix-rosetta-builder.darwinModules.default
           # {nix.linux-builder.enable = true;}
 
-          # nix.nixPath doesn't propagate to shell environment on Darwin,
-          # so we set NIX_PATH explicitly to make nix-shell -p work
+          # pkgBase is nix-darwin (not nixpkgs), so we must override
+          # the nix.nixPath set by commonModules to use the actual
+          # nixpkgs-darwin input, otherwise NIX_PATH points at the
+          # nix-darwin source and nix-shell -p cannot find <nixpkgs>.
           {
-            environment.variables.NIX_PATH = ["nixpkgs=${pkgBase}"];
+            nix.nixPath = lib.mkForce ["nixpkgs=${inputs.nixpkgs-darwin}"];
           }
         ];
       specialArgs = {
