@@ -50,7 +50,31 @@
       path = "/Users/kradalby/git";
       devices = ["kradalby-llm"];
       type = "sendreceive";
-      ignorePatterns = [".DS_Store" "._*" ".Spotlight-V100" ".Trashes" ".fseventsd" ".TemporaryItems"];
+      ignorePatterns = [
+        # macOS
+        ".DS_Store"
+        "._*"
+        ".Spotlight-V100"
+        ".Trashes"
+        ".fseventsd"
+        ".TemporaryItems"
+
+        # VCS (keep .git for LLM access to history)
+        ".jj"
+
+        # Dependencies and build output
+        "node_modules"
+        ".gopath"
+        "vendor"
+        ".next"
+        "dist"
+
+        # Dev tools
+        ".direnv"
+        "result"
+        ".devenv"
+        ".pre-commit-hooks"
+      ];
     };
   };
 
