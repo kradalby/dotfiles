@@ -43,6 +43,7 @@
       nix-tree
       attic-client
       wush
+      ghostty.terminfo
 
       (let
         my-python-packages = python-packages:

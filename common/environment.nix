@@ -8,6 +8,8 @@
 
   config = {
     environment = {
+      enableAllTerminfo = true;
+
       shellAliases =
         config.my.shellAliases
         // {
