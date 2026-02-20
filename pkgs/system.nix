@@ -43,7 +43,6 @@
       nix-tree
       attic-client
       wush
-      ghostty.terminfo
 
       (let
         my-python-packages = python-packages:
@@ -57,6 +56,7 @@
       (import ./scripts/fake-editor.nix {inherit pkgs;})
     ]
     ++ lib.optionals stdenv.isLinux [
+      ghostty.terminfo
       nftables
       usbutils
       ncdu

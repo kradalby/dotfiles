@@ -18,39 +18,30 @@ macos-window-shadow = false
 macos-titlebar-proxy-icon = hidden
 macos-secure-input-indication = false
 
-keybind = super+right=text:\x02n
-keybind = super+left=text:\x02p
+# Tmux navigation (Ctrl modifier)
+# Sends Ctrl+b (tmux prefix) followed by the command key
+keybind = ctrl+right=text:\x02n
+keybind = ctrl+left=text:\x02p
+keybind = ctrl+t=text:\x02c
+keybind = ctrl+w=text:\x02x
 
-# keybind = super+t=text:\x02c
-# keybind = super+w=text:\x02x
-
-# Tmux: jump to tmux panes [1-9]
-keybind = super+one=text:\x02\x31
-keybind = super+two=text:\x02\x32
-keybind = super+three=text:\x02\x33
-keybind = super+four=text:\x02\x34
-keybind = super+five=text:\x02\x35
-keybind = super+six=text:\x02\x36
-keybind = super+seven=text:\x02\x37
-keybind = super+eight=text:\x02\x38
-keybind = super+nine=text:\x02\x39
-keybind = super+1=text:\x02\x31
-keybind = super+2=text:\x02\x32
-keybind = super+3=text:\x02\x33
-keybind = super+4=text:\x02\x34
-keybind = super+5=text:\x02\x35
-keybind = super+6=text:\x02\x36
-keybind = super+7=text:\x02\x37
-keybind = super+8=text:\x02\x38
-keybind = super+9=text:\x02\x39
-keybind = super+0=text:\x02\x30
-keybind = super+digit_1=text:\x02\x31
-keybind = super+digit_2=text:\x02\x32
-keybind = super+digit_3=text:\x02\x33
-keybind = super+digit_4=text:\x02\x34
-keybind = super+digit_5=text:\x02\x35
-keybind = super+digit_6=text:\x02\x36
-keybind = super+digit_7=text:\x02\x37
-keybind = super+digit_8=text:\x02\x38
-keybind = super+digit_9=text:\x02\x39
-keybind = super+digit_0=text:\x02\x30
+# Tmux: jump to tmux windows [0-9]
+keybind = ctrl+one=text:\x02\x31
+keybind = ctrl+two=text:\x02\x32
+keybind = ctrl+three=text:\x02\x33
+keybind = ctrl+four=text:\x02\x34
+keybind = ctrl+five=text:\x02\x35
+keybind = ctrl+six=text:\x02\x36
+keybind = ctrl+seven=text:\x02\x37
+keybind = ctrl+eight=text:\x02\x38
+keybind = ctrl+nine=text:\x02\x39
+keybind = ctrl+1=text:\x02\x31
+keybind = ctrl+2=text:\x02\x32
+keybind = ctrl+3=text:\x02\x33
+keybind = ctrl+4=text:\x02\x34
+keybind = ctrl+5=text:\x02\x35
+keybind = ctrl+6=text:\x02\x36
+keybind = ctrl+7=text:\x02\x37
+keybind = ctrl+8=text:\x02\x38
+keybind = ctrl+9=text:\x02\x39
+keybind = ctrl+0=text:\x02\x30
