@@ -1,204 +1,253 @@
 {
+  config,
   pkgs,
   lib,
   ...
 }: let
+  cfg = config.my.packages;
+
   # Import scripts
-  pamtouchfix = import ./scripts/pamtouchfix.nix {inherit pkgs;};
   exif-set-photographer = import ./scripts/exif-set-photographer.nix {inherit pkgs;};
-  rsync-photos-backup = import ./scripts/rsync-photos-backup.nix {inherit pkgs;};
   tom = import ./scripts/tom.nix {inherit pkgs;};
-
-  # Stable packages
-  stablePackages = with pkgs; [
-    # CLI / Shell Enhancements
-    bat # cat clone with syntax highlighting
-    eza # ls replacement
-    viddy # modern watch command
-    prettyping # ping with a graph
-    entr # run arbitrary commands when files change
-    eb # exp backoff
-    nushell # modern shell
-
-    # Dev / Git
-    gh # github cli
-    # git-absorb from main branch
-    # https://github.com/tummychow/git-absorb/commits/main/
-    (git-absorb.overrideAttrs (old: rec {
-      version = "3a1148ea2df3ca41cb69df8848f99d25e66dc0b5";
-      src = pkgs.fetchFromGitHub {
-        owner = "tummychow";
-        repo = "git-absorb";
-        rev = version;
-        hash = "sha256-CrpLWDHSnT2PgbLFDK6UyaeKgmW1mygvSIudsl/nbbQ=";
-      };
-      cargoDeps = old.cargoDeps.overrideAttrs {
-        inherit src;
-        outputHash = "sha256-03vHVC3PSmHMLouQSirPlIG5o7BpvgWjFCtKLAGnxg8=";
-        outputHashMode = "recursive";
-      };
-    }))
-    git-open # open repo in browser
-    git-toolbelt # set of useful git scripts
-    difftastic # structural diff tool
-    cloc # count lines of code
-    act # run GitHub Actions locally
-
-    # Containers / K8s
-    docker # container engine
-    dive # docker image explorer
-
-    # Network / Infrastructure
-    ansible # automation tool
-    headscale # open source tailscale control server
-    ipcalc # ip address calculator
-    nmap # network scanner
-    ts-preauthkey # tailscale preauth key generator
-
-    # Media / Files
-    ffmpeg # video/audio converter
-    exiftool # read/write meta information in files
-    qrencode # qr code generator
-    cook-cli # cooklang recipe CLI
-
-    # Language / Runtime
-    nodejs_24 # javascript runtime
-    uv # python package installer
-
-    # Database
-    sqldiff # diff for sqlite databases
-    sql-studio # sqlite database manager
-
-    # Scripts
-    exif-set-photographer # script to set photographer in exif
-    tom # script to clean up git repos
-  ];
-
-  # Unstable tools
-  unstableTools = with pkgs.unstable; [
-    tmuxinator # pinned to unstable for tmux 3.6a support
-    # setec
-    squibble # sqlite lib tool
-    tailscale-tools # tailscale tools
-    prek # pre-commit tool
-
-    # Nix
-    colmena # nixos deployment tool
-    nix-init # generate nix packages from urls
-    nurl # nix url fetcher
-    ragenix # age encryption for nix
-  ];
-
-  # Go tools (from unstable, inheriting Go 1.26)
-  goPackages = with pkgs.unstable; [
-    gopls # go language server
-    delve # go debugger
-    golangci-lint-langserver # golangci-lint language server
-    golangci-lint # go linter
-    go-tools # staticcheck
-    gofumpt # stricter gofmt
-    golines # go formatter
-    gotools # goimports
-    gotestsum # go test runner with output
-  ];
-
-  # Editor tooling
-  editorTooling = with pkgs.unstable; [
-    # Nix
-    nixd # nix language server
-    alejandra # nix formatter
-    deadnix # dead code finder for nix
-    statix # linter for nix
-    nil # nix language server
-    nixpkgs-fmt # nix formatter
-
-    # General
-    editorconfig-checker # verify editorconfig compliance
-
-    # Tools
-    lua53Packages.luadbi-sqlite3 # yank sql
-    lua53Packages.luasql-sqlite3 # yank sql
-
-    # Other
-    # rust-analyzer
-    lua-language-server # lua language server
-    terraform-ls # terraform language server
-    efm-langserver # general purpose language server
-    (buf.override {buildGoModule = pkgs.buildGo125Module;}) # protobuf tool
-
-    # YAML
-    nodePackages.yaml-language-server # yaml language server
-    yamllint # yaml linter
-
-    # Node/Web/JS
-    nodePackages."@tailwindcss/language-server" # tailwindcss language server
-    nodePackages.eslint_d # eslint daemon
-    nodePackages.prettier # code formatter
-    nodePackages.prettier_d_slim # faster prettier
-    nodePackages.stylelint # css linter
-    html-tidy # html linter/formatter
-    nodePackages.typescript # typescript compiler
-    nodePackages.typescript-language-server # typescript language server
-
-    # Shell
-    beautysh # shell formatter
-    shellcheck # shell script analysis tool
-    shellharden # shell script hardener
-    shfmt # shell formatter
-
-    # Git / Github
-    commitlint # lint commit messages
-    gitlint # lint git commit messages
-    actionlint # lint github actions
-
-    # Words
-    vale # prose linter
-    proselint # prose linter
-    nodePackages.write-good # english prose linter
-
-    # Python
-    # python312Packages.flake8
-    # python312Packages.pylama
-    black # python formatter
-    isort # python import sorter
-    mypy # python static type checker
-    pyright # python static type checker
-
-    # Docker
-    # dockfmt
-    # hadolint
-
-    # Elm
-    elmPackages.elm-test # elm test runner
-    elmPackages.elm-language-server # elm language server
-  ];
-
-  # Darwin-specific packages
-  darwinPackages =
-    [pamtouchfix rsync-photos-backup]
-    ++ (with pkgs; [
-      terminal-notifier # send macos user notifications
-      syncthing # continuous file synchronization
-      silicon # create beautiful images of your source code
-      virt-manager # desktop user interface for managing virtual machines
-      qemu # generic and open source machine emulator and virtualizer
-    ])
-    ++ (with pkgs.unstable; [
-      lima # linux virtual machines
-      colima # container runtimes on macos
-    ]);
-
-  # Linux-specific packages
-  linuxPackages = with pkgs; [
-    # swift
-    incus # system container and virtual machine manager
-  ];
 in {
-  home.packages =
-    stablePackages
-    ++ unstableTools
-    ++ goPackages
-    ++ editorTooling
-    ++ lib.optionals pkgs.stdenv.isDarwin darwinPackages
-    ++ lib.optionals pkgs.stdenv.isLinux linuxPackages;
+  options.my.packages = {
+    go.enable = (lib.mkEnableOption "Go development") // {default = true;};
+    nix.enable = (lib.mkEnableOption "Nix tooling") // {default = true;};
+    web.enable = (lib.mkEnableOption "Web/JS/TS development") // {default = true;};
+    python.enable = (lib.mkEnableOption "Python development") // {default = true;};
+    shell.enable = (lib.mkEnableOption "Shell tools") // {default = true;};
+    elm.enable = (lib.mkEnableOption "Elm development") // {default = true;};
+    editor.enable = (lib.mkEnableOption "General editor support") // {default = true;};
+    infra.enable = (lib.mkEnableOption "Infrastructure and ops") // {default = true;};
+    media.enable = (lib.mkEnableOption "Media and data tools") // {default = true;};
+    ai.enable = (lib.mkEnableOption "AI coding assistants") // {default = true;};
+    ai.opencode = (lib.mkEnableOption "opencode AI assistant") // {default = true;};
+  };
+
+  config = lib.mkMerge [
+    # Core packages (always installed)
+    {
+      home.packages =
+        (with pkgs; [
+          eza
+          viddy
+          prettyping
+          entr
+          eb
+          gh
+          (git-absorb.overrideAttrs (old: rec {
+            version = "3a1148ea2df3ca41cb69df8848f99d25e66dc0b5";
+            src = pkgs.fetchFromGitHub {
+              owner = "tummychow";
+              repo = "git-absorb";
+              rev = version;
+              hash = "sha256-CrpLWDHSnT2PgbLFDK6UyaeKgmW1mygvSIudsl/nbbQ=";
+            };
+            cargoDeps = old.cargoDeps.overrideAttrs {
+              inherit src;
+              outputHash = "sha256-03vHVC3PSmHMLouQSirPlIG5o7BpvgWjFCtKLAGnxg8=";
+              outputHashMode = "recursive";
+            };
+          }))
+          git-open
+          git-toolbelt
+          difftastic
+          cloc
+          tom
+        ])
+        ++ (with pkgs.unstable; [
+          shellcheck
+          shfmt
+        ]);
+    }
+
+    # Go ecosystem
+    (lib.mkIf cfg.go.enable {
+      programs.go = {
+        enable = true;
+        package = pkgs.go;
+        env.GOPATH = "go";
+      };
+      home.sessionVariables.GOPATH = "$HOME/go";
+      home.packages = with pkgs.unstable; [
+        gopls
+        delve
+        golangci-lint-langserver
+        golangci-lint
+        go-tools
+        gofumpt
+        golines
+        gotools
+        gotestsum
+      ];
+    })
+
+    # Nix ecosystem
+    (lib.mkIf cfg.nix.enable {
+      home.packages = with pkgs.unstable; [
+        nixd
+        alejandra
+        deadnix
+        statix
+        nil
+        nixpkgs-fmt
+        colmena
+        nix-init
+        nurl
+        ragenix
+      ];
+    })
+
+    # Web/JS/TS ecosystem
+    (lib.mkIf cfg.web.enable {
+      home.packages =
+        (with pkgs; [
+          nodejs_24
+        ])
+        ++ (with pkgs.unstable; [
+          nodePackages.typescript
+          nodePackages.typescript-language-server
+          nodePackages.eslint_d
+          nodePackages.prettier
+          nodePackages.prettier_d_slim
+          nodePackages.stylelint
+          html-tidy
+          nodePackages."@tailwindcss/language-server"
+          commitlint
+        ]);
+    })
+
+    # Python ecosystem
+    (lib.mkIf cfg.python.enable {
+      home.packages =
+        (with pkgs; [
+          uv
+        ])
+        ++ (with pkgs.unstable; [
+          black
+          isort
+          mypy
+          pyright
+        ]);
+    })
+
+    # Shell ecosystem
+    (lib.mkIf cfg.shell.enable {
+      home.packages =
+        (with pkgs; [
+          nushell
+        ])
+        ++ (with pkgs.unstable; [
+          beautysh
+          shellharden
+        ]);
+    })
+
+    # Elm ecosystem
+    (lib.mkIf cfg.elm.enable {
+      home.packages = with pkgs.unstable; [
+        elmPackages.elm-test
+        elmPackages.elm-language-server
+      ];
+    })
+
+    # General editor support
+    (lib.mkIf cfg.editor.enable {
+      home.packages = with pkgs.unstable; [
+        editorconfig-checker
+        efm-langserver
+        lua-language-server
+        lua53Packages.luadbi-sqlite3
+        lua53Packages.luasql-sqlite3
+        terraform-ls
+        (buf.override {buildGoModule = pkgs.buildGo125Module;})
+        nodePackages.yaml-language-server
+        yamllint
+        gitlint
+        actionlint
+        vale
+        proselint
+        nodePackages.write-good
+      ];
+    })
+
+    # Infrastructure and ops
+    (lib.mkIf cfg.infra.enable {
+      home.packages =
+        (with pkgs; [
+          ansible
+          headscale
+          nmap
+          ipcalc
+          ts-preauthkey
+          docker
+          dive
+          act
+        ])
+        ++ (with pkgs.unstable; [
+          tmuxinator
+          tailscale-tools
+          prek
+        ]);
+    })
+
+    # Media and data
+    (lib.mkIf cfg.media.enable {
+      home.packages =
+        (with pkgs; [
+          ffmpeg
+          exiftool
+          qrencode
+          cook-cli
+          exif-set-photographer
+          sqldiff
+          sql-studio
+        ])
+        ++ (with pkgs.unstable; [
+          squibble
+        ]);
+    })
+
+    # AI coding assistants
+    (lib.mkIf cfg.ai.enable {
+      home.packages =
+        (with pkgs.master; [
+          claude-code
+          claude-code-acp
+          claude-monitor
+          codex
+          gemini-cli
+        ])
+        ++ lib.optionals cfg.ai.opencode [
+          pkgs.opencode
+        ];
+    })
+
+    # Darwin-specific packages (not togglable)
+    (lib.mkIf pkgs.stdenv.isDarwin {
+      home.packages = let
+        pamtouchfix = import ./scripts/pamtouchfix.nix {inherit pkgs;};
+        rsync-photos-backup = import ./scripts/rsync-photos-backup.nix {inherit pkgs;};
+      in
+        [pamtouchfix rsync-photos-backup]
+        ++ (with pkgs; [
+          terminal-notifier
+          syncthing
+          silicon
+          virt-manager
+          qemu
+        ])
+        ++ (with pkgs.unstable; [
+          lima
+          colima
+        ]);
+    })
+
+    # Linux-specific packages (not togglable)
+    (lib.mkIf pkgs.stdenv.isLinux {
+      home.packages = with pkgs; [
+        incus
+      ];
+    })
+  ];
 }
