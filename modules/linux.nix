@@ -12,5 +12,6 @@
     ./restic-jobs.nix
     ./wireguard.nix
     ./cook-server.nix
+    ./syncthing-nixos.nix
   ];
 }
