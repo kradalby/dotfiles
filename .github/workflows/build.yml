@@ -44,16 +44,13 @@ jobs:
           oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
           tags: tag:ci
-          # ping: attic.dalby.ts.net
 
       - uses: nixbuild/nix-quick-install-action@v34
         with:
           nix_conf: |
             experimental-features = nix-command flakes
             access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
-            # substituters = http://attic.dalby.ts.net/system?priority=43 https://nix-community.cachix.org?priority=41 https://numtide.cachix.org?priority=42 https://cache.nixos.org/
             substituters = https://nix-community.cachix.org?priority=41 https://numtide.cachix.org?priority=42 https://cache.nixos.org/
-            # trusted-public-keys = system:40arGOg81ZACFJQAksoEplo8PfgxDd6aEQpNbuHXcCg= cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs= numtide.cachix.org-1:2ps1kLBUWjxIneOy1Ik6cQjb41X0iXVXeHigGmycPPE=
             trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs= numtide.cachix.org-1:2ps1kLBUWjxIneOy1Ik6cQjb41X0iXVXeHigGmycPPE=
 
       - uses: nix-community/cache-nix-action@v6
@@ -65,15 +62,7 @@ jobs:
         id: build
         continue-on-error: true
         run: |
-          # nix run github:zhaofengli/attic#default login kradalby http://attic.dalby.ts.net ${{ secrets.ATTIC_TOKEN }}
-          # nix run github:zhaofengli/attic#default watch-store system &
           nix build '.#nixosConfigurations."${{ matrix.machine.host }}".config.system.build.toplevel'
-
-      - name: Push to cache
-        if: always()
-        run: |
-          # nix run github:zhaofengli/attic#default push system result -j 2
-          echo "Explicit cache push would happen here"
 
       - name: Fail if build failed
         if: steps.build.outcome == 'failure'
