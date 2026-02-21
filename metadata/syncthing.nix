@@ -16,6 +16,11 @@
     "dev.oracfurt" = device "5CUHKVK-U5FYJQU-7N7TEMB-QSUOI6M-5NEGQR5-MEFDJHH-DIPVQCD-PBWXWQ4";
     "dev.ldn" = device "YQJMTP4-K6URWRP-S4BMCXI-YWBWOK6-WTLOKTC-5AK5ULJ-MIF3FC5-ML6PTAM";
     "storage.ldn" = device "46SNN77-MYSWKJI-GEOO5HY-RJ6C2I5-YFFX2UQ-RATRH6Q-EKFQHSX-5M5X2AR";
+
+    # TODO: Replace with actual device ID after first deploy of the cooklang
+    # syncthing instance on dev.oracfurt. Retrieve with:
+    #   ssh dev.oracfurt syncthing --config=/var/lib/syncthing/cooklang/config -device-id
+    "dev.oracfurt-cooklang" = device "REPLACE-ME-AFTER-FIRST-DEPLOY-XXXXXXX-XXXXXXX";
   };
 
   storage = ["krair" "core.tjoda" "core.terra" "dev.ldn" "storage.ldn"];

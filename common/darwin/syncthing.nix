@@ -60,6 +60,13 @@ in {
           type = "sendonly";
           ignorePatterns = macosIgnorePatterns;
         };
+        "cooklang-recipes" = {
+          id = "cooklang-recipes";
+          path = "/Users/kradalby/cooklang";
+          devices = ["dev.oracfurt-cooklang"];
+          type = "sendreceive";
+          ignorePatterns = macosIgnorePatterns;
+        };
       };
     };
   };
