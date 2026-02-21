@@ -47,19 +47,9 @@ windows:
 
         #           sleep 3600
         #       end
-        - jotta:
-            - |
-              set -xg RESTIC_REPOSITORY rclone:Jotta:5ac5edab2737c974f87e0146690b74b0;
-              set -xg RESTIC_PASSWORD (op read "op://Private/restic - krair/password");
-              restic unlock;
-              while true;
-                  restic backup $HOME/git $HOME/Pictures;
-                  if string match -q -- "*AC Power*" (pmset -g ps);
-                      restic forget --prune --keep-daily 7 --keep-weekly 5 --keep-monthly 12 --keep-yearly 75;
-                      restic check;
-                  end;
-                  sleep 3600;
-              end
+        # jotta backup is now a launchd service via modules/rustic.nix
+        # Logs: ~/Library/Logs/rustic-jotta.log
+        - htop
   - dotfiles:
       root: ~/git/dotfiles
   - dotfiles:

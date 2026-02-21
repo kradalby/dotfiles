@@ -2,6 +2,7 @@
 {...}: {
   imports = [
     ../../common/darwin/kradalby-base.nix
+    ./rustic.nix
   ];
 
   # Configure SSH agent mux for personal machine
