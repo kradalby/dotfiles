@@ -32,7 +32,9 @@ in {
     };
   };
 
-  users.users.root.openssh.authorizedKeys.keys = sshKeys.main ++ sshKeys.kradalby ++ sshKeys.work;
+  users.users.root.openssh.authorizedKeys.keys = sshKeys.main ++ sshKeys.kradalby ++ sshKeys.work ++ [
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHqVreNFQihCjk4dGwy34z3Ucz0f2tKauIAwoIDiiLOA nix-push"
+  ];
 
   age.secrets.harmonia-signing-key = {
     file = ../../secrets/harmonia-signing-key.age;
