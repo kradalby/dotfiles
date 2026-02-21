@@ -11,11 +11,11 @@
   tailscaleService = "svc:syncthing-${location}";
 in {
   services = {
-    syncthing = {
+    syncthings.storage = {
+      enable = true;
       user = "storage";
       group = "storage";
       dataDir = "/storage";
-      enable = true;
       overrideDevices = true;
       overrideFolders = true;
       settings = {
@@ -56,7 +56,7 @@ in {
           "kradalby - Sync" = {
             id = "xTDuT-kZeuK";
             path = "/storage/sync/kradalby";
-            devices = builtins.attrNames config.services.syncthing.settings.devices;
+            devices = builtins.attrNames config.services.syncthings.storage.settings.devices;
             type = "sendreceive";
           };
         };

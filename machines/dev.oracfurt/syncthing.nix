@@ -6,24 +6,26 @@
 }: let
   cfg = import ../../metadata/syncthing.nix;
 in {
-  services.syncthing = {
-    user = "kradalby";
-    dataDir = "/home/kradalby";
-    enable = true;
-    overrideDevices = true;
-    overrideFolders = true;
-    settings = {
-      inherit (cfg) devices;
-      gui = {
-        insecureSkipHostcheck = true;
-        insecureAdminAccess = true;
-      };
-      folders = {
-        "kradalby - Sync" = {
-          id = "xTDuT-kZeuK";
-          path = "/home/kradalby/Sync";
-          devices = builtins.attrNames config.services.syncthing.settings.devices;
-          type = "sendreceive";
+  services.syncthings = {
+    personal = {
+      enable = true;
+      user = "kradalby";
+      dataDir = "/home/kradalby";
+      overrideDevices = true;
+      overrideFolders = true;
+      settings = {
+        inherit (cfg) devices;
+        gui = {
+          insecureSkipHostcheck = true;
+          insecureAdminAccess = true;
+        };
+        folders = {
+          "kradalby - Sync" = {
+            id = "xTDuT-kZeuK";
+            path = "/home/kradalby/Sync";
+            devices = builtins.attrNames config.services.syncthings.personal.settings.devices;
+            type = "sendreceive";
+          };
         };
       };
     };
