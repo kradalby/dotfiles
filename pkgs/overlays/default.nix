@@ -26,5 +26,7 @@ in
 
     tailscale-restic-proxy = prev.callPackage ./tailscale-restic-proxy.nix {};
 
+    rustic = prev.callPackage ./rustic.nix {};
+
     # osxphotos = prev.callPackage ./osxphotos.nix {};
   }

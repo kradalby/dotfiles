@@ -28,6 +28,7 @@
       procs
       rclone
       restic
+      rustic
       ripgrep
       rsync
       socat
@@ -41,7 +42,6 @@
       zstd
       nix-diff
       nix-tree
-      attic-client
       wush
 
       (let

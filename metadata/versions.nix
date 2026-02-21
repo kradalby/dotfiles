@@ -57,6 +57,8 @@
       squibble = "4d5df9caa9931e8341ce65d7467681c0b225d22b";
       # https://github.com/tailscale/setec
       setec = "bc7a01a47c9cda0acbff2a49eda50708f59a47b1";
+      # https://github.com/rustic-rs/rustic/releases
+      rustic = "0.11.0";
     };
 
     homebridge = {
