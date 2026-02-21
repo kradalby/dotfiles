@@ -1,14 +1,14 @@
 {
   description = "kradalby's system config";
 
-  # nixConfig = {
-  #   extra-substituters = [
-  #     "http://nix-cache.dalby.ts.net/?priority=30"
-  #   ];
-  #   extra-trusted-public-keys = [
-  #     "nix-cache:XXXXXXXX="
-  #   ];
-  # };
+  nixConfig = {
+    extra-substituters = [
+      "http://nix-cache.dalby.ts.net/?priority=30"
+    ];
+    extra-trusted-public-keys = [
+      "nix-cache:XtaO+MWYNBtMJn3eIUucmx0dkeLzMI7+n984nZYFt4I="
+    ];
+  };
 
   inputs = {
     utils.url = "github:numtide/flake-utils";
@@ -313,12 +313,12 @@
           targetHost = "10.65.0.28";
         };
 
-        # "nix-cache.ldn" = box.nixosBox {
-        #   arch = "x86_64-linux";
-        #   name = "nix-cache.ldn";
-        #   tags = ["x86" "ldn"];
-        #   targetHost = "10.65.0.29";
-        # };
+        "nix-cache.ldn" = box.nixosBox {
+          arch = "x86_64-linux";
+          name = "nix-cache.ldn";
+          tags = ["x86" "ldn"];
+          targetHost = "10.65.0.29";
+        };
 
         # "lenovo.ldn" = box.nixosBox {
         #   arch = "x86_64-linux";
