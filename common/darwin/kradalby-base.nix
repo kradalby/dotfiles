@@ -26,7 +26,10 @@ in {
     ../../pkgs/homebrew.nix
     ./syncthing.nix
     ../../modules/macos.nix
+    ../../modules/nix-push-darwin.nix
   ];
+
+  services.nix-push-darwin.enable = true;
 
   nix-rosetta-builder = {
     enable = useRosettaBuilder;
