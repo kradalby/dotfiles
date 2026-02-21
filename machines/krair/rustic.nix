@@ -20,7 +20,7 @@
 in {
   services.rustic.backups = {
     jotta = {
-      repository = "rclone:Jotta:4e8bb5107054b95e58d809060cb72911";
+      repository = "rclone:Jotta:5ac5edab2737c974f87e0146690b74b0";
       passwordCommand = ''op read "op://Private/restic - krair/password"'';
       paths = jottaPaths;
       pruneOpts = {
