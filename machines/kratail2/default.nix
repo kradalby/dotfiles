@@ -45,8 +45,7 @@
     "/storage/pictures".enable = false;
     "/storage/backup".enable = false;
     "/fast/hugin".enable = false;
-
-    "Sync".devices = lib.mkForce (builtins.filter (d: d != "kradalby-llm") (builtins.attrNames config.services.syncthing.devices));
+    "Sync".enable = false;
 
     "llm-git" = {
       id = "f6vv9-fsjeq";
