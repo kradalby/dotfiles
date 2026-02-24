@@ -23,6 +23,8 @@
 
   # Work-specific overrides
   home-manager.users.kradalby = {
+    my.packages.ai.enable = false;
+
     programs.git.settings.user = {
       email = lib.mkForce "kristoffer@tailscale.com";
     };
