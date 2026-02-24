@@ -68,7 +68,7 @@ in {
       github = {user = "kradalby";};
 
       commit = {
-        gpgsign = isDarwin;
+        gpgsign = lib.mkDefault isDarwin;
       };
 
       gpg = lib.mkIf isDarwin {
