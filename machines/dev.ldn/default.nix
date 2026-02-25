@@ -98,21 +98,6 @@ in {
       "gpg \"ssh\"".allowedSignersFile = "~/.ssh/allowed_signers";
     };
 
-    systemd.user.services.opencode-serve = {
-      Unit = {
-        Description = "OpenCode serve";
-      };
-      Service = {
-        Type = "simple";
-        ExecStart = "${pkgs.opencode}/bin/opencode serve --hostname 0.0.0.0";
-        Restart = "always";
-        RestartSec = 15;
-        WorkingDirectory = "/home/kradalby";
-      };
-      Install = {
-        WantedBy = ["default.target"];
-      };
-    };
   };
 
   security.sudo.extraRules = [
