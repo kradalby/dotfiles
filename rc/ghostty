@@ -45,3 +45,7 @@ keybind = ctrl+7=text:\x02\x37
 keybind = ctrl+8=text:\x02\x38
 keybind = ctrl+9=text:\x02\x39
 keybind = ctrl+0=text:\x02\x30
+
+# Remote tab: open new tab + mosh to dev-ldn (requires Ghostty 1.3+)
+# keybind = cmd+shift+t=new_tab
+# keybind = chain=text:mosh dev-ldn\n
