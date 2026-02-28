@@ -284,7 +284,6 @@
           arch = "x86_64-linux";
           name = "home.ldn";
           tags = ["x86" "ldn"];
-          targetHost = "10.65.0.26";
           modules = with inputs; [
             nefit-homekit.nixosModules.default
             tasmota-homekit.nixosModules.default
@@ -303,14 +302,13 @@
           homeBase = home-manager;
           name = "dev.ldn";
           tags = ["x86" "ldn"];
-          targetHost = "10.65.0.27";
+          allowLocalDeployment = true;
         };
 
         "storage.ldn" = box.nixosBox {
           arch = "x86_64-linux";
           name = "storage.ldn";
           tags = ["x86" "ldn"];
-          targetHost = "10.65.0.28";
         };
 
         "nix-cache.ldn" = box.nixosBox {
