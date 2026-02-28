@@ -131,6 +131,24 @@ in
       # Smokeping exporter (port 9374)
       (exporterJob "smokeping" smokepingHosts 9374)
 
+      # Incus host metrics
+      # The Incus host needs the following configuration:
+      #   incus config set core.metrics_authentication false
+      # TODO: Ensure Tailscale ACLs allow core-oracldn to reach core-ldn:8443
+      {
+        job_name = "incus";
+        metrics_path = "/1.0/metrics";
+        scheme = "https";
+        tls_config = {
+          insecure_skip_verify = true;
+        };
+        static_configs = [
+          {
+            targets = [ "core-ldn:8443" ];
+          }
+        ];
+      }
+
       # Application-specific exporters
       (scrapeJob "litestream" [ "core-oracldn:54909" ])
       (scrapeJob "headscale" [ "core-oracldn:54910" ])
