@@ -7,6 +7,7 @@
   cfg = config.my.packages;
 
   # Import scripts
+  ac = import ./scripts/ac.nix {inherit pkgs;};
   exif-set-photographer = import ./scripts/exif-set-photographer.nix {inherit pkgs;};
   tom = import ./scripts/tom.nix {inherit pkgs;};
 in {
@@ -211,7 +212,10 @@ in {
     # AI coding assistants
     (lib.mkIf cfg.ai.enable {
       home.packages =
-        (with pkgs.master; [
+        [
+          ac
+        ]
+        ++ (with pkgs.master; [
           claude-code
           claude-code-acp
           claude-monitor
