@@ -28,7 +28,6 @@
       procs
       rclone
       restic
-      rustic
       ripgrep
       rsync
       socat

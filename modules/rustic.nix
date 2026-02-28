@@ -232,15 +232,16 @@ in {
     };
   };
 
-  config = mkIf (cfg.backups != {}) {
-    # Ensure rustic and rclone are available system-wide.
-    # The FDA wrapper resolves rustic via /run/current-system/sw/bin/rustic.
-    environment.systemPackages = [
-      pkgs.rustic
-      pkgs.rclone
-    ];
-
-    # Install the FDA wrapper .app via activation script so it
+  config = mkMerge [
+    {
+      # Ensure rustic and rclone are available system-wide.
+      environment.systemPackages = [
+        pkgs.rustic
+        pkgs.rclone
+      ];
+    }
+    (mkIf (cfg.backups != {}) {
+      # Install the FDA wrapper .app via activation script so it
     # persists across rebuilds at a stable path.
     system.activationScripts.postActivation.text = let
       anyFDA = any (b: b.enableFDA) (attrValues cfg.backups);
@@ -363,5 +364,6 @@ in {
             '';
           })
         cfg.backups);
-  };
+    })
+  ];
 }
