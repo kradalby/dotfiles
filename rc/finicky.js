@@ -48,7 +48,16 @@ module.exports = {
     {
       // osascript -e 'id of app "ChatGPT"'
       match: ({ opener }) =>
-        ["com.hnc.Discord", "com.anthropic.claudefordesktop", "com.openai.chat"].includes(opener.bundleId),
+        [
+          "com.hnc.Discord",
+          "com.anthropic.claudefordesktop",
+          "com.openai.chat",
+          "net.whatsapp.WhatsApp",             // WhatsApp
+          "org.whispersystems.signal-desktop",  // Signal
+          "com.apple.MobileSMS",               // iMessage / Messages
+          "ru.keepcoder.Telegram",             // Telegram
+          "com.facebook.archon",               // Facebook Messenger
+        ].includes(opener.bundleId),
       browser: "Safari"
     }
   ]
