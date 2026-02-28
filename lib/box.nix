@@ -29,6 +29,7 @@ in {
     tags ? [],
     modules ? [],
     targetHost ? null,
+    allowLocalDeployment ? false,
   }:
     nixpkgs.lib.nixosSystem {
       modules =
@@ -47,6 +48,7 @@ in {
             _module.args = {
               inherit tags;
               inherit targetHost;
+              inherit allowLocalDeployment;
             };
           }
         ]
@@ -114,6 +116,7 @@ in {
               then value._module.args.targetHost
               else builtins.replaceStrings ["."] ["-"] name;
             inherit (value._module.args) tags;
+            inherit (value._module.args) allowLocalDeployment;
           };
           nixpkgs.system = value.config.nixpkgs.hostPlatform.system;
           imports = value._module.args.modules;
