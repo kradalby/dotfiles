@@ -38,6 +38,8 @@ in {
     };
   };
 
+  boot.tmp.tmpfsSize = "4G";
+
   boot.kernel.sysctl = {
     # if you use ipv4, this is all you need
     "net.ipv4.conf.all.forwarding" = true;
@@ -82,6 +84,18 @@ in {
     watchForSSHForward = true;
     logLevel = "debug";
   };
+
+  zramSwap = {
+    enable = true;
+    memoryPercent = 25;
+  };
+
+  swapDevices = lib.mkForce [
+    {
+      device = "/swapfile";
+      size = 8192;
+    }
+  ];
 
   environment.systemPackages = [
     # Do install the docker CLI to talk to podman.
