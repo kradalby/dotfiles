@@ -93,6 +93,51 @@ resolve_branch() {
 	echo ""
 }
 
+find_main_worktree() {
+	# Locate the main worktree for a repo (needed to run git commands from)
+	local repo="$1"
+	local repo_path="$GIT_ROOT/$repo"
+
+	if [[ -e "$repo_path/.git" ]]; then
+		echo "$repo_path"
+		return 0
+	fi
+	if [[ -d "$repo_path/main" ]]; then
+		echo "$repo_path/main"
+		return 0
+	fi
+	if [[ -d "$repo_path/master" ]]; then
+		echo "$repo_path/master"
+		return 0
+	fi
+
+	die "cannot find main worktree for '$repo'"
+}
+
+create_branch_worktree() {
+	# Create a new branch worktree, fetching the appropriate remote first.
+	# Repos with an 'upstream' remote (e.g. headscale) base off upstream/main;
+	# all others base off origin's default branch.
+	local main_wt="$1" target_path="$2" branch="$3"
+
+	if git -C "$main_wt" remote | grep -q '^upstream$'; then
+		echo "Fetching upstream..."
+		git -C "$main_wt" fetch upstream
+		echo "Creating worktree at $target_path from upstream/main..."
+		git -C "$main_wt" worktree add "$target_path" -b "$branch" upstream/main
+	else
+		# Determine origin's default branch
+		local base
+		base=$(git -C "$main_wt" symbolic-ref refs/remotes/origin/HEAD 2>/dev/null |
+			sed 's@^refs/remotes/@@' || echo "origin/main")
+
+		echo "Fetching origin..."
+		git -C "$main_wt" fetch origin
+		echo "Creating worktree at $target_path from $base..."
+		git -C "$main_wt" worktree add "$target_path" -b "$branch" "$base"
+	fi
+}
+
 server_alive() {
 	local server="$1"
 	tmux -L "$server" list-sessions &>/dev/null
@@ -131,6 +176,23 @@ attach_session() {
 
 cmd_create_or_attach() {
 	local repo="$1" branch="${2:-}" agent="${3:-$DEFAULT_AGENT}"
+
+	# If a branch is specified and the worktree doesn't exist, offer to create it
+	if [[ -n "$branch" ]]; then
+		local target_path="$GIT_ROOT/$repo/$branch"
+		if [[ ! -d "$target_path" ]]; then
+			local main_wt
+			main_wt=$(find_main_worktree "$repo")
+
+			local answer
+			read -rp "Branch '$branch' not found for $repo. Create? [y/N] " answer
+			if [[ "$answer" =~ ^[Yy]$ ]]; then
+				create_branch_worktree "$main_wt" "$target_path" "$branch"
+			else
+				return 1
+			fi
+		fi
+	fi
 
 	local dir effective_branch server
 	dir=$(resolve_path "$repo" "$branch")
@@ -289,10 +351,18 @@ Commands:
 Flags:
   -c, --claude           Use claude instead of opencode
 
+If the branch worktree does not exist, you will be prompted to
+create it. The new branch is based on the appropriate remote:
+  - Repos with an 'upstream' remote: fetches upstream, branches
+    from upstream/main (e.g., headscale forks)
+  - All other repos: fetches origin, branches from origin's
+    default branch
+
 Examples:
   ac                             List sessions
   ac headscale main              opencode on ~/git/headscale/main
   ac headscale kradalby/3049     opencode on ~/git/headscale/kradalby/3049
+  ac headscale kradalby/new      prompts to create branch from upstream/main
   ac dotfiles                    opencode on ~/git/dotfiles
   ac headscale main -c           claude on ~/git/headscale/main
   ac 2                           Attach to session #2
