@@ -49,13 +49,16 @@
 #       Info.plist              — bundle ID: com.kradalby.rustic-backup
 #       MacOS/
 #         rustic-backup         — default executable, delegates to rustic
-#         backup-<name>         — per-job launchd entry point (flock wrapper)
-#         backup-<name>-inner   — actual backup logic (flock execs into this)
+#         backup-<name>         — per-job script (launchd entry point)
 #
-#   The outer script (backup-<name>) acquires an flock to prevent
-#   concurrent runs, then execs into the inner script. This two-script
-#   pattern is needed because flock replaces the current process, and
-#   we need the lock held for the entire backup duration.
+#   Each backup-<name> script is a single self-contained bash script
+#   that does everything: wait for Nix store, acquire flock, run
+#   backup, forget/prune/check. The script must NEVER exec into
+#   another binary (flock, rustic, etc.) because that replaces the
+#   process image and macOS TCC will attribute file access to that
+#   binary instead of the .app. We use flock's file-descriptor mode
+#   (`exec <fd>>/tmp/lockfile; flock -n <fd>`) which locks without
+#   replacing the process.
 #
 # Useful commands:
 #   # Trigger a backup manually:
@@ -140,15 +143,20 @@ with lib; let
   # activation script copies the built .app here on every switch.
   fdaAppPath = "${cfg.fdaAppDir}/RusticBackup.app";
 
-  # Generate the per-job "outer" script (backup-<name>).
+  # Generate the per-job script (backup-<name>).
   # This is the direct launchd entry point — ProgramArguments[0]
   # points here. Because it lives inside the .app bundle, macOS
   # TCC sees the .app as the "responsible process" for FDA checks.
   #
-  # The script waits for the Nix store, sets up PATH, then execs
-  # into flock which holds the lock and execs into the "-inner"
-  # script. The flock prevents overlapping runs when the backup
-  # takes longer than the schedule interval.
+  # IMPORTANT: This script must NOT exec into another binary (e.g.
+  # flock, rustic). If it does, the process image changes and macOS
+  # TCC will attribute file access to that binary instead of the
+  # .app. We use flock's file-descriptor mode (flock <fd>) to
+  # acquire the lock without replacing the process.
+  #
+  # Uses /run/current-system/sw so the rustic binary can be updated
+  # by darwin-rebuild without changing the .app or invalidating the
+  # FDA grant.
   mkJobScript = name: backup: let
     rusticBin = "/run/current-system/sw/bin/rustic";
   in ''
@@ -158,24 +166,17 @@ with lib; let
     # Wait for the Nix store firmlink (may not be ready at early boot)
     /bin/wait4path /nix/store
 
-    export PATH="${lib.makeBinPath [pkgs.rclone pkgs._1password-cli pkgs.flock]}:$PATH"
-
-    # Prevent concurrent runs of this backup job
-    exec ${pkgs.flock}/bin/flock -n /tmp/rustic_${name}.lockfile "$0-inner" "$@"
-  '';
-
-  # The "inner" script (backup-<name>-inner) that flock execs into.
-  # Does the actual backup work: snapshot, then optionally
-  # forget/prune/check if on AC power. Uses /run/current-system/sw
-  # so the rustic binary can be updated by darwin-rebuild without
-  # changing the .app bundle or invalidating the FDA grant.
-  mkJobInnerScript = name: backup: let
-    rusticBin = "/run/current-system/sw/bin/rustic";
-  in ''
-    #!/bin/bash
-    set -euo pipefail
-
     export PATH="${lib.makeBinPath [pkgs.rclone pkgs._1password-cli]}:$PATH"
+
+    # Prevent concurrent runs using flock on a file descriptor.
+    # We intentionally avoid `exec flock ... <command>` or `flock ... <command>`
+    # because both replace or spawn a new process image, causing macOS
+    # TCC to attribute file access to flock instead of the .app.
+    exec 200>/tmp/rustic_${name}.lockfile
+    if ! ${pkgs.flock}/bin/flock -n 200; then
+      echo "Another backup is already running, skipping"
+      exit 0
+    fi
 
     echo "=== rustic backup ${name} started at $(date) ==="
 
@@ -247,17 +248,11 @@ with lib; let
       chmod +x $out/RusticBackup.app/Contents/MacOS/rustic-backup
 
       ${concatStringsSep "\n" (mapAttrsToList (name: backup: ''
-          # Job script for "${name}" -- launchd entry point (holds flock)
+          # Job script for "${name}" -- launchd entry point
           cat > $out/RusticBackup.app/Contents/MacOS/backup-${name} <<'JOBSCRIPT'
           ${mkJobScript name backup}
           JOBSCRIPT
           chmod +x $out/RusticBackup.app/Contents/MacOS/backup-${name}
-
-          # Inner script for "${name}" -- actual backup logic (flock execs into this)
-          cat > $out/RusticBackup.app/Contents/MacOS/backup-${name}-inner <<'JOBSCRIPT'
-          ${mkJobInnerScript name backup}
-          JOBSCRIPT
-          chmod +x $out/RusticBackup.app/Contents/MacOS/backup-${name}-inner
         '')
         jobs)}
     '';
@@ -454,11 +449,17 @@ in {
       (name: backup: let
         fdaJobBin = "${fdaAppPath}/Contents/MacOS/backup-${name}";
 
-        # Non-FDA fallback: use a regular bash script
+        # Non-FDA fallback: use a regular bash script with fd-based flock
         fallbackScript = pkgs.writers.writeBash "rustic-backup-${name}" ''
           set -euo pipefail
 
           export PATH="${lib.makeBinPath [pkgs.rclone pkgs._1password-cli]}:$PATH"
+
+          exec 200>/tmp/rustic_${name}.lockfile
+          if ! ${pkgs.flock}/bin/flock -n 200; then
+            echo "Another backup is already running, skipping"
+            exit 0
+          fi
 
           echo "=== rustic backup ${name} started at $(date) ==="
 
@@ -483,10 +484,6 @@ in {
 
           echo "=== rustic backup ${name} finished at $(date) ==="
         '';
-
-        fallbackRunScript = pkgs.writers.writeBash "run-rustic-${name}" ''
-          ${pkgs.flock}/bin/flock -n /tmp/rustic_${name}.lockfile ${fallbackScript}
-        '';
       in
         nameValuePair "rustic-backups-${name}" (
           if backup.enableFDA
@@ -506,7 +503,7 @@ in {
           }
           else {
             # Non-FDA path: use regular command with nix-darwin's /bin/sh wrapper.
-            command = "${fallbackRunScript}";
+            command = "${fallbackScript}";
             serviceConfig = {
               Disabled = false;
               StartCalendarInterval = [backup.calendarInterval];
