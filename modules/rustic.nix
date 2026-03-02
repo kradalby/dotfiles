@@ -1,3 +1,87 @@
+# Rustic backup module for macOS (nix-darwin).
+#
+# Manages periodic rustic backups via launchd user agents. Rustic is a
+# Rust rewrite of restic, compatible with existing restic repositories,
+# and notably lock-free (no unlock command needed).
+#
+# Key design decisions and gotchas:
+#
+# TOML profiles:
+#   Rustic loads profiles with `-P <name>` from these search paths on
+#   macOS: ~/Library/Application Support/rustic/, /etc/rustic/, ./
+#   (NOT ~/.config/rustic/). We use environment.etc to place configs
+#   in /etc/rustic/<name>.toml which is the most reliable path with
+#   nix-darwin (home-manager's ~/Library/Application Support path had
+#   issues).
+#
+# Full Disk Access (FDA):
+#   macOS TCC protects ~/Desktop, ~/Documents, ~/Downloads, and others.
+#   To back up these directories, the process that launchd directly
+#   spawns must have FDA. macOS checks the "responsible process" — the
+#   binary that launchd.plist's ProgramArguments[0] points to.
+#
+#   nix-darwin's `command` option always wraps in `/bin/sh -c
+#   "/bin/wait4path /nix/store && exec ..."`, making /bin/sh the
+#   responsible process (which can't be granted FDA). To avoid this,
+#   FDA-enabled jobs set serviceConfig.ProgramArguments directly,
+#   bypassing the /bin/sh wrapper. The ssh-agent-mux module
+#   demonstrates this same pattern.
+#
+#   We build a RusticBackup.app bundle with a stable bundle ID
+#   (com.kradalby.rustic-backup) and copy it to ~/Applications/ via
+#   an activation script. The stable path ensures the FDA grant
+#   survives darwin-rebuild (Nix store paths change every rebuild).
+#
+# FDA setup (one-time, manual):
+#   1. Run `darwin-rebuild switch --flake .#<hostname>`
+#   2. Open System Settings > Privacy & Security > Full Disk Access
+#   3. Click "+", navigate to ~/Applications/RusticBackup.app, add it
+#   4. Verify with:
+#        sqlite3 "/Library/Application Support/com.apple.TCC/TCC.db" \
+#          "SELECT client, auth_value FROM access
+#           WHERE service='kTCCServiceSystemPolicyAllFiles'
+#             AND client='com.kradalby.rustic-backup'"
+#      auth_value=2 means allowed, 0 means denied.
+#
+# .app bundle structure:
+#   RusticBackup.app/
+#     Contents/
+#       Info.plist              — bundle ID: com.kradalby.rustic-backup
+#       MacOS/
+#         rustic-backup         — default executable, delegates to rustic
+#         backup-<name>         — per-job launchd entry point (flock wrapper)
+#         backup-<name>-inner   — actual backup logic (flock execs into this)
+#
+#   The outer script (backup-<name>) acquires an flock to prevent
+#   concurrent runs, then execs into the inner script. This two-script
+#   pattern is needed because flock replaces the current process, and
+#   we need the lock held for the entire backup duration.
+#
+# Useful commands:
+#   # Trigger a backup manually:
+#   launchctl kickstart gui/$(id -u)/org.nixos.rustic-backups-<name>
+#
+#   # Force restart (kills running instance first):
+#   launchctl kickstart -k gui/$(id -u)/org.nixos.rustic-backups-<name>
+#
+#   # Check agent status (exit code in column 1):
+#   launchctl list | grep rustic
+#
+#   # View logs:
+#   tail -f ~/Library/Logs/rustic-<name>.log
+#   tail -f ~/Library/Logs/rustic-<name>-error.log
+#
+#   # Check FDA grant status:
+#   sqlite3 "/Library/Application Support/com.apple.TCC/TCC.db" \
+#     "SELECT client, auth_value FROM access
+#      WHERE service='kTCCServiceSystemPolicyAllFiles'
+#        AND client='com.kradalby.rustic-backup'"
+#
+# Paths (all must be absolute — rustic's TOML parser does NOT expand $HOME):
+#   Config:  /etc/rustic/<name>.toml
+#   App:     ~/Applications/RusticBackup.app
+#   Logs:    ~/Library/Logs/rustic-<name>.log
+#   Lock:    /tmp/rustic_<name>.lockfile
 {
   config,
   lib,
@@ -7,7 +91,9 @@
 with lib; let
   cfg = config.services.rustic;
 
-  # Generate a rustic TOML profile for a backup job
+  # Generate a rustic TOML profile for a backup job.
+  # Placed in /etc/rustic/<name>.toml via environment.etc and loaded
+  # by rustic with `-P <name>`.
   mkProfile = name: backup: let
     # Build the repository section
     repositorySection =
@@ -49,13 +135,20 @@ with lib; let
     (pkgs.formats.toml {}).generate "rustic-${name}.toml" profileConfig;
 
   # Stable .app bundle path for Full Disk Access.
-  # The .app has a fixed path and bundle ID so the FDA grant
-  # survives darwin-rebuild.
+  # Must live outside the Nix store at a fixed path so the macOS FDA
+  # grant (tied to bundle ID + path) survives darwin-rebuild. The
+  # activation script copies the built .app here on every switch.
   fdaAppPath = "${cfg.fdaAppDir}/RusticBackup.app";
 
-  # Generate the per-job backup script that lives inside the .app
-  # bundle. This script IS the launchd entry point so macOS sees the
-  # .app as the responsible process for TCC/FDA checks.
+  # Generate the per-job "outer" script (backup-<name>).
+  # This is the direct launchd entry point — ProgramArguments[0]
+  # points here. Because it lives inside the .app bundle, macOS
+  # TCC sees the .app as the "responsible process" for FDA checks.
+  #
+  # The script waits for the Nix store, sets up PATH, then execs
+  # into flock which holds the lock and execs into the "-inner"
+  # script. The flock prevents overlapping runs when the backup
+  # takes longer than the schedule interval.
   mkJobScript = name: backup: let
     rusticBin = "/run/current-system/sw/bin/rustic";
   in ''
@@ -71,7 +164,11 @@ with lib; let
     exec ${pkgs.flock}/bin/flock -n /tmp/rustic_${name}.lockfile "$0-inner" "$@"
   '';
 
-  # The "inner" script that flock execs into -- does the actual backup
+  # The "inner" script (backup-<name>-inner) that flock execs into.
+  # Does the actual backup work: snapshot, then optionally
+  # forget/prune/check if on AC power. Uses /run/current-system/sw
+  # so the rustic binary can be updated by darwin-rebuild without
+  # changing the .app bundle or invalidating the FDA grant.
   mkJobInnerScript = name: backup: let
     rusticBin = "/run/current-system/sw/bin/rustic";
   in ''
@@ -106,9 +203,12 @@ with lib; let
     echo "=== rustic backup ${name} finished at $(date) ==="
   '';
 
-  # Build the .app bundle derivation containing Info.plist and
-  # per-job scripts. The activation script copies this to a stable
-  # path so the FDA grant persists across rebuilds.
+  # Build the .app bundle derivation. Contains Info.plist (with the
+  # stable bundle ID that FDA is granted to) and per-job scripts.
+  # Built in the Nix store, then copied to ~/Applications/ by the
+  # activation script so the path stays stable across rebuilds.
+  #
+  # LSUIElement=true hides the app from the Dock.
   mkFdaApp = pkgs.stdenv.mkDerivation {
     name = "rustic-backup-app";
     buildCommand = let
