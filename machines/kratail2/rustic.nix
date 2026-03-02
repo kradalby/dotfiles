@@ -1,21 +1,23 @@
 {...}: let
+  home = "/Users/kradalby";
+
   basePaths = [
-    "$HOME/git"
+    "${home}/git"
   ];
 
   # With Full Disk Access granted to RusticBackup.app,
   # TCC-protected directories can be backed up.
   fdaPaths = [
-    "$HOME/Desktop"
-    "$HOME/Documents"
-    "$HOME/Downloads"
+    "${home}/Desktop"
+    "${home}/Documents"
+    "${home}/Downloads"
   ];
 
   jottaPaths =
     basePaths
     ++ fdaPaths
     ++ [
-      "$HOME/Pictures"
+      "${home}/Pictures"
     ];
 in {
   services.rustic.backups = {
