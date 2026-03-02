@@ -17,7 +17,7 @@ in {
     web.enable = (lib.mkEnableOption "Web/JS/TS development") // {default = true;};
     python.enable = (lib.mkEnableOption "Python development") // {default = true;};
     shell.enable = (lib.mkEnableOption "Shell tools") // {default = true;};
-    elm.enable = (lib.mkEnableOption "Elm development") // {default = true;};
+
     editor.enable = (lib.mkEnableOption "General editor support") // {default = true;};
     infra.enable = (lib.mkEnableOption "Infrastructure and ops") // {default = true;};
     media.enable = (lib.mkEnableOption "Media and data tools") // {default = true;};
@@ -73,7 +73,6 @@ in {
       home.packages = with pkgs.unstable; [
         gopls
         delve
-        golangci-lint-langserver
         golangci-lint
         go-tools
         gofumpt
@@ -90,8 +89,6 @@ in {
         alejandra
         deadnix
         statix
-        nil
-        nixpkgs-fmt
         colmena
         nix-init
         nurl
@@ -103,17 +100,15 @@ in {
     (lib.mkIf cfg.web.enable {
       home.packages =
         (with pkgs; [
-          nodejs_24
+          # nodejs_24
         ])
         ++ (with pkgs.unstable; [
           nodePackages.typescript
-          nodePackages.typescript-language-server
+          vtsls
           nodePackages.eslint_d
           nodePackages.prettier
-          nodePackages.prettier_d_slim
           nodePackages.stylelint
           html-tidy
-          nodePackages."@tailwindcss/language-server"
           commitlint
         ]);
     })
@@ -125,8 +120,7 @@ in {
           uv
         ])
         ++ (with pkgs.unstable; [
-          black
-          isort
+          ruff
           mypy
           pyright
         ]);
@@ -139,35 +133,23 @@ in {
           nushell
         ])
         ++ (with pkgs.unstable; [
-          beautysh
           shellharden
         ]);
-    })
-
-    # Elm ecosystem
-    (lib.mkIf cfg.elm.enable {
-      home.packages = with pkgs.unstable; [
-        elmPackages.elm-test
-        elmPackages.elm-language-server
-      ];
     })
 
     # General editor support
     (lib.mkIf cfg.editor.enable {
       home.packages = with pkgs.unstable; [
         editorconfig-checker
-        efm-langserver
         lua-language-server
         lua53Packages.luadbi-sqlite3
         lua53Packages.luasql-sqlite3
         terraform-ls
-        (buf.override {buildGoModule = pkgs.buildGo125Module;})
         nodePackages.yaml-language-server
         yamllint
         gitlint
         actionlint
         vale
-        proselint
         nodePackages.write-good
       ];
     })
