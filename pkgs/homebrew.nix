@@ -79,24 +79,24 @@ _: {
       "opencode-desktop" # AI code editor
     ];
 
-    masApps = {
-      "1Password for Safari" = 1569813296;
-      "Amphetamine" = 937984704; # keep the Mac awake
-      "Boop" = 1518425043; # text transformation scratchpad
-      "Discovery" = 1381004916; # Bonjour/mDNS browser
-      "Disk Speed Test" = 425264550;
-      "Key Codes" = 414568915; # show keyboard key codes
-      "MQTT Explorer" = 1455214828; # MQTT broker inspector
-      "Patterns" = 429449079; # regex tester
-      "Pixelmator Pro" = 1289583905; # photo editor
-      "Refined GitHub" = 1519867270; # GitHub UI tweaks
-      "TestFlight" = 899247664;
-      "WhatsApp" = 310633997;
-      "Wunderbar" = 6479203386; # customizable menu bar workspace
-      "Xcode" = 497799835;
-      "Yubico Authenticator" = 1497506650;
-      # "Tailscale" = 1475387142;
-      # "WireGuard" = 1451685025;
-    };
+    # masApps disabled: mas + Spotlight indexing is unreliable,
+    # causing brew bundle to re-install all apps on every run.
+    # masApps = {
+    #   "1Password for Safari" = 1569813296;
+    #   "Amphetamine" = 937984704;
+    #   "Boop" = 1518425043;
+    #   "Discovery" = 1381004916;
+    #   "Disk Speed Test" = 425264550;
+    #   "Key Codes" = 414568915;
+    #   "MQTT Explorer" = 1455214828;
+    #   "Patterns" = 429449079;
+    #   "Pixelmator Pro" = 1289583905;
+    #   "Refined GitHub" = 1519867270;
+    #   "TestFlight" = 899247664;
+    #   "WhatsApp" = 310633997;
+    #   "Wunderbar" = 6479203386;
+    #   "Xcode" = 497799835;
+    #   "Yubico Authenticator" = 1497506650;
+    # };
   };
 }
