@@ -97,6 +97,13 @@ in {
     backups = mkOption {
       description = ''
         Periodic backups to create with rustic.
+
+        Each backup job creates a launchd user agent that runs on the
+        configured schedule. To trigger a job manually:
+
+          launchctl kickstart gui/$(id -u)/org.nixos.rustic-backups-<name>
+
+        Logs are written to the configured logPath (default ~/Library/Logs).
       '';
       type = types.attrsOf (types.submodule ({name, ...}: {
         options = {
