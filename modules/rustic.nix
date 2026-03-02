@@ -48,19 +48,75 @@ with lib; let
   in
     (pkgs.formats.toml {}).generate "rustic-${name}.toml" profileConfig;
 
-  # Stable wrapper .app bundle for Full Disk Access.
-  # The .app has a fixed path and bundle ID so FDA grant survives
-  # darwin-rebuild. The embedded script resolves the real rustic
-  # binary at runtime via /run/current-system/sw/bin/rustic.
+  # Stable .app bundle path for Full Disk Access.
+  # The .app has a fixed path and bundle ID so the FDA grant
+  # survives darwin-rebuild.
   fdaAppPath = "${cfg.fdaAppDir}/RusticBackup.app";
-  fdaAppBin = "${fdaAppPath}/Contents/MacOS/rustic-backup";
 
+  # Generate the per-job backup script that lives inside the .app
+  # bundle. This script IS the launchd entry point so macOS sees the
+  # .app as the responsible process for TCC/FDA checks.
+  mkJobScript = name: backup: let
+    rusticBin = "/run/current-system/sw/bin/rustic";
+  in ''
+    #!/bin/bash
+    set -euo pipefail
+
+    # Wait for the Nix store firmlink (may not be ready at early boot)
+    /bin/wait4path /nix/store
+
+    export PATH="${lib.makeBinPath [pkgs.rclone pkgs._1password-cli pkgs.flock]}:$PATH"
+
+    # Prevent concurrent runs of this backup job
+    exec ${pkgs.flock}/bin/flock -n /tmp/rustic_${name}.lockfile "$0-inner" "$@"
+  '';
+
+  # The "inner" script that flock execs into -- does the actual backup
+  mkJobInnerScript = name: backup: let
+    rusticBin = "/run/current-system/sw/bin/rustic";
+  in ''
+    #!/bin/bash
+    set -euo pipefail
+
+    export PATH="${lib.makeBinPath [pkgs.rclone pkgs._1password-cli]}:$PATH"
+
+    echo "=== rustic backup ${name} started at $(date) ==="
+
+    # Run backup
+    ${rusticBin} -P ${name} backup
+
+    # Forget/prune/check (optionally only on AC power)
+    ${
+      if backup.pruneOnACOnly
+      then ''
+        if pmset -g ps | grep -q "AC Power"; then
+          echo "On AC power, running forget + check..."
+          ${rusticBin} -P ${name} forget
+          ${rusticBin} -P ${name} check
+        else
+          echo "On battery, skipping forget + check"
+        fi
+      ''
+      else ''
+        ${rusticBin} -P ${name} forget
+        ${rusticBin} -P ${name} check
+      ''
+    }
+
+    echo "=== rustic backup ${name} finished at $(date) ==="
+  '';
+
+  # Build the .app bundle derivation containing Info.plist and
+  # per-job scripts. The activation script copies this to a stable
+  # path so the FDA grant persists across rebuilds.
   mkFdaApp = pkgs.stdenv.mkDerivation {
     name = "rustic-backup-app";
-    buildCommand = ''
+    buildCommand = let
+      jobs = filterAttrs (_: b: b.enableFDA) cfg.backups;
+    in ''
       mkdir -p $out/RusticBackup.app/Contents/MacOS
 
-      cat > $out/RusticBackup.app/Contents/Info.plist <<PLIST
+      cat > $out/RusticBackup.app/Contents/Info.plist <<'PLIST'
       <?xml version="1.0" encoding="UTF-8"?>
       <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
         "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -82,14 +138,28 @@ with lib; let
       </plist>
       PLIST
 
+      # Default executable -- just delegates to rustic
       cat > $out/RusticBackup.app/Contents/MacOS/rustic-backup <<'SCRIPT'
       #!/bin/bash
-      # Resolve rustic from the current system profile so the .app
-      # wrapper stays stable across darwin-rebuild while the actual
-      # binary can be updated.
+      /bin/wait4path /nix/store
       exec /run/current-system/sw/bin/rustic "$@"
       SCRIPT
       chmod +x $out/RusticBackup.app/Contents/MacOS/rustic-backup
+
+      ${concatStringsSep "\n" (mapAttrsToList (name: backup: ''
+          # Job script for "${name}" -- launchd entry point (holds flock)
+          cat > $out/RusticBackup.app/Contents/MacOS/backup-${name} <<'JOBSCRIPT'
+          ${mkJobScript name backup}
+          JOBSCRIPT
+          chmod +x $out/RusticBackup.app/Contents/MacOS/backup-${name}
+
+          # Inner script for "${name}" -- actual backup logic (flock execs into this)
+          cat > $out/RusticBackup.app/Contents/MacOS/backup-${name}-inner <<'JOBSCRIPT'
+          ${mkJobInnerScript name backup}
+          JOBSCRIPT
+          chmod +x $out/RusticBackup.app/Contents/MacOS/backup-${name}-inner
+        '')
+        jobs)}
     '';
   };
 in {
@@ -142,7 +212,7 @@ in {
             description = ''
               Directories to back up.
             '';
-            example = ["$HOME/git" "$HOME/Pictures"];
+            example = ["/Users/kradalby/git" "/Users/kradalby/Pictures"];
           };
 
           pruneOpts = mkOption {
@@ -202,6 +272,8 @@ in {
             description = ''
               Route the backup through a wrapper .app bundle so
               it can be granted Full Disk Access in System Settings.
+              The .app is the direct launchd entry point so macOS
+              sees it as the responsible process for TCC checks.
               After the first darwin-rebuild switch, manually add
               the .app to System Settings > Privacy & Security >
               Full Disk Access.
@@ -239,16 +311,15 @@ in {
     };
   };
 
-  config = mkMerge [
-    {
-      # Ensure rustic and rclone are available system-wide.
-      environment.systemPackages = [
-        pkgs.rustic
-        pkgs.rclone
-      ];
-    }
-    (mkIf (cfg.backups != {}) {
-      # Install the FDA wrapper .app via activation script so it
+  config = mkIf (cfg.backups != {}) {
+    # Ensure rustic and rclone are available system-wide.
+    # The FDA wrapper resolves rustic via /run/current-system/sw/bin/rustic.
+    environment.systemPackages = [
+      pkgs.rustic
+      pkgs.rclone
+    ];
+
+    # Install the FDA wrapper .app via activation script so it
     # persists across rebuilds at a stable path.
     system.activationScripts.postActivation.text = let
       anyFDA = any (b: b.enableFDA) (attrValues cfg.backups);
@@ -274,81 +345,79 @@ in {
         fi
       '';
 
-    # Generate a launchd user agent for each backup job
+    # Generate a launchd user agent for each backup job.
+    # For FDA-enabled jobs, launchd runs the .app binary directly
+    # (no /bin/sh wrapper) so macOS sees the .app as the responsible
+    # process for TCC checks.
     launchd.user.agents =
       mapAttrs'
       (name: backup: let
-        rusticBin =
-          if backup.enableFDA
-          then fdaAppBin
-          else "${pkgs.rustic}/bin/rustic";
+        fdaJobBin = "${fdaAppPath}/Contents/MacOS/backup-${name}";
 
-        # The backup script: run backup, then optionally prune on AC power.
-        # rustic -P <name> loads /etc/rustic/<name>.toml automatically.
-        backupScript = pkgs.writers.writeBash "rustic-backup-${name}" ''
+        # Non-FDA fallback: use a regular bash script
+        fallbackScript = pkgs.writers.writeBash "rustic-backup-${name}" ''
           set -euo pipefail
 
           export PATH="${lib.makeBinPath [pkgs.rclone pkgs._1password-cli]}:$PATH"
 
-          # Wait for the FDA wrapper to be installed (activation may
-          # still be running on the very first darwin-rebuild switch).
-          ${optionalString backup.enableFDA ''
-            if [ ! -x "${rusticBin}" ]; then
-              echo "Waiting for ${rusticBin} to appear..."
-              for i in $(seq 1 30); do
-                [ -x "${rusticBin}" ] && break
-                sleep 2
-              done
-              if [ ! -x "${rusticBin}" ]; then
-                echo "ERROR: ${rusticBin} not found after 60s, skipping backup"
-                exit 1
-              fi
-            fi
-          ''}
-
           echo "=== rustic backup ${name} started at $(date) ==="
 
-          # Run backup
-          ${rusticBin} -P ${name} backup
+          ${pkgs.rustic}/bin/rustic -P ${name} backup
 
-          # Forget/prune/check (optionally only on AC power)
           ${
             if backup.pruneOnACOnly
             then ''
               if pmset -g ps | grep -q "AC Power"; then
                 echo "On AC power, running forget + check..."
-                ${rusticBin} -P ${name} forget
-                ${rusticBin} -P ${name} check
+                ${pkgs.rustic}/bin/rustic -P ${name} forget
+                ${pkgs.rustic}/bin/rustic -P ${name} check
               else
                 echo "On battery, skipping forget + check"
               fi
             ''
             else ''
-              ${rusticBin} -P ${name} forget
-              ${rusticBin} -P ${name} check
+              ${pkgs.rustic}/bin/rustic -P ${name} forget
+              ${pkgs.rustic}/bin/rustic -P ${name} check
             ''
           }
 
           echo "=== rustic backup ${name} finished at $(date) ==="
         '';
 
-        # Wrap with flock to prevent concurrent runs
-        runScript = pkgs.writers.writeBash "run-rustic-${name}" ''
-          ${pkgs.flock}/bin/flock -n /tmp/rustic_${name}.lockfile ${backupScript}
+        fallbackRunScript = pkgs.writers.writeBash "run-rustic-${name}" ''
+          ${pkgs.flock}/bin/flock -n /tmp/rustic_${name}.lockfile ${fallbackScript}
         '';
       in
-        nameValuePair "rustic-backups-${name}" {
-          command = "${runScript}";
-          serviceConfig = {
-            Disabled = false;
-            StartCalendarInterval = [backup.calendarInterval];
-            ProcessType = "Background";
-            RunAtLoad = true;
-            LowPriorityIO = true;
-            StandardOutPath = "${backup.logPath}/rustic-${name}.log";
-            StandardErrorPath = "${backup.logPath}/rustic-${name}-error.log";
-          };
-        })
+        nameValuePair "rustic-backups-${name}" (
+          if backup.enableFDA
+          then {
+            # FDA path: launchd runs .app binary directly, no /bin/sh wrapper.
+            # This makes the .app the "responsible process" for TCC.
+            serviceConfig = {
+              ProgramArguments = [fdaJobBin];
+              Disabled = false;
+              StartCalendarInterval = [backup.calendarInterval];
+              ProcessType = "Background";
+              RunAtLoad = true;
+              LowPriorityIO = true;
+              StandardOutPath = "${backup.logPath}/rustic-${name}.log";
+              StandardErrorPath = "${backup.logPath}/rustic-${name}-error.log";
+            };
+          }
+          else {
+            # Non-FDA path: use regular command with nix-darwin's /bin/sh wrapper.
+            command = "${fallbackRunScript}";
+            serviceConfig = {
+              Disabled = false;
+              StartCalendarInterval = [backup.calendarInterval];
+              ProcessType = "Background";
+              RunAtLoad = true;
+              LowPriorityIO = true;
+              StandardOutPath = "${backup.logPath}/rustic-${name}.log";
+              StandardErrorPath = "${backup.logPath}/rustic-${name}-error.log";
+            };
+          }
+        ))
       cfg.backups;
 
     # TOML profiles in /etc/rustic/ (one of rustic's default search
@@ -371,6 +440,5 @@ in {
             '';
           })
         cfg.backups);
-    })
-  ];
+  };
 }
