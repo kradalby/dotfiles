@@ -17,6 +17,7 @@
 
   basePaths = [
     "${home}/git"
+    "${home}/.ssh"
   ];
 
   # TCC-protected directories — require Full Disk Access granted to
@@ -27,9 +28,39 @@
     "${home}/Downloads"
   ];
 
+  # ~/Library paths containing irreplaceable user data. All require
+  # FDA since ~/Library is TCC-protected. Grouped by category.
+  # See machines/krair/rustic.nix for detailed per-path comments.
+  libraryPaths = [
+    # Messaging
+    "${home}/Library/Messages"
+    "${home}/Library/Application Support/Signal"
+    "${home}/Library/Group Containers/group.net.whatsapp.WhatsApp.shared"
+
+    # Mail and accounts
+    "${home}/Library/Mail"
+    "${home}/Library/Accounts"
+
+    # PIM — synced via iCloud but local backup is cheap insurance
+    "${home}/Library/Group Containers/group.com.apple.notes"
+    "${home}/Library/Group Containers/group.com.apple.calendar"
+    "${home}/Library/Group Containers/group.com.apple.reminders"
+    "${home}/Library/Application Support/AddressBook"
+
+    # Security
+    "${home}/Library/Keychains"
+
+    # Browser
+    "${home}/Library/Safari"
+
+    # Automations
+    "${home}/Library/Shortcuts"
+  ];
+
   jottaPaths =
     basePaths
     ++ fdaPaths
+    ++ libraryPaths
     ++ [
       "${home}/Pictures"
     ];

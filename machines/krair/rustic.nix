@@ -41,6 +41,7 @@
 
   basePaths = [
     "${home}/git"
+    "${home}/.ssh"
   ];
 
   # TCC-protected directories — require Full Disk Access granted to
@@ -51,9 +52,38 @@
     "${home}/Downloads"
   ];
 
+  # ~/Library paths containing irreplaceable user data. All require
+  # FDA since ~/Library is TCC-protected. Grouped by category.
+  libraryPaths = [
+    # Messaging — local-only data, no server-side backup for most
+    "${home}/Library/Messages" # iMessage/SMS history + attachments
+    "${home}/Library/Application Support/Signal" # messages, media, encryption key (config.json)
+    "${home}/Library/Group Containers/group.net.whatsapp.WhatsApp.shared" # WhatsApp messages + media
+
+    # Mail and accounts
+    "${home}/Library/Mail" # mail rules, signatures, smart mailboxes, VIP lists
+    "${home}/Library/Accounts" # Internet Account credentials/OAuth tokens (encrypted)
+
+    # PIM — synced via iCloud but local backup is cheap insurance
+    "${home}/Library/Group Containers/group.com.apple.notes" # Notes database + attachments
+    "${home}/Library/Group Containers/group.com.apple.calendar" # Calendar events
+    "${home}/Library/Group Containers/group.com.apple.reminders" # Reminders
+    "${home}/Library/Application Support/AddressBook" # Contacts database
+
+    # Security
+    "${home}/Library/Keychains" # login keychain + iCloud Keychain local copy (encrypted)
+
+    # Browser
+    "${home}/Library/Safari" # browsing history (local-only), bookmarks, reading list
+
+    # Automations
+    "${home}/Library/Shortcuts" # user-created Shortcuts
+  ];
+
   jottaPaths =
     basePaths
     ++ fdaPaths
+    ++ libraryPaths
     ++ [
       "${home}/Pictures"
     ];
@@ -76,7 +106,7 @@ in {
       };
       # Only prune on AC power to save battery
       pruneOnACOnly = true;
-      # FDA wrapper for accessing Desktop/Documents/Downloads
+      # FDA wrapper for accessing Desktop/Documents/Downloads and ~/Library
       enableFDA = true;
       extraConfig = {
         backup = {
