@@ -16,16 +16,25 @@
 #
 # Full Disk Access (FDA):
 #   macOS TCC protects ~/Desktop, ~/Documents, ~/Downloads, and others.
-#   To back up these directories, the process that launchd directly
-#   spawns must have FDA. macOS checks the "responsible process" — the
-#   binary that launchd.plist's ProgramArguments[0] points to.
+#   To back up these directories, the "responsible process" that
+#   launchd spawns must have FDA granted.
 #
-#   nix-darwin's `command` option always wraps in `/bin/sh -c
-#   "/bin/wait4path /nix/store && exec ..."`, making /bin/sh the
-#   responsible process (which can't be granted FDA). To avoid this,
-#   FDA-enabled jobs set serviceConfig.ProgramArguments directly,
-#   bypassing the /bin/sh wrapper. The ssh-agent-mux module
-#   demonstrates this same pattern.
+#   TCC determines the responsible process by the actual Mach-O binary
+#   that is running, NOT by the script path. Shell scripts (#!/bin/bash)
+#   inside a .app are resolved to /bin/bash by TCC, so the .app's FDA
+#   grant is never checked. This is why the .app entry point MUST be a
+#   compiled binary — we use a small Go program (rustic-wrapper) that
+#   handles wait-for-nix-store and flock, then fork+exec's bash with
+#   the backup script. The Go binary stays alive as the parent process,
+#   so TCC sees it (and the .app containing it) as the responsible
+#   process. Child processes (bash, rustic, rclone) inherit the .app's
+#   FDA grant through the TCC attribution chain — same mechanism that
+#   makes Terminal.app work.
+#
+#   nix-darwin's `command` option always wraps in `/bin/sh -c ...`,
+#   which would make /bin/sh the responsible process. FDA-enabled jobs
+#   set serviceConfig.ProgramArguments directly to bypass this. The
+#   ssh-agent-mux module demonstrates the same pattern.
 #
 #   We build a RusticBackup.app bundle with a stable bundle ID
 #   (com.kradalby.rustic-backup) and copy it to ~/Applications/ via
@@ -48,17 +57,16 @@
 #     Contents/
 #       Info.plist              — bundle ID: com.kradalby.rustic-backup
 #       MacOS/
-#         rustic-backup         — default executable, delegates to rustic
-#         backup-<name>         — per-job script (launchd entry point)
+#         rustic-wrapper        — compiled Go binary (launchd entry point)
+#         backup-<name>.sh      — per-job bash script (backup logic)
 #
-#   Each backup-<name> script is a single self-contained bash script
-#   that does everything: wait for Nix store, acquire flock, run
-#   backup, forget/prune/check. The script must NEVER exec into
-#   another binary (flock, rustic, etc.) because that replaces the
-#   process image and macOS TCC will attribute file access to that
-#   binary instead of the .app. We use flock's file-descriptor mode
-#   (`exec <fd>>/tmp/lockfile; flock -n <fd>`) which locks without
-#   replacing the process.
+#   The Go wrapper (rustic-wrapper) is the launchd entry point. It:
+#     1. Waits for /nix/store to appear (firmlink may be slow at boot)
+#     2. Acquires an exclusive flock to prevent concurrent runs
+#     3. fork+exec's /bin/bash with the backup script
+#     4. Waits for the child, propagates exit code
+#   The wrapper stays alive as the parent so TCC attributes all child
+#   file access to the .app bundle. See pkgs/rustic-wrapper/main.go.
 #
 # Useful commands:
 #   # Trigger a backup manually:
@@ -143,16 +151,9 @@ with lib; let
   # activation script copies the built .app here on every switch.
   fdaAppPath = "${cfg.fdaAppDir}/RusticBackup.app";
 
-  # Generate the per-job script (backup-<name>).
-  # This is the direct launchd entry point — ProgramArguments[0]
-  # points here. Because it lives inside the .app bundle, macOS
-  # TCC sees the .app as the "responsible process" for FDA checks.
-  #
-  # IMPORTANT: This script must NOT exec into another binary (e.g.
-  # flock, rustic). If it does, the process image changes and macOS
-  # TCC will attribute file access to that binary instead of the
-  # .app. We use flock's file-descriptor mode (flock <fd>) to
-  # acquire the lock without replacing the process.
+  # Generate the per-job bash script (backup-<name>.sh).
+  # This script contains the backup logic only — wait-for-nix-store
+  # and flock are handled by the compiled Go wrapper (rustic-wrapper).
   #
   # Uses /run/current-system/sw so the rustic binary can be updated
   # by darwin-rebuild without changing the .app or invalidating the
@@ -163,20 +164,7 @@ with lib; let
     #!/bin/bash
     set -euo pipefail
 
-    # Wait for the Nix store firmlink (may not be ready at early boot)
-    /bin/wait4path /nix/store
-
     export PATH="${lib.makeBinPath [pkgs.rclone pkgs._1password-cli]}:$PATH"
-
-    # Prevent concurrent runs using flock on a file descriptor.
-    # We intentionally avoid `exec flock ... <command>` or `flock ... <command>`
-    # because both replace or spawn a new process image, causing macOS
-    # TCC to attribute file access to flock instead of the .app.
-    exec 200>/tmp/rustic_${name}.lockfile
-    if ! ${pkgs.flock}/bin/flock -n 200; then
-      echo "Another backup is already running, skipping"
-      exit 0
-    fi
 
     echo "=== rustic backup ${name} started at $(date) ==="
 
@@ -205,11 +193,14 @@ with lib; let
   '';
 
   # Build the .app bundle derivation. Contains Info.plist (with the
-  # stable bundle ID that FDA is granted to) and per-job scripts.
-  # Built in the Nix store, then copied to ~/Applications/ by the
-  # activation script so the path stays stable across rebuilds.
+  # stable bundle ID that FDA is granted to), the compiled Go wrapper
+  # binary, and per-job bash scripts. Built in the Nix store, then
+  # copied to ~/Applications/ by the activation script so the path
+  # stays stable across rebuilds.
   #
   # LSUIElement=true hides the app from the Dock.
+  # CFBundleExecutable points to the compiled Go binary, not a script,
+  # so macOS TCC correctly attributes file access to the .app bundle.
   mkFdaApp = pkgs.stdenv.mkDerivation {
     name = "rustic-backup-app";
     buildCommand = let
@@ -228,7 +219,7 @@ with lib; let
         <key>CFBundleName</key>
         <string>RusticBackup</string>
         <key>CFBundleExecutable</key>
-        <string>rustic-backup</string>
+        <string>rustic-wrapper</string>
         <key>CFBundleVersion</key>
         <string>1.0</string>
         <key>CFBundlePackageType</key>
@@ -239,20 +230,19 @@ with lib; let
       </plist>
       PLIST
 
-      # Default executable -- just delegates to rustic
-      cat > $out/RusticBackup.app/Contents/MacOS/rustic-backup <<'SCRIPT'
-      #!/bin/bash
-      /bin/wait4path /nix/store
-      exec /run/current-system/sw/bin/rustic "$@"
-      SCRIPT
-      chmod +x $out/RusticBackup.app/Contents/MacOS/rustic-backup
+      # Copy the compiled Go wrapper binary into the .app bundle.
+      # This Mach-O binary is the launchd entry point — TCC sees it
+      # as the responsible process for FDA checks.
+      cp ${pkgs.rustic-wrapper}/bin/rustic-wrapper \
+        $out/RusticBackup.app/Contents/MacOS/rustic-wrapper
+      chmod +x $out/RusticBackup.app/Contents/MacOS/rustic-wrapper
 
       ${concatStringsSep "\n" (mapAttrsToList (name: backup: ''
-          # Job script for "${name}" -- launchd entry point
-          cat > $out/RusticBackup.app/Contents/MacOS/backup-${name} <<'JOBSCRIPT'
+          # Bash script for "${name}" -- backup logic (run by wrapper)
+          cat > $out/RusticBackup.app/Contents/MacOS/backup-${name}.sh <<'JOBSCRIPT'
           ${mkJobScript name backup}
           JOBSCRIPT
-          chmod +x $out/RusticBackup.app/Contents/MacOS/backup-${name}
+          chmod +x $out/RusticBackup.app/Contents/MacOS/backup-${name}.sh
         '')
         jobs)}
     '';
@@ -447,19 +437,16 @@ in {
     launchd.user.agents =
       mapAttrs'
       (name: backup: let
-        fdaJobBin = "${fdaAppPath}/Contents/MacOS/backup-${name}";
+        wrapperBin = "${fdaAppPath}/Contents/MacOS/rustic-wrapper";
+        jobScript = "${fdaAppPath}/Contents/MacOS/backup-${name}.sh";
+        lockFile = "/tmp/rustic_${name}.lockfile";
 
-        # Non-FDA fallback: use a regular bash script with fd-based flock
-        fallbackScript = pkgs.writers.writeBash "rustic-backup-${name}" ''
+        # Non-FDA fallback: regular bash script wrapped with flock.
+        # TCC doesn't matter here so the flock command-mode is fine.
+        backupScript = pkgs.writers.writeBash "rustic-backup-${name}" ''
           set -euo pipefail
 
           export PATH="${lib.makeBinPath [pkgs.rclone pkgs._1password-cli]}:$PATH"
-
-          exec 200>/tmp/rustic_${name}.lockfile
-          if ! ${pkgs.flock}/bin/flock -n 200; then
-            echo "Another backup is already running, skipping"
-            exit 0
-          fi
 
           echo "=== rustic backup ${name} started at $(date) ==="
 
@@ -484,14 +471,20 @@ in {
 
           echo "=== rustic backup ${name} finished at $(date) ==="
         '';
+
+        fallbackRunScript = pkgs.writers.writeBash "run-rustic-${name}" ''
+          ${pkgs.flock}/bin/flock -n /tmp/rustic_${name}.lockfile ${backupScript}
+        '';
       in
         nameValuePair "rustic-backups-${name}" (
           if backup.enableFDA
           then {
-            # FDA path: launchd runs .app binary directly, no /bin/sh wrapper.
-            # This makes the .app the "responsible process" for TCC.
+            # FDA path: launchd runs the compiled Go wrapper from the
+            # .app bundle. The wrapper handles wait4path + flock, then
+            # fork+exec's bash with the backup script. TCC sees the
+            # Mach-O binary (not /bin/bash) as the responsible process.
             serviceConfig = {
-              ProgramArguments = [fdaJobBin];
+              ProgramArguments = [wrapperBin jobScript lockFile];
               Disabled = false;
               StartCalendarInterval = [backup.calendarInterval];
               ProcessType = "Background";
@@ -503,7 +496,7 @@ in {
           }
           else {
             # Non-FDA path: use regular command with nix-darwin's /bin/sh wrapper.
-            command = "${fallbackScript}";
+            command = "${fallbackRunScript}";
             serviceConfig = {
               Disabled = false;
               StartCalendarInterval = [backup.calendarInterval];
