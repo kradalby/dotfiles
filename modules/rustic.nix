@@ -417,6 +417,17 @@ in {
         chmod -R u+w "${fdaAppPath}"
         chown -R kradalby:staff "${fdaAppPath}"
 
+        # Code sign the .app with a stable identifier matching the
+        # bundle ID. Without this, TCC's csreq (code signing requirement)
+        # check fails because the ad-hoc signature from the Nix store
+        # build doesn't produce a consistent identity after copying.
+        # The --identifier flag ensures the code identity is always
+        # com.kradalby.rustic-backup, so the FDA grant's csreq matches
+        # across rebuilds even when the underlying binary changes.
+        /usr/bin/codesign --force --deep --sign - \
+          --identifier com.kradalby.rustic-backup \
+          "${fdaAppPath}"
+
         # Check if FDA is granted (informational only)
         if ! sqlite3 \
           "/Library/Application Support/com.apple.TCC/TCC.db" \
