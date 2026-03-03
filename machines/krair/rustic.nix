@@ -58,7 +58,6 @@
     # Messaging — local-only data, no server-side backup for most
     "${home}/Library/Messages" # iMessage/SMS history + attachments
     "${home}/Library/Application Support/Signal" # messages, media, encryption key (config.json)
-    "${home}/Library/Group Containers/group.net.whatsapp.WhatsApp.shared" # WhatsApp messages + media
 
     # Mail and accounts
     "${home}/Library/Mail" # mail rules, signatures, smart mailboxes, VIP lists

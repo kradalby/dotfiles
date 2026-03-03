@@ -35,7 +35,6 @@
     # Messaging
     "${home}/Library/Messages"
     "${home}/Library/Application Support/Signal"
-    "${home}/Library/Group Containers/group.net.whatsapp.WhatsApp.shared"
 
     # Mail and accounts
     "${home}/Library/Mail"
