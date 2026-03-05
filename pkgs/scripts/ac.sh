@@ -148,8 +148,27 @@ server_alive() {
 create_session() {
 	local server="$1" dir="$2" agent="$3" repo="$4" branch="$5"
 
+	# Build display title: "repo/branch [agent]" or "repo [agent]"
+	local agent_label
+	case "$agent" in
+	opencode) agent_label="oc" ;;
+	claude) agent_label="cl" ;;
+	*) agent_label="$agent" ;;
+	esac
+
+	local display
+	if [[ -n "$branch" ]]; then
+		display="$repo/$branch"
+	else
+		display="$repo"
+	fi
+
 	# Create server with agent window
 	tmux -L "$server" new-session -d -s work -n agent -c "$dir"
+
+	# Set terminal title so Ghostty tabs show something useful
+	tmux -L "$server" set-option -g set-titles on
+	tmux -L "$server" set-option -g set-titles-string "$display [$agent_label] #W"
 
 	# Create terminal window
 	tmux -L "$server" new-window -t work -n term -c "$dir"
