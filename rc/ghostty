@@ -10,6 +10,7 @@ window-padding-x = 0
 window-padding-y = 0
 window-save-state = never
 copy-on-select = clipboard
+unfocused-split-opacity = 0.97
 mouse-hide-while-typing = true
 
 # macOS
