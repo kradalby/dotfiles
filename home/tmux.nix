@@ -11,9 +11,12 @@
     secureSocket = true;
     historyLimit = 30000;
 
+    baseIndex = 1;
+
     sensibleOnTop = true;
 
     extraConfig = ''
+      set -g pane-base-index 1
 
       color_status_text="colour245"
       color_window_off_status_bg="colour238"
