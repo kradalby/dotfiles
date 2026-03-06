@@ -1037,16 +1037,16 @@
         "systems": "systems_5"
       },
       "locked": {
-        "lastModified": 1761945483,
-        "narHash": "sha256-Uy5HDhZTO/lydVzT/dzp8OWgaZ8ZVQo0b7lvvzXyysI=",
+        "lastModified": 1772792657,
+        "narHash": "sha256-TT+8oaOoa/DWHgOsBVFN5061Jxbac6cEo24Em4y9lis=",
         "owner": "tailscale",
         "repo": "tailscale",
-        "rev": "28f6c2dbfc5d3f7dde8d566a9214f6e0f55a9d17",
+        "rev": "d5ad32444cbdec52fbfb0e7fa07eda547d05b147",
         "type": "github"
       },
       "original": {
         "owner": "tailscale",
-        "ref": "v1.90.6",
+        "ref": "kradalby/nixos-module",
         "repo": "tailscale",
         "type": "github"
       }
