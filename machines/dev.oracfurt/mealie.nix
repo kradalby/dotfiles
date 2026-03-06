@@ -5,11 +5,10 @@
 }: let
   port = 56799;
 in {
-  # TODO: When Tailscale Services exits beta, use "http:80" and "https:443" instead of "tcp:"
-  services.tailscale.services."svc:oppskrift" = {
+  services.tailscale.services.oppskrift = {
     endpoints = {
-      "tcp:80" = "http://localhost:${toString port}";
-      "tcp:443" = "http://localhost:${toString port}";
+      "http:80" = "http://localhost:${toString port}";
+      "https:443" = "http://localhost:${toString port}";
     };
   };
 

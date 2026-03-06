@@ -57,10 +57,10 @@ in {
     };
   };
 
-  services.tailscale.services."svc:syncthing-dev-oracfurt" = {
+  services.tailscale.services.syncthing-dev-oracfurt = {
     endpoints = {
-      "tcp:80" = "http://127.0.0.1:8384";
-      "tcp:443" = "http://127.0.0.1:8384";
+      "http:80" = "http://127.0.0.1:8384";
+      "https:443" = "http://127.0.0.1:8384";
     };
   };
 }

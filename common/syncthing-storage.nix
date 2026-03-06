@@ -8,7 +8,7 @@
     components = lib.splitString "." config.networking.domain;
   in
     lib.elemAt components 0;
-  tailscaleService = "svc:syncthing-${location}";
+  tailscaleService = "syncthing-${location}";
 in {
   services = {
     syncthings.storage = {
@@ -65,8 +65,8 @@ in {
 
     tailscale.services.${tailscaleService} = {
       endpoints = {
-        "tcp:80" = "http://127.0.0.1:8384";
-        "tcp:443" = "http://127.0.0.1:8384";
+        "http:80" = "http://127.0.0.1:8384";
+        "https:443" = "http://127.0.0.1:8384";
       };
     };
   };

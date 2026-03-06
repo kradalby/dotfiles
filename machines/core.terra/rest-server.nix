@@ -14,10 +14,10 @@ in {
     extraFlags = ["--no-auth"];
   };
 
-  services.tailscale.services."svc:restic-terra" = {
+  services.tailscale.services.restic-terra = {
     endpoints = {
-      "tcp:80" = "http://127.0.0.1:${toString port}";
-      "tcp:443" = "http://127.0.0.1:${toString port}";
+      "http:80" = "http://127.0.0.1:${toString port}";
+      "https:443" = "http://127.0.0.1:${toString port}";
     };
   };
 

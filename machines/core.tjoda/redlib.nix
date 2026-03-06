@@ -10,8 +10,8 @@
       address = "127.0.0.1";
     };
 
-    tailscale.services."svc:redlib" = {
-      endpoints."tcp:443" = "http://localhost:${toString config.services.redlib.port}";
+    tailscale.services.redlib = {
+      endpoints."https:443" = "http://localhost:${toString config.services.redlib.port}";
     };
   };
 }

@@ -123,10 +123,10 @@
 
   networking.firewall.allowedTCPPorts = [config.services.zigbee2mqtt.settings.frontend.port];
 
-  services.tailscale.services."svc:zigbee2mqtt-ldn" = {
+  services.tailscale.services.zigbee2mqtt-ldn = {
     endpoints = {
-      "tcp:80" = "http://127.0.0.1:${toString config.services.zigbee2mqtt.settings.frontend.port}";
-      "tcp:443" = "http://127.0.0.1:${toString config.services.zigbee2mqtt.settings.frontend.port}";
+      "http:80" = "http://127.0.0.1:${toString config.services.zigbee2mqtt.settings.frontend.port}";
+      "https:443" = "http://127.0.0.1:${toString config.services.zigbee2mqtt.settings.frontend.port}";
     };
   };
 }

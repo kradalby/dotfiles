@@ -74,22 +74,22 @@ let
 in
 {
   services.tailscale.services = {
-    "svc:prom" = {
+    prom = {
       endpoints = {
-        "tcp:80" = "http://localhost:${toString config.services.prometheus.port}";
-        "tcp:443" = "http://localhost:${toString config.services.prometheus.port}";
+        "http:80" = "http://localhost:${toString config.services.prometheus.port}";
+        "https:443" = "http://localhost:${toString config.services.prometheus.port}";
       };
     };
-    "svc:alertmanager" = {
+    alertmanager = {
       endpoints = {
-        "tcp:80" = "http://localhost:${toString config.services.prometheus.alertmanager.port}";
-        "tcp:443" = "http://localhost:${toString config.services.prometheus.alertmanager.port}";
+        "http:80" = "http://localhost:${toString config.services.prometheus.alertmanager.port}";
+        "https:443" = "http://localhost:${toString config.services.prometheus.alertmanager.port}";
       };
     };
-    "svc:pushgateway" = {
+    pushgateway = {
       endpoints = {
-        "tcp:80" = "http://${config.services.prometheus.pushgateway.web.listen-address}";
-        "tcp:443" = "http://${config.services.prometheus.pushgateway.web.listen-address}";
+        "http:80" = "http://${config.services.prometheus.pushgateway.web.listen-address}";
+        "https:443" = "http://${config.services.prometheus.pushgateway.web.listen-address}";
       };
     };
   };
