@@ -303,9 +303,6 @@
           name = "dev.ldn";
           tags = ["x86" "ldn"];
           allowLocalDeployment = true;
-          modules = [
-            inputs.tailscale.nixosModules.default
-          ];
         };
 
         "storage.ldn" = box.nixosBox {

@@ -11,39 +11,19 @@
 in {
   imports = [
     ../../common
-    # Import incus.nix directly instead of incus-vm-ldn.nix to avoid
-    # the services.tailscale.tags setting which conflicts with the new
-    # upstream Tailscale NixOS module.
-    ../../common/incus.nix
+    ../../common/incus-vm-ldn.nix
 
     ../../common/containers.nix
 
-    # common/tailscale.nix is NOT imported here; the new upstream module
-    # from tailscale.nixosModules.default (added in flake.nix) replaces it.
+    ../../common/tailscale.nix
 
     inputs.ssh-agent-mux.nixosModules.default
 
     ./restic.nix
   ];
 
-  # The new upstream Tailscale module defines services.tailscale as a
-  # submodule with a built-in `services` option. Our custom
-  # tailscale-services.nix declares a conflicting option at the same path.
-  # Disable it here; the new module handles serve config natively.
-  disabledModules = [
-    ../../modules/tailscale-services.nix
-  ];
-
-  # Inlined from common/incus-vm-ldn.nix (networking parts only;
-  # services.tailscale.tags is handled via extraUpFlags below).
   networking = {
     hostName = "dev";
-    domain = "ldn.fap.no";
-    nameservers = ["10.65.0.1"];
-    defaultGateway = {
-      address = "10.65.0.1";
-      interface = config.my.lan;
-    };
     interfaces."${config.my.lan}" = {
       useDHCP = false;
       ipv4.addresses = [
@@ -94,47 +74,16 @@ in {
     sshKeyFile = config.age.secrets.nix-push-key.path;
   };
 
-  # Headscale pre-auth keys
-  age.secrets.headscale-client-preauthkey = {
-    file = ../../secrets/headscale-client-preauthkey.age;
+  services.tailscale = {
+    advertiseRoutes = wireguardConfig.additional_networks;
+    tags = ["tag:ldn" "tag:gateway" "tag:server"];
   };
+
+  # Secondary Tailscale instance: headscale.sandefjordfiber.no (dev.ldn only).
+  # Userspace networking (no TUN conflicts with the primary instance).
   age.secrets.headscale-sfiber-client-preauthkey = {
     file = ../../secrets/headscale-sfiber-client-preauthkey.age;
   };
-
-  # Primary Tailscale instance: kradalby.no tailnet (upstream SaaS)
-  # TUN mode with full routing features (exit node, subnet router, connector).
-  services.tailscale = {
-    enable = true;
-    authKeyFile = config.age.secrets.tailscale-preauthkey.path;
-    useRoutingFeatures = "both";
-    extraSetFlags =
-      [
-        "--ssh=true"
-        "--accept-dns=true"
-        "--advertise-exit-node"
-        "--advertise-connector"
-        "--webclient=true"
-        "--hostname=dev-ldn"
-      ]
-      ++ lib.optional ((builtins.length wireguardConfig.additional_networks) > 0)
-      "--advertise-routes=${builtins.concatStringsSep "," wireguardConfig.additional_networks}";
-    extraUpFlags = [
-      "--advertise-tags=tag:ldn,tag:gateway,tag:server"
-    ];
-  };
-
-  # Secondary Tailscale instance: headscale.kradalby.no
-  # Userspace networking (no TUN conflicts with the primary instance).
-  services.tailscales.headscale = {
-    enable = true;
-    authKeyFile = config.age.secrets.headscale-client-preauthkey.path;
-    extraUpFlags = ["--login-server=https://headscale.kradalby.no"];
-    extraSetFlags = ["--hostname=dev-ldn"];
-  };
-
-  # Secondary Tailscale instance: headscale.sandefjordfiber.no
-  # Userspace networking (no TUN conflicts with the primary instance).
   services.tailscales.sfiber = {
     enable = true;
     authKeyFile = config.age.secrets.headscale-sfiber-client-preauthkey.path;

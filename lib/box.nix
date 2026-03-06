@@ -37,6 +37,7 @@ in {
         ++ modules
         ++ [
           {nixpkgs.hostPlatform = arch;}
+          inputs.tailscale.nixosModules.default
           (import ../modules/linux.nix)
           {
             system.configurationRevision = rev;
