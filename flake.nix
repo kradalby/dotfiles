@@ -123,7 +123,7 @@
     };
 
     tailscale = {
-      url = "github:tailscale/tailscale/v1.90.6";
+      url = "github:tailscale/tailscale/kradalby/nixos-module";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
@@ -303,6 +303,9 @@
           name = "dev.ldn";
           tags = ["x86" "ldn"];
           allowLocalDeployment = true;
+          modules = [
+            inputs.tailscale.nixosModules.default
+          ];
         };
 
         "storage.ldn" = box.nixosBox {

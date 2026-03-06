@@ -6,21 +6,44 @@
   ...
 }: let
   sshKeys = import ../../metadata/ssh.nix;
+  wireguardHosts = import ../../metadata/wireguard.nix {inherit lib config;};
+  wireguardConfig = wireguardHosts.clients.ldn;
 in {
   imports = [
     ../../common
-    ../../common/incus-vm-ldn.nix
+    # Import incus.nix directly instead of incus-vm-ldn.nix to avoid
+    # the services.tailscale.tags setting which conflicts with the new
+    # upstream Tailscale NixOS module.
+    ../../common/incus.nix
 
     ../../common/containers.nix
 
-    ../../common/tailscale.nix
+    # common/tailscale.nix is NOT imported here; the new upstream module
+    # from tailscale.nixosModules.default (added in flake.nix) replaces it.
+
     inputs.ssh-agent-mux.nixosModules.default
 
     ./restic.nix
   ];
 
+  # The new upstream Tailscale module defines services.tailscale as a
+  # submodule with a built-in `services` option. Our custom
+  # tailscale-services.nix declares a conflicting option at the same path.
+  # Disable it here; the new module handles serve config natively.
+  disabledModules = [
+    ../../modules/tailscale-services.nix
+  ];
+
+  # Inlined from common/incus-vm-ldn.nix (networking parts only;
+  # services.tailscale.tags is handled via extraUpFlags below).
   networking = {
     hostName = "dev";
+    domain = "ldn.fap.no";
+    nameservers = ["10.65.0.1"];
+    defaultGateway = {
+      address = "10.65.0.1";
+      interface = config.my.lan;
+    };
     interfaces."${config.my.lan}" = {
       useDHCP = false;
       ipv4.addresses = [
@@ -71,12 +94,52 @@ in {
     sshKeyFile = config.age.secrets.nix-push-key.path;
   };
 
-  services.tailscale = let
-    wireguardHosts = import ../../metadata/wireguard.nix {inherit lib config;};
-    wireguardConfig = wireguardHosts.clients.ldn;
-  in {
-    advertiseRoutes = wireguardConfig.additional_networks;
-    tags = ["tag:ldn" "tag:gateway" "tag:server"];
+  # Headscale pre-auth keys
+  age.secrets.headscale-client-preauthkey = {
+    file = ../../secrets/headscale-client-preauthkey.age;
+  };
+  age.secrets.headscale-sfiber-client-preauthkey = {
+    file = ../../secrets/headscale-sfiber-client-preauthkey.age;
+  };
+
+  # Primary Tailscale instance: kradalby.no tailnet (upstream SaaS)
+  # TUN mode with full routing features (exit node, subnet router, connector).
+  services.tailscale = {
+    enable = true;
+    authKeyFile = config.age.secrets.tailscale-preauthkey.path;
+    useRoutingFeatures = "both";
+    extraSetFlags =
+      [
+        "--ssh=true"
+        "--accept-dns=true"
+        "--advertise-exit-node"
+        "--advertise-connector"
+        "--webclient=true"
+        "--hostname=dev-ldn"
+      ]
+      ++ lib.optional ((builtins.length wireguardConfig.additional_networks) > 0)
+      "--advertise-routes=${builtins.concatStringsSep "," wireguardConfig.additional_networks}";
+    extraUpFlags = [
+      "--advertise-tags=tag:ldn,tag:gateway,tag:server"
+    ];
+  };
+
+  # Secondary Tailscale instance: headscale.kradalby.no
+  # Userspace networking (no TUN conflicts with the primary instance).
+  services.tailscales.headscale = {
+    enable = true;
+    authKeyFile = config.age.secrets.headscale-client-preauthkey.path;
+    extraUpFlags = ["--login-server=https://headscale.kradalby.no"];
+    extraSetFlags = ["--hostname=dev-ldn"];
+  };
+
+  # Secondary Tailscale instance: headscale.sandefjordfiber.no
+  # Userspace networking (no TUN conflicts with the primary instance).
+  services.tailscales.sfiber = {
+    enable = true;
+    authKeyFile = config.age.secrets.headscale-sfiber-client-preauthkey.path;
+    extraUpFlags = ["--login-server=https://headscale.sandefjordfiber.no"];
+    extraSetFlags = ["--hostname=dev-ldn"];
   };
 
   services.ssh-agent-mux = {
@@ -111,7 +174,6 @@ in {
       gpg.format = "ssh";
       "gpg \"ssh\"".allowedSignersFile = "~/.ssh/allowed_signers";
     };
-
   };
 
   security.sudo.extraRules = [
@@ -128,7 +190,7 @@ in {
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
-  # on your system were taken. It‘s perfectly fine and recommended to leave
+  # on your system were taken. It's perfectly fine and recommended to leave
   # this value at the release version of the first install of this system.
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
