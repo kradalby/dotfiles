@@ -82,17 +82,36 @@
 #   tail -f ~/Library/Logs/rustic-<name>.log
 #   tail -f ~/Library/Logs/rustic-<name>-error.log
 #
+#   # View watchdog logs:
+#   tail -f ~/Library/Logs/rustic-check-<name>.log
+#
+#   # Trigger watchdog check manually:
+#   launchctl kickstart gui/$(id -u)/org.nixos.rustic-check-<name>
+#
 #   # Check FDA grant status:
 #   sqlite3 "/Library/Application Support/com.apple.TCC/TCC.db" \
 #     "SELECT client, auth_value FROM access
 #      WHERE service='kTCCServiceSystemPolicyAllFiles'
 #        AND client='com.kradalby.rustic-backup'"
 #
+# Notifications (enableNotifications = true, default):
+#   Failure: An ERR trap in the backup script sends a macOS notification
+#     via terminal-notifier when the backup fails. The notification uses
+#     the Basso sound and ignores Do Not Disturb.
+#   Watchdog: A separate launchd agent (rustic-check-<name>) runs daily
+#     at 09:00, queries the latest snapshot via `rustic snapshots --json`,
+#     and sends escalating notifications based on snapshot age:
+#       >= 1 day:   info (no sound)
+#       >= 5 days:  warning (Basso sound)
+#       >= 10 days: critical (Sosumi sound, ignores DnD)
+#     The watchdog doesn't need FDA (only queries the repo metadata).
+#
 # Paths (all must be absolute — rustic's TOML parser does NOT expand $HOME):
-#   Config:  /etc/rustic/<name>.toml
-#   App:     ~/Applications/RusticBackup.app
-#   Logs:    ~/Library/Logs/rustic-<name>.log
-#   Lock:    /tmp/rustic_<name>.lockfile
+#   Config:    /etc/rustic/<name>.toml
+#   App:       ~/Applications/RusticBackup.app
+#   Logs:      ~/Library/Logs/rustic-<name>.log
+#   Watchdog:  ~/Library/Logs/rustic-check-<name>.log
+#   Lock:      /tmp/rustic_<name>.lockfile
 {
   config,
   lib,
@@ -151,6 +170,19 @@ with lib; let
   # activation script copies the built .app here on every switch.
   fdaAppPath = "${cfg.fdaAppDir}/RusticBackup.app";
 
+  # ERR trap snippet for backup scripts. Sends a macOS notification
+  # via terminal-notifier when the script exits due to an error.
+  # Only included when enableNotifications is true.
+  mkErrTrap = name:
+    optionalString cfg.enableNotifications ''
+      trap '${pkgs.terminal-notifier}/bin/terminal-notifier \
+        -title "Backup Failed" \
+        -message "rustic backup ${name} failed at $(date)" \
+        -sound Basso \
+        -group "rustic-${name}" \
+        -ignoreDnD' ERR
+    '';
+
   # Generate the per-job bash script (backup-<name>.sh).
   # This script contains the backup logic only — wait-for-nix-store
   # and flock are handled by the compiled Go wrapper (rustic-wrapper).
@@ -163,6 +195,7 @@ with lib; let
   in ''
     #!/bin/bash
     set -euo pipefail
+    ${mkErrTrap name}
 
     export PATH="${lib.makeBinPath [pkgs.rclone pkgs._1password-cli]}:$PATH"
 
@@ -191,6 +224,74 @@ with lib; let
 
     echo "=== rustic backup ${name} finished at $(date) ==="
   '';
+
+  # Generate a stale backup watchdog script for a backup job.
+  # Queries the latest snapshot via `rustic snapshots --json`, computes
+  # the age in days, and sends escalating notifications:
+  #   >= 1 day:  info (no sound)
+  #   >= 5 days: warning (Basso sound)
+  #   >= 10 days: critical (Sosumi sound, ignores Do Not Disturb)
+  mkWatchdogScript = name: _backup: let
+    rusticBin = "${pkgs.rustic}/bin/rustic";
+    notifier = "${pkgs.terminal-notifier}/bin/terminal-notifier";
+    jq = "${pkgs.jq}/bin/jq";
+  in
+    pkgs.writers.writeBash "rustic-check-${name}" ''
+      set -euo pipefail
+
+      export PATH="${lib.makeBinPath [pkgs.rclone pkgs._1password-cli]}:$PATH"
+
+      echo "=== rustic-check ${name} started at $(date) ==="
+
+      # Get latest snapshot time from rustic JSON output.
+      # rustic snapshots --json returns an array of snapshot objects,
+      # each with a "time" field in RFC3339 format.
+      latest=$(${rusticBin} -P ${name} snapshots --json \
+        | ${jq} -r '[.[].time] | sort | last // empty')
+
+      if [ -z "$latest" ]; then
+        ${notifier} \
+          -title "Backup Missing" \
+          -message "No snapshots found for rustic backup ${name}" \
+          -sound Sosumi \
+          -group "rustic-check-${name}" \
+          -ignoreDnD
+        echo "ERROR: no snapshots found"
+        exit 1
+      fi
+
+      # Compute age in days. macOS date supports -jf for parsing.
+      # Strip sub-second precision and timezone offset for compatibility.
+      snapshot_epoch=$(date -jf "%Y-%m-%dT%H:%M:%S" "$(echo "$latest" | sed 's/\.[0-9]*[-+].*//')" +%s 2>/dev/null || date -jf "%Y-%m-%dT%H:%M:%SZ" "$(echo "$latest" | sed 's/\.[0-9]*//')" +%s)
+      now_epoch=$(date +%s)
+      age_days=$(( (now_epoch - snapshot_epoch) / 86400 ))
+
+      echo "Latest snapshot: $latest (''${age_days}d ago)"
+
+      if [ "$age_days" -ge 10 ]; then
+        ${notifier} \
+          -title "Backup Critical" \
+          -message "rustic ${name}: last backup ''${age_days} days ago" \
+          -sound Sosumi \
+          -group "rustic-check-${name}" \
+          -ignoreDnD
+      elif [ "$age_days" -ge 5 ]; then
+        ${notifier} \
+          -title "Backup Warning" \
+          -message "rustic ${name}: last backup ''${age_days} days ago" \
+          -sound Basso \
+          -group "rustic-check-${name}"
+      elif [ "$age_days" -ge 1 ]; then
+        ${notifier} \
+          -title "Backup Stale" \
+          -message "rustic ${name}: last backup ''${age_days} days ago" \
+          -group "rustic-check-${name}"
+      else
+        echo "Backup is fresh (''${age_days}d old), no notification needed"
+      fi
+
+      echo "=== rustic-check ${name} finished at $(date) ==="
+    '';
 
   # Build the .app bundle derivation. Contains Info.plist (with the
   # stable bundle ID that FDA is granted to), the compiled Go wrapper
@@ -385,6 +486,18 @@ in {
       default = {};
     };
 
+    enableNotifications = mkOption {
+      type = types.bool;
+      default = true;
+      description = ''
+        Enable failure notifications and stale backup watchdog.
+        When true, backup scripts get an ERR trap that sends a
+        macOS notification via terminal-notifier on failure, and
+        a separate watchdog launchd agent checks snapshot freshness
+        daily and sends escalating notifications for stale backups.
+      '';
+    };
+
     fdaAppDir = mkOption {
       type = types.str;
       default = "/Users/kradalby/Applications";
@@ -446,80 +559,103 @@ in {
     # (no /bin/sh wrapper) so macOS sees the .app as the responsible
     # process for TCC checks.
     launchd.user.agents =
-      mapAttrs'
-      (name: backup: let
-        wrapperBin = "${fdaAppPath}/Contents/MacOS/rustic-wrapper";
-        jobScript = "${fdaAppPath}/Contents/MacOS/backup-${name}.sh";
-        lockFile = "/tmp/rustic_${name}.lockfile";
+      (mapAttrs'
+        (name: backup: let
+          wrapperBin = "${fdaAppPath}/Contents/MacOS/rustic-wrapper";
+          jobScript = "${fdaAppPath}/Contents/MacOS/backup-${name}.sh";
+          lockFile = "/tmp/rustic_${name}.lockfile";
 
-        # Non-FDA fallback: regular bash script wrapped with flock.
-        # TCC doesn't matter here so the flock command-mode is fine.
-        backupScript = pkgs.writers.writeBash "rustic-backup-${name}" ''
-          set -euo pipefail
+          # Non-FDA fallback: regular bash script wrapped with flock.
+          # TCC doesn't matter here so the flock command-mode is fine.
+          backupScript = pkgs.writers.writeBash "rustic-backup-${name}" ''
+            set -euo pipefail
+            ${mkErrTrap name}
 
-          export PATH="${lib.makeBinPath [pkgs.rclone pkgs._1password-cli]}:$PATH"
+            export PATH="${lib.makeBinPath [pkgs.rclone pkgs._1password-cli]}:$PATH"
 
-          echo "=== rustic backup ${name} started at $(date) ==="
+            echo "=== rustic backup ${name} started at $(date) ==="
 
-          ${pkgs.rustic}/bin/rustic -P ${name} backup
+            ${pkgs.rustic}/bin/rustic -P ${name} backup
 
-          ${
-            if backup.pruneOnACOnly
-            then ''
-              if pmset -g ps | grep -q "AC Power"; then
-                echo "On AC power, running forget + check..."
+            ${
+              if backup.pruneOnACOnly
+              then ''
+                if pmset -g ps | grep -q "AC Power"; then
+                  echo "On AC power, running forget + check..."
+                  ${pkgs.rustic}/bin/rustic -P ${name} forget
+                  ${pkgs.rustic}/bin/rustic -P ${name} check
+                else
+                  echo "On battery, skipping forget + check"
+                fi
+              ''
+              else ''
                 ${pkgs.rustic}/bin/rustic -P ${name} forget
                 ${pkgs.rustic}/bin/rustic -P ${name} check
-              else
-                echo "On battery, skipping forget + check"
-              fi
-            ''
-            else ''
-              ${pkgs.rustic}/bin/rustic -P ${name} forget
-              ${pkgs.rustic}/bin/rustic -P ${name} check
-            ''
-          }
+              ''
+            }
 
-          echo "=== rustic backup ${name} finished at $(date) ==="
-        '';
+            echo "=== rustic backup ${name} finished at $(date) ==="
+          '';
 
-        fallbackRunScript = pkgs.writers.writeBash "run-rustic-${name}" ''
-          ${pkgs.flock}/bin/flock -n /tmp/rustic_${name}.lockfile ${backupScript}
-        '';
-      in
-        nameValuePair "rustic-backups-${name}" (
-          if backup.enableFDA
-          then {
-            # FDA path: launchd runs the compiled Go wrapper from the
-            # .app bundle. The wrapper handles wait4path + flock, then
-            # fork+exec's bash with the backup script. TCC sees the
-            # Mach-O binary (not /bin/bash) as the responsible process.
-            serviceConfig = {
-              ProgramArguments = [wrapperBin jobScript lockFile];
-              Disabled = false;
-              StartCalendarInterval = [backup.calendarInterval];
-              ProcessType = "Background";
-              RunAtLoad = true;
-              LowPriorityIO = true;
-              StandardOutPath = "${backup.logPath}/rustic-${name}.log";
-              StandardErrorPath = "${backup.logPath}/rustic-${name}-error.log";
-            };
-          }
-          else {
-            # Non-FDA path: use regular command with nix-darwin's /bin/sh wrapper.
-            command = "${fallbackRunScript}";
-            serviceConfig = {
-              Disabled = false;
-              StartCalendarInterval = [backup.calendarInterval];
-              ProcessType = "Background";
-              RunAtLoad = true;
-              LowPriorityIO = true;
-              StandardOutPath = "${backup.logPath}/rustic-${name}.log";
-              StandardErrorPath = "${backup.logPath}/rustic-${name}-error.log";
-            };
-          }
-        ))
-      cfg.backups;
+          fallbackRunScript = pkgs.writers.writeBash "run-rustic-${name}" ''
+            ${pkgs.flock}/bin/flock -n /tmp/rustic_${name}.lockfile ${backupScript}
+          '';
+        in
+          nameValuePair "rustic-backups-${name}" (
+            if backup.enableFDA
+            then {
+              # FDA path: launchd runs the compiled Go wrapper from the
+              # .app bundle. The wrapper handles wait4path + flock, then
+              # fork+exec's bash with the backup script. TCC sees the
+              # Mach-O binary (not /bin/bash) as the responsible process.
+              serviceConfig = {
+                ProgramArguments = [wrapperBin jobScript lockFile];
+                Disabled = false;
+                StartCalendarInterval = [backup.calendarInterval];
+                ProcessType = "Background";
+                RunAtLoad = true;
+                LowPriorityIO = true;
+                StandardOutPath = "${backup.logPath}/rustic-${name}.log";
+                StandardErrorPath = "${backup.logPath}/rustic-${name}-error.log";
+              };
+            }
+            else {
+              # Non-FDA path: use regular command with nix-darwin's /bin/sh wrapper.
+              command = "${fallbackRunScript}";
+              serviceConfig = {
+                Disabled = false;
+                StartCalendarInterval = [backup.calendarInterval];
+                ProcessType = "Background";
+                RunAtLoad = true;
+                LowPriorityIO = true;
+                StandardOutPath = "${backup.logPath}/rustic-${name}.log";
+                StandardErrorPath = "${backup.logPath}/rustic-${name}-error.log";
+              };
+            }
+          ))
+        cfg.backups)
+      # Stale backup watchdog agents — one per backup job.
+      # Runs daily at 09:00, checks latest snapshot age, and sends
+      # escalating notifications via terminal-notifier.
+      // (optionalAttrs cfg.enableNotifications
+        (mapAttrs'
+          (name: backup:
+            nameValuePair "rustic-check-${name}" {
+              command = "${mkWatchdogScript name backup}";
+              serviceConfig = {
+                Disabled = false;
+                StartCalendarInterval = [
+                  {
+                    Hour = 9;
+                    Minute = 0;
+                  }
+                ];
+                ProcessType = "Background";
+                StandardOutPath = "${backup.logPath}/rustic-check-${name}.log";
+                StandardErrorPath = "${backup.logPath}/rustic-check-${name}-error.log";
+              };
+            })
+          cfg.backups));
 
     # TOML profiles in /etc/rustic/ (one of rustic's default search
     # paths) plus newsyslog rotation configs, merged into one etc block.
@@ -540,6 +676,18 @@ in {
 
             '';
           })
-        cfg.backups);
+        cfg.backups)
+      // (optionalAttrs cfg.enableNotifications
+        (mapAttrs'
+          (name: backup:
+            nameValuePair "newsyslog.d/rustic-check-${name}.conf" {
+              text = ''
+                # logfilename                                     [owner:group]   mode   count   size   when  flags
+                ${backup.logPath}/rustic-check-${name}.log        kradalby:staff      750    10      10240  *     NJ
+                ${backup.logPath}/rustic-check-${name}-error.log  kradalby:staff      750    10      10240  *     NJ
+
+              '';
+            })
+          cfg.backups));
   };
 }
