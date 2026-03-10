@@ -14,8 +14,7 @@
     nixEnv = "7b65bd228429e852c8fdfa07601159130a818cfa";
     # https://github.com/gazorby/fish-abbreviation-tips
     abbrTips = "8ed76a62bb044ba4ad8e3e6832640178880df485";
-    # https://github.com/franciscolourenco/done
-    done = "8061a345d8ed5843809df127489d7d17be03f97b";
+
   };
 
   ## home.ldn
