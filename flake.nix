@@ -3,10 +3,12 @@
 
   nixConfig = {
     extra-substituters = [
-      "http://nix-cache.dalby.ts.net/?priority=30"
+      # TODO(nix-cache): re-enable when nix-cache is back
+      # "http://nix-cache.dalby.ts.net/?priority=30"
     ];
     extra-trusted-public-keys = [
-      "nix-cache:XtaO+MWYNBtMJn3eIUucmx0dkeLzMI7+n984nZYFt4I="
+      # TODO(nix-cache): re-enable when nix-cache is back
+      # "nix-cache:XtaO+MWYNBtMJn3eIUucmx0dkeLzMI7+n984nZYFt4I="
     ];
   };
 
@@ -311,12 +313,13 @@
           tags = ["x86" "ldn"];
         };
 
-        "nix-cache.ldn" = box.nixosBox {
-          arch = "x86_64-linux";
-          name = "nix-cache.ldn";
-          tags = ["x86" "ldn"];
-          targetHost = "10.65.0.29";
-        };
+        # TODO(nix-cache): re-enable when nix-cache is back
+        # "nix-cache.ldn" = box.nixosBox {
+        #   arch = "x86_64-linux";
+        #   name = "nix-cache.ldn";
+        #   tags = ["x86" "ldn"];
+        #   targetHost = "10.65.0.29";
+        # };
 
         # "lenovo.ldn" = box.nixosBox {
         #   arch = "x86_64-linux";

@@ -9,10 +9,12 @@
         "https://numtide.cachix.org?priority=42"
       ];
       trusted-substituters = [
-        "http://nix-cache.dalby.ts.net"
+        # TODO(nix-cache): re-enable when nix-cache is back
+        # "http://nix-cache.dalby.ts.net"
       ];
       trusted-public-keys = [
-        "nix-cache:XtaO+MWYNBtMJn3eIUucmx0dkeLzMI7+n984nZYFt4I="
+        # TODO(nix-cache): re-enable when nix-cache is back
+        # "nix-cache:XtaO+MWYNBtMJn3eIUucmx0dkeLzMI7+n984nZYFt4I="
         "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
         "numtide.cachix.org-1:2ps1kLBUWjxIneOy1Ik6cQjb41X0iXVXeHigGmycPPE="
       ];
