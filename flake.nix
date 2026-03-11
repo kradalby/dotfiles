@@ -233,6 +233,11 @@
         tasmota-homekit = inputs.tasmota-homekit.packages."${system}".default;
         z2m-homekit = inputs.z2m-homekit.packages."${system}".default;
         opencode = inputs.opencode.packages."${system}".default;
+
+        # lima 1.2.2 in stable branches is marked insecure/EOL.
+        # Override so transitive consumers (nix-rosetta-builder)
+        # get the unstable version.
+        inherit (final.unstable) lima lima-full;
       })
     ];
 
