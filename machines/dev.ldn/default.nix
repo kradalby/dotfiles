@@ -113,7 +113,7 @@ in {
     # Do install the docker CLI to talk to podman.
     # Not needed when virtualisation.docker.enable = true;
     pkgs.docker-client
-    pkgs.unstable.lima
+    pkgs.unstable.lima-full
     pkgs.nodejs_24
   ];
 

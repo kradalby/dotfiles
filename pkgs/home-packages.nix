@@ -224,7 +224,7 @@ in {
           qemu
         ])
         ++ (with pkgs.unstable; [
-          lima
+          lima-full
           colima
         ]);
     })

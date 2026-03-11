@@ -52,7 +52,7 @@
 
     nix-rosetta-builder = {
       url = "github:cpick/nix-rosetta-builder";
-      inputs.nixpkgs.follows = "nixpkgs-darwin";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
     ragenix = {

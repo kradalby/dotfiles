@@ -493,7 +493,7 @@
     "nix-rosetta-builder": {
       "inputs": {
         "nixpkgs": [
-          "nixpkgs-darwin"
+          "nixpkgs-unstable"
         ]
       },
       "locked": {
