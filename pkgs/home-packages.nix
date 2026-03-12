@@ -201,7 +201,7 @@ in {
           claude-code
           claude-code-acp
           claude-monitor
-          codex
+          # codex
           gemini-cli
         ])
         ++ lib.optionals cfg.ai.opencode [
