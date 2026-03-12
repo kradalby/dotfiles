@@ -20,8 +20,8 @@ in {
 
   services.tailscale.services.${serviceName} = {
     endpoints = {
-      "http:80" = "http://${consoleAddress}";
-      "https:443" = "http://${consoleAddress}";
+      "tcp:80" = "http://${consoleAddress}";
+      "tcp:443" = "http://${consoleAddress}";
     };
   };
 }

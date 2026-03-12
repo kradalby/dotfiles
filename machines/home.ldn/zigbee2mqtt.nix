@@ -125,8 +125,8 @@
 
   services.tailscale.services.zigbee2mqtt-ldn = {
     endpoints = {
-      "http:80" = "http://127.0.0.1:${toString config.services.zigbee2mqtt.settings.frontend.port}";
-      "https:443" = "http://127.0.0.1:${toString config.services.zigbee2mqtt.settings.frontend.port}";
+      "tcp:80" = "http://127.0.0.1:${toString config.services.zigbee2mqtt.settings.frontend.port}";
+      "tcp:443" = "http://127.0.0.1:${toString config.services.zigbee2mqtt.settings.frontend.port}";
     };
   };
 }

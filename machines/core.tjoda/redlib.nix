@@ -11,7 +11,7 @@
     };
 
     tailscale.services.redlib = {
-      endpoints."https:443" = "http://localhost:${toString config.services.redlib.port}";
+      endpoints."tcp:443" = "http://localhost:${toString config.services.redlib.port}";
     };
   };
 }

@@ -257,8 +257,8 @@
       };
       services.tailscale.services.homebridge-ldn = {
         endpoints = {
-          "http:80" = "http://127.0.0.1:${toString config.services.homebridges.mqttthing.uiPort}";
-          "https:443" = "http://127.0.0.1:${toString config.services.homebridges.mqttthing.uiPort}";
+          "tcp:80" = "http://127.0.0.1:${toString config.services.homebridges.mqttthing.uiPort}";
+          "tcp:443" = "http://127.0.0.1:${toString config.services.homebridges.mqttthing.uiPort}";
         };
       };
     }

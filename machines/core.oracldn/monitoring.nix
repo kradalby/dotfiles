@@ -76,20 +76,20 @@ in
   services.tailscale.services = {
     prom = {
       endpoints = {
-        "http:80" = "http://localhost:${toString config.services.prometheus.port}";
-        "https:443" = "http://localhost:${toString config.services.prometheus.port}";
+        "tcp:80" = "http://localhost:${toString config.services.prometheus.port}";
+        "tcp:443" = "http://localhost:${toString config.services.prometheus.port}";
       };
     };
     alertmanager = {
       endpoints = {
-        "http:80" = "http://localhost:${toString config.services.prometheus.alertmanager.port}";
-        "https:443" = "http://localhost:${toString config.services.prometheus.alertmanager.port}";
+        "tcp:80" = "http://localhost:${toString config.services.prometheus.alertmanager.port}";
+        "tcp:443" = "http://localhost:${toString config.services.prometheus.alertmanager.port}";
       };
     };
     pushgateway = {
       endpoints = {
-        "http:80" = "http://${config.services.prometheus.pushgateway.web.listen-address}";
-        "https:443" = "http://${config.services.prometheus.pushgateway.web.listen-address}";
+        "tcp:80" = "http://${config.services.prometheus.pushgateway.web.listen-address}";
+        "tcp:443" = "http://${config.services.prometheus.pushgateway.web.listen-address}";
       };
     };
   };

@@ -14,8 +14,8 @@ in {
 
   services.tailscale.services.grafana = {
     endpoints = {
-      "http:80" = "http://localhost:${toString config.services.grafana.settings.server.http_port}";
-      "https:443" = "http://localhost:${toString config.services.grafana.settings.server.http_port}";
+      "tcp:80" = "http://localhost:${toString config.services.grafana.settings.server.http_port}";
+      "tcp:443" = "http://localhost:${toString config.services.grafana.settings.server.http_port}";
     };
   };
 

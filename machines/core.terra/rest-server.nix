@@ -16,8 +16,8 @@ in {
 
   services.tailscale.services.restic-terra = {
     endpoints = {
-      "http:80" = "http://127.0.0.1:${toString port}";
-      "https:443" = "http://127.0.0.1:${toString port}";
+      "tcp:80" = "http://127.0.0.1:${toString port}";
+      "tcp:443" = "http://127.0.0.1:${toString port}";
     };
   };
 

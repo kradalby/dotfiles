@@ -10,8 +10,8 @@ in
     {
       services.tailscale.services.pdf = {
         endpoints = {
-          "http:80" = "http://localhost:${toString port}";
-          "https:443" = "http://localhost:${toString port}";
+          "tcp:80" = "http://localhost:${toString port}";
+          "tcp:443" = "http://localhost:${toString port}";
         };
       };
 

@@ -49,7 +49,7 @@ in {
   };
 
   services.tailscale.services.nix-cache = {
-    endpoints."http:80" = "http://localhost:${toString port}";
+    endpoints."tcp:80" = "http://localhost:${toString port}";
   };
 
   # Relaxed GC - keep cached paths for 20 days
