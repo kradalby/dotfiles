@@ -10,6 +10,7 @@ in {
     personal = {
       enable = true;
       user = "kradalby";
+      group = "users";
       dataDir = "/home/kradalby";
       overrideDevices = true;
       overrideFolders = true;

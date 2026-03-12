@@ -589,6 +589,8 @@ in {
       )
       cfg);
 
+    users.groups.syncthing = lib.mkIf (lib.any (icfg: icfg.enable && icfg.group == "syncthing") (lib.attrValues cfg)) {};
+
     environment.systemPackages = lib.concatMap (
       icfg:
         lib.optional icfg.enable icfg.package
