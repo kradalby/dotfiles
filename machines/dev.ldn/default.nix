@@ -20,6 +20,7 @@ in {
     inputs.ssh-agent-mux.nixosModules.default
 
     ./restic.nix
+    ./syncthing.nix
   ];
 
   networking = {
