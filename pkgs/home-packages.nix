@@ -217,6 +217,7 @@ in {
       in
         [pamtouchfix rsync-photos-backup]
         ++ (with pkgs; [
+          boo
           terminal-notifier
           syncthing
           silicon

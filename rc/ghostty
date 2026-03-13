@@ -52,6 +52,12 @@ notify-on-command-finish = unfocused
 notify-on-command-finish-action = no-bell,notify
 notify-on-command-finish-after = 30s
 
-# Remote tab: open new tab + mosh to dev-ldn
-keybind = cmd+shift+t=new_tab
-keybind = chain=text:mosh dev-ldn\n
+# Remote tab: open new tab + mosh to dev.ldn.fap.no
+# TODO(ghostty): Workaround for Ghostty lacking an exec/command keybind action.
+# The cmd+shift+t hotkey is handled by skhd (see common/darwin/kradalby-base.nix)
+# which runs bin/ghostty-new-mosh-tab using boo to open a new tab via AppleScript.
+# This unbind prevents Ghostty from intercepting the keystroke before skhd sees it.
+# Ref: https://github.com/ghostty-org/ghostty/issues/9961
+# Ref: https://github.com/ghostty-org/ghostty/discussions/10919
+# Remove this workaround when Ghostty supports an exec keybind action.
+keybind = cmd+shift+t=unbind

@@ -31,6 +31,24 @@ in {
 
   services.nix-push-darwin.enable = true;
 
+  # TODO(ghostty): Workaround for Ghostty lacking an exec/command keybind
+  # action. skhd provides a global hotkey that runs an external command,
+  # scoped to Ghostty via proc_map. The script uses boo to open a new
+  # Ghostty tab with mosh completely out-of-band via AppleScript.
+  # Ref: https://github.com/ghostty-org/ghostty/issues/9961
+  # Remove when Ghostty supports an exec keybind action.
+  # NOTE: skhd requires Accessibility permissions in
+  # System Settings > Privacy & Security > Accessibility.
+  services.skhd = {
+    enable = true;
+    skhdConfig = ''
+      cmd + shift - t [
+          "Ghostty" : ghostty-new-mosh-tab
+          *         ~
+      ]
+    '';
+  };
+
   nix-rosetta-builder = {
     enable = useRosettaBuilder;
     speedFactor = 10; # Highest priority - local builder
