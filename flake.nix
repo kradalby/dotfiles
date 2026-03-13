@@ -218,14 +218,16 @@
       golink.overlays.default
       hugin.overlay
       krapage.overlays.default
-      hvor.overlay
-      tasmota-exporter.overlay
-      homewizard-p1-exporter.overlay
+      hvor.overlays.default
+      tasmota-exporter.overlays.default
+      homewizard-p1-exporter.overlays.default
       (import ./pkgs/overlays {})
       (_: final: let
         system = final.stdenv.hostPlatform.system;
       in {
-        redlib = redlib.packages."${system}".default;
+        redlib = (redlib.packages."${system}".default).overrideAttrs (old: {
+          meta = (old.meta or {}) // {mainProgram = "redlib";};
+        });
         neovim = neovim-kradalby.packages."${system}".neovim-kradalby;
         tailscale = tailscale.packages."${system}".tailscale;
         ssh-agent-mux = inputs.ssh-agent-mux.packages."${system}".default;
