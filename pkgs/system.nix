@@ -17,7 +17,6 @@
       dos2unix
       fd
       fdupes
-      fish
       fzf
       git
       htop
