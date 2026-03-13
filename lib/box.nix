@@ -119,7 +119,6 @@ in {
             inherit (value._module.args) tags;
             inherit (value._module.args) allowLocalDeployment;
           };
-          nixpkgs.system = value.config.nixpkgs.hostPlatform.system;
           imports = value._module.args.modules;
         })
         nixosConfigurations);
