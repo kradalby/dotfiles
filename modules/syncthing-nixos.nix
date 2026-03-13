@@ -1,3 +1,10 @@
+# Multi-instance Syncthing module for NixOS.
+#
+# Each instance gets its own config/data/database directories under
+# /var/lib/syncthing/<name>/. To retrieve a device ID after deployment:
+#
+#   syncthing device-id --home=/var/lib/syncthing/<name>/config
+#
 {
   config,
   lib,
