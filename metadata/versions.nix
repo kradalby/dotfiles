@@ -14,7 +14,6 @@
     nixEnv = "7b65bd228429e852c8fdfa07601159130a818cfa";
     # https://github.com/gazorby/fish-abbreviation-tips
     abbrTips = "8ed76a62bb044ba4ad8e3e6832640178880df485";
-
   };
 
   ## home.ldn
@@ -56,6 +55,8 @@
       squibble = "4d5df9caa9931e8341ce65d7467681c0b225d22b";
       # https://github.com/tailscale/setec
       setec = "bc7a01a47c9cda0acbff2a49eda50708f59a47b1";
+      # https://github.com/seruman/boo
+      boo = "f6f6fb4e27192921b227cb0934c9a939d5e443c0";
       # https://github.com/rustic-rs/rustic/releases
       rustic = "0.11.0";
     };

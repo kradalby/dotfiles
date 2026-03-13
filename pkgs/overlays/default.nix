@@ -30,5 +30,7 @@ in
 
     rustic-wrapper = prev.callPackage ../rustic-wrapper {};
 
+    boo = prev.callPackage ./boo.nix {};
+
     # osxphotos = prev.callPackage ./osxphotos.nix {};
   }
