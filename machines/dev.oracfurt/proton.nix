@@ -25,6 +25,7 @@
     description = "protonmail bridge";
     wantedBy = ["multi-user.target"];
     after = ["network-online.target"];
+    wants = ["network-online.target"];
 
     script = "${lib.getExe pkgs.protonmail-bridge} --noninteractive --log-level debug";
 
