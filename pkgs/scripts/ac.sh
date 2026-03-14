@@ -136,6 +136,12 @@ create_branch_worktree() {
 		echo "Creating worktree at $target_path from $base..."
 		git -C "$main_wt" worktree add "$target_path" -b "$branch" "$base"
 	fi
+
+	# Allow direnv if the new worktree has an .envrc
+	if [[ -f "$target_path/.envrc" ]]; then
+		echo "Allowing direnv in $target_path..."
+		direnv allow "$target_path"
+	fi
 }
 
 server_alive() {
