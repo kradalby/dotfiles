@@ -68,11 +68,6 @@ in {
             isDefault = true;
             type = "prometheus";
           }
-          {
-            url = "https://loki.${config.networking.domain}";
-            name = "Loki";
-            type = "loki";
-          }
         ];
       };
     };

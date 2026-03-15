@@ -19,9 +19,7 @@
     ./restic.nix
     ./kuma.nix
     ./monitoring.nix
-    ./loki.nix
     ./grafana.nix
-    # ./step-ca.nix
     ./postgres.nix
     ./stirling-pdf.nix
     ./litestream.nix
@@ -32,7 +30,6 @@
     ./webpage.nix
     ./hvor.nix
     ./exporter.nix
-    ./monica.nix
   ];
 
   my.wan = "enp0s3";

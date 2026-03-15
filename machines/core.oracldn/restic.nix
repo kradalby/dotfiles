@@ -3,7 +3,6 @@
     [
       "/etc/nixos"
       "/var/lib/private/uptime-kuma"
-      "/var/lib/step-ca"
       config.services.golink.dataDir
       config.services.postgresqlBackup.location
       config.services.minio.configDir
