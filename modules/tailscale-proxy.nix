@@ -51,7 +51,7 @@ in {
     '';
   };
 
-  config = {
+  config = mkIf (cfg != {}) {
     users.users.tailscale-proxy = {
       home = baseDataDir;
       createHome = true;

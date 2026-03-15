@@ -4,51 +4,6 @@ with lib;
 
 let
   cfg = config.services.wireguard;
-  wireguardHosts = import ../metadata/wireguard.nix { inherit lib config; };
-  
-  # Helper to find the node configuration in metadata
-  nodeConfig = 
-    if hasAttr cfg.nodeName wireguardHosts.servers then
-      wireguardHosts.servers.${cfg.nodeName} // { role = "server"; }
-    else if hasAttr cfg.nodeName wireguardHosts.clients then
-      wireguardHosts.clients.${cfg.nodeName} // { role = "client"; }
-    else
-      throw "WireGuard node '${cfg.nodeName}' not found in metadata/wireguard.nix";
-
-  isServer = nodeConfig.role == "server";
-
-  # Determine peers based on role
-  # Servers peer with all other servers and all clients
-  # Clients peer with all servers
-  
-  serverPeers = filterAttrs (n: v: n != cfg.nodeName) wireguardHosts.servers;
-  clientPeers = wireguardHosts.clients; # Clients don't peer with other clients usually, but servers need to know about them
-
-  peers = 
-    if isServer then
-      serverPeers // clientPeers
-    else
-      wireguardHosts.servers;
-
-  # Function to convert a peer definition to systemd.network config
-  mkPeer = name: peer: {
-    PublicKey = peer.public_key;
-    AllowedIPs = peer.addresses ++ (peer.additional_networks or []);
-    Endpoint = if hasAttr "endpoint_address" peer then "${peer.endpoint_address}:${toString peer.endpoint_port}" else null;
-    PersistentKeepalive = 25;
-    # RouteTable = "main"; # Default is main, usually fine
-  };
-
-  peerList = mapAttrsToList mkPeer peers;
-  peerKeysForRefresh =
-    if cfg.refreshOnIdle.enable
-    then map (name: peers.${name}.public_key) cfg.refreshOnIdle.peers
-    else [];
-
-  # Secret handling
-  secretName = "wireguard-${cfg.nodeName}";
-  secretFile = ../secrets + "/${secretName}.age";
-
 in {
   options.services.wireguard = {
     enable = mkEnableOption "WireGuard";
@@ -104,7 +59,41 @@ in {
     };
   };
 
-  config = mkIf cfg.enable {
+  config = mkIf cfg.enable (let
+    wireguardHosts = import ../metadata/wireguard.nix {inherit lib config;};
+
+    nodeConfig =
+      if hasAttr cfg.nodeName wireguardHosts.servers
+      then wireguardHosts.servers.${cfg.nodeName} // {role = "server";}
+      else if hasAttr cfg.nodeName wireguardHosts.clients
+      then wireguardHosts.clients.${cfg.nodeName} // {role = "client";}
+      else
+        throw "WireGuard node '${cfg.nodeName}' not found in metadata/wireguard.nix";
+
+    isServer = nodeConfig.role == "server";
+    serverPeers = filterAttrs (n: v: n != cfg.nodeName) wireguardHosts.servers;
+    clientPeers = wireguardHosts.clients;
+    peers =
+      if isServer
+      then serverPeers // clientPeers
+      else wireguardHosts.servers;
+
+    mkPeer = name: peer: {
+      PublicKey = peer.public_key;
+      AllowedIPs = peer.addresses ++ (peer.additional_networks or []);
+      Endpoint =
+        if hasAttr "endpoint_address" peer
+        then "${peer.endpoint_address}:${toString peer.endpoint_port}"
+        else null;
+      PersistentKeepalive = 25;
+    };
+
+    peerList = mapAttrsToList mkPeer peers;
+    peerKeysForRefresh =
+      if cfg.refreshOnIdle.enable
+      then map (name: peers.${name}.public_key) cfg.refreshOnIdle.peers
+      else [];
+  in {
     assertions = [
       {
         assertion = cfg.refreshOnIdle.enable -> all (name: hasAttr name peers) cfg.refreshOnIdle.peers;
@@ -220,5 +209,5 @@ in {
       partOf = ["wireguard-refresh-daily-${cfg.interface}.service"];
       timerConfig.OnCalendar = cfg.refreshDaily.onCalendar;
     };
-  };
+  });
 }

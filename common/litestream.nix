@@ -37,7 +37,7 @@ in {
     };
   };
 
-  config = {
+  config = lib.mkIf (config.my.litestream.databases != []) {
     age.secrets.litestream = {
       file = ../secrets/litestream.age;
     };
