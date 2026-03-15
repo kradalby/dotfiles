@@ -3,9 +3,7 @@
   buildNpmPackage,
   fetchFromGitHub,
   python3,
-  nodejs,
   makeWrapper,
-  stdenv,
 }: let
   versions = import ../../metadata/versions.nix;
 in
@@ -23,8 +21,6 @@ in
     npmDepsHash = "sha256-lENiS4SDxESpHzQrq9uuBWQmdbOpfDls6FKqq/KCp9w=";
     makeCacheWritable = true;
     npmFlags = ["--legacy-peer-deps"];
-    # Skip native compilation (node-pty) during install; only the server is needed
-    npmInstallFlags = ["--ignore-scripts"];
 
     nativeBuildInputs = [
       python3
@@ -52,6 +48,8 @@ in
       changelog = "https://github.com/homebridge/homebridge-config-ui-x/releases/tag/v${version}";
       license = licenses.mit;
       maintainers = [];
-      platforms = platforms.linux ++ platforms.darwin;
+      # node-pty native compilation fails on macOS (openpty undeclared);
+      # only deployed on Linux (home.ldn) anyway
+      platforms = platforms.linux;
     };
   }

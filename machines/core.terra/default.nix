@@ -36,8 +36,6 @@
   my.wan = "enp4s0f0";
   my.lan = "lan0";
 
-  my.enableSslh = false;
-
   my.users.storage = true;
   my.users.timemachine = true;
 

@@ -5,42 +5,7 @@
   ...
 }: let
 in {
-  options.my.enableSslh = lib.mkOption {
-    type = lib.types.bool;
-    default = false;
-  };
-
-  options.services.nginx.virtualHosts = lib.mkOption {
-    type = lib.types.attrsOf (lib.types.submodule {
-      config.listen = lib.mkIf config.my.enableSslh (
-        lib.mkDefault [
-          {
-            addr = "0.0.0.0";
-            port = 80;
-            ssl = false;
-          }
-          {
-            addr = "0.0.0.0";
-            port = 60443;
-            ssl = true;
-          }
-          {
-            addr = "[::]";
-            port = 80;
-            ssl = false;
-          }
-          {
-            addr = "[::]";
-            port = 60443;
-            ssl = true;
-          }
-        ]
-      );
-    });
-  };
-
   imports = [
-    ./sslh.nix
     ../modules/tailscale-nginx-auth.nix
   ];
 
