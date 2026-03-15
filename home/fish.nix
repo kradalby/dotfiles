@@ -97,7 +97,7 @@ in {
 
     # Abbreviate commonly used functions
     # An abbreviation will expand after <space> or <Enter> is hit
-    shellAbbrs = config.my.shellAliases // {};
+    shellAbbrs = config.my.shellAliases;
 
     # TODO: Figure out what this is renamed to
     functions = {

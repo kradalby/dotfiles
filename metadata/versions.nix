@@ -12,7 +12,7 @@
 
   ## core.oracldn
   # https://github.com/umami-software/umami/pkgs/container/umami
-  umami = "ghcr.io/umami-software/umami:postgresql-v2.20.2";
+  umami = "ghcr.io/umami-software/umami:v3.0.3";
   # https://hub.docker.com/r/frooodle/s-pdf/tags
   stirling = "frooodle/s-pdf:2.7.2";
   ## dev.oracfurt
@@ -33,7 +33,7 @@
       # https://github.com/JonaEnz/tailscale-restic-proxy
       tailscaleResticProxy = "7568fa9106768a017465ac6a00b5e20865bd4b4f";
       # https://github.com/tailscale/tailscale
-      tailscaleTools = "d8324674610231c36dc010854e82f0c087637df1";
+      tailscaleTools = "v1.94.2";
       # https://github.com/tailscale/squibble
       squibble = "3ac5157f405ef27663ca4cd967352136506d0962";
       # https://github.com/tailscale/setec
@@ -52,7 +52,7 @@
       # https://github.com/homebridge/homebridge/releases
       core = "1.11.2";
       # https://github.com/homebridge/homebridge-config-ui-x/releases
-      configUi = "4.56.4";
+      configUi = "5.19.0";
       # https://github.com/arachnetech/homebridge-mqttthing/releases
       mqttthing = "1.1.49";
     };

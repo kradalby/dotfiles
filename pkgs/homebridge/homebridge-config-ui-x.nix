@@ -16,10 +16,12 @@ in
       owner = "homebridge";
       repo = "homebridge-config-ui-x";
       rev = "v${version}";
-      hash = "sha256-PV2vkPDYClsRD6u0fZ9CIdjLNkJRaCmbZkxD0PbW4do=";
+      hash = "sha256-PJ+dpI4vuT1NbmbqDe5sLXWayCHu1LPjX/SgNxNpKjE=";
     };
 
-    npmDepsHash = "sha256-33pbyktTl+g9Hidu84ZkEvjaf6Lyy/tUJsF7ft8g6PE=";
+    npmDepsHash = "sha256-lENiS4SDxESpHzQrq9uuBWQmdbOpfDls6FKqq/KCp9w=";
+    makeCacheWritable = true;
+    npmFlags = ["--legacy-peer-deps"];
 
     nativeBuildInputs = [
       python3

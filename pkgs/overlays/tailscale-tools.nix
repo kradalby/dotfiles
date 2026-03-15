@@ -10,16 +10,15 @@ buildGoModule rec {
   pname = "tailscale-tools";
   # NOTE: manual update required
   # https://github.com/tailscale/tailscale/releases
-  # Keeping at previous version - v1.90.4 requires Go 1.25.3 which is not available yet
   version = versions.pkgs.overlays.tailscaleTools;
 
   src = fetchFromGitHub {
     owner = "tailscale";
     repo = "tailscale";
     rev = "${version}";
-    hash = "sha256-gCYZlxE0eswyuEEoIIM7elNT8gNu6aISY/bh2NFWRPU=";
+    hash = "sha256-qjWVB8xWVgIVUgrf27F6hwiFIE+4ERXWeHv26ugg/x4=";
   };
-  vendorHash = "sha256-GWzaAtZW7puyX62jsZaFiyvCUh7X/D4Ea9RDzyxAAiI=";
+  vendorHash = "sha256-WeMTOkERj4hvdg4yPaZ1gRgKnhRIBXX55kUVbX/k/xM=";
   subPackages = [
     "cmd/proxy-to-grafana"
     "cmd/nginx-auth"
