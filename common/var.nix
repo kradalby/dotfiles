@@ -61,9 +61,6 @@
         ke = "kubectl edit";
         kaf = "kubectl apply -f";
         kdelf = "kubectl delete -f";
-        kubuntu = "kubectl run --generator=run-pod/v1 ubuntu-shell --rm -i --tty --image ubuntu -- bash";
-        kbusy = "kubectl run --generator=run-pod/v1 busybox-shell --rm -i --tty --image busybox -- sh";
-
         kc = "kubectl config use-context";
         kgc = "kubectl config get-contexts";
         kcn = "kubectl config set-context --current --namespace";
@@ -94,7 +91,7 @@
         scsto = "systemctl stop";
         scsta = "systemctl start";
 
-        # jouralctl
+        # journalctl
         j = "journalctl";
         ju = "journalctl -u";
         jfu = "journalctl -fu";
@@ -102,7 +99,7 @@
         # docker
         dl = "docker logs";
         dlf = "docker logs -f";
-        dka = "docker kill (docker ps -q)";
+        dka = "docker kill $(docker ps -q)";
         dsp = "docker system prune -af";
         dnp = "docker network prune -f";
 

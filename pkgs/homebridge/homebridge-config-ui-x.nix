@@ -24,16 +24,12 @@ in
     makeCacheWritable = true;
     npmFlags = ["--legacy-peer-deps"];
 
-    nativeBuildInputs =
-      [
-        python3
-        makeWrapper
-      ]
-      ++ lib.optionals stdenv.hostPlatform.isDarwin [
-        darwin.apple_sdk.frameworks.CoreServices
-      ];
+    nativeBuildInputs = [
+      python3
+      makeWrapper
+    ];
 
-    # On macOS, openpty is declared in <util.h>
+    # On macOS, openpty is declared in <util.h> but node-pty doesn't include it
     env = lib.optionalAttrs stdenv.hostPlatform.isDarwin {
       NIX_CFLAGS_COMPILE = "-include util.h";
     };
