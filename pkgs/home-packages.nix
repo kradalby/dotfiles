@@ -162,7 +162,6 @@ in {
           headscale
           nmap
           ipcalc
-          ts-preauthkey
           docker
           dive
           act
@@ -170,6 +169,7 @@ in {
         ++ (with pkgs.unstable; [
           tmuxinator
           tailscale-tools
+          ts-preauthkey
           prek
         ]);
     })
