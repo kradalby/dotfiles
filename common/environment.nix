@@ -8,7 +8,7 @@
 
   config = {
     environment = {
-      enableAllTerminfo = true;
+      enableAllTerminfo = lib.mkIf pkgs.stdenv.isLinux true;
 
       shellAliases =
         config.my.shellAliases
