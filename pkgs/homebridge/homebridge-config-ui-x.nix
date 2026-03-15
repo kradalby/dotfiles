@@ -29,10 +29,13 @@ in
       makeWrapper
     ];
 
-    # On macOS, openpty is declared in <util.h> but node-pty doesn't include it
-    env = lib.optionalAttrs stdenv.hostPlatform.isDarwin {
-      NIX_CFLAGS_COMPILE = "-include util.h";
-    };
+    # On macOS, openpty is declared in <util.h> but node-pty doesn't include it.
+    # Patch the source after npm populates node_modules.
+    preBuild = lib.optionalString stdenv.hostPlatform.isDarwin ''
+      substituteInPlace node_modules/@homebridge/node-pty-prebuilt-multiarch/src/unix/pty.cc \
+        --replace-fail '#include <sys/ioctl.h>' '#include <sys/ioctl.h>
+      #include <util.h>'
+    '';
 
     # Skip UI build - it's complex and not currently used
     # Only build the server component

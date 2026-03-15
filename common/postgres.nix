@@ -26,10 +26,6 @@
 
       enableTCPIP = true;
 
-      authentication = ''
-        host  umami  umami  172.17.0.1/16   trust
-      '';
-
       ensureUsers =
         builtins.map
         (
