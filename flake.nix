@@ -332,11 +332,10 @@
 
       colmena = box.mkColmenaFromNixOSConfigurations self.nixosConfigurations;
     }
-    // utils.lib.eachDefaultSystem
+    // utils.lib.eachSystem ["x86_64-linux" "aarch64-linux" "aarch64-darwin"]
     (system: let
       pkgs = import nixpkgs-nixos {
-        inherit overlays;
-        inherit system;
+        inherit overlays system;
       };
     in {
       formatter = pkgs.alejandra;
@@ -379,68 +378,56 @@
               '')
           ];
         };
-
-      packages = let
+    })
+    // {
+      # Bootstrap SD image for Raspberry Pi 4 (aarch64-linux only)
+      packages.aarch64-linux.rpi4 = let
+        rpiPkgs = import nixpkgs-nixos {
+          system = "aarch64-linux";
+          inherit overlays;
+        };
         name = "bootstrap";
         modules = [
           inputs.ragenix.nixosModules.age
+          inputs.tailscale.nixosModules.default
           ./common
           ./common/tailscale.nix
-          (with pkgs; {
+          {
             networking = {
               hostName = name;
               domain = "bootstrap.fap.no";
-              firewall.enable = lib.mkForce false;
-              useDHCP = lib.mkForce true;
+              firewall.enable = rpiPkgs.lib.mkForce false;
+              useDHCP = rpiPkgs.lib.mkForce true;
             };
 
             services.tailscale = let
-              authKey = pkgs.writeText "authkey" "";
+              authKey = rpiPkgs.writeText "authkey" "";
             in {
-              authKeyFile = pkgs.lib.mkForce authKey;
+              authKeyFile = rpiPkgs.lib.mkForce authKey;
             };
-          })
+          }
         ];
-      in {
-        # nix build --system aarch64-linux .#name
-        "rpi4" =
-          nixos-generators.nixosGenerate
-          {
-            system = "aarch64-linux";
-            modules =
-              [
-                # FIX: this is requried to build the RPi kernel:
-                # https://github.com/NixOS/nixpkgs/issues/154163
-                # https://github.com/NixOS/nixos-hardware/issues/360
-                {
-                  nixpkgs.overlays = [
-                    (_: super: {
-                      makeModulesClosure = x:
-                        super.makeModulesClosure (x // {allowMissing = true;});
-                    })
-                  ];
-                }
-                {
-                  boot.kernelPackages = pkgs.lib.mkForce pkgs.linuxPackages_rpi4;
-
-                  networking = {
-                    # wireless = {
-                    #   enable = true;
-                    #   interfaces = ["wlan0"];
-                    #   networks = {
-                    #     "<Insert SSID>" = {
-                    #       psk = "";
-                    #     };
-                    #   };
-                    # };
-                  };
-                }
-                ./common/rpi4-configuration.nix
-              ]
-              ++ modules;
-            specialArgs = {inherit inputs;};
-            format = "sd-aarch64";
-          };
-      };
-    });
+      in
+        nixos-generators.nixosGenerate {
+          system = "aarch64-linux";
+          modules =
+            [
+              {
+                nixpkgs.overlays = [
+                  (_: super: {
+                    makeModulesClosure = x:
+                      super.makeModulesClosure (x // {allowMissing = true;});
+                  })
+                ];
+              }
+              {
+                boot.kernelPackages = rpiPkgs.lib.mkForce rpiPkgs.linuxPackages_rpi4;
+              }
+              ./common/rpi4-configuration.nix
+            ]
+            ++ modules;
+          specialArgs = {inherit inputs;};
+          format = "sd-aarch64";
+        };
+    };
 }
