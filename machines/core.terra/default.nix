@@ -23,13 +23,9 @@
     ./samba.nix
     ./restic.nix
     ./postfix.nix
-    # ./libvirt.nix # TODO(kradalby): Figure out why it breaks coreDNS, binds 53
     ./hugin.nix
     ./postgres.nix
-    # ./immich.nix
     ./files.nix
-
-    # ./polar
   ];
 
   my.wan = "enp4s0f0";
