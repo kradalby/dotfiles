@@ -2,7 +2,7 @@
   cfg = import ../../metadata/syncthing.nix;
   macosIgnorePatterns = [".DS_Store" "._*" ".Spotlight-V100" ".Trashes" ".fseventsd" ".TemporaryItems"];
 in {
-  imports = [../../modules/syncthing.nix];
+  imports = [../../modules/syncthing-darwin.nix];
 
   services = {
     syncthing = {
