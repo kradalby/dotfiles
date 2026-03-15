@@ -159,8 +159,8 @@
       tasmota-exporter.overlays.default
       homewizard-p1-exporter.overlays.default
       (import ./pkgs/overlays {})
-      (_: final: let
-        system = final.stdenv.hostPlatform.system;
+      (_final: prev: let
+        system = prev.stdenv.hostPlatform.system;
       in {
         neovim = neovim-kradalby.packages."${system}".neovim-kradalby;
         tailscale = tailscale.packages."${system}".tailscale;
@@ -173,7 +173,7 @@
         # lima 1.2.2 in stable branches is marked insecure/EOL.
         # Override so transitive consumers (nix-rosetta-builder)
         # get the unstable version.
-        inherit (final.unstable) lima lima-full;
+        inherit (prev.unstable) lima lima-full;
       })
     ];
 
