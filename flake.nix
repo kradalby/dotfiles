@@ -373,7 +373,9 @@
         inherit system;
       };
     in {
-      devShell = let
+      formatter = pkgs.alejandra;
+
+      devShells.default = let
         hostNames = builtins.attrNames self.nixosConfigurations;
       in
         pkgs.mkShell {
