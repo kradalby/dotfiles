@@ -124,7 +124,7 @@ in {
 
         ${pkgs.gnused}/bin/sed -i $sedString secrets.nix
 
-        ${pkgs.nixpkgs-fmt}/bin/nixpkgs-fmt secrets.nix
+        ${pkgs.alejandra}/bin/alejandra secrets.nix
         ${pkgs.ragenix}/bin/ragenix --rekey
       '';
 

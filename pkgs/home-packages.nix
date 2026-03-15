@@ -35,7 +35,6 @@ in {
           prettyping
           entr
           eb
-          gh
           (git-absorb.overrideAttrs (old: rec {
             version = "3a1148ea2df3ca41cb69df8848f99d25e66dc0b5";
             src = pkgs.fetchFromGitHub {
