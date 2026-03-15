@@ -2,7 +2,6 @@
   paths = [
     "/etc/nixos"
     "/var/lib/zigbee2mqtt"
-    "/var/lib/homebridge"
   ];
 
   mkJob = site: {

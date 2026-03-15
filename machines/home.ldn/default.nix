@@ -14,7 +14,6 @@
     ./restic.nix
     ./mqtt.nix
     ./zigbee2mqtt.nix
-    ./homebridge.nix
     ./iSponsorBlockTV.nix
     ./nefit-homekit.nix
     ./tasmota-homekit.nix
