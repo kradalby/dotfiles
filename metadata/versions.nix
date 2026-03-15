@@ -1,14 +1,4 @@
 {
-  ## home
-  # https://github.com/catthehacker/docker_images/pkgs/container/ubuntu
-  act = rec {
-    latest = "ghcr.io/catthehacker/ubuntu:act-latest";
-    linux = latest;
-    ubuntuLatest = latest;
-    ubuntu2404 = "ghcr.io/catthehacker/ubuntu:act-24.04";
-    ubuntu2204 = "ghcr.io/catthehacker/ubuntu:act-22.04";
-    ubuntu2004 = "ghcr.io/catthehacker/ubuntu:act-20.04";
-  };
   fishPlugins = {
     # https://github.com/lilyball/nix-env.fish
     nixEnv = "7b65bd228429e852c8fdfa07601159130a818cfa";

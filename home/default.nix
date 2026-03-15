@@ -3,9 +3,7 @@
   pkgs,
   lib,
   ...
-}: let
-  versions = import ../metadata/versions.nix;
-in {
+}: {
   # Available options
   # https://nix-community.github.io/home-manager/options.html
 
@@ -77,15 +75,6 @@ in {
       ".ssh/allowed_signers".text = ''
         kristoffer@dalby.cc ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBV4ZjlUvRDs70qHD/Ldi6OTkFpDEFgfbXbqSnaL2Qup
         kristoffer@dalby.cc ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJmukT03vff7EvEQb57NYPvM4TgCVLYcRq4SxE+YOSGx kradalby@dev
-      '';
-
-      ".actrc".text = ''
-        --container-daemon-socket unix:///Users/kradalby/.colima/default/docker.sock
-        --platform ubuntu-latest=${versions.act.ubuntuLatest}
-        --platform linux=${versions.act.linux}
-        --platform ubuntu-24.04=${versions.act.ubuntu2404}
-        --platform ubuntu-22.04=${versions.act.ubuntu2204}
-        --platform ubuntu-20.04=${versions.act.ubuntu2004}
       '';
 
       ".config/ghostty/config".source = ../rc/ghostty;

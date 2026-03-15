@@ -53,7 +53,7 @@ Emails worth keeping have concrete content: real human correspondence, legal/fin
 
 Always apply all relevant labels. Common combos:
 
-- Travel hotels -> **Travel** + **Accommodation**
+- Travel hotels/hostels/Airbnb -> **Travel** + **Accommodation**
 - Family trip emails -> **Travel** + **Mamma**
 - Restaurant reservations -> **Reservations** + **Food**
 - KPN bills -> **Services** + **Oude Singel 144B**
@@ -62,12 +62,126 @@ Always apply all relevant labels. Common combos:
 - Invoices -> primary category + **Finance**
 - KLM flights -> **Travel** + **KLM**
 - Visa/immigration -> **Travel** + **Visa**
+- COVID travel compliance (PCR, PLF, quarantine) -> **COVID** + **Travel**
+- UK flat utilities (Community Fibre, Octopus Energy) -> **49 Marshall** + **Services**
+- NL flat utilities (Dunea, NextEnergy, KPN, Odido) -> **Oude Singel 144B** + **Services**
+
+## Label taxonomy reference
+
+### Property
+
+- **Eiendom**: house buying/hunting (viewings, mortgage advisor, bids). For property the user OWNS or wants to buy, NOT rental
+- **49 Marshall**: London rental flat (Flat 15, 49 Marshall Street). Includes end-of-tenancy correspondence, property management (London SMC, PM FM)
+- **Oude Singel 144B**: Leiden rental flat. Includes Margaret Yau/Streetlife (property manager), Dunea water, KPN, Odido, NextEnergy, maintenance (Matthijs Jongbloed), fiber installation (Hoogbouw)
+- **Aspargesgaarden**: family-owned farm in Norway. Cross-label with Mamma when from Kristine Dalby
+
+### Work & projects
+
+- **Tailscale**: employer. Includes Carta vested options, HR/Salaris Gemak portal
+- **headscale**: open source project. Only keep security vulnerabilities, directed personal messages (Juan Font co-maintainer, business inquiries, OCV/incorporation correspondence), program acceptances
+- **G-Research**: previous employer (London)
+- **Consulting**: consulting work
+
+### Financial
+
+- **Finance**: broad financial label, always cross-labeled with specifics
+- **kradalby Invest**: personal investments (Northern Playground, EnerSky, Interactive Brokers, Trading 212, Dealflow)
+- **Skatt**: Norwegian tax
+- **Pensjon**: pension
+- **Toll**: Norwegian customs
+- **AMEX NL**: American Express Netherlands
+- **Monzo**: Monzo bank
+
+### Health
+
+- **Health**: broad health label (includes former Physio content -- physiotherapy appointments, Movement Clinic, Soho Physiotherapy, Medicash claims)
+- **Doktor**: doctor visits
+- **Therapy**: therapy sessions
+- **Climbing**: climbing gym
+- **Sports**: sports events and registrations
+
+### Travel
+
+- **Travel**: broad travel label (flights, trains, hotels, car rental, receipts)
+- **Accommodation**: hotels, hostels, Airbnb -- always cross-labeled with Travel
+- **KLM**: KLM flights -- always cross-labeled with Travel
+- **Visa**: visa/immigration documents (ESTA, EHIC, IRCC Canada, eVisa)
+- **COVID**: COVID travel compliance (PCR tests, PLFs, quarantine declarations, antigen)
+- **UK to NL**: documentation for relocating UK -> Netherlands
+
+### Netherlands
+
+- **Netherlands**: first stay in the Netherlands
+- **Netherlands 2022+**: second stay (current) in the Netherlands
+- **Leiden**: Leiden-specific
+
+### Events
+
+- **Conference**, **FOSDEM**: tech conferences
+- **LAN**, **dfektLAN**, **PolarParty**, **NVG**: Norwegian computing events
+- **Gigs**: concert/show tickets
+- **Olympics**: Olympics tickets (Paris 2024)
+- **Quiz**: pub quiz
+
+### People
+
+- **Mamma**: Kristine Dalby (mother), Anders Dalby, Imma Dalby (family)
+- **Danielle**: Danielle O'Driscoll
+- **Christina Toldbod**: Christina Toldbod
+
+### Food & shopping
+
+- **Reservations**: restaurant bookings -- always cross-label with **Food**
+- **Food**: food-related (restaurants, butchers, fish shops, food orders)
+- **Groceries**: Picnic grocery receipts (note: Picnic bonnetjes are now deleted per policy)
+- **Shopping**: bol.com, Amac, UGREEN, Kiwi Electronics, Google Store, etc.
+
+### Services & support
+
+- **Services**: KPN, Anthropic, Zed, Jottacloud, 1Password, Google Workspace, Domeneshop
+- **Support**: Dell, Megekko, Aarke, bol.com customer service, oakodenmark.dk, vendor support with actual human content
+- **Domains**: domain registrars (Domeneshop, FreeDNS)
+- **Insurance**: insurance policies (Lemonade, etc.)
+
+### Legacy/niche (keep as-is)
+
+- **NTNU**: university-related (formerly "Online")
+- **Physervices**: legacy label for 49 Marshall UK utilities (Community Fibre, Octopus Energy, Vodafone/VOXI). Being dissolved into 49 Marshall + Services
+- **Bryllup**: wedding
+- **Photo**: photography
+- **Hendvendelser**: inquiries/claims
+- **Recruitement**: recruitment (note: typo in label name)
+- **Giftcard**: gift cards (Tailscale Giftograms)
+- **Tropic**: Tropic-related
+- **Kode24**: Kode24 (Norwegian tech news)
+- **Anker**: Anker (hostel/brand)
+- **Sandefjord Fiber**: Sandefjord fiber internet project
+- **ESA**: European Space Agency
+- **gov.uk**: UK government services
+- **TV license**: UK TV license
+- **Licences**: software licenses
+- **Google**: Google-specific
+- **Steam**: Steam gaming
+
+### Pending restructuring tasks
+
+- Retroactive **Accommodation** cross-label for ~150 hotel/hostel bookings in Travel
+- Retroactive **KLM** cross-label for ~60 KLM flights in Travel
+- Retroactive **Food** cross-label for ~80 restaurant reservations
+- Retroactive **Aspargesgaarden** cross-label for ~8 Mamma farm emails
+- Retroactive **49 Marshall** cross-label for 91 Physervices emails
+- Move ~18 mislabeled 49 Marshall emails out of Oude Singel 144B
+- Create **COVID** label and tag ~40 COVID travel emails
+- Remove headscale label from SumUp receipt (uid:12 in headscale)
+- Rename **Online** to **NTNU**
+- Merge **Physio** into **Health** (61 emails)
 
 ## Execution commands
 
 - Always use `uid:<uid>` format for reliable message referencing
 - Delete: `pm-cli mail move uid:X uid:Y -d Trash` (more reliable than `mail delete`)
 - Label: `pm-cli mail label add uid:X uid:Y -l "Label Name"`
+- Remove label: `pm-cli mail label remove uid:X uid:Y -l "Label Name"`
 - Mark read: `pm-cli mail flag uid:X uid:Y --read`
 - Archive: `pm-cli mail archive uid:X uid:Y`
 - Execute in order: delete -> label -> mark read -> archive
