@@ -12,9 +12,7 @@
     ../../common/coredns.nix
     ../../common/syncthing-storage.nix
     ../../common/tailscale.nix
-    ../../modules/microvm-host.nix
 
-    ./microvm.nix
     ./hardware-configuration.nix
     ./zfs.nix
     ./rest-server.nix
@@ -63,9 +61,6 @@
   };
 
   systemd.network = {
-    # Ignore virtual interfaces that are not required for system to be online
-    wait-online.ignoredInterfaces = lib.mkAfter ["microvm-br0"];
-
     links = {
       "10-lan0" = {
         matchConfig = {
@@ -100,17 +95,6 @@
   };
 
   monitoring.smartctl.devices = ["/dev/sda"];
-
-  # MicroVM networking configuration for core.tjoda
-  # Uses systemd-networkd DHCP server (configured in microvm-host.nix)
-  # so need standard firewall rules and NAT for internet access
-  networking.firewall.allowedUDPPorts = [ 67 5201 ];  # DHCP server, iperf3
-  networking.firewall.allowedTCPPorts = [ 5201 ];  # iperf3
-  networking.nat = {
-    enable = true;
-    enableIPv6 = true;
-    internalInterfaces = [ "microvm-br0" ];  # NAT for MicroVM bridge
-  };
 
   system.stateVersion = "24.11";
 }

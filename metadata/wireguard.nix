@@ -9,7 +9,7 @@ with builtins; let
   # Generate WireGuard configs from IPAM hosts
   hostsToWireguard = mapAttrs (hostname: host: {
     additional_networks = attrValues (filterAttrs (name: cidr:
-      name != "microvm_bridge" && name != "iot_network"
+      name != "iot_network"
     ) host.routes);
     addresses =
       if hasAttr "ipv6_address" host.wireguard

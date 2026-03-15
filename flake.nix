@@ -23,11 +23,6 @@
       inputs.nixpkgs.follows = "nixpkgs-nixos";
     };
 
-    microvm = {
-      url = "github:astro/microvm.nix";
-      inputs.nixpkgs.follows = "nixpkgs-nixos";
-    };
-
     nix-rosetta-builder = {
       url = "github:cpick/nix-rosetta-builder";
       inputs.nixpkgs.follows = "nixpkgs-unstable";

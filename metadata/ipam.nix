@@ -26,7 +26,6 @@ with builtins; let
         local = "10.65.0.0/16";
         ipv6_local = "2a02:6b66:7019::/64";
         iot_network = "192.168.156.0/24";
-        microvm_bridge = "192.168.130.0/24";
       };
       wireguard = {
         address = "10.69.0.205/32";
@@ -39,7 +38,6 @@ with builtins; let
       gateway = "10.62.0.1";
       routes = {
         local = "10.62.0.0/16";
-        microvm_bridge = "192.168.131.0/24";
       };
       wireguard = {
         address = "10.69.0.202/32";
