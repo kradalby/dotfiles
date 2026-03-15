@@ -110,16 +110,14 @@ in {
       # Needs to be disabled for tsnet in tailsql to set up.
       RestrictAddressFamilies = lib.mkForce "";
     };
+    # Restart the service when the config file content changes.
+    restartTriggers = [configFile];
     environment = {
       HEADSCALE_LOG_LEVEL = "trace";
       # GRPC_GO_LOG_VERBOSITY_LEVEL = "2";
       # GRPC_GO_LOG_SEVERITY_LEVEL = "info";
       HEADSCALE_DEBUG_TAILSQL_STATE_DIR = "${config.users.users.headscale.home}/tailsql";
       HEADSCALE_DEBUG_TAILSQL_ENABLED = "1";
-
-      # force the service to restart if the config has
-      # changed.
-      HEADSCALE_CONFIG_HASH = builtins.hashFile "md5" configFile;
     };
   };
 
