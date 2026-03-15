@@ -14,7 +14,6 @@
     ./nix.nix
     ./node-exporter.nix
     ./postfix.nix
-    ./promtail.nix
     ./smartctl-exporter.nix
     ./ssh.nix
     ./systemd-exporter.nix

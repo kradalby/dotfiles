@@ -5,6 +5,7 @@
   python3,
   nodejs,
   makeWrapper,
+  stdenv,
 }: let
   versions = import ../../metadata/versions.nix;
 in
@@ -23,10 +24,19 @@ in
     makeCacheWritable = true;
     npmFlags = ["--legacy-peer-deps"];
 
-    nativeBuildInputs = [
-      python3
-      makeWrapper
-    ];
+    nativeBuildInputs =
+      [
+        python3
+        makeWrapper
+      ]
+      ++ lib.optionals stdenv.hostPlatform.isDarwin [
+        darwin.apple_sdk.frameworks.CoreServices
+      ];
+
+    # On macOS, openpty is declared in <util.h>
+    env = lib.optionalAttrs stdenv.hostPlatform.isDarwin {
+      NIX_CFLAGS_COMPILE = "-include util.h";
+    };
 
     # Skip UI build - it's complex and not currently used
     # Only build the server component
