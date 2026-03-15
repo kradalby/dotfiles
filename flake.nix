@@ -47,13 +47,6 @@
       # inputs."agenix".inputs."nixpkgs".follows = "nixpkgs";
     };
 
-    redlib = {
-      url = "github:redlib-org/redlib/6c64ebd56b98f5616c2014e2e0567fa37791844c";
-      # url = "github:redlib-org/redlib";
-      # inputs."flake-utils".follows = "utils";
-      # inputs.nixpkgs.follows = "nixpkgs-unstable";
-    };
-
     # Go based
     krapage = {
       url = "github:kradalby/kra";
@@ -196,9 +189,6 @@
       (_: final: let
         system = final.stdenv.hostPlatform.system;
       in {
-        redlib = (redlib.packages."${system}".default).overrideAttrs (old: {
-          meta = (old.meta or {}) // {mainProgram = "redlib";};
-        });
         neovim = neovim-kradalby.packages."${system}".neovim-kradalby;
         tailscale = tailscale.packages."${system}".tailscale;
         ssh-agent-mux = inputs.ssh-agent-mux.packages."${system}".default;
