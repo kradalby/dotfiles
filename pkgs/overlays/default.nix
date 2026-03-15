@@ -32,5 +32,7 @@ in
 
     boo = prev.callPackage ./boo.nix {};
 
+    pm-cli = prev.callPackage ./pm-cli.nix {};
+
     # osxphotos = prev.callPackage ./osxphotos.nix {};
   }

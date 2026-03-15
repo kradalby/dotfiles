@@ -57,6 +57,8 @@
       setec = "bc7a01a47c9cda0acbff2a49eda50708f59a47b1";
       # https://github.com/seruman/boo
       boo = "f6f6fb4e27192921b227cb0934c9a939d5e443c0";
+      # https://github.com/bscott/pm-cli/releases
+      pmCli = "0.2.3";
       # https://github.com/rustic-rs/rustic/releases
       rustic = "0.11.0";
     };
