@@ -458,25 +458,9 @@ in {
           The path where the settings and keys will exist.
         '';
         default = cfg.dataDir + "/.config/syncthing";
-        defaultText = literalDocBook ''
-          <variablelist>
-            <varlistentry>
-              <term><literal>stateVersion >= 19.03</literal></term>
-              <listitem>
-                <programlisting>
-                  config.${opt.dataDir} + "/.config/syncthing"
-                </programlisting>
-              </listitem>
-            </varlistentry>
-            <varlistentry>
-              <term>otherwise</term>
-              <listitem>
-                <programlisting>
-                  config.${opt.dataDir}
-                </programlisting>
-              </listitem>
-            </varlistentry>
-          </variablelist>
+        defaultText = literalMD ''
+          - `stateVersion >= 19.03`: `config.''${opt.dataDir} + "/.config/syncthing"`
+          - otherwise: `config.''${opt.dataDir}`
         '';
       };
 
