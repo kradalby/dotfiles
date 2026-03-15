@@ -188,6 +188,8 @@ in {
         end
       '';
 
+    }
+    // lib.optionalAttrs pkgs.stdenv.isLinux {
       tmux-recreate-socket = ''
         # Recreate tmux socket by sending SIGUSR1 to the server
         # https://github.com/tmux/tmux/wiki/FAQ#tmux-says-no-sessions-when-i-try-to-attach-but-i-definitely-had-sessions

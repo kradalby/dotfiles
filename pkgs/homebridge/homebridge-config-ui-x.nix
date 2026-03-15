@@ -23,19 +23,13 @@ in
     npmDepsHash = "sha256-lENiS4SDxESpHzQrq9uuBWQmdbOpfDls6FKqq/KCp9w=";
     makeCacheWritable = true;
     npmFlags = ["--legacy-peer-deps"];
+    # Skip native compilation (node-pty) during install; only the server is needed
+    npmInstallFlags = ["--ignore-scripts"];
 
     nativeBuildInputs = [
       python3
       makeWrapper
     ];
-
-    # On macOS, openpty is declared in <util.h> but node-pty doesn't include it.
-    # Patch the source after npm populates node_modules.
-    preBuild = lib.optionalString stdenv.hostPlatform.isDarwin ''
-      substituteInPlace node_modules/@homebridge/node-pty-prebuilt-multiarch/src/unix/pty.cc \
-        --replace-fail '#include <sys/ioctl.h>' '#include <sys/ioctl.h>
-      #include <util.h>'
-    '';
 
     # Skip UI build - it's complex and not currently used
     # Only build the server component

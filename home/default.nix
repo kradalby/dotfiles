@@ -64,7 +64,6 @@
       ".minirc.dfl".source = ../rc/minirc.dfl;
       ".npmrc".source = ../rc/npmrc;
       ".sqliterc".source = ../rc/sqliterc;
-      ".finicky.js".source = ../rc/finicky.js;
 
       # ".tmux.conf".source = ../rc/tmux.conf;
       ".tmuxinator" = {
@@ -86,6 +85,8 @@
       ".config/nix/nix.conf".text = ''
         experimental-features = nix-command flakes
       '';
+
+      ".finicky.js" = lib.mkIf pkgs.stdenv.isDarwin {source = ../rc/finicky.js;};
 
       ".vale.ini".text = ''
         # This goes in a file named either `.vale.ini` or `_vale.ini`.
