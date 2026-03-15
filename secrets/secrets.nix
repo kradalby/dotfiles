@@ -25,9 +25,6 @@ let
 
     dev-oracfurt = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIE65s/hRn34v5UNhSIC8/JN/452hLdqn131gVqqBTPnl";
 
-    # NTNU hosts
-    core-ntnu = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICXhYsZfTX/h7v9eDo3vmtoTtKH1GkXhwf6uVnpi+Fj7";
-
     # Oracle London hosts
     headscale-oracldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEktSTKX3EnWnU4oi/VaBenvd8DYM8tYFjZ6qm27JDU3";
 
@@ -69,7 +66,6 @@ with builtins;
     hosts.core-ldn
     hosts.dev-ldn
   ];
-  "wireguard-ntnu.age".publicKeys = u ++ [ hosts.core-ntnu ];
   "wireguard-oracldn.age".publicKeys = u ++ [ hosts.core-oracldn ];
   "wireguard-oracfurt.age".publicKeys = u ++ [ hosts.dev-oracfurt ];
   "wireguard-terra.age".publicKeys = u ++ [ hosts.core-terra ];

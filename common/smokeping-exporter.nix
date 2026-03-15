@@ -11,7 +11,6 @@
       "core.oracldn.fap.no"
       "dev.ldn.fap.no"
       "core.tjoda.fap.no"
-      # "core.ntnu.fap.no"
       "vg.no"
       "1.1.1.1"
       "8.8.8.8"
