@@ -1,5 +1,5 @@
 # Personal Mac configuration
-{...}: {
+{pkgs, ...}: {
   imports = [
     ../../common/darwin/kradalby-base.nix
     ./rustic.nix
@@ -18,6 +18,15 @@
     watchForSSHForward = true; # Automatically detect and use forwarded agents
   };
 
+  homebrew = {
+    casks = [
+      "proton-mail-bridge"
+    ];
+  };
+
   home-manager.users.kradalby = {
+    home.packages = with pkgs; [
+      pm-cli
+    ];
   };
 }
