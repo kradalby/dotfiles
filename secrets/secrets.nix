@@ -41,7 +41,6 @@ with builtins;
   # Global secrets
   "cloudflare-token.age".publicKeys = global;
   "cloudflare-ddns-token.age".publicKeys = global;
-  "discord-systemd-webhook.age".publicKeys = global;
   "r.age".publicKeys = global;
   "ca.age".publicKeys = global;
 
@@ -68,7 +67,6 @@ with builtins;
   "wireguard-terra.age".publicKeys = u ++ [ hosts.core-terra ];
   "wireguard-tjoda.age".publicKeys = u ++ [ hosts.core-tjoda ];
   "wireguard-headscale-oracldn.age".publicKeys = u ++ [ hosts.headscale-oracldn ];
-  # "wireguard-storage-bassan.age".publicKeys = u ++ [ hosts.storage-bassan ];
 
   # Unifi
   "unifi-tjoda-read-only.age".publicKeys = u ++ [ hosts.core-tjoda ];
@@ -78,20 +76,10 @@ with builtins;
   "headscale-noise-private-key.age".publicKeys = u ++ [ hosts.core-oracldn ];
   "headscale-envfile.age".publicKeys = u ++ [ hosts.core-oracldn ];
 
-  "matterbridge-config.age".publicKeys = u ++ [ hosts.headscale-oracldn ];
-
   # Grafana
   "grafana-admin.age".publicKeys = u ++ [ hosts.core-oracldn ];
-  "grafana-admin-polar.age".publicKeys = u ++ [ hosts.core-terra ];
 
   "alertmanager-env.age".publicKeys = u ++ [ hosts.core-oracldn ];
-
-  # Step CA
-  "step-ca-password.age".publicKeys = u ++ [ hosts.core-oracldn ];
-  "step-ca-config.age".publicKeys = u ++ [ hosts.core-oracldn ];
-
-  # Nextcloud
-  "nextcloud.age".publicKeys = u ++ [ hosts.core-oracldn ];
 
   # minio
   "minio-oracldn.age".publicKeys = u ++ [
@@ -99,35 +87,18 @@ with builtins;
     hosts.core-tjoda
   ];
 
-  # Postgres
-  "postgres-keycloak.age".publicKeys = u ++ [ hosts.core-oracldn ];
-
   # litestream
   "litestream.age".publicKeys = u ++ [
     hosts.core-oracldn
     hosts.headscale-oracldn
   ];
 
-  # rustdesk relay
-  "rustdesk-ed25519.age".publicKeys = u ++ [ hosts.core-oracldn ];
-  "rustdesk-ed25519-pub.age".publicKeys = u ++ [ hosts.core-oracldn ];
-
-  # github
-  "github-headscale-token.age".publicKeys = u ++ [ hosts.lenovo-ldn ];
-
   # hugin
   "hugin-basicauth.age".publicKeys = u ++ [ hosts.core-terra ];
   "hugin-tokens.age".publicKeys = u ++ [ hosts.core-terra ];
 
-  # immich
-  "immich-env.age".publicKeys = u ++ [ hosts.core-terra ];
-  "immich-db-password.age".publicKeys = u ++ [ hosts.core-terra ];
-
   # golink
   "golink-tskey.age".publicKeys = u ++ [ hosts.core-oracldn ];
-
-  # ghostfolio
-  "ghostfolio-env.age".publicKeys = u ++ [ hosts.core-oracldn ];
 
   # hvor
   "hvor-tskey.age".publicKeys = u ++ [ hosts.core-oracldn ];
@@ -156,6 +127,4 @@ with builtins;
   "headscale-client-preauthkey.age".publicKeys = global;
   "headscale-sfiber-client-preauthkey.age".publicKeys = global;
 
-  # monica
-  "monica-app-key.age".publicKeys = u ++ [ hosts.core-oracldn ];
 }
