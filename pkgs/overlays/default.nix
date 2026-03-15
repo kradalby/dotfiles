@@ -26,6 +26,8 @@ in
 
     tailscale-restic-proxy = prev.callPackage ./tailscale-restic-proxy.nix {};
 
+    rtk = prev.callPackage ./rtk.nix {};
+
     rustic = prev.callPackage ./rustic.nix {};
 
     rustic-wrapper = prev.callPackage ../rustic-wrapper {};
