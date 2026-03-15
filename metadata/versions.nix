@@ -25,13 +25,6 @@
   umami = "ghcr.io/umami-software/umami:postgresql-v2.20.2";
   # https://hub.docker.com/r/frooodle/s-pdf/tags
   stirling = "frooodle/s-pdf:2.7.2";
-  # https://hub.docker.com/r/kradalby/glauth/tags
-  glauth = "kradalby/glauth:v2.0.0-040322-arm64";
-  # https://hub.docker.com/r/glauth/glauth/tags
-  glauthUpstream = "glauth/glauth:v2.4.0";
-  # https://hub.docker.com/r/kradalby/glauth-ui/tags
-  glauthUi = "kradalby/glauth-ui:040322-2-arm64";
-
   ## dev.oracfurt
   # https://github.com/mealie-recipes/mealie/releases/tag/v3.12.0
   mealie = "ghcr.io/mealie-recipes/mealie:v3.12.0";
