@@ -23,7 +23,5 @@
     ./tskey.nix
     ./users.nix
     ./util.nix
-    # ./sendmail.nix
-    # ./senddiscord.nix
   ];
 }
