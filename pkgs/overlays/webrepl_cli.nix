@@ -14,7 +14,7 @@ pkgs.stdenv.mkDerivation rec {
       rev = version;
       owner = "micropython";
       repo = pname;
-      sha256 = "sha256-fUewic89i1TeQWLH66Bbic37KIgwtgPDLsYH1xKpExY=";
+      hash = "sha256-fUewic89i1TeQWLH66Bbic37KIgwtgPDLsYH1xKpExY=";
     };
 
     buildInputs = [ pkgs.python3 ];

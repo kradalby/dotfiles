@@ -14,7 +14,7 @@ in
       owner = "bradfitz";
       repo = "gitutil";
       rev = "${version}";
-      sha256 = "sha256-id7DX/uCSqjEMYLVKGaTiJ/GIosuVjfPT5SSbrcwYwo=";
+      hash = "sha256-id7DX/uCSqjEMYLVKGaTiJ/GIosuVjfPT5SSbrcwYwo=";
     };
 
     subPackages = ["git-cleanup" "git-allgoupdate" "git-clpatch"];

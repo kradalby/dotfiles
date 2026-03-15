@@ -17,7 +17,7 @@ buildGoModule rec {
     owner = "tailscale";
     repo = "tailscale";
     rev = "${version}";
-    sha256 = "sha256-gCYZlxE0eswyuEEoIIM7elNT8gNu6aISY/bh2NFWRPU=";
+    hash = "sha256-gCYZlxE0eswyuEEoIIM7elNT8gNu6aISY/bh2NFWRPU=";
   };
   vendorHash = "sha256-GWzaAtZW7puyX62jsZaFiyvCUh7X/D4Ea9RDzyxAAiI=";
   subPackages = [
