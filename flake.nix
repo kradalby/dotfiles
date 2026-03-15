@@ -1,17 +1,6 @@
 {
   description = "kradalby's system config";
 
-  nixConfig = {
-    extra-substituters = [
-      # TODO(nix-cache): re-enable when nix-cache is back
-      # "http://nix-cache.dalby.ts.net/?priority=30"
-    ];
-    extra-trusted-public-keys = [
-      # TODO(nix-cache): re-enable when nix-cache is back
-      # "nix-cache:XtaO+MWYNBtMJn3eIUucmx0dkeLzMI7+n984nZYFt4I="
-    ];
-  };
-
   inputs = {
     utils.url = "github:numtide/flake-utils";
 
@@ -296,14 +285,6 @@
           name = "storage.ldn";
           tags = ["x86" "ldn"];
         };
-
-        # TODO(nix-cache): re-enable when nix-cache is back
-        # "nix-cache.ldn" = box.nixosBox {
-        #   arch = "x86_64-linux";
-        #   name = "nix-cache.ldn";
-        #   tags = ["x86" "ldn"];
-        #   targetHost = "10.65.0.29";
-        # };
 
         # "lenovo.ldn" = box.nixosBox {
         #   arch = "x86_64-linux";

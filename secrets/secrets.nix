@@ -17,9 +17,6 @@ let
     dev-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHNrRieVfrCvnqNbuxEr06c6D1/lhGlEIvS8NNQhrmJt";
     lenovo-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJTZ76SNK6QJ2ptArkXstRNOdY1PxNHHon9gh3k+fDo+";
     storage-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICj6c1im2tC/E1ZYlFtryyqNui58+onflUqBiVOuc1on";
-    # TODO(nix-cache): re-enable when nix-cache is back
-    # nix-cache-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINMfwYZ/isqvJKiHudXX0KHdKy5tfOy9yF3E6nd+JWOD";
-
 
     core-oracldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGEe9eIMf462ZQhE8Nl9jyUscRtTTYeAIPRN2kvO3cdC";
 
@@ -131,10 +128,6 @@ with builtins;
 
   # ghostfolio
   "ghostfolio-env.age".publicKeys = u ++ [ hosts.core-oracldn ];
-
-  # TODO(nix-cache): re-enable when nix-cache is back
-  # harmonia signing key (nix-cache.ldn)
-  # "harmonia-signing-key.age".publicKeys = u ++ [ hosts.nix-cache-ldn ];
 
   # hvor
   "hvor-tskey.age".publicKeys = u ++ [ hosts.core-oracldn ];
