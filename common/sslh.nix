@@ -25,7 +25,7 @@ with lib; {
       '';
     };
 
-    networking.firewall.allowedTCPPorts = [443];
-    networking.firewall.allowedUDPPorts = [443];
+    networking.firewall.allowedTCPPorts = mkIf config.my.enableSslh [443];
+    networking.firewall.allowedUDPPorts = mkIf config.my.enableSslh [443];
   };
 }
