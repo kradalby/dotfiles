@@ -19,24 +19,13 @@
     nixpkgs-nixos.url = "github:NixOS/nixpkgs/nixos-25.11";
     nixpkgs-darwin.url = "github:NixOS/nixpkgs/nixpkgs-25.11-darwin";
     # nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
-    nixpkgs-old-stable.url = "github:NixOS/nixpkgs/nixos-25.05";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     nixpkgs-master.url = "github:NixOS/nixpkgs/master";
-    nixpkgs-kradalby.url = "github:kradalby/nixpkgs/headscale-026";
-
-    nixpkgs-hardware.url = "github:NixOS/nixos-hardware";
-
     darwin.url = "github:nix-darwin/nix-darwin/nix-darwin-25.11";
     darwin.inputs.nixpkgs.follows = "nixpkgs-darwin";
 
-    darwin-unstable.url = "github:nix-darwin/nix-darwin";
-    darwin-unstable.inputs.nixpkgs.follows = "nixpkgs-unstable";
-
     home-manager.url = "github:nix-community/home-manager/release-25.11";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
-    home-manager-unstable.url = "github:nix-community/home-manager/master";
-    home-manager-unstable.inputs.nixpkgs.follows = "nixpkgs-unstable";
-
     nix-index-database.url = "github:nix-community/nix-index-database";
     nix-index-database.inputs.nixpkgs.follows = "nixpkgs";
 
@@ -189,13 +178,6 @@
           allowUnfree = true;
         };
         overlays = [goOverlayStable (import ./pkgs/overlays {})];
-      };
-      old-stable = import inputs.nixpkgs-old-stable {
-        system = final.stdenv.hostPlatform.system;
-        config = {allowUnfree = true;};
-        overlays = [
-          (import ./pkgs/overlays {})
-        ];
       };
       unstable = import inputs.nixpkgs-unstable {
         system = final.stdenv.hostPlatform.system;
