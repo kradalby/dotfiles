@@ -18,31 +18,31 @@ let
 
       secret = mkOption {
         type = types.str;
-        description = mdDoc "Name of the age secret containing the repository password.";
+        description = "Name of the age secret containing the repository password.";
       };
 
       owner = mkOption {
         type = types.str;
         default = "root";
-        description = mdDoc "Owner of the password secret file.";
+        description = "Owner of the password secret file.";
       };
 
       paths = mkOption {
         type = types.listOf types.str;
         default = [];
-        description = mdDoc "Filesystem paths passed to `restic backup`.";
+        description = "Filesystem paths passed to `restic backup`.";
       };
 
       repository = mkOption {
         type = types.nullOr types.str;
         default = null;
-        description = mdDoc "Restic repository URL. Required unless `site` is set.";
+        description = "Restic repository URL. Required unless `site` is set.";
       };
 
       site = mkOption {
         type = types.nullOr types.str;
         default = null;
-        description = mdDoc ''
+        description = ''
           Shortcut for homelab restic endpoints. When set, and `repository` is
           left null, the module generates
           `rest:https://restic-<site>.dalby.ts.net/<targetHost>`.
@@ -52,7 +52,7 @@ let
       targetHost = mkOption {
         type = types.nullOr types.str;
         default = null;
-        description = mdDoc ''
+        description = ''
           Hostname used when constructing repositories for `site` jobs. Defaults
           to this machine's FQDN.
         '';
@@ -61,55 +61,55 @@ let
       pruneOpts = mkOption {
         type = types.listOf types.str;
         default = defaultPrune;
-        description = mdDoc "Options passed to `restic forget --prune`.";
+        description = "Options passed to `restic forget --prune`.";
       };
 
       initialize = mkOption {
         type = types.bool;
         default = true;
-        description = mdDoc "Whether to auto-create the repository.";
+        description = "Whether to auto-create the repository.";
       };
 
       extraBackupArgs = mkOption {
         type = types.listOf types.str;
         default = [];
-        description = mdDoc "Extra arguments appended to `restic backup`.";
+        description = "Extra arguments appended to `restic backup`.";
       };
 
       extraOptions = mkOption {
         type = types.listOf types.str;
         default = [];
-        description = mdDoc "Arguments passed via `restic --option`.";
+        description = "Arguments passed via `restic --option`.";
       };
 
       dynamicFilesFrom = mkOption {
         type = types.nullOr types.str;
         default = null;
-        description = mdDoc "Command invoked to generate a `--files-from` list.";
+        description = "Command invoked to generate a `--files-from` list.";
       };
 
       logPath = mkOption {
         type = types.nullOr types.str;
         default = null;
-        description = mdDoc "Override the log directory on Darwin.";
+        description = "Override the log directory on Darwin.";
       };
 
       calendarInterval = mkOption {
         type = types.nullOr (types.attrsOf types.int);
         default = null;
-        description = mdDoc "Override the default launchd calendar interval on Darwin.";
+        description = "Override the default launchd calendar interval on Darwin.";
       };
 
       timerConfig = mkOption {
         type = types.nullOr types.attrs;
         default = null;
-        description = mdDoc "Override the default systemd timer configuration on Linux.";
+        description = "Override the default systemd timer configuration on Linux.";
       };
 
       extraConfig = mkOption {
         type = types.attrs;
         default = {};
-        description = mdDoc "Additional attributes merged into `services.restic.backups.<name>`.";
+        description = "Additional attributes merged into `services.restic.backups.<name>`.";
       };
     };
   };
@@ -204,7 +204,7 @@ in {
   options.services.restic.jobs = mkOption {
     type = types.attrsOf (types.submodule jobModule);
     default = {};
-    description = mdDoc ''
+    description = ''
       Declarative restic backup jobs. Each entry provisions the password
       secret and creates `services.restic.backups.<name>` with sensible defaults.
     '';

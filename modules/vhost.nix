@@ -9,26 +9,26 @@ let
     options = {
       proxyPass = mkOption {
         type = types.str;
-        description = mdDoc "Target passed to nginx `proxy_pass`.";
+        description = "Target passed to nginx `proxy_pass`.";
         example = "http://127.0.0.1:9000";
       };
 
       proxyWebsockets = mkOption {
         type = types.bool;
         default = true;
-        description = mdDoc "Whether to enable websocket proxying for the vhost.";
+        description = "Whether to enable websocket proxying for the vhost.";
       };
 
       basicAuthFile = mkOption {
         type = types.nullOr (types.either types.path types.str);
         default = null;
-        description = mdDoc "Optional path to a htpasswd file for HTTP basic auth.";
+        description = "Optional path to a htpasswd file for HTTP basic auth.";
       };
 
       allowCors = mkOption {
         type = types.bool;
         default = false;
-        description = mdDoc "Append permissive CORS headers to the default location.";
+        description = "Append permissive CORS headers to the default location.";
       };
     };
   }));
@@ -43,7 +43,7 @@ in {
   options.services.vhost = mkOption {
     type = vhostType;
     default = {};
-    description = mdDoc ''
+    description = ''
       Opinionated nginx vhost helper where the attribute name is the domain.
 
       Each entry provisions an ACME certificate and creates the corresponding

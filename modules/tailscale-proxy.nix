@@ -46,7 +46,7 @@ in {
           };
         };
       });
-    description = lib.mdDoc ''
+    description = ''
       Multiple tailscale-proxies
     '';
   };
