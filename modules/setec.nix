@@ -78,8 +78,8 @@ in {
 
       serviceConfig = {
         # DynamicUser = true;
-        User = "config.services.${cfg.user}.user";
-        Group = "config.services.${cfg.group}.group";
+        User = cfg.user;
+        Group = cfg.group;
         Restart = "always";
         RestartSec = "15";
         EnvironmentFile = lib.optional (cfg.environmentFile != null) cfg.environmentFile;

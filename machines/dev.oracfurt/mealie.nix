@@ -19,7 +19,7 @@ in {
         autoStart = true;
         volumes = ["/var/lib/mealie/data:/app/data"];
         environment = {
-          TZ = "Europa/Amsterdam";
+          TZ = "Europe/Amsterdam";
           PUID = "1000";
           PGID = "1000";
           ALLOW_SIGNUP = "false";

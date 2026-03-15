@@ -54,7 +54,7 @@ in {
           }
         ]
         ++ (
-          if builtins.isNull homeBase
+          if homeBase == null
           then []
           else [
             homeBase.nixosModules.home-manager

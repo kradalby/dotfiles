@@ -86,7 +86,7 @@ with lib; {
         };
 
         logPath = mkOption {
-          type = types.path;
+          type = types.nullOr types.path;
           default = null;
           description = ''
             Directory to save output of the backup.
