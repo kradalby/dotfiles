@@ -22,7 +22,6 @@
     ./rest-server.nix
     ./samba.nix
     ./restic.nix
-    # ./gh-runner.nix
     ./postfix.nix
     # ./libvirt.nix # TODO(kradalby): Figure out why it breaks coreDNS, binds 53
     ./hugin.nix
