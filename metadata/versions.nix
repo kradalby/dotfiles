@@ -15,10 +15,6 @@
   umami = "ghcr.io/umami-software/umami:v3.0.3";
   # https://hub.docker.com/r/frooodle/s-pdf/tags
   stirling = "frooodle/s-pdf:2.7.2";
-  ## dev.oracfurt
-  # https://github.com/mealie-recipes/mealie/releases/tag/v3.12.0
-  mealie = "ghcr.io/mealie-recipes/mealie:v3.12.0";
-
   ## pkgs
   pkgs = {
     overlays = {

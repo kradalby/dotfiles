@@ -2,8 +2,6 @@
   paths = [
     "/etc/nixos"
     "/var/lib/kuma"
-    "/var/lib/step-ca"
-    "/var/lib/mealie"
     "/var/lib/tsidp"
     "/var/lib/cook-server"
     config.services.postgresqlBackup.location

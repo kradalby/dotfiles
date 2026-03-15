@@ -14,9 +14,7 @@
 
     ./restic.nix
     ./syncthing.nix
-    # ./attic.nix
     ./proton.nix
-    ./mealie.nix
     ./cook.nix
   ];
 
