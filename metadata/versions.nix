@@ -18,23 +18,23 @@
 
   ## home.ldn
   # https://github.com/dmunozv04/iSponsorBlockTV/pkgs/container/isponsorblocktv
-  isponsor = "ghcr.io/dmunozv04/isponsorblocktv:v2.2.1";
+  isponsor = "ghcr.io/dmunozv04/isponsorblocktv:v2.6.1";
 
   ## core.oracldn
   # https://github.com/umami-software/umami/pkgs/container/umami
-  umami = "ghcr.io/umami-software/umami:postgresql-v2.13.2";
+  umami = "ghcr.io/umami-software/umami:postgresql-v2.20.2";
   # https://hub.docker.com/r/frooodle/s-pdf/tags
-  stirling = "frooodle/s-pdf:0.29.0";
+  stirling = "frooodle/s-pdf:2.7.2";
   # https://hub.docker.com/r/kradalby/glauth/tags
   glauth = "kradalby/glauth:v2.0.0-040322-arm64";
   # https://hub.docker.com/r/glauth/glauth/tags
-  glauthUpstream = "glauth/glauth:v2.0.0";
+  glauthUpstream = "glauth/glauth:v2.4.0";
   # https://hub.docker.com/r/kradalby/glauth-ui/tags
   glauthUi = "kradalby/glauth-ui:040322-2-arm64";
 
   ## dev.oracfurt
-  # https://github.com/mealie-recipes/mealie/releases/tag/v2.6.0
-  mealie = "ghcr.io/mealie-recipes/mealie:v2.6.0";
+  # https://github.com/mealie-recipes/mealie/releases/tag/v3.12.0
+  mealie = "ghcr.io/mealie-recipes/mealie:v3.12.0";
 
   ## pkgs
   pkgs = {
@@ -44,34 +44,34 @@
       # https://github.com/micropython/webrepl
       webreplCli = "1e09d9a1d90fe52aba11d1e659afbc95a50cf088";
       # https://github.com/cooklang/cookcli/releases
-      cook = "0.22.0";
+      cook = "0.26.0";
       # https://github.com/bradfitz/gitutil
-      gitutil = "1625713288102f8642c0619f12fc83ad609bf71b";
+      gitutil = "275daa41cc6eb3ed7bc80e0319907b182b5f75ce";
       # https://github.com/JonaEnz/tailscale-restic-proxy
       tailscaleResticProxy = "7568fa9106768a017465ac6a00b5e20865bd4b4f";
       # https://github.com/tailscale/tailscale
       tailscaleTools = "d8324674610231c36dc010854e82f0c087637df1";
       # https://github.com/tailscale/squibble
-      squibble = "4d5df9caa9931e8341ce65d7467681c0b225d22b";
+      squibble = "3ac5157f405ef27663ca4cd967352136506d0962";
       # https://github.com/tailscale/setec
-      setec = "bc7a01a47c9cda0acbff2a49eda50708f59a47b1";
+      setec = "dcd97e42f2518bc1d304089a5380fa6ad4c03602";
       # https://github.com/seruman/boo
-      boo = "f6f6fb4e27192921b227cb0934c9a939d5e443c0";
+      boo = "3bc3b2ec1f1dfc75bd9f8e919f1150ae5d42cf6b";
       # https://github.com/bscott/pm-cli/releases
       pmCli = "0.2.3";
       # https://github.com/rtk-ai/rtk/releases
       rtk = "0.29.0";
       # https://github.com/rustic-rs/rustic/releases
-      rustic = "0.11.0";
+      rustic = "0.11.1";
     };
 
     homebridge = {
       # https://github.com/homebridge/homebridge/releases
-      core = "1.8.4";
+      core = "1.11.2";
       # https://github.com/homebridge/homebridge-config-ui-x/releases
       configUi = "4.56.4";
       # https://github.com/arachnetech/homebridge-mqttthing/releases
-      mqttthing = "1.1.47";
+      mqttthing = "1.1.49";
     };
   };
 }

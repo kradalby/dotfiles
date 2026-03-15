@@ -15,7 +15,7 @@ in
       owner = "seruman";
       repo = "boo";
       rev = "${version}";
-      hash = "sha256-Hyb0tFD/yvZ0/jPNiZsi28ryHhcufdBZCE8JIPZnLnM=";
+      hash = "sha256-A2dURovCnEvp3u/1NGuOHAt77iw6cli0ZdsFUL4uU0o=";
     };
     vendorHash = "sha256-sfiu7FrcbyUcYhfyXa4RU73Zg0S0Gi2KNaQqmwygJzo=";
 

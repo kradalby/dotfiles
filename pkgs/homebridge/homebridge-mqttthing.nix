@@ -5,25 +5,25 @@
 }: let
   versions = import ../../metadata/versions.nix;
 in
-buildNpmPackage rec {
-  pname = "homebridge-mqttthing";
-  version = versions.pkgs.homebridge.mqttthing; # NOTE: manual update required
+  buildNpmPackage rec {
+    pname = "homebridge-mqttthing";
+    version = versions.pkgs.homebridge.mqttthing; # NOTE: manual update required
 
-  src = fetchFromGitHub {
-    owner = "arachnetech";
-    repo = "homebridge-mqttthing";
-    rev = "93f81e506c7579f4250c1e0bedcb822a8be517e0"; # Using commit hash as tags don't follow standard format
-    hash = "sha256-qlXIuyrygE6nvntSurP8IqCMQUjIhW6X6RdH+Jij1uI=";
-  };
+    src = fetchFromGitHub {
+      owner = "arachnetech";
+      repo = "homebridge-mqttthing";
+      rev = "ce703ab9765d95a668cc637d83913b77d2705c77"; # Using commit hash as tags don't follow standard format
+      hash = "sha256-uC7xeTI4wqEVIgSelTvMyEMHY9Vxyk/3hDGFaKAIY2g=";
+    };
 
-  npmDepsHash = "sha256-HxqTAve8I+m8o7DPPAXHJGeWEa26P0olbTszrMvXIME=";
+    npmDepsHash = "sha256-LyCK7C7991/LZsG7IfFdeLBtLl25PcRfT0kym80+8bU=";
 
-  dontNpmBuild = true; # No build script needed for this plugin
+    dontNpmBuild = true; # No build script needed for this plugin
 
-  meta = with lib; {
-    description = "Homebridge plugin supporting various services over MQTT";
-    homepage = "https://github.com/arachnetech/homebridge-mqttthing";
-    license = licenses.asl20;
-    maintainers = [];
-  };
-}
+    meta = with lib; {
+      description = "Homebridge plugin supporting various services over MQTT";
+      homepage = "https://github.com/arachnetech/homebridge-mqttthing";
+      license = licenses.asl20;
+      maintainers = [];
+    };
+  }

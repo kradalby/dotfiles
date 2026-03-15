@@ -18,10 +18,10 @@ in
       owner = "rustic-rs";
       repo = "rustic";
       rev = "v${versions.pkgs.overlays.rustic}";
-      hash = "sha256-2xSQ+nbP7/GsIWvj9sgG+jgIIIesfEW8T9z5Tijd90E=";
+      hash = "sha256-Iih6qZglnsD6aSQQUoCfYtGvz2CcmWeCVmwbWkgW5Hg=";
     };
 
-    cargoHash = "sha256-4yiWIlibYldr3qny0KRRIHBqHCx6R9gDiiheGkJrwEY=";
+    cargoHash = "sha256-osVyOFO+vHbcXEp44VH7XI8y4Ir8/IkCr/cF0FMPQvQ=";
 
     nativeBuildInputs = [
       installShellFiles
