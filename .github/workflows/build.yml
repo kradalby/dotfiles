@@ -19,9 +19,6 @@ jobs:
           - host: home.ldn
             platform: x86_64-linux
             runner: ubuntu-22.04
-          - host: unifi.ldn
-            platform: x86_64-linux
-            runner: ubuntu-22.04
           - host: core.tjoda
             platform: x86_64-linux
             runner: ubuntu-22.04
