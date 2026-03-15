@@ -5,17 +5,18 @@
   ...
 }:
 with lib; let
+  cfg = config.services.mqtt-exporter;
+
+  mqttExporterSrc = pkgs.fetchFromGitHub {
+    owner = "kpetremann";
+    repo = "mqtt-exporter";
+    rev = "774617eead7b2be3c0ba3b020585b9e7ad06c93d";
+    hash = "sha256-oPLVMHWizcA35eGQPfYJZzEM2Nd+Dbpv4W+mHCp2UeQ=";
+  };
+
   packageOverrides = pkgs.callPackage ./python-packages.nix {};
   python = pkgs.python3.override {inherit packageOverrides;};
   pythonWithPackages = python.withPackages (ps: [ps."paho-mqtt" ps."prometheus-client"]);
-
-  mqttExporter = builtins.fetchGit {
-    url = "https://github.com/kpetremann/mqtt-exporter.git";
-    ref = "master";
-    rev = "774617eead7b2be3c0ba3b020585b9e7ad06c93d";
-  };
-
-  cfg = config.services.mqtt-exporter;
 in {
   options.services.mqtt-exporter = {
     enable = mkEnableOption "MQTT exporter for Prometheus, exposing zigbee2mqtt metrics.";
@@ -116,7 +117,7 @@ in {
     systemd.services.mqtt-exporter = {
       enable = true;
       script = ''
-        ${pythonWithPackages}/bin/python ${mqttExporter}/exporter.py
+        ${pythonWithPackages}/bin/python ${mqttExporterSrc}/exporter.py
       '';
       wantedBy = ["multi-user.target"];
       after = ["network.target" "zigbee2mqtt.service" "mosquitto.service"];
