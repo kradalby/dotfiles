@@ -2,11 +2,9 @@
 pkgs.writeShellApplication {
   name = "tøm.sh";
 
-  runtimeInputs = with pkgs; [];
+  runtimeInputs = with pkgs; [findutils git gnugrep coreutils];
 
   text = ''
-    set -euox pipefail
-
     delete_git_repos_with_remote() {
       # Define the target directory
       local base_dir="$HOME/git" # Change this to the target directory if needed

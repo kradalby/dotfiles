@@ -2,11 +2,9 @@
 pkgs.writeShellApplication {
   name = "rsync-photos-backup";
 
-  runtimeInputs = with pkgs; [rsync coreutils];
+  runtimeInputs = with pkgs; [rsync coreutils gnugrep];
 
   text = ''
-    set -euo pipefail
-
     # Configuration
     SOURCE="$HOME/Pictures/Photos Library.photoslibrary/"
     DEST="/Volumes/storage/pictures/Photos Library.photoslibrary/"

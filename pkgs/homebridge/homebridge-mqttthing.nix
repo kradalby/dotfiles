@@ -5,7 +5,7 @@
 }: let
   versions = import ../../metadata/versions.nix;
 in
-  buildNpmPackage rec {
+  buildNpmPackage {
     pname = "homebridge-mqttthing";
     version = versions.pkgs.homebridge.mqttthing; # NOTE: manual update required
 
