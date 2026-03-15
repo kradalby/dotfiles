@@ -24,8 +24,6 @@
       webreplCli = "1e09d9a1d90fe52aba11d1e659afbc95a50cf088";
       # https://github.com/cooklang/cookcli/releases
       cook = "0.26.0";
-      # https://github.com/bradfitz/gitutil
-      gitutil = "275daa41cc6eb3ed7bc80e0319907b182b5f75ce";
       # https://github.com/JonaEnz/tailscale-restic-proxy
       tailscaleResticProxy = "7568fa9106768a017465ac6a00b5e20865bd4b4f";
       # https://github.com/tailscale/tailscale
