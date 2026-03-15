@@ -228,29 +228,6 @@
         "type": "github"
       }
     },
-    "hugin": {
-      "inputs": {
-        "flake-utils": [
-          "utils"
-        ],
-        "nixpkgs": [
-          "nixpkgs-unstable"
-        ]
-      },
-      "locked": {
-        "lastModified": 1769119493,
-        "narHash": "sha256-PRQlVGzjPPNTxvv6WFXEnIkNlpOIlm0fx2ngRj/DpZc=",
-        "owner": "kradalby",
-        "repo": "hugin",
-        "rev": "7782f893a9a423b6d195b1d1e6d395240a00baaa",
-        "type": "github"
-      },
-      "original": {
-        "owner": "kradalby",
-        "repo": "hugin",
-        "type": "github"
-      }
-    },
     "hvor": {
       "inputs": {
         "nixpkgs": [
@@ -271,30 +248,6 @@
       "original": {
         "owner": "kradalby",
         "repo": "hvor",
-        "type": "github"
-      }
-    },
-    "jujutsu": {
-      "inputs": {
-        "flake-utils": [
-          "utils"
-        ],
-        "nixpkgs": [
-          "nixpkgs-unstable"
-        ],
-        "rust-overlay": "rust-overlay"
-      },
-      "locked": {
-        "lastModified": 1773326009,
-        "narHash": "sha256-fTxs8XwIcVlAoT+pTbhTYeiB32jwj0XR37EfTwgvGRw=",
-        "owner": "jj-vcs",
-        "repo": "jj",
-        "rev": "a95bee7588f953d3355f82938b383168e5e0f28b",
-        "type": "github"
-      },
-      "original": {
-        "owner": "jj-vcs",
-        "repo": "jj",
         "type": "github"
       }
     },
@@ -556,7 +509,7 @@
         "nixpkgs": [
           "nixpkgs"
         ],
-        "rust-overlay": "rust-overlay_2"
+        "rust-overlay": "rust-overlay"
       },
       "locked": {
         "lastModified": 1761832913,
@@ -579,9 +532,7 @@
         "headscale": "headscale",
         "home-manager": "home-manager",
         "homewizard-p1-exporter": "homewizard-p1-exporter",
-        "hugin": "hugin",
         "hvor": "hvor",
-        "jujutsu": "jujutsu",
         "krapage": "krapage",
         "nefit-homekit": "nefit-homekit",
         "neovim-kradalby": "neovim-kradalby",
@@ -607,27 +558,6 @@
     "rust-overlay": {
       "inputs": {
         "nixpkgs": [
-          "jujutsu",
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1772939270,
-        "narHash": "sha256-HbxD5DJAKxzo0G8on5wdY+OZNiUWt3FTvGmXmVEmg7g=",
-        "owner": "oxalica",
-        "repo": "rust-overlay",
-        "rev": "bb93f191a07c0165992ed6d0b4197ee5c7e6e641",
-        "type": "github"
-      },
-      "original": {
-        "owner": "oxalica",
-        "repo": "rust-overlay",
-        "type": "github"
-      }
-    },
-    "rust-overlay_2": {
-      "inputs": {
-        "nixpkgs": [
           "ragenix",
           "nixpkgs"
         ]
@@ -646,7 +576,7 @@
         "type": "github"
       }
     },
-    "rust-overlay_3": {
+    "rust-overlay_2": {
       "inputs": {
         "nixpkgs": [
           "ssh-agent-mux",
@@ -673,7 +603,7 @@
         "nixpkgs": [
           "nixpkgs-unstable"
         ],
-        "rust-overlay": "rust-overlay_3"
+        "rust-overlay": "rust-overlay_2"
       },
       "locked": {
         "lastModified": 1765369608,
