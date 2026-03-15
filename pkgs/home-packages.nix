@@ -197,6 +197,9 @@ in {
         [
           ac
         ]
+        ++ (with pkgs; [
+          rtk
+        ])
         ++ (with pkgs.master; [
           claude-code
           claude-code-acp
