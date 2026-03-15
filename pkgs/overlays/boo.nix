@@ -6,7 +6,7 @@
   versions = import ../../metadata/versions.nix;
 in
   buildGoModule rec {
-    name = "boo";
+    pname = "boo";
     # NOTE: manual update required
     # https://github.com/seruman/boo/commits/main/
     version = versions.pkgs.overlays.boo;

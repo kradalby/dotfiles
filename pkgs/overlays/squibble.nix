@@ -5,7 +5,7 @@
   versions = import ../../metadata/versions.nix;
 in
   buildGoModule rec {
-    name = "squibble";
+    pname = "squibble";
     # NOTE: manual update required
     # https://github.com/tailscale/squibble/commits/main/
     version = versions.pkgs.overlays.squibble;

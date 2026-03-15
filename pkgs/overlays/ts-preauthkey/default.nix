@@ -1,6 +1,7 @@
 {buildGoModule}:
 buildGoModule {
-  name = "ts-preauthkey";
+  pname = "ts-preauthkey";
+  version = "unstable";
 
   src = ./.;
   vendorHash = "sha256-XXh2RGt1stpfZv8bNqfgGLZVz38Bd+kMNfFZZovTqXg=";

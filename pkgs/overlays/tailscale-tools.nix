@@ -7,7 +7,7 @@
   versions = import ../../metadata/versions.nix;
 in
 buildGoModule rec {
-  name = "tailscale-tools";
+  pname = "tailscale-tools";
   # NOTE: manual update required
   # https://github.com/tailscale/tailscale/releases
   # Keeping at previous version - v1.90.4 requires Go 1.25.3 which is not available yet
