@@ -35,13 +35,6 @@
       # inputs."agenix".inputs."nixpkgs".follows = "nixpkgs";
     };
 
-    jujutsu = {
-      url = "github:jj-vcs/jj";
-      inputs."flake-utils".follows = "utils";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-      # inputs."agenix".inputs."nixpkgs".follows = "nixpkgs";
-    };
-
     # Go based
     krapage = {
       url = "github:kradalby/kra";
@@ -70,12 +63,6 @@
     headscale = {
       # url = "github:juanfont/headscale/v0.26.0-beta.1";
       url = "github:juanfont/headscale/main";
-      inputs."flake-utils".follows = "utils";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-    };
-
-    hugin = {
-      url = "github:kradalby/hugin";
       inputs."flake-utils".follows = "utils";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
@@ -165,10 +152,8 @@
       overlay-pkgs
       goOverlayStable
       ragenix.overlays.default
-      jujutsu.overlays.default
       headscale.overlays.default
       golink.overlays.default
-      hugin.overlay
       krapage.overlays.default
       hvor.overlays.default
       tasmota-exporter.overlays.default
@@ -205,9 +190,6 @@
         #   arch = "x86_64-linux";
         #   name = "core.terra";
         #   tags = ["x86" "router" "terra"];
-        #   modules = with inputs; [
-        #     hugin.nixosModules.default
-        #   ];
         # };
 
         "core.oracldn" = box.nixosBox {
