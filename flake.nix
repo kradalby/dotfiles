@@ -149,13 +149,6 @@
     goOverlayUnstable = mkGoOverlay "1_26";
 
     overlay-pkgs = final: _: {
-      stable = import nixpkgs-nixos {
-        system = final.stdenv.hostPlatform.system;
-        config = {
-          allowUnfree = true;
-        };
-        overlays = [goOverlayStable (import ./pkgs/overlays {})];
-      };
       unstable = import inputs.nixpkgs-unstable {
         system = final.stdenv.hostPlatform.system;
         config = {allowUnfree = true;};
