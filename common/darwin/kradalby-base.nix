@@ -26,10 +26,7 @@ in {
     ../../pkgs/homebrew.nix
     ./syncthing.nix
     ../../modules/macos.nix
-    ../../modules/nix-push-darwin.nix
   ];
-
-  services.nix-push-darwin.enable = true;
 
   # TODO(ghostty): Workaround for Ghostty lacking an exec/command keybind
   # action. skhd provides a global hotkey that runs an external command,

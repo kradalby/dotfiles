@@ -136,9 +136,6 @@ with builtins;
   # harmonia signing key (nix-cache.ldn)
   # "harmonia-signing-key.age".publicKeys = u ++ [ hosts.nix-cache-ldn ];
 
-  # nix-push SSH key (all pushing machines)
-  "nix-push-key.age".publicKeys = global;
-
   # hvor
   "hvor-tskey.age".publicKeys = u ++ [ hosts.core-oracldn ];
   "hvor-env.age".publicKeys = u ++ [ hosts.core-oracldn ];

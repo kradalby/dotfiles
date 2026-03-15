@@ -67,14 +67,6 @@ in {
   users.users.kradalby.openssh.authorizedKeys.keys = sshKeys.main ++ sshKeys.kradalby ++ sshKeys.work;
   users.users.kradalby.linger = true;
 
-  age.secrets.nix-push-key = {
-    file = ../../secrets/nix-push-key.age;
-  };
-  services.nix-push = {
-    enable = true;
-    sshKeyFile = config.age.secrets.nix-push-key.path;
-  };
-
   services.tailscale = {
     advertiseRoutes = wireguardConfig.additional_networks;
     tags = ["tag:ldn" "tag:gateway" "tag:server"];
