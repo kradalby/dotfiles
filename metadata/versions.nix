@@ -47,14 +47,5 @@
       # https://github.com/rustic-rs/rustic/releases
       rustic = "0.11.1";
     };
-
-    homebridge = {
-      # https://github.com/homebridge/homebridge/releases
-      core = "1.11.2";
-      # https://github.com/homebridge/homebridge-config-ui-x/releases
-      configUi = "5.19.0";
-      # https://github.com/arachnetech/homebridge-mqttthing/releases
-      mqttthing = "1.1.49";
-    };
   };
 }

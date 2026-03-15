@@ -7,13 +7,6 @@ in
 
     squibble = prev.callPackage ./squibble.nix {};
 
-    # Modern homebridge package (using buildNpmPackage)
-    # Usage: homebridge-with-plugins.withPlugins [ plugins.homebridge-mqttthing ]
-    homebridge-with-plugins = prev.callPackage ../homebridge {};
-
-    # Individual homebridge plugins
-    homebridgePlugins = prev.callPackage ../homebridge/plugins.nix {};
-
     eb = prev.callPackage ./eb.nix {};
 
     cook-cli = prev.callPackage ./cook.nix {};
