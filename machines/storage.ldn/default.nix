@@ -19,7 +19,6 @@ in {
     ./rest-server.nix
     ./samba.nix
     ./zfs.nix
-    # ./dnsmasq.nix  # Config kept, service disabled
   ];
 
   boot.kernel.sysctl = {
