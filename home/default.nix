@@ -88,7 +88,6 @@ in {
         --platform ubuntu-20.04=${versions.act.ubuntu2004}
       '';
 
-      # ".config/zed/settings.json".text = builtins.toJSON (import ./zed.nix);
       ".config/ghostty/config".source = ../rc/ghostty;
       ".config/opencode/opencode.json".source = ../rc/opencode/opencode.json;
       ".config/opencode/commands".source = ../rc/ai-commands;

@@ -225,15 +225,10 @@
       })
     ];
 
-    lib = nixpkgs-nixos.lib.extend (
-      final: _: {
-        k = import ./k.nix {};
-      }
-    );
-
     box = import ./lib/box.nix {
       pkgs = nixpkgs-nixos;
-      inherit inputs overlays lib;
+      inherit inputs overlays;
+      lib = nixpkgs-nixos.lib;
       rev = nixpkgs-nixos.lib.mkIf (self ? rev) self.rev;
     };
   in

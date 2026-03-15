@@ -16,8 +16,6 @@ in
 
     eb = prev.callPackage ./eb.nix {};
 
-    # elm-review = prev.callPackage ./node-elm-review.nix {};
-
     cook-cli = prev.callPackage ./cook.nix {};
 
     webrepl_cli = prev.callPackage ./webrepl_cli.nix {};
