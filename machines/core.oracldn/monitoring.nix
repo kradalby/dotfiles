@@ -469,7 +469,7 @@ in
               }
               {
                 alert = "ZFSPoolUnhealthy";
-                expr = ''zfs_pool_health == 0'';
+                expr = ''zfs_pool_health != 0'';
                 for = "2m";
                 labels = {
                   severity = "critical";
