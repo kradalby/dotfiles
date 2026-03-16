@@ -97,11 +97,18 @@ in {
       {
         meta = {
           machinesFile = /etc/nix/machines;
-          nixpkgs = import pkgs {
-            system = "x86_64-linux";
-            inherit overlays;
-            config = {allowUnfree = true;};
-          };
+          # Reuse an existing NixOS host's pkgs to avoid a
+          # redundant nixpkgs instantiation. All hosts use
+          # buildOnTarget so this is only a fallback evaluator.
+          nixpkgs =
+            if nixosConfigurations ? "dev.ldn"
+            then nixosConfigurations."dev.ldn".pkgs
+            else
+              import pkgs {
+                system = "x86_64-linux";
+                inherit overlays;
+                config = {allowUnfree = true;};
+              };
 
           specialArgs = {
             inherit inputs;

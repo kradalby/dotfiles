@@ -292,11 +292,7 @@
 
       homeConfigurations = {
         "kradalby@kradalby-llm" = home-manager.lib.homeManagerConfiguration {
-          pkgs = import nixpkgs-nixos {
-            system = "x86_64-linux";
-            inherit overlays;
-            config.allowUnfree = true;
-          };
+          pkgs = self.nixosConfigurations."dev.ldn".pkgs;
           modules = [
             inputs.nix-index-database.homeModules.nix-index
             ./machines/kradalby-llm
