@@ -70,21 +70,26 @@
     golink = {
       url = "github:tailscale/golink";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
+      inputs.systems.follows = "utils/systems";
     };
 
     tsidp = {
       url = "github:tailscale/tsidp";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
+      inputs.systems.follows = "utils/systems";
     };
 
     tailscale = {
       url = "github:tailscale/tailscale/kradalby/nixos-module";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
+      inputs.systems.follows = "utils/systems";
+      inputs.flake-compat.follows = "";
     };
 
     ssh-agent-mux = {
       url = "github:kradalby/ssh-agent-mux";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
+      inputs."flake-utils".follows = "utils";
     };
 
     # munin.url = "github:kradalby/munin";
