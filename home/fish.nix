@@ -57,14 +57,7 @@ in {
       source ${../pkgs/scripts/wt.fish}
     '';
 
-    shellAliases = let
-      pyyaml =
-        pkgs.python3.withPackages
-        (p:
-          with p; [
-            pyyaml
-          ]);
-    in {
+    shellAliases = {
       s = ''${pkgs.findutils}/bin/xargs ${pkgs.perl}/bin/perl -pi -E'';
       ag = "${pkgs.ripgrep}/bin/rg";
       cat = "${pkgs.bat}/bin/bat";
@@ -81,11 +74,6 @@ in {
         ''osxphotos query --json --only-photos''
         ''${pkgs.jq}/bin/jq ".[] | select((.path == null)and .path_edited == null)"''
       ];
-      yaml2json = builtins.concatStringsSep " | " [
-        "${pyyaml}/bin/python3 -c 'import sys, yaml, json; json.dump(yaml.safe_load(sys.stdin), sys.stdout)'"
-        "${pkgs.jq}/bin/jq"
-      ];
-
       tailscale =
         if pkgs.stdenv.isDarwin
         then "/Applications/Tailscale.app/Contents/MacOS/Tailscale"

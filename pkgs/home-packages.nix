@@ -223,8 +223,6 @@ in {
           terminal-notifier
           syncthing
           silicon
-          virt-manager
-          qemu
         ])
         ++ (with pkgs.unstable; [
           lima-full
