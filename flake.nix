@@ -153,7 +153,6 @@
     overlays = with inputs; [
       overlay-pkgs
       goOverlayStable
-      ragenix.overlays.default
       headscale.overlays.default
       golink.overlays.default
       krapage.overlays.default
