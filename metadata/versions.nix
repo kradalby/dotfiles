@@ -11,6 +11,14 @@
   isponsor = "ghcr.io/dmunozv04/isponsorblocktv:v2.6.1";
 
   ## core.oracldn
+  grafanaDashboards = {
+    # https://grafana.com/grafana/dashboards/19727-incus/
+    incus = {
+      rev = "2";
+      hash = "sha256-3+f11v3qfTmM6poCwjUAlQmyZNs9X0TwcCdxFTreyuQ=";
+    };
+  };
+
   # https://github.com/umami-software/umami/pkgs/container/umami
   umami = "ghcr.io/umami-software/umami:v3.0.3";
   # https://hub.docker.com/r/frooodle/s-pdf/tags
