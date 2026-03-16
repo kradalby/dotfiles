@@ -12,7 +12,6 @@
   my.packages = {
     nix.enable = false;
     python.enable = false;
-    elm.enable = false;
     infra.enable = false;
     media.enable = false;
     ai.opencode = false;
