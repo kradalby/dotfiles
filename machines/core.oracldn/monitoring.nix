@@ -380,7 +380,7 @@ in
               {
                 alert = "InstanceLowMem";
                 expr = "node_memory_MemAvailable_bytes / 1024 / 1024 < node_memory_MemTotal_bytes / 1024 / 1024 / 10";
-                for = "3m";
+                for = "30m";
                 labels.severity = "critical";
                 annotations = {
                   description = "Less than 10% of free memory";
