@@ -309,7 +309,7 @@
 
       colmena = box.mkColmenaFromNixOSConfigurations self.nixosConfigurations;
     }
-    // utils.lib.eachSystem ["x86_64-linux" "aarch64-linux" "aarch64-darwin"]
+    // utils.lib.eachSystem ["x86_64-linux" "aarch64-darwin"]
     (system: let
       pkgs = import nixpkgs-nixos {
         inherit overlays system;
