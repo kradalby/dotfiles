@@ -15,8 +15,6 @@ in
 
     ts-preauthkey = prev.callPackage ./ts-preauthkey {};
 
-    tailscale-restic-proxy = prev.callPackage ./tailscale-restic-proxy.nix {};
-
     rtk = prev.callPackage ./rtk.nix {};
 
     rustic = prev.callPackage ./rustic.nix {};
