@@ -21,6 +21,4 @@
   };
 
   storage = ["krair" "core.tjoda" "core.terra" "dev.ldn" "storage.ldn"];
-
-  folders = {};
 }

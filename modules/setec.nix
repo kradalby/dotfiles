@@ -86,7 +86,6 @@ in {
         WorkingDirectory = cfg.dataDir;
       };
 
-      path = [cfg.package];
     };
   };
 }

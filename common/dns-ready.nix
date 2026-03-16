@@ -18,7 +18,7 @@
     };
 
     script = ''
-      ${pkgs.bash}/bin/bash -c 'until ${pkgs.host}/bin/host vg.no; do sleep 1; done'
+      until ${pkgs.host}/bin/host vg.no; do sleep 1; done
     '';
   };
 }

@@ -80,7 +80,6 @@ in {
         RuntimeDirectoryMode = "0755";
       };
 
-      path = [cfg.package];
     };
 
     # systemd.sockets.tailscale-nginx-auth = {

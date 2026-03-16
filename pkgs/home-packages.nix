@@ -5,10 +5,6 @@
   ...
 }: let
   cfg = config.my.packages;
-
-  # Import scripts
-  ac = import ./scripts/ac.nix {inherit pkgs;};
-  exif-set-photographer = import ./scripts/exif-set-photographer.nix {inherit pkgs;};
   tom = import ./scripts/tom.nix {inherit pkgs;};
 in {
   options.my.packages = {
@@ -175,13 +171,15 @@ in {
 
     # Media and data
     (lib.mkIf cfg.media.enable {
-      home.packages =
-        (with pkgs; [
+      home.packages = let
+        exif-set-photographer = import ./scripts/exif-set-photographer.nix {inherit pkgs;};
+      in
+        [exif-set-photographer]
+        ++ (with pkgs; [
           ffmpeg
           exiftool
           qrencode
           cook-cli
-          exif-set-photographer
           sqldiff
           sql-studio
         ])
@@ -192,10 +190,10 @@ in {
 
     # AI coding assistants
     (lib.mkIf cfg.ai.enable {
-      home.packages =
-        [
-          ac
-        ]
+      home.packages = let
+        ac = import ./scripts/ac.nix {inherit pkgs;};
+      in
+        [ac]
         ++ (with pkgs; [
           rtk
         ])

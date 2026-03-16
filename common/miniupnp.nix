@@ -3,9 +3,7 @@
   pkgs,
   lib,
   ...
-}: let
-  cfg = config.services.miniupnpd;
-in {
+}: {
   services.miniupnpd = {
     enable = true;
     upnp = true;

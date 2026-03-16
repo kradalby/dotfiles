@@ -5,7 +5,6 @@
   ...
 }:
 with lib; let
-  site = builtins.replaceStrings [".fap.no"] [""] config.networking.domain;
   nextdnsProfile = "842cee";
   nextdnsUpstreams = [
     "tls://2a07:a8c0::ae:9cfd"

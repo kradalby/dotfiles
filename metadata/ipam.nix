@@ -2,8 +2,7 @@
   lib,
   config ? {},
 }:
-with lib;
-with builtins; let
+with lib; let
   # Host-centric IPAM configuration
   hosts = {
     "core.terra" = {

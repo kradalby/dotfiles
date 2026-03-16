@@ -2,8 +2,7 @@
   lib,
   config ? {},
 }:
-with lib;
-with builtins; let
+with lib; let
   ipam = import ./ipam.nix { inherit lib config; };
 
   # Generate WireGuard configs from IPAM hosts

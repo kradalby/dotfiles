@@ -3,8 +3,7 @@
   lib,
   pkgs,
   ...
-}: let
-in {
+}: {
   imports = [
     ../modules/tailscale-nginx-auth.nix
   ];
