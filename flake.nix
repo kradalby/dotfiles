@@ -4,19 +4,17 @@
   inputs = {
     utils.url = "github:numtide/flake-utils";
 
-    nixpkgs.url = "github:NixOS/nixpkgs/release-25.11";
     nixpkgs-nixos.url = "github:NixOS/nixpkgs/nixos-25.11";
     nixpkgs-darwin.url = "github:NixOS/nixpkgs/nixpkgs-25.11-darwin";
-    # nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     nixpkgs-master.url = "github:NixOS/nixpkgs/master";
     darwin.url = "github:nix-darwin/nix-darwin/nix-darwin-25.11";
     darwin.inputs.nixpkgs.follows = "nixpkgs-darwin";
 
     home-manager.url = "github:nix-community/home-manager/release-25.11";
-    home-manager.inputs.nixpkgs.follows = "nixpkgs";
+    home-manager.inputs.nixpkgs.follows = "nixpkgs-nixos";
     nix-index-database.url = "github:nix-community/nix-index-database";
-    nix-index-database.inputs.nixpkgs.follows = "nixpkgs";
+    nix-index-database.inputs.nixpkgs.follows = "nixpkgs-nixos";
 
     nixos-generators = {
       url = "github:nix-community/nixos-generators";
@@ -31,8 +29,7 @@
     ragenix = {
       url = "github:yaxitech/ragenix";
       inputs."flake-utils".follows = "utils";
-      inputs.nixpkgs.follows = "nixpkgs";
-      # inputs."agenix".inputs."nixpkgs".follows = "nixpkgs";
+      inputs.nixpkgs.follows = "nixpkgs-nixos";
     };
 
     # Go based
