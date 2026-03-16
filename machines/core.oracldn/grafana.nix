@@ -5,6 +5,19 @@
   ...
 }: let
   domain = "grafana.${config.networking.domain}";
+  versions = import ../../metadata/versions.nix;
+
+  fetchDashboard = {
+    id,
+    rev,
+    hash,
+    name,
+  }:
+    pkgs.fetchurl {
+      url = "https://grafana.com/api/dashboards/${toString id}/revisions/${rev}/download";
+      inherit hash;
+      inherit name;
+    };
 
   # Community dashboards from grafana.com, post-processed to replace
   # datasource template variables with our provisioned datasource name.
@@ -14,6 +27,12 @@
       url = "https://grafana.com/api/dashboards/1860/revisions/37/download";
       hash = "sha256-1DE1aaanRHHeCOMWDGdOS1wBXxOF84UXAjJzT5Ek6mM=";
     }} > $out/node-exporter-full.json
+    cp ${fetchDashboard {
+      id = 19727;
+      rev = versions.grafanaDashboards.incus.rev;
+      hash = versions.grafanaDashboards.incus.hash;
+      name = "incus.json";
+    }} $out/incus.json
   '';
 in {
   age.secrets.grafana-admin = {
@@ -89,6 +108,7 @@ in {
           {
             name = "community";
             options.path = dashboardDir;
+            disableDeletion = true;
           }
         ];
       };
