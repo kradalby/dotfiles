@@ -100,6 +100,7 @@ in {
           nixpkgs = import pkgs {
             system = "x86_64-linux";
             inherit overlays;
+            config = {allowUnfree = true;};
           };
 
           specialArgs = {

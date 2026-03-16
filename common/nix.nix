@@ -58,7 +58,7 @@
   };
 
   nixpkgs.config = {
-    allowUnfree = true;
+    # allowUnfree is set in lib/box.nix via commonModules
     permittedInsecurePackages = [
       "litestream-0.3.13"
       "olm-3.2.16"
