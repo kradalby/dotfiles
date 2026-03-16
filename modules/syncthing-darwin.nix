@@ -8,94 +8,6 @@
 with lib; let
   cfg = config.services.syncthing;
   opt = options.services.syncthing;
-
-  devices =
-    mapAttrsToList
-    (name: device: {
-      deviceID = device.id;
-      inherit (device) name addresses introducer autoAcceptFolders;
-    })
-    cfg.devices;
-
-  folders =
-    mapAttrsToList
-    (_: folder: {
-      inherit (folder) path id label type;
-      devices = map (device: {deviceId = cfg.devices.${device}.id;}) folder.devices;
-      rescanIntervalS = folder.rescanInterval;
-      fsWatcherEnabled = folder.watch;
-      fsWatcherDelayS = folder.watchDelay;
-      ignorePerms = folder.ignorePerms;
-      ignoreDelete = folder.ignoreDelete;
-      versioning = folder.versioning;
-    })
-    (filterAttrs
-      (
-        _: folder:
-          folder.enable
-      )
-      cfg.folders);
-
-  folderIgnores =
-    filter (f: f.ignorePatterns != null)
-    (mapAttrsToList (_: folder: {inherit (folder) id ignorePatterns;})
-      (filterAttrs (_: f: f.enable) cfg.folders));
-
-  copyKeys = pkgs.writers.writeBash "syncthing-copy-keys" ''
-    install -dm700 -o ${cfg.user} -g ${cfg.group} ${cfg.configDir}
-    ${optionalString (cfg.cert != null) ''
-      install -Dm400 -o ${cfg.user} -g ${cfg.group} ${toString cfg.cert} "${cfg.configDir}/cert.pem"
-    ''}
-    ${optionalString (cfg.key != null) ''
-      install -Dm400 -o ${cfg.user} -g ${cfg.group} ${toString cfg.key} "${cfg.configDir}/key.pem"
-    ''}
-  '';
-
-  updateConfig = pkgs.writers.writeBash "merge-syncthing-config" ''
-    set -efu
-    # get the api key by parsing the config.xml
-    while
-        ! api_key=$(${pkgs.libxml2}/bin/xmllint \
-            --xpath 'string(configuration/gui/apikey)' \
-            "${cfg.configDir}/config.xml")
-    do sleep 1; done
-    curl() {
-        ${pkgs.curl}/bin/curl -sSLk -H "X-API-Key: $api_key" \
-            --retry 1000 --retry-delay 1 --retry-all-errors \
-            "$@"
-    }
-    # query the old config
-    old_cfg=$(curl ${cfg.guiAddress}/rest/config)
-    # generate the new config by merging with the NixOS config options
-    new_cfg=$(printf '%s\n' "$old_cfg" | ${pkgs.jq}/bin/jq -c '. * {
-        "devices": (${builtins.toJSON devices}${optionalString (! cfg.overrideDevices) " + .devices"}),
-        "folders": (${builtins.toJSON folders}${optionalString (! cfg.overrideFolders) " + .folders"})
-    } * ${builtins.toJSON cfg.extraOptions}')
-    # send the new config
-    curl -X PUT -d "$new_cfg" ${cfg.guiAddress}/rest/config
-    # restart Syncthing if required
-    if curl ${cfg.guiAddress}/rest/config/restart-required |
-       ${pkgs.jq}/bin/jq -e .requiresRestart > /dev/null; then
-        curl -X POST ${cfg.guiAddress}/rest/system/restart
-    fi
-    # Push ignore patterns for folders that define them
-    ${concatMapStrings (folder: ''
-        curl -X POST -d '${builtins.toJSON {ignore = folder.ignorePatterns;}}' '${cfg.guiAddress}/rest/db/ignores?folder=${folder.id}'
-      '')
-      folderIgnores}
-  '';
-
-  syncthingScript = pkgs.writers.writeBash "run-syncthing" ''
-    ${optionalString (cfg.cert != null || cfg.key != null) ''
-      ${copyKeys}
-    ''}
-
-    ${cfg.package}/bin/syncthing \
-      --no-browser \
-      --gui-address=${cfg.guiAddress} \
-      --config="${cfg.configDir}" \
-      --data="${cfg.configDir}" ${escapeShellArgs cfg.extraFlags}
-  '';
 in {
   ###### interface
   options = {
@@ -500,7 +412,83 @@ in {
 
   ###### implementation
 
-  config = mkIf cfg.enable {
+  config = mkIf cfg.enable (let
+    devices =
+      mapAttrsToList
+      (name: device: {
+        deviceID = device.id;
+        inherit (device) name addresses introducer autoAcceptFolders;
+      })
+      cfg.devices;
+
+    folders =
+      mapAttrsToList
+      (_: folder: {
+        inherit (folder) path id label type;
+        devices = map (device: {deviceId = cfg.devices.${device}.id;}) folder.devices;
+        rescanIntervalS = folder.rescanInterval;
+        fsWatcherEnabled = folder.watch;
+        fsWatcherDelayS = folder.watchDelay;
+        ignorePerms = folder.ignorePerms;
+        ignoreDelete = folder.ignoreDelete;
+        versioning = folder.versioning;
+      })
+      (filterAttrs
+        (
+          _: folder:
+            folder.enable
+        )
+        cfg.folders);
+
+    folderIgnores =
+      filter (f: f.ignorePatterns != null)
+      (mapAttrsToList (_: folder: {inherit (folder) id ignorePatterns;})
+        (filterAttrs (_: f: f.enable) cfg.folders));
+
+    copyKeys = pkgs.writers.writeBash "syncthing-copy-keys" ''
+      install -dm700 -o ${cfg.user} -g ${cfg.group} ${cfg.configDir}
+      ${optionalString (cfg.cert != null) ''
+        install -Dm400 -o ${cfg.user} -g ${cfg.group} ${toString cfg.cert} "${cfg.configDir}/cert.pem"
+      ''}
+      ${optionalString (cfg.key != null) ''
+        install -Dm400 -o ${cfg.user} -g ${cfg.group} ${toString cfg.key} "${cfg.configDir}/key.pem"
+      ''}
+    '';
+
+    updateConfig = pkgs.writers.writeBash "merge-syncthing-config" ''
+      set -efu
+      # get the api key by parsing the config.xml
+      while
+          ! api_key=$(${pkgs.libxml2}/bin/xmllint \
+              --xpath 'string(configuration/gui/apikey)' \
+              "${cfg.configDir}/config.xml")
+      do sleep 1; done
+      curl() {
+          ${pkgs.curl}/bin/curl -sSLk -H "X-API-Key: $api_key" \
+              --retry 1000 --retry-delay 1 --retry-all-errors \
+              "$@"
+      }
+      # query the old config
+      old_cfg=$(curl ${cfg.guiAddress}/rest/config)
+      # generate the new config by merging with the NixOS config options
+      new_cfg=$(printf '%s\n' "$old_cfg" | ${pkgs.jq}/bin/jq -c '. * {
+          "devices": (${builtins.toJSON devices}${optionalString (! cfg.overrideDevices) " + .devices"}),
+          "folders": (${builtins.toJSON folders}${optionalString (! cfg.overrideFolders) " + .folders"})
+      } * ${builtins.toJSON cfg.extraOptions}')
+      # send the new config
+      curl -X PUT -d "$new_cfg" ${cfg.guiAddress}/rest/config
+      # restart Syncthing if required
+      if curl ${cfg.guiAddress}/rest/config/restart-required |
+         ${pkgs.jq}/bin/jq -e .requiresRestart > /dev/null; then
+          curl -X POST ${cfg.guiAddress}/rest/system/restart
+      fi
+      # Push ignore patterns for folders that define them
+      ${concatMapStrings (folder: ''
+          curl -X POST -d '${builtins.toJSON {ignore = folder.ignorePatterns;}}' '${cfg.guiAddress}/rest/db/ignores?folder=${folder.id}'
+        '')
+        folderIgnores}
+    '';
+  in {
     launchd.user.agents = {
       syncthing = {
         # Syncthing will have to be added manually to "Allow disk access" in
@@ -560,5 +548,5 @@ in {
       ${cfg.dataDir}/Library/Logs/syncthing-init.log         kradalby:staff      750    10      10240  *     NJ
       ${cfg.dataDir}/Library/Logs/syncthing-init-error.log   kradalby:staff      750    10      10240  *     NJ
     '';
-  };
+  });
 }

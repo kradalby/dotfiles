@@ -6,17 +6,6 @@
 }:
 with lib; let
   cfg = config.services.mqtt-exporter;
-
-  mqttExporterSrc = pkgs.fetchFromGitHub {
-    owner = "kpetremann";
-    repo = "mqtt-exporter";
-    rev = "774617eead7b2be3c0ba3b020585b9e7ad06c93d";
-    hash = "sha256-oPLVMHWizcA35eGQPfYJZzEM2Nd+Dbpv4W+mHCp2UeQ=";
-  };
-
-  packageOverrides = pkgs.callPackage ./python-packages.nix {};
-  python = pkgs.python3.override {inherit packageOverrides;};
-  pythonWithPackages = python.withPackages (ps: [ps."paho-mqtt" ps."prometheus-client"]);
 in {
   options.services.mqtt-exporter = {
     enable = mkEnableOption "MQTT exporter for Prometheus, exposing zigbee2mqtt metrics.";
@@ -26,7 +15,11 @@ in {
       description = ''
         MQTT exporter package to use
       '';
-      default = pythonWithPackages;
+      default = let
+        packageOverrides = pkgs.callPackage ./python-packages.nix {};
+        python = pkgs.python3.override {inherit packageOverrides;};
+      in
+        python.withPackages (ps: [ps."paho-mqtt" ps."prometheus-client"]);
       defaultText = literalExpression "python with overridden dependencies";
     };
 
@@ -111,13 +104,20 @@ in {
     openFirewall = mkEnableOption "opening of the metric in the firewall";
   };
 
-  config = mkIf cfg.enable {
+  config = mkIf cfg.enable (let
+    mqttExporterSrc = pkgs.fetchFromGitHub {
+      owner = "kpetremann";
+      repo = "mqtt-exporter";
+      rev = "774617eead7b2be3c0ba3b020585b9e7ad06c93d";
+      hash = "sha256-oPLVMHWizcA35eGQPfYJZzEM2Nd+Dbpv4W+mHCp2UeQ=";
+    };
+  in {
     networking.firewall.allowedTCPPorts = mkIf cfg.openFirewall [cfg.prometheus.port];
 
     systemd.services.mqtt-exporter = {
       enable = true;
       script = ''
-        ${pythonWithPackages}/bin/python ${mqttExporterSrc}/exporter.py
+        ${cfg.package}/bin/python ${mqttExporterSrc}/exporter.py
       '';
       wantedBy = ["multi-user.target"];
       after = ["network.target" "zigbee2mqtt.service" "mosquitto.service"];
@@ -139,9 +139,6 @@ in {
         PROMETHEUS_PREFIX = cfg.prometheus.prefix;
         TOPIC_LABEL = cfg.prometheus.topicLabel;
       };
-
-      preStart = ''
-      '';
     };
-  };
+  });
 }
