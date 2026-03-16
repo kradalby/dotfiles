@@ -324,7 +324,7 @@ in
               }
               {
                 alert = "InstanceLowDiskAbs";
-                expr = ''node_filesystem_avail_bytes{fstype!~"(tmpfs|ramfs)",mountpoint!~"^/boot.?/?.*"} / 1024 / 1024 < 1024'';
+                expr = ''node_filesystem_avail_bytes{fstype!~"(tmpfs|ramfs)",mountpoint!~"^/boot.?/?.*",mountpoint!~"^/var/lib/incus/.*"} / 1024 / 1024 < 1024'';
                 for = "1m";
                 labels = {
                   severity = "critical";
@@ -355,7 +355,7 @@ in
               )
               {
                 alert = "InstanceLowDiskPerc";
-                expr = "100 * (node_filesystem_free_bytes / node_filesystem_size_bytes) < 10";
+                expr = ''100 * (node_filesystem_free_bytes{fstype!~"(tmpfs|ramfs)"} / node_filesystem_size_bytes{fstype!~"(tmpfs|ramfs)"}) < 10'';
                 for = "1m";
                 labels = {
                   severity = "critical";
