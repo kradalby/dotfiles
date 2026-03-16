@@ -161,7 +161,7 @@ in {
           headscale
           nmap
           ipcalc
-          docker
+          docker-client
           dive
           act
         ])
