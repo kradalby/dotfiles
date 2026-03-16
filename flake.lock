@@ -134,7 +134,7 @@
     "home-manager": {
       "inputs": {
         "nixpkgs": [
-          "nixpkgs"
+          "nixpkgs-nixos"
         ]
       },
       "locked": {
@@ -294,7 +294,7 @@
     "nix-index-database": {
       "inputs": {
         "nixpkgs": [
-          "nixpkgs"
+          "nixpkgs-nixos"
         ]
       },
       "locked": {
@@ -364,22 +364,6 @@
       "original": {
         "owner": "nix-community",
         "repo": "nixos-generators",
-        "type": "github"
-      }
-    },
-    "nixpkgs": {
-      "locked": {
-        "lastModified": 1773333883,
-        "narHash": "sha256-mTqbDOJRp/8qs8rdCzCsTI4Ps0xV5Xgn7A68pgovr/Y=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "dd0dbd293b6775a06f20047f05525e8319068728",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "ref": "release-25.11",
-        "repo": "nixpkgs",
         "type": "github"
       }
     },
@@ -476,7 +460,7 @@
           "utils"
         ],
         "nixpkgs": [
-          "nixpkgs"
+          "nixpkgs-nixos"
         ],
         "rust-overlay": "rust-overlay"
       },
@@ -508,7 +492,6 @@
         "nix-index-database": "nix-index-database",
         "nix-rosetta-builder": "nix-rosetta-builder",
         "nixos-generators": "nixos-generators",
-        "nixpkgs": "nixpkgs",
         "nixpkgs-darwin": "nixpkgs-darwin",
         "nixpkgs-master": "nixpkgs-master",
         "nixpkgs-nixos": "nixpkgs-nixos",
