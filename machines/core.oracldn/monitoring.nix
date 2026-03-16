@@ -438,7 +438,7 @@ in {
               }
               {
                 alert = "InstanceLowMem";
-                expr = "(node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100 < 10";
+                expr = ''node_memory_MemAvailable_bytes{job!="incus"} / 1024 / 1024 < node_memory_MemTotal_bytes{job!="incus"} / 1024 / 1024 / 10'';
                 for = "30m";
                 labels.severity = "critical";
                 annotations = {
