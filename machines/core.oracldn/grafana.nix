@@ -63,10 +63,14 @@ in {
       datasources = {
         settings.datasources = [
           {
-            url = "https://prometheus.${config.networking.domain}";
             name = "Prometheus";
-            isDefault = true;
             type = "prometheus";
+            isDefault = true;
+            access = "proxy";
+            url = "http://localhost:${toString config.services.prometheus.port}";
+            jsonData = {
+              timeInterval = "60s";
+            };
           }
         ];
       };
