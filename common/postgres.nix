@@ -44,5 +44,14 @@
 
       databases = config.my.postgres.databases ++ config.my.postgres.extraBackups;
     };
+
+    services.prometheus.exporters.postgres = {
+      enable = true;
+      runAsLocalSuperUser = true;
+    };
+
+    networking.firewall.interfaces."${config.my.lan}".allowedTCPPorts = [
+      config.services.prometheus.exporters.postgres.port
+    ];
   };
 }
