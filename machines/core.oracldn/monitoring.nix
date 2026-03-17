@@ -712,6 +712,117 @@ in {
               }
             ];
           }
+
+          # Incus hypervisor and VM alerts
+          {
+            name = "incus";
+            rules = [
+              # Daemon health
+              {
+                alert = "IncusDaemonDown";
+                expr = ''up{job="incus"} == 0'';
+                for = "5m";
+                labels.severity = "critical";
+                annotations = {
+                  summary = "Incus daemon unreachable on {{ $labels.instance }}";
+                  description = "The Incus metrics endpoint on {{ $labels.instance }} has been down for more than 5 minutes. All VMs on this hypervisor may be affected.";
+                };
+              }
+              {
+                alert = "IncusDaemonWarnings";
+                expr = "incus_warnings_total > 0";
+                for = "10m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "Incus daemon has {{ $value }} active warnings on {{ $labels.instance }}";
+                  description = "The Incus daemon on {{ $labels.instance }} is reporting active warnings. Check 'incus warning list'.";
+                };
+              }
+              {
+                alert = "IncusDaemonRestarted";
+                expr = "incus_uptime_seconds < 300";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "Incus daemon recently restarted on {{ $labels.instance }}";
+                  description = "The Incus daemon on {{ $labels.instance }} has been running for less than 5 minutes (uptime: {{ $value }}s).";
+                };
+              }
+
+              # Per-VM instance alerts
+              {
+                alert = "IncusInstanceOOMKill";
+                expr = "increase(incus_memory_OOM_kills_total[5m]) > 0";
+                for = "1m";
+                labels.severity = "critical";
+                annotations = {
+                  summary = "OOM kill in Incus VM {{ $labels.name }}";
+                  description = "An OOM kill was detected inside the Incus VM {{ $labels.name }} ({{ $labels.type }}).";
+                };
+              }
+              {
+                alert = "IncusInstanceMemoryPressure";
+                expr = "(incus_memory_MemAvailable_bytes / incus_memory_MemTotal_bytes) < 0.10";
+                for = "5m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "Incus VM {{ $labels.name }} has less than 10% memory available";
+                  description = "The Incus VM {{ $labels.name }} has {{ $value | humanizePercentage }} memory available. Consider increasing its memory allocation.";
+                };
+              }
+              {
+                alert = "IncusInstanceSwapHigh";
+                expr = "incus_memory_Swap_bytes > 1e9";
+                for = "15m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "Incus VM {{ $labels.name }} using {{ $value | humanize1024 }}B swap";
+                  description = "The Incus VM {{ $labels.name }} is using more than 1GB of swap for over 15 minutes. This may indicate memory pressure.";
+                };
+              }
+              {
+                alert = "IncusInstanceNetworkErrors";
+                expr = ''rate(incus_network_receive_errs_total{device!="lo"}[5m]) + rate(incus_network_transmit_errs_total{device!="lo"}[5m]) > 0'';
+                for = "5m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "Network errors on {{ $labels.device }} in Incus VM {{ $labels.name }}";
+                  description = "The network interface {{ $labels.device }} in Incus VM {{ $labels.name }} has been experiencing errors.";
+                };
+              }
+
+              # Hypervisor host alerts (node_* metrics from Incus endpoint)
+              {
+                alert = "HypervisorLowMem";
+                expr = ''(node_memory_MemAvailable_bytes{role="incus-hypervisor"} / node_memory_MemTotal_bytes{role="incus-hypervisor"}) * 100 < 5'';
+                for = "15m";
+                labels.severity = "critical";
+                annotations = {
+                  summary = "Hypervisor {{ $labels.instance }}: {{ $value }}% memory available";
+                  description = "The Incus hypervisor has less than 5% memory available. All VMs on this host may be affected.";
+                };
+              }
+              {
+                alert = "HypervisorLowDisk";
+                expr = ''node_filesystem_avail_bytes{role="incus-hypervisor",fstype="ext4",mountpoint="/"} / 1024 / 1024 < 2048'';
+                for = "5m";
+                labels.severity = "critical";
+                annotations = {
+                  summary = "Hypervisor {{ $labels.instance }}: {{ $value }}MB free on root filesystem";
+                  description = "The Incus hypervisor root filesystem has less than 2GB free. This can prevent VM operations and daemon functionality.";
+                };
+              }
+              {
+                alert = "HypervisorHighCPU";
+                expr = ''node_load15{role="incus-hypervisor"} > count without (cpu, mode) (node_cpu_seconds_total{role="incus-hypervisor",mode="idle"})'';
+                for = "15m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "Hypervisor {{ $labels.instance }}: 15m load average {{ $value }} exceeds CPU count";
+                  description = "The Incus hypervisor load average has exceeded its CPU count for more than 15 minutes. VM performance may be degraded.";
+                };
+              }
+            ];
+          }
         ];
       })
     ];
