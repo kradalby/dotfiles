@@ -3,8 +3,7 @@
   config,
   lib,
   ...
-}:
-let
+}: let
   # All NixOS hosts reachable via Tailscale
   # These all have node_exporter and systemd_exporter enabled
   allHosts = [
@@ -35,6 +34,26 @@ let
     "core-tjoda"
   ];
 
+  # Hosts running CoreDNS (prometheus on :9153)
+  corednsHosts = [
+    "core-oracldn"
+    "core-tjoda"
+    "storage-ldn"
+  ];
+
+  # Hosts running Nginx with nginxlog exporter (port 9117)
+  nginxlogHosts = [
+    "core-oracldn"
+    # "core-terra"
+  ];
+
+  # Restic REST server Tailscale service names
+  resticHosts = [
+    "restic-tjoda"
+    "restic-ldn"
+    # "restic-terra"
+  ];
+
   blackboxConfigFile = pkgs.writeText "blackbox.conf" ''
     modules:
       http_prometheus:
@@ -44,7 +63,9 @@ let
           method: GET
           valid_http_versions: ["HTTP/1.1", "HTTP/2"]
           fail_if_ssl: false
-          fail_if_not_ssl: false
+          fail_if_not_ssl: true
+          tls_config:
+            insecure_skip_verify: false
       icmp:
         prober: icmp
         timeout: 10s
@@ -56,7 +77,7 @@ let
   scrapeJob = name: targets: {
     job_name = name;
     metrics_path = "/metrics";
-    static_configs = [ { inherit targets; } ];
+    static_configs = [{inherit targets;}];
   };
 
   # Helper to create scrape jobs for exporters across multiple hosts
@@ -70,9 +91,7 @@ let
       }
     ];
   };
-
-in
-{
+in {
   services.tailscale.services = {
     prom = {
       endpoints = {
@@ -105,12 +124,19 @@ in
     retentionTime = "365d";
     webExternalUrl = "http://prom/";
 
+    globalConfig = {
+      external_labels = {
+        cluster = "homelab";
+        site = "oracldn";
+      };
+    };
+
     alertmanagers = [
       {
         scheme = "http";
         path_prefix = "/";
         static_configs = [
-          { targets = [ "localhost:${toString config.services.prometheus.alertmanager.port}" ]; }
+          {targets = ["localhost:${toString config.services.prometheus.alertmanager.port}"];}
         ];
       }
     ];
@@ -131,6 +157,24 @@ in
       # Smokeping exporter (port 9374)
       (exporterJob "smokeping" smokepingHosts 9374)
 
+      # CoreDNS metrics (port 9153)
+      (exporterJob "coredns" corednsHosts 9153)
+
+      # Nginx log exporter (port 9117)
+      (exporterJob "nginxlog" nginxlogHosts 9117)
+
+      # MQTT exporter on home-ldn (port 9000)
+      (scrapeJob "mqtt" ["home-ldn:9000"])
+
+      # Restic REST server metrics (via Tailscale service names)
+      {
+        job_name = "restic-server";
+        metrics_path = "/metrics";
+        static_configs = [
+          {targets = map (h: "${h}:80") resticHosts;}
+        ];
+      }
+
       # Incus host metrics
       # The Incus host needs the following configuration:
       #   incus config set core.metrics_authentication false
@@ -144,21 +188,58 @@ in
         };
         static_configs = [
           {
-            targets = [ "core-ldn:8443" ];
+            targets = ["core-ldn:8443"];
           }
         ];
       }
 
       # Application-specific exporters
-      (scrapeJob "litestream" [ "core-oracldn:54909" ])
-      (scrapeJob "headscale" [ "core-oracldn:54910" ])
+      (scrapeJob "litestream" ["core-oracldn:54909"])
+      (scrapeJob "headscale" ["core-oracldn:54910"])
+
+      # PostgreSQL exporter (port 9187)
+      (scrapeJob "postgres" ["core-oracldn:9187"])
+
+      # Blackbox HTTPS probing for public endpoints
+      {
+        job_name = "https-probes";
+        metrics_path = "/probe";
+        params = {
+          module = ["http_prometheus"];
+        };
+        static_configs = [
+          {
+            targets = [
+              "https://headscale.kradalby.no"
+              "https://uptime.kradalby.no"
+              "https://kradalby.no"
+              "https://umami.kradalby.no"
+              "https://hvor.kradalby.no"
+            ];
+          }
+        ];
+        relabel_configs = [
+          {
+            source_labels = ["__address__"];
+            target_label = "__param_target";
+          }
+          {
+            source_labels = ["__param_target"];
+            target_label = "instance";
+          }
+          {
+            target_label = "__address__";
+            replacement = "127.0.0.1:9115";
+          }
+        ];
+      }
 
       # Blackbox ICMP probing for Tjoda devices
       {
         job_name = "tjoda-ping";
         metrics_path = "/probe";
         params = {
-          module = [ "icmp" ];
+          module = ["icmp"];
         };
         static_configs = [
           {
@@ -200,11 +281,11 @@ in
         ];
         relabel_configs = [
           {
-            source_labels = [ "__address__" ];
+            source_labels = ["__address__"];
             target_label = "__param_target";
           }
           {
-            source_labels = [ "__param_target" ];
+            source_labels = ["__param_target"];
             target_label = "instance";
           }
           {
@@ -238,11 +319,11 @@ in
         ];
         relabel_configs = [
           {
-            source_labels = [ "__address__" ];
+            source_labels = ["__address__"];
             target_label = "__param_target";
           }
           {
-            source_labels = [ "__param_target" ];
+            source_labels = ["__param_target"];
             target_label = "instance";
           }
           {
@@ -259,16 +340,16 @@ in
         scrape_interval = "10s";
         static_configs = [
           {
-            targets = [ "power-p1-meter.ldn" ];
+            targets = ["power-p1-meter.ldn"];
           }
         ];
         relabel_configs = [
           {
-            source_labels = [ "__address__" ];
+            source_labels = ["__address__"];
             target_label = "__param_target";
           }
           {
-            source_labels = [ "__param_target" ];
+            source_labels = ["__param_target"];
             target_label = "instance";
           }
           {
@@ -277,7 +358,6 @@ in
           }
         ];
       }
-
     ];
 
     rules = [
@@ -338,8 +418,7 @@ in
               (
                 let
                   low_megabyte = 70;
-                in
-                {
+                in {
                   alert = "InstanceLowBootDiskAbs";
                   expr = ''node_filesystem_avail_bytes{mountpoint=~"^/boot.?/?.*"} / 1024 / 1024 < ${toString low_megabyte}''; # a single kernel roughly consumes about ~40ish MB.
                   for = "1m";
