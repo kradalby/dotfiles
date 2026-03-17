@@ -702,12 +702,22 @@ in {
               }
               {
                 alert = "ResticBackupStale";
-                expr = ''time() - systemd_timer_last_trigger_seconds{name=~"restic-backups-.*\\.timer"} > 2 * 3600'';
+                expr = ''time() - systemd_timer_last_trigger_seconds{name=~"restic-backups-.*\\.timer",name!~"restic-backups-jotta\\.timer"} > 2 * 3600'';
                 for = "30m";
                 labels.severity = "critical";
                 annotations = {
                   summary = "Restic backup {{ $labels.name }} stale on {{ $labels.instance }}";
                   description = "The restic backup timer {{ $labels.name }} on {{ $labels.instance }} has not triggered in over 2 hours (expected: hourly).";
+                };
+              }
+              {
+                alert = "ResticBackupStaleJotta";
+                expr = ''time() - systemd_timer_last_trigger_seconds{name=~"restic-backups-jotta\\.timer"} > 4 * 3600'';
+                for = "30m";
+                labels.severity = "critical";
+                annotations = {
+                  summary = "Restic Jottacloud backup {{ $labels.name }} stale on {{ $labels.instance }}";
+                  description = "The Jottacloud restic backup timer {{ $labels.name }} on {{ $labels.instance }} has not triggered in over 4 hours (expected: hourly, but rclone uploads can be slow).";
                 };
               }
             ];
