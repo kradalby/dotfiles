@@ -35,7 +35,7 @@
       # https://github.com/bscott/pm-cli/releases
       pmCli = "0.2.3";
       # https://github.com/rtk-ai/rtk/releases
-      rtk = "0.29.0";
+      rtk = "0.30.0";
       # https://github.com/rustic-rs/rustic/releases
       rustic = "0.11.1";
     };

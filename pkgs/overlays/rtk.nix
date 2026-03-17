@@ -2,6 +2,7 @@
   lib,
   fetchFromGitHub,
   rustPlatform,
+  git,
 }: let
   versions = import ../../metadata/versions.nix;
 in
@@ -15,10 +16,12 @@ in
       owner = "rtk-ai";
       repo = "rtk";
       tag = "v${versions.pkgs.overlays.rtk}";
-      hash = "sha256-QGHCa8rO4YBFXdrz78FhWKFxY7DmRxCXM8iYQv4yTYE=";
+      hash = "sha256-aB9SWF9jYHeH3Apz5v4mQptLa6tS9cIfyfo6rHqsD8w=";
     };
 
-    cargoHash = "sha256-gNJjtQah7NFSgFVYJftK19dECzDvLCi2E33na2PtKmc=";
+    cargoHash = "sha256-0dpZRBPubzd2GuK02/jbNBWOR/TpFM5lVMucEii/JxM=";
+
+    nativeCheckInputs = [git];
 
     # Tests need a writable $HOME for the SQLite tracking DB
     preCheck = ''
