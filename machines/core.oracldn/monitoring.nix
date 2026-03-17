@@ -363,56 +363,38 @@ in {
     rules = [
       (builtins.toJSON {
         groups = [
+          # Node/host-level alerts
           {
-            name = "rules";
+            name = "node";
             rules = [
               {
                 alert = "ExporterDown";
-                expr = ''up{} == 0'';
-                for = "1m";
-                labels = {
-                  severity = "critical";
-                  frequency = "2m";
-                };
+                expr = ''up{job!="nodes"} == 0'';
+                for = "5m";
+                labels.severity = "warning";
                 annotations = {
-                  summary = "Exporter down (instance {{ $labels.instance }})";
-                  description = ''
-                    Prometheus exporter down
-
-                    VALUE = {{ $value }}
-                    LABELS: {{ $labels }}
-                  '';
+                  summary = "Exporter {{ $labels.job }} down on {{ $labels.instance }}";
+                  description = "The {{ $labels.job }} exporter on {{ $labels.instance }} has been unreachable for more than 5 minutes.";
                 };
               }
               {
                 alert = "NodeExporterDown";
                 expr = ''up{job="nodes"} == 0'';
-                for = "1m";
-                labels = {
-                  severity = "critical";
-                  frequency = "2m";
-                };
+                for = "5m";
+                labels.severity = "critical";
                 annotations = {
-                  summary = "Exporter down (instance {{ $labels.instance }})";
-                  description = ''
-                    Prometheus exporter down
-
-                    VALUE = {{ $value }}
-                    LABELS: {{ $labels }}
-                  '';
+                  summary = "Host {{ $labels.instance }} is unreachable";
+                  description = "Node exporter on {{ $labels.instance }} has been down for more than 5 minutes. Is the host powered on? Is Tailscale running?";
                 };
               }
               {
                 alert = "InstanceLowDiskAbs";
                 expr = ''node_filesystem_avail_bytes{fstype!~"(tmpfs|ramfs)",mountpoint!~"^/boot.?/?.*",mountpoint!~"^/var/lib/incus/.*"} / 1024 / 1024 < 1024'';
-                for = "1m";
-                labels = {
-                  severity = "critical";
-                };
+                for = "5m";
+                labels.severity = "critical";
                 annotations = {
-                  description = "Less than 1GB of free disk space left on the root filesystem";
-                  summary = "Instance {{ $labels.instance }}: {{ $value }}MB free disk space on {{$labels.device }} @ {{$labels.mountpoint}}";
-                  value = "{{ $value }}";
+                  summary = "{{ $labels.instance }}: {{ $value }}MB free on {{ $labels.device }} @ {{ $labels.mountpoint }}";
+                  description = "Less than 1GB of free disk space left on {{ $labels.mountpoint }}.";
                 };
               }
               (
@@ -420,147 +402,307 @@ in {
                   low_megabyte = 70;
                 in {
                   alert = "InstanceLowBootDiskAbs";
-                  expr = ''node_filesystem_avail_bytes{mountpoint=~"^/boot.?/?.*"} / 1024 / 1024 < ${toString low_megabyte}''; # a single kernel roughly consumes about ~40ish MB.
-                  for = "1m";
-                  labels = {
-                    severity = "critical";
-                  };
+                  expr = ''node_filesystem_avail_bytes{mountpoint=~"^/boot.?/?.*"} / 1024 / 1024 < ${toString low_megabyte}'';
+                  for = "5m";
+                  labels.severity = "critical";
                   annotations = {
-                    description = "Less than ${toString low_megabyte}MB of free disk space left on one of the boot filesystem";
-                    summary = "Instance {{ $labels.instance }}: {{ $value }}MB free disk space on {{$labels.device }} @ {{$labels.mountpoint}}";
-                    value = "{{ $value }}";
+                    summary = "{{ $labels.instance }}: {{ $value }}MB free on {{ $labels.device }} @ {{ $labels.mountpoint }}";
+                    description = "Less than ${toString low_megabyte}MB of free disk space left on a boot filesystem. A single kernel consumes ~40MB.";
                   };
                 }
               )
               {
                 alert = "InstanceLowDiskPerc";
-                expr = ''100 * (node_filesystem_free_bytes{fstype!~"(tmpfs|ramfs)"} / node_filesystem_size_bytes{fstype!~"(tmpfs|ramfs)"}) < 10'';
-                for = "1m";
-                labels = {
-                  severity = "critical";
-                };
+                expr = ''100 * (node_filesystem_avail_bytes{fstype!~"(tmpfs|ramfs)",mountpoint!~"^/boot.?/?.*",mountpoint!~"^/var/lib/incus/.*"} / node_filesystem_size_bytes{fstype!~"(tmpfs|ramfs)",mountpoint!~"^/boot.?/?.*",mountpoint!~"^/var/lib/incus/.*"}) < 10'';
+                for = "5m";
+                labels.severity = "warning";
                 annotations = {
-                  description = "Less than 10% of free disk space left on a device";
-                  summary = "Instance {{ $labels.instance }}: {{ $value }}% free disk space on {{ $labels.device}}";
-                  value = "{{ $value }}";
+                  summary = "{{ $labels.instance }}: {{ $value }}% free on {{ $labels.device }}";
+                  description = "Less than 10% of free disk space left on {{ $labels.mountpoint }}.";
                 };
               }
               {
                 alert = "InstanceLowDiskPrediction12Hours";
-                expr = ''predict_linear(node_filesystem_free_bytes{fstype!~"(tmpfs|ramfs)"}[3h],12 * 3600) < 0'';
+                expr = ''predict_linear(node_filesystem_free_bytes{fstype!~"(tmpfs|ramfs)",mountpoint!~"^/boot.?/?.*",mountpoint!~"^/var/lib/incus/.*"}[3h],12 * 3600) < 0'';
                 for = "2h";
-                labels.severity = "critical";
+                labels.severity = "warning";
                 annotations = {
-                  description = ''Disk {{ $labels.mountpoint }} ({{ $labels.device }}) will be full in less than 12 hours'';
-                  summary = ''Instance {{ $labels.instance }}: Disk {{ $labels.mountpoint }} ({{ $labels.device}}) will be full in less than 12 hours'';
+                  summary = "{{ $labels.instance }}: {{ $labels.mountpoint }} ({{ $labels.device }}) will be full in <12h";
+                  description = "Disk {{ $labels.mountpoint }} ({{ $labels.device }}) on {{ $labels.instance }} is predicted to fill within 12 hours based on the last 3 hours of data.";
                 };
               }
-
               {
                 alert = "InstanceLowMem";
-                expr = "node_memory_MemAvailable_bytes / 1024 / 1024 < node_memory_MemTotal_bytes / 1024 / 1024 / 10";
+                expr = "(node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100 < 10";
                 for = "30m";
                 labels.severity = "critical";
                 annotations = {
-                  description = "Less than 10% of free memory";
-                  summary = "Instance {{ $labels.instance }}: {{ $value }}MB of free memory";
-                  value = "{{ $value }}";
+                  summary = "{{ $labels.instance }}: {{ $value }}% memory available";
+                  description = "Less than 10% of memory available for more than 30 minutes.";
                 };
               }
+              {
+                alert = "HighCPULoad";
+                expr = ''node_load15 > count without (cpu, mode) (node_cpu_seconds_total{mode="idle"})'';
+                for = "15m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "{{ $labels.instance }}: 15m load average {{ $value }} exceeds CPU count";
+                  description = "The 15-minute load average on {{ $labels.instance }} has exceeded the number of CPUs for more than 15 minutes.";
+                };
+              }
+              {
+                alert = "OOMKill";
+                expr = "increase(node_vmstat_oom_kill[1h]) > 0";
+                for = "1m";
+                labels.severity = "critical";
+                annotations = {
+                  summary = "OOM kill detected on {{ $labels.instance }}";
+                  description = "A process was killed by the OOM killer on {{ $labels.instance }} in the last hour.";
+                };
+              }
+            ];
+          }
 
+          # Systemd service alerts
+          {
+            name = "systemd";
+            rules = [
               {
                 alert = "ServiceFailed";
-                expr = ''node_systemd_unit_state{state="failed"} > 0'';
+                expr = ''systemd_unit_state{state="failed"} > 0'';
                 for = "2m";
                 labels.severity = "critical";
                 annotations = {
-                  description = "A systemd unit went into failed state";
-                  summary = "Instance {{ $labels.instance }}: Service {{ $labels.name }} failed";
-                  value = "{{ $labels.name }}";
+                  summary = "{{ $labels.instance }}: service {{ $labels.name }} failed";
+                  description = "The systemd unit {{ $labels.name }} on {{ $labels.instance }} has been in failed state for more than 2 minutes.";
                 };
               }
               {
                 alert = "ServiceFlapping";
                 expr = ''
-                  changes(node_systemd_unit_state{state="failed"}[5m])
-                                  > 5 or (changes(node_systemd_unit_state{state="failed"}[1h]) > 15
-                                  unless changes(node_systemd_unit_state{state="failed"}[30m]) < 7)
+                  changes(systemd_unit_state{state="failed"}[5m])
+                                  > 5 or (changes(systemd_unit_state{state="failed"}[1h]) > 15
+                                  unless changes(systemd_unit_state{state="failed"}[30m]) < 7)
                 '';
-                labels.severity = "critical";
+                for = "5m";
+                labels.severity = "warning";
                 annotations = {
-                  description = "A systemd service changed its state more than 5x/5min or 15x/1h";
-                  summary = "Instance {{ $labels.instance }}: Service {{ $labels.name }} is flapping";
-                  value = "{{ $labels.name }}";
+                  summary = "{{ $labels.instance }}: service {{ $labels.name }} is flapping";
+                  description = "The systemd unit {{ $labels.name }} on {{ $labels.instance }} has been changing state rapidly (>5x in 5min or >15x in 1h).";
                 };
               }
               {
                 alert = "SystemdUnitActivatingTooLong";
-                expr = ''node_systemd_unit_state{state="activating"} == 1'';
+                expr = ''systemd_unit_state{state="activating"} == 1'';
                 for = "5m";
-                labels = {
-                  severity = "warning";
-                  frequency = "15m";
-                };
+                labels.severity = "warning";
                 annotations = {
-                  summary = "systemd unit is activating too long (instance {{ $labels.instance }})";
-                  description = ''
-                    systemd unit is activating for more than 5 minutes
-
-                    LABELS: {{ $labels }}
-                  '';
+                  summary = "{{ $labels.instance }}: unit {{ $labels.name }} stuck activating";
+                  description = "The systemd unit {{ $labels.name }} on {{ $labels.instance }} has been in activating state for more than 5 minutes.";
                 };
               }
-              {
-                alert = "TjodaPingDown";
-                expr = ''probe_success{job="tjoda-ping"} == 0'';
-                for = "10m";
-                labels = {
-                  severity = "warning";
-                  frequency = "15m";
-                };
-                annotations = {
-                  summary = "Tjodalyng device has not responded for 10m (instance {{ $labels.instance }})";
-                  description = ''
-                    A device in Tjodalyng, typically Unifi networking or Sonos has not responded
-                    for over 10m.
+            ];
+          }
 
-                    LABELS: {{ $labels }}
-                  '';
-                };
-              }
+          # ZFS storage alerts
+          {
+            name = "zfs";
+            rules = [
               {
                 alert = "ZFSPoolMissing";
-                expr = ''absent(zfs_pool_health{pool="storage"})'';
+                expr = ''up{job="zfs"} == 1 unless on(instance) zfs_pool_health'';
                 for = "5m";
-                labels = {
-                  severity = "critical";
-                  frequency = "15m";
-                };
+                labels.severity = "critical";
                 annotations = {
-                  summary = "ZFS pool missing on {{ $labels.instance }}";
-                  description = ''
-                    The ZFS pool 'storage' does not exist or cannot be found on {{ $labels.instance }}.
-                    This could indicate a disk failure or configuration issue.
-
-                    LABELS: {{ $labels }}
-                  '';
+                  summary = "ZFS exporter up but no pools found on {{ $labels.instance }}";
+                  description = "The ZFS exporter on {{ $labels.instance }} is responding but reports no pool health metrics. This could indicate a disk failure or import issue.";
                 };
               }
               {
                 alert = "ZFSPoolUnhealthy";
-                expr = ''zfs_pool_health != 0'';
+                expr = "zfs_pool_health != 0";
                 for = "2m";
-                labels = {
-                  severity = "critical";
-                  frequency = "10m";
-                };
+                labels.severity = "critical";
                 annotations = {
                   summary = "ZFS pool {{ $labels.pool }} unhealthy on {{ $labels.instance }}";
-                  description = ''
-                    The ZFS pool '{{ $labels.pool }}' is in a degraded or faulted state (not ONLINE) on {{ $labels.instance }}.
+                  description = "The ZFS pool {{ $labels.pool }} on {{ $labels.instance }} is in a degraded or faulted state.";
+                };
+              }
+              {
+                alert = "ZFSPoolSpaceWarning";
+                expr = "(zfs_pool_allocated_bytes / zfs_pool_size_bytes) * 100 > 80";
+                for = "15m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "ZFS pool {{ $labels.pool }} on {{ $labels.instance }} is {{ $value }}% full";
+                  description = "ZFS pool {{ $labels.pool }} is above 80% capacity. ZFS performance degrades significantly above this threshold.";
+                };
+              }
+              {
+                alert = "ZFSPoolSpaceCritical";
+                expr = "(zfs_pool_allocated_bytes / zfs_pool_size_bytes) * 100 > 90";
+                for = "5m";
+                labels.severity = "critical";
+                annotations = {
+                  summary = "ZFS pool {{ $labels.pool }} on {{ $labels.instance }} is {{ $value }}% full";
+                  description = "ZFS pool {{ $labels.pool }} is above 90% capacity. Immediate action required.";
+                };
+              }
+            ];
+          }
 
-                    LABELS: {{ $labels }}
-                  '';
+          # SMART disk health alerts
+          {
+            name = "smartctl";
+            rules = [
+              {
+                alert = "SMARTDiskUnhealthy";
+                expr = "smartctl_device_smart_status != 1";
+                for = "1m";
+                labels.severity = "critical";
+                annotations = {
+                  summary = "SMART reports disk {{ $labels.device }} unhealthy on {{ $labels.instance }}";
+                  description = "SMART self-assessment on {{ $labels.device }} ({{ $labels.model_name }}) indicates the disk is failing.";
+                };
+              }
+              {
+                alert = "SMARTDiskTemperature";
+                expr = ''smartctl_device_temperature{temperature_type="current"} > 55'';
+                for = "15m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "Disk {{ $labels.device }} on {{ $labels.instance }} is {{ $value }}C";
+                  description = "Disk temperature on {{ $labels.device }} ({{ $labels.model_name }}) has been above 55C for more than 15 minutes.";
+                };
+              }
+            ];
+          }
+
+          # Network and connectivity alerts
+          {
+            name = "network";
+            rules = [
+              {
+                alert = "TjodaPingDown";
+                expr = ''probe_success{job="tjoda-ping"} == 0'';
+                for = "10m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "Tjoda device {{ $labels.instance }} unreachable for 10m";
+                  description = "A device in Tjodalyng (typically Unifi networking or Sonos) has not responded for over 10 minutes.";
+                };
+              }
+              {
+                alert = "HttpsProbeDown";
+                expr = ''probe_success{job="https-probes"} == 0'';
+                for = "5m";
+                labels.severity = "critical";
+                annotations = {
+                  summary = "HTTPS probe failed for {{ $labels.instance }}";
+                  description = "The public HTTPS endpoint {{ $labels.instance }} has been unreachable or returning errors for more than 5 minutes.";
+                };
+              }
+              {
+                alert = "TlsCertExpiringSoon";
+                expr = ''probe_ssl_earliest_cert_expiry{job="https-probes"} - time() < 14 * 86400'';
+                for = "1h";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "TLS cert for {{ $labels.instance }} expires in less than 14 days";
+                  description = "The TLS certificate for {{ $labels.instance }} will expire soon. Check ACME renewal.";
+                };
+              }
+              {
+                alert = "TlsCertExpiryCritical";
+                expr = ''probe_ssl_earliest_cert_expiry{job="https-probes"} - time() < 3 * 86400'';
+                for = "10m";
+                labels.severity = "critical";
+                annotations = {
+                  summary = "TLS cert for {{ $labels.instance }} expires in less than 3 days";
+                  description = "The TLS certificate for {{ $labels.instance }} is about to expire. ACME renewal may be broken.";
+                };
+              }
+              {
+                alert = "NetworkInterfaceErrors";
+                expr = "rate(node_network_receive_errs_total[5m]) + rate(node_network_transmit_errs_total[5m]) > 0";
+                for = "15m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "Network errors on {{ $labels.device }} ({{ $labels.instance }})";
+                  description = "Network interface {{ $labels.device }} on {{ $labels.instance }} has been experiencing errors for more than 15 minutes.";
+                };
+              }
+              {
+                alert = "SmokepingPacketLoss";
+                expr = ''
+                  (1 - rate(smokeping_response_duration_seconds_count[5m])
+                  / rate(smokeping_requests_total[5m])) > 0.1
+                '';
+                for = "15m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "Packet loss >10% to {{ $labels.host }} from {{ $labels.instance }}";
+                  description = "Smokeping is detecting sustained packet loss to {{ $labels.host }}.";
+                };
+              }
+              {
+                alert = "SmokepingTargetDown";
+                expr = "rate(smokeping_response_duration_seconds_count[5m]) == 0 and rate(smokeping_requests_total[5m]) > 0";
+                for = "15m";
+                labels.severity = "critical";
+                annotations = {
+                  summary = "100% packet loss to {{ $labels.host }} from {{ $labels.instance }}";
+                  description = "Smokeping is detecting complete packet loss to {{ $labels.host }} for more than 15 minutes.";
+                };
+              }
+            ];
+          }
+
+          # Application-level alerts
+          {
+            name = "application";
+            rules = [
+              {
+                alert = "LitestreamReplicationLag";
+                # Litestream exposes replica lag; if it doesn't match this metric name
+                # exactly, the rule is harmless (matches no series).
+                expr = "litestream_replica_lag_seconds > 300";
+                for = "5m";
+                labels.severity = "critical";
+                annotations = {
+                  summary = "Litestream replication lagging for {{ $labels.db }} to {{ $labels.name }}";
+                  description = "Litestream replication for database {{ $labels.db }} to replica {{ $labels.name }} has been lagging more than 5 minutes.";
+                };
+              }
+              {
+                alert = "PostgreSQLDown";
+                expr = "pg_up == 0";
+                for = "2m";
+                labels.severity = "critical";
+                annotations = {
+                  summary = "PostgreSQL is down on {{ $labels.instance }}";
+                  description = "The PostgreSQL database on {{ $labels.instance }} is unreachable.";
+                };
+              }
+              {
+                alert = "PostgreSQLHighConnections";
+                expr = "pg_stat_activity_count > 80";
+                for = "5m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "PostgreSQL connections high on {{ $labels.instance }}: {{ $value }}";
+                  description = "PostgreSQL on {{ $labels.instance }} has more than 80 active connections (default max is 100).";
+                };
+              }
+              {
+                alert = "ResticBackupStale";
+                expr = ''time() - systemd_timer_last_trigger_seconds{name=~"restic-backups-.*\\.timer"} > 2 * 3600'';
+                for = "30m";
+                labels.severity = "critical";
+                annotations = {
+                  summary = "Restic backup {{ $labels.name }} stale on {{ $labels.instance }}";
+                  description = "The restic backup timer {{ $labels.name }} on {{ $labels.instance }} has not triggered in over 2 hours (expected: hourly).";
                 };
               }
             ];
@@ -580,7 +722,7 @@ in {
 
       listenAddress = "0.0.0.0";
 
-      webExternalUrl = "http://core-oracldn:9093";
+      webExternalUrl = "http://alertmanager/";
 
       # environmentFile interpolation is done after the check config
       # is done, which means it will fail with a missing discord webhook.
@@ -591,10 +733,51 @@ in {
         route = {
           group_by = [
             "alertname"
-            "job"
+            "instance"
           ];
+          group_wait = "30s";
+          group_interval = "5m";
+          repeat_interval = "4h";
           receiver = "discord";
+          routes = [
+            {
+              match = {severity = "critical";};
+              receiver = "discord";
+              group_wait = "10s";
+              group_interval = "1m";
+              repeat_interval = "1h";
+            }
+            {
+              match = {severity = "warning";};
+              receiver = "discord";
+              group_wait = "2m";
+              group_interval = "10m";
+              repeat_interval = "12h";
+            }
+          ];
         };
+
+        inhibit_rules = [
+          {
+            # If a node is down, suppress all other alerts from that instance
+            source_matchers = ["alertname=\"NodeExporterDown\""];
+            target_matchers = ["alertname!=\"NodeExporterDown\""];
+            equal = ["instance"];
+          }
+          {
+            # If an exporter is down, suppress downstream alerts from that instance
+            source_matchers = ["alertname=\"ExporterDown\""];
+            target_matchers = ["alertname!~\"ExporterDown|NodeExporterDown\""];
+            equal = ["instance"];
+          }
+          {
+            # Critical inhibits warning for the same alert+instance
+            source_matchers = ["severity=\"critical\""];
+            target_matchers = ["severity=\"warning\""];
+            equal = ["alertname" "instance"];
+          }
+        ];
+
         receivers = [
           {
             name = "discord";
