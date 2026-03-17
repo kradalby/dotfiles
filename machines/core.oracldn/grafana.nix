@@ -5,6 +5,16 @@
   ...
 }: let
   domain = "grafana.${config.networking.domain}";
+
+  # Community dashboards from grafana.com, post-processed to replace
+  # datasource template variables with our provisioned datasource name.
+  dashboardDir = pkgs.runCommand "grafana-dashboards" {} ''
+    mkdir -p $out
+    sed 's|''${DS_PROMETHEUS}|Prometheus|g' ${pkgs.fetchurl {
+      url = "https://grafana.com/api/dashboards/1860/revisions/37/download";
+      hash = "sha256-1DE1aaanRHHeCOMWDGdOS1wBXxOF84UXAjJzT5Ek6mM=";
+    }} > $out/node-exporter-full.json
+  '';
 in {
   age.secrets.grafana-admin = {
     file = ../../secrets/grafana-admin.age;
@@ -71,6 +81,14 @@ in {
             jsonData = {
               timeInterval = "60s";
             };
+          }
+        ];
+      };
+      dashboards = {
+        settings.providers = [
+          {
+            name = "community";
+            options.path = dashboardDir;
           }
         ];
       };
