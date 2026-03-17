@@ -20,7 +20,7 @@
   };
 
   # https://github.com/umami-software/umami/pkgs/container/umami
-  umami = "ghcr.io/umami-software/umami:v3.0.3";
+  umami = "ghcr.io/umami-software/umami:3.0.3";
   # https://hub.docker.com/r/frooodle/s-pdf/tags
   stirling = "frooodle/s-pdf:2.7.2";
   ## pkgs
