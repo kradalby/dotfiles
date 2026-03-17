@@ -73,6 +73,10 @@
           preferred_ip_protocol: ip4
   '';
 
+  # Filesystem filter for disk alerts — excludes virtual, boot, and
+  # hypervisor filesystems. Hypervisor hosts have dedicated alerts.
+  diskFilter = ''fstype!~"(tmpfs|ramfs)",mountpoint!~"^/boot.?/?.*",role!="hypervisor"'';
+
   # Helper to create a simple scrape job with /metrics path
   scrapeJob = name: targets: {
     job_name = name;
@@ -175,20 +179,21 @@ in {
         ];
       }
 
-      # Incus host metrics
-      # The Incus host needs the following configuration:
-      #   incus config set core.metrics_authentication false
-      # TODO: Ensure Tailscale ACLs allow core-oracldn to reach core-ldn:8443
+      # Incus hypervisor metrics (per-VM instance + host node_exporter)
+      # Requires: incus config set core.metrics_authentication false
       {
         job_name = "incus";
+        scrape_interval = "30s"; # Incus metric collection is expensive, 8s cache
         metrics_path = "/1.0/metrics";
         scheme = "https";
         tls_config = {
+          # Self-signed cert, connection is over Tailscale
           insecure_skip_verify = true;
         };
         static_configs = [
           {
             targets = ["core-ldn:8443"];
+            labels.role = "incus-hypervisor";
           }
         ];
       }
@@ -389,7 +394,7 @@ in {
               }
               {
                 alert = "InstanceLowDiskAbs";
-                expr = ''node_filesystem_avail_bytes{fstype!~"(tmpfs|ramfs)",mountpoint!~"^/boot.?/?.*",mountpoint!~"^/var/lib/incus/.*"} / 1024 / 1024 < 1024'';
+                expr = ''node_filesystem_avail_bytes{${diskFilter}} / 1024 / 1024 < 1024'';
                 for = "5m";
                 labels.severity = "critical";
                 annotations = {
@@ -413,7 +418,7 @@ in {
               )
               {
                 alert = "InstanceLowDiskPerc";
-                expr = ''100 * (node_filesystem_avail_bytes{fstype!~"(tmpfs|ramfs)",mountpoint!~"^/boot.?/?.*",mountpoint!~"^/var/lib/incus/.*"} / node_filesystem_size_bytes{fstype!~"(tmpfs|ramfs)",mountpoint!~"^/boot.?/?.*",mountpoint!~"^/var/lib/incus/.*"}) < 10'';
+                expr = ''100 * (node_filesystem_avail_bytes{${diskFilter}} / node_filesystem_size_bytes{${diskFilter}}) < 10'';
                 for = "5m";
                 labels.severity = "warning";
                 annotations = {
@@ -423,7 +428,7 @@ in {
               }
               {
                 alert = "InstanceLowDiskPrediction12Hours";
-                expr = ''predict_linear(node_filesystem_free_bytes{fstype!~"(tmpfs|ramfs)",mountpoint!~"^/boot.?/?.*",mountpoint!~"^/var/lib/incus/.*"}[3h],12 * 3600) < 0'';
+                expr = ''predict_linear(node_filesystem_free_bytes{${diskFilter}}[3h],12 * 3600) < 0'';
                 for = "2h";
                 labels.severity = "warning";
                 annotations = {
