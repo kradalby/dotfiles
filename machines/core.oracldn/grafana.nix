@@ -41,11 +41,15 @@ in {
     owner = "grafana";
   };
 
-  services.tailscale.services.grafana = {
-    endpoints = {
-      "tcp:80" = "http://localhost:${toString config.services.grafana.settings.server.http_port}";
-      "tcp:443" = "http://localhost:${toString config.services.grafana.settings.server.http_port}";
-    };
+  # Use proxy-to-grafana instead of tailscale.services (Tailscale Serve)
+  # because it injects X-WEBAUTH-USER and X-WEBAUTH-NAME headers that
+  # Grafana's auth.proxy requires for Tailscale user authentication.
+  services.tailscale-proxies.grafana = {
+    enable = true;
+    tailscaleKeyPath = config.age.secrets.tailscale-preauthkey.path;
+
+    hostname = "grafana";
+    backendPort = config.services.grafana.settings.server.http_port;
   };
 
   services.grafana = {
