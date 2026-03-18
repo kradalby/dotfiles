@@ -265,18 +265,18 @@ in {
               "bryggerhus-ap.tjoda"
 
               # Sonos hus
-              "hus-kjokken-sonos.tjoda"
-              "hus-salong-sonos.tjoda"
-              "hus-spisestue-sonos.tjoda"
-              "hus-kontor-sonos.tjoda"
-              "hus-gang-sonos.tjoda"
-              "hus-hage-sonos.tjoda"
+              # "hus-kjokken-sonos.tjoda"
+              # "hus-salong-sonos.tjoda"
+              # "hus-spisestue-sonos.tjoda"
+              # "hus-kontor-sonos.tjoda"
+              # "hus-gang-sonos.tjoda"
+              # "hus-hage-sonos.tjoda"
 
               # Sonos låve
-              "love-kontor-bridge-sonos.tjoda"
-              "love-salong-sonos.tjoda"
-              "love-spisestue-sonos.tjoda"
-              "love-dansegulv-sonos.tjoda"
+              # "love-kontor-bridge-sonos.tjoda"
+              # "love-salong-sonos.tjoda"
+              # "love-spisestue-sonos.tjoda"
+              # "love-dansegulv-sonos.tjoda"
               # "love-loft-sonos.tjoda"
 
               # Atlas probe
