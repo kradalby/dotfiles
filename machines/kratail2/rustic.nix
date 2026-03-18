@@ -64,13 +64,16 @@
       "${home}/Pictures"
     ];
 in {
+  services.rustic.opServiceAccountTokenFile = "/Users/kradalby/.config/op/service-account-token";
+
   services.rustic.backups = {
     jotta = {
       # Jottacloud bucket ID for this host's restic repository.
       repository = "rclone:Jotta:4e8bb5107054b95e58d809060cb72911";
 
-      # 1Password item: "restic - kratail" in the Private vault.
-      passwordCommand = ''op read "op://Private/restic - kratail/password"'';
+      # 1Password item "kratail2" in the dedicated Rustic vault.
+      # Accessed via a read-only service account (see module docs).
+      passwordCommand = ''op read "op://Rustic/kratail2/password"'';
 
       paths = jottaPaths;
       pruneOpts = {

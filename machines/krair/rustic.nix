@@ -5,8 +5,9 @@
 # is a drop-in compatible replacement.
 #
 # Repository password is fetched from 1Password via `op read` in the
-# rustic TOML profile's password-command field. The 1Password CLI
-# must be signed in (GUI app handles this automatically).
+# rustic TOML profile's password-command field. Authentication uses a
+# service account token stored at ~/.config/op/service-account-token,
+# so the 1Password GUI app does not need to be signed in.
 #
 # FDA setup (one-time):
 #   The backup includes TCC-protected directories (Desktop, Documents,
@@ -87,14 +88,17 @@
       "${home}/Pictures"
     ];
 in {
+  services.rustic.opServiceAccountTokenFile = "/Users/kradalby/.config/op/service-account-token";
+
   services.rustic.backups = {
     jotta = {
       # Jottacloud bucket ID for this host's restic repository.
       # Found via: rclone lsd Jotta: (or from the old tmuxinator config).
       repository = "rclone:Jotta:5ac5edab2737c974f87e0146690b74b0";
 
-      # 1Password item: "restic - krair" in the Private vault.
-      passwordCommand = ''op read "op://Private/restic - krair/password"'';
+      # 1Password item "krair" in the dedicated Rustic vault.
+      # Accessed via a read-only service account (see module docs).
+      passwordCommand = ''op read "op://Rustic/krair/password"'';
 
       paths = jottaPaths;
       pruneOpts = {

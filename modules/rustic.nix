@@ -197,6 +197,9 @@ with lib; let
     set -euo pipefail
     ${mkErrTrap name}
 
+    ${optionalString (cfg.opServiceAccountTokenFile != null) ''
+      export OP_SERVICE_ACCOUNT_TOKEN="$(cat ${cfg.opServiceAccountTokenFile})"
+    ''}
     export PATH="${lib.makeBinPath [pkgs.rclone pkgs._1password-cli]}:$PATH"
 
     echo "=== rustic backup ${name} started at $(date) ==="
@@ -239,6 +242,9 @@ with lib; let
     pkgs.writers.writeBash "rustic-check-${name}" ''
       set -euo pipefail
 
+      ${optionalString (cfg.opServiceAccountTokenFile != null) ''
+        export OP_SERVICE_ACCOUNT_TOKEN="$(cat ${cfg.opServiceAccountTokenFile})"
+      ''}
       export PATH="${lib.makeBinPath [pkgs.rclone pkgs._1password-cli]}:$PATH"
 
       echo "=== rustic-check ${name} started at $(date) ==="
@@ -348,6 +354,133 @@ with lib; let
         jobs)}
     '';
   };
+
+  # Interactive setup script for 1Password service account.
+  # Guides the operator through creating a read-only service account,
+  # saving the token, and verifying access. Added to PATH when
+  # opServiceAccountTokenFile is configured.
+  mkSetupScript = let
+    itemInfo = concatStringsSep "\n" (mapAttrsToList (name: backup:
+        optionalString (backup.passwordCommand != null)
+        "echo ${escapeShellArg "  ${name}: ${backup.passwordCommand}"}")
+      cfg.backups);
+
+    verificationCommands = concatStringsSep "\n" (mapAttrsToList (name: backup:
+        optionalString (backup.passwordCommand != null) ''
+          echo "  Testing backup '${name}'..."
+          if ${backup.passwordCommand} &>/dev/null; then
+            echo "    OK"
+          else
+            echo "    FAILED"
+            VERIFY_FAILED=1
+          fi
+        '')
+      cfg.backups);
+  in
+    pkgs.writeShellApplication {
+      name = "rustic-setup-op";
+      runtimeInputs = [pkgs._1password-cli];
+      text = ''
+        VAULT_NAME=${escapeShellArg cfg.opVault}
+        TOKEN_FILE=${escapeShellArg cfg.opServiceAccountTokenFile}
+        EXPECTED_USER=${escapeShellArg cfg.user}
+        HOSTNAME="$(hostname -s)"
+        SA_NAME="rustic-backup-$HOSTNAME"
+
+        echo "=== Rustic Backup — 1Password Service Account Setup ==="
+        echo ""
+        echo "  Vault:           $VAULT_NAME"
+        echo "  Token file:      $TOKEN_FILE"
+        echo "  Service account: $SA_NAME"
+        echo ""
+
+        # Check user
+        CURRENT_USER="$(whoami)"
+        if [ "$CURRENT_USER" != "$EXPECTED_USER" ]; then
+          echo "ERROR: Must be run as $EXPECTED_USER (currently $CURRENT_USER)"
+          exit 1
+        fi
+        echo "Running as $EXPECTED_USER."
+
+        # Check op CLI signed in
+        if ! op account list &>/dev/null; then
+          echo "ERROR: Not signed in to 1Password CLI."
+          echo "  Sign in first: eval \$(op signin)"
+          exit 1
+        fi
+        echo "1Password CLI signed in."
+
+        # Check vault exists
+        if ! op vault get "$VAULT_NAME" &>/dev/null 2>&1; then
+          echo "ERROR: Vault '$VAULT_NAME' does not exist."
+          echo "  Create it in 1Password first, then re-run this script."
+          exit 1
+        fi
+        echo "Vault '$VAULT_NAME' exists."
+        echo ""
+
+        # Show configured password commands
+        echo "Configured password commands:"
+        ${itemInfo}
+        echo ""
+        echo "Make sure the corresponding items exist in the"
+        echo "'$VAULT_NAME' vault before continuing."
+        echo ""
+        read -rp "Press Enter to continue, or Ctrl-C to abort..."
+        echo ""
+
+        # Create service account
+        echo "Creating service account '$SA_NAME' with"
+        echo "read_items access to '$VAULT_NAME'..."
+        echo ""
+        read -rp "Continue? [y/N] "
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+          TOKEN="$(op service-account create "$SA_NAME" \
+            --vault "$VAULT_NAME:read_items" --raw)"
+          echo ""
+          echo "Service account created."
+        else
+          echo "Aborted."
+          exit 1
+        fi
+        echo ""
+
+        # Save token
+        echo "Saving token to $TOKEN_FILE..."
+        mkdir -p "$(dirname "$TOKEN_FILE")"
+        printf '%s\n' "$TOKEN" > "$TOKEN_FILE"
+        chmod 600 "$TOKEN_FILE"
+        echo "Token saved (mode 600)."
+        echo ""
+        echo "IMPORTANT: Save this token in 1Password via the GUI now."
+        echo "It cannot be retrieved again."
+        echo ""
+        read -rp "Press Enter after saving the token..."
+        echo ""
+
+        # Verify
+        echo "Verifying service account access..."
+        VERIFY_FAILED=0
+        export OP_SERVICE_ACCOUNT_TOKEN
+        OP_SERVICE_ACCOUNT_TOKEN="$(cat "$TOKEN_FILE")"
+
+        ${verificationCommands}
+
+        if [ "$VERIFY_FAILED" -eq 1 ]; then
+          echo ""
+          echo "Some verifications failed. Check vault and item names."
+          exit 1
+        fi
+
+        echo ""
+        echo "=== Setup complete ==="
+        echo ""
+        echo "Next steps:"
+        echo "  1. darwin-rebuild switch --flake .#$HOSTNAME"
+        echo "  2. Test: launchctl kickstart gui/\$(id -u)/org.nixos.rustic-backups-jotta"
+        echo "  3. Logs: tail -f ~/Library/Logs/rustic-jotta.log"
+      '';
+    };
 in {
   options.services.rustic = {
     backups = mkOption {
@@ -380,7 +513,7 @@ in {
               Command to retrieve the repository password.
               Useful for 1Password CLI integration.
             '';
-            example = ''op read "op://Private/restic/password"'';
+            example = ''op read "op://Rustic/myhost/password"'';
           };
 
           passwordFile = mkOption {
@@ -507,15 +640,56 @@ in {
         to allow rustic to read TCC-protected directories.
       '';
     };
+
+    opServiceAccountTokenFile = mkOption {
+      type = types.nullOr types.str;
+      default = null;
+      description = ''
+        Path to a file containing a 1Password service account token.
+        When set, OP_SERVICE_ACCOUNT_TOKEN is exported in all backup
+        and watchdog scripts, enabling non-interactive `op` CLI access
+        without requiring the 1Password GUI app to be signed in.
+
+        Create a service account with read-only access to a dedicated
+        vault containing only the backup repository passwords:
+          op service-account create <name> --vault <vault>:read_items --raw
+
+        Note: service accounts cannot access the built-in Personal,
+        Private, or Employee vaults — use a dedicated vault.
+      '';
+      example = "/Users/kradalby/.config/op/service-account-token";
+    };
+
+    opVault = mkOption {
+      type = types.str;
+      default = "Rustic";
+      description = ''
+        Name of the 1Password vault containing backup repository
+        passwords. Used by the rustic-setup-op setup script and
+        should match the vault referenced in each backup's
+        passwordCommand.
+      '';
+    };
+
+    user = mkOption {
+      type = types.str;
+      default = "kradalby";
+      description = ''
+        The user account that runs the backup agents. The setup
+        script verifies it is run as this user.
+      '';
+    };
   };
 
   config = mkIf (cfg.backups != {}) {
     # Ensure rustic and rclone are available system-wide.
     # The FDA wrapper resolves rustic via /run/current-system/sw/bin/rustic.
-    environment.systemPackages = [
-      pkgs.rustic
-      pkgs.rclone
-    ];
+    environment.systemPackages =
+      [
+        pkgs.rustic
+        pkgs.rclone
+      ]
+      ++ optional (cfg.opServiceAccountTokenFile != null) mkSetupScript;
 
     # Install the FDA wrapper .app via activation script so it
     # persists across rebuilds at a stable path.
@@ -571,6 +745,9 @@ in {
             set -euo pipefail
             ${mkErrTrap name}
 
+            ${optionalString (cfg.opServiceAccountTokenFile != null) ''
+              export OP_SERVICE_ACCOUNT_TOKEN="$(cat ${cfg.opServiceAccountTokenFile})"
+            ''}
             export PATH="${lib.makeBinPath [pkgs.rclone pkgs._1password-cli]}:$PATH"
 
             echo "=== rustic backup ${name} started at $(date) ==="
