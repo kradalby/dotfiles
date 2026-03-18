@@ -115,7 +115,7 @@
     };
 
     opencode = {
-      url = "github:anomalyco/opencode/v1.2.14";
+      url = "github:anomalyco/opencode";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
   };
