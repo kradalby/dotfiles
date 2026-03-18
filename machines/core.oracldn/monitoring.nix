@@ -74,8 +74,8 @@
   '';
 
   # Filesystem filter for disk alerts — excludes virtual, boot, and
-  # hypervisor filesystems. Hypervisor hosts have dedicated alerts.
-  diskFilter = ''fstype!~"(tmpfs|ramfs)",mountpoint!~"^/boot.?/?.*",role!="hypervisor"'';
+  # Incus filesystems. Incus hosts have dedicated alerts.
+  diskFilter = ''fstype!~"(tmpfs|ramfs)",mountpoint!~"^/boot.?/?.*",role!="incus"'';
 
   # Helper to create a simple scrape job with /metrics path
   scrapeJob = name: targets: {
@@ -193,7 +193,7 @@ in {
         static_configs = [
           {
             targets = ["core-ldn:8443"];
-            labels.role = "incus-hypervisor";
+            labels.role = "incus";
           }
         ];
       }
@@ -803,7 +803,7 @@ in {
               # Hypervisor host alerts (node_* metrics from Incus endpoint)
               {
                 alert = "HypervisorLowMem";
-                expr = ''(node_memory_MemAvailable_bytes{role="incus-hypervisor"} / node_memory_MemTotal_bytes{role="incus-hypervisor"}) * 100 < 5'';
+                expr = ''(node_memory_MemAvailable_bytes{role="incus"} / node_memory_MemTotal_bytes{role="incus"}) * 100 < 5'';
                 for = "15m";
                 labels.severity = "critical";
                 annotations = {
@@ -813,7 +813,7 @@ in {
               }
               {
                 alert = "HypervisorLowDisk";
-                expr = ''node_filesystem_avail_bytes{role="incus-hypervisor",fstype="ext4",mountpoint="/"} / 1024 / 1024 < 2048'';
+                expr = ''node_filesystem_avail_bytes{role="incus",fstype="ext4",mountpoint="/"} / 1024 / 1024 < 2048'';
                 for = "5m";
                 labels.severity = "critical";
                 annotations = {
@@ -823,7 +823,7 @@ in {
               }
               {
                 alert = "HypervisorHighCPU";
-                expr = ''node_load15{role="incus-hypervisor"} > count without (cpu, mode) (node_cpu_seconds_total{role="incus-hypervisor",mode="idle"})'';
+                expr = ''node_load15{role="incus"} > count without (cpu, mode) (node_cpu_seconds_total{role="incus",mode="idle"})'';
                 for = "15m";
                 labels.severity = "warning";
                 annotations = {
