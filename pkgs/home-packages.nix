@@ -199,8 +199,6 @@ in {
         ])
         ++ (with pkgs.master; [
           claude-code
-          claude-code-acp
-          claude-monitor
           # codex
           gemini-cli
         ])
