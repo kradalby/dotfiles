@@ -32,7 +32,7 @@ Identify each entry's category by inspecting its value and comment URL:
 ### 1. Semver release tags (GitHub Releases)
 
 Values like `"0.2.3"` or `"v0.5.0"` with a `/releases` URL.
-Examples: `eb`, `cook`, `pmCli`, `rtk`, `rustic`, homebridge packages.
+Examples: `eb`, `cook`, `pmCli`, `rustic`, homebridge packages.
 
 **How to check:**
 
