@@ -2,5 +2,17 @@
   "$schema": "https://opencode.ai/config.json",
   "plugin": [
     "opencode-claude-auth@latest"
-  ]
+  ],
+  "permission": {
+    "external_directory": {
+      "~/go/**": "allow",
+      "~/git/**": "allow",
+      "/nix/**": "allow"
+    },
+    "edit": {
+      "~/go/**": "deny",
+      "~/git/**": "deny",
+      "/nix/**": "deny"
+    }
+  }
 }
