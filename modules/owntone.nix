@@ -172,6 +172,9 @@ in {
 
       restartTriggers = [configFile];
 
+      startLimitBurst = 10;
+      startLimitIntervalSec = 600;
+
       serviceConfig = {
         Type = "simple";
         ExecStart = "${getExe cfg.package} -f -c ${configFile}";
@@ -185,8 +188,6 @@ in {
         # Restart policy
         Restart = "on-failure";
         RestartSec = 5;
-        StartLimitBurst = 10;
-        StartLimitIntervalSec = 600;
 
         # Hardening
         NoNewPrivileges = true;
