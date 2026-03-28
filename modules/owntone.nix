@@ -157,11 +157,14 @@ in {
       owntone = {};
     };
 
-    systemd.tmpfiles.rules = [
-      "d ${cfg.dataDir} 0755 ${cfg.user} ${cfg.group} -"
-      "d ${cfg.dataDir}/cache 0755 ${cfg.user} ${cfg.group} -"
-      "f /var/log/owntone.log 0644 ${cfg.user} ${cfg.group} -"
-    ];
+    systemd.tmpfiles.rules =
+      [
+        "d ${cfg.dataDir} 0755 ${cfg.user} ${cfg.group} -"
+        "d ${cfg.dataDir}/cache 0755 ${cfg.user} ${cfg.group} -"
+        "f /var/log/owntone.log 0644 ${cfg.user} ${cfg.group} -"
+      ]
+      ++ lib.optionals (cfg.settings ? library && cfg.settings.library ? directories)
+      (map (dir: "d ${dir} 0755 ${cfg.user} ${cfg.group} -") cfg.settings.library.directories);
 
     systemd.services.owntone = {
       description = "OwnTone DAAP/AirPlay media server";
