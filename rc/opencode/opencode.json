@@ -8,7 +8,8 @@
       "~/go/**": "allow",
       "~/git/**": "allow",
       "/nix/**": "allow",
-      "/tmp/**": "allow"
+      "/tmp/**": "allow",
+      "/private/tmp/**": "allow"
     },
     "edit": {
       "~/go/**": "deny",
