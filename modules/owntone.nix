@@ -16,12 +16,16 @@
     mkDefault
     mkEnableOption
     mkIf
+    mkMerge
     mkOption
     mkPackageOption
     types
     ;
 
   cfg = config.services.owntone;
+  ccfg = cfg.controller;
+
+  controllerFormat = pkgs.formats.json {};
 
   # Type for values within a libconfuse section:
   # bool, int, string, or list-of-string.
@@ -126,11 +130,39 @@ in {
             }
       '';
     };
+
+    controller = {
+      enable = mkEnableOption "p3-controller HTTP API for scheduled OwnTone playback";
+
+      package = mkPackageOption pkgs "p3-controller" {};
+
+      port = mkOption {
+        type = types.port;
+        default = 8085;
+        description = "Port for the p3-controller HTTP server.";
+      };
+
+      openFirewall = mkOption {
+        type = types.bool;
+        default = false;
+        description = "Whether to open the firewall for the controller port.";
+      };
+
+      settings = mkOption {
+        type = controllerFormat.type;
+        default = {};
+        description = ''
+          p3-controller configuration. Serialized to JSON and passed
+          via -config flag. See the p3-controller source for options.
+        '';
+      };
+    };
   };
 
-  config = mkIf cfg.enable {
-    # Sensible defaults; host configs can override via normal priority.
-    services.owntone.settings = {
+  config = mkMerge [
+    (mkIf cfg.enable {
+      # Sensible defaults; host configs can override via normal priority.
+      services.owntone.settings = {
       general = {
         uid = mkDefault cfg.user;
         db_path = mkDefault "${cfg.dataDir}/songs3.db";
@@ -208,5 +240,42 @@ in {
       allowedTCPPorts = [cfg.settings.library.port];
       allowedUDPPorts = [5353];
     };
-  };
+  })
+
+    (mkIf (cfg.enable && ccfg.enable) {
+      # Controller defaults — owntone_url and listen derived from module config.
+      services.owntone.controller.settings = {
+        owntone_url = mkDefault "http://localhost:${toString cfg.settings.library.port}";
+        listen = mkDefault ":${toString ccfg.port}";
+        playlist_name = mkDefault "NRK P3";
+      };
+
+      systemd.services.p3-controller = let
+        controllerConfigFile = controllerFormat.generate "p3-controller.json" ccfg.settings;
+      in {
+        description = "p3-controller — scheduled OwnTone playback";
+        after = ["network.target" "owntone.service"];
+        bindsTo = ["owntone.service"];
+        wantedBy = ["multi-user.target"];
+
+        restartTriggers = [controllerConfigFile];
+
+        serviceConfig = {
+          Type = "simple";
+          ExecStart = "${getExe ccfg.package} -config ${controllerConfigFile}";
+          DynamicUser = true;
+          Restart = "on-failure";
+          RestartSec = 5;
+
+          # Hardening
+          NoNewPrivileges = true;
+          ProtectSystem = "strict";
+          ProtectHome = true;
+          PrivateTmp = true;
+        };
+      };
+
+      networking.firewall.allowedTCPPorts = mkIf ccfg.openFirewall [ccfg.port];
+    })
+  ];
 }
