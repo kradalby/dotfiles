@@ -36,15 +36,15 @@ in {
       settings = {
         playlist_name = "NRK P3";
         weekday = [
-          {name = "KITCHEN"; volume = 10;}
-          {name = "LAMP"; volume = 10;}
-          {name = "OFFICE"; volume = 10;}
+          {name = "KITCHEN"; volume = 35;}
+          {name = "LAMP"; volume = 27;}
+          {name = "OFFICE"; volume = 35;}
         ];
         weekend = [
-          {name = "KITCHEN"; volume = 10;}
-          {name = "SHELF"; volume = 10;}
-          {name = "RIGHT"; volume = 10;}
-          {name = "LIVING ROOM"; volume = 10;}
+          {name = "KITCHEN"; volume = 35;}
+          {name = "SHELF"; volume = 27;}
+          {name = "RIGHT"; volume = 35;}
+          {name = "LIVING ROOM"; volume = 35;}
         ];
       };
     };
