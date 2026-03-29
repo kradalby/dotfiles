@@ -51,10 +51,11 @@ in {
   };
 
   # Deploy NRK radio playlists into OwnTone's music directory.
-  # L+ creates a symlink, replacing any existing one.
+  # C+ copies the file so OwnTone sees the real filename (not the
+  # Nix store hash-prefixed path it would get by following a symlink).
   systemd.tmpfiles.rules = [
     "d ${radioDir} 0755 ${config.services.owntone.user} ${config.services.owntone.group} -"
-    "L+ ${radioDir}/nrk-p3.m3u - - - - ${nrkP3Playlist}"
+    "C+ ${radioDir}/nrk-p3.m3u - - - - ${nrkP3Playlist}"
   ];
 
   # Expose OwnTone web UI and JSON API via Tailscale.
