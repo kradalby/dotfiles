@@ -19,6 +19,8 @@ in
 
     rustic-wrapper = prev.callPackage ../rustic-wrapper {};
 
+    p3-controller = prev.callPackage ../p3-controller {};
+
     boo = prev.callPackage ./boo.nix {};
 
     pm-cli = prev.callPackage ./pm-cli.nix {};
