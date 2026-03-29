@@ -119,15 +119,27 @@ func handlePlay(client *owntone.Client, cfg *Config) http.HandlerFunc {
 			resp.Speakers = append(resp.Speakers, out.Name)
 		}
 
-		// Find playlist by name.
-		playlists, err := client.SearchPlaylist(cfg.PlaylistName)
-		if err != nil {
-			resp.Error = fmt.Sprintf("search playlist: %v", err)
-			writeJSON(w, http.StatusBadGateway, resp)
-			return
+		// Find playlist by name, retrying a few times in case OwnTone
+		// is still scanning the library after a restart.
+		var playlist *owntone.Playlist
+		const maxAttempts = 3
+		for attempt := 1; attempt <= maxAttempts; attempt++ {
+			playlist, err = client.FindPlaylist(cfg.PlaylistName)
+			if err != nil {
+				resp.Error = fmt.Sprintf("find playlist: %v", err)
+				writeJSON(w, http.StatusBadGateway, resp)
+				return
+			}
+			if playlist != nil {
+				break
+			}
+			if attempt < maxAttempts {
+				log.Printf("playlist %q not found (attempt %d/%d), retrying…", cfg.PlaylistName, attempt, maxAttempts)
+				time.Sleep(time.Duration(attempt) * 3 * time.Second)
+			}
 		}
-		if len(playlists) == 0 {
-			resp.Error = fmt.Sprintf("playlist %q not found", cfg.PlaylistName)
+		if playlist == nil {
+			resp.Error = fmt.Sprintf("playlist %q not found after %d attempts", cfg.PlaylistName, maxAttempts)
 			writeJSON(w, http.StatusNotFound, resp)
 			return
 		}
@@ -138,7 +150,7 @@ func handlePlay(client *owntone.Client, cfg *Config) http.HandlerFunc {
 			writeJSON(w, http.StatusBadGateway, resp)
 			return
 		}
-		if err := client.AddToQueue(playlists[0].URI); err != nil {
+		if err := client.AddToQueue(playlist.URI); err != nil {
 			resp.Error = fmt.Sprintf("add to queue: %v", err)
 			writeJSON(w, http.StatusBadGateway, resp)
 			return

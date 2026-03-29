@@ -62,13 +62,11 @@ type Playlist struct {
 	URI  string `json:"uri"`
 }
 
-type searchResponse struct {
-	Playlists struct {
-		Items  []Playlist `json:"items"`
-		Total  int        `json:"total"`
-		Offset int        `json:"offset"`
-		Limit  int        `json:"limit"`
-	} `json:"playlists"`
+type playlistsResponse struct {
+	Items  []Playlist `json:"items"`
+	Total  int        `json:"total"`
+	Offset int        `json:"offset"`
+	Limit  int        `json:"limit"`
 }
 
 // GetOutputs returns all configured outputs (speakers).
@@ -124,14 +122,57 @@ func (c *Client) AddToQueue(uri string) error {
 	return c.post(u)
 }
 
-// SearchPlaylist searches for playlists matching the query string.
-func (c *Client) SearchPlaylist(query string) ([]Playlist, error) {
-	u := fmt.Sprintf("/api/search?type=playlist&query=%s", url.QueryEscape(query))
-	var resp searchResponse
-	if err := c.getJSON(u, &resp); err != nil {
-		return nil, fmt.Errorf("search playlist %q: %w", query, err)
+// GetPlaylists returns all playlists from the library.
+// This is more reliable than the search endpoint, which uses
+// full-text search and may miss playlists with short names.
+func (c *Client) GetPlaylists() ([]Playlist, error) {
+	var resp playlistsResponse
+	if err := c.getJSON("/api/library/playlists", &resp); err != nil {
+		return nil, fmt.Errorf("get playlists: %w", err)
 	}
-	return resp.Playlists.Items, nil
+	return resp.Items, nil
+}
+
+// FindPlaylist lists all playlists and returns the first one whose
+// normalised name contains the normalised query. Normalisation
+// lowercases the string and replaces hyphens with spaces, and strips
+// Nix store hash prefixes (32-char hex + "-") so that a playlist
+// named "9rwbbix…-nrk-p3" will match the query "NRK P3".
+func (c *Client) FindPlaylist(query string) (*Playlist, error) {
+	playlists, err := c.GetPlaylists()
+	if err != nil {
+		return nil, err
+	}
+	norm := normaliseName(query)
+	for _, p := range playlists {
+		if strings.Contains(normaliseName(p.Name), norm) {
+			return &p, nil
+		}
+	}
+	return nil, nil
+}
+
+// normaliseName lowercases, replaces hyphens with spaces, and strips
+// a leading Nix store hash prefix (32 hex chars followed by a dash).
+func normaliseName(s string) string {
+	s = strings.ToLower(s)
+	s = strings.ReplaceAll(s, "-", " ")
+	// Strip Nix store hash prefix: 32 hex chars + space (was dash).
+	if len(s) > 33 && s[32] == ' ' && isHex(s[:32]) {
+		s = s[33:]
+	}
+	return s
+}
+
+// isHex reports whether every byte in s is a lowercase hex digit.
+func isHex(s string) bool {
+	for i := 0; i < len(s); i++ {
+		c := s[i]
+		if !((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f')) {
+			return false
+		}
+	}
+	return true
 }
 
 // --- HTTP helpers ---
