@@ -357,7 +357,7 @@ refreshStatus();
 					"onclick":   "action('/stop')",
 				}, elem.Text("Stop")),
 			),
-			elem.Script(nil, elem.Text(js)),
+			elem.Script(nil, elem.Raw(js)),
 		),
 	)
 
