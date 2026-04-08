@@ -207,11 +207,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1773608902,
-        "narHash": "sha256-IErsRbSf/ozNGw2qUHNRY3mhFDhK853IMAjiqMjmpsg=",
+        "lastModified": 1775637598,
+        "narHash": "sha256-CJkBerDllsitsmgx33n8CZgLyheNQsrswKB3eZMPKiI=",
         "owner": "kradalby",
         "repo": "hvor",
-        "rev": "2044dd32582b365731244f21ecf2b2d7a5fe0c94",
+        "rev": "3fa6dc8fe75d096b1f1c31cee41e46a9e6376b63",
         "type": "github"
       },
       "original": {
@@ -559,11 +559,11 @@
         "rust-overlay": "rust-overlay_2"
       },
       "locked": {
-        "lastModified": 1765369608,
-        "narHash": "sha256-KloRQfcSC88XBmjjPkfOVEARHYM8aq2k43XViBmOTI0=",
+        "lastModified": 1775637747,
+        "narHash": "sha256-tlz3bEwwn9mubWEqUKLPBe0xrt1mdk8ut4iteiMK0CE=",
         "owner": "kradalby",
         "repo": "ssh-agent-mux",
-        "rev": "990cea6bc8f207d433dd3057b4bd2545e658c262",
+        "rev": "7864ed74b49dd7c6fe6ef5b73c8b79cab1ec9bcd",
         "type": "github"
       },
       "original": {
