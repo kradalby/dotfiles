@@ -49,6 +49,10 @@
       TF_X_HELM_MANIFEST = 1;
 
       GIT_SSH_COMMAND = "ssh";
+
+      # Disable Claude Code's adaptive thinking heuristic so every turn
+      # gets the full thinking budget instead of being shortchanged.
+      CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING = "1";
     };
 
     language = {
