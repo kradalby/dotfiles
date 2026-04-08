@@ -98,11 +98,11 @@ in {
           # nodejs_24
         ])
         ++ (with pkgs.unstable; [
-          nodePackages.typescript
+          typescript
           vtsls
-          nodePackages.eslint_d
-          nodePackages.prettier
-          nodePackages.stylelint
+          eslint_d
+          prettier
+          stylelint
           html-tidy
           commitlint
         ]);
@@ -140,12 +140,12 @@ in {
         lua53Packages.luadbi-sqlite3
         lua53Packages.luasql-sqlite3
         terraform-ls
-        nodePackages.yaml-language-server
+        yaml-language-server
         yamllint
         gitlint
         actionlint
         vale
-        nodePackages.write-good
+        write-good
       ];
     })
 

@@ -319,7 +319,7 @@
           buildInputs = [
             pkgs.alejandra
             pkgs.unstable.prek
-            pkgs.nodePackages.prettier
+            pkgs.prettier
             pkgs.shfmt
             pkgs.colmena
             pkgs.webrepl_cli
