@@ -9,6 +9,7 @@ Create a draft pull request for the current branch.
   - The title should read like a commit subject line
 - Write a concise PR description summarising the changes
   - Focus on the "why", not the "what"
+  - Be short, concise and lean into brevity
   - Plain text only, no markdown headings or sections (no ## Summary, ## Test plan, etc.)
   - No bullet lists, no checklists, just a short paragraph
   - When working on a GitHub issue, reference it:
