@@ -13,8 +13,8 @@ Use `pm-cli --help-json` to discover available commands and flags.
 4. **Read ambiguous emails**: for any email where the action isn't clear from sender+subject alone, read it with `pm-cli mail read uid:X --json --unread` before classifying
 5. **Ask about uncertain emails**: use the interactive question/ask feature to ask the user about emails that don't clearly match any rule. Always ask rather than guess. Group related questions into a single prompt when possible.
 6. **Present a full plan** with sender + subject for every email (not just UIDs) grouped by action
-7. **Get explicit approval** before executing anything
-8. **Execute**: move deletions to Trash, apply labels, mark read, then for each kept email either archive (records) or leave in inbox (action items requiring user attention)
+7. **STOP and wait for explicit user approval**. After presenting the plan, end your turn and wait. Do NOT self-approve with phrases like "Approving and executing" or "Looks good, executing now". Do NOT proceed until the user types an unambiguous approval ("yes", "go", "approve", "looks good", etc.). This applies to **every round** in a conversation -- prior approval does not carry forward to follow-up rounds. Read-only commands (`mail list`, `mail read`, `mail label list`) are fine without approval since they build the plan; only mutating commands (`mail move`, `mail label add/remove`, `mail flag`, `mail archive`) require approval.
+8. **Execute** (only after approval): move deletions to Trash, apply labels, mark read, then for each kept email either archive (records) or leave in inbox (action items requiring user attention)
 9. **Verify**: confirm inbox state matches the plan
 
 ## Delete rules
