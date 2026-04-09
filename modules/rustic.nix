@@ -58,12 +58,19 @@
 #       Info.plist              — bundle ID: com.kradalby.rustic-backup
 #       MacOS/
 #         rustic-wrapper        — compiled Go binary (launchd entry point)
-#         backup-<name>.sh      — per-job bash script (backup logic)
+#
+#   The bundle intentionally contains ONLY the Info.plist and the Go
+#   wrapper binary. Per-job backup scripts live outside the bundle as
+#   regular Nix store paths (see mkJobScript) and are passed to the
+#   wrapper via launchd's ProgramArguments. Keeping scripts out of the
+#   bundle means editing a backup config doesn't rewrite the bundle,
+#   doesn't change its code signature, and doesn't invalidate the FDA
+#   grant — only changes to rustic-wrapper itself do.
 #
 #   The Go wrapper (rustic-wrapper) is the launchd entry point. It:
 #     1. Waits for /nix/store to appear (firmlink may be slow at boot)
 #     2. Acquires an exclusive flock to prevent concurrent runs
-#     3. fork+exec's /bin/bash with the backup script
+#     3. fork+exec's /bin/bash with the backup script (/nix/store path)
 #     4. Waits for the child, propagates exit code
 #   The wrapper stays alive as the parent so TCC attributes all child
 #   file access to the .app bundle. See pkgs/rustic-wrapper/main.go.
@@ -183,50 +190,55 @@ with lib; let
         -ignoreDnD' ERR
     '';
 
-  # Generate the per-job bash script (backup-<name>.sh).
-  # This script contains the backup logic only — wait-for-nix-store
-  # and flock are handled by the compiled Go wrapper (rustic-wrapper).
+  # Generate the per-job backup script as a standalone writeBash
+  # derivation in the Nix store. Referenced directly by launchd via
+  # ProgramArguments (FDA path) or wrapped in a flock runner (non-FDA
+  # fallback). The script does NOT live inside the FDA .app bundle,
+  # so editing a backup config doesn't rewrite the bundle and doesn't
+  # invalidate the Full Disk Access grant.
   #
-  # Uses /run/current-system/sw so the rustic binary can be updated
-  # by darwin-rebuild without changing the .app or invalidating the
-  # FDA grant.
+  # The compiled Go wrapper (rustic-wrapper) inside the bundle receives
+  # this path as argv[1] and exec's /bin/bash on it. TCC attribution
+  # flows from the wrapper (the .app's main executable) to the child
+  # bash/rustic/rclone processes regardless of where the script lives
+  # on disk.
   mkJobScript = name: backup: let
-    rusticBin = "/run/current-system/sw/bin/rustic";
-  in ''
-    #!/bin/bash
-    set -euo pipefail
-    ${mkErrTrap name}
+    rusticBin = "${pkgs.rustic}/bin/rustic";
+  in
+    pkgs.writers.writeBash "rustic-backup-${name}" ''
+      set -euo pipefail
+      ${mkErrTrap name}
 
-    ${optionalString (cfg.opServiceAccountTokenFile != null) ''
-      export OP_SERVICE_ACCOUNT_TOKEN="$(cat ${cfg.opServiceAccountTokenFile})"
-    ''}
-    export PATH="${lib.makeBinPath [pkgs.rclone pkgs._1password-cli]}:$PATH"
+      ${optionalString (cfg.opServiceAccountTokenFile != null) ''
+        export OP_SERVICE_ACCOUNT_TOKEN="$(cat ${cfg.opServiceAccountTokenFile})"
+      ''}
+      export PATH="${lib.makeBinPath [pkgs.rclone pkgs._1password-cli]}:$PATH"
 
-    echo "=== rustic backup ${name} started at $(date) ==="
+      echo "=== rustic backup ${name} started at $(date) ==="
 
-    # Run backup
-    ${rusticBin} -P ${name} backup
+      # Run backup
+      ${rusticBin} -P ${name} backup
 
-    # Forget/prune/check (optionally only on AC power)
-    ${
-      if backup.pruneOnACOnly
-      then ''
-        if pmset -g ps | grep -q "AC Power"; then
-          echo "On AC power, running forget + check..."
+      # Forget/prune/check (optionally only on AC power)
+      ${
+        if backup.pruneOnACOnly
+        then ''
+          if pmset -g ps | grep -q "AC Power"; then
+            echo "On AC power, running forget + check..."
+            ${rusticBin} -P ${name} forget
+            ${rusticBin} -P ${name} check
+          else
+            echo "On battery, skipping forget + check"
+          fi
+        ''
+        else ''
           ${rusticBin} -P ${name} forget
           ${rusticBin} -P ${name} check
-        else
-          echo "On battery, skipping forget + check"
-        fi
-      ''
-      else ''
-        ${rusticBin} -P ${name} forget
-        ${rusticBin} -P ${name} check
-      ''
-    }
+        ''
+      }
 
-    echo "=== rustic backup ${name} finished at $(date) ==="
-  '';
+      echo "=== rustic backup ${name} finished at $(date) ==="
+    '';
 
   # Generate a stale backup watchdog script for a backup job.
   # Queries the latest snapshot via `rustic snapshots --json`, computes
@@ -299,20 +311,21 @@ with lib; let
       echo "=== rustic-check ${name} finished at $(date) ==="
     '';
 
-  # Build the .app bundle derivation. Contains Info.plist (with the
-  # stable bundle ID that FDA is granted to), the compiled Go wrapper
-  # binary, and per-job bash scripts. Built in the Nix store, then
-  # copied to ~/Applications/ by the activation script so the path
-  # stays stable across rebuilds.
+  # Build the .app bundle derivation. Contains only Info.plist (with
+  # the stable bundle ID that FDA is granted to) and the compiled Go
+  # wrapper binary. Backup scripts live outside the bundle in the Nix
+  # store (see mkJobScript above) so editing a backup config doesn't
+  # rewrite the bundle and doesn't invalidate the FDA grant.
+  #
+  # Built in the Nix store, then copied to ~/Applications/ by the
+  # activation script so the path stays stable across rebuilds.
   #
   # LSUIElement=true hides the app from the Dock.
   # CFBundleExecutable points to the compiled Go binary, not a script,
   # so macOS TCC correctly attributes file access to the .app bundle.
   mkFdaApp = pkgs.stdenv.mkDerivation {
     name = "rustic-backup-app";
-    buildCommand = let
-      jobs = filterAttrs (_: b: b.enableFDA) cfg.backups;
-    in ''
+    buildCommand = ''
       mkdir -p $out/RusticBackup.app/Contents/MacOS
 
       cat > $out/RusticBackup.app/Contents/Info.plist <<'PLIST'
@@ -343,15 +356,6 @@ with lib; let
       cp ${pkgs.rustic-wrapper}/bin/rustic-wrapper \
         $out/RusticBackup.app/Contents/MacOS/rustic-wrapper
       chmod +x $out/RusticBackup.app/Contents/MacOS/rustic-wrapper
-
-      ${concatStringsSep "\n" (mapAttrsToList (name: backup: ''
-          # Bash script for "${name}" -- backup logic (run by wrapper)
-          cat > $out/RusticBackup.app/Contents/MacOS/backup-${name}.sh <<'JOBSCRIPT'
-          ${mkJobScript name backup}
-          JOBSCRIPT
-          chmod +x $out/RusticBackup.app/Contents/MacOS/backup-${name}.sh
-        '')
-        jobs)}
     '';
   };
 
@@ -758,46 +762,18 @@ in {
       (mapAttrs'
         (name: backup: let
           wrapperBin = "${fdaAppPath}/Contents/MacOS/rustic-wrapper";
-          jobScript = "${fdaAppPath}/Contents/MacOS/backup-${name}.sh";
+          # Backup script is a /nix/store path, built once and shared
+          # by both FDA and non-FDA branches. Keeping it outside the
+          # .app bundle means edits to this backup's config don't
+          # invalidate the bundle's code signature.
+          jobScript = "${mkJobScript name backup}";
           lockFile = "/tmp/rustic_${name}.lockfile";
 
-          # Non-FDA fallback: regular bash script wrapped with flock.
-          # TCC doesn't matter here so the flock command-mode is fine.
-          backupScript = pkgs.writers.writeBash "rustic-backup-${name}" ''
-            set -euo pipefail
-            ${mkErrTrap name}
-
-            ${optionalString (cfg.opServiceAccountTokenFile != null) ''
-              export OP_SERVICE_ACCOUNT_TOKEN="$(cat ${cfg.opServiceAccountTokenFile})"
-            ''}
-            export PATH="${lib.makeBinPath [pkgs.rclone pkgs._1password-cli]}:$PATH"
-
-            echo "=== rustic backup ${name} started at $(date) ==="
-
-            ${pkgs.rustic}/bin/rustic -P ${name} backup
-
-            ${
-              if backup.pruneOnACOnly
-              then ''
-                if pmset -g ps | grep -q "AC Power"; then
-                  echo "On AC power, running forget + check..."
-                  ${pkgs.rustic}/bin/rustic -P ${name} forget
-                  ${pkgs.rustic}/bin/rustic -P ${name} check
-                else
-                  echo "On battery, skipping forget + check"
-                fi
-              ''
-              else ''
-                ${pkgs.rustic}/bin/rustic -P ${name} forget
-                ${pkgs.rustic}/bin/rustic -P ${name} check
-              ''
-            }
-
-            echo "=== rustic backup ${name} finished at $(date) ==="
-          '';
-
+          # Non-FDA fallback: same script, wrapped with flock since
+          # the Go wrapper (which handles flock on the FDA path) isn't
+          # in the loop. TCC doesn't matter here.
           fallbackRunScript = pkgs.writers.writeBash "run-rustic-${name}" ''
-            ${pkgs.flock}/bin/flock -n /tmp/rustic_${name}.lockfile ${backupScript}
+            ${pkgs.flock}/bin/flock -n ${lockFile} ${jobScript}
           '';
         in
           nameValuePair "rustic-backups-${name}" (
