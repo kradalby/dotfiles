@@ -175,6 +175,15 @@
         # Override so transitive consumers (nix-rosetta-builder)
         # get the unstable version.
         inherit (prev.unstable) lima lima-full;
+
+        # direnv 2.37.1's bash test suite hangs on darwin because some
+        # test scenarios contain literal backspace/CR characters in
+        # directory names which trip up macOS filesystem ops. Skip the
+        # check phase on darwin until upstream fixes this.
+        direnv = prev.direnv.overrideAttrs (_old:
+          prev.lib.optionalAttrs prev.stdenv.hostPlatform.isDarwin {
+            doCheck = false;
+          });
       })
     ];
 
