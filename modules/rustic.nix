@@ -695,25 +695,47 @@ in {
     # persists across rebuilds at a stable path.
     system.activationScripts.postActivation.text = let
       anyFDA = any (b: b.enableFDA) (attrValues cfg.backups);
+      sourceApp = "${mkFdaApp}/RusticBackup.app";
+      # Marker file lives next to the bundle, not inside it. If it
+      # were inside, codesign would either hash it (breaking the
+      # "bit-identical re-signature" property) or complain about an
+      # untracked file during codesign --verify.
+      sourceMarker = "${fdaAppPath}.nix-source";
     in
       optionalString anyFDA ''
-        echo "installing RusticBackup.app FDA wrapper..."
-        mkdir -p "${cfg.fdaAppDir}"
-        rm -rf "${fdaAppPath}"
-        cp -R "${mkFdaApp}/RusticBackup.app" "${fdaAppPath}"
-        chmod -R u+w "${fdaAppPath}"
-        chown -R kradalby:staff "${fdaAppPath}"
+        # Only reinstall when the source .app in the Nix store has
+        # actually changed. The source store path is effectively a
+        # content hash; if it matches the marker, nothing has changed
+        # and we skip the copy + codesign entirely. Re-signing on
+        # every switch churns the code identity and makes macOS
+        # re-prompt for Full Disk Access, which is what we want to
+        # avoid.
+        if [ -d "${fdaAppPath}" ] \
+           && [ "$(cat ${sourceMarker} 2>/dev/null)" = "${sourceApp}" ]; then
+          echo "RusticBackup.app up to date (${sourceApp}), skipping reinstall"
+        else
+          echo "installing RusticBackup.app FDA wrapper..."
+          mkdir -p "${cfg.fdaAppDir}"
+          rm -rf "${fdaAppPath}"
+          cp -R "${sourceApp}" "${fdaAppPath}"
+          chmod -R u+w "${fdaAppPath}"
+          chown -R kradalby:staff "${fdaAppPath}"
 
-        # Code sign the .app with a stable identifier matching the
-        # bundle ID. Without this, TCC's csreq (code signing requirement)
-        # check fails because the ad-hoc signature from the Nix store
-        # build doesn't produce a consistent identity after copying.
-        # The --identifier flag ensures the code identity is always
-        # com.kradalby.rustic-backup, so the FDA grant's csreq matches
-        # across rebuilds even when the underlying binary changes.
-        /usr/bin/codesign --force --deep --sign - \
-          --identifier com.kradalby.rustic-backup \
-          "${fdaAppPath}"
+          # Code sign the .app with a stable identifier matching the
+          # bundle ID. Without this, TCC's csreq (code signing requirement)
+          # check fails because the ad-hoc signature from the Nix store
+          # build doesn't produce a consistent identity after copying.
+          # The --identifier flag ensures the code identity is always
+          # com.kradalby.rustic-backup, so the FDA grant's csreq matches
+          # across rebuilds even when the underlying binary changes.
+          /usr/bin/codesign --force --deep --sign - \
+            --identifier com.kradalby.rustic-backup \
+            "${fdaAppPath}"
+
+          # Record the source store path so the next activation can
+          # short-circuit when nothing has changed.
+          printf '%s\n' "${sourceApp}" > "${sourceMarker}"
+        fi
 
         # Check if FDA is granted (informational only)
         if ! sqlite3 \
