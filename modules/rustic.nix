@@ -262,10 +262,12 @@ with lib; let
       echo "=== rustic-check ${name} started at $(date) ==="
 
       # Get latest snapshot time from rustic JSON output.
-      # rustic snapshots --json returns an array of snapshot objects,
-      # each with a "time" field in RFC3339 format.
+      # rustic snapshots --json groups results: the top-level array
+      # contains objects with {group_key, snapshots: [...]}, and each
+      # nested snapshot has a "time" field in RFC3339 format. Flatten
+      # across all groups and take the most recent.
       latest=$(${rusticBin} -P ${name} snapshots --json \
-        | ${jq} -r '[.[].time] | sort | last // empty')
+        | ${jq} -r '[.[].snapshots[].time] | sort | last // empty')
 
       if [ -z "$latest" ]; then
         ${notifier} \
@@ -278,10 +280,12 @@ with lib; let
         exit 1
       fi
 
-      # Compute age in days. macOS date supports -jf for parsing.
+      # Compute age in days. Use /bin/date explicitly so we get BSD
+      # date with its -jf parser, not GNU date from nix coreutils
+      # (which may be on PATH when the script is invoked manually).
       # Strip sub-second precision and timezone offset for compatibility.
-      snapshot_epoch=$(date -jf "%Y-%m-%dT%H:%M:%S" "$(echo "$latest" | sed 's/\.[0-9]*[-+].*//')" +%s 2>/dev/null || date -jf "%Y-%m-%dT%H:%M:%SZ" "$(echo "$latest" | sed 's/\.[0-9]*//')" +%s)
-      now_epoch=$(date +%s)
+      snapshot_epoch=$(/bin/date -jf "%Y-%m-%dT%H:%M:%S" "$(echo "$latest" | sed 's/\.[0-9]*[-+].*//')" +%s 2>/dev/null || /bin/date -jf "%Y-%m-%dT%H:%M:%SZ" "$(echo "$latest" | sed 's/\.[0-9]*//')" +%s)
+      now_epoch=$(/bin/date +%s)
       age_days=$(( (now_epoch - snapshot_epoch) / 86400 ))
 
       echo "Latest snapshot: $latest (''${age_days}d ago)"
