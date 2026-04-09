@@ -1,5 +1,5 @@
 {pkgs, ...}: {
   fonts = {
-    packages = [pkgs.jetbrains-mono];
+    packages = [pkgs.nerd-fonts.jetbrains-mono];
   };
 }
