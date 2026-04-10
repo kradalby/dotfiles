@@ -20,10 +20,10 @@ in
       owner = "cooklang";
       repo = "cookcli";
       rev = "v${finalAttrs.version}";
-      hash = "sha256-UIhecZu2iHOwuHSwoWpMKQ1LrEH5ryZZTZV5hMp+UHo=";
+      hash = "sha256-gC/6GMqCaafVeDEU3VAVu3jOw/+Gkb9sDVHmGvlg36o=";
     };
 
-    cargoHash = "sha256-UcrrFYst6E31bgjknRBugBWBm/4w96u8Yl0UPCyfRX8=";
+    cargoHash = "sha256-Aslo7zOqLwloH8UuMXIdk6p7rPksiW03Wqz4eFaDha8=";
 
     # Build without the self-updating feature
     buildNoDefaultFeatures = true;
@@ -41,7 +41,7 @@ in
 
     npmDeps = fetchNpmDeps {
       inherit (finalAttrs) src;
-      hash = "sha256-KnVtLFD//Nq7ilu6bY6zrlLpyrHVmwxxojOzlu7DdLQ=";
+      hash = "sha256-tBOBa2plgJ0dG5eDD9Yc9YS+Dh6rhBdqU6JiZUjTUY4=";
     };
 
     preBuild = ''
