@@ -43,6 +43,7 @@ in {
         [
           "--ssh=true"
           "--accept-dns=true"
+          "--accept-routes=true"
           "--advertise-exit-node"
           "--advertise-connector"
           "--webclient=true"
