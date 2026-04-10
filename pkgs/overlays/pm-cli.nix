@@ -13,7 +13,7 @@ in
       owner = "bscott";
       repo = "pm-cli";
       tag = "v${version}";
-      hash = "sha256-kC9a8lAAIqnhY4L/hW3bnpIA4jLD/ZxDCUGKWiQ2ZXA=";
+      hash = "sha256-UYDBSaOBHbvCWbhEjicPIt+GZ2pfip+F8Drs1LOCMT4=";
     };
     vendorHash = "sha256-E+2f1xF/t4c0Dl3kWRKn5F8CuEy8S9vawM/0VtX3m8Y=";
     env = {
