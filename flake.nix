@@ -176,6 +176,10 @@
         # get the unstable version.
         inherit (prev.unstable) lima lima-full;
 
+        # fish 4.2.1 in darwin-25.11 hangs on startup (aarch64).
+        # Use the unstable version until the fix lands in stable.
+        inherit (prev.unstable) fish;
+
         # direnv 2.37.1's bash test suite hangs on darwin because some
         # test scenarios contain literal backspace/CR characters in
         # directory names which trip up macOS filesystem ops. Skip the
