@@ -35,16 +35,18 @@ in {
       openFirewall = true;
       settings = {
         playlist_name = "NRK P3";
+        groups = [
+          {name = "Living Room"; members = ["Right" "Living Room"];}
+        ];
         weekday = [
-          {name = "KITCHEN"; volume = 35;}
-          {name = "LAMP"; volume = 27;}
-          {name = "OFFICE"; volume = 35;}
+          {name = "Kitchen"; volume = 35;}
+          {name = "Lamp"; volume = 27;}
+          {name = "Office"; volume = 35;}
         ];
         weekend = [
-          {name = "KITCHEN"; volume = 35;}
-          {name = "SHELF"; volume = 27;}
-          {name = "RIGHT"; volume = 35;}
-          {name = "LIVING ROOM"; volume = 35;}
+          {name = "Kitchen"; volume = 35;}
+          {name = "Shelf"; volume = 27;}
+          {name = "Living Room"; volume = 35;}
         ];
       };
     };
