@@ -61,7 +61,11 @@
         timeout: 5s
         http:
           method: GET
+          preferred_ip_protocol: "ip4"
+          ip_protocol_fallback: false
           valid_http_versions: ["HTTP/1.1", "HTTP/2"]
+          valid_status_codes: [200, 301, 302]
+          enable_http2: false
           fail_if_ssl: false
           fail_if_not_ssl: true
           tls_config:
@@ -219,7 +223,7 @@ in {
               "https://uptime.kradalby.no"
               "https://kradalby.no"
               "https://umami.kradalby.no"
-              "https://hvor.kradalby.no"
+              "https://hvor.kradalby.no?from=discord"
             ];
           }
         ];
@@ -250,37 +254,37 @@ in {
           {
             targets = [
               # Unifi
-              "hus-kontor-printer.tjoda"
-              "love-kontor-printer.tjoda"
-              "hus-kontor-switch.tjoda"
-              "love-loft-switch.tjoda"
-              "love-kontor-switch.tjoda"
-              "love-scene-switch.tjoda"
-              "bryggerhus-switch.tjoda"
-              "hus-kontor-ap.tjoda"
-              "hus-spisestue-ap.tjoda"
-              "love-scene-ap.tjoda"
-              "love-selskap-ap.tjoda"
-              "love-lager-ap.tjoda"
-              "bryggerhus-ap.tjoda"
+              "hus-kontor-printer.tjoda.fap.no"
+              "love-kontor-printer.tjoda.fap.no"
+              "hus-kontor-switch.tjoda.fap.no"
+              "love-loft-switch.tjoda.fap.no"
+              "love-kontor-switch.tjoda.fap.no"
+              "love-scene-switch.tjoda.fap.no"
+              "bryggerhus-switch.tjoda.fap.no"
+              "hus-kontor-ap.tjoda.fap.no"
+              "hus-spisestue-ap.tjoda.fap.no"
+              "love-scene-ap.tjoda.fap.no"
+              "love-selskap-ap.tjoda.fap.no"
+              "love-lager-ap.tjoda.fap.no"
+              "bryggerhus-ap.tjoda.fap.no"
 
               # Sonos hus
-              # "hus-kjokken-sonos.tjoda"
-              # "hus-salong-sonos.tjoda"
-              # "hus-spisestue-sonos.tjoda"
-              # "hus-kontor-sonos.tjoda"
-              # "hus-gang-sonos.tjoda"
-              # "hus-hage-sonos.tjoda"
+              # "hus-kjokken-sonos.tjoda.fap.no"
+              # "hus-salong-sonos.tjoda.fap.no"
+              # "hus-spisestue-sonos.tjoda.fap.no"
+              # "hus-kontor-sonos.tjoda.fap.no"
+              # "hus-gang-sonos.tjoda.fap.no"
+              # "hus-hage-sonos.tjoda.fap.no"
 
               # Sonos låve
-              # "love-kontor-bridge-sonos.tjoda"
-              # "love-salong-sonos.tjoda"
-              # "love-spisestue-sonos.tjoda"
-              # "love-dansegulv-sonos.tjoda"
-              # "love-loft-sonos.tjoda"
+              # "love-kontor-bridge-sonos.tjoda.fap.no"
+              # "love-salong-sonos.tjoda.fap.no"
+              # "love-spisestue-sonos.tjoda.fap.no"
+              # "love-dansegulv-sonos.tjoda.fap.no"
+              # "love-loft-sonos.tjoda.fap.no"
 
               # Atlas probe
-              "atlas-probe.tjoda"
+              "atlas-probe.tjoda.fap.no"
             ];
           }
         ];
@@ -927,5 +931,11 @@ in {
 
       persistMetrics = true;
     };
+  };
+
+  # The NixOS module sets an empty CapabilityBoundingSet which blocks the
+  # AmbientCapabilities=CAP_NET_RAW needed for ICMP probes.
+  systemd.services.prometheus-blackbox-exporter.serviceConfig = {
+    CapabilityBoundingSet = ["CAP_NET_RAW"];
   };
 }

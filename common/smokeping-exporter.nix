@@ -7,7 +7,7 @@
     enable = true;
 
     hosts = [
-      "core.oracldn.fap.no"
+      "core-oracldn.dalby.ts.net"
       "dev.ldn.fap.no"
       "core.tjoda.fap.no"
       "vg.no"
