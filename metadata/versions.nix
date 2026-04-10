@@ -22,7 +22,7 @@
   # https://github.com/umami-software/umami/pkgs/container/umami
   umami = "ghcr.io/umami-software/umami:3.0.3";
   # https://hub.docker.com/r/frooodle/s-pdf/tags
-  stirling = "frooodle/s-pdf:2.7.2";
+  stirling = "frooodle/s-pdf:2.9.2";
   ## pkgs
   pkgs = {
     overlays = {
@@ -31,9 +31,9 @@
       # https://github.com/micropython/webrepl
       webreplCli = "1e09d9a1d90fe52aba11d1e659afbc95a50cf088";
       # https://github.com/cooklang/cookcli/releases
-      cook = "0.26.0";
+      cook = "0.28.1";
       # https://github.com/tailscale/tailscale
-      tailscaleTools = "v1.94.2";
+      tailscaleTools = "v1.96.4";
       # https://github.com/tailscale/squibble
       squibble = "3ac5157f405ef27663ca4cd967352136506d0962";
       # https://github.com/tailscale/setec
@@ -41,9 +41,9 @@
       # https://github.com/seruman/boo
       boo = "3bc3b2ec1f1dfc75bd9f8e919f1150ae5d42cf6b";
       # https://github.com/bscott/pm-cli/releases
-      pmCli = "0.2.3";
+      pmCli = "0.2.4";
       # https://github.com/rustic-rs/rustic/releases
-      rustic = "0.11.1";
+      rustic = "0.11.2";
     };
   };
 }
