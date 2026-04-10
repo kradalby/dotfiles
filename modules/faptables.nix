@@ -21,7 +21,7 @@ with lib; let
     https = "443";
     mdns = "5353";
     ssh = "22";
-    wireguard = "51820";
+
   };
 
   icmp_rules = ''
@@ -166,7 +166,7 @@ in {
             udp dport {
               ${ports.https},
               ${toString config.services.tailscale.port},
-              ${ports.wireguard},
+
             } counter accept comment "router WAN UDP"
 
             # router DHCPv6 client

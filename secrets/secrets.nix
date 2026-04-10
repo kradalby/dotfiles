@@ -57,16 +57,6 @@ with builtins;
   "restic-kraairm2-token.age".publicKeys = u;
   "restic-kratail-token.age".publicKeys = u;
 
-  # Wireguard
-  "wireguard-ldn.age".publicKeys = u ++ [
-    hosts.core-ldn
-    hosts.dev-ldn
-  ];
-  "wireguard-oracldn.age".publicKeys = u ++ [ hosts.core-oracldn ];
-  "wireguard-oracfurt.age".publicKeys = u ++ [ hosts.dev-oracfurt ];
-  "wireguard-terra.age".publicKeys = u ++ [ hosts.core-terra ];
-  "wireguard-tjoda.age".publicKeys = u ++ [ hosts.core-tjoda ];
-  "wireguard-headscale-oracldn.age".publicKeys = u ++ [ hosts.headscale-oracldn ];
 
   # Unifi
   "unifi-tjoda-read-only.age".publicKeys = u ++ [ hosts.core-tjoda ];

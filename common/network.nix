@@ -30,6 +30,6 @@
     networking.useNetworkd = lib.mkDefault true;
     networking.dhcpcd.enable = lib.mkDefault false;
     systemd.network.enable = lib.mkDefault true;
-    systemd.network.wait-online.ignoredInterfaces = lib.mkDefault ["tailscale0" "wg0"];
+    systemd.network.wait-online.ignoredInterfaces = lib.mkDefault ["tailscale0"];
   };
 }

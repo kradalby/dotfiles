@@ -81,17 +81,9 @@
     "net.ipv6.conf.all.forwarding" = true;
   };
 
-  services.tailscale = let
-    wireguardHosts = import ../../metadata/wireguard.nix {inherit lib config;};
-    wireguardConfig = wireguardHosts.servers.tjoda;
-  in {
-    advertiseRoutes = wireguardConfig.additional_networks;
+  services.tailscale = {
+    advertiseRoutes = ["10.62.0.0/16"];
     tags = ["tag:tjoda" "tag:gateway" "tag:server"];
-  };
-
-  services.wireguard = {
-    enable = true;
-    nodeName = "tjoda";
   };
 
   monitoring.smartctl.devices = ["/dev/sda"];

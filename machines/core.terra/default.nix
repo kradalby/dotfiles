@@ -137,16 +137,6 @@
           destination = "10.60.0.1:22";
           proto = "tcp";
         }
-        {
-          sourcePort = 500;
-          destination = "10.60.0.1:51820";
-          proto = "udp";
-        }
-        {
-          sourcePort = 4500;
-          destination = "10.60.0.1:51820";
-          proto = "udp";
-        }
       ];
     };
 
@@ -162,29 +152,16 @@
       allowedUDPPorts = lib.mkForce [
         443 # HTTPS
         config.services.tailscale.port
-        51820 # WireGuard
+
       ];
 
       trustedInterfaces = [config.my.lan];
     };
   };
 
-  services.tailscale = let
-    wireguardHosts = import ../../metadata/wireguard.nix {inherit lib config;};
-    wireguardConfig = wireguardHosts.servers.terra;
-  in {
-    advertiseRoutes = wireguardConfig.additional_networks;
+  services.tailscale = {
+    advertiseRoutes = ["10.60.0.0/16" "2a03:94e0:200d::/48"];
     tags = ["tag:terra" "tag:gateway" "tag:server"];
-  };
-
-  services.wireguard = {
-    enable = true;
-    nodeName = "terra";
-    refreshOnIdle = {
-      enable = true;
-      peers = ["tjoda"];
-      maxAgeSeconds = 21600;
-    };
   };
 
   # TODO: Fix disk monitoring somehow

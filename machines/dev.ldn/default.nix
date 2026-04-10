@@ -65,11 +65,8 @@ in {
   users.users.kradalby.openssh.authorizedKeys.keys = sshKeys.main ++ sshKeys.kradalby ++ sshKeys.work;
   users.users.kradalby.linger = true;
 
-  services.tailscale = let
-    wireguardHosts = import ../../metadata/wireguard.nix {inherit lib config;};
-    wireguardConfig = wireguardHosts.clients.ldn;
-  in {
-    advertiseRoutes = wireguardConfig.additional_networks;
+  services.tailscale = {
+    advertiseRoutes = ["10.65.0.0/16" "2a02:6b66:7019::/64"];
     tags = ["tag:ldn" "tag:gateway" "tag:server"];
   };
 
