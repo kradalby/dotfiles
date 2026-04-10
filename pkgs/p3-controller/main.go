@@ -68,6 +68,7 @@ func main() {
 	mux.HandleFunc("GET /status", handleStatus(client))
 	mux.HandleFunc("GET /config", handleConfig(&cfg))
 	mux.HandleFunc("PUT /output/{id}", handleSetOutput(client))
+	mux.HandleFunc("GET /shortcut/{name}", handleShortcut())
 
 	log.Printf("p3-controller listening on %s (owntone: %s)", cfg.Listen, cfg.OwnToneURL)
 	log.Fatal(http.ListenAndServe(cfg.Listen, mux))
@@ -352,6 +353,38 @@ func handleSetOutput(client *owntone.Client) http.HandlerFunc {
 	}
 }
 
+// --- Shortcuts ---
+
+// Signed Apple Shortcuts are embedded at build time. To regenerate:
+//
+//  1. Create unsigned plists with the target URL baked in.
+//  2. Sign on macOS:  shortcuts sign -m anyone -i unsigned.shortcut -o signed.shortcut
+//  3. Replace the files in shortcuts/.
+
+var shortcutFiles = map[string]struct {
+	Name string
+	Data []byte
+}{
+	"play-p3": {Name: "Play P3", Data: playP3Shortcut},
+	"stop-p3": {Name: "Stop P3", Data: stopP3Shortcut},
+}
+
+func handleShortcut() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		name := strings.TrimSuffix(r.PathValue("name"), ".shortcut")
+
+		sc, ok := shortcutFiles[name]
+		if !ok {
+			http.NotFound(w, r)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/octet-stream")
+		w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s.shortcut"`, sc.Name))
+		w.Write(sc.Data)
+	}
+}
+
 // --- Helpers ---
 
 func findOutput(outputs []owntone.Output, name string) (owntone.Output, bool) {
@@ -518,6 +551,22 @@ h1 { font-size: 1.4rem; margin-bottom: 0.15rem; }
 }
 .spinner.sm { width: 0.75em; height: 0.75em; border-width: 1.5px; }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+.shortcuts {
+  margin-top: 0.75rem;
+  display: flex;
+  gap: 0.5rem;
+}
+.shortcut-link {
+  font-size: 0.75rem;
+  color: #4f8cff;
+  text-decoration: none;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid #333;
+  border-radius: 0.4rem;
+  transition: border-color 0.15s;
+}
+.shortcut-link:hover { border-color: #4f8cff; }
 </style>
 </head>
 <body>
@@ -533,6 +582,11 @@ h1 { font-size: 1.4rem; margin-bottom: 0.15rem; }
 <div class="actions">
   <button class="action-btn play" id="playBtn" onclick="doPlay()" disabled>Play</button>
   <button class="action-btn stop" id="stopBtn" onclick="doStop()" disabled>Stop</button>
+</div>
+
+<div class="shortcuts">
+  <a class="shortcut-link" href="/shortcut/play-p3.shortcut">Add "Play P3" to Siri</a>
+  <a class="shortcut-link" href="/shortcut/stop-p3.shortcut">Add "Stop P3" to Siri</a>
 </div>
 
 <script>
