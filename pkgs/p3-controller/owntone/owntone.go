@@ -33,11 +33,13 @@ func NewClient(baseURL string) *Client {
 
 // Output represents an OwnTone audio output (speaker).
 type Output struct {
-	ID       string `json:"id"`
-	Name     string `json:"name"`
-	Type     string `json:"type"`
-	Selected bool   `json:"selected"`
-	Volume   int    `json:"volume"`
+	ID           string `json:"id"`
+	Name         string `json:"name"`
+	Type         string `json:"type"`
+	Selected     bool   `json:"selected"`
+	Volume       int    `json:"volume"`
+	RequiresAuth bool   `json:"requires_auth"`
+	NeedsAuthKey bool   `json:"needs_auth_key"`
 }
 
 type outputsResponse struct {
