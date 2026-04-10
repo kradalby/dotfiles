@@ -27,7 +27,7 @@ in {
 
     age.secrets.cloudflare-ddns-token = {
       mode = "0400";
-      file = ../secrets/cloudflare-token.age;
+      file = ../secrets/cloudflare-ddns-token.age;
     };
 
     services.cloudflare-ddns = {
