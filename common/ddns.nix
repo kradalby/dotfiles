@@ -27,12 +27,13 @@ in {
 
     age.secrets.cloudflare-ddns-token = {
       mode = "0400";
+      owner = "cloudflare-ddns";
       file = ../secrets/cloudflare-ddns-token.age;
     };
 
     services.cloudflare-ddns = {
       enable = true;
-      credentialsFile = config.age.secrets.cloudflare-ddns-token.path;
+      credentialsFile = "/dev/null";
       domains = cfg.domains;
       provider = {
         ipv4 = "cloudflare.trace";
@@ -40,5 +41,10 @@ in {
       };
       proxied = "false";
     };
+
+    # The secret is a raw token, not KEY=VALUE env file format.
+    # Use CLOUDFLARE_API_TOKEN_FILE to point at it directly.
+    systemd.services.cloudflare-ddns.environment.CLOUDFLARE_API_TOKEN_FILE =
+      config.age.secrets.cloudflare-ddns-token.path;
   };
 }
