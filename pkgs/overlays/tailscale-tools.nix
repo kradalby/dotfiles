@@ -16,9 +16,9 @@ buildGoModule rec {
     owner = "tailscale";
     repo = "tailscale";
     rev = "${version}";
-    hash = "sha256-qjWVB8xWVgIVUgrf27F6hwiFIE+4ERXWeHv26ugg/x4=";
+    hash = "sha256-VnAEfY8W+2QPnQLvVFJA7/XyvSnppSdRvgAOgpmRFGM=";
   };
-  vendorHash = "sha256-WeMTOkERj4hvdg4yPaZ1gRgKnhRIBXX55kUVbX/k/xM=";
+  vendorHash = "sha256-rhuWEEN+CtumVxOw6Dy/IRxWIrZ2x6RJb6ULYwXCQc4=";
   subPackages = [
     "cmd/proxy-to-grafana"
     "cmd/nginx-auth"
