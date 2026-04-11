@@ -4,6 +4,7 @@
 package main
 
 import (
+	_ "embed"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -15,6 +16,12 @@ import (
 
 	"p3-controller/owntone"
 )
+
+//go:embed shortcuts/play-p3.shortcut
+var playP3Shortcut []byte
+
+//go:embed shortcuts/stop-p3.shortcut
+var stopP3Shortcut []byte
 
 // Config is read from a JSON file passed via -config flag.
 type Config struct {
