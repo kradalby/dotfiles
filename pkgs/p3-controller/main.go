@@ -485,7 +485,7 @@ h1 { font-size: 1.4rem; margin-bottom: 0.15rem; }
 }
 .speaker-row {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto 1fr;
   align-items: center;
   gap: 0.5rem;
   background: #16213e;
@@ -511,7 +511,8 @@ h1 { font-size: 1.4rem; margin-bottom: 0.15rem; }
   gap: 0.3rem;
 }
 .volume-wrap input[type="range"] {
-  width: 80px;
+  flex: 1;
+  min-width: 0;
   height: 22px;
   accent-color: #4f8cff;
   touch-action: manipulation;
