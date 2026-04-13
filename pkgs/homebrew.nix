@@ -71,10 +71,8 @@ _: {
       "calibre" # book management
 
       # AI & experiments
-      "chatgpt" # OpenAI desktop client
       "claude" # Anthropic desktop client
       "ollama-app" # local LLM runner GUI
-      "opencode-desktop" # AI code editor
     ];
 
     # masApps disabled: mas + Spotlight indexing is unreliable,
