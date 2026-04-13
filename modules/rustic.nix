@@ -75,9 +75,24 @@
 #   The wrapper stays alive as the parent so TCC attributes all child
 #   file access to the .app bundle. See pkgs/rustic-wrapper/main.go.
 #
+# Agents (per backup job):
+#   rustic-backups-<name>   Incremental backup (hourly at :30 by default)
+#   rustic-maint-<name>     forget+prune + metadata check (daily 03:00)
+#   rustic-verify-<name>    check --read-data-subset (weekly Sunday 04:00)
+#   rustic-check-<name>     Stale snapshot watchdog (daily 09:00, notifications)
+#
 # Useful commands:
 #   # Trigger a backup manually:
 #   launchctl kickstart gui/$(id -u)/org.nixos.rustic-backups-<name>
+#
+#   # Trigger maintenance manually:
+#   launchctl kickstart gui/$(id -u)/org.nixos.rustic-maint-<name>
+#
+#   # Trigger deep verify manually:
+#   launchctl kickstart gui/$(id -u)/org.nixos.rustic-verify-<name>
+#
+#   # Trigger watchdog check manually:
+#   launchctl kickstart gui/$(id -u)/org.nixos.rustic-check-<name>
 #
 #   # Force restart (kills running instance first):
 #   launchctl kickstart -k gui/$(id -u)/org.nixos.rustic-backups-<name>
@@ -87,13 +102,9 @@
 #
 #   # View logs:
 #   tail -f ~/Library/Logs/rustic-<name>.log
-#   tail -f ~/Library/Logs/rustic-<name>-error.log
-#
-#   # View watchdog logs:
+#   tail -f ~/Library/Logs/rustic-maint-<name>.log
+#   tail -f ~/Library/Logs/rustic-verify-<name>.log
 #   tail -f ~/Library/Logs/rustic-check-<name>.log
-#
-#   # Trigger watchdog check manually:
-#   launchctl kickstart gui/$(id -u)/org.nixos.rustic-check-<name>
 #
 #   # Check FDA grant status:
 #   sqlite3 "/Library/Application Support/com.apple.TCC/TCC.db" \
@@ -102,9 +113,9 @@
 #        AND client='com.kradalby.rustic-backup'"
 #
 # Notifications (enableNotifications = true, default):
-#   Failure: An ERR trap in the backup script sends a macOS notification
-#     via terminal-notifier when the backup fails. The notification uses
-#     the Basso sound and ignores Do Not Disturb.
+#   Failure: An ERR trap in backup/maintenance/verify scripts sends a
+#     macOS notification via terminal-notifier when the script fails.
+#     The notification uses the Basso sound and ignores Do Not Disturb.
 #   Watchdog: A separate launchd agent (rustic-check-<name>) runs daily
 #     at 09:00, queries the latest snapshot via `rustic snapshots --json`,
 #     and sends escalating notifications based on snapshot age:
@@ -114,11 +125,15 @@
 #     The watchdog doesn't need FDA (only queries the repo metadata).
 #
 # Paths (all must be absolute — rustic's TOML parser does NOT expand $HOME):
-#   Config:    /etc/rustic/<name>.toml
-#   App:       ~/Applications/RusticBackup.app
-#   Logs:      ~/Library/Logs/rustic-<name>.log
-#   Watchdog:  ~/Library/Logs/rustic-check-<name>.log
-#   Lock:      /tmp/rustic_<name>.lockfile
+#   Config:          /etc/rustic/<name>.toml
+#   App:             ~/Applications/RusticBackup.app
+#   Logs (backup):   ~/Library/Logs/rustic-<name>.log
+#   Logs (maint):    ~/Library/Logs/rustic-maint-<name>.log
+#   Logs (verify):   ~/Library/Logs/rustic-verify-<name>.log
+#   Logs (watchdog): ~/Library/Logs/rustic-check-<name>.log
+#   Lock (backup):   /tmp/rustic_<name>.lockfile
+#   Lock (maint):    /tmp/rustic_maint_<name>.lockfile
+#   Lock (verify):   /tmp/rustic_verify_<name>.lockfile
 {
   config,
   lib,
@@ -177,18 +192,40 @@ with lib; let
   # activation script copies the built .app here on every switch.
   fdaAppPath = "${cfg.fdaAppDir}/RusticBackup.app";
 
-  # ERR trap snippet for backup scripts. Sends a macOS notification
+  # ERR trap snippet for scripts. Sends a macOS notification
   # via terminal-notifier when the script exits due to an error.
   # Only included when enableNotifications is true.
-  mkErrTrap = name:
+  # `label` controls the notification title (e.g. "Backup", "Maintenance", "Verify").
+  mkErrTrap = name: label:
     optionalString cfg.enableNotifications ''
       trap '${pkgs.terminal-notifier}/bin/terminal-notifier \
-        -title "Backup Failed" \
-        -message "rustic backup ${name} failed at $(date)" \
+        -title "${label} Failed" \
+        -message "rustic ${toLower label} ${name} failed at $(date)" \
         -sound Basso \
-        -group "rustic-${name}" \
+        -group "rustic-${name}-${toLower label}" \
         -ignoreDnD' ERR
     '';
+
+  # Common preamble shared by backup, maintenance, and verify scripts.
+  # Sets strict mode, ERR trap, 1Password token, and PATH.
+  mkScriptPreamble = name: label: ''
+    set -euo pipefail
+    ${mkErrTrap name label}
+
+    ${optionalString (cfg.opServiceAccountTokenFile != null) ''
+      export OP_SERVICE_ACCOUNT_TOKEN="$(cat ${cfg.opServiceAccountTokenFile})"
+    ''}
+    export PATH="${lib.makeBinPath [pkgs.rclone pkgs._1password-cli]}:$PATH"
+  '';
+
+  # AC power guard — exits 0 (not an error) when on battery so the
+  # ERR trap doesn't fire and no failure notification is sent.
+  mkACGuard = label: ''
+    if ! pmset -g ps | grep -q "AC Power"; then
+      echo "On battery, skipping ${toLower label}"
+      exit 0
+    fi
+  '';
 
   # Generate the per-job backup script as a standalone writeBash
   # derivation in the Nix store. Referenced directly by launchd via
@@ -202,42 +239,48 @@ with lib; let
   # flows from the wrapper (the .app's main executable) to the child
   # bash/rustic/rclone processes regardless of where the script lives
   # on disk.
-  mkJobScript = name: backup: let
+  mkJobScript = name: _backup: let
     rusticBin = "${pkgs.rustic}/bin/rustic";
   in
     pkgs.writers.writeBash "rustic-backup-${name}" ''
-      set -euo pipefail
-      ${mkErrTrap name}
-
-      ${optionalString (cfg.opServiceAccountTokenFile != null) ''
-        export OP_SERVICE_ACCOUNT_TOKEN="$(cat ${cfg.opServiceAccountTokenFile})"
-      ''}
-      export PATH="${lib.makeBinPath [pkgs.rclone pkgs._1password-cli]}:$PATH"
+      ${mkScriptPreamble name "Backup"}
 
       echo "=== rustic backup ${name} started at $(date) ==="
-
-      # Run backup
       ${rusticBin} -P ${name} backup
-
-      # Forget/prune/check (optionally only on AC power)
-      ${
-        if backup.pruneOnACOnly
-        then ''
-          if pmset -g ps | grep -q "AC Power"; then
-            echo "On AC power, running forget + check..."
-            ${rusticBin} -P ${name} forget
-            ${rusticBin} -P ${name} check
-          else
-            echo "On battery, skipping forget + check"
-          fi
-        ''
-        else ''
-          ${rusticBin} -P ${name} forget
-          ${rusticBin} -P ${name} check
-        ''
-      }
-
       echo "=== rustic backup ${name} finished at $(date) ==="
+    '';
+
+  # Daily maintenance script: forget+prune and metadata check.
+  # Runs on its own schedule, separate from the backup agent.
+  mkMaintenanceScript = name: backup: let
+    rusticBin = "${pkgs.rustic}/bin/rustic";
+  in
+    pkgs.writers.writeBash "rustic-maint-${name}" ''
+      ${mkScriptPreamble name "Maintenance"}
+
+      echo "=== rustic maintenance ${name} started at $(date) ==="
+      ${optionalString backup.maintenanceOnACOnly (mkACGuard "maintenance")}
+
+      ${rusticBin} -P ${name} forget
+      ${rusticBin} -P ${name} check
+
+      echo "=== rustic maintenance ${name} finished at $(date) ==="
+    '';
+
+  # Weekly deep verification script: check --read-data-subset.
+  # Verifies actual data integrity over time.
+  mkVerifyScript = name: backup: let
+    rusticBin = "${pkgs.rustic}/bin/rustic";
+  in
+    pkgs.writers.writeBash "rustic-verify-${name}" ''
+      ${mkScriptPreamble name "Verify"}
+
+      echo "=== rustic verify ${name} started at $(date) ==="
+      ${optionalString backup.maintenanceOnACOnly (mkACGuard "verify")}
+
+      ${rusticBin} -P ${name} check --read-data-subset ${backup.deepCheckSubset}
+
+      echo "=== rustic verify ${name} finished at $(date) ==="
     '';
 
   # Generate a stale backup watchdog script for a backup job.
@@ -584,12 +627,47 @@ in {
             '';
           };
 
-          pruneOnACOnly = mkOption {
+          maintenanceOnACOnly = mkOption {
             type = types.bool;
             default = true;
             description = ''
-              Only run forget/prune/check when on AC power.
-              Saves battery on laptops.
+              Only run maintenance (forget+prune, check) and deep
+              verification when on AC power. Saves battery on laptops.
+            '';
+          };
+
+          maintenanceCalendarInterval = mkOption {
+            type = types.attrsOf types.int;
+            default = {
+              Hour = 3;
+              Minute = 0;
+            };
+            description = ''
+              When to run maintenance (forget+prune, metadata check).
+              Maps to launchd StartCalendarInterval. Default: daily at 03:00.
+            '';
+          };
+
+          verifyCalendarInterval = mkOption {
+            type = types.attrsOf types.int;
+            default = {
+              Weekday = 0;
+              Hour = 4;
+              Minute = 0;
+            };
+            description = ''
+              When to run deep data verification (check --read-data-subset).
+              Maps to launchd StartCalendarInterval. Default: Sunday at 04:00.
+            '';
+          };
+
+          deepCheckSubset = mkOption {
+            type = types.str;
+            default = "1/7";
+            description = ''
+              Subset specification for `rustic check --read-data-subset`.
+              Format: N/M means check 1/M-th of data each run. With
+              weekly runs and "1/7", full coverage every 7 weeks.
             '';
           };
 
@@ -758,60 +836,85 @@ in {
         fi
       '';
 
-    # Generate a launchd user agent for each backup job.
-    # For FDA-enabled jobs, launchd runs the .app binary directly
-    # (no /bin/sh wrapper) so macOS sees the .app as the responsible
-    # process for TCC checks.
-    launchd.user.agents =
+    # Helper to build a launchd agent for a given script. Handles
+    # the FDA vs non-FDA split in one place instead of duplicating it
+    # for each agent type (backup, maintenance, verify).
+    launchd.user.agents = let
+      mkAgent = {
+        agentName,
+        script,
+        lockFile,
+        calendarInterval,
+        logPrefix,
+        backup,
+        runAtLoad ? false,
+      }: let
+        wrapperBin = "${fdaAppPath}/Contents/MacOS/rustic-wrapper";
+        fallbackRunScript = pkgs.writers.writeBash "run-${agentName}" ''
+          ${pkgs.flock}/bin/flock -n ${lockFile} ${script}
+        '';
+        commonConfig =
+          {
+            Disabled = false;
+            StartCalendarInterval = [calendarInterval];
+            ProcessType = "Background";
+            LowPriorityIO = true;
+            StandardOutPath = "${backup.logPath}/${logPrefix}.log";
+            StandardErrorPath = "${backup.logPath}/${logPrefix}-error.log";
+          }
+          // optionalAttrs runAtLoad {RunAtLoad = true;};
+      in
+        nameValuePair agentName (
+          if backup.enableFDA
+          then {
+            serviceConfig =
+              commonConfig
+              // {
+                ProgramArguments = [wrapperBin script lockFile];
+              };
+          }
+          else {
+            command = "${fallbackRunScript}";
+            serviceConfig = commonConfig;
+          }
+        );
+    in
+      # Backup agents — one per backup job, runs on calendarInterval.
       (mapAttrs'
-        (name: backup: let
-          wrapperBin = "${fdaAppPath}/Contents/MacOS/rustic-wrapper";
-          # Backup script is a /nix/store path, built once and shared
-          # by both FDA and non-FDA branches. Keeping it outside the
-          # .app bundle means edits to this backup's config don't
-          # invalidate the bundle's code signature.
-          jobScript = "${mkJobScript name backup}";
-          lockFile = "/tmp/rustic_${name}.lockfile";
-
-          # Non-FDA fallback: same script, wrapped with flock since
-          # the Go wrapper (which handles flock on the FDA path) isn't
-          # in the loop. TCC doesn't matter here.
-          fallbackRunScript = pkgs.writers.writeBash "run-rustic-${name}" ''
-            ${pkgs.flock}/bin/flock -n ${lockFile} ${jobScript}
-          '';
-        in
-          nameValuePair "rustic-backups-${name}" (
-            if backup.enableFDA
-            then {
-              # FDA path: launchd runs the compiled Go wrapper from the
-              # .app bundle. The wrapper handles wait4path + flock, then
-              # fork+exec's bash with the backup script. TCC sees the
-              # Mach-O binary (not /bin/bash) as the responsible process.
-              serviceConfig = {
-                ProgramArguments = [wrapperBin jobScript lockFile];
-                Disabled = false;
-                StartCalendarInterval = [backup.calendarInterval];
-                ProcessType = "Background";
-                RunAtLoad = true;
-                LowPriorityIO = true;
-                StandardOutPath = "${backup.logPath}/rustic-${name}.log";
-                StandardErrorPath = "${backup.logPath}/rustic-${name}-error.log";
-              };
-            }
-            else {
-              # Non-FDA path: use regular command with nix-darwin's /bin/sh wrapper.
-              command = "${fallbackRunScript}";
-              serviceConfig = {
-                Disabled = false;
-                StartCalendarInterval = [backup.calendarInterval];
-                ProcessType = "Background";
-                RunAtLoad = true;
-                LowPriorityIO = true;
-                StandardOutPath = "${backup.logPath}/rustic-${name}.log";
-                StandardErrorPath = "${backup.logPath}/rustic-${name}-error.log";
-              };
-            }
-          ))
+        (name: backup:
+          mkAgent {
+            agentName = "rustic-backups-${name}";
+            script = "${mkJobScript name backup}";
+            lockFile = "/tmp/rustic_${name}.lockfile";
+            calendarInterval = backup.calendarInterval;
+            logPrefix = "rustic-${name}";
+            inherit backup;
+            runAtLoad = true;
+          })
+        cfg.backups)
+      # Maintenance agents — daily forget+prune and metadata check.
+      // (mapAttrs'
+        (name: backup:
+          mkAgent {
+            agentName = "rustic-maint-${name}";
+            script = "${mkMaintenanceScript name backup}";
+            lockFile = "/tmp/rustic_maint_${name}.lockfile";
+            calendarInterval = backup.maintenanceCalendarInterval;
+            logPrefix = "rustic-maint-${name}";
+            inherit backup;
+          })
+        cfg.backups)
+      # Verify agents — weekly deep data integrity check.
+      // (mapAttrs'
+        (name: backup:
+          mkAgent {
+            agentName = "rustic-verify-${name}";
+            script = "${mkVerifyScript name backup}";
+            lockFile = "/tmp/rustic_verify_${name}.lockfile";
+            calendarInterval = backup.verifyCalendarInterval;
+            logPrefix = "rustic-verify-${name}";
+            inherit backup;
+          })
         cfg.backups)
       # Stale backup watchdog agents — one per backup job.
       # Runs daily at 09:00, checks latest snapshot age, and sends
@@ -852,6 +955,28 @@ in {
               # logfilename                                [owner:group]   mode   count   size   when  flags
               ${backup.logPath}/rustic-${name}.log         kradalby:staff      750    10      10240  *     NJ
               ${backup.logPath}/rustic-${name}-error.log   kradalby:staff      750    10      10240  *     NJ
+
+            '';
+          })
+        cfg.backups)
+      // (mapAttrs'
+        (name: backup:
+          nameValuePair "newsyslog.d/rustic-maint-${name}.conf" {
+            text = ''
+              # logfilename                                      [owner:group]   mode   count   size   when  flags
+              ${backup.logPath}/rustic-maint-${name}.log         kradalby:staff      750    10      10240  *     NJ
+              ${backup.logPath}/rustic-maint-${name}-error.log   kradalby:staff      750    10      10240  *     NJ
+
+            '';
+          })
+        cfg.backups)
+      // (mapAttrs'
+        (name: backup:
+          nameValuePair "newsyslog.d/rustic-verify-${name}.conf" {
+            text = ''
+              # logfilename                                       [owner:group]   mode   count   size   when  flags
+              ${backup.logPath}/rustic-verify-${name}.log         kradalby:staff      750    10      10240  *     NJ
+              ${backup.logPath}/rustic-verify-${name}-error.log   kradalby:staff      750    10      10240  *     NJ
 
             '';
           })

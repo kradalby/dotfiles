@@ -82,7 +82,6 @@ in {
         keep-monthly = 12;
         keep-yearly = 75;
       };
-      pruneOnACOnly = true;
       enableFDA = true;
       extraConfig = {
         backup = {

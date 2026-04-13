@@ -107,8 +107,6 @@ in {
         keep-monthly = 12;
         keep-yearly = 75;
       };
-      # Only prune on AC power to save battery
-      pruneOnACOnly = true;
       # FDA wrapper for accessing Desktop/Documents/Downloads and ~/Library
       enableFDA = true;
       extraConfig = {
