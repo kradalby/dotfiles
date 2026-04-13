@@ -38,7 +38,7 @@ _: {
       "safari-technology-preview"
       "rectangle" # window manager
       "ghostty" # GPU-accelerated terminal
-      "hiddenbar" # hide menu bar icons
+      "thaw" # hide menu bar icons
       "secretive" # Secure Enclave SSH agent
       "shottr" # fast screenshot tool
       "the-unarchiver"
