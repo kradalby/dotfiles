@@ -73,9 +73,7 @@ _: {
       # AI & experiments
       "chatgpt" # OpenAI desktop client
       "claude" # Anthropic desktop client
-      "cursor" # AI-focused code editor
       "ollama-app" # local LLM runner GUI
-      "antigravity" # Google's experimental VSCode fork
       "opencode-desktop" # AI code editor
     ];
 
