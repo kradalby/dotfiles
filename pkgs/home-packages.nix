@@ -196,6 +196,8 @@ in {
         [ac]
         ++ (with pkgs; [
           rtk
+          nodejs_24
+          python3
         ])
         ++ (with pkgs.master; [
           claude-code
