@@ -82,9 +82,12 @@
 
       ".config/ghostty/config".source = ../rc/ghostty;
       ".config/opencode/opencode.json".source = ../rc/opencode/opencode.json;
-      ".config/opencode/commands".source = ../rc/ai-commands;
+      ".config/opencode/commands".source = ../rc/claude/commands;
 
-      ".claude/commands".source = ../rc/ai-commands;
+      ".claude" = {
+        source = ../rc/claude;
+        recursive = true;
+      };
 
       ".config/nix/nix.conf".text = ''
         experimental-features = nix-command flakes
