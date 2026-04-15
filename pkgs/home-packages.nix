@@ -194,6 +194,9 @@ in {
         ac = import ./scripts/ac.nix {inherit pkgs;};
       in
         [ac]
+        ++ (with pkgs; [
+          rtk
+        ])
         ++ (with pkgs.master; [
           claude-code
           # codex

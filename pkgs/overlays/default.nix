@@ -15,6 +15,8 @@ in
 
     ts-preauthkey = prev.callPackage ./ts-preauthkey {};
 
+    rtk = prev.callPackage ./rtk.nix {};
+
     rustic = prev.callPackage ./rustic.nix {};
 
     rustic-wrapper = prev.callPackage ../rustic-wrapper {};
