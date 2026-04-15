@@ -5,6 +5,9 @@
     "ask": [],
     "defaultMode": "bypassPermissions"
   },
+  "env": {
+    "PATH": "/etc/profiles/per-user/kradalby/bin:/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+  },
   "hooks": {
     "PreToolUse": []
   },
@@ -40,6 +43,7 @@
       }
     }
   },
+  "autoCompactWindow": 180000,
   "alwaysThinkingEnabled": true,
   "effortLevel": "high",
   "skipDangerousModePermissionPrompt": true,
