@@ -1,9 +1,6 @@
 ---
 description: Review changes in current Git branch
-arguments:
-  - name: ISSUE
-    description: Optional GitHub issue/PR number for context
-    required: false
+argument-hint: "[issue-number]"
 ---
 
 # Branch Review

@@ -1,9 +1,6 @@
 ---
 description: Diagnose and plan resolution for a GitHub issue
-arguments:
-  - name: ISSUE
-    description: GitHub issue number or URL
-    required: true
+argument-hint: "<issue-number>"
 ---
 
 Deep-dive on this GitHub issue. Find the problem and generate a plan.
@@ -12,7 +9,7 @@ to solve it.
 
 # Issue Details
 
-!`gh issue view $ISSUE --json author,title,number,body,comments`
+!`gh issue view $ARGUMENTS --json author,title,number,body,comments`
 
 ## Your Tasks
 
