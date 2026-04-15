@@ -19,6 +19,7 @@ in {
 
     ./restic.nix
     ./syncthing.nix
+    ./paseo.nix
   ];
 
   networking = {

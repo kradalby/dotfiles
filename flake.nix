@@ -118,6 +118,11 @@
       url = "github:anomalyco/opencode/v1.4.4";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
+
+    paseo = {
+      url = "github:getpaseo/paseo";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
   };
 
   outputs = {
