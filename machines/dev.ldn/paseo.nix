@@ -5,6 +5,7 @@
     enable = true;
     user = "kradalby";
     relay.enable = false;
+    hostnames = ["paseo-dev-ldn.dalby.ts.net"];
   };
 
   services.tailscale.services.paseo-dev-ldn = {
