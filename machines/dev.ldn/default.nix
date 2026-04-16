@@ -105,7 +105,7 @@ in {
     # Not needed when virtualisation.docker.enable = true;
     pkgs.docker-client
     pkgs.unstable.lima-full
-    pkgs.nodejs_24
+    pkgs.unstable.nodejs_25
   ];
 
   home-manager.users.kradalby = {

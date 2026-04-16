@@ -95,7 +95,7 @@ in {
     (lib.mkIf cfg.web.enable {
       home.packages =
         (with pkgs; [
-          # nodejs_24
+          # nodejs_25
         ])
         ++ (with pkgs.unstable; [
           typescript
