@@ -49,6 +49,6 @@
   "skipDangerousModePermissionPrompt": true,
   "statusLine": {
     "type": "command",
-    "command": "input=$(cat); used=$(echo \"$input\" | jq -r '.context_window.used_percentage // empty'); [ -z \"$used\" ] && exit 0; filled=$(printf '%.0f' \"$used\"); total=20; bars=$((filled * total / 100)); empty=$((total - bars)); bar=''; i=0; while [ $i -lt $bars ]; do bar=\"${bar}█\"; i=$((i+1)); done; while [ $i -lt $total ]; do bar=\"${bar}░\"; i=$((i+1)); done; printf 'Context [%s] %s%%' \"$bar\" \"$filled\""
+    "command": "input=$(cat); used=$(echo \"$input\" | jq -r '.context_window.used_percentage // empty'); [ -z \"$used\" ] && exit 0; filled=$(printf '%.0f' \"$used\"); total=20; marker=$((38 * total / 100)); bars=$((filled * total / 100)); bar=''; i=0; while [ $i -lt $total ]; do if [ $i -eq $marker ]; then if [ $i -lt $bars ]; then bar=\"${bar}▓\"; else bar=\"${bar}│\"; fi; elif [ $i -lt $bars ]; then bar=\"${bar}█\"; else bar=\"${bar}░\"; fi; i=$((i+1)); done; printf 'Context [%s] %s%% (compact@38%%)' \"$bar\" \"$filled\""
   }
 }
