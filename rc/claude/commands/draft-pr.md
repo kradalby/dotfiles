@@ -10,8 +10,9 @@ Create a draft pull request for the current branch.
 - Write a concise PR description summarising the changes
   - Focus on the "why", not the "what"
   - Be short, concise and lean into brevity
-  - Plain text only, no markdown headings or sections (no ## Summary, ## Test plan, etc.)
-  - No bullet lists, no checklists, just a short paragraph
+  - Use proper markdown: backticks for code and identifiers, paragraphs separated by blank lines, lists where genuinely parallel
+  - No section headings (`## Summary`, `## Test plan`, etc.) and no checklists
+  - Prefer short paragraphs over bullet-heavy dumps
   - When working on a GitHub issue, reference it:
     - Fixes #1234 if it resolves the issue
     - Updates #1234 if related but not a full fix
