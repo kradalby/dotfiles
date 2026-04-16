@@ -43,6 +43,7 @@ in {
           "Ghostty" : ghostty-new-mosh-tab
           *         ~
       ]
+      cmd + shift - b : tailscale-switch-toggle
     '';
   };
 

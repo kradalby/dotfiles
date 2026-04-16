@@ -1,0 +1,54 @@
+#!/bin/sh
+# Toggle Tailscale account between host-specific pair.
+# Invoked from skhd (cmd+shift+s). Uses the macOS app binary directly
+# since skhd runs /bin/sh and does not source the fish alias.
+set -eu
+
+TS=/Applications/Tailscale.app/Contents/MacOS/Tailscale
+TS_BUNDLE=io.tailscale.ipn.macos
+
+notify() {
+    if command -v terminal-notifier >/dev/null 2>&1; then
+        terminal-notifier -title "$1" -message "$2" \
+            -sender "$TS_BUNDLE" \
+            -group tailscale-switch-toggle >/dev/null 2>&1 || true
+    fi
+}
+
+fail() {
+    echo "tailscale-switch-toggle: $1" >&2
+    notify "Tailscale switch failed" "$1"
+    exit 1
+}
+
+host=$(hostname -s)
+case "$host" in
+    kratail2)
+        a="kristoffer@tailscale.com"
+        b="kradalby@kradalby.no"
+        ;;
+    krair)
+        a="kradalby@kradalby.no"
+        b="kd@sandefjordfiber.no"
+        ;;
+    *)
+        fail "no pair configured for $host"
+        ;;
+esac
+
+list=$("$TS" switch --list --json)
+current=$(printf '%s' "$list" | jq -r '.[] | select(.selected == true) | .account')
+
+if [ "$current" = "$a" ]; then
+    target="$b"
+else
+    target="$a"
+fi
+
+id=$(printf '%s' "$list" | jq -r --arg acct "$target" \
+    'map(select(.account == $acct)) | .[0].id // empty')
+
+[ -n "$id" ] || fail "account not found: $target"
+
+"$TS" switch "$id"
+notify "Tailscale" "Switched to $target"
