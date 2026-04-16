@@ -137,8 +137,8 @@ in {
       home.packages = with pkgs.unstable; [
         editorconfig-checker
         lua-language-server
-        lua53Packages.luadbi-sqlite3
-        lua53Packages.luasql-sqlite3
+        lua54Packages.luadbi-sqlite3
+        lua54Packages.luasql-sqlite3
         terraform-ls
         yaml-language-server
         yamllint
