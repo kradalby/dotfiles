@@ -8,7 +8,7 @@
 
   ## home.ldn
   # https://github.com/dmunozv04/iSponsorBlockTV/pkgs/container/isponsorblocktv
-  isponsor = "ghcr.io/dmunozv04/isponsorblocktv:v2.6.1";
+  isponsor = "ghcr.io/dmunozv04/isponsorblocktv:v2.7.0";
 
   ## core.oracldn
   grafanaDashboards = {
