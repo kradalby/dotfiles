@@ -43,7 +43,7 @@
       }
     }
   },
-  "autoCompactWindow": 180000,
+  "autoCompactWindow": 380000,
   "alwaysThinkingEnabled": true,
   "effortLevel": "high",
   "skipDangerousModePermissionPrompt": true,
