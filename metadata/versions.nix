@@ -31,7 +31,7 @@
       # https://github.com/micropython/webrepl
       webreplCli = "1e09d9a1d90fe52aba11d1e659afbc95a50cf088";
       # https://github.com/cooklang/cookcli/releases
-      cook = "0.28.1";
+      cook = "0.29.0";
       # https://github.com/tailscale/tailscale
       tailscaleTools = "v1.96.4";
       # https://github.com/tailscale/squibble

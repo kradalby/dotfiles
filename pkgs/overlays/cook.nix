@@ -20,10 +20,10 @@ in
       owner = "cooklang";
       repo = "cookcli";
       rev = "v${finalAttrs.version}";
-      hash = "sha256-gC/6GMqCaafVeDEU3VAVu3jOw/+Gkb9sDVHmGvlg36o=";
+      hash = "sha256-mM8Ws3ubbF/MhtAgNbVzo2NKIfvjU67iFe3Mp1JPMxg=";
     };
 
-    cargoHash = "sha256-Aslo7zOqLwloH8UuMXIdk6p7rPksiW03Wqz4eFaDha8=";
+    cargoHash = "sha256-MMul9KehZEaOjLSYtnuXfwIe71YBzxoLNdc7w7+ozfk=";
 
     # Build without the self-updating feature
     buildNoDefaultFeatures = true;
