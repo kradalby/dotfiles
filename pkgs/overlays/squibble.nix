@@ -14,9 +14,9 @@ in
       owner = "tailscale";
       repo = "squibble";
       rev = "${version}";
-      hash = "sha256-KGtHqsy+V3/sBSk7aUZJIyDPG8hrMPIBmKnQb7ZC2To=";
+      hash = "sha256-4bTpCbwGZ5prixuglkMdGTb82Df07reTX5G++ZJ4y50=";
     };
-    vendorHash = "sha256-b9lm7SdRJb+jElnzOugx/PpL/x8/UX/87oPgPk2PRiY=";
+    vendorHash = "sha256-vXWbETcpXLLB4aIOO5F6cwp1GGfE5NeQKJ22iNmtUDg=";
     env = {
       CGO_ENABLED = 0;
     };

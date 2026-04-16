@@ -35,7 +35,7 @@
       # https://github.com/tailscale/tailscale
       tailscaleTools = "v1.96.4";
       # https://github.com/tailscale/squibble
-      squibble = "3ac5157f405ef27663ca4cd967352136506d0962";
+      squibble = "141f5d618bc46223a6fc0eb1c4df4357e2f45e86";
       # https://github.com/tailscale/setec
       setec = "dcd97e42f2518bc1d304089a5380fa6ad4c03602";
       # https://github.com/seruman/boo
