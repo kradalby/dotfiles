@@ -72,7 +72,7 @@ in {
         go-tools
         gofumpt
         golines
-        gotools
+        (lib.lowPrio gotools)
         gotestsum
       ];
     })
