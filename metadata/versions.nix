@@ -37,7 +37,7 @@
       # https://github.com/tailscale/squibble
       squibble = "141f5d618bc46223a6fc0eb1c4df4357e2f45e86";
       # https://github.com/tailscale/setec
-      setec = "dcd97e42f2518bc1d304089a5380fa6ad4c03602";
+      setec = "802071d7d5bf47343e023f759846ac98ddf68fae";
       # https://github.com/seruman/boo
       boo = "3bc3b2ec1f1dfc75bd9f8e919f1150ae5d42cf6b";
       # https://github.com/bscott/pm-cli/releases

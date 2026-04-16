@@ -14,7 +14,7 @@ in
       owner = "tailscale";
       repo = "setec";
       rev = "${version}";
-      sha256 = "sha256-55jpSpyyrfwtt6vVg8ZElnK4unaBJZXtKhRBr3EsrN4=";
+      sha256 = "sha256-XjCdr7QhUk9gvfWLq7lXv/zaS4ANxs4tpwTU3lhqkj4=";
     };
     vendorHash = "sha256-7JaOvBCETiqXj33YSY5ESIhH3Kp+NSCAAVkre8Zg0RA=";
     env = {
