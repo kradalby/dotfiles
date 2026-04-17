@@ -9,7 +9,7 @@ to solve it.
 
 # Issue Details
 
-!`gh issue view $ARGUMENTS --json author,title,number,body,comments`
+!`gh issue view "$ARGUMENTS" --json author,title,number,body,comments`
 
 ## Your Tasks
 

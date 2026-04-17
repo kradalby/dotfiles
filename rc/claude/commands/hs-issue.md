@@ -8,7 +8,7 @@ reproduce the bug with a test, and create a fix plan.
 
 # Issue Details
 
-!`gh issue view $ARGUMENTS --repo juanfont/headscale --json author,title,number,body,comments,labels`
+!`gh issue view "$ARGUMENTS" --repo juanfont/headscale --json author,title,number,body,comments,labels`
 
 ## Step 1: Create worktree
 
