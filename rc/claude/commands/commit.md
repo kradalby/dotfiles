@@ -13,7 +13,10 @@ commit the current work
   - Updates #1234 if not fixed, but related
   - Fixes #1234 if fixed
   - Look in your context or branch name for relevant commits. You can have more than one.
-- Be short, concise and lean into brevity
+- Be short, terse, concise and lean into brevity
+  - Cut every word that does not carry meaning
+  - Prefer fragments over full sentences when the meaning is clear
+  - No filler, no hedging, no restating the diff
 - Never use co-authored-by or generated
 - Rebase/amend where appropriate
   - Evaluate using `git absorb --and-rebase`
