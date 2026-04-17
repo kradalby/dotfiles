@@ -29,7 +29,23 @@ You are an experienced software developer tasked with diagnosing issues.
 1. Review the issue context and details.
 2. Examine the relevant parts of the codebase. Analyze the code thoroughly
    until you have a solid understanding of how it works.
-3. Explain the issue in detail, including the problem and its root cause.
+3. **Root cause analysis (mandatory).** Do not stop at the first plausible
+   explanation or the surface-level symptom. Trace the behaviour back to
+   its true origin:
+   - Ask "why" repeatedly until you hit a cause that, if changed, would
+     actually prevent the bug — not merely hide it.
+   - Distinguish symptoms (what the user observes) from proximate causes
+     (the line that throws) from root causes (the design, invariant, or
+     assumption that allowed the proximate cause to exist).
+   - Consider whether the reported issue is one instance of a broader
+     class of bugs. If so, identify the class.
+   - Rule out alternative hypotheses with evidence from the code, tests,
+     or issue history — do not guess.
+   - If the root cause is unclear, say so explicitly rather than
+     proposing a fix that only treats symptoms.
+4. Explain the issue in detail: the observed symptom, the proximate
+   cause, and the underlying root cause. Make the chain from root cause
+   to symptom explicit.
 
 ## Step 3: Reproduce with a test
 
@@ -46,9 +62,20 @@ Use the first test type that can demonstrate the bug:
 First type that works wins. The test MUST fail, confirming the bug exists.
 Run it to verify the failure before proceeding.
 
+The reproduction test should exercise the **root cause**, not merely the
+surface symptom. If the only test you can write reproduces the symptom
+but does not pin down the root cause, note that gap explicitly — the
+fix plan must then include a test that locks the root-cause behaviour.
+
 ## Step 4: Plan the fix
 
-Create a comprehensive plan to solve the issue. The plan should include:
+Create a comprehensive plan to solve the issue. The plan MUST fix the
+root cause identified in Step 2, not merely mask the symptom. If a
+symptom-level workaround is proposed, justify explicitly why the root
+cause cannot or should not be fixed now, and record what follow-up is
+needed to address it later.
+
+The plan should include:
   - Required code changes
   - Potential impacts on other parts of the system
   - Necessary tests to be written or updated (beyond the reproduction test)
