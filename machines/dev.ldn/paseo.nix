@@ -1,4 +1,8 @@
-{inputs, ...}: {
+{
+  config,
+  inputs,
+  ...
+}: {
   imports = [inputs.paseo.nixosModules.default];
 
   services.paseo = {
@@ -6,7 +10,12 @@
     user = "kradalby";
     relay.enable = false;
     hostnames = ["paseo-dev-ldn.dalby.ts.net"];
+    listenAddress = "0.0.0.0";
   };
+
+  networking.firewall.interfaces."${config.my.lan}".allowedTCPPorts = [
+    config.services.paseo.port
+  ];
 
   services.tailscale.services.paseo-dev-ldn = {
     endpoints = {
