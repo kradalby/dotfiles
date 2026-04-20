@@ -115,7 +115,9 @@
     };
 
     opencode = {
-      url = "github:anomalyco/opencode/v1.4.4";
+      # v1.4.4 lockfile drifted against current registry; pin to the
+      # last rev that still installs cleanly (1.4.3+65e3348).
+      url = "github:anomalyco/opencode/65e334823264fb20e4a64181599d6001815813ba";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
