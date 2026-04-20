@@ -1,6 +1,7 @@
 {lib, ...}: {
   imports = [
     ../../home
+    ./paseo.nix
   ];
 
   home.username = "kradalby";
