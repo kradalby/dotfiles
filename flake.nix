@@ -310,7 +310,7 @@
       };
 
       homeConfigurations = {
-        "kradalby@kradalby-llm" = home-manager.lib.homeManagerConfiguration {
+        "ubuntu@kradalby-llm" = home-manager.lib.homeManagerConfiguration {
           pkgs = self.nixosConfigurations."dev.ldn".pkgs;
           modules = [
             inputs.nix-index-database.homeModules.nix-index
