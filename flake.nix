@@ -1,6 +1,15 @@
 {
   description = "kradalby's system config";
 
+  nixConfig = {
+    extra-substituters = [
+      "https://nixos-raspberrypi.cachix.org"
+    ];
+    extra-trusted-public-keys = [
+      "nixos-raspberrypi.cachix.org-1:4iMO9LXa8BqhU+Rpg6LQKiGa2lsNh/j2oiYLNOQ5sPI="
+    ];
+  };
+
   inputs = {
     utils.url = "github:numtide/flake-utils";
 
@@ -125,6 +134,11 @@
       url = "github:getpaseo/paseo";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
+
+    # Stock nixpkgs sd-image-aarch64 has no Pi5 support (no bcm2712 DTB,
+    # u-boot, or [pi5] config.txt). nixos-raspberrypi ships proper Pi5
+    # firmware + sd-image generator.
+    nixos-raspberrypi.url = "github:nvmd/nixos-raspberrypi/main";
   };
 
   outputs = {
@@ -373,7 +387,6 @@
     })
     // (let
       mkRpiBootstrap = import ./lib/rpi-bootstrap.nix {
-        nixpkgs = nixpkgs-nixos;
         inherit nixos-generators inputs overlays;
       };
       rpiPkgs = import nixpkgs-nixos {
@@ -393,8 +406,29 @@
         kadPsk = "REPLACE_WIFI_PSK";
         tsAuthKey = "REPLACE_TS_AUTHKEY";
       };
+
+      # Shared module list for the rpi5 nixos-raspberrypi build.
+      rpi5Modules = [
+        inputs.ragenix.nixosModules.age
+        inputs.tailscale.nixosModules.default
+        ./common
+        ./common/tailscale.nix
+        ./common/bootstrap-common.nix
+        inputs.nixos-raspberrypi.nixosModules.raspberry-pi-5.base
+        inputs.nixos-raspberrypi.nixosModules.raspberry-pi-5.page-size-16k
+        inputs.nixos-raspberrypi.nixosModules.sd-image
+        {
+          nixpkgs.overlays = overlays;
+          my.bootstrap =
+            bootstrapSecrets
+            // {
+              enable = true;
+              name = "bootstrap5";
+            };
+        }
+      ];
     in {
-      # Bootstrap SD image for Raspberry Pi 4.
+      # Bootstrap SD image for Raspberry Pi 4 (nixpkgs sd-image-aarch64).
       packages.aarch64-linux.rpi4 = mkRpiBootstrap (bootstrapSecrets
         // {
           name = "bootstrap4";
@@ -408,11 +442,15 @@
           ];
         });
 
-      # Bootstrap SD image for Raspberry Pi 5.
-      packages.aarch64-linux.rpi5 = mkRpiBootstrap (bootstrapSecrets
-        // {
-          name = "bootstrap5";
-          hardwareModule = ./common/rpi5-configuration.nix;
-        });
+      # Bootstrap SD image for Raspberry Pi 5 (nixos-raspberrypi).
+      packages.aarch64-linux.rpi5 =
+        (inputs.nixos-raspberrypi.lib.nixosSystemFull {
+          specialArgs = {inherit inputs;};
+          modules = rpi5Modules;
+        })
+        .config
+        .system
+        .build
+        .sdImage;
     });
 }
