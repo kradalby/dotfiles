@@ -371,55 +371,48 @@
           ];
         };
     })
-    // {
-      # Bootstrap SD image for Raspberry Pi 4 (aarch64-linux only)
-      packages.aarch64-linux.rpi4 = let
-        rpiPkgs = import nixpkgs-nixos {
-          system = "aarch64-linux";
-          inherit overlays;
-        };
-        name = "bootstrap";
-        modules = [
-          inputs.ragenix.nixosModules.age
-          inputs.tailscale.nixosModules.default
-          ./common
-          ./common/tailscale.nix
-          {
-            networking = {
-              hostName = name;
-              domain = "bootstrap.fap.no";
-              firewall.enable = rpiPkgs.lib.mkForce false;
-              useDHCP = rpiPkgs.lib.mkForce true;
-            };
+    // (let
+      mkRpiBootstrap = import ./lib/rpi-bootstrap.nix {
+        nixpkgs = nixpkgs-nixos;
+        inherit nixos-generators inputs overlays;
+      };
+      rpiPkgs = import nixpkgs-nixos {
+        system = "aarch64-linux";
+        inherit overlays;
+      };
+      allowMissingModulesOverlay = _: super: {
+        makeModulesClosure = x:
+          super.makeModulesClosure (x // {allowMissing = true;});
+      };
 
-            services.tailscale = let
-              authKey = rpiPkgs.writeText "authkey" "";
-            in {
-              authKeyFile = rpiPkgs.lib.mkForce authKey;
-            };
-          }
-        ];
-      in
-        nixos-generators.nixosGenerate {
-          system = "aarch64-linux";
-          modules =
-            [
-              {
-                nixpkgs.overlays = [
-                  (_: super: {
-                    makeModulesClosure = x:
-                      super.makeModulesClosure (x // {allowMissing = true;});
-                  })
-                ];
-              }
-              {
-                boot.kernelPackages = rpiPkgs.lib.mkForce rpiPkgs.linuxPackages_rpi4;
-              }
-              ./common/rpi4-configuration.nix
-            ]
-            ++ modules;
-          specialArgs = {inherit inputs;};
-          format = "sd-aarch64";
-        };
-    };
+      # !!! DO NOT COMMIT SECRETS BELOW !!!
+      # Fill locally, run `nix build .#rpi4` or `.#rpi5`, flash image,
+      # then `git checkout flake.nix` to revert. Both secrets land in
+      # the Nix store / image — treat accordingly.
+      bootstrapSecrets = {
+        kadPsk = "REPLACE_WIFI_PSK";
+        tsAuthKey = "REPLACE_TS_AUTHKEY";
+      };
+    in {
+      # Bootstrap SD image for Raspberry Pi 4.
+      packages.aarch64-linux.rpi4 = mkRpiBootstrap (bootstrapSecrets
+        // {
+          name = "bootstrap4";
+          hardwareModule = ./common/rpi4-configuration.nix;
+          extraOverlays = [allowMissingModulesOverlay];
+          extraModules = [
+            {
+              boot.kernelPackages =
+                rpiPkgs.lib.mkForce rpiPkgs.linuxPackages_rpi4;
+            }
+          ];
+        });
+
+      # Bootstrap SD image for Raspberry Pi 5.
+      packages.aarch64-linux.rpi5 = mkRpiBootstrap (bootstrapSecrets
+        // {
+          name = "bootstrap5";
+          hardwareModule = ./common/rpi5-configuration.nix;
+        });
+    });
 }
