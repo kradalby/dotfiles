@@ -44,7 +44,6 @@
       (import ./scripts/fake-editor.nix {inherit pkgs;})
     ]
     ++ lib.optionals stdenv.isLinux [
-      ghostty.terminfo
       nftables
       usbutils
       ncdu

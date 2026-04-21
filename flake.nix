@@ -443,6 +443,11 @@
         });
 
       # Bootstrap SD image for Raspberry Pi 5 (nixos-raspberrypi).
+      # nixosSystemFull pulls the Pi-optimised pkgs overlay (ffmpeg,
+      # kodi, libcamera, libpisp). For a headless server that overlay
+      # is a no-op since nothing references those packages, so cost is
+      # zero and future camera/kodi work gets the optimised variants
+      # for free.
       packages.aarch64-linux.rpi5 =
         (inputs.nixos-raspberrypi.lib.nixosSystemFull {
           specialArgs = {inherit inputs;};

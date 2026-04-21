@@ -36,6 +36,11 @@ in {
   };
 
   config = mkIf cfg.enable {
+    # Bootstrap images are headless — avoid pulling every terminal
+    # emulator's terminfo (ghostty/kitty/wezterm/...) and their gtk/x11
+    # build chain.
+    environment.enableAllTerminfo = mkForce false;
+
     networking = {
       hostName = cfg.name;
       domain = "bootstrap.fap.no";
