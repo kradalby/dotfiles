@@ -64,5 +64,10 @@ in {
       authKeyFile = mkForce (pkgs.writeText "authkey" cfg.tsAuthKey);
       inherit (cfg) tags;
     };
+
+    # Dummy console passwords so you aren't locked out if wifi/ssh
+    # fails on first boot. Change after login.
+    users.users.kradalby.initialPassword = "kradalby";
+    users.users.root.initialPassword = "root";
   };
 }
