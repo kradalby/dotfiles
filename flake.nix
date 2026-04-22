@@ -305,6 +305,35 @@
           allowLocalDeployment = true;
         };
 
+        "rpi5.ldn" = box.nixosBox {
+          arch = "aarch64-linux";
+          name = "rpi5.ldn";
+          tags = ["arm64" "ldn"];
+          # LAN IP for the first deploy before the host joins
+          # tailscale. Drop to null once rpi5-ldn.<tailnet> resolves.
+          targetHost = "10.65.0.196";
+          modules = with inputs; [
+            # raspberry-pi-5 modules consume nixos-raspberrypi as a
+            # module argument (normally set by the flake's own
+            # lib.nixosSystem via specialArgs). box.nixosBox calls
+            # plain nixpkgs.lib.nixosSystem so we wire the arg in.
+            ({...}: {_module.args.nixos-raspberrypi = nixos-raspberrypi;})
+            nixos-raspberrypi.nixosModules.raspberry-pi-5.base
+            nixos-raspberrypi.nixosModules.raspberry-pi-5.page-size-16k
+            nixos-raspberrypi.nixosModules.nixpkgs-rpi
+            nixos-raspberrypi.nixosModules.trusted-nix-caches
+            ({...}: {
+              nixpkgs.overlays = [
+                nixos-raspberrypi.overlays.bootloader
+                nixos-raspberrypi.overlays.vendor-kernel
+                nixos-raspberrypi.overlays.vendor-firmware
+                nixos-raspberrypi.overlays.kernel-and-firmware
+                nixos-raspberrypi.overlays.vendor-pkgs
+              ];
+            })
+          ];
+        };
+
         "storage.ldn" = box.nixosBox {
           arch = "x86_64-linux";
           name = "storage.ldn";
