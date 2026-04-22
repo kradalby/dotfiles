@@ -124,9 +124,7 @@
     };
 
     opencode = {
-      # v1.4.4 lockfile drifted against current registry; pin to the
-      # last rev that still installs cleanly (1.4.3+65e3348).
-      url = "github:anomalyco/opencode/65e334823264fb20e4a64181599d6001815813ba";
+      url = "github:anomalyco/opencode";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
@@ -190,7 +188,39 @@
         nefit-homekit = inputs.nefit-homekit.packages."${system}".default;
         tasmota-homekit = inputs.tasmota-homekit.packages."${system}".default;
         z2m-homekit = inputs.z2m-homekit.packages."${system}".default;
-        opencode = inputs.opencode.packages."${system}".default;
+        # Upstream Nix build is broken (prettier missing from node_modules
+        # due to --filter excluding root devDeps). Use prebuilt binaries.
+        opencode = let
+          version = "1.14.19";
+          srcs = {
+            x86_64-linux = {
+              url = "https://github.com/anomalyco/opencode/releases/download/v${version}/opencode-linux-x64-baseline.tar.gz";
+              hash = "sha256-N1D1Hf40e+l+qnasnFJX64Wmb+bdSyeES0YcQlKJjgM=";
+            };
+            aarch64-darwin = {
+              url = "https://github.com/anomalyco/opencode/releases/download/v${version}/opencode-darwin-arm64.zip";
+              hash = "sha256-VUogGSJVFPZp4bAUSCouJ8fnKcMzcCAwFRDzK+cWIpA=";
+            };
+          };
+          src = prev.fetchurl srcs.${system};
+        in
+          prev.stdenv.mkDerivation {
+            pname = "opencode";
+            inherit version src;
+            nativeBuildInputs =
+              prev.lib.optional prev.stdenv.hostPlatform.isLinux [prev.autoPatchelfHook]
+              ++ prev.lib.optional (prev.lib.hasSuffix ".zip" srcs.${system}.url) [prev.unzip];
+            sourceRoot = ".";
+            unpackPhase =
+              if prev.lib.hasSuffix ".tar.gz" srcs.${system}.url
+              then "tar xzf $src"
+              else "unzip $src";
+            dontStrip = true; # bun standalone binaries append JS payload to ELF
+            installPhase = ''
+              install -Dm755 opencode $out/bin/opencode
+            '';
+            meta.mainProgram = "opencode";
+          };
 
         # lima 1.2.2 in stable branches is marked insecure/EOL.
         # Override so transitive consumers (nix-rosetta-builder)
