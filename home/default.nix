@@ -84,10 +84,12 @@
       ".config/opencode/opencode.json".source = ../rc/opencode/opencode.json;
       ".config/opencode/commands".source = ../rc/claude/commands;
 
-      ".claude" = {
-        source = ../rc/claude;
+      ".claude/commands" = {
+        source = ../rc/claude/commands;
         recursive = true;
       };
+      ".claude/CLAUDE.md".source = ../rc/claude/CLAUDE.md;
+      ".claude/settings.json".source = ../rc/claude/settings.json;
 
       ".config/nix/nix.conf".text = ''
         experimental-features = nix-command flakes
