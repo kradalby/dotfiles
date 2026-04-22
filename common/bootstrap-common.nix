@@ -49,7 +49,10 @@ in {
 
       wireless = {
         enable = true;
-        networks."_kad".psk = cfg.kadPsk;
+        networks = {
+          "_kad".psk = cfg.kadPsk;
+          "_kad24".psk = cfg.kadPsk;
+        };
       };
     };
 
