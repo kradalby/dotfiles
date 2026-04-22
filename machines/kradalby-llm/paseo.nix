@@ -28,6 +28,7 @@ in {
         "PASEO_HOME=${dataDir}"
         "PASEO_LISTEN=0.0.0.0:${toString port}"
         "PASEO_HOSTNAMES=paseo-kradalby-llm.corp.ts.net"
+        "PATH=${config.home.profileDirectory}/bin:/nix/var/nix/profiles/default/bin:/usr/local/bin:/usr/bin:/bin"
       ];
     };
 
