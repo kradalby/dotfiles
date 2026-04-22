@@ -17,6 +17,7 @@ let
     dev-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHNrRieVfrCvnqNbuxEr06c6D1/lhGlEIvS8NNQhrmJt";
     lenovo-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJTZ76SNK6QJ2ptArkXstRNOdY1PxNHHon9gh3k+fDo+";
     storage-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICj6c1im2tC/E1ZYlFtryyqNui58+onflUqBiVOuc1on";
+    rpi5-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHCZ2YG1xvb9BJjYbv9MWWeqhjCNzZROWkwaPQFM76/T";
 
     core-oracldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGEe9eIMf462ZQhE8Nl9jyUscRtTTYeAIPRN2kvO3cdC";
 
@@ -101,6 +102,7 @@ with builtins;
   # WIFI
   "ldn-wifi.age".publicKeys = u ++ [
     hosts.dev-ldn
+    hosts.rpi5-ldn
   ];
   "kphone15-wifi.age".publicKeys = u ++ [
     hosts.core-ldn
