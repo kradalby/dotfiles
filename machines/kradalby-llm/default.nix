@@ -3,17 +3,34 @@
   config,
   ...
 }: let
-  baseSettings = builtins.fromJSON (builtins.readFile ../../rc/claude/settings.json);
-  machineSettings =
-    builtins.removeAttrs baseSettings ["apiKeyHelper"]
-    // {
-      env =
-        baseSettings.env
-        // {
-          ANTHROPIC_API_KEY = "-";
-          ANTHROPIC_BASE_URL = "http://ai.corp.ts.net";
-          PATH = "${config.home.profileDirectory}/bin:/nix/var/nix/profiles/default/bin:/usr/local/bin:/usr/bin:/bin";
+  aiConfig = import ../../home/ai.nix;
+
+  # Corp AI proxy: strip login-based auth, inject proxy env.
+  claudeSettings = lib.recursiveUpdate
+    (builtins.removeAttrs aiConfig.claude ["apiKeyHelper"])
+    {
+      env = {
+        ANTHROPIC_API_KEY = "-";
+        ANTHROPIC_BASE_URL = "http://ai.corp.ts.net";
+        PATH = "${config.home.profileDirectory}/bin:/nix/var/nix/profiles/default/bin:/usr/local/bin:/usr/bin:/bin";
+      };
+    };
+
+  # Corp AI proxy: strip auth plugin, set provider endpoints.
+  opencodeSettings = lib.recursiveUpdate
+    (builtins.removeAttrs aiConfig.opencode ["plugin"])
+    {
+      provider = {
+        anthropic.options = {
+          baseURL = "https://ai.corp.ts.net/v1";
+          apiKey = "-";
         };
+        openai.options = {
+          baseURL = "https://ai.corp.ts.net/v1";
+          apiKey = "EMPTY";
+        };
+      };
+      disabled_providers = ["opencode"];
     };
 in {
   imports = [
@@ -27,14 +44,12 @@ in {
   # Work machine git config (same pattern as kratail2)
   programs.git.settings.user.email = lib.mkForce "kristoffer@tailscale.com";
 
-  # Use corp AI proxy instead of the default plugin-based auth
+  # Override AI tool configs to use corp proxy
   home.file.".config/opencode/opencode.json" = lib.mkForce {
-    source = ./opencode.json;
+    text = builtins.toJSON opencodeSettings;
   };
-
-  # Override claude settings to use corp AI proxy
   home.file.".claude/settings.json" = lib.mkForce {
-    text = builtins.toJSON machineSettings;
+    text = builtins.toJSON claudeSettings;
   };
 
   my.packages = {
