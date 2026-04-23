@@ -82,13 +82,18 @@
 
       ".config/ghostty/config".source = ../rc/ghostty;
       ".config/opencode/opencode.json".text = builtins.toJSON (import ./ai.nix).opencode;
+      # Global agent instructions — agents walk up from cwd, so
+      # placing this in $HOME acts as a catch-all for repos that
+      # don't ship their own AGENTS.md.
+      "AGENTS.md".source = ../rc/AGENTS.md;
+      ".config/opencode/AGENTS.md".source = ../rc/AGENTS.md;
       ".config/opencode/commands".source = ../rc/claude/commands;
 
       ".claude/commands" = {
         source = ../rc/claude/commands;
         recursive = true;
       };
-      ".claude/CLAUDE.md".source = ../rc/claude/CLAUDE.md;
+      ".claude/CLAUDE.md".source = ../rc/AGENTS.md;
       ".claude/settings.json".text = builtins.toJSON (import ./ai.nix).claude;
 
       ".config/nix/nix.conf".text = ''
