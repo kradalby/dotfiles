@@ -81,7 +81,7 @@
       '';
 
       ".config/ghostty/config".source = ../rc/ghostty;
-      ".config/opencode/opencode.json".source = ../rc/opencode/opencode.json;
+      ".config/opencode/opencode.json".text = builtins.toJSON (import ./ai.nix).opencode;
       ".config/opencode/commands".source = ../rc/claude/commands;
 
       ".claude/commands" = {
@@ -89,7 +89,7 @@
         recursive = true;
       };
       ".claude/CLAUDE.md".source = ../rc/claude/CLAUDE.md;
-      ".claude/settings.json".source = ../rc/claude/settings.json;
+      ".claude/settings.json".text = builtins.toJSON (import ./ai.nix).claude;
 
       ".config/nix/nix.conf".text = ''
         experimental-features = nix-command flakes
