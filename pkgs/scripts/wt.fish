@@ -2,15 +2,17 @@
 # Usage: wt <command> [options]
 
 function wt --description "Git worktree helper with organized directory structure"
-    # Worktrees are created as siblings of the main repo directory
-    # e.g., ~/git/headscale/main -> ~/git/headscale/<branch>
-    # Use the main worktree (first in list) to find the root, not the current worktree
+    # Main repo lives at ~/git/<repo>; worktrees at $WT_ROOT/<repo>/<branch>
+    # Default $WT_ROOT is ~/worktrees.
     set -l main_worktree (git worktree list --porcelain 2>/dev/null | head -n 1 | string replace 'worktree ' '')
     if test -z "$main_worktree"
         echo "Error: Not in a git repository" >&2
         return 1
     end
-    set -l WORKTREE_ROOT (dirname "$main_worktree")
+    set -l repo_slug (basename "$main_worktree")
+    set -l wt_base $WT_ROOT
+    test -z "$wt_base"; and set wt_base "$HOME/worktrees"
+    set -l WORKTREE_ROOT "$wt_base/$repo_slug"
 
     if test (count $argv) -eq 0
         __wt_help
@@ -88,8 +90,13 @@ Examples:
   wt list
   wt remove old-branch
 
-Worktrees are created as siblings of your main repo directory.
-e.g., ~/git/repo/main -> ~/git/repo/<branch>"
+Main repo lives at ~/git/<repo>. Worktrees are created under
+\$WT_ROOT/<repo>/<branch> (default WT_ROOT: ~/worktrees).
+
+Examples of resolved paths:
+  ~/git/headscale            (main checkout)
+  ~/worktrees/headscale/my-feature
+  ~/worktrees/headscale/kradalby/2388-topic  (slashes kept as nested dirs)"
 end
 
 function __wt_get_default_base
@@ -112,6 +119,7 @@ function __wt_checkout
 
     # Check if branch exists
     if git show-ref --verify --quiet "refs/heads/$branch"; or git show-ref --verify --quiet "refs/remotes/origin/$branch"
+        mkdir -p (dirname "$path")
         git worktree add "$path" "$branch"
         echo "Worktree created at: $path"
         cd "$path"
@@ -136,6 +144,7 @@ function __wt_create
         return 0
     end
 
+    mkdir -p (dirname "$path")
     git worktree add "$path" -b "$branch" "$base"
     echo "Worktree created at: $path"
     cd "$path"
@@ -182,6 +191,7 @@ function __wt_pr
 
     # Fetch the PR head commit and create a local branch
     git fetch origin $pr_head
+    mkdir -p (dirname "$path")
     git worktree add "$path" -b "$branch" $pr_head
     echo "PR #$pr_number checked out at: $path"
     cd "$path"
