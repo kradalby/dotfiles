@@ -309,11 +309,11 @@
         "vim:vim-plist": "vim:vim-plist"
       },
       "locked": {
-        "lastModified": 1776320868,
-        "narHash": "sha256-qqcC2STTuoCQ9zUwKjAd1WEgim1CWbGh3Q5+Zg/Nzwk=",
+        "lastModified": 1777093940,
+        "narHash": "sha256-RQqsylVJ3ppmmBScyBjcQfy2PlLyzT/lXConDsgcbjQ=",
         "owner": "kradalby",
         "repo": "neovim",
-        "rev": "a192bd98b66cf9623fc8f20d7483bf682149183c",
+        "rev": "8186cb92e699acca748ab5eab731f29c203b18eb",
         "type": "github"
       },
       "original": {
