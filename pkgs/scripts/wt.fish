@@ -4,12 +4,27 @@
 function wt --description "Git worktree helper with organized directory structure"
     # Main repo lives at ~/git/<repo>; worktrees at $WT_ROOT/<repo>/<branch>
     # Default $WT_ROOT is ~/worktrees.
-    set -l main_worktree (git worktree list --porcelain 2>/dev/null | head -n 1 | string replace 'worktree ' '')
-    if test -z "$main_worktree"
+    set -l common_dir (git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)
+    if test -z "$common_dir"
         echo "Error: Not in a git repository" >&2
         return 1
     end
-    set -l repo_slug (basename "$main_worktree")
+
+    # Normal repo: $common_dir is the .git directory inside the main worktree
+    # (basename literally equals ".git"). Bare repo: $common_dir IS the repo
+    # itself, typically named "<repo>.git".
+    set -l repo_slug
+    if test (basename "$common_dir") = ".git"
+        set repo_slug (basename (dirname "$common_dir"))
+    else
+        set repo_slug (string replace -r '\.git$' '' -- (basename "$common_dir"))
+    end
+
+    if test -z "$repo_slug"
+        echo "Error: Could not determine repo name from $common_dir" >&2
+        return 1
+    end
+
     set -l wt_base $WT_ROOT
     test -z "$wt_base"; and set wt_base "$HOME/worktrees"
     set -l WORKTREE_ROOT "$wt_base/$repo_slug"
