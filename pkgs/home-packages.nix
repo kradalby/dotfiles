@@ -6,6 +6,7 @@
 }: let
   cfg = config.my.packages;
   tom = import ./scripts/tom.nix {inherit pkgs;};
+  tmp-cleanup = import ./scripts/tmp-cleanup.nix {inherit pkgs;};
 in {
   options.my.packages = {
     go.enable = (lib.mkEnableOption "Go development") // {default = true;};
@@ -50,6 +51,7 @@ in {
           difftastic
           cloc
           tom
+          tmp-cleanup
         ])
         ++ (with pkgs.unstable; [
           shellcheck

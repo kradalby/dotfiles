@@ -115,6 +115,8 @@ in {
       gpg.format = "ssh";
       "gpg \"ssh\"".allowedSignersFile = "~/.ssh/allowed_signers";
     };
+
+    my.agents.extraInstructions = builtins.readFile ./agents.md;
   };
 
   security.sudo.extraRules = [

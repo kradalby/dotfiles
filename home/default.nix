@@ -3,11 +3,31 @@
   pkgs,
   lib,
   ...
-}: {
+}: let
+  agentsBase = builtins.readFile ../rc/AGENTS.md;
+  agentsExtra = config.my.agents.extraInstructions;
+  agentsContent = agentsBase + lib.optionalString (agentsExtra != "") ("\n" + agentsExtra);
+in {
   # Available options
   # https://nix-community.github.io/home-manager/options.html
 
-  home = {
+  options.my.agents.extraInstructions = lib.mkOption {
+    type = lib.types.lines;
+    default = "";
+    description = "Per-host markdown appended to the shared AGENTS.md/CLAUDE.md.";
+  };
+
+  imports = [
+    ./git.nix
+    ./fish.nix
+    ./starship.nix
+    ./tmux.nix
+    ./ssh.nix
+
+    ../pkgs/home-packages.nix
+  ];
+
+  config.home = {
     stateVersion = "22.05";
 
     sessionPath = [
@@ -85,15 +105,15 @@
       # Global agent instructions — agents walk up from cwd, so
       # placing this in $HOME acts as a catch-all for repos that
       # don't ship their own AGENTS.md.
-      "AGENTS.md".source = ../rc/AGENTS.md;
-      ".config/opencode/AGENTS.md".source = ../rc/AGENTS.md;
+      "AGENTS.md".text = agentsContent;
+      ".config/opencode/AGENTS.md".text = agentsContent;
       ".config/opencode/commands".source = ../rc/claude/commands;
 
       ".claude/commands" = {
         source = ../rc/claude/commands;
         recursive = true;
       };
-      ".claude/CLAUDE.md".source = ../rc/AGENTS.md;
+      ".claude/CLAUDE.md".text = agentsContent;
       ".claude/settings.json".text = builtins.toJSON (import ./ai.nix).claude;
 
       ".config/nix/nix.conf".text = ''
@@ -117,7 +137,7 @@
     };
   };
 
-  programs = {
+  config.programs = {
     home-manager.enable = true;
 
     nix-index = {
@@ -165,14 +185,4 @@
     lesspipe.enable = true;
     man.enable = true;
   };
-
-  imports = [
-    ./git.nix
-    ./fish.nix
-    ./starship.nix
-    ./tmux.nix
-    ./ssh.nix
-
-    ../pkgs/home-packages.nix
-  ];
 }
