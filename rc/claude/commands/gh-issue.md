@@ -7,6 +7,8 @@ Deep-dive on this GitHub issue. Find the problem and generate a plan.
 Do not write code. Explain the problem clearly and propose a comprehensive plan
 to solve it.
 
+Name this Claude session descriptively (e.g. `gh-<issue-number>-<short-description>`).
+
 # Issue Details
 
 !`gh issue view "$ARGUMENTS" --json author,title,number,body,comments`
