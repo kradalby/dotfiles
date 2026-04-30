@@ -6,21 +6,27 @@ argument-hint: "<issue-number>"
 Diagnose a headscale GitHub issue, set up a development worktree,
 reproduce the bug with a test, and create a fix plan.
 
+Name this Claude session descriptively (e.g. `hs-<issue-number>-<short-description>`).
+
 # Issue Details
 
 !`gh issue view "$ARGUMENTS" --repo juanfont/headscale --json author,title,number,body,comments,labels`
 
 ## Step 1: Create worktree
 
-Set up a development worktree for this issue:
+Set up a development worktree for this issue using `wt` (see `pkgs/scripts/wt.fish`).
+Main repo lives at `~/git/headscale`; worktrees go under `$WT_ROOT/headscale/<branch>`.
 
-1. Fetch upstream: `git -C ~/git/headscale/main fetch upstream`
-2. Derive a short description from the issue title (lowercase, hyphen-separated, 3-5 words max)
-3. Create the worktree and branch:
-   - Branch name: `kradalby/<issue-number>-<short-description>`
-   - Worktree path: `~/git/headscale/kradalby/<issue-number>-<short-description>`
-   - Command: `git -C ~/git/headscale/main worktree add ~/git/headscale/kradalby/<issue-number>-<short-description> -b kradalby/<issue-number>-<short-description> upstream/main`
-4. Change into the new worktree directory and work from there
+1. From `~/git/headscale`, verify the `upstream` remote points to `juanfont/headscale`:
+   `git -C ~/git/headscale remote get-url upstream`
+   - If `upstream` exists and matches `juanfont/headscale`: `git -C ~/git/headscale fetch upstream` and use base `upstream/main`.
+   - Otherwise: fall back to `git -C ~/git/headscale fetch origin` and base `origin/main`.
+2. Derive a short description from the issue title (lowercase, hyphen-separated, 3-5 words max).
+3. Create the worktree and branch via `wt`:
+   - Branch: `kradalby/<issue-number>-<short-description>`
+   - From `~/git/headscale`: `wt create kradalby/<issue-number>-<short-description> upstream/main`
+     (substitute `origin/main` if upstream is unavailable)
+4. `wt create` cd's into the new worktree; work from there.
 
 ## Step 2: Diagnose
 
