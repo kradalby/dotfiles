@@ -156,6 +156,32 @@ in {
           via -config flag. See the p3-controller source for options.
         '';
       };
+
+      hap = {
+        enable = mkEnableOption "HomeKit Switch accessory ('P3 Radio') over the brutella/hap library";
+
+        pin = mkOption {
+          type = types.strMatching "[0-9]{8}";
+          example = "31415926";
+          description = ''
+            8-digit HomeKit pairing PIN. Apple rejects trivially weak
+            pins (e.g. 12345678, all-same digits). Pick a random one
+            and use it once when adding the accessory in iOS Home.
+          '';
+        };
+
+        port = mkOption {
+          type = types.port;
+          default = 51834;
+          description = ''
+            TCP port the hap server listens on. Must not collide with
+            other hap servers on the same host. Existing assignments
+            on home.ldn at the time of writing: 51826 (nefit-homekit),
+            51828 (tasmota-homekit), 51831 (z2m-homekit). Default
+            51834 is the next free slot.
+          '';
+        };
+      };
     };
   };
 
@@ -248,6 +274,16 @@ in {
         owntone_url = mkDefault "http://localhost:${toString cfg.settings.library.port}";
         listen = mkDefault ":${toString ccfg.port}";
         playlist_name = mkDefault "NRK P3";
+
+        hap = mkIf ccfg.hap.enable {
+          enabled = true;
+          pin = ccfg.hap.pin;
+          port = ccfg.hap.port;
+          name = mkDefault "P3 Radio";
+          # Resolved against StateDirectory below — hap subdir is
+          # created by the binary on first run.
+          state_dir = "/var/lib/p3-controller";
+        };
       };
 
       systemd.services.p3-controller = let
@@ -264,8 +300,18 @@ in {
           Type = "simple";
           ExecStart = "${getExe ccfg.package} -config ${controllerConfigFile}";
           DynamicUser = true;
+          # /var/lib/p3-controller — survives upgrades, owned by the
+          # DynamicUser. Holds HomeKit pairing state under hap/.
+          StateDirectory = "p3-controller";
+          StateDirectoryMode = "0700";
           Restart = "on-failure";
           RestartSec = 5;
+
+          # Lifecycle: SIGTERM → main does ordered shutdown (hap mDNS
+          # un-publish, ws close, http drain) within ~10s; KillMode=mixed
+          # so any stragglers get SIGKILL via cgroup at TimeoutStopSec.
+          KillMode = "mixed";
+          TimeoutStopSec = "15s";
 
           # Hardening
           NoNewPrivileges = true;
@@ -275,7 +321,15 @@ in {
         };
       };
 
-      networking.firewall.allowedTCPPorts = mkIf ccfg.openFirewall [ccfg.port];
+      networking.firewall = mkMerge [
+        (mkIf ccfg.openFirewall {
+          allowedTCPPorts = [ccfg.port];
+        })
+        (mkIf (ccfg.openFirewall && ccfg.hap.enable) {
+          allowedTCPPorts = [ccfg.hap.port];
+          allowedUDPPorts = [5353];
+        })
+      ];
     })
   ];
 }

@@ -33,6 +33,12 @@ in {
     controller = {
       enable = true;
       openFirewall = true;
+
+      hap = {
+        enable = true;
+        pin = "03145157";
+      };
+
       settings = {
         playlist_name = "NRK P3";
         groups = [
