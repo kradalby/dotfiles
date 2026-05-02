@@ -340,11 +340,11 @@
           tags = ["x86" "ldn"];
         };
 
-        # "lenovo.ldn" = box.nixosBox {
-        #   arch = "x86_64-linux";
-        #   name = "lenovo.ldn";
-        #   tags = ["x86" "ldn"];
-        # };
+        "lenovo.ldn" = box.nixosBox {
+          arch = "x86_64-linux";
+          name = "lenovo.ldn";
+          tags = ["x86" "ldn"];
+        };
 
         "core.tjoda" = box.nixosBox {
           arch = "x86_64-linux";

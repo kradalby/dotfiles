@@ -13,6 +13,14 @@
     # ./networking.nix
   ];
 
+  my.lan = "enp0s31f6";
+
+  networking = {
+    hostName = "lenovo";
+    domain = "ldn.fap.no";
+    useDHCP = lib.mkForce true;
+  };
+
   services.tailscale = {
     tags = ["tag:ldn" "tag:server"];
   };
