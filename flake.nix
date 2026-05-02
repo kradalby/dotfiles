@@ -311,7 +311,7 @@
           tags = ["arm64" "ldn"];
           # LAN IP for the first deploy before the host joins
           # tailscale. Drop to null once rpi5-ldn.<tailnet> resolves.
-          targetHost = "10.65.0.196";
+          # targetHost = "10.65.0.196";
           modules = with inputs; [
             # raspberry-pi-5 modules consume nixos-raspberrypi as a
             # module argument (normally set by the flake's own
