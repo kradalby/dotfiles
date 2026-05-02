@@ -4,15 +4,22 @@
 package main
 
 import (
+	"context"
 	_ "embed"
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 	"time"
+
+	"golang.org/x/sync/errgroup"
 
 	"p3-controller/owntone"
 )
@@ -31,6 +38,7 @@ type Config struct {
 	Weekday      []Speaker `json:"weekday"`
 	Weekend      []Speaker `json:"weekend"`
 	Groups       []Group   `json:"groups"`
+	HAP          HAPConfig `json:"hap"`
 }
 
 // Speaker defines a target output by name with a desired volume.
@@ -77,8 +85,55 @@ func main() {
 	mux.HandleFunc("PUT /output/{id}", handleSetOutput(client))
 	mux.HandleFunc("GET /shortcut/{name}", handleShortcut())
 
-	log.Printf("p3-controller listening on %s (owntone: %s)", cfg.Listen, cfg.OwnToneURL)
-	log.Fatal(http.ListenAndServe(cfg.Listen, mux))
+	if err := run(&cfg, client, mux); err != nil {
+		log.Fatal(err)
+	}
+}
+
+// run owns the process lifecycle: signal-driven root context, an
+// errgroup that supervises the HTTP server (and HomeKit accessory if
+// enabled), and bounded graceful shutdown. Returns when every
+// goroutine has unwound, or with the first non-nil error from a
+// supervised component.
+func run(cfg *Config, client *owntone.Client, mux *http.ServeMux) error {
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	g, gctx := errgroup.WithContext(ctx)
+
+	srv := &http.Server{
+		Addr:    cfg.Listen,
+		Handler: mux,
+		BaseContext: func(net.Listener) context.Context {
+			return gctx
+		},
+	}
+
+	g.Go(func() error {
+		log.Printf("p3-controller listening on %s (owntone: %s)", cfg.Listen, cfg.OwnToneURL)
+		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			return fmt.Errorf("http server: %w", err)
+		}
+		return nil
+	})
+
+	if cfg.HAP.Enabled {
+		g.Go(func() error {
+			return runHAP(gctx, client, cfg)
+		})
+	}
+
+	g.Go(func() error {
+		<-gctx.Done()
+		shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		if err := srv.Shutdown(shutdownCtx); err != nil {
+			log.Printf("http shutdown: %v", err)
+		}
+		return nil
+	})
+
+	return g.Wait()
 }
 
 // --- Play logic ---
@@ -188,20 +243,32 @@ func executePlay(client *owntone.Client, cfg *Config, speakers []Speaker, schedu
 
 // --- Handlers ---
 
+// scheduleForNow returns "weekday" or "weekend" based on the current
+// day. Shared between the HTTP handler and the HomeKit accessory so
+// both surfaces apply the same profile.
+func scheduleForNow() string {
+	day := time.Now().Weekday()
+	if day == time.Saturday || day == time.Sunday {
+		return "weekend"
+	}
+	return "weekday"
+}
+
+// speakersForSchedule returns the configured speakers for the named
+// schedule.
+func (cfg *Config) speakersForSchedule(schedule string) []Speaker {
+	if schedule == "weekend" {
+		return cfg.Weekend
+	}
+	return cfg.Weekday
+}
+
 func handlePlay(client *owntone.Client, cfg *Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 
-		// Determine schedule.
-		day := time.Now().Weekday()
-		speakers := cfg.Weekday
-		schedule := "weekday"
-		if day == time.Saturday || day == time.Sunday {
-			speakers = cfg.Weekend
-			schedule = "weekend"
-		}
-
-		resp, status := executePlay(client, cfg, speakers, schedule)
+		schedule := scheduleForNow()
+		resp, status := executePlay(client, cfg, cfg.speakersForSchedule(schedule), schedule)
 		writeJSON(w, status, resp)
 	}
 }
