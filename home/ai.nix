@@ -75,7 +75,6 @@
       };
     };
 
-    autoCompactWindow = 380000;
     alwaysThinkingEnabled = true;
     effortLevel = "high";
     skipDangerousModePermissionPrompt = true;
