@@ -20,4 +20,12 @@ in {
       "tcp:443" = "http://127.0.0.1:${toString port}";
     };
   };
+
+  services.tailscale-proxies.restic-sfiber = {
+    enable = true;
+    tailscaleKeyPath = config.age.secrets.headscale-sfiber-authkey.path;
+    loginServer = "https://headscale.sandefjordfiber.no";
+    hostname = "restic-tjoda";
+    backendPort = port;
+  };
 }

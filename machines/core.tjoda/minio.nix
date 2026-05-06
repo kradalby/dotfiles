@@ -7,11 +7,6 @@
     ../../common/minio.nix
   ];
 
-  age.secrets.headscale-sfiber-authkey = {
-    file = ../../secrets/headscale-sfiber-client-preauthkey.age;
-    owner = config.users.users.tailscale-proxy.name;
-  };
-
   services = {
     minio = {
       dataDir = [

@@ -86,6 +86,11 @@
     tags = ["tag:tjoda" "tag:gateway" "tag:server"];
   };
 
+  age.secrets.headscale-sfiber-authkey = {
+    file = ../../secrets/headscale-sfiber-client-preauthkey.age;
+    owner = config.users.users.tailscale-proxy.name;
+  };
+
   monitoring.smartctl.devices = ["/dev/sda"];
 
   system.stateVersion = "24.11";
