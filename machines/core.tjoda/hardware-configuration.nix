@@ -7,7 +7,7 @@
   boot = {
     loader.grub = {
       enable = true;
-      device = "/dev/disk/by-id/ata-LITEONIT_LCT-256M3S_2.5_7mm_256GB_TW0DFVVG550853AO0052";
+      device = "/dev/disk/by-id/ata-KINGSTON_SA400S37480G_50026B7785A27E08";
     };
 
     initrd.availableKernelModules = ["xhci_pci" "ehci_pci" "ahci" "usbhid" "uas" "sd_mod"];
