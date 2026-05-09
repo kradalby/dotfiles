@@ -24,6 +24,8 @@ in {
     ./tmux.nix
     ./ssh.nix
 
+    ../modules/claude-code.nix
+
     ../pkgs/home-packages.nix
   ];
 
