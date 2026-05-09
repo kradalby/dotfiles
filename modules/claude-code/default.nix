@@ -11,7 +11,7 @@
     then "${config.home.homeDirectory}/${lib.removePrefix "~/" p}"
     else p;
 
-  mkUnit = name: ic: let
+  mkArgs = name: ic: let
     instanceName =
       if ic.name == ""
       then name
@@ -20,54 +20,37 @@
       if ic.prefix == ""
       then name
       else ic.prefix;
-    workingDir = resolvePath ic.path;
-    args =
-      [
-        "${ic.package}/bin/claude"
-        "remote-control"
-        "--name"
-        instanceName
-        "--remote-control-session-name-prefix"
-        instancePrefix
-        "--spawn"
-        ic.spawn
-      ]
-      ++ lib.optionals (ic.spawn != "session") ["--capacity" (toString ic.capacity)]
-      ++ lib.optional ic.verbose "--verbose"
-      ++ [
-        (
-          if ic.sandbox
-          then "--sandbox"
-          else "--no-sandbox"
-        )
-      ];
-  in {
-    Unit = {
-      Description = "claude remote-control: ${name}";
-      After = ["network-online.target"];
-      Wants = ["network-online.target"];
-    };
-    Service = {
-      Type = "simple";
-      WorkingDirectory = workingDir;
-      ExecStart = lib.escapeShellArgs args;
-      Restart = "on-failure";
-      RestartSec = 15;
-      KillSignal = "SIGTERM";
-      TimeoutStopSec = 15;
-      Environment = [
-        "PATH=${config.home.profileDirectory}/bin:/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin:/usr/bin:/bin"
-        "HOME=${config.home.homeDirectory}"
-      ];
-    };
-    Install.WantedBy = ["default.target"];
-  };
+  in
+    [
+      "${ic.package}/bin/claude"
+      "remote-control"
+      "--name"
+      instanceName
+      "--remote-control-session-name-prefix"
+      instancePrefix
+      "--spawn"
+      ic.spawn
+    ]
+    ++ lib.optionals (ic.spawn != "session") ["--capacity" (toString ic.capacity)]
+    ++ lib.optional ic.verbose "--verbose"
+    ++ [
+      (
+        if ic.sandbox
+        then "--sandbox"
+        else "--no-sandbox"
+      )
+    ];
 
   enabled = lib.filterAttrs (_: ic: ic.enable) cfg;
 in {
+  imports = [
+    ./linux.nix
+    ./darwin.nix
+  ];
+
   options.services.claude-code = lib.mkOption {
     default = {};
-    description = "Multiple `claude remote-control` instances, one systemd user service per attribute.";
+    description = "Multiple `claude remote-control` instances, one user service (systemd on Linux, launchd on Darwin) per attribute.";
     type = lib.types.attrsOf (lib.types.submodule ({name, ...}: {
       options = {
         enable = lib.mkOption {
@@ -128,8 +111,7 @@ in {
     }));
   };
 
-  config = lib.mkIf (enabled != {}) {
-    systemd.user.services =
-      lib.mapAttrs' (n: ic: lib.nameValuePair "claude-code-${n}" (mkUnit n ic)) enabled;
+  config._module.args.claudeCodeLib = {
+    inherit resolvePath mkArgs enabled;
   };
 }
