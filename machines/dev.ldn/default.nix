@@ -20,6 +20,7 @@ in {
     ./restic.nix
     ./syncthing.nix
     ./paseo.nix
+    ./claude-code.nix
   ];
 
   networking = {
