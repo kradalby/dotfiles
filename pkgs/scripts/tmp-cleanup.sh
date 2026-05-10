@@ -9,6 +9,7 @@ set -o nounset
 DIR_PATTERNS=(
   'nix-shell.*'
   'nix-build-*'
+  'nix-develop-*'
   'auth-agent*'
   'colmena-assets-*'
   'claude-*'
@@ -16,11 +17,17 @@ DIR_PATTERNS=(
   'go-build*'
   'go-test-*'
   'go-link-*'
+  'gopls-*'
   '_home_*'
   'hs-*'
   'integration-*'
   'headscale-*'
   'tmp.*'
+  'org.chromium.*'
+  'TemporaryDirectory.*'
+  'Test*'
+  'pyright-*'
+  'uv-*'
 )
 
 FILE_PATTERNS=(
@@ -37,6 +44,7 @@ FILE_PATTERNS=(
   '*.bak'
   '*.out'
   '*.err'
+  '.*-*.so'
 )
 
 SKIP_PATTERNS=(
@@ -45,6 +53,7 @@ SKIP_PATTERNS=(
   '.font-unix'
   '.XIM-unix'
   'systemd-private-*'
+  'claude-[0-9]*'
 )
 
 EXECUTE=0
@@ -131,17 +140,33 @@ is_old() {
   [ -n "$found" ]
 }
 
+declare -A BUSY_NAMES=()
+if [ "$USE_LSOF" -eq 1 ]; then
+  # One bulk lsof pass; bucket each held /tmp path by its top-level name.
+  # Per-target `lsof +D` is slow on hosts with many mounts (docker
+  # overlay2/nsfs adds seconds per call), so calling it 1× per candidate
+  # would push cleanup into many minutes. Read from OUTPUT, not exit code:
+  # lsof exits non-zero when it can't stat unrelated mounts even with the
+  # target held — relying on $? would falsely greenlight rm.
+  while IFS= read -r line; do
+    name=${line#n/tmp/}
+    name=${name%%/*}
+    [ -n "$name" ] && BUSY_NAMES["$name"]=1
+  done < <(lsof -F n 2>/dev/null | awk '/^n\/tmp\//')
+fi
+
 is_busy() {
   [ "$USE_LSOF" -eq 1 ] || return 1
-  if [ -d "$1" ]; then
-    lsof +D "$1" >/dev/null 2>&1
-  else
-    lsof -- "$1" >/dev/null 2>&1
-  fi
+  [ -n "${BUSY_NAMES["${1##*/}"]+x}" ]
 }
 
-human_size() { du -sh "$1" 2>/dev/null | awk '{print $1}'; }
-byte_size() { du -sb "$1" 2>/dev/null | awk '{print $1}'; }
+get_size() {
+  # Sets size_b (integer bytes) and size_h (human readable) for $1
+  # via a single du call rather than separate -sh/-sb passes.
+  size_b=$(du -sb "$1" 2>/dev/null | awk '{print $1}')
+  case "$size_b" in '' | *[!0-9]*) size_b=0 ;; esac
+  size_h=$(numfmt --to=iec "$size_b" 2>/dev/null) || size_h="?"
+}
 
 removed=0
 freed=0
@@ -149,7 +174,7 @@ busy=0
 kept=0
 errors=0
 
-shopt -s nullglob
+shopt -s nullglob dotglob
 
 for path in /tmp/*; do
   [ -e "$path" ] || continue
@@ -183,10 +208,7 @@ for path in /tmp/*; do
     continue
   fi
 
-  size_h=$(human_size "$path")
-  size_b=$(byte_size "$path")
-  case "$size_b" in '' | *[!0-9]*) size_b=0 ;; esac
-  size_h=${size_h:-?}
+  get_size "$path"
 
   if [ "$EXECUTE" -eq 1 ]; then
     if rm -rf -- "$path" 2>/dev/null; then
