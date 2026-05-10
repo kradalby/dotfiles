@@ -14,6 +14,9 @@
       Description = "claude remote-control: ${name}";
       After = ["network-online.target"];
       Wants = ["network-online.target"];
+      # Cap restart bursts so a wedged service doesn't hammer the bridge.
+      StartLimitIntervalSec = 300;
+      StartLimitBurst = 5;
     };
     Service = {
       Type = "simple";
@@ -22,7 +25,12 @@
       Restart = "on-failure";
       RestartSec = 15;
       KillSignal = "SIGTERM";
-      TimeoutStopSec = 15;
+      KillMode = "mixed";
+      TimeoutStopSec = 30;
+      # Per-unit /tmp namespace. Isolates /tmp/claude-<uid>/ from interactive
+      # shells and from sibling services, so a stray `tmp-cleanup -y` in a
+      # user terminal can never reach this service's bridge dir.
+      PrivateTmp = true;
       Environment = [
         "PATH=${linuxPath}"
         "HOME=${config.home.homeDirectory}"
