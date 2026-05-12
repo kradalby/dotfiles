@@ -53,6 +53,6 @@ id=$(printf '%s' "$list" | jq -r --arg acct "$target" \
 
 [ -n "$id" ] || fail "account not found: $target"
 
-notify "Tailscale" "Switching to $target…"
+notify "Tailscale" "Switching to ${target}…"
 "$TS" switch "$id"
-notify "Tailscale" "$current → $target"
+notify "Tailscale" "${current} → ${target}"
