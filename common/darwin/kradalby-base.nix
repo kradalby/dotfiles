@@ -25,6 +25,7 @@ in {
     ../../pkgs/system.nix
     ../../pkgs/homebrew.nix
     ./syncthing.nix
+    ./tailscale-notify.nix
     ../../modules/macos.nix
   ];
 
