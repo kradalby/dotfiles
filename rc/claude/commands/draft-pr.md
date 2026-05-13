@@ -24,6 +24,7 @@ Create a draft pull request for the current branch.
   - Create the PR from `origin` (kradalby/headscale) to `upstream` (juanfont/headscale)
   - Use `gh pr create --repo juanfont/headscale --head kradalby:<branch>`
 - Always create the PR as a draft (`--draft`)
+- Always watch the PR checks until they all pass
 - Add a model attribution line at the very end of the PR body:
 
   > Generated with the help of an AI assistant
