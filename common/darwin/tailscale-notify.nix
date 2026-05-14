@@ -20,13 +20,17 @@
   appPath = "/Applications/TailscaleNotify.app";
   iconSource = "/Applications/Tailscale.app/Contents/Resources/AppIcon.icns";
   bundleId = "no.kradalby.TailscaleNotify";
-  # Coerce argv items via `as text`: applets sometimes receive arguments
-  # typed as file specifiers, which makes `display notification` raise
-  # error -1700 ("can't make item N into type Unicode text").
+  # `on run argv` does not receive `open --args` reliably for .app
+  # launches (Cocoa swallows them before AppleScript sees argv). Read
+  # them straight from NSProcessInfo via AppleScriptObjC instead.
+  # NSProcessInfo's arguments[0] is the executable path, so our args
+  # start at index 1.
   appleScript = ''
-    on run argv
-      set t to (item 1 of argv) as text
-      set m to (item 2 of argv) as text
+    use framework "Foundation"
+    on run
+      set args to current application's NSProcessInfo's processInfo's arguments
+      set t to (args's objectAtIndex:1) as text
+      set m to (args's objectAtIndex:2) as text
       display notification m with title t
     end run
   '';
