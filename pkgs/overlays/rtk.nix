@@ -16,10 +16,10 @@ in
       owner = "rtk-ai";
       repo = "rtk";
       tag = "v${versions.pkgs.overlays.rtk}";
-      hash = "sha256-QmjuAFyM4Bgl1ZY4SrWijSuiQvusZ5+9aq4lvLMnUF4=";
+      hash = "sha256-xWHIOZRpSyyOPQe/db9dxoODcnheBlpXrnKET010vVg=";
     };
 
-    cargoHash = "sha256-rjFaxbvwcwJgxwXDKjpUWI4JFX2xnbf+oxAyS3HolBY=";
+    cargoHash = "sha256-DJazpSx1FCt9pjFjqsoL3MLEQLdFvLwEj3UsP0aYHmc=";
 
     nativeCheckInputs = [git];
 

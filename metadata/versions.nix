@@ -8,7 +8,7 @@
 
   ## home.ldn
   # https://github.com/dmunozv04/iSponsorBlockTV/pkgs/container/isponsorblocktv
-  isponsor = "ghcr.io/dmunozv04/isponsorblocktv:v2.7.0";
+  isponsor = "ghcr.io/dmunozv04/isponsorblocktv:v2.9.0";
 
   ## core.oracldn
   grafanaDashboards = {
@@ -20,9 +20,9 @@
   };
 
   # https://github.com/umami-software/umami/pkgs/container/umami
-  umami = "ghcr.io/umami-software/umami:3.0.3";
+  umami = "ghcr.io/umami-software/umami:3.1.0";
   # https://hub.docker.com/r/frooodle/s-pdf/tags
-  stirling = "frooodle/s-pdf:2.9.2";
+  stirling = "frooodle/s-pdf:2.10.1";
   ## pkgs
   pkgs = {
     overlays = {
@@ -31,7 +31,7 @@
       # https://github.com/micropython/webrepl
       webreplCli = "1e09d9a1d90fe52aba11d1e659afbc95a50cf088";
       # https://github.com/cooklang/cookcli/releases
-      cook = "0.29.0";
+      cook = "0.29.1";
       # https://github.com/tailscale/tailscale
       tailscaleTools = "v1.96.4";
       # https://github.com/tailscale/squibble
@@ -41,9 +41,9 @@
       # https://github.com/seruman/boo
       boo = "3bc3b2ec1f1dfc75bd9f8e919f1150ae5d42cf6b";
       # https://github.com/bscott/pm-cli/releases
-      pmCli = "0.2.4";
+      pmCli = "0.2.5";
       # https://github.com/rtk-ai/rtk/releases
-      rtk = "0.36.0";
+      rtk = "0.40.0";
       # https://github.com/rustic-rs/rustic/releases
       rustic = "0.11.2";
     };
