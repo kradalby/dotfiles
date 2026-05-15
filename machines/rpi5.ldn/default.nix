@@ -41,6 +41,10 @@
 
   services.tailscale.tags = ["tag:ldn" "tag:server"];
 
+  # nixos-raspberrypi is migrating the default from "kernelboot" to
+  # "kernel"; opt in explicitly to silence the deprecation warning.
+  boot.loader.raspberry-pi.bootloader = "kernel";
+
   # Pi5 overclock. Stock is 2.4GHz; 2.8GHz is a conservative bump for
   # a board with the Active Cooler. Raise arm_freq/voltage_delta if
   # you want to push further and are confident in thermals.
