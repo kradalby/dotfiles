@@ -21,6 +21,9 @@
       connect-timeout = 5;
       fallback = true;
       accept-flake-config = true;
+      # Let remote builders substitute missing deps from the configured
+      # caches instead of failing when the local store lacks a closure.
+      builders-use-substitutes = true;
       substituters = [
         "https://nix-community.cachix.org?priority=41"
         "https://numtide.cachix.org?priority=42"
