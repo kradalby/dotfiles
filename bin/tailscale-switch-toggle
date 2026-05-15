@@ -9,13 +9,16 @@ export PATH
 
 TS_APP=/Applications/Tailscale.app
 TS=$TS_APP/Contents/MacOS/Tailscale
-NOTIFY_APP=/Applications/TailscaleNotify.app
 
 # Notifications go through a tiny AppleScript applet built by nix-darwin
 # activation; its bundle icon is Tailscale's. terminal-notifier and alerter
 # both hang on Sonoma+ waiting for UNUserNotificationCenter authorization.
+# Title + message are URL-encoded into the bundle's custom URL scheme;
+# `open --args` is swallowed by Cocoa on macOS 26.
 notify() {
-    /usr/bin/open -n -a "$NOTIFY_APP" --args "$1" "$2" >/dev/null 2>&1 || true
+    t=$(printf '%s' "$1" | jq -sRr @uri)
+    m=$(printf '%s' "$2" | jq -sRr @uri)
+    /usr/bin/open "tailscalenotify://show?title=${t}&msg=${m}" >/dev/null 2>&1 || true
 }
 
 fail() {
