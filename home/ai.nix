@@ -115,20 +115,22 @@
       external_directory = {
         "~/go/**" = "allow";
         "~/git/**" = "allow";
+        "~/worktrees/**" = "allow";
         "/nix/**" = "allow";
         "/tmp/**" = "allow";
-      # macOS maps /tmp to /private/tmp.
-      "/private/tmp/**" = "allow";
-      # Claude Code stores session data, CLAUDE.md, etc.
-      "~/.claude/**" = "allow";
-    };
-    # Deny edits outside the working tree — these directories
-    # are read-only reference material, not targets for changes.
-    edit = {
-      "~/go/**" = "deny";
-      "~/git/**" = "deny";
-      "/nix/**" = "deny";
-    };
+        # macOS maps /tmp to /private/tmp.
+        "/private/tmp/**" = "allow";
+        # Claude Code stores session data, CLAUDE.md, etc.
+        "~/.claude/**" = "allow";
+      };
+      # Deny edits outside the working tree — these directories
+      # are read-only reference material, not targets for changes.
+      edit = {
+        "~/go/**" = "deny";
+        "~/git/**" = "deny";
+        "~/worktrees/**" = "deny";
+        "/nix/**" = "deny";
+      };
     };
   };
 }
