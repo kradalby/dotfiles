@@ -39,6 +39,20 @@
     "kradalby-llm" = {id = "NCR7O6Z-XRY3NIN-XKHAZOE-2EUNNP5-PZ7H53H-47BK2YF-PDWEMQB-FLC4DQU";};
   };
 
+  # Userspace Tailscale node on the kradalby.no tailnet, alongside the
+  # work Tailscale GUI app. kradalby.no is the default SaaS coordination
+  # server, so no --login-server. No agenix on darwin → authenticate
+  # interactively once with `tailscale-kradalby up`.
+  services.tailscales.kradalby = {
+    enable = true;
+    extraSetFlags = [
+      "--hostname=kradalby"
+      "--ssh=true"
+      "--accept-routes=true"
+      "--accept-dns=true"
+    ];
+  };
+
   services.syncthing.folders = {
     "/storage/software".enable = false;
     "/storage/books".enable = false;
