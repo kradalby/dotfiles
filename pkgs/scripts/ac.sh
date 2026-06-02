@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Main repos live at $GIT_ROOT/<repo>; worktrees at $WT_ROOT/<repo>/<branch>.
+# Mirrors the layout used by wt.fish (default WT_ROOT: ~/worktrees).
 GIT_ROOT="$HOME/git"
+WT_ROOT="${WT_ROOT:-$HOME/worktrees}"
 DEFAULT_AGENT="opencode"
 SERVER_PREFIX="ac"
 
@@ -33,8 +36,9 @@ server_name() {
 resolve_path() {
 	local repo="$1" branch="${2:-}"
 
+	# A branch maps to a worktree under $WT_ROOT/<repo>/<branch>.
 	if [[ -n "$branch" ]]; then
-		local path="$GIT_ROOT/$repo/$branch"
+		local path="$WT_ROOT/$repo/$branch"
 		if [[ -d "$path" ]]; then
 			echo "$path"
 			return 0
@@ -42,26 +46,14 @@ resolve_path() {
 		die "worktree not found: $path"
 	fi
 
-	# No branch specified — try to resolve
+	# No branch: the main repo itself at $GIT_ROOT/<repo>.
 	local repo_path="$GIT_ROOT/$repo"
-
-	# Direct repo (non-worktree): has .git file or directory
 	if [[ -e "$repo_path/.git" ]]; then
 		echo "$repo_path"
 		return 0
 	fi
 
-	# Worktree container: try main, then master
-	if [[ -d "$repo_path/main" ]]; then
-		echo "$repo_path/main"
-		return 0
-	fi
-	if [[ -d "$repo_path/master" ]]; then
-		echo "$repo_path/master"
-		return 0
-	fi
-
-	die "cannot resolve repo '$repo': $repo_path is not a git repo and has no main/master worktree"
+	die "cannot resolve repo '$repo': $repo_path is not a git repo"
 }
 
 resolve_branch() {
@@ -73,23 +65,7 @@ resolve_branch() {
 		return 0
 	fi
 
-	local repo_path="$GIT_ROOT/$repo"
-
-	if [[ -e "$repo_path/.git" ]]; then
-		# Non-worktree repo — no branch component
-		echo ""
-		return 0
-	fi
-
-	if [[ -d "$repo_path/main" ]]; then
-		echo "main"
-		return 0
-	fi
-	if [[ -d "$repo_path/master" ]]; then
-		echo "master"
-		return 0
-	fi
-
+	# No branch given: the main repo has no branch component.
 	echo ""
 }
 
@@ -102,16 +78,8 @@ find_main_worktree() {
 		echo "$repo_path"
 		return 0
 	fi
-	if [[ -d "$repo_path/main" ]]; then
-		echo "$repo_path/main"
-		return 0
-	fi
-	if [[ -d "$repo_path/master" ]]; then
-		echo "$repo_path/master"
-		return 0
-	fi
 
-	die "cannot find main worktree for '$repo'"
+	die "cannot find main worktree for '$repo': $repo_path"
 }
 
 create_branch_worktree() {
@@ -119,6 +87,9 @@ create_branch_worktree() {
 	# Repos with an 'upstream' remote (e.g. headscale) base off upstream/main;
 	# all others base off origin's default branch.
 	local main_wt="$1" target_path="$2" branch="$3"
+
+	# Ensure the parent dir exists for nested branch names (e.g. feature/foo).
+	mkdir -p "$(dirname "$target_path")"
 
 	if git -C "$main_wt" remote | grep -q '^upstream$'; then
 		echo "Fetching upstream..."
@@ -204,7 +175,7 @@ cmd_create_or_attach() {
 
 	# If a branch is specified and the worktree doesn't exist, offer to create it
 	if [[ -n "$branch" ]]; then
-		local target_path="$GIT_ROOT/$repo/$branch"
+		local target_path="$WT_ROOT/$repo/$branch"
 		if [[ ! -d "$target_path" ]]; then
 			local main_wt
 			main_wt=$(find_main_worktree "$repo")
@@ -383,16 +354,19 @@ create it. The new branch is based on the appropriate remote:
   - All other repos: fetches origin, branches from origin's
     default branch
 
+The main repo lives at ~/git/<repo>; branch worktrees are created
+under $WT_ROOT/<repo>/<branch> (default WT_ROOT: ~/worktrees).
+
 Examples:
   ac                             List sessions
-  ac headscale main              opencode on ~/git/headscale/main
-  ac headscale kradalby/3049     opencode on ~/git/headscale/kradalby/3049
+  ac headscale                   opencode on ~/git/headscale (main repo)
+  ac headscale kradalby/3049     opencode on ~/worktrees/headscale/kradalby/3049
   ac headscale kradalby/new      prompts to create branch from upstream/main
   ac dotfiles                    opencode on ~/git/dotfiles
-  ac headscale main -c           claude on ~/git/headscale/main
+  ac sfiber planet-olt -c        claude on ~/worktrees/sfiber/planet-olt
   ac 2                           Attach to session #2
   ac rm 2                        Kill session #2
-  ac rm headscale-main           Kill by name
+  ac rm headscale-kradalby-3049  Kill by name
 
 Each session opens two tmux windows:
   agent   Coding agent (opencode/claude), launched via send-keys
