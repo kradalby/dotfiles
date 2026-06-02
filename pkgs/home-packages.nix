@@ -159,7 +159,7 @@ in {
           headscale
           nmap
           ipcalc
-          docker-client
+          (docker_29.override {clientOnly = true;})
           dive
           act
         ])
