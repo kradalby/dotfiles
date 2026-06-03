@@ -197,7 +197,6 @@ in {
       in
         [ac]
         ++ (with pkgs; [
-          rtk
           nodejs_24
           python3
         ])

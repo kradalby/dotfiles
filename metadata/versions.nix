@@ -42,8 +42,6 @@
       boo = "3bc3b2ec1f1dfc75bd9f8e919f1150ae5d42cf6b";
       # https://github.com/bscott/pm-cli/releases
       pmCli = "0.2.5";
-      # https://github.com/rtk-ai/rtk/releases
-      rtk = "0.40.0";
       # https://github.com/rustic-rs/rustic/releases
       rustic = "0.11.2";
     };

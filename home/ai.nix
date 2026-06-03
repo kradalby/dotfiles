@@ -33,20 +33,6 @@
       ];
     };
 
-    hooks = {
-      PreToolUse = [
-        {
-          matcher = "Bash";
-          hooks = [
-            {
-              type = "command";
-              command = "~/.claude/hooks/rtk-rewrite.sh";
-            }
-          ];
-        }
-      ];
-    };
-
     enabledPlugins = {
       "gopls-lsp@claude-plugins-official" = true;
       "code-simplifier@claude-plugins-official" = true;
