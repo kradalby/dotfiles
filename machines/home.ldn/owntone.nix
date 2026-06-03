@@ -42,17 +42,38 @@ in {
       settings = {
         playlist_name = "NRK P3";
         groups = [
-          {name = "Living Room"; members = ["Right" "Living Room"];}
+          {
+            name = "Living Room";
+            members = ["Right" "Living Room"];
+          }
         ];
         weekday = [
-          {name = "Kitchen"; volume = 35;}
-          {name = "Lamp"; volume = 27;}
-          {name = "Office"; volume = 35;}
+          {
+            name = "Kitchen";
+            volume = 35;
+          }
+          {
+            name = "Lamp";
+            volume = 10;
+          }
+          {
+            name = "Office";
+            volume = 20;
+          }
         ];
         weekend = [
-          {name = "Kitchen"; volume = 35;}
-          {name = "Shelf"; volume = 27;}
-          {name = "Living Room"; volume = 35;}
+          {
+            name = "Kitchen";
+            volume = 35;
+          }
+          {
+            name = "Shelf";
+            volume = 27;
+          }
+          {
+            name = "Living Room";
+            volume = 35;
+          }
         ];
       };
     };
