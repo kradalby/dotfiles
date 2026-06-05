@@ -23,12 +23,25 @@ in {
     settings = {
       general = {
         bind_address = "0.0.0.0";
+        # Audio drop-outs → upstream advises trying this toggle.
+        high_resolution_clock = false;
       };
       library = {
         name = "P3 Streamer";
         directories = [musicDir];
       };
     };
+
+    # Per-device AirPlay sections can't be expressed as attrsets.
+    # reconnect = auto-rejoin speakers that spuriously drop mid-play.
+    extraConfig = ''
+      airplay "Right"       { reconnect = true }
+      airplay "Living Room" { reconnect = true }
+      airplay "Kitchen"     { reconnect = true }
+      airplay "Lamp"        { reconnect = true }
+      airplay "Office"      { reconnect = true }
+      airplay "Shelf"       { reconnect = true }
+    '';
 
     controller = {
       enable = true;
