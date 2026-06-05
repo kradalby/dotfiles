@@ -75,20 +75,25 @@
 
   # Headless ollama server. Owns 127.0.0.1:11434, loopback only. Reuses the
   # existing ~/.ollama model store, so already-pulled models are served as-is.
-  # The `ollama-app` GUI cask must not run on this host (port contention).
-  homebrew.brews = ["ollama"];
-
+  #
+  # Runs the binary bundled inside the ollama-app cask, not the homebrew
+  # `ollama` formula: that formula ships without the llama-server runner /
+  # Metal libs, so it can't run any model (GPU discovery fails, falls back to
+  # a CPU runner that doesn't exist). The .app bundle carries llama-server and
+  # the ggml/llama dylibs and self-locates them relative to the binary, giving
+  # Metal GPU inference. The GUI app must stay quit (not a Login Item) so it
+  # doesn't contend for the port — this agent is the only server.
   launchd.user.agents.ollama = {
     serviceConfig = {
       Label = "ollama";
-      ProgramArguments = ["/opt/homebrew/bin/ollama" "serve"];
+      ProgramArguments = ["/Applications/Ollama.app/Contents/Resources/ollama" "serve"];
       RunAtLoad = true;
       KeepAlive = true;
       ProcessType = "Interactive"; # full GPU/perf, not background-throttled
       EnvironmentVariables = {
         OLLAMA_HOST = "127.0.0.1:11434"; # loopback only; tailnet via serve
         OLLAMA_KEEP_ALIVE = "30m"; # avoid reloading the large models
-        PATH = "/opt/homebrew/bin:/usr/bin:/bin";
+        PATH = "/usr/bin:/bin";
       };
       StandardOutPath = "/Users/kradalby/Library/Logs/ollama.log";
       StandardErrorPath = "/Users/kradalby/Library/Logs/ollama.log";
