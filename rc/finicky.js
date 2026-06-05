@@ -9,11 +9,18 @@ module.exports = {
       browser: "Safari"
     },
     {
+      match: /^https?:\/\/github\.com\/kradalby(\/|$)/,
+      browser: "Safari"
+    },
+    {
       match: finicky.matchHostnames([
         "youtube.com",
         "*.youtube.com",
         "youtu.be",
         "*.youtu.be",
+        "youtube-nocookie.com",
+        "*.youtube-nocookie.com",
+        "youtube.app.goo.gl",
       ]),
       browser: "Firefox"
     },
@@ -63,6 +70,19 @@ module.exports = {
   ]
   ,
   rewrite: [{
+    // Unwrap redirect wrappers (Outlook Safelinks, Google /url, Slack) so the
+    // real destination gets routed by the handlers above instead of the
+    // wrapper host. Slack desktop sends every link through slack-redir.net.
+    match: ({ url }) =>
+      /(^|\.)safelinks\.protection\.outlook\.com$/.test(url.host) ||
+      /(^|\.)slack-redir\.net$/.test(url.host) ||
+      (url.host === "www.google.com" && url.pathname === "/url"),
+    url: ({ url }) => {
+      const params = new URLSearchParams(url.search);
+      const target = params.get("url") || params.get("q") || params.get("u");
+      return target || url;
+    },
+  }, {
     match: () => true, // Execute rewrite on all incoming urls to make this example easier to understand
     url: ({ url }) => {
       const removeKeysStartingWith = ["utm_", "uta_"]; // Remove all query parameters beginning with these strings
