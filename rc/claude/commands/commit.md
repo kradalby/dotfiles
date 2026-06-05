@@ -23,3 +23,5 @@ commit the current work
 - Do not push without permission
 - NEVER use --no-verify, pre-commit hooks are mandatory
 - NEVER use SKIP to skip a hook
+- Really try to never write commit messages longer than three lines.
+  - You can break it to explain particular hard things.
