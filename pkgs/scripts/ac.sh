@@ -5,7 +5,7 @@ set -euo pipefail
 # Mirrors the layout used by wt.fish (default WT_ROOT: ~/worktrees).
 GIT_ROOT="$HOME/git"
 WT_ROOT="${WT_ROOT:-$HOME/worktrees}"
-DEFAULT_AGENT="opencode"
+DEFAULT_AGENT="claude"
 SERVER_PREFIX="ac"
 
 # --- helpers ---
@@ -345,7 +345,8 @@ Commands:
   help                   Show this help
 
 Flags:
-  -c, --claude           Use claude instead of opencode
+  -o, --opencode         Use opencode instead of claude
+  -c, --claude           Use claude (default)
 
 If the branch worktree does not exist, you will be prompted to
 create it. The new branch is based on the appropriate remote:
@@ -359,11 +360,11 @@ under $WT_ROOT/<repo>/<branch> (default WT_ROOT: ~/worktrees).
 
 Examples:
   ac                             List sessions
-  ac headscale                   opencode on ~/git/headscale (main repo)
-  ac headscale kradalby/3049     opencode on ~/worktrees/headscale/kradalby/3049
+  ac headscale                   claude on ~/git/headscale (main repo)
+  ac headscale kradalby/3049     claude on ~/worktrees/headscale/kradalby/3049
   ac headscale kradalby/new      prompts to create branch from upstream/main
-  ac dotfiles                    opencode on ~/git/dotfiles
-  ac sfiber planet-olt -c        claude on ~/worktrees/sfiber/planet-olt
+  ac dotfiles                    claude on ~/git/dotfiles
+  ac sfiber planet-olt -o        opencode on ~/worktrees/sfiber/planet-olt
   ac 2                           Attach to session #2
   ac rm 2                        Kill session #2
   ac rm headscale-kradalby-3049  Kill by name
@@ -383,6 +384,10 @@ main() {
 	# Parse flags
 	while [[ $# -gt 0 ]]; do
 		case "$1" in
+		-o | --opencode)
+			agent="opencode"
+			shift
+			;;
 		-c | --claude)
 			agent="claude"
 			shift
