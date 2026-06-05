@@ -10,6 +10,11 @@ _: {
       cleanup = "zap"; # zap;
       autoUpdate = true;
       upgrade = true;
+      # TODO: drop once nix-darwin PR #1789 lands (adds --force-cleanup itself).
+      # Homebrew brew@e0d818b made `bundle --cleanup` prompt unless --force-cleanup
+      # is passed, breaking onActivation.cleanup during non-interactive activation.
+      # https://github.com/nix-darwin/nix-darwin/issues/1787
+      extraFlags = [ "--force-cleanup" ];
     };
 
     brews = [
