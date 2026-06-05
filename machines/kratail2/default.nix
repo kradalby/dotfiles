@@ -52,21 +52,30 @@
       "--accept-dns=true"
     ];
 
-    # Expose the local ollama server on the tailnet as a Tailscale Service.
-    # The bootstrap LaunchAgent turns this into `tailscale serve set-config`
-    # + `serve advertise svc:ollama`. svc:ollama, a node tag, and an access
-    # grant must be pre-defined in the kradalby.no admin console, and the node
-    # re-authed with that tag: Services require tag-based node identity.
+    # Host the local ollama server on the tailnet as svc:ollama. A Service
+    # host must use tag-based identity, so this node runs as tag:kradalby
+    # (its SSH/identity is then governed by tag grants, not the user). The
+    # bootstrap LaunchAgent runs `serve set-config` + `serve advertise
+    # svc:ollama`. svc:ollama, tag:kradalby (tagOwners + autoApprovers), and
+    # an access grant must exist in the kradalby.no admin console, and the
+    # node authed with the tag once:
+    #   tailscale-kradalby up --advertise-tags=tag:kradalby --ssh \
+    #     --accept-routes --accept-dns --hostname=kradalby
+    #
+    # Points at the caddy Host-rewrite proxy (11435), not ollama directly:
+    # ollama's DNS-rebinding guard 403s any non-loopback Host, and
+    # `tailscale serve` forwards the tailnet Host unchanged. The proxy
+    # rewrites Host to the loopback upstream so the guard passes, while
+    # ollama itself stays bound to loopback (no LAN exposure).
     services.ollama.endpoints = {
-      "tcp:443" = "http://127.0.0.1:11434";
-      "tcp:80" = "http://127.0.0.1:11434";
+      "tcp:443" = "http://127.0.0.1:11435";
+      "tcp:80" = "http://127.0.0.1:11435";
     };
   };
 
-  # Headless ollama server. Owns 127.0.0.1:11434; the Tailscale Service above
-  # proxies the tailnet to it. Reuses the existing ~/.ollama model store, so
-  # already-pulled models are served as-is. The `ollama-app` GUI cask must not
-  # run on this host (it would contend for the same port).
+  # Headless ollama server. Owns 127.0.0.1:11434, loopback only. Reuses the
+  # existing ~/.ollama model store, so already-pulled models are served as-is.
+  # The `ollama-app` GUI cask must not run on this host (port contention).
   homebrew.brews = ["ollama"];
 
   launchd.user.agents.ollama = {
@@ -83,6 +92,31 @@
       };
       StandardOutPath = "/Users/kradalby/Library/Logs/ollama.log";
       StandardErrorPath = "/Users/kradalby/Library/Logs/ollama.log";
+    };
+  };
+
+  # Host-rewrite proxy in front of ollama. tailscale serve forwards the tailnet
+  # Host (ollama.dalby.ts.net), which ollama's loopback DNS-rebinding guard
+  # rejects with 403. caddy --change-host-header rewrites Host to the loopback
+  # upstream (127.0.0.1:11434), which the guard accepts. Loopback-only, so the
+  # tailnet grant stays the sole access control.
+  launchd.user.agents.ollama-proxy = {
+    serviceConfig = {
+      Label = "ollama-proxy";
+      ProgramArguments = [
+        "${pkgs.caddy}/bin/caddy"
+        "reverse-proxy"
+        "--from"
+        "http://127.0.0.1:11435"
+        "--to"
+        "127.0.0.1:11434"
+        "--change-host-header"
+      ];
+      RunAtLoad = true;
+      KeepAlive = true;
+      ProcessType = "Interactive";
+      StandardOutPath = "/Users/kradalby/Library/Logs/ollama-proxy.log";
+      StandardErrorPath = "/Users/kradalby/Library/Logs/ollama-proxy.log";
     };
   };
 
