@@ -802,16 +802,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1780598484,
-        "narHash": "sha256-rkn8xeA0WHo7v8zXLgG4aoqCwfMnMexk3vxVo06HW0g=",
+        "lastModified": 1779392443,
+        "narHash": "sha256-9v/vS4y/WaLIU69sGy+paib+vNej0YeXLoXPcrMQj1c=",
         "owner": "tailscale",
         "repo": "tsidp",
-        "rev": "6359a180a4c0f6a8ed3a582bfaa770e15925ff7e",
+        "rev": "a9340f0d39e46ca47a61f9998d6989e43f0574b0",
         "type": "github"
       },
       "original": {
         "owner": "tailscale",
         "repo": "tsidp",
+        "rev": "a9340f0d39e46ca47a61f9998d6989e43f0574b0",
         "type": "github"
       }
     },

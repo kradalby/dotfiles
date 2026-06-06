@@ -80,7 +80,10 @@
     };
 
     tsidp = {
-      url = "github:tailscale/tsidp";
+      # Pinned to pre-go-1.26.4 commit. Commit 6359a18 bumped go.mod to
+      # require >= 1.26.4 but left flake goVersion = "1.26.0", breaking
+      # the build. Unpin once the tsidp flake fixes the goVersion mismatch.
+      url = "github:tailscale/tsidp/a9340f0d39e46ca47a61f9998d6989e43f0574b0";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
       inputs.systems.follows = "utils/systems";
     };
@@ -188,18 +191,18 @@
         nefit-homekit = inputs.nefit-homekit.packages."${system}".default;
         tasmota-homekit = inputs.tasmota-homekit.packages."${system}".default;
         z2m-homekit = inputs.z2m-homekit.packages."${system}".default;
-        # Upstream Nix build is broken (prettier missing from node_modules
-        # due to --filter excluding root devDeps). Use prebuilt binaries.
+        # Upstream Nix build requires bun >= 1.3.14; nixpkgs-unstable has 1.3.13.
+        # Use prebuilt binaries until nixpkgs ships bun 1.3.14+.
         opencode = let
-          version = "1.14.19";
+          version = "1.16.2";
           srcs = {
             x86_64-linux = {
               url = "https://github.com/anomalyco/opencode/releases/download/v${version}/opencode-linux-x64-baseline.tar.gz";
-              hash = "sha256-N1D1Hf40e+l+qnasnFJX64Wmb+bdSyeES0YcQlKJjgM=";
+              hash = "sha256-/jSwR+PU4vbYkfDS07T0SDfvUnHuz9m5iVHlOFfaaeY=";
             };
             aarch64-darwin = {
               url = "https://github.com/anomalyco/opencode/releases/download/v${version}/opencode-darwin-arm64.zip";
-              hash = "sha256-VUogGSJVFPZp4bAUSCouJ8fnKcMzcCAwFRDzK+cWIpA=";
+              hash = "sha256-AVhf9NFYIL06h45Lx8rPsep14jbR/tjC9fNZXtyLerU=";
             };
           };
           src = prev.fetchurl srcs.${system};
