@@ -9,9 +9,9 @@
 {
   claude = {
     permissions = {
-      allow = [];
-      deny = [];
-      ask = [];
+      allow = [ ];
+      deny = [ ];
+      ask = [ ];
       defaultMode = "bypassPermissions";
     };
 
@@ -94,7 +94,54 @@
 
     # Auth plugin for personal use; corp-proxy hosts should strip
     # this via builtins.removeAttrs and set provider directly.
-    plugin = ["opencode-claude-auth@latest"];
+    plugin = [ "opencode-claude-auth@latest" ];
+
+    # Remote ollama on kratail2, served over the kradalby.no tailnet
+    # (svc:ollama -> tailscale serve -> caddy -> 127.0.0.1:11434). Speaks the
+    # OpenAI-compatible API at /v1. Models + context sizes come from the shared
+    # registry; the matching num_ctx-pinned tags are created on kratail2 (see
+    # the ollama-models agent there). Verify the live set:
+    #   curl -s http://ollama.dalby.ts.net/v1/models | jq -r '.data[].id'
+    provider.ollama =
+      let
+        # Shared with machines/kratail2 so the model list and the served
+        # num_ctx tags can never drift.
+        registry = import ../common/models.nix;
+
+        # opencode entry for one (model, context) variant. Behaviour comes from
+        # the registry; opencode packs to limit.context and ollama serves that
+        # variant's num_ctx, so the two match by construction. local => zero cost.
+        mkModel = v: {
+          name = "${v.label} @ ${toString (v.context / 1024)}k";
+          tool_call = v.tools;
+          reasoning = v.reasoning;
+          attachment = v.vision;
+          limit = {
+            inherit (v) context output;
+          };
+          cost = {
+            input = 0;
+            output = 0;
+          };
+        };
+      in
+      {
+        npm = "@ai-sdk/openai-compatible";
+        name = "Ollama (kratail2)";
+        options = {
+          baseURL = "http://ollama.dalby.ts.net/v1";
+          apiKey = "ollama"; # ignored by ollama; the OpenAI SDK requires one
+        };
+        # One entry per (model, context); keys are the ollama variant tags.
+        models = builtins.listToAttrs (
+          map
+            (v: {
+              name = v.tag;
+              value = mkModel v;
+            })
+            registry.variants
+        );
+      };
 
     permission = {
       # Allow reading from common project/build directories.

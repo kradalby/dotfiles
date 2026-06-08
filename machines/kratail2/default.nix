@@ -1,10 +1,48 @@
 # Work Mac configuration (Tailscale)
+{ config
+, lib
+, pkgs
+, ...
+}:
+let
+  # Shared with home/ai.nix (opencode) so the served tags and the model list
+  # can never drift.
+  registry = import ../../common/models.nix;
+  ollamaBin = "/Applications/Ollama.app/Contents/Resources/ollama";
+
+  # Largest offered window across all variants; the server default (see
+  # OLLAMA_CONTEXT_LENGTH).
+  maxCtx = lib.foldl' (a: v: if v.context > a then v.context else a) 0 registry.variants;
+
+  # Distinct base models to ensure are pulled before creating variants.
+  bases = lib.unique (map (v: v.base) registry.variants);
+
+  # Modelfile pinning num_ctx on top of a base model. Shares the base's blobs,
+  # so no re-download.
+  mkModelfile = v: pkgs.writeText "${lib.replaceStrings [ ":" ] [ "-" ] v.tag}.Modelfile" ''
+    FROM ${v.base}
+    PARAMETER num_ctx ${toString v.context}
+  '';
+
+  # One-shot bootstrap: wait for the ollama server, ensure the base models are
+  # present, then (re)create a num_ctx-pinned tag per (model, context). Cheap +
+  # idempotent — variants share their base's blobs.
+  ollamaModels = pkgs.writeShellScript "ollama-create-variants" ''
+    set -u
+    export OLLAMA_HOST=${registry.server.host}
+    for _ in $(seq 1 60); do
+      ${ollamaBin} list >/dev/null 2>&1 && break
+      sleep 2
+    done
+    ${lib.concatMapStringsSep "\n    "
+      (b: "${ollamaBin} pull '${b}'")
+      bases}
+    ${lib.concatMapStringsSep "\n    "
+      (v: "${ollamaBin} create '${v.tag}' -f ${mkModelfile v}")
+      registry.variants}
+  '';
+in
 {
-  config,
-  lib,
-  pkgs,
-  ...
-}: {
   imports = [
     ../../common/darwin/kradalby-base.nix
     ./rustic.nix
@@ -36,7 +74,7 @@
   };
 
   services.syncthing.devices = {
-    "kradalby-llm" = {id = "NCR7O6Z-XRY3NIN-XKHAZOE-2EUNNP5-PZ7H53H-47BK2YF-PDWEMQB-FLC4DQU";};
+    "kradalby-llm" = { id = "NCR7O6Z-XRY3NIN-XKHAZOE-2EUNNP5-PZ7H53H-47BK2YF-PDWEMQB-FLC4DQU"; };
   };
 
   # Userspace Tailscale node on the kradalby.no tailnet, alongside the
@@ -86,13 +124,19 @@
   launchd.user.agents.ollama = {
     serviceConfig = {
       Label = "ollama";
-      ProgramArguments = ["/Applications/Ollama.app/Contents/Resources/ollama" "serve"];
+      ProgramArguments = [ ollamaBin "serve" ];
       RunAtLoad = true;
       KeepAlive = true;
       ProcessType = "Interactive"; # full GPU/perf, not background-throttled
       EnvironmentVariables = {
-        OLLAMA_HOST = "127.0.0.1:11434"; # loopback only; tailnet via serve
-        OLLAMA_KEEP_ALIVE = "30m"; # avoid reloading the large models
+        # Serving knobs live in common/models.nix.
+        OLLAMA_HOST = registry.server.host;
+        OLLAMA_KEEP_ALIVE = registry.server.keepAlive;
+        # Default served window for direct base-model calls. opencode only uses
+        # the num_ctx-pinned variant tags (ollama-models agent below), which
+        # override this; set to the largest offered size so an unpinned call is
+        # never truncated. 256K KV for a single 35B model fits 128 GB.
+        OLLAMA_CONTEXT_LENGTH = toString maxCtx;
         PATH = "/usr/bin:/bin";
       };
       StandardOutPath = "/Users/kradalby/Library/Logs/ollama.log";
@@ -102,26 +146,54 @@
 
   # Host-rewrite proxy in front of ollama. tailscale serve forwards the tailnet
   # Host (ollama.dalby.ts.net), which ollama's loopback DNS-rebinding guard
-  # rejects with 403. caddy --change-host-header rewrites Host to the loopback
-  # upstream (127.0.0.1:11434), which the guard accepts. Loopback-only, so the
-  # tailnet grant stays the sole access control.
+  # rejects with 403. caddy rewrites Host to the loopback upstream
+  # (127.0.0.1:11434), which the guard accepts.
+  #
+  # Must use a Caddyfile, not `caddy reverse-proxy --from http://127.0.0.1:11435`:
+  # that CLI form scopes the site to Host 127.0.0.1, so requests carrying the
+  # tailnet Host match no route and get an empty 200 before the host-rewrite
+  # ever runs. The `:11435` site matches any Host; `bind 127.0.0.1` keeps the
+  # listener loopback-only, so the tailnet grant stays the sole access control.
   launchd.user.agents.ollama-proxy = {
     serviceConfig = {
       Label = "ollama-proxy";
       ProgramArguments = [
         "${pkgs.caddy}/bin/caddy"
-        "reverse-proxy"
-        "--from"
-        "http://127.0.0.1:11435"
-        "--to"
-        "127.0.0.1:11434"
-        "--change-host-header"
+        "run"
+        "--adapter"
+        "caddyfile"
+        "--config"
+        "${pkgs.writeText "ollama-proxy.Caddyfile" ''
+          {
+            admin off
+            auto_https off
+          }
+          :11435 {
+            bind 127.0.0.1
+            reverse_proxy 127.0.0.1:11434 {
+              header_up Host {upstream_hostport}
+            }
+          }
+        ''}"
       ];
       RunAtLoad = true;
       KeepAlive = true;
       ProcessType = "Interactive";
       StandardOutPath = "/Users/kradalby/Library/Logs/ollama-proxy.log";
       StandardErrorPath = "/Users/kradalby/Library/Logs/ollama-proxy.log";
+    };
+  };
+
+  # Create the num_ctx-pinned variant tags (from common/models.nix) once the
+  # server is up. One-shot per activation; the opencode provider in home/ai.nix
+  # references these same tags.
+  launchd.user.agents.ollama-models = {
+    serviceConfig = {
+      Label = "ollama-models";
+      ProgramArguments = [ "${ollamaModels}" ];
+      RunAtLoad = true;
+      StandardOutPath = "/Users/kradalby/Library/Logs/ollama-models.log";
+      StandardErrorPath = "/Users/kradalby/Library/Logs/ollama-models.log";
     };
   };
 
@@ -136,7 +208,7 @@
     "llm-git" = {
       id = "f6vv9-fsjeq";
       path = "/Users/kradalby/git";
-      devices = ["kradalby-llm"];
+      devices = [ "kradalby-llm" ];
       type = "sendreceive";
       ignorePatterns = [
         # macOS
