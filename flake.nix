@@ -70,7 +70,10 @@
       # url = "github:juanfont/headscale/v0.26.0-beta.1";
       url = "github:juanfont/headscale/main";
       inputs."flake-utils".follows = "utils";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
+      # Do NOT follow nixpkgs: headscale pins staging-next-26.05 for go_1_26
+      # >= 1.26.4 (GO-2026-5037/5039). nixpkgs-unstable still ships 1.26.3,
+      # which fails the go.mod toolchain check. Restore the follows once
+      # unstable catches up.
     };
 
     golink = {
