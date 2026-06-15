@@ -56,12 +56,8 @@ in {
   programs.gh.settings.git_protocol = lib.mkForce "https";
 
   # Override AI tool configs to use corp proxy
-  home.file.".config/opencode/opencode.json" = lib.mkForce {
-    text = builtins.toJSON opencodeSettings;
-  };
-  home.file.".claude/settings.json" = lib.mkForce {
-    text = builtins.toJSON claudeSettings;
-  };
+  my.mutableJson.opencode.value = lib.mkForce opencodeSettings;
+  my.mutableJson.claude-settings.value = lib.mkForce claudeSettings;
 
   my.packages = {
     nix.enable = false;

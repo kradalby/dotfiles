@@ -26,8 +26,24 @@ in {
 
     ../modules/claude-code
 
+    ./mutable-json.nix
+
     ../pkgs/home-packages.nix
   ];
+
+  # settings.json/opencode.json are written by their clients at runtime, so
+  # they cannot be read-only store symlinks. Deploy mutable copies + diff
+  # helpers (claude-settings-diff/reset, opencode-diff/reset) instead.
+  config.my.mutableJson = {
+    claude-settings = {
+      target = ".claude/settings.json";
+      value = (import ./ai.nix).claude;
+    };
+    opencode = {
+      target = ".config/opencode/opencode.json";
+      value = (import ./ai.nix).opencode;
+    };
+  };
 
   config.home = {
     stateVersion = "22.05";
@@ -103,7 +119,6 @@ in {
       '';
 
       ".config/ghostty/config".source = ../rc/ghostty;
-      ".config/opencode/opencode.json".text = builtins.toJSON (import ./ai.nix).opencode;
       # Global agent instructions — agents walk up from cwd, so
       # placing this in $HOME acts as a catch-all for repos that
       # don't ship their own AGENTS.md.
@@ -116,7 +131,6 @@ in {
         recursive = true;
       };
       ".claude/CLAUDE.md".text = agentsContent;
-      ".claude/settings.json".text = builtins.toJSON (import ./ai.nix).claude;
 
       ".config/nix/nix.conf".text = ''
         experimental-features = nix-command flakes
