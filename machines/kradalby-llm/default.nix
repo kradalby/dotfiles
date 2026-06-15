@@ -44,6 +44,17 @@ in {
   # Work machine git config (same pattern as kratail2)
   programs.git.settings.user.email = lib.mkForce "kristoffer@tailscale.com";
 
+  # Use HTTPS for GitHub on this machine (SSH egress not available).
+  # mkForce replaces the SSH rewrite from home/git.nix entirely so the
+  # "gh:" alias and any SSH github remotes resolve to HTTPS.
+  programs.git.settings.url = lib.mkForce {
+    "https://github.com/" = {
+      insteadOf = ["gh:" "git@github.com:" "ssh://git@github.com/"];
+      pushInsteadOf = ["gh:" "git@github.com:" "ssh://git@github.com/"];
+    };
+  };
+  programs.gh.settings.git_protocol = lib.mkForce "https";
+
   # Override AI tool configs to use corp proxy
   home.file.".config/opencode/opencode.json" = lib.mkForce {
     text = builtins.toJSON opencodeSettings;
