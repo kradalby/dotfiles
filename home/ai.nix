@@ -19,6 +19,10 @@
     # Standalone Home Manager hosts (e.g. kradalby-llm) should
     # override with config.home.profileDirectory/bin.
     env = {
+      # ponytail is the default personality; caveman stays installed but
+      # off until invoked with /caveman.
+      CAVEMAN_DEFAULT_MODE = "off";
+
       PATH = builtins.concatStringsSep ":" [
         "/etc/profiles/per-user/kradalby/bin"
         "/run/current-system/sw/bin"
@@ -43,6 +47,8 @@
       "github@claude-plugins-official" = true;
       "frontend-design@claude-code-plugins" = true;
       "playwright@claude-plugins-official" = true;
+      "ponytail@ponytail" = true;
+      # Available on demand via /caveman; starts off (CAVEMAN_DEFAULT_MODE).
       "caveman@caveman" = true;
     };
 
@@ -54,6 +60,10 @@
       claude-code-plugins.source = {
         source = "github";
         repo = "anthropics/claude-code";
+      };
+      ponytail.source = {
+        source = "github";
+        repo = "DietrichGebert/ponytail";
       };
       caveman.source = {
         source = "github";
