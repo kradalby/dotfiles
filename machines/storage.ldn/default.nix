@@ -62,6 +62,7 @@ in {
   users.users.kradalby.openssh.authorizedKeys.keys = sshKeys.main ++ sshKeys.kradalby ++ sshKeys.work;
 
   environment.systemPackages = [
-    pkgs.docker-client
+    # docker_29 client; the default docker-client (28.5.2) is flagged insecure.
+    (pkgs.docker_29.override {clientOnly = true;})
   ];
 }
