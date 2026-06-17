@@ -4,8 +4,14 @@
     package = pkgs.starship;
     enableFishIntegration = true;
     settings = {
-      format = "$username$hostname$directory$git_branch$git_status$nix_shell$cmd_duration$line_break$character";
+      format = "$username$hostname$directory$git_branch$git_status$nix_shell\${env_var.BOO}$cmd_duration$line_break$character";
       add_newline = true;
+
+      # boo sets BOO=<session-name> inside a session; surface it in the prompt.
+      env_var.BOO = {
+        format = "[ $env_value]($style) ";
+        style = "bold magenta";
+      };
 
       username = {
         show_always = true;

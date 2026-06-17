@@ -31,7 +31,7 @@
       rsync
       socat
       tldr
-      tmux
+      boo
       tree
       unzip
       wget

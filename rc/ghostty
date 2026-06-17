@@ -19,33 +19,8 @@ macos-window-shadow = false
 macos-titlebar-proxy-icon = hidden
 macos-secure-input-indication = false
 
-# Tmux navigation (Ctrl modifier)
-# Sends Ctrl+b (tmux prefix) followed by the command key
-keybind = ctrl+right=text:\x02n
-keybind = ctrl+left=text:\x02p
-keybind = ctrl+t=text:\x02c
-keybind = ctrl+w=text:\x02x
-
-# Tmux: jump to tmux windows [0-9]
-keybind = ctrl+one=text:\x02\x31
-keybind = ctrl+two=text:\x02\x32
-keybind = ctrl+three=text:\x02\x33
-keybind = ctrl+four=text:\x02\x34
-keybind = ctrl+five=text:\x02\x35
-keybind = ctrl+six=text:\x02\x36
-keybind = ctrl+seven=text:\x02\x37
-keybind = ctrl+eight=text:\x02\x38
-keybind = ctrl+nine=text:\x02\x39
-keybind = ctrl+1=text:\x02\x31
-keybind = ctrl+2=text:\x02\x32
-keybind = ctrl+3=text:\x02\x33
-keybind = ctrl+4=text:\x02\x34
-keybind = ctrl+5=text:\x02\x35
-keybind = ctrl+6=text:\x02\x36
-keybind = ctrl+7=text:\x02\x37
-keybind = ctrl+8=text:\x02\x38
-keybind = ctrl+9=text:\x02\x39
-keybind = ctrl+0=text:\x02\x30
+# Window/tab management uses Ghostty's standard keybinds. boo sessions are
+# single-window; juggle multiple with `boo ui` or Ghostty tabs.
 
 # Command done notifications (replaces fish done plugin)
 notify-on-command-finish = unfocused
@@ -55,7 +30,7 @@ notify-on-command-finish-after = 30s
 # Remote tab: open new tab + mosh to dev.ldn.fap.no
 # TODO(ghostty): Workaround for Ghostty lacking an exec/command keybind action.
 # The cmd+shift+t hotkey is handled by skhd (see common/darwin/kradalby-base.nix)
-# which runs bin/ghostty-new-mosh-tab using boo to open a new tab via AppleScript.
+# which runs bin/ghostty-new-mosh-tab using ghostty-tab to open a new tab via AppleScript.
 # This unbind prevents Ghostty from intercepting the keystroke before skhd sees it.
 # Ref: https://github.com/ghostty-org/ghostty/issues/9961
 # Ref: https://github.com/ghostty-org/ghostty/discussions/10919

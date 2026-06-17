@@ -26,7 +26,6 @@ in {
     ./git.nix
     ./fish.nix
     ./starship.nix
-    ./tmux.nix
     ./ssh.nix
 
     ../modules/claude-code
@@ -104,19 +103,12 @@ in {
     };
 
     file = {
-      ".alacritty.yml".source = ../rc/alacritty.yml;
       ".ansible.cfg".source = ../rc/ansible.cfg;
       ".editorconfig".source = ../rc/editorconfig;
       ".eslintrc.json".source = ../rc/eslintrc.json;
       ".minirc.dfl".source = ../rc/minirc.dfl;
       ".npmrc".source = ../rc/npmrc;
       ".sqliterc".source = ../rc/sqliterc;
-
-      # ".tmux.conf".source = ../rc/tmux.conf;
-      ".tmuxinator" = {
-        source = ../rc/tmuxinator;
-        recursive = true;
-      };
 
       ".ssh/allowed_signers".text = ''
         kristoffer@dalby.cc ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBV4ZjlUvRDs70qHD/Ldi6OTkFpDEFgfbXbqSnaL2Qup
@@ -195,12 +187,7 @@ in {
       fileWidgetOptions = [
         "--preview '${pkgs.bat}/bin/bat -n --color=always {}'"
         "--bind 'ctrl-/:change-preview-window(down|hidden|)'"
-        "--tmux center,85%"
       ];
-
-      tmux = {
-        enableShellIntegration = true;
-      };
     };
 
     htop.enable = true;

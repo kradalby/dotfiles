@@ -21,7 +21,7 @@ in
 
     p3-controller = prev.callPackage ../p3-controller {};
 
-    boo = prev.callPackage ./boo.nix {};
+    ghostty-tab = prev.callPackage ./ghostty-tab.nix {};
 
     pm-cli = prev.callPackage ./pm-cli.nix {};
 

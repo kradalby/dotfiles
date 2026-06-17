@@ -139,6 +139,15 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
+    # coder/boo: GNU-screen-style multiplexer on libghostty. Tracked via flake
+    # input to stay current with its fast release cadence. Provides the `boo`
+    # command used by the `ac` agent-session manager.
+    boo = {
+      url = "github:coder/boo";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+      inputs.flake-utils.follows = "utils";
+    };
+
     # Stock nixpkgs sd-image-aarch64 has no Pi5 support (no bcm2712 DTB,
     # u-boot, or [pi5] config.txt). nixos-raspberrypi ships proper Pi5
     # firmware + sd-image generator.
@@ -190,6 +199,9 @@
       in {
         neovim = neovim-kradalby.packages."${system}".neovim-kradalby;
         tailscale = tailscale.packages."${system}".tailscale;
+        # coder/boo multiplexer. Overrides the nixpkgs `boo` (there is none)
+        # and shadows the local seruman/boo overlay, which is now ghostty-tab.
+        boo = inputs.boo.packages."${system}".default;
         ssh-agent-mux = inputs.ssh-agent-mux.packages."${system}".default;
         nefit-homekit = inputs.nefit-homekit.packages."${system}".default;
         tasmota-homekit = inputs.tasmota-homekit.packages."${system}".default;

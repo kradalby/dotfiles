@@ -6,7 +6,12 @@ set -euo pipefail
 GIT_ROOT="$HOME/git"
 WT_ROOT="${WT_ROOT:-$HOME/worktrees}"
 DEFAULT_AGENT="claude"
-SERVER_PREFIX="ac"
+SESSION_PREFIX="ac"
+
+# boo (the multiplexer) keeps its own daemon + sockets, so there is no socket
+# bookkeeping here. boo's `ls --json` carries no working directory, so the
+# repo/branch/agent metadata for `ac ls` is stashed in small state files.
+STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/ac"
 
 # --- helpers ---
 
@@ -15,22 +20,31 @@ die() {
 	exit 1
 }
 
-sock_dir() {
-	echo "${TMUX_TMPDIR:-/tmp}/tmux-$(id -u)"
-}
-
 sanitize() {
-	# Replace / with - for use in tmux server socket names
-	echo "$1" | tr '/' '-'
+	# boo session names allow letters, digits, '.', '_', '-'. Fold anything
+	# else (notably the '/' in branch names) to '-'.
+	echo "$1" | tr -c 'A-Za-z0-9._-' '-' | sed 's/-*$//'
 }
 
-server_name() {
+session_name() {
 	local repo="$1" branch="$2"
 	if [[ -n "$branch" ]]; then
-		echo "${SERVER_PREFIX}-${repo}-$(sanitize "$branch")"
+		echo "${SESSION_PREFIX}-${repo}-$(sanitize "$branch")"
 	else
-		echo "${SERVER_PREFIX}-${repo}"
+		echo "${SESSION_PREFIX}-${repo}"
 	fi
+}
+
+meta_file() {
+	echo "$STATE_DIR/$1.meta"
+}
+
+agent_label() {
+	case "$1" in
+	opencode) echo "oc" ;;
+	claude) echo "cl" ;;
+	*) echo "$1" ;;
+	esac
 }
 
 resolve_path() {
@@ -115,59 +129,52 @@ create_branch_worktree() {
 	fi
 }
 
-server_alive() {
-	local server="$1"
-	tmux -L "$server" list-sessions &>/dev/null
+# All live boo sessions as JSON (empty array if the daemon is not running).
+boo_ls_json() {
+	boo ls --json 2>/dev/null || echo '[]'
+}
+
+session_alive() {
+	local name="$1"
+	boo_ls_json | jq -e --arg n "$name" 'any(.[]; .name == $n)' >/dev/null
+}
+
+# Names of live ac- sessions, sorted (the order `ac ls` indexes against).
+ac_session_names() {
+	boo_ls_json |
+		jq -r --arg p "${SESSION_PREFIX}-" '.[] | select(.name | startswith($p)) | .name' |
+		sort
 }
 
 # --- commands ---
 
 create_session() {
-	local server="$1" dir="$2" agent="$3" repo="$4" branch="$5"
+	local name="$1" dir="$2" agent="$3" repo="$4" branch="$5"
 
-	# Build display title: "repo/branch [agent]" or "repo [agent]"
-	local agent_label
-	case "$agent" in
-	opencode) agent_label="oc" ;;
-	claude) agent_label="cl" ;;
-	*) agent_label="$agent" ;;
-	esac
+	# Stash metadata so `ac ls` can show repo/branch/agent (boo ls carries none).
+	mkdir -p "$STATE_DIR"
+	{
+		echo "repo=$repo"
+		echo "branch=$branch"
+		echo "agent=$agent"
+		echo "dir=$dir"
+	} >"$(meta_file "$name")"
 
-	local display
-	if [[ -n "$branch" ]]; then
-		display="$repo/$branch"
-	else
-		display="$repo"
-	fi
+	# Start a detached login shell in the worktree (boo inherits the cwd), then
+	# type the agent into it. Launching via the shell means the shell survives
+	# if the agent exits, mirroring the old tmux send-keys behaviour.
+	(cd "$dir" && boo new "$name" -d) >/dev/null
 
-	# Create server with agent window
-	tmux -L "$server" new-session -d -s work -n agent -c "$dir"
-
-	# Set terminal title so Ghostty tabs show something useful
-	tmux -L "$server" set-option -g set-titles on
-	tmux -L "$server" set-option -g set-titles-string "$display [$agent_label] #W"
-
-	# Create terminal window
-	tmux -L "$server" new-window -t work -n term -c "$dir"
-
-	# Store metadata for listing
-	tmux -L "$server" set-environment -t work AC_REPO "$repo"
-	tmux -L "$server" set-environment -t work AC_BRANCH "$branch"
-	tmux -L "$server" set-environment -t work AC_AGENT "$agent"
-	tmux -L "$server" set-environment -t work AC_WORKDIR "$dir"
-
-	# Launch agent in first window (shell survives if agent exits)
-	tmux -L "$server" send-keys -t work:agent "$agent" Enter
-
-	# Focus the agent window
-	tmux -L "$server" select-window -t work:agent
+	# Let the shell prompt settle before typing, instead of racing it.
+	boo wait "$name" --idle --timeout 5s >/dev/null 2>&1 || true
+	boo send "$name" --text "$agent" --enter
 }
 
 attach_session() {
-	local server="$1"
-	# TMUX='' allows attaching from inside another tmux session
-	# -d detaches other clients (phone takes over from laptop)
-	TMUX='' tmux -L "$server" attach -d -t work
+	local name="$1"
+	# boo "steals politely": attaching detaches other clients, which is the
+	# phone-takes-over-from-laptop behaviour the old `tmux attach -d` gave.
+	boo attach "$name"
 }
 
 cmd_create_or_attach() {
@@ -190,131 +197,105 @@ cmd_create_or_attach() {
 		fi
 	fi
 
-	local dir effective_branch server
+	local dir effective_branch name
 	dir=$(resolve_path "$repo" "$branch")
 	effective_branch=$(resolve_branch "$repo" "$branch")
-	server=$(server_name "$repo" "$effective_branch")
+	name=$(session_name "$repo" "$effective_branch")
 
-	if server_alive "$server"; then
-		attach_session "$server"
+	if session_alive "$name"; then
+		attach_session "$name"
 	else
-		# Clean up stale socket if present
-		local sock
-		sock="$(sock_dir)/$server"
-		[[ -e "$sock" ]] && rm -f "$sock"
-
-		create_session "$server" "$dir" "$agent" "$repo" "$effective_branch"
-		attach_session "$server"
+		create_session "$name" "$dir" "$agent" "$repo" "$effective_branch"
+		attach_session "$name"
 	fi
 }
 
 cmd_list() {
-	local dir
-	dir="$(sock_dir)"
+	local json
+	json=$(boo_ls_json)
 
-	if [[ ! -d "$dir" ]]; then
+	local names=()
+	while IFS= read -r name; do
+		[[ -n "$name" ]] && names+=("$name")
+	done < <(ac_session_names)
+
+	# Prune metadata for sessions that are no longer alive.
+	if [[ -d "$STATE_DIR" ]]; then
+		local meta repo_name
+		for meta in "$STATE_DIR"/*.meta; do
+			[[ -e "$meta" ]] || continue
+			repo_name=$(basename "$meta" .meta)
+			session_alive "$repo_name" || rm -f "$meta"
+		done
+	fi
+
+	if [[ ${#names[@]} -eq 0 ]]; then
 		echo "no agent sessions"
 		return 0
 	fi
 
-	local found=0 idx=0
-	local sockets=()
-	while IFS= read -r -d '' sock; do
-		sockets+=("$sock")
-	done < <(find "$dir" -maxdepth 1 -name "${SERVER_PREFIX}-*" -print0 2>/dev/null | sort -z)
-
-	for sock in "${sockets[@]}"; do
-		[[ -e "$sock" ]] || continue
-
-		local server
-		server=$(basename "$sock")
-
-		if ! server_alive "$server"; then
-			# Stale socket, clean up silently
-			rm -f "$sock"
-			continue
-		fi
-
+	local idx=0 name
+	for name in "${names[@]}"; do
 		idx=$((idx + 1))
-		found=1
 
-		# Read metadata from tmux environment
-		local ac_repo ac_branch ac_agent
-		ac_repo=$(tmux -L "$server" show-environment -t work AC_REPO 2>/dev/null | sed 's/^AC_REPO=//' || echo "?")
-		ac_branch=$(tmux -L "$server" show-environment -t work AC_BRANCH 2>/dev/null | sed 's/^AC_BRANCH=//' || echo "")
-		ac_agent=$(tmux -L "$server" show-environment -t work AC_AGENT 2>/dev/null | sed 's/^AC_AGENT=//' || echo "?")
-
-		# Check if any client is attached
-		local num_attached
-		num_attached=$(tmux -L "$server" list-sessions -t work -F '#{session_attached}' 2>/dev/null | head -1 || echo "0")
-
-		local marker=""
-		if [[ "${num_attached:-0}" -gt 0 ]]; then
-			marker=" *"
+		# Read metadata; fall back to the session name if it is missing.
+		local ac_repo="" ac_branch="" ac_agent=""
+		local meta
+		meta=$(meta_file "$name")
+		if [[ -f "$meta" ]]; then
+			# shellcheck disable=SC1090
+			ac_repo=$(sed -n 's/^repo=//p' "$meta")
+			ac_branch=$(sed -n 's/^branch=//p' "$meta")
+			ac_agent=$(sed -n 's/^agent=//p' "$meta")
 		fi
 
-		# Short agent label
-		local agent_label
-		case "$ac_agent" in
-		opencode) agent_label="oc" ;;
-		claude) agent_label="cl" ;;
-		*) agent_label="$ac_agent" ;;
-		esac
-
-		# Display name
 		local display
-		if [[ -n "$ac_branch" ]]; then
+		if [[ -n "$ac_repo" && -n "$ac_branch" ]]; then
 			display="$ac_repo/$ac_branch"
-		else
+		elif [[ -n "$ac_repo" ]]; then
 			display="$ac_repo"
+		else
+			display="${name#"${SESSION_PREFIX}"-}"
 		fi
 
-		printf "%d %s [%s]%s\n" "$idx" "$display" "$agent_label" "$marker"
-	done
+		local label
+		label=$(agent_label "${ac_agent:-?}")
 
-	if [[ "$found" -eq 0 ]]; then
-		echo "no agent sessions"
-	fi
+		# Attached marker from boo's own state.
+		local attached marker=""
+		attached=$(echo "$json" | jq -r --arg n "$name" '.[] | select(.name == $n) | .attached')
+		[[ "$attached" == "true" ]] && marker=" *"
+
+		printf "%d %s [%s]%s\n" "$idx" "$display" "$label" "$marker"
+	done
 }
 
-# Resolve a target (name or index number) to a server name
+# Resolve a target (name or index number) to a session name
 resolve_target() {
 	local target="$1"
 
 	# If it's a number, resolve from listing order
 	if [[ "$target" =~ ^[0-9]+$ ]]; then
-		local dir
-		dir="$(sock_dir)"
-		[[ -d "$dir" ]] || die "no agent sessions"
-
-		local idx=0
-		local sockets=()
-		while IFS= read -r -d '' sock; do
-			sockets+=("$sock")
-		done < <(find "$dir" -maxdepth 1 -name "${SERVER_PREFIX}-*" -print0 2>/dev/null | sort -z)
-
-		for sock in "${sockets[@]}"; do
-			[[ -e "$sock" ]] || continue
-			local server
-			server=$(basename "$sock")
-			server_alive "$server" || continue
+		local idx=0 name
+		while IFS= read -r name; do
+			[[ -n "$name" ]] || continue
 			idx=$((idx + 1))
 			if [[ "$idx" -eq "$target" ]]; then
-				echo "$server"
+				echo "$name"
 				return 0
 			fi
-		done
+		done < <(ac_session_names)
 		die "no session at index $target"
 	fi
 
-	# Otherwise treat as server name (with or without prefix)
-	local server="$target"
-	if [[ ! "$server" =~ ^${SERVER_PREFIX}- ]]; then
-		server="${SERVER_PREFIX}-${server}"
+	# Otherwise treat as a session name (with or without prefix)
+	local name="$target"
+	if [[ ! "$name" =~ ^${SESSION_PREFIX}- ]]; then
+		name="${SESSION_PREFIX}-${name}"
 	fi
 
-	if server_alive "$server"; then
-		echo "$server"
+	if session_alive "$name"; then
+		echo "$name"
 		return 0
 	fi
 
@@ -323,10 +304,11 @@ resolve_target() {
 
 cmd_remove() {
 	local target="$1"
-	local server
-	server=$(resolve_target "$target")
-	tmux -L "$server" kill-server
-	echo "killed: $server"
+	local name
+	name=$(resolve_target "$target")
+	boo kill "$name"
+	rm -f "$(meta_file "$name")"
+	echo "killed: $name"
 }
 
 cmd_help() {
@@ -334,7 +316,7 @@ cmd_help() {
 Usage: ac [flags] [command|repo] [branch]
 
 Agent code session manager — create, attach, and manage
-coding agent sessions in isolated tmux servers.
+coding agent sessions as isolated boo sessions.
 
 Commands:
   (no args)              List all agent sessions
@@ -369,9 +351,10 @@ Examples:
   ac rm 2                        Kill session #2
   ac rm headscale-kradalby-3049  Kill by name
 
-Each session opens two tmux windows:
-  agent   Coding agent (opencode/claude), launched via send-keys
-  term    Plain terminal in the same directory
+Each session runs the coding agent (claude/opencode) in a login
+shell, so the shell survives if the agent exits. boo sessions are
+single-window: for a plain terminal in the same worktree, open a
+new Ghostty tab and cd there.
 EOF
 }
 
@@ -434,9 +417,9 @@ main() {
 	*)
 		# Number: attach by index
 		if [[ "$first" =~ ^[0-9]+$ ]] && [[ ${#args[@]} -eq 1 ]]; then
-			local server
-			server=$(resolve_target "$first")
-			attach_session "$server"
+			local name
+			name=$(resolve_target "$first")
+			attach_session "$name"
 		else
 			# repo [branch]: create or attach
 			cmd_create_or_attach "$first" "${args[1]:-}" "$agent"

@@ -164,7 +164,6 @@ in {
           act
         ])
         ++ (with pkgs.unstable; [
-          tmuxinator
           tailscale-tools
           ts-preauthkey
           prek
@@ -218,7 +217,7 @@ in {
       in
         [pamtouchfix rsync-photos-backup]
         ++ (with pkgs; [
-          boo
+          ghostty-tab
           terminal-notifier
           syncthing
           silicon

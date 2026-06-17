@@ -38,8 +38,8 @@
       squibble = "141f5d618bc46223a6fc0eb1c4df4357e2f45e86";
       # https://github.com/tailscale/setec
       setec = "802071d7d5bf47343e023f759846ac98ddf68fae";
-      # https://github.com/seruman/boo
-      boo = "3bc3b2ec1f1dfc75bd9f8e919f1150ae5d42cf6b";
+      # https://github.com/seruman/boo (installed as `ghostty-tab`)
+      ghostty-tab = "3bc3b2ec1f1dfc75bd9f8e919f1150ae5d42cf6b";
       # https://github.com/bscott/pm-cli/releases
       pmCli = "0.2.5";
       # https://github.com/rustic-rs/rustic/releases
