@@ -90,6 +90,14 @@ in {
     logLevel = "debug";
   };
 
+  # Eternal Terminal — testing alongside mosh. Unlike mosh it forwards the raw
+  # byte stream (TCP), so native scrollback + mouse survive the link, which boo
+  # sessions need. Exposed on the tailnet only.
+  services.eternal-terminal.enable = true;
+  networking.firewall.interfaces.tailscale0.allowedTCPPorts = [
+    config.services.eternal-terminal.port
+  ];
+
   zramSwap = {
     enable = true;
     memoryPercent = 25;

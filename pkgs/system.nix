@@ -23,6 +23,7 @@
       jq
       lsof
       mosh
+      eternal-terminal
       p7zip
       procs
       rclone
