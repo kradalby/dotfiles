@@ -7,6 +7,11 @@
   agentsBase = builtins.readFile ../rc/AGENTS.md;
   agentsExtra = config.my.agents.extraInstructions;
   agentsContent = agentsBase + lib.optionalString (agentsExtra != "") ("\n" + agentsExtra);
+
+  # Hook script that makes Claude Code's non-interactive Bash tool adopt
+  # per-directory dev envs (direnv primary, `nix print-dev-env` fallback).
+  # Wired into settings.json hooks via home/ai.nix.
+  nixDevEnvHook = import ../pkgs/scripts/nix-dev-env.nix {inherit pkgs;};
 in {
   # Available options
   # https://nix-community.github.io/home-manager/options.html
@@ -131,6 +136,11 @@ in {
         recursive = true;
       };
       ".claude/CLAUDE.md".text = agentsContent;
+
+      # Stable path for the per-directory dev-env hook. A symlink (not a
+      # store path inlined into the seeded-once settings.json) so it tracks
+      # the current build on every switch. Hooks registered in home/ai.nix.
+      ".claude/hooks/nix-dev-env.sh".source = "${nixDevEnvHook}/bin/nix-dev-env";
 
       ".config/nix/nix.conf".text = ''
         experimental-features = nix-command flakes

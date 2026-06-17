@@ -75,6 +75,20 @@
     effortLevel = "high";
     skipDangerousModePermissionPrompt = true;
 
+    # The non-interactive Bash tool never sources the shell rc, so direnv
+    # and `nix develop` never activate. These hooks run nix-dev-env.sh (see
+    # home/default.nix) on session start and every directory change, which
+    # loads per-directory dev envs via CLAUDE_ENV_FILE: direnv (.envrc)
+    # primary, `nix print-dev-env` for a flake.nix as fallback.
+    hooks = {
+      SessionStart = [
+        {hooks = [{type = "command"; command = ''bash "$HOME/.claude/hooks/nix-dev-env.sh" || true'';}];}
+      ];
+      CwdChanged = [
+        {hooks = [{type = "command"; command = ''bash "$HOME/.claude/hooks/nix-dev-env.sh" || true'';}];}
+      ];
+    };
+
     # Status bar: renders a unicode progress bar showing context
     # window usage with a marker at the 38% auto-compact threshold.
     statusLine = {
