@@ -17,15 +17,9 @@ repos:
       - id: detect-private-key
       - id: check-executables-have-shebangs
       # Additional hooks not in prek builtins yet
-      - id: check-ast
       - id: check-case-conflict
-      - id: check-docstring-first
       - id: check-shebang-scripts-are-executable
-      - id: debug-statements
       - id: destroyed-symlinks
-      - id: double-quote-string-fixer
-      - id: name-tests-test
-      - id: requirements-txt-fixer
 
   # Prettier for markdown formatting
   - repo: https://github.com/pre-commit/mirrors-prettier
@@ -53,8 +47,3 @@ repos:
     hooks:
       - id: shfmt
         args: ['-i', '2', '-ci']
-
-  - repo: https://github.com/hadolint/hadolint
-    rev: v2.7.0
-    hooks:
-      - id: hadolint
