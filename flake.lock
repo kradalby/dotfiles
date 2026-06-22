@@ -8,7 +8,7 @@
           "ragenix",
           "nixpkgs"
         ],
-        "systems": "systems_6"
+        "systems": "systems_7"
       },
       "locked": {
         "lastModified": 1761656077,
@@ -43,7 +43,7 @@
     "boo": {
       "inputs": {
         "flake-utils": [
-          "utils"
+          "flake-utils"
         ],
         "nixpkgs": [
           "nixpkgs-unstable"
@@ -124,7 +124,7 @@
     },
     "flake-checks": {
       "inputs": {
-        "flake-utils": "flake-utils",
+        "flake-utils": "flake-utils_2",
         "nixpkgs": [
           "headscale",
           "nixpkgs"
@@ -147,7 +147,7 @@
     },
     "flake-checks_2": {
       "inputs": {
-        "flake-utils": "flake-utils_2",
+        "flake-utils": "flake-utils_3",
         "nixpkgs": [
           "homewizard-p1-exporter",
           "nixpkgs"
@@ -170,7 +170,7 @@
     },
     "flake-checks_3": {
       "inputs": {
-        "flake-utils": "flake-utils_3",
+        "flake-utils": "flake-utils_4",
         "nixpkgs": [
           "hvor",
           "nixpkgs"
@@ -193,7 +193,7 @@
     },
     "flake-checks_4": {
       "inputs": {
-        "flake-utils": "flake-utils_4",
+        "flake-utils": "flake-utils_5",
         "nixpkgs": [
           "krapage",
           "nixpkgs"
@@ -216,7 +216,7 @@
     },
     "flake-checks_5": {
       "inputs": {
-        "flake-utils": "flake-utils_5",
+        "flake-utils": "flake-utils_6",
         "nixpkgs": [
           "nefit-homekit",
           "nixpkgs"
@@ -239,7 +239,7 @@
     },
     "flake-checks_6": {
       "inputs": {
-        "flake-utils": "flake-utils_6",
+        "flake-utils": "flake-utils_7",
         "nixpkgs": [
           "tasmota-exporter",
           "nixpkgs"
@@ -262,7 +262,7 @@
     },
     "flake-checks_7": {
       "inputs": {
-        "flake-utils": "flake-utils_7",
+        "flake-utils": "flake-utils_8",
         "nixpkgs": [
           "tasmota-homekit",
           "nixpkgs"
@@ -390,7 +390,7 @@
     },
     "flake-utils_6": {
       "inputs": {
-        "systems": "systems_7"
+        "systems": "systems_6"
       },
       "locked": {
         "lastModified": 1731533236,
@@ -424,13 +424,31 @@
         "type": "github"
       }
     },
+    "flake-utils_8": {
+      "inputs": {
+        "systems": "systems_9"
+      },
+      "locked": {
+        "lastModified": 1731533236,
+        "narHash": "sha256-l0KFg5HjrsfsO/JpG+r7fRrqm12kzFHyUHqHCVpMMbI=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "11707dc2f618dd54ca8739b309ec4fc024de578b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "type": "github"
+      }
+    },
     "golink": {
       "inputs": {
         "nixpkgs": [
           "nixpkgs-unstable"
         ],
         "systems": [
-          "utils",
+          "flake-utils",
           "systems"
         ]
       },
@@ -452,7 +470,7 @@
       "inputs": {
         "flake-checks": "flake-checks",
         "flake-utils": [
-          "utils"
+          "flake-utils"
         ],
         "nixpkgs": "nixpkgs"
       },
@@ -518,7 +536,7 @@
       "inputs": {
         "flake-checks": "flake-checks_2",
         "flake-utils": [
-          "utils"
+          "flake-utils"
         ],
         "nixpkgs": [
           "nixpkgs-unstable"
@@ -545,7 +563,7 @@
           "nixpkgs-unstable"
         ],
         "utils": [
-          "utils"
+          "flake-utils"
         ]
       },
       "locked": {
@@ -569,7 +587,7 @@
           "nixpkgs-unstable"
         ],
         "utils": [
-          "utils"
+          "flake-utils"
         ]
       },
       "locked": {
@@ -590,7 +608,7 @@
       "inputs": {
         "flake-checks": "flake-checks_5",
         "flake-utils": [
-          "utils"
+          "flake-utils"
         ],
         "nixpkgs": [
           "nixpkgs-unstable"
@@ -613,7 +631,7 @@
     "neovim-kradalby": {
       "inputs": {
         "flake-utils": [
-          "utils"
+          "flake-utils"
         ],
         "nixpkgs": [
           "nixpkgs-unstable"
@@ -901,7 +919,7 @@
         "agenix": "agenix",
         "crane": "crane",
         "flake-utils": [
-          "utils"
+          "flake-utils"
         ],
         "nixpkgs": [
           "nixpkgs-nixos"
@@ -926,6 +944,7 @@
       "inputs": {
         "boo": "boo",
         "darwin": "darwin",
+        "flake-utils": "flake-utils",
         "golink": "golink",
         "headscale": "headscale",
         "home-manager": "home-manager",
@@ -950,7 +969,6 @@
         "tasmota-exporter": "tasmota-exporter",
         "tasmota-homekit": "tasmota-homekit",
         "tsidp": "tsidp",
-        "utils": "utils",
         "z2m-homekit": "z2m-homekit"
       }
     },
@@ -999,7 +1017,7 @@
     "ssh-agent-mux": {
       "inputs": {
         "flake-utils": [
-          "utils"
+          "flake-utils"
         ],
         "nixpkgs": [
           "nixpkgs-unstable"
@@ -1163,7 +1181,7 @@
           "nixpkgs-unstable"
         ],
         "systems": [
-          "utils",
+          "flake-utils",
           "systems"
         ]
       },
@@ -1189,7 +1207,7 @@
           "nixpkgs-unstable"
         ],
         "utils": [
-          "utils"
+          "flake-utils"
         ]
       },
       "locked": {
@@ -1210,7 +1228,7 @@
       "inputs": {
         "flake-checks": "flake-checks_7",
         "flake-utils": [
-          "utils"
+          "flake-utils"
         ],
         "nixpkgs": [
           "nixpkgs-unstable"
@@ -1432,7 +1450,7 @@
           "nixpkgs-unstable"
         ],
         "systems": [
-          "utils",
+          "flake-utils",
           "systems"
         ]
       },
@@ -1448,24 +1466,6 @@
         "owner": "tailscale",
         "repo": "tsidp",
         "rev": "a9340f0d39e46ca47a61f9998d6989e43f0574b0",
-        "type": "github"
-      }
-    },
-    "utils": {
-      "inputs": {
-        "systems": "systems_9"
-      },
-      "locked": {
-        "lastModified": 1731533236,
-        "narHash": "sha256-l0KFg5HjrsfsO/JpG+r7fRrqm12kzFHyUHqHCVpMMbI=",
-        "owner": "numtide",
-        "repo": "flake-utils",
-        "rev": "11707dc2f618dd54ca8739b309ec4fc024de578b",
-        "type": "github"
-      },
-      "original": {
-        "owner": "numtide",
-        "repo": "flake-utils",
         "type": "github"
       }
     },
@@ -1504,7 +1504,7 @@
     "z2m-homekit": {
       "inputs": {
         "flake-utils": [
-          "utils"
+          "flake-utils"
         ],
         "nixpkgs": [
           "nixpkgs-unstable"
