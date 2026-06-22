@@ -62,7 +62,7 @@
 
     homewizard-p1-exporter = {
       url = "github:kradalby/homewizard-p1-exporter";
-      inputs."utils".follows = "utils";
+      inputs."flake-utils".follows = "utils";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
