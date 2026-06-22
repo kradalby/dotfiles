@@ -39,7 +39,7 @@ grep -qF "$SNAP" "$CLAUDE_ENV_FILE" 2>/dev/null \
     # the source under zsh, so PATH (and the dev tools) never apply. One
     # quoted export prepended to $PATH is shell-agnostic (bash/zsh/POSIX)
     # and OS-agnostic.
-    # ponytail: PATH only; widen the jq to other exported vars if a dev
+    # NOTE: PATH only; widen the jq to other exported vars if a dev
     # shell sets env (CGO flags, PKG_CONFIG_PATH) the Bash tool needs.
     if [ "$stale" = 1 ]; then
       nix print-dev-env --json 2>/dev/null \
