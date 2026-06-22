@@ -11,7 +11,7 @@
   };
 
   inputs = {
-    utils.url = "github:numtide/flake-utils";
+    flake-utils.url = "github:numtide/flake-utils";
 
     nixpkgs-nixos.url = "github:NixOS/nixpkgs/nixos-25.11";
     nixpkgs-darwin.url = "github:NixOS/nixpkgs/nixpkgs-25.11-darwin";
@@ -37,39 +37,39 @@
 
     ragenix = {
       url = "github:yaxitech/ragenix";
-      inputs."flake-utils".follows = "utils";
+      inputs."flake-utils".follows = "flake-utils";
       inputs.nixpkgs.follows = "nixpkgs-nixos";
     };
 
     # Go based
     krapage = {
       url = "github:kradalby/kra";
-      inputs."utils".follows = "utils";
+      inputs."utils".follows = "flake-utils";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
     hvor = {
       url = "github:kradalby/hvor";
-      inputs."utils".follows = "utils";
+      inputs."utils".follows = "flake-utils";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
     tasmota-exporter = {
       url = "github:kradalby/tasmota-exporter";
-      inputs."utils".follows = "utils";
+      inputs."utils".follows = "flake-utils";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
     homewizard-p1-exporter = {
       url = "github:kradalby/homewizard-p1-exporter";
-      inputs."flake-utils".follows = "utils";
+      inputs."flake-utils".follows = "flake-utils";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
     headscale = {
       # url = "github:juanfont/headscale/v0.26.0-beta.1";
       url = "github:juanfont/headscale/main";
-      inputs."flake-utils".follows = "utils";
+      inputs."flake-utils".follows = "flake-utils";
       # Do NOT follow nixpkgs: headscale pins staging-next-26.05 for go_1_26
       # >= 1.26.4 (GO-2026-5037/5039). nixpkgs-unstable still ships 1.26.3,
       # which fails the go.mod toolchain check. Restore the follows once
@@ -79,7 +79,7 @@
     golink = {
       url = "github:tailscale/golink";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
-      inputs.systems.follows = "utils/systems";
+      inputs.systems.follows = "flake-utils/systems";
     };
 
     tsidp = {
@@ -88,45 +88,45 @@
       # the build. Unpin once the tsidp flake fixes the goVersion mismatch.
       url = "github:tailscale/tsidp/a9340f0d39e46ca47a61f9998d6989e43f0574b0";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
-      inputs.systems.follows = "utils/systems";
+      inputs.systems.follows = "flake-utils/systems";
     };
 
     tailscale = {
       url = "github:tailscale/tailscale/kradalby/nixos-module";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
-      inputs.systems.follows = "utils/systems";
+      inputs.systems.follows = "flake-utils/systems";
       inputs.flake-compat.follows = "";
     };
 
     ssh-agent-mux = {
       url = "github:kradalby/ssh-agent-mux";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
-      inputs."flake-utils".follows = "utils";
+      inputs."flake-utils".follows = "flake-utils";
     };
 
     # munin.url = "github:kradalby/munin";
     neovim-kradalby = {
       url = "github:kradalby/neovim";
-      inputs."flake-utils".follows = "utils";
+      inputs."flake-utils".follows = "flake-utils";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
     nefit-homekit = {
       url = "github:kradalby/nefit-homekit";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
-      inputs."flake-utils".follows = "utils";
+      inputs."flake-utils".follows = "flake-utils";
     };
 
     tasmota-homekit = {
       url = "github:kradalby/tasmota-homekit";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
-      inputs."flake-utils".follows = "utils";
+      inputs."flake-utils".follows = "flake-utils";
     };
 
     z2m-homekit = {
       url = "github:kradalby/z2m-homekit";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
-      inputs."flake-utils".follows = "utils";
+      inputs."flake-utils".follows = "flake-utils";
     };
 
     opencode = {
@@ -145,7 +145,7 @@
     boo = {
       url = "github:coder/boo";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
-      inputs.flake-utils.follows = "utils";
+      inputs.flake-utils.follows = "flake-utils";
     };
 
     # Stock nixpkgs sd-image-aarch64 has no Pi5 support (no bcm2712 DTB,
@@ -161,7 +161,7 @@
     darwin,
     home-manager,
     nixos-generators,
-    utils,
+    flake-utils,
     ...
   } @ inputs: let
     mkGoOverlay = version: final: prev: {
@@ -416,7 +416,7 @@
 
       colmena = box.mkColmenaFromNixOSConfigurations self.nixosConfigurations;
     }
-    // utils.lib.eachSystem ["x86_64-linux" "aarch64-darwin"]
+    // flake-utils.lib.eachSystem ["x86_64-linux" "aarch64-darwin"]
     (system: let
       pkgs = import nixpkgs-nixos {
         inherit overlays system;
