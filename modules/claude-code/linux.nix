@@ -9,6 +9,11 @@
 
   linuxPath = "${config.home.profileDirectory}/bin:/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin:/usr/bin:/bin";
 
+  # Self-contained: bundles journalctl/systemctl plus the text utils it needs,
+  # so the watchdog works regardless of what the login session exports.
+  healthcheck = import ./healthcheck.nix {inherit pkgs lib;};
+  instanceNames = lib.escapeShellArgs (lib.attrNames enabled);
+
   mkSystemdUnit = name: ic: {
     Unit = {
       Description = "claude remote-control: ${name}";
@@ -41,6 +46,27 @@
 in {
   config = lib.mkIf (pkgs.stdenv.isLinux && enabled != {}) {
     systemd.user.services =
-      lib.mapAttrs' (n: ic: lib.nameValuePair "claude-code-${n}" (mkSystemdUnit n ic)) enabled;
+      (lib.mapAttrs' (n: ic: lib.nameValuePair "claude-code-${n}" (mkSystemdUnit n ic)) enabled)
+      // {
+        # Restart=on-failure only catches exits. This catches the alive-but-stuck
+        # case (bridge disconnect / lost login) that otherwise sits there
+        # "failing to schedule" forever.
+        claude-code-health = {
+          Unit.Description = "claude remote-control watchdog";
+          Service = {
+            Type = "oneshot";
+            ExecStart = "${healthcheck}/bin/claude-code-health ${instanceNames}";
+          };
+        };
+      };
+
+    systemd.user.timers.claude-code-health = {
+      Unit.Description = "claude remote-control watchdog timer";
+      Timer = {
+        OnBootSec = "2min";
+        OnUnitActiveSec = "2min";
+      };
+      Install.WantedBy = ["timers.target"];
+    };
   };
 }
