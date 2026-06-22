@@ -5,16 +5,20 @@
 }: let
   aiConfig = import ../../home/ai.nix;
 
-  # Corp AI proxy: strip login-based auth, inject proxy env.
-  claudeSettings = lib.recursiveUpdate
-    (builtins.removeAttrs aiConfig.claude ["apiKeyHelper"])
-    {
-      env = {
-        ANTHROPIC_API_KEY = "-";
-        ANTHROPIC_BASE_URL = "http://ai.corp.ts.net";
-        PATH = "${config.home.profileDirectory}/bin:/nix/var/nix/profiles/default/bin:/usr/local/bin:/usr/bin:/bin";
-      };
+  # Corp AI proxy: fake auth via apiKeyHelper, inject proxy env, add the
+  # aperture MCP server. PATH override is required for standalone HM
+  # (see note in home/ai.nix).
+  claudeSettings = lib.recursiveUpdate aiConfig.claude {
+    apiKeyHelper = "echo '-'";
+    env = {
+      ANTHROPIC_BASE_URL = "http://ai.corp.ts.net";
+      PATH = "${config.home.profileDirectory}/bin:/nix/var/nix/profiles/default/bin:/usr/local/bin:/usr/bin:/bin";
     };
+    mcpServers.aperture = {
+      type = "http";
+      url = "http://ai.corp.ts.net/v1/mcp";
+    };
+  };
 
   # Corp AI proxy: strip auth plugin, set provider endpoints.
   opencodeSettings = lib.recursiveUpdate
