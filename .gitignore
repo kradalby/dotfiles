@@ -57,3 +57,6 @@ Session.vim
 
 # Tailscale policy files (may contain sensitive info)
 tailscale_policy.hujson
+
+# Per-machine direnv overrides
+.envrc.local
