@@ -22,7 +22,7 @@ stdlib → `tailscale.com/*` → `kra/*` → blessed dep (below) → your own. S
 | Shared HTTP+Tailscale server, HTML helpers | `kra/web`, `kra/html`                                                                                                    |
 | Logging                                    | `log/slog` (zerolog only in headscale — tailscale heritage)                                                              |
 | Config                                     | `github.com/knadh/koanf/v2` (env-only light; add `file` provider when a config file exists). `Netflix/go-env` is legacy. |
-| CLI / flags                                | `github.com/peterbourgon/ff/v3/ffcli` — **never cobra**                                                                  |
+| CLI / flags                                | `github.com/peterbourgon/ff/v4` (the `ff.Command` tree) — **never cobra**. Prefer v4; `ff/v3/ffcli` is the older pattern, migrate when touched. |
 | Internal decoupling                        | `tailscale.com/util/eventbus`                                                                                            |
 | All HTML                                   | `github.com/chasefleming/elem-go` + htmx + SSE (server-rendered, no SPA)                                                 |
 | Tests                                      | `testify/require` + `google/go-cmp`                                                                                      |
@@ -31,7 +31,7 @@ stdlib → `tailscale.com/*` → `kra/*` → blessed dep (below) → your own. S
 
 Specifics:
 
-- **ffcli:** root `*ffcli.Command` + `Subcommands`, each a `newXxxCmd()` owning its `flag.FlagSet`; `root.ParseAndRun(ctx, os.Args[1:])`; `signal.NotifyContext` for shutdown. (tsnixcache, gigahost-go)
+- **ff/v4:** root `*ff.Command` + `Subcommands`, each a `newXxxCmd()` owning its `ff.FlagSet`; `cmd.ParseAndRun(ctx, os.Args[1:])`; `signal.NotifyContext` for shutdown. (gigahost-go — v4 reference). `ff/v3/ffcli` (`*ffcli.Command` + stdlib `flag.FlagSet`) is the older form still in tsnixcache.
 - **koanf:** env-only by default (light config, no file needed); add the `file` provider only when a config file exists. `Netflix/go-env` is legacy — don't use for new code.
 - **elem-go** for every HTML surface, never string templates.
 - **slog** constructed once, passed via constructor; no `fmt.Println`, no `log.Fatal`.
@@ -61,8 +61,8 @@ Specifics:
 ## Copy from
 
 - `headscale/hscontrol/app.go` — layout, errors, constructors, eventbus wiring
-- `tsnixcache` — freshest full repo: ffcli subcommands, slog, package layout, bench tests
-- `gigahost-go` — ffcli + koanf config, Option pattern (`client/options.go`)
+- `tsnixcache` — freshest full repo: ff/v3 ffcli subcommands, slog, package layout, bench tests
+- `gigahost-go` — **ff/v4** (`ff.Command` tree) + koanf config, Option pattern (`client/options.go`)
 - `headscale/.golangci.yaml` — enable-all / disable-few lint config
 
 ## Stay current
