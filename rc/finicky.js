@@ -9,7 +9,7 @@ module.exports = {
       browser: "Safari"
     },
     {
-      match: /^https?:\/\/github\.com\/kradalby(\/|$)/,
+      match: /^https?:\/\/github\.com\/kradalby([\/?#]|$)/,
       browser: "Safari"
     },
     {
