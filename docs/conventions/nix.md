@@ -36,6 +36,8 @@ in {
 ## Structure
 
 - `flake-utils.lib.eachDefaultSystem`; dependent inputs always `follows = "nixpkgs"`.
+- Name the numtide input `flake-utils` — always, every repo. Match upstream's name so overrides line up; never alias it to `utils`.
+- Override a dep by its **real** input name: `inputs.foo.inputs.flake-utils.follows = "…"`. A wrong name silently warns `override for a non-existent input` and the dedup never happens. (headscale, homewizard-p1-exporter)
 - Expose `overlays.default`, and for services `nixosModules.default`.
 - Flake apps for ergonomics: `nix run .#test` / `.#test-race` / `.#lint` / `.#coverage`. (z2m-homekit)
 
