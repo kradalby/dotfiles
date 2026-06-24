@@ -6,6 +6,12 @@
       capacity = 5;
       verbose = true;
     };
+    infrastructure = {
+      path = "~/git/infrastructure";
+      spawn = "worktree";
+      capacity = 8;
+      verbose = true;
+    };
     sfiber = {
       path = "~/git/sfiber";
       spawn = "worktree";
