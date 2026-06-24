@@ -5,7 +5,7 @@
   ...
 }: let
   cfg = config.my.mutableJson;
-  jsonFor = name: value: (pkgs.formats.json {}).generate "${name}.json" value;
+  genFor = name: f: (pkgs.formats.${f.format} {}).generate "${name}.${f.format}" f.value;
 
   # Per entry: a diff against the published nix reference, and a reset
   # that adopts the nix version (discarding live edits).
@@ -17,7 +17,7 @@ in {
   options.my.mutableJson = lib.mkOption {
     default = {};
     description = ''
-      JSON config that nix defines but a client app mutates at runtime.
+      JSON/TOML config that nix defines but a client app mutates at runtime.
       home-manager can only symlink into the read-only store, which breaks
       apps that write their own config. For each entry this publishes the
       canonical content at <target>.nix (an ordinary store symlink the app
@@ -31,9 +31,14 @@ in {
           type = lib.types.str;
           description = "Path of the live file, relative to $HOME.";
         };
+        format = lib.mkOption {
+          type = lib.types.enum ["json" "toml"];
+          default = "json";
+          description = "Serialisation format for value.";
+        };
         value = lib.mkOption {
           type = lib.types.attrs;
-          description = "Canonical JSON content.";
+          description = "Canonical config content.";
         };
       };
     });
@@ -43,14 +48,14 @@ in {
     # Publish the canonical content next to the live file.
     home.file =
       lib.mapAttrs'
-      (name: f: lib.nameValuePair "${f.target}.nix" {source = jsonFor name f.value;})
+      (name: f: lib.nameValuePair "${f.target}.nix" {source = genFor name f;})
       cfg;
 
     # Seed the live file from the store path if it is missing. Seeding from
     # the store path (not the .nix symlink) avoids depending on link order.
     home.activation.mutableJson = lib.hm.dag.entryAfter ["writeBoundary"] (
       lib.concatStringsSep "\n" (lib.mapAttrsToList (name: f: ''
-        [ -e "$HOME/${f.target}" ] || run install -m644 "${jsonFor name f.value}" "$HOME/${f.target}"
+        [ -e "$HOME/${f.target}" ] || run install -m644 "${genFor name f}" "$HOME/${f.target}"
       '')
       cfg)
     );
