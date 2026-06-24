@@ -33,6 +33,20 @@
     options = ["nofail"];
   };
 
+  # sdd (WDC 2TB) — local mirror of /storage/pictures
+  fileSystems."/pictures/album" = {
+    device = "/dev/disk/by-uuid/a7a0d495-f21e-4123-9323-25b2fd51da4f";
+    fsType = "ext4";
+    options = ["nofail"];
+  };
+
+  # sda (Crucial 250GB) — generated hugin album, synced from the Mac
+  fileSystems."/pictures/hugin" = {
+    device = "/dev/disk/by-uuid/7e7f5ab7-bcc6-4207-b401-690a8c22bda4";
+    fsType = "ext4";
+    options = ["nofail"];
+  };
+
   swapDevices = [{device = "/dev/disk/by-uuid/d471b41a-e5cd-42ef-b818-198bcf636787";}];
 
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
