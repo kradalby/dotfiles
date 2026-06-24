@@ -82,6 +82,10 @@
       inputs.systems.follows = "flake-utils/systems";
     };
 
+    # setec-compatible secrets server. Pinned to the `initial` branch; brings
+    # its own nixpkgs/headscale pins (go toolchain sensitive), so no follows.
+    ts1p.url = "git+file:///Users/kradalby/git/ts1p?ref=initial";
+
     tsidp = {
       # Pinned to pre-go-1.26.4 commit. Commit 6359a18 bumped go.mod to
       # require >= 1.26.4 but left flake goVersion = "1.26.0", breaking
@@ -356,6 +360,20 @@
           arch = "x86_64-linux";
           name = "storage.ldn";
           tags = ["x86" "ldn"];
+        };
+
+        "ts1p.ldn" = box.nixosBox {
+          arch = "x86_64-linux";
+          name = "ts1p.ldn";
+          tags = ["x86" "ldn"];
+          # 512MiB VM: build on the deployer, not the target.
+          buildOnTarget = false;
+          # First deploy before ts1p joins tailscale; drop to null once
+          # ts1p-ldn.<tailnet> resolves.
+          targetHost = "10.65.0.188";
+          modules = with inputs; [
+            ts1p.nixosModules.default
+          ];
         };
 
         "lenovo.ldn" = box.nixosBox {

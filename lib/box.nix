@@ -30,6 +30,7 @@ in {
     modules ? [],
     targetHost ? null,
     allowLocalDeployment ? false,
+    buildOnTarget ? true,
   }:
     nixpkgs.lib.nixosSystem {
       modules =
@@ -50,6 +51,7 @@ in {
               inherit tags;
               inherit targetHost;
               inherit allowLocalDeployment;
+              inherit buildOnTarget;
             };
           }
         ]
@@ -118,7 +120,7 @@ in {
       // (builtins.mapAttrs
         (name: value: {
           deployment = {
-            buildOnTarget = true;
+            inherit (value._module.args) buildOnTarget;
             # Replace hostname with tailscale hostname to use tailscale auth.
             targetHost =
               if value._module.args.targetHost != null
