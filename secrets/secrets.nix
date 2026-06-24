@@ -18,6 +18,7 @@ let
     lenovo-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJTZ76SNK6QJ2ptArkXstRNOdY1PxNHHon9gh3k+fDo+";
     storage-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICj6c1im2tC/E1ZYlFtryyqNui58+onflUqBiVOuc1on";
     rpi5-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHCZ2YG1xvb9BJjYbv9MWWeqhjCNzZROWkwaPQFM76/T";
+    ts1p-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHXka6MsWIgSNxAyhdILZ7+hWbR4CvWgKdBCVQWQM/MV";
 
     core-oracldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGEe9eIMf462ZQhE8Nl9jyUscRtTTYeAIPRN2kvO3cdC";
 
@@ -111,6 +112,9 @@ with builtins;
 
   # nefit-homekit
   "nefit-homekit-env.age".publicKeys = u ++ [ hosts.home-ldn ];
+
+  # ts1p (setec) — OP_SERVICE_ACCOUNT_TOKEN (+ optional TS_AUTHKEY) EnvironmentFile
+  "ts1p-op-token.age".publicKeys = u ++ [ hosts.ts1p-ldn ];
 
   # Pre authenticated keys for joining my tailscale/headscale network
   # this file is only used upon joining and will contain an expired key,
