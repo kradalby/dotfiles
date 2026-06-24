@@ -10,17 +10,14 @@
     environment = {
       enableAllTerminfo = lib.mkIf pkgs.stdenv.isLinux true;
 
+      # Only lightweight aliases here; package-referencing ones (which pull
+      # neovim/ripgrep/bat/... into every closure) live in pkgs/system.nix so
+      # they land on workstations only, not servers.
       shellAliases =
         config.my.shellAliases
         // {
-          s = ''${pkgs.findutils}/bin/xargs ${pkgs.perl}/bin/perl -pi -E'';
-          ag = "${pkgs.ripgrep}/bin/rg";
-          cat = "${pkgs.bat}/bin/bat";
           du = "du -hs";
           mkdir = "mkdir -p";
-          nvim = "${pkgs.neovim}/bin/nvim -p";
-          vim = "${pkgs.neovim}/bin/nvim -p";
-          watch = "${pkgs.viddy}/bin/viddy --differences";
         };
 
       shells = [pkgs.bashInteractive pkgs.zsh pkgs.fish];

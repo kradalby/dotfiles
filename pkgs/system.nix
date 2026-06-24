@@ -50,4 +50,15 @@
       ncdu
       (import ./scripts/emergency-full-disk.nix {inherit pkgs;})
     ];
+
+  # Interactive aliases that pull their tools into the closure; workstation-only
+  # (this module is imported by kratail2/krair/dev.ldn, not by servers).
+  environment.shellAliases = {
+    s = ''${pkgs.findutils}/bin/xargs ${pkgs.perl}/bin/perl -pi -E'';
+    ag = "${pkgs.ripgrep}/bin/rg";
+    cat = "${pkgs.bat}/bin/bat";
+    nvim = "${pkgs.neovim}/bin/nvim -p";
+    vim = "${pkgs.neovim}/bin/nvim -p";
+    watch = "${pkgs.viddy}/bin/viddy --differences";
+  };
 }
