@@ -97,17 +97,42 @@ find_main_worktree() {
 }
 
 create_branch_worktree() {
-	# Create a new branch worktree, fetching the appropriate remote first.
-	# Repos with an 'upstream' remote (e.g. headscale) base off upstream/main;
-	# all others base off origin's default branch.
+	# Add a worktree for $branch. The branch may already exist (created in the
+	# main repo, or pushed to a remote) or be brand new:
+	#   - Existing local branch: check it out into the worktree as-is.
+	#   - Existing remote branch: create a local tracking branch from it.
+	#   - New branch: base off the appropriate remote. Repos with an 'upstream'
+	#     remote (e.g. headscale forks) base off upstream/main; all others base
+	#     off origin's default branch.
+	# `git worktree add -b` refuses a name that already exists, so we must not
+	# pass -b for an existing branch.
 	local main_wt="$1" target_path="$2" branch="$3"
 
 	# Ensure the parent dir exists for nested branch names (e.g. feature/foo).
 	mkdir -p "$(dirname "$target_path")"
 
-	if git -C "$main_wt" remote | grep -q '^upstream$'; then
+	local has_upstream=""
+	git -C "$main_wt" remote | grep -q '^upstream$' && has_upstream=1
+
+	# Fetch first so existing-remote detection and new-branch bases are current.
+	if [[ -n "$has_upstream" ]]; then
 		echo "Fetching upstream..."
 		git -C "$main_wt" fetch upstream
+	else
+		echo "Fetching origin..."
+		git -C "$main_wt" fetch origin
+	fi
+
+	if git -C "$main_wt" show-ref --verify --quiet "refs/heads/$branch"; then
+		echo "Creating worktree at $target_path for existing branch $branch..."
+		git -C "$main_wt" worktree add "$target_path" "$branch"
+	elif [[ -n "$has_upstream" ]] && git -C "$main_wt" show-ref --verify --quiet "refs/remotes/upstream/$branch"; then
+		echo "Creating worktree at $target_path tracking upstream/$branch..."
+		git -C "$main_wt" worktree add "$target_path" --track -b "$branch" "upstream/$branch"
+	elif git -C "$main_wt" show-ref --verify --quiet "refs/remotes/origin/$branch"; then
+		echo "Creating worktree at $target_path tracking origin/$branch..."
+		git -C "$main_wt" worktree add "$target_path" --track -b "$branch" "origin/$branch"
+	elif [[ -n "$has_upstream" ]]; then
 		echo "Creating worktree at $target_path from upstream/main..."
 		git -C "$main_wt" worktree add "$target_path" -b "$branch" upstream/main
 	else
@@ -115,9 +140,6 @@ create_branch_worktree() {
 		local base
 		base=$(git -C "$main_wt" symbolic-ref refs/remotes/origin/HEAD 2>/dev/null |
 			sed 's@^refs/remotes/@@' || echo "origin/main")
-
-		echo "Fetching origin..."
-		git -C "$main_wt" fetch origin
 		echo "Creating worktree at $target_path from $base..."
 		git -C "$main_wt" worktree add "$target_path" -b "$branch" "$base"
 	fi
@@ -188,7 +210,7 @@ cmd_create_or_attach() {
 			main_wt=$(find_main_worktree "$repo")
 
 			local answer
-			read -rp "Branch '$branch' not found for $repo. Create? [y/N] " answer
+			read -rp "No worktree for '$branch' in $repo. Create one? [y/N] " answer
 			if [[ "$answer" =~ ^[Yy]$ ]]; then
 				create_branch_worktree "$main_wt" "$target_path" "$branch"
 			else
