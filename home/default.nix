@@ -134,6 +134,12 @@ in {
       # the current build on every switch. Hooks registered in home/ai.nix.
       ".claude/hooks/nix-dev-env.sh".source = "${nixDevEnvHook}/bin/nix-dev-env";
 
+      # opencode equivalent of the Claude dev-env hook: a shell.env plugin that
+      # injects the per-directory Nix dev env into every shell command. Auto-
+      # discovered from the plugin dir; no opencode.json entry needed.
+      ".config/opencode/plugin/nix-dev-env.js".source =
+        ../pkgs/scripts/opencode-nix-dev-env.js;
+
       ".config/nix/nix.conf".text = ''
         experimental-features = nix-command flakes
       '';
