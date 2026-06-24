@@ -129,11 +129,6 @@
       inputs."flake-utils".follows = "flake-utils";
     };
 
-    opencode = {
-      url = "github:anomalyco/opencode";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-    };
-
     paseo = {
       url = "github:getpaseo/paseo";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
@@ -206,40 +201,6 @@
         nefit-homekit = inputs.nefit-homekit.packages."${system}".default;
         tasmota-homekit = inputs.tasmota-homekit.packages."${system}".default;
         z2m-homekit = inputs.z2m-homekit.packages."${system}".default;
-        # Upstream Nix build requires bun >= 1.3.14; nixpkgs-unstable has 1.3.13.
-        # Use prebuilt binaries until nixpkgs ships bun 1.3.14+.
-        opencode = let
-          version = "1.16.2";
-          srcs = {
-            x86_64-linux = {
-              url = "https://github.com/anomalyco/opencode/releases/download/v${version}/opencode-linux-x64-baseline.tar.gz";
-              hash = "sha256-/jSwR+PU4vbYkfDS07T0SDfvUnHuz9m5iVHlOFfaaeY=";
-            };
-            aarch64-darwin = {
-              url = "https://github.com/anomalyco/opencode/releases/download/v${version}/opencode-darwin-arm64.zip";
-              hash = "sha256-AVhf9NFYIL06h45Lx8rPsep14jbR/tjC9fNZXtyLerU=";
-            };
-          };
-          src = prev.fetchurl srcs.${system};
-        in
-          prev.stdenv.mkDerivation {
-            pname = "opencode";
-            inherit version src;
-            nativeBuildInputs =
-              prev.lib.optional prev.stdenv.hostPlatform.isLinux [prev.autoPatchelfHook]
-              ++ prev.lib.optional (prev.lib.hasSuffix ".zip" srcs.${system}.url) [prev.unzip];
-            sourceRoot = ".";
-            unpackPhase =
-              if prev.lib.hasSuffix ".tar.gz" srcs.${system}.url
-              then "tar xzf $src"
-              else "unzip $src";
-            dontStrip = true; # bun standalone binaries append JS payload to ELF
-            installPhase = ''
-              install -Dm755 opencode $out/bin/opencode
-            '';
-            meta.mainProgram = "opencode";
-          };
-
         # lima 1.2.2 in stable branches is marked insecure/EOL.
         # Override so transitive consumers (nix-rosetta-builder)
         # get the unstable version.

@@ -205,7 +205,7 @@ in {
           gemini-cli
         ])
         ++ lib.optionals cfg.ai.opencode [
-          pkgs.opencode
+          pkgs.master.opencode
         ];
     })
 
