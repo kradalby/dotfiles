@@ -91,7 +91,7 @@
     owner = config.users.users.tailscale-proxy.name;
   };
 
-  monitoring.smartctl.devices = ["/dev/sda"];
+  monitoring.smartctl.devices = ["/dev/sda" "/dev/sde"];
 
   system.stateVersion = "24.11";
 }

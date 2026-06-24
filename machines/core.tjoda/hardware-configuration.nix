@@ -27,6 +27,12 @@
     fsType = "ext4";
   };
 
+  fileSystems."/cachestore" = {
+    device = "/dev/disk/by-uuid/e7ae0ad1-19fe-4537-b0a3-919e087451a0";
+    fsType = "ext4";
+    options = ["nofail"];
+  };
+
   swapDevices = [{device = "/dev/disk/by-uuid/d471b41a-e5cd-42ef-b818-198bcf636787";}];
 
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
