@@ -11,8 +11,8 @@
       enableAllTerminfo = lib.mkIf pkgs.stdenv.isLinux true;
 
       # Only lightweight aliases here; package-referencing ones (which pull
-      # neovim/ripgrep/bat/... into every closure) live in pkgs/system.nix so
-      # they land on workstations only, not servers.
+      # neovim/ripgrep/bat/... into a closure) live in home/fish.nix so they
+      # land on the interactive user's home-manager shells only, not on servers.
       shellAliases =
         config.my.shellAliases
         // {

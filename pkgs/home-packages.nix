@@ -9,6 +9,8 @@
   tmp-cleanup = import ./scripts/tmp-cleanup.nix {inherit pkgs;};
 in {
   options.my.packages = {
+    userland.enable = (lib.mkEnableOption "Interactive userland (editor + shell tools)") // {default = true;};
+
     go.enable = (lib.mkEnableOption "Go development") // {default = true;};
     nix.enable = (lib.mkEnableOption "Nix tooling") // {default = true;};
     web.enable = (lib.mkEnableOption "Web/JS/TS development") // {default = true;};
@@ -58,6 +60,26 @@ in {
           shfmt
         ]);
     }
+
+    # Interactive userland — folded from the old pkgs/system.nix (a system-level
+    # set that only ever landed on home-manager machines). Editor + shell tools
+    # for the interactive user; off on minimal home-manager hosts (kradalby-llm).
+    # The everyday aliases (cat→bat, vim→nvim, ...) already live in home/fish.nix.
+    (lib.mkIf cfg.userland.enable {
+      home.packages = let
+        fake-editor = import ./scripts/fake-editor.nix {inherit pkgs;};
+      in
+        [fake-editor]
+        ++ (with pkgs; [
+          neovim
+          fzf
+          eternal-terminal
+          setec
+          nix-tree
+          nh
+          babelfish
+        ]);
+    })
 
     # Go ecosystem
     (lib.mkIf cfg.go.enable {
