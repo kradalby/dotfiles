@@ -21,6 +21,10 @@
         };
 
       shells = [pkgs.bashInteractive pkgs.zsh pkgs.fish];
+
+      # `secret NAME` resolver: setec over the tailnet (curl, 1s) with an op
+      # fallback. Light (curl, no setec binary) so it ships on every host.
+      systemPackages = [(import ../pkgs/scripts/secret.nix {inherit pkgs;})];
     };
   };
 }
