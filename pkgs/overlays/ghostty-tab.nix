@@ -8,7 +8,7 @@ in
   buildGoModule rec {
     pname = "ghostty-tab";
     # Upstream is github.com/seruman/boo (binary "boo"); renamed locally to
-    # ghostty-tab so the `boo` name is free for the coder/boo multiplexer.
+    # ghostty-tab to better describe what it does (open a new Ghostty tab).
     # NOTE: manual update required
     # https://github.com/seruman/boo/commits/main/
     version = versions.pkgs.overlays.ghostty-tab;
@@ -30,8 +30,8 @@ in
       CGO_ENABLED = 1;
     };
 
-    # Upstream installs the binary as `boo`; rename it so it does not clash
-    # with the coder/boo multiplexer that now owns the `boo` command.
+    # Upstream installs the binary as `boo`; rename it to ghostty-tab to match
+    # the package name and avoid an unhelpfully generic command.
     postInstall = ''
       mv $out/bin/boo $out/bin/ghostty-tab
     '';

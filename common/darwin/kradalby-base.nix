@@ -23,6 +23,7 @@ in {
   imports = [
     ../darwin.nix
     ../../pkgs/system.nix
+    ../../common/tmux.nix
     ../../pkgs/homebrew.nix
     ./syncthing.nix
     ./tailscale-notify.nix

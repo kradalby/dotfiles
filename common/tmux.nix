@@ -1,0 +1,142 @@
+# Global /etc/tmux.conf for the dev/workstation userland. Replaces the old
+# home-manager programs.tmux module: tmux is a system package (pkgs/system.nix)
+# and reads this as its system config. `ac`'s `tmux -L <socket>` servers pick
+# it up at startup.
+{
+  pkgs,
+  lib,
+  ...
+}: {
+  environment.etc."tmux.conf".text = ''
+    # --- equivalents of the old programs.tmux structured options ---
+    set  -g default-terminal "xterm-256color"
+    set  -g base-index 1
+    set  -g clock-mode-style 24
+    set  -g history-limit 30000
+    set  -g default-shell ${pkgs.fish}/bin/fish
+
+    # The one tmux-sensible default we relied on. Dropped the whole plugin to
+    # avoid baking a store path into /etc; re-add it if you miss the rest.
+    set -s escape-time 0
+
+    # --- former extraConfig ---
+    set -g pane-base-index 1
+
+    color_status_text="colour245"
+    color_window_off_status_bg="colour238"
+    color_light="white" #colour015
+    color_dark="colour232" # black= colour232
+    color_window_off_status_current_bg="colour254"
+
+    # Fix colours within tmux
+    set -as terminal-overrides ",xterm*:Tc"
+
+    new-session -n $HOST
+
+    setw -g mode-keys vi
+
+    # Name windows after the current directory unless renamed manually.
+    set -g automatic-rename on
+    set -g automatic-rename-format "#{b:pane_current_path}"
+
+    # colon :
+    bind : command-prompt
+
+    # split panes using | and -
+    bind | split-window -h -c "#{pane_current_path}"
+    bind - split-window -v -c "#{pane_current_path}"
+    bind c new-window -c "#{pane_current_path}"
+    unbind '"'
+    unbind %
+
+    # Pane switching
+    bind -n M-Tab selectp -t :.+
+    bind -n M-S-Tab selectp -t :.-
+
+
+    # Mouse
+    set -g mouse on
+
+    # Enable mouse wheel scrollback (automatically enter copy mode)
+    bind -n WheelUpPane if-shell -F -t = "#{mouse_any_flag}" "send-keys -M" "if -Ft= '#{pane_in_mode}' 'send-keys -M' 'copy-mode -e; send-keys -M'"
+    bind -n WheelDownPane send-keys -M
+
+    # panes
+    set -g pane-border-style fg=black
+    set -g pane-active-border-style fg=brightred
+
+
+    # status line
+    set -g status-justify "left"
+    set -g status-style bg=default,fg=colour12
+    set -g status-interval 2
+
+
+    # messaging
+    set -g message-style fg=black,bg=yellow
+    set -g message-command-style fg=blue,bg=black
+
+
+    #window mode
+    setw -g mode-style bg=colour6,fg=colour0
+
+    bind -T root F12  \
+      set prefix None \;\
+      set key-table off \;\
+      set status-style "fg=$color_status_text,bg=$color_window_off_status_bg" \;\
+      set window-status-current-format "#[fg=$color_window_off_status_bg,bg=$color_window_off_status_current_bg]$separator_powerline_right#[default] #I:#W# #[fg=$color_window_off_status_current_bg,bg=$color_window_off_status_bg]$separator_powerline_right#[default]" \;\
+      set window-status-current-style "fg=$color_dark,bold,bg=$color_window_off_status_current_bg" \;\
+      if -F '#{pane_in_mode}' 'send-keys -X cancel' \;\
+      refresh-client -S \;\
+
+    bind -T off F12 \
+      set -u prefix \;\
+      set -u key-table \;\
+      set -u status-style \;\
+      set -u window-status-current-style \;\
+      set -u window-status-current-format \;\
+      refresh-client -S
+
+    # The statusbar {
+
+    set -g status-position bottom
+    set -g status-style bg=colour234,fg=colour137,dim
+
+    set -g status-left ""
+
+    wg_is_keys_off="#[fg=$color_light,bg=$color_window_off_indicator]#([ $(tmux show-option -qv key-table) = 'off' ] && echo 'OFF')#[default]"
+    set -g status-right "$wg_is_keys_off"
+    set -g status-right-length 50
+    set -g status-left-length 20
+
+    setw -g window-status-current-style fg=colour81,bg=colour238,bold
+    setw -g window-status-current-format " #I#[fg=colour250]:#[fg=colour255]#W#[fg=colour50]#F "
+
+    setw -g window-status-style bg=colour235,fg=colour138,none
+    setw -g window-status-format " #I#[fg=colour237]:#[fg=colour250]#W#[fg=colour244]#F "
+
+    # setw -g window-status-bell-style bg=colour1,fg=colour255,bold
+
+    # }
+
+    set-option -g renumber-windows on
+
+    # Notifications - use bell-based (explicit) rather than activity-based (noisy)
+    set-option -g visual-activity off
+    set-option -g visual-bell off
+    set-option -g visual-silence off
+    set-window-option -g monitor-activity off
+    set-window-option -g monitor-bell on
+    set-option -g bell-action any
+
+    # Style for windows with bell - makes them visible in status bar
+    set-window-option -g window-status-bell-style 'fg=colour1,bold'
+
+    # Pass focus events to applications
+    set-option -g focus-events on
+
+    ${lib.optionalString pkgs.stdenv.isDarwin ''
+      set-option -g default-command "${pkgs.reattach-to-user-namespace}/bin/reattach-to-user-namespace -l ${pkgs.fish}/bin/fish"
+    ''}
+  '';
+}

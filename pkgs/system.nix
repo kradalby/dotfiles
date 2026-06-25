@@ -33,7 +33,7 @@
       setec
       socat
       tldr
-      boo
+      tmux
       tree
       unzip
       wget

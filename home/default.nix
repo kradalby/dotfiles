@@ -187,7 +187,12 @@ in {
       fileWidgetOptions = [
         "--preview '${pkgs.bat}/bin/bat -n --color=always {}'"
         "--bind 'ctrl-/:change-preview-window(down|hidden|)'"
+        "--tmux center,85%"
       ];
+
+      tmux = {
+        enableShellIntegration = true;
+      };
     };
 
     htop.enable = true;

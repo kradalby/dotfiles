@@ -11,9 +11,10 @@ in {
     ../../common
     ../../common/incus-vm-ldn.nix
 
-    # Full interactive userland (editors, shell tools, boo); workstation-class
+    # Full interactive userland (editors, shell tools, tmux); workstation-class
     # host. Servers stay lean — see common/nix.nix.
     ../../pkgs/system.nix
+    ../../common/tmux.nix
 
     ../../common/containers.nix
 
