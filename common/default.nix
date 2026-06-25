@@ -1,27 +1,11 @@
-{lib, ...}: {
+# Backwards-compatible shim: machines still importing `../../common` get the
+# base + server profiles, i.e. the previous behaviour minus fail2ban (deleted
+# everywhere) and avahi (now opt-in per machine). Migrate machines to import
+# `./base.nix` (+ `../profiles/server.nix`) directly; this keeps the un-migrated
+# ones working in the meantime.
+{...}: {
   imports = [
-    ./avahi.nix
-    ./ca.nix
-    ./cpufreq.nix
-    ./dns-ready.nix
-    ./environment.nix
-    ./fail2ban.nix
-    ./firewall.nix
-    ./lldp.nix
-    ./mosh.nix
-    ./network.nix
-    ./resolved.nix
-    ./nix.nix
-    ./node-exporter.nix
-    ./postfix.nix
-    ./smartctl-exporter.nix
-    ./ssh.nix
-    ./systemd-exporter.nix
-    ./time.nix
-    ./timezone.nix
-    ./tmp.nix
-    ./tskey.nix
-    ./users.nix
-    ./util.nix
+    ./base.nix
+    ../profiles/server.nix
   ];
 }
