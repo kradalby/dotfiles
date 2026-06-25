@@ -22,7 +22,9 @@
 in {
   imports = [
     ../darwin.nix
-    ../../pkgs/system.nix
+    # Base system toolset; the fuller interactive userland comes via
+    # home-manager (pkgs/home-packages.nix).
+    ../../pkgs/base.nix
     ../../common/tmux.nix
     ../../pkgs/homebrew.nix
     ./syncthing.nix

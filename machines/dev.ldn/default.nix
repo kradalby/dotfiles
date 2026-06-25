@@ -8,14 +8,12 @@
   sshKeys = import ../../metadata/ssh.nix;
 in {
   imports = [
-    ../../common
+    ../../common/base.nix
+    ../../profiles/server.nix
     ../../common/incus-vm-ldn.nix
 
-    # Full interactive userland (editors, shell tools, tmux); workstation-class
-    # host. Servers stay lean — see common/nix.nix.
-    ../../pkgs/system.nix
-    ../../common/tmux.nix
-
+    # Interactive userland (editor, shell tools) comes via home-manager
+    # (pkgs/home-packages.nix); tmux + its config come via common/base.nix.
     ../../common/containers.nix
 
     ../../common/tailscale.nix

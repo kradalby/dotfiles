@@ -5,7 +5,9 @@
   ...
 }: {
   imports = [
-    ../../common
+    ../../common/base.nix
+    ../../profiles/server.nix
+    ../../common/avahi.nix # enable; ./avahi.nix adds the Time Machine records
 
     ../../common/ddns.nix
     ../../common/smokeping-exporter.nix
