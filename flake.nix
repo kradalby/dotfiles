@@ -366,11 +366,8 @@
           arch = "x86_64-linux";
           name = "ts1p.ldn";
           tags = ["x86" "ldn"];
-          # 512MiB VM: build on the deployer, not the target.
+          # Small VM: build on the deployer, not the target.
           buildOnTarget = false;
-          # First deploy before ts1p joins tailscale; drop to null once
-          # ts1p-ldn.<tailnet> resolves.
-          targetHost = "10.65.0.188";
           modules = with inputs; [
             ts1p.nixosModules.default
           ];
