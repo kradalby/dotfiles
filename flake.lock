@@ -40,29 +40,6 @@
         "type": "github"
       }
     },
-    "boo": {
-      "inputs": {
-        "flake-utils": [
-          "flake-utils"
-        ],
-        "nixpkgs": [
-          "nixpkgs-unstable"
-        ]
-      },
-      "locked": {
-        "lastModified": 1781760700,
-        "narHash": "sha256-DvKofnppq4nwL1/ln7X37ObeH47tC0sEnYhQI/Ati8w=",
-        "owner": "coder",
-        "repo": "boo",
-        "rev": "1837e78e05d18ac8d24b29e8cbd8a3239b81d0fe",
-        "type": "github"
-      },
-      "original": {
-        "owner": "coder",
-        "repo": "boo",
-        "type": "github"
-      }
-    },
     "crane": {
       "locked": {
         "lastModified": 1760924934,
@@ -1114,7 +1091,6 @@
     },
     "root": {
       "inputs": {
-        "boo": "boo",
         "darwin": "darwin",
         "flake-utils": "flake-utils",
         "golink": "golink",
