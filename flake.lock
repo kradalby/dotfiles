@@ -615,11 +615,11 @@
         "nixpkgs": "nixpkgs_3"
       },
       "locked": {
-        "lastModified": 1782008223,
-        "narHash": "sha256-VvzMWljcA7F0ySNOcAqn3aBgBDVZEUMdvK+F3XGhUnU=",
+        "lastModified": 1782319293,
+        "narHash": "sha256-fQFGI49NLuNAOP0Zh91TQquprbHeI5WbdhGwBGQHy3c=",
         "owner": "juanfont",
         "repo": "headscale",
-        "rev": "33a65052c9aa0bd492b937408b0cf4e618a1bdc8",
+        "rev": "66937040f231b0f67a2383f4e0289ebd76759677",
         "type": "github"
       },
       "original": {
@@ -1016,11 +1016,11 @@
     },
     "nixpkgs_3": {
       "locked": {
-        "lastModified": 1782089833,
-        "narHash": "sha256-Ldxu7U9hMcDaVbh3YbyywQHlT5HAnX+/5r2GFYxNJqY=",
+        "lastModified": 1781153106,
+        "narHash": "sha256-yzsroLCcuRG4KdGMxWt0eXKOrRSgQT8/xjYngeq9ujU=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "47925832db8c8862385ee49bb53274ebb7c446f9",
+        "rev": "9ee75f111a06d7ab2b2f729698a8eff53d54e070",
         "type": "github"
       },
       "original": {
@@ -1730,10 +1730,10 @@
         "nixpkgs": "nixpkgs_4"
       },
       "locked": {
-        "lastModified": 1782205343,
-        "narHash": "sha256-7o3G7Gfk72YE4AroE3oFbuG/xOHYiDMlYsF151jk5hw=",
+        "lastModified": 1782370551,
+        "narHash": "sha256-b7Sd7UuSoDROKQQrsqxBbiR+Y56Fmx1kCQDX717CVGM=",
         "ref": "initial",
-        "rev": "571988694b598dccf5c3368b6b159af6f4315df1",
+        "rev": "ec3c0ea3dc8a953c2f99069b729c864b71fa04ca",
         "revCount": 8,
         "type": "git",
         "url": "file:///Users/kradalby/git/ts1p"
