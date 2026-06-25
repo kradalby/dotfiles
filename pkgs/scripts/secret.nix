@@ -14,8 +14,10 @@ pkgs.writeShellApplication {
     : "''${SETEC_SERVER:=https://setec.dalby.ts.net}"
 
     # 1) setec HTTP API. The Sec- header is mandatory (CSRF guard); Value is
-    #    base64-encoded JSON. 1s timeout so an unreachable server fails over fast.
-    resp=$(curl -fsS --max-time 1 \
+    #    base64-encoded JSON. connect-timeout 1s = fast failover when setec is
+    #    unreachable; max-time 4s leaves room for a cold 1Password-backed read
+    #    (~1.3s) to complete (and warm setec's cache) rather than cancelling it.
+    resp=$(curl -fsS --connect-timeout 1 --max-time 4 \
       -H 'Content-Type: application/json' \
       -H 'Sec-X-Tailscale-No-Browsers: setec' \
       "$SETEC_SERVER/api/get" \
