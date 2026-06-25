@@ -30,6 +30,7 @@
       restic
       ripgrep
       rsync
+      setec
       socat
       tldr
       boo
