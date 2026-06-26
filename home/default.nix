@@ -168,6 +168,20 @@ in {
       nix-direnv = {
         enable = true;
       };
+      # secret_env [-v] — load `VAR  PATH` lines (resolved in parallel via
+      # secret-env) into the environment; fails the .envrc if any secret is
+      # missing. -v traces resolution (use it in your own repos, not public
+      # ones). Usage:
+      #   secret_env -v <<'EOF'
+      #   TF_VAR_x  infra/x
+      #   EOF
+      stdlib = ''
+        secret_env() {
+          local env
+          env=$(secret-env "$@") || { log_error "secret_env: secret load failed"; return 1; }
+          eval "$env"
+        }
+      '';
     };
 
     bat = {
