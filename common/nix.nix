@@ -3,7 +3,9 @@
   lib,
   pkgs,
   ...
-}: {
+}: let
+  cache = import ../metadata/tsnixcache.nix;
+in {
   i18n.defaultLocale = "en_US.UTF-8";
 
   systemd.settings.Manager.DefaultLimitNOFILE = 1048576;
@@ -24,13 +26,16 @@
       # Let remote builders substitute missing deps from the configured
       # caches instead of failing when the local store lacks a closure.
       builders-use-substitutes = true;
-      substituters = [
-        "https://nix-community.cachix.org?priority=41"
-        "https://numtide.cachix.org?priority=42"
-      ];
+      substituters =
+        [
+          "https://nix-community.cachix.org?priority=41"
+          "https://numtide.cachix.org?priority=42"
+        ]
+        ++ cache.substituters;
       trusted-public-keys = [
         "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
         "numtide.cachix.org-1:2ps1kLBUWjxIneOy1Ik6cQjb41X0iXVXeHigGmycPPE="
+        cache.publicKey
       ];
     };
 
