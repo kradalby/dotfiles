@@ -147,8 +147,11 @@ in {
 
     # Shell ecosystem
     (lib.mkIf cfg.shell.enable {
-      home.packages =
-        (with pkgs; [
+      home.packages = let
+        rmkh = import ./scripts/rmkh.nix {inherit pkgs;};
+      in
+        [rmkh]
+        ++ (with pkgs; [
           nushell
         ])
         ++ (with pkgs.unstable; [

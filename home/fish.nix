@@ -96,10 +96,6 @@ in {
       push = ''${pkgs.git}/bin/git push origin -u (${pkgs.git}/bin/git rev-parse --abbrev-ref HEAD)'';
       yolo = ''${pkgs.git}/bin/git push -f origin (${pkgs.git}/bin/git rev-parse --abbrev-ref HEAD)'';
 
-      rmkh = ''
-        ${pkgs.gnused}/bin/sed -i $argv'd' ~/.ssh/known_hosts
-      '';
-
       ragenix-update-key = ''
         set host $argv[1]
         set hostDash (echo $host | ${pkgs.gnused}/bin/sed 's/\./-/g')
