@@ -44,19 +44,19 @@
     # Go based
     krapage = {
       url = "github:kradalby/kra";
-      inputs."utils".follows = "flake-utils";
+      inputs."flake-utils".follows = "flake-utils";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
     hvor = {
       url = "github:kradalby/hvor";
-      inputs."utils".follows = "flake-utils";
+      inputs."flake-utils".follows = "flake-utils";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
     tasmota-exporter = {
       url = "github:kradalby/tasmota-exporter";
-      inputs."utils".follows = "flake-utils";
+      inputs."flake-utils".follows = "flake-utils";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
