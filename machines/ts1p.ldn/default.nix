@@ -46,6 +46,9 @@ in {
     hostname = "setec";
     vault = "ts1p";
     tokenFile = config.age.secrets.ts1p-op-token.path;
+    # Proactively recycle the 1Password WASM core every 6h to stay ahead of its
+    # corruption-under-uptime (kradalby/ts1p#2); exits 0, systemd restarts it.
+    opMaxAge = "6h";
   };
 
   # op CLI for the 1Password service account (token provisioned separately).
