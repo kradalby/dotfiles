@@ -46,6 +46,11 @@ in {
     hostname = "setec";
     vault = "ts1p";
     tokenFile = config.age.secrets.ts1p-op-token.path;
+    # Cache reads ~24h (jittered ±20%): secrets rarely rotate, and a long TTL
+    # keeps cold reads — which serialize behind the op WASM mutex — rare. After
+    # rotating a secret, flush via /debug/flush-cache or a Cache-Control:
+    # no-cache request.
+    cacheExpiry = "24h";
     # Proactively recycle the 1Password WASM core every 6h to stay ahead of its
     # corruption-under-uptime (kradalby/ts1p#2); exits 0, systemd restarts it.
     opMaxAge = "6h";
