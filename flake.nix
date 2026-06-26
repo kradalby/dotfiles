@@ -538,5 +538,39 @@
         .system
         .build
         .sdImage;
+
+      # x86_64 EFI/BIOS install ISO for gigabuilder. Boot it on the box and
+      # it joins tailscale + accepts your SSH keys + brings up the static IP
+      # on the renamed wan0 — so you can SSH in over tailscale (or the public
+      # IP) and run nixos-install. Partitioning is chosen at install time.
+      #   nix build .#installer   (fill bootstrapSecrets.tsAuthKey first)
+      # Built against nixpkgs-unstable (latest) rather than the 25.11 pin the
+      # rest of the flake tracks — just this image, via nixosSystem/lib override.
+      packages.x86_64-linux.installer = nixos-generators.nixosGenerate {
+        system = "x86_64-linux";
+        format = "install-iso";
+        lib = inputs.nixpkgs-unstable.lib;
+        nixosSystem = inputs.nixpkgs-unstable.lib.nixosSystem;
+        specialArgs = {inherit inputs;};
+        modules = [
+          inputs.ragenix.nixosModules.age
+          inputs.tailscale.nixosModules.default
+          ./common
+          ./common/tailscale.nix
+          ./common/bootstrap-common.nix
+          ./machines/gigabuilder/networking.nix
+          {
+            nixpkgs.overlays = overlays;
+            my.bootstrap =
+              bootstrapSecrets
+              // {
+                enable = true;
+                name = "gigabuilder";
+                wifi = false;
+                firewall = true;
+              };
+          }
+        ];
+      };
     });
 }
