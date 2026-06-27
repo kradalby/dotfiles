@@ -3,8 +3,8 @@
   # stable name keyed on its MAC so config never depends on kernel probe order.
   my.wan = "wan0";
 
-  # No physical LAN. my.lan stays unset; metrics/internal services are reached
-  # over tailscale0 (a trusted interface, see firewall below).
+  # No physical LAN; the Incus bridge incusbr0 (10.68.0.1) is the local LAN.
+  # my.lan is set in incus.nix so exporters/local services bind/open there.
 
   systemd.network.links."10-wan0" = {
     matchConfig = {

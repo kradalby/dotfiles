@@ -2,6 +2,10 @@
   virtualisation.incus.enable = true;
   users.users.kradalby.extraGroups = ["incus-admin"];
 
+  # The Incus bridge (10.68.0.1) is the host's local/trusted LAN. Exporters and
+  # local services bind/open here instead of the public wan0.
+  my.lan = "incusbr0";
+
   virtualisation.incus.preseed = {
     # API bound to the bridge IP. The laptop reaches it THROUGH the advertised
     # /16 subnet route — never exposed on wan0.
