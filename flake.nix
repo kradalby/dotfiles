@@ -66,6 +66,20 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
+    # WIP Nix binary cache served over tailscale; pinned to the `initial` branch.
+    tsnixcache = {
+      url = "github:kradalby/tsnixcache/initial";
+      inputs.nixpkgs.follows = "nixpkgs-nixos";
+    };
+
+    # garnix CI — track the maintainer's self-host branch directly (Samuel /
+    # znaniye, the active upstream-of-record). Pull fixes with
+    # `nix flake update garnix-ci`. Do NOT `follows` nixpkgs: garnix pins
+    # nixpkgs-25.11-small + its own nixpkgsUnstable + libkrun for krun; overriding
+    # them risks breaking the action-runner. Consumed by machines/garnix (still
+    # gated in nixosConfigurations until the VM exists).
+    garnix-ci.url = "github:znaniye/garnix-ci/selfhost";
+
     headscale = {
       # url = "github:juanfont/headscale/v0.26.0-beta.1";
       url = "github:juanfont/headscale/main";
@@ -315,6 +329,40 @@
           allowLocalDeployment = true;
         };
 
+        # gigabuilder: bare-metal Incus VM host + tsnixcache cache.
+        # COMMENTED until the box is installed — uncomment once:
+        #   1. machines/gigabuilder/hardware-configuration.nix is regenerated on
+        #      the target (the current one is a placeholder).
+        #   2. these secrets exist + are rekeyed (ragenix): tsnixcache-sign-key,
+        #      tsnixcache-tsnet-authkey, and gigabuilder added to the publicKeys
+        #      of headscale-sfiber-client-preauthkey / tailscale-preauthkey /
+        #      headscale-client-preauthkey.
+        # Registering it before then references missing .age files and breaks
+        # eval for every host.
+        # "gigabuilder" = box.nixosBox {
+        #   arch = "x86_64-linux";
+        #   name = "gigabuilder";
+        #   tags = ["x86" "builder"];
+        #   # First deploy via the public IP; drop to null once
+        #   # gigabuilder.<tailnet> resolves over tailscale.
+        #   targetHost = "194.32.107.146";
+        #   modules = with inputs; [
+        #     tsnixcache.nixosModules.tsnixcache
+        #   ];
+        # };
+
+        # garnix CI: Incus VM on gigabuilder; the host is its remote nix builder.
+        # COMMENTED until: (1) gigabuilder is live and the VM created per
+        # machines/garnix/GARNIX-RUNBOOK.md; (2) the ~12 garnix-* secrets exist
+        # + are rekeyed to the garnix host key. Then also uncomment gigabuilder's
+        # ./builder.nix import and the garnix.kradalby.no vhost in web.nix.
+        # "garnix" = box.nixosBox {
+        #   arch = "x86_64-linux";
+        #   name = "garnix";
+        #   tags = ["x86" "ci" "builder"];
+        #   targetHost = "10.68.10.10"; # → null once garnix.<tailnet> resolves
+        # };
+
         "rpi5.ldn" = box.nixosBox {
           arch = "aarch64-linux";
           name = "rpi5.ldn";
@@ -538,5 +586,39 @@
         .system
         .build
         .sdImage;
+
+      # x86_64 EFI/BIOS install ISO for gigabuilder. Boot it on the box and
+      # it joins tailscale + accepts your SSH keys + brings up the static IP
+      # on the renamed wan0 — so you can SSH in over tailscale (or the public
+      # IP) and run nixos-install. Partitioning is chosen at install time.
+      #   nix build .#installer   (fill bootstrapSecrets.tsAuthKey first)
+      # Built against nixpkgs-unstable (latest) rather than the 25.11 pin the
+      # rest of the flake tracks — just this image, via nixosSystem/lib override.
+      packages.x86_64-linux.installer = nixos-generators.nixosGenerate {
+        system = "x86_64-linux";
+        format = "install-iso";
+        lib = inputs.nixpkgs-unstable.lib;
+        nixosSystem = inputs.nixpkgs-unstable.lib.nixosSystem;
+        specialArgs = {inherit inputs;};
+        modules = [
+          inputs.ragenix.nixosModules.age
+          inputs.tailscale.nixosModules.default
+          ./common
+          ./common/tailscale.nix
+          ./common/bootstrap-common.nix
+          ./machines/gigabuilder/networking.nix
+          {
+            nixpkgs.overlays = overlays;
+            my.bootstrap =
+              bootstrapSecrets
+              // {
+                enable = true;
+                name = "gigabuilder";
+                wifi = false;
+                firewall = true;
+              };
+          }
+        ];
+      };
     });
 }

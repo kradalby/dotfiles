@@ -17,6 +17,7 @@ in {
     ../../common/containers.nix
 
     ../../common/tailscale.nix
+    ../../common/tsnixcache-client.nix
 
     inputs.ssh-agent-mux.nixosModules.default
 
