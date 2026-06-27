@@ -47,6 +47,10 @@ in {
 
   boot.tmp.tmpfsSize = "4G";
 
+  # Build aarch64-linux here (qemu emulation) so `rnb dev.ldn` can serve arm
+  # builds; binfmt auto-advertises it via extra-platforms. Slow but handy.
+  boot.binfmt.emulatedSystems = ["aarch64-linux"];
+
   boot.kernel.sysctl = {
     # if you use ipv4, this is all you need
     "net.ipv4.conf.all.forwarding" = true;
