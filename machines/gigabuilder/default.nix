@@ -12,6 +12,7 @@
     ./networking.nix # wan0 + static public IP + base firewall (shared with the installer)
     ./incus.nix # VM host
     ./cache.nix # tsnixcache binary cache
+    ./web.nix # nginx TLS terminator + ACME (local + VM services)
   ];
 
   networking.hostName = "gigabuilder";
