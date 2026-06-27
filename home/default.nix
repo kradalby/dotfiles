@@ -137,6 +137,11 @@ in {
         experimental-features = nix-command flakes
       '';
 
+      # rnb (remote nix builder) reads its registry from here; single
+      # source of truth is common/rnb-builders.nix.
+      ".config/rnb/builders.json".text =
+        builtins.toJSON (import ../common/rnb-builders.nix);
+
       ".finicky.js" = lib.mkIf pkgs.stdenv.isDarwin {source = ../rc/finicky.js;};
 
       ".vale.ini".text = ''
