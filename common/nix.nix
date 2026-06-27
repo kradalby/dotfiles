@@ -70,6 +70,9 @@ in {
     permittedInsecurePackages = [
       "litestream-0.3.13"
       "olm-3.2.16"
+      # incus LTS on gigabuilder; markings track nixpkgs, bump on update.
+      "incus-lts-6.0.6-unstable-2026-03-27"
+      "incus-lts-client-6.0.6-unstable-2026-03-27"
     ];
   };
 

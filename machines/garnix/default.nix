@@ -13,6 +13,8 @@
   # GATED: not registered in flake.nix yet (the garnix-ci input + box entry are
   # commented). Activation order is in ./GARNIX-RUNBOOK.md.
   imports = [
+    ../../common/base.nix # core NixOS config: my.*, nix, users, ssh, node-exporter
+    ../../common/tailscale.nix # joins the tailnet (name "garnix")
     ../../common/incus.nix # qemu-guest profile + incus agent + sda disk
     # The garnix server module (frontend + nginx + secrets + fluent-bit +
     # action-runner). Postgres + OpenSearch are SEPARATE modules in the fork
@@ -28,6 +30,7 @@
   _module.args.flakePackages = inputs.garnix-ci.packages.x86_64-linux;
 
   networking = {
+    hostName = "garnix";
     domain = "fap.no";
     # Static address in the Incus VM range so the host's nginx proxy and the
     # remote-builder SSH target are stable. gw/dns is the incus bridge.

@@ -35,13 +35,14 @@
   security.acme.certs."194.32.107.146" = {
     profile = "shortlived"; # ~6d cert; security.acme renews at half-life
     dnsProvider = null; # force HTTP-01 (port 80) — DNS-01 not allowed for IPs
-    # webroot defaults from the nginx vhost's acmeRoot; email/group inherited.
+    webroot = "/var/lib/acme/acme-challenge"; # lego writes the challenge here
   };
 
   services.nginx.virtualHosts."194.32.107.146" = {
     serverName = "194.32.107.146";
     useACMEHost = "194.32.107.146";
     forceSSL = true;
+    acmeRoot = "/var/lib/acme/acme-challenge"; # nginx serves the challenge from here
     # serves whatever should answer on the bare IP, e.g. a status page or proxy:
     # locations."/".proxyPass = "http://127.0.0.1:8080";
   };

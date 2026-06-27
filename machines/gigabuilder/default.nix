@@ -7,6 +7,7 @@
   imports = [
     ../../common/base.nix
     ../../profiles/server.nix
+    ../../common/tailscale.nix # primary kradalby tailnet + headscale.kradalby.no
 
     ./hardware-configuration.nix
     ./networking.nix # wan0 + static public IP + base firewall (shared with the installer)
