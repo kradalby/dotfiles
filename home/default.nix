@@ -67,7 +67,6 @@ in {
       # "/etc/profiles/per-user/$USER/bin"
       "$HOME/bin"
       "$HOME/.bin"
-      "$HOME/git/dotfiles/bin"
       "$HOME/.cargo/bin"
       "$HOME/.local/bin"
       "$HOME/.nixpkgs/bin"

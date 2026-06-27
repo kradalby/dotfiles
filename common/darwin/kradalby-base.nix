@@ -19,6 +19,11 @@
   #
   # To bootstrap: temporarily set to false, rebuild, then set back to true
   useRosettaBuilder = true;
+
+  # skhd runs commands via /bin/sh with a bare launchd PATH, so reference the
+  # script derivations by store path rather than relying on PATH lookup.
+  ghostty-new-mosh-tab = import ../../pkgs/scripts/ghostty-new-mosh-tab.nix {inherit pkgs;};
+  tailscale-switch-toggle = import ../../pkgs/scripts/tailscale-switch-toggle.nix {inherit pkgs;};
 in {
   imports = [
     ../darwin.nix
@@ -44,10 +49,10 @@ in {
     enable = true;
     skhdConfig = ''
       cmd + shift - t [
-          "Ghostty" : ghostty-new-mosh-tab
+          "Ghostty" : ${ghostty-new-mosh-tab}/bin/ghostty-new-mosh-tab
           *         ~
       ]
-      cmd + shift - b : tailscale-switch-toggle
+      cmd + shift - b : ${tailscale-switch-toggle}/bin/tailscale-switch-toggle
     '';
   };
 
