@@ -104,7 +104,6 @@ in {
     base =
       {
         meta = {
-          machinesFile = /etc/nix/machines;
           # Reuse an existing NixOS host's pkgs to avoid a
           # redundant nixpkgs instantiation. Most hosts have
           # buildOnTarget = false, so the deployer builds with this.
