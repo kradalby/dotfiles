@@ -21,6 +21,10 @@
 
     # service in an Incus VM (give the VM a static IP in 10.68.10.0/24):
     # "bar.kradalby.no".proxyPass = "http://10.68.10.5:8080";
+
+    # garnix CI coordinator (VM at 10.68.10.10, serves plain HTTP). Public
+    # GitHub webhook → this TLS terminator → VM. Uncomment with the garnix box.
+    # "garnix.kradalby.no".proxyPass = "http://10.68.10.10:80";
   };
 
   # Let's Encrypt cert for the public IP itself (reachable without DNS). Can't go

@@ -72,6 +72,14 @@
       inputs.nixpkgs.follows = "nixpkgs-nixos";
     };
 
+    # garnix CI — track the maintainer's self-host branch directly (Samuel /
+    # znaniye, the active upstream-of-record). Pull fixes with
+    # `nix flake update garnix-ci`. Do NOT `follows` nixpkgs: garnix pins
+    # nixpkgs-25.11-small + its own nixpkgsUnstable + libkrun for krun; overriding
+    # them risks breaking the action-runner. Consumed by machines/garnix (still
+    # gated in nixosConfigurations until the VM exists).
+    garnix-ci.url = "github:znaniye/garnix-ci/selfhost";
+
     headscale = {
       # url = "github:juanfont/headscale/v0.26.0-beta.1";
       url = "github:juanfont/headscale/main";
@@ -341,6 +349,18 @@
         #   modules = with inputs; [
         #     tsnixcache.nixosModules.tsnixcache
         #   ];
+        # };
+
+        # garnix CI: Incus VM on gigabuilder; the host is its remote nix builder.
+        # COMMENTED until: (1) gigabuilder is live and the VM created per
+        # machines/garnix/GARNIX-RUNBOOK.md; (2) the ~12 garnix-* secrets exist
+        # + are rekeyed to the garnix host key. Then also uncomment gigabuilder's
+        # ./builder.nix import and the garnix.kradalby.no vhost in web.nix.
+        # "garnix" = box.nixosBox {
+        #   arch = "x86_64-linux";
+        #   name = "garnix";
+        #   tags = ["x86" "ci" "builder"];
+        #   targetHost = "10.68.10.10"; # → null once garnix.<tailnet> resolves
         # };
 
         "rpi5.ldn" = box.nixosBox {

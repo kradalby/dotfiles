@@ -13,6 +13,7 @@
     ./incus.nix # VM host
     ./cache.nix # tsnixcache binary cache
     ./web.nix # nginx TLS terminator + ACME (local + VM services)
+    # ./builder.nix # remote nix builder for the garnix VM (uncomment with garnix)
   ];
 
   networking.hostName = "gigabuilder";
