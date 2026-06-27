@@ -267,28 +267,30 @@
         #   tags = ["x86" "router" "terra"];
         # };
 
-        "core.oracldn" = box.nixosBox {
-          arch = "aarch64-linux";
-          name = "core.oracldn";
-          tags = ["arm64" "oracle" "oracldn"];
-          modules = with inputs; [
-            headscale.nixosModules.default
-            golink.nixosModules.default
-            krapage.nixosModules.default
-            hvor.nixosModules.default
-            tasmota-exporter.nixosModules.default
-            homewizard-p1-exporter.nixosModules.default
-          ];
-        };
+        # Out of rotation.
+        # "core.oracldn" = box.nixosBox {
+        #   arch = "aarch64-linux";
+        #   name = "core.oracldn";
+        #   tags = ["arm64" "oracle" "oracldn"];
+        #   modules = with inputs; [
+        #     headscale.nixosModules.default
+        #     golink.nixosModules.default
+        #     krapage.nixosModules.default
+        #     hvor.nixosModules.default
+        #     tasmota-exporter.nixosModules.default
+        #     homewizard-p1-exporter.nixosModules.default
+        #   ];
+        # };
 
-        "dev.oracfurt" = box.nixosBox {
-          arch = "aarch64-linux";
-          name = "dev.oracfurt";
-          tags = ["arm64" "oracle" "oracfurt"];
-          modules = with inputs; [
-            tsidp.nixosModules.default
-          ];
-        };
+        # Out of rotation.
+        # "dev.oracfurt" = box.nixosBox {
+        #   arch = "aarch64-linux";
+        #   name = "dev.oracfurt";
+        #   tags = ["arm64" "oracle" "oracfurt"];
+        #   modules = with inputs; [
+        #     tsidp.nixosModules.default
+        #   ];
+        # };
 
         "home.ldn" = box.nixosBox {
           arch = "x86_64-linux";
@@ -313,6 +315,8 @@
           name = "dev.ldn";
           tags = ["x86" "ldn"];
           allowLocalDeployment = true;
+          # Sole builder for the fleet.
+          buildOnTarget = true;
         };
 
         "rpi5.ldn" = box.nixosBox {
