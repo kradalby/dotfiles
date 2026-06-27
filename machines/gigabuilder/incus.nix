@@ -1,5 +1,7 @@
-{...}: {
+{pkgs, ...}: {
   virtualisation.incus.enable = true;
+  # Full feature release, not incus-lts (the LTS is flagged insecure in nixpkgs).
+  virtualisation.incus.package = pkgs.incus;
   users.users.kradalby.extraGroups = ["incus-admin"];
 
   # The Incus bridge (10.68.0.1) is the host's local/trusted LAN. Exporters and
