@@ -37,6 +37,11 @@ in {
     ../../modules/macos.nix
   ];
 
+  # Put fish in the system profile so the login shell
+  # (/run/current-system/sw/bin/fish) resolves; user-level fish config
+  # still comes from home-manager (home/fish.nix).
+  programs.fish.enable = true;
+
   # TODO(ghostty): Workaround for Ghostty lacking an exec/command keybind
   # action. skhd provides a global hotkey that runs an external command,
   # scoped to Ghostty via proc_map. The script uses ghostty-tab to open a
