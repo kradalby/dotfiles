@@ -46,7 +46,7 @@ mirror if you ever want to carry local patches.)
 - `machines/gigabuilder/web.nix`: the `garnix.kradalby.no` vhost line.
 - `machines/gigabuilder/builder.nix`: drop in the VM's remote-builder **public** key.
 - `machines/garnix/default.nix`: set `githubAppName` and
-  `garnix.actionRunner.authorizedKey`; confirm the DB/OpenSearch wiring (below).
+  `garnix.actionRunner.authorizedKey`. (DB/OpenSearch already wired — see below.)
 - `nix flake lock` to pin garnix-ci; `colmena apply --on gigabuilder garnix`.
 
 ## Create the Incus VM (on gigabuilder)
@@ -59,7 +59,7 @@ cat /sys/module/kvm_amd/parameters/nested        # expect Y/1
 
 # launch a NixOS VM on the incus bridge, nested virt enabled, static IP
 incus init images:nixos/unstable garnix --vm \
-  -c limits.cpu=8 -c limits.memory=8GiB \
+  -c limits.cpu=8 -c limits.memory=12GiB \
   -c security.secureboot=false \
   -c linux.kernel_modules=kvm_amd
 incus config device override garnix root size=80GiB
@@ -74,31 +74,26 @@ Install NixOS onto the VM disk so it matches `common/incus.nix`
 with the flake via Colmena like any other host. Verify `ls -l /dev/kvm` inside
 the guest before enabling the action-runner.
 
-## DB + OpenSearch (co-located, single node)
+## DB + OpenSearch (co-located, already wired)
 
-The fork keeps these as SEPARATE modules (not imported by the server module, not
-exposed as `nixosModules`): `nix/modules/database.nix` and
-`opensearch/nixos-module.nix`, driven by `garnix.database.*` /
-`garnix.opensearch.*` (see `examples/example-multi-server-deployment.nix`, the
-`exampleDb` / `exampleOpenSearch` nodes). The `selfhost` example instead points
-at EXTERNAL db/opensearch hosts.
+DONE in `machines/garnix/default.nix`: plain NixOS `services.postgresql`
+(postgresql_18, loopback trust auth, db+user `garnix`) and `services.opensearch`
+(single-node, `127.0.0.1:9200`). The backend talks to both over loopback with
+`database.ssl.mode = "disable"`.
 
-To co-locate on the VM, add to `machines/garnix/default.nix` imports (VERIFY each
-evaluates cleanly against `common/base.nix` — the fork's `common.nix` /
-`linux-common.nix` may overlap, and the examples use sops, which we replace with
-ragenix):
+Deliberately NOT using the fork's `nix/modules/database.nix` /
+`opensearch/nixos-module.nix`: those target SEPARATE, TLS-fronted hosts — postgres
+forces `ssl=true` with an ACME cert per `fqdn` + `verify-full` (port 9178), and
+opensearch sits behind nginx+basic-auth with its own cert, both via sops. That's
+why the `selfhost` example externalizes them. For a single co-located VM where the
+connections never leave the box, plain loopback services are simpler and correct;
+the tradeoff is no built-in DB backups / TLS / exporters (add later if wanted).
 
-```nix
-imports = [
-  "${inputs.garnix-ci}/nix/modules/database.nix"
-  "${inputs.garnix-ci}/opensearch/nixos-module.nix"
-];
-garnix.database.enable = true;       # provides services.postgresql + setup
-garnix.opensearch.enable = true;     # provides services.opensearch
-```
+The `garnix-*` db/opensearch secrets are still staged by the server module but go
+unused under trust auth — fine to leave as placeholders.
 
-Then `services.garnixServer.database.host`/`opensearch.host` stay `127.0.0.1`
-(already set). The module asserts non-empty `opensearch.url` + `opensearch.host`.
+**VM sizing:** OpenSearch runs a JVM. The `limits.memory=8GiB` above is tight with
+postgres + the garnix backend + nested action-runner microVMs — bump to **12–16GiB**.
 
 ## TLS / proxy
 

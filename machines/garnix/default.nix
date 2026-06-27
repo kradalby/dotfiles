@@ -56,11 +56,13 @@
     adminGithubLogin = "kradalby";
     # githubAppName = "kradalby-garnix"; # set to the GitHub App slug once created
 
-    # Co-located DB + OpenSearch (provisioned separately — see runbook). The
-    # backend connects over loopback.
+    # Co-located DB + OpenSearch over loopback (provisioned below with plain
+    # NixOS services). No TLS — the connections never leave the VM — so ssl.mode
+    # is disabled rather than using garnix's TLS-fronted database.nix module.
     database = {
       host = "127.0.0.1";
       port = 5432;
+      ssl.mode = "disable";
     };
     opensearch = {
       url = "http://127.0.0.1:9200/_msearch";
@@ -102,6 +104,37 @@
       repoSecretsPubKeyPath = config.age.secrets.garnix-repo-secrets-key-pub.path;
       actionRunnerSshPath = config.age.secrets.garnix-action-runner-ssh.path;
       remoteBuilderSshPath = config.age.secrets.garnix-remote-builder-ssh.path;
+    };
+  };
+
+  # Co-located datastores for the backend. Loopback only, so peer/trust auth and
+  # no TLS — garnix's own database.nix/opensearch modules target separate
+  # TLS-fronted hosts (ACME cert per fqdn, nginx+basic-auth) and are overkill
+  # here. The garnix-* secrets for db/opensearch are still staged by the server
+  # module but go unused with trust auth.
+  services.postgresql = {
+    enable = true;
+    package = pkgs.postgresql_18; # matches what garnix's migrations expect
+    ensureDatabases = ["garnix"];
+    ensureUsers = [
+      {
+        name = "garnix";
+        ensureDBOwnership = true;
+      }
+    ];
+    authentication = lib.mkForce ''
+      local all all trust
+      host  all all 127.0.0.1/32 trust
+      host  all all ::1/128      trust
+    '';
+  };
+
+  services.opensearch = {
+    enable = true;
+    settings = {
+      "network.host" = "127.0.0.1";
+      "http.port" = 9200;
+      "discovery.type" = "single-node";
     };
   };
 
