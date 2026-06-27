@@ -243,7 +243,6 @@ in {
         [pamtouchfix rsync-photos-backup]
         ++ (with pkgs; [
           ghostty-tab
-          terminal-notifier
           syncthing
           silicon
         ])
