@@ -88,7 +88,9 @@
       }
     ];
 
-    s3Cache.enable = false; # start simple; revisit tsnixcache/MinIO sharing later
+    # Skipped: build outputs land in the gigabuilder store (via remoteBuilders)
+    # that tsnixcache already serves — no separate S3 cache needed.
+    s3Cache.enable = false;
 
     # ragenix (not sops): point every path at the decrypted secret.
     secrets = {

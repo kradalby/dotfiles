@@ -144,8 +144,13 @@ secrets above and redeploy.
 - Nested virt: `/dev/kvm` present in the VM; an action build starts a krun microVM.
 - E2E: push to a test repo → webhook → status reported on the commit.
 
+## Decisions
+
+- **s3Cache: skipped.** Outputs land in the gigabuilder store (via
+  `remoteBuilders`) that tsnixcache already serves — no separate S3 cache.
+- **action-runner: required** (co-located → needs nested virt).
+- **remoteBuilders: gigabuilder only** (`10.68.0.1`, `nix-ssh`).
+
 ## Deferred
 
-- Shared cache for garnix outputs (tsnixcache/MinIO via `s3Cache`) — start with
-  the free host-store→tsnixcache feed.
 - multi-forge/Gitea (GitHub-only for now).
