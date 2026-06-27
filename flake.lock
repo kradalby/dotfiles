@@ -1586,11 +1586,11 @@
         "nixpkgs": "nixpkgs_4"
       },
       "locked": {
-        "lastModified": 1782484275,
-        "narHash": "sha256-/IozUKLpZuWD65sMMjY24kx60C2KULWe4DIFIwumacU=",
+        "lastModified": 1782589191,
+        "narHash": "sha256-6McBoir97OGZlKPbVwF4LpSrv/LZQtmGGjw/cOClR3Y=",
         "ref": "initial",
-        "rev": "a451b55fbd8740021a25f411b586efef05f519e6",
-        "revCount": 24,
+        "rev": "3c53b5761e980cfcb26f05f598f6aa72ea7da499",
+        "revCount": 27,
         "type": "git",
         "url": "file:///Users/kradalby/git/ts1p"
       },
