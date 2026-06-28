@@ -26,9 +26,9 @@ pkgs.writeShellApplication {
 
     # 1) setec HTTP API. The Sec- header is mandatory (CSRF guard); Value is
     #    base64-encoded JSON. connect-timeout 1s = fast failover when setec is
-    #    unreachable; max-time 12s leaves room for several cold 1Password reads
-    #    serialized behind ts1p's op-mutex under a parallel load (secret-env) to
-    #    finish from setec rather than cancelling and falling back to 1Password.
+    #    unreachable; max-time 12s leaves room for a cold 1Password unlock plus
+    #    the parallel reads it gates (secret-env) to finish from setec rather
+    #    than cancelling and falling back to 1Password.
     log "$name: querying setec ($SETEC_SERVER)"
     resp=$(curl -fsS --connect-timeout 1 --max-time 12 \
       -H 'Content-Type: application/json' \
@@ -49,23 +49,27 @@ pkgs.writeShellApplication {
     log "$name: not served by setec (unreachable or miss), trying 1Password"
 
     # 2) fallback: direct 1Password (op item get — op:// can't express slash
-    #    names). Serialize across concurrent `secret` calls (a parallel
-    #    secret_env load) with a mkdir lock so 1Password prompts for approval
-    #    ONCE, not once per secret: the first call unlocks, the rest reuse the
-    #    grace window. A stale lock (>60s, e.g. an interrupted run) is reaped.
+    #    names). Under a parallel secret_env load, serialize only a cheap unlock
+    #    probe behind a mkdir lock so 1Password prompts for approval ONCE: the
+    #    first probe hits a locked app and prompts, the rest land in op's grace
+    #    window and return at once. The slow `op item get` reads happen AFTER the
+    #    lock, so they run concurrently. A stale lock (>60s, e.g. an interrupted
+    #    run) is reaped.
     if command -v op >/dev/null 2>&1; then
       lock=''${TMPDIR:-/tmp}/secret-op.lock
-      held=0
       i=0
       while [ "$i" -lt 400 ]; do
-        if mkdir "$lock" 2>/dev/null; then held=1; break; fi
+        if mkdir "$lock" 2>/dev/null; then
+          op vault get ts1p >/dev/null 2>&1 || true
+          rmdir "$lock" 2>/dev/null
+          break
+        fi
         [ -n "$(find "$lock" -prune -mmin +1 2>/dev/null)" ] && rmdir "$lock" 2>/dev/null
         i=$((i + 1))
         sleep 0.1
       done
       log "$name: querying 1Password"
       d=$(op item get "$name" --vault ts1p --fields label=value --reveal 2>/dev/null) || d=""
-      [ "$held" = 1 ] && rmdir "$lock" 2>/dev/null
       if [ -n "$d" ]; then
         log "$name: loaded from 1Password"
         printf '%s' "$d"
