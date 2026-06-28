@@ -1,4 +1,4 @@
-module github.com/kradalby/dotfiles/pkgs/overlays/ts-preauthkey
+module github.com/kradalby/dotfiles/pkgs/overlays/authkey
 
 go 1.26.1
 

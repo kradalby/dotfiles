@@ -177,7 +177,7 @@ in {
         ])
         ++ (with pkgs.unstable; [
           tailscale-tools
-          ts-preauthkey
+          authkey
           rnb
           prek
         ]);

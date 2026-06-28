@@ -1,6 +1,6 @@
 {buildGoModule}:
 buildGoModule {
-  pname = "ts-preauthkey";
+  pname = "authkey";
   version = "unstable";
 
   src = ./.;

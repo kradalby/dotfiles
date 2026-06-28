@@ -13,7 +13,7 @@ in
 
     webrepl_cli = prev.callPackage ./webrepl_cli.nix {};
 
-    ts-preauthkey = prev.callPackage ./ts-preauthkey {};
+    authkey = prev.callPackage ./authkey {};
 
     rnb = prev.callPackage ./rnb {};
 
