@@ -33,6 +33,7 @@
     ]
     ++ lib.optionals (ic.spawn != "session") ["--capacity" (toString ic.capacity)]
     ++ lib.optional ic.verbose "--verbose"
+    ++ lib.optional (! ic.createSessionInDir) "--no-create-session-in-dir"
     ++ [
       (
         if ic.sandbox
@@ -93,6 +94,18 @@ in {
           type = lib.types.bool;
           default = false;
           description = "Pass `--verbose`.";
+        };
+
+        createSessionInDir = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = ''
+            Pre-create a session in the working dir on start (claude's
+            `--[no-]create-session-in-dir`). Upstream defaults this on, which
+            makes every (re)start show an empty session in claude.ai/code
+            Recents. Default off here: register the builder without
+            pre-creating a session.
+          '';
         };
 
         sandbox = lib.mkOption {
