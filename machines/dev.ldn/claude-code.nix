@@ -1,40 +1,18 @@
 {...}: {
-  home-manager.users.kradalby.services.claude-code = {
-    dotfiles = {
-      path = "~/git/dotfiles";
-      spawn = "same-dir";
-      capacity = 5;
-      verbose = true;
-    };
-    infrastructure = {
-      path = "~/git/infrastructure";
+  home-manager.users.kradalby.services.claude-code = let
+    wt = path: capacity: {
+      inherit path capacity;
       spawn = "worktree";
-      capacity = 8;
       verbose = true;
     };
-    headscale = {
-      path = "~/git/headscale";
-      spawn = "worktree";
-      capacity = 32;
-      verbose = true;
-    };
-    sfiber = {
-      path = "~/git/sfiber";
-      spawn = "worktree";
-      capacity = 16;
-      verbose = true;
-    };
-    aspargesgaarden-elm = {
-      path = "~/git/aspargesgaarden-elm";
-      spawn = "worktree";
-      capacity = 8;
-      verbose = true;
-    };
-    TubeLogger2000 = {
-      path = "~/git/TubeLogger2000";
-      spawn = "worktree";
-      capacity = 8;
-      verbose = true;
-    };
+  in {
+    dotfiles = wt "~/git/dotfiles" 8;
+    aspargesgaarden-elm = wt "~/git/aspargesgaarden-elm" 8;
+    fiken-go = wt "~/git/fiken-go" 8;
+    gigahost-go = wt "~/git/gigahost-go" 8;
+    headscale = wt "~/git/headscale" 32;
+    sfiber = wt "~/git/sfiber" 16;
+    tsnixcache = wt "~/git/tsnixcache" 8;
+    ts1p = wt "~/git/ts1p" 8;
   };
 }
