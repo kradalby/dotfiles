@@ -7,10 +7,18 @@
 }: let
   domain = "headscale.kradalby.no";
   aclConfig = {
+    tagOwners = {
+      "tag:server" = ["kradalby"];
+      "tag:isolated" = ["kradalby"];
+    };
     acls = [
+      # Trusted nodes (my user's devices + tagged servers) reach everything,
+      # including tag:isolated nodes. tag:isolated is deliberately never a src,
+      # so an isolated node can reach nothing — safe to bake its authkey into
+      # VM images. (Tailscale ACLs are default-deny; omission = no access.)
       {
         action = "accept";
-        src = ["*"];
+        src = ["autogroup:member" "tag:server"];
         dst = ["*:*"];
       }
     ];
