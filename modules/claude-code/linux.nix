@@ -27,7 +27,9 @@
       Type = "simple";
       WorkingDirectory = resolvePath ic.path;
       ExecStart = lib.escapeShellArgs (mkArgs name ic);
-      Restart = "on-failure";
+      # Always restart: a clean exit (graceful shutdown, exit 0) should still
+      # come back. StartLimitBurst below caps a genuine crash loop.
+      Restart = "always";
       RestartSec = 15;
       KillSignal = "SIGTERM";
       KillMode = "mixed";

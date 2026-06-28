@@ -67,16 +67,59 @@ fetch_window() {
   esac
 }
 
+# Darwin launchd label. home-manager names agents org.nix-community.home.<name>.
+# ponytail: hardcoded HM prefix; if HM changes its label scheme this and the
+# plist path below must follow (the absent-instance self-test guards the basics).
+darwin_label() { echo "org.nix-community.home.claude-code-$1"; }
+
+# is_up <instance> -> 0 if the service is loaded/running, else 1.
+is_up() {
+  case "$OS" in
+    Linux) systemctl --user is-active --quiet "claude-code-$1.service" ;;
+    Darwin) launchctl list 2>/dev/null | grep -q "$(darwin_label "$1")\$" ;;
+  esac
+}
+
+# start_instance <instance> -> bring a down service back. On Darwin this loads
+# the agent if it was never bootstrapped (the reload-race case), else kickstarts.
+# Returns non-zero if there's nothing to start (e.g. unit file missing -> needs
+# a switch, which the watchdog cannot do).
+start_instance() {
+  case "$OS" in
+    Linux) systemctl --user start "claude-code-$1.service" ;;
+    Darwin)
+      local label dom plist
+      label=$(darwin_label "$1")
+      dom="gui/$(id -u)"
+      plist="$HOME/Library/LaunchAgents/$label.plist"
+      if launchctl list 2>/dev/null | grep -q "$label\$"; then
+        launchctl kickstart -k "$dom/$label"
+      elif [ -f "$plist" ]; then
+        launchctl bootstrap "$dom" "$plist"
+      else
+        return 1
+      fi
+      ;;
+  esac
+}
+
 restart_instance() {
   case "$OS" in
     Linux) systemctl --user restart "claude-code-$1.service" ;;
-    Darwin) launchctl kickstart -k "gui/$(id -u)/claude-code-$1" ;;
+    Darwin) launchctl kickstart -k "gui/$(id -u)/$(darwin_label "$1")" ;;
   esac
 }
 
 main() {
   local name window
   for name in "$@"; do
+    # Down-and-not-restarting is the one state fetch_window reads as "idle".
+    # Catch it first: a missing/crashed/un-bootstrapped service gets started.
+    if ! is_up "$name"; then
+      echo "claude-code-health: $name not running, starting"
+      start_instance "$name" || echo "claude-code-health: start of $name FAILED"
+      continue
+    fi
     window=$(fetch_window "$name")
     if should_restart "$window"; then
       echo "claude-code-health: $name stuck disconnected >= ${THRESHOLD}s, restarting"
@@ -109,6 +152,13 @@ self_test() {
     '    Capacity: 0/5 · New sessions will be created in the current directory'
   check "just below threshold (299s) -> leave alone" no \
     '·—· Reconnecting · retrying in 1s · disconnected 299s'
+  # The auto-start branch only fires when is_up reports down. If a bogus
+  # instance reads as "up", a genuinely down service would be skipped.
+  if is_up "claude-code-selftest-absent-xyz"; then
+    echo "FAIL: is_up true for an absent instance"; fail=1
+  else
+    echo "ok:   is_up false for an absent instance"
+  fi
   [ "$fail" -eq 0 ] && echo "all self-tests passed"
   return "$fail"
 }

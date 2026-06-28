@@ -17,7 +17,10 @@
       ProgramArguments = mkArgs name ic;
       WorkingDirectory = resolvePath ic.path;
       RunAtLoad = true;
-      KeepAlive = {SuccessfulExit = false;};
+      # Always respawn: the app exits 0 on graceful shutdown ("Environment
+      # preserved…"), which SuccessfulExit=false would leave down until the
+      # next activation. The watchdog handles the not-loaded case.
+      KeepAlive = true;
       ProcessType = "Background";
       EnvironmentVariables = {
         PATH = darwinPath;
