@@ -84,7 +84,11 @@
 
     # setec-compatible secrets server. Pinned to the `initial` branch; brings
     # its own nixpkgs/headscale pins (go toolchain sensitive), so no follows.
-    ts1p.url = "git+file:///Users/kradalby/git/ts1p?ref=initial";
+    ts1p = {
+      url = "github:kradalby/ts1p/initial";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+      inputs.systems.follows = "flake-utils/systems";
+    };
 
     tsidp = {
       # Pinned to pre-go-1.26.4 commit. Commit 6359a18 bumped go.mod to
