@@ -70,6 +70,12 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
+    # WIP Nix binary cache served over tailscale; pinned to the `initial` branch.
+    tsnixcache = {
+      url = "github:kradalby/tsnixcache/initial";
+      inputs.nixpkgs.follows = "nixpkgs-2511";
+    };
+
     headscale = {
       # url = "github:juanfont/headscale/v0.26.0-beta.1";
       url = "github:juanfont/headscale/main";
