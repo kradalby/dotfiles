@@ -17,6 +17,7 @@ in {
     ../../common/containers.nix
 
     ../../common/tailscale.nix
+    ../../common/tsnixcache-client.nix
 
     inputs.ssh-agent-mux.nixosModules.default
 
@@ -123,6 +124,7 @@ in {
     (pkgs.docker_29.override {clientOnly = true;})
     pkgs.unstable.lima-full
     pkgs.unstable.nodejs_26
+    pkgs.incus
   ];
 
   home-manager.users.kradalby = {
