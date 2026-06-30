@@ -1,8 +1,5 @@
-{
-  buildGoModule,
-  go_1_26,
-}:
-(buildGoModule.override {go = go_1_26;}) {
+{buildGoModule}:
+buildGoModule {
   pname = "rnb";
   version = "unstable";
 
