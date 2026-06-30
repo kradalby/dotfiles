@@ -10,7 +10,7 @@ in {
 
   services.tsnixcache-client = {
     enable = true;
-    package = inputs.tsnixcache.packages.${pkgs.system}.default;
+    package = inputs.tsnixcache.packages.${pkgs.stdenv.hostPlatform.system}.default;
     publicKey = cache.publicKey;
     substituters = [];
     postBuildHook.enable = true;

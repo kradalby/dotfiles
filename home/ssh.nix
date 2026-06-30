@@ -5,31 +5,29 @@
 }: let
   isWorkstation = pkgs.stdenv.isDarwin && pkgs.stdenv.isAarch64;
   kradalbyLogin = hostname: {
-    hostname = hostname;
-    user = "kradalby";
-    port = 22;
+    HostName = hostname;
+    User = "kradalby";
+    Port = 22;
   };
   fapRoot = {
-    hostname = "%h.fap.no";
-    user = "root";
-    port = 22;
+    HostName = "%h.fap.no";
+    User = "root";
+    Port = 22;
   };
 in {
   programs.ssh = {
     enable = true;
     enableDefaultConfig = false;
 
-    matchBlocks = {
-      "*" = {
-        forwardAgent = isWorkstation;
-      };
+    settings = {
+      "*".ForwardAgent = isWorkstation;
       "devl" = kradalbyLogin "dev.ldn.fap.no";
       "devf" = kradalbyLogin "dev.oracfurt.fap.no";
       "*.s" = {
-        hostname = "%handefjordfiber.no";
-        user = "root";
-        port = 22;
-        proxyJump = "core.terra.fap.no";
+        HostName = "%handefjordfiber.no";
+        User = "root";
+        Port = 22;
+        ProxyJump = "core.terra.fap.no";
       };
       "*.terra" = fapRoot;
       "*.tjoda" = fapRoot;
@@ -37,23 +35,13 @@ in {
       "*.oracldn" = fapRoot;
       "*.oracfurt" = fapRoot;
 
-      "kradalby-llm" = {
-        forwardAgent = false;
-      };
+      "kradalby-llm".ForwardAgent = false;
 
       # Tailscale configuration
-      "bunny*" = {
-        user = "ubuntu";
-      };
-      "control*" = {
-        user = "ubuntu";
-      };
-      "kradalby-workstation*" = {
-        user = "ubuntu";
-      };
-      "tailscale-proxy" = {
-        match = "host !bunny.corp.tailscale.com,*.tailscale.com,control,shard*,derp*,trunkd*";
-      };
+      "bunny*".User = "ubuntu";
+      "control*".User = "ubuntu";
+      "kradalby-workstation*".User = "ubuntu";
+      "tailscale-proxy".header = "Match host !bunny.corp.tailscale.com,*.tailscale.com,control,shard*,derp*,trunkd*";
     };
   };
 

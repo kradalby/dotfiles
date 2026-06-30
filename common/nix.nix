@@ -74,6 +74,11 @@ in {
     permittedInsecurePackages = [
       "litestream-0.3.13"
       "olm-3.2.16"
+      # minio is abandoned upstream and flagged insecure in 26.05 (multiple
+      # unpatched CVEs, no fixed version in nixpkgs). Only core.tjoda builds
+      # it. Revisit the version string on each bump and migrate off minio
+      # (Garage/SeaweedFS) — see the deploy notes.
+      "minio-2025-10-15T17-29-55Z"
     ];
   };
 
