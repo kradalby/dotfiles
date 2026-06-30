@@ -14,24 +14,21 @@
     flake-utils.url = "github:numtide/flake-utils";
 
     # "stable" tracks the latest NixOS release (26.05) and is the box default.
-    # Hosts not yet migrated pin `nixpkgs = inputs.nixpkgs-2511` and drop it as
-    # they move up.
     nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-26.05";
-    nixpkgs-2511.url = "github:NixOS/nixpkgs/nixos-25.11";
     nixpkgs-darwin.url = "github:NixOS/nixpkgs/nixpkgs-26.05-darwin";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     nixpkgs-master.url = "github:NixOS/nixpkgs/master";
     darwin.url = "github:nix-darwin/nix-darwin/nix-darwin-26.05";
     darwin.inputs.nixpkgs.follows = "nixpkgs-darwin";
 
-    home-manager.url = "github:nix-community/home-manager/release-25.11";
-    home-manager.inputs.nixpkgs.follows = "nixpkgs-2511";
+    home-manager.url = "github:nix-community/home-manager/release-26.05";
+    home-manager.inputs.nixpkgs.follows = "nixpkgs-stable";
     nix-index-database.url = "github:nix-community/nix-index-database";
-    nix-index-database.inputs.nixpkgs.follows = "nixpkgs-2511";
+    nix-index-database.inputs.nixpkgs.follows = "nixpkgs-stable";
 
     nixos-generators = {
       url = "github:nix-community/nixos-generators";
-      inputs.nixpkgs.follows = "nixpkgs-2511";
+      inputs.nixpkgs.follows = "nixpkgs-stable";
     };
 
     nix-rosetta-builder = {
@@ -42,7 +39,7 @@
     ragenix = {
       url = "github:yaxitech/ragenix";
       inputs."flake-utils".follows = "flake-utils";
-      inputs.nixpkgs.follows = "nixpkgs-2511";
+      inputs.nixpkgs.follows = "nixpkgs-stable";
     };
 
     # Go based
@@ -73,7 +70,7 @@
     # WIP Nix binary cache served over tailscale; pinned to the `initial` branch.
     tsnixcache = {
       url = "github:kradalby/tsnixcache/initial";
-      inputs.nixpkgs.follows = "nixpkgs-2511";
+      inputs.nixpkgs.follows = "nixpkgs-stable";
     };
 
     headscale = {
@@ -173,29 +170,32 @@
     flake-utils,
     ...
   } @ inputs: let
-    mkGoOverlay = version: final: prev: {
-      go = final."go_${version}";
-      buildGoModule = final."buildGo${builtins.replaceStrings ["_"] [""] version}Module";
-    };
-    goOverlayStable = mkGoOverlay "1_25";
-    goOverlayUnstable = mkGoOverlay "1_26";
+    # Single go version for the whole fleet (stable, unstable, master).
+    # Bump here to move every in-repo go build at once.
+    goOverlay = let
+      version = "1_26";
+    in
+      final: _prev: {
+        go = final."go_${version}";
+        buildGoModule = final."buildGo${builtins.replaceStrings ["_"] [""] version}Module";
+      };
 
     overlay-pkgs = final: _: {
       unstable = import inputs.nixpkgs-unstable {
         system = final.stdenv.hostPlatform.system;
         config = {allowUnfree = true;};
-        overlays = [goOverlayUnstable (import ./pkgs/overlays {})];
+        overlays = [goOverlay (import ./pkgs/overlays {})];
       };
       master = import inputs.nixpkgs-master {
         system = final.stdenv.hostPlatform.system;
         config = {allowUnfree = true;};
-        overlays = [goOverlayUnstable];
+        overlays = [goOverlay];
       };
     };
 
     overlays = with inputs; [
       overlay-pkgs
-      goOverlayStable
+      goOverlay
       headscale.overlays.default
       golink.overlays.default
       krapage.overlays.default
@@ -232,8 +232,8 @@
             pname = "opencode";
             inherit version src;
             nativeBuildInputs =
-              prev.lib.optional prev.stdenv.hostPlatform.isLinux [prev.autoPatchelfHook]
-              ++ prev.lib.optional (prev.lib.hasSuffix ".zip" srcs.${system}.url) [prev.unzip];
+              prev.lib.optionals prev.stdenv.hostPlatform.isLinux [prev.autoPatchelfHook]
+              ++ prev.lib.optionals (prev.lib.hasSuffix ".zip" srcs.${system}.url) [prev.unzip];
             sourceRoot = ".";
             unpackPhase =
               if prev.lib.hasSuffix ".tar.gz" srcs.${system}.url
@@ -308,7 +308,6 @@
           # };
 
           "home.ldn" = box.nixosBox {
-            nixpkgs = inputs.nixpkgs-2511;
             arch = "x86_64-linux";
             name = "home.ldn";
             tags = ["x86" "ldn"];
@@ -326,7 +325,6 @@
           # };
 
           "dev.ldn" = box.nixosBox {
-            nixpkgs = inputs.nixpkgs-2511;
             arch = "x86_64-linux";
             homeBase = home-manager;
             name = "dev.ldn";
@@ -367,14 +365,12 @@
           # };
 
           "storage.ldn" = box.nixosBox {
-            nixpkgs = inputs.nixpkgs-2511;
             arch = "x86_64-linux";
             name = "storage.ldn";
             tags = ["x86" "ldn"];
           };
 
           "ts1p.ldn" = box.nixosBox {
-            nixpkgs = inputs.nixpkgs-2511;
             arch = "x86_64-linux";
             name = "ts1p.ldn";
             tags = ["x86" "ldn"];
@@ -393,7 +389,6 @@
           # };
 
           "core.tjoda" = box.nixosBox {
-            nixpkgs = inputs.nixpkgs-2511;
             arch = "x86_64-linux";
             name = "core.tjoda";
             tags = ["x86" "router" "tjoda"];
