@@ -13,21 +13,25 @@
   inputs = {
     flake-utils.url = "github:numtide/flake-utils";
 
-    nixpkgs-nixos.url = "github:NixOS/nixpkgs/nixos-25.11";
-    nixpkgs-darwin.url = "github:NixOS/nixpkgs/nixpkgs-25.11-darwin";
+    # "stable" tracks the latest NixOS release (26.05) and is the box default.
+    # Hosts not yet migrated pin `nixpkgs = inputs.nixpkgs-2511` and drop it as
+    # they move up.
+    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-26.05";
+    nixpkgs-2511.url = "github:NixOS/nixpkgs/nixos-25.11";
+    nixpkgs-darwin.url = "github:NixOS/nixpkgs/nixpkgs-26.05-darwin";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     nixpkgs-master.url = "github:NixOS/nixpkgs/master";
-    darwin.url = "github:nix-darwin/nix-darwin/nix-darwin-25.11";
+    darwin.url = "github:nix-darwin/nix-darwin/nix-darwin-26.05";
     darwin.inputs.nixpkgs.follows = "nixpkgs-darwin";
 
     home-manager.url = "github:nix-community/home-manager/release-25.11";
-    home-manager.inputs.nixpkgs.follows = "nixpkgs-nixos";
+    home-manager.inputs.nixpkgs.follows = "nixpkgs-2511";
     nix-index-database.url = "github:nix-community/nix-index-database";
-    nix-index-database.inputs.nixpkgs.follows = "nixpkgs-nixos";
+    nix-index-database.inputs.nixpkgs.follows = "nixpkgs-2511";
 
     nixos-generators = {
       url = "github:nix-community/nixos-generators";
-      inputs.nixpkgs.follows = "nixpkgs-nixos";
+      inputs.nixpkgs.follows = "nixpkgs-2511";
     };
 
     nix-rosetta-builder = {
@@ -38,7 +42,7 @@
     ragenix = {
       url = "github:yaxitech/ragenix";
       inputs."flake-utils".follows = "flake-utils";
-      inputs.nixpkgs.follows = "nixpkgs-nixos";
+      inputs.nixpkgs.follows = "nixpkgs-2511";
     };
 
     # Go based
@@ -155,7 +159,7 @@
 
   outputs = {
     self,
-    nixpkgs-nixos,
+    nixpkgs-stable,
     nixpkgs-darwin,
     darwin,
     home-manager,
@@ -257,10 +261,10 @@
     ];
 
     box = import ./lib/box.nix {
-      pkgs = nixpkgs-nixos;
+      pkgs = nixpkgs-stable;
       inherit inputs overlays;
-      lib = nixpkgs-nixos.lib;
-      rev = nixpkgs-nixos.lib.mkIf (self ? rev) self.rev;
+      lib = nixpkgs-stable.lib;
+      rev = nixpkgs-stable.lib.mkIf (self ? rev) self.rev;
     };
   in
     {
@@ -298,6 +302,7 @@
           # };
 
           "home.ldn" = box.nixosBox {
+            nixpkgs = inputs.nixpkgs-2511;
             arch = "x86_64-linux";
             name = "home.ldn";
             tags = ["x86" "ldn"];
@@ -315,6 +320,7 @@
           # };
 
           "dev.ldn" = box.nixosBox {
+            nixpkgs = inputs.nixpkgs-2511;
             arch = "x86_64-linux";
             homeBase = home-manager;
             name = "dev.ldn";
@@ -355,12 +361,14 @@
           # };
 
           "storage.ldn" = box.nixosBox {
+            nixpkgs = inputs.nixpkgs-2511;
             arch = "x86_64-linux";
             name = "storage.ldn";
             tags = ["x86" "ldn"];
           };
 
           "ts1p.ldn" = box.nixosBox {
+            nixpkgs = inputs.nixpkgs-2511;
             arch = "x86_64-linux";
             name = "ts1p.ldn";
             tags = ["x86" "ldn"];
@@ -379,6 +387,7 @@
           # };
 
           "core.tjoda" = box.nixosBox {
+            nixpkgs = inputs.nixpkgs-2511;
             arch = "x86_64-linux";
             name = "core.tjoda";
             tags = ["x86" "router" "tjoda"];
@@ -443,14 +452,14 @@
       # Only the canonical dotted hosts deploy; the dot-free garnix dupes
       # are filtered out so each host isn't a colmena node twice.
       colmena = box.mkColmenaFromNixOSConfigurations (
-        nixpkgs-nixos.lib.filterAttrs
-        (name: _: nixpkgs-nixos.lib.hasInfix "." name)
+        nixpkgs-stable.lib.filterAttrs
+        (name: _: nixpkgs-stable.lib.hasInfix "." name)
         self.nixosConfigurations
       );
     }
     // flake-utils.lib.eachSystem ["x86_64-linux" "aarch64-darwin"]
     (system: let
-      pkgs = import nixpkgs-nixos {
+      pkgs = import nixpkgs-stable {
         inherit overlays system;
       };
     in {
@@ -499,7 +508,7 @@
       mkRpiBootstrap = import ./lib/rpi-bootstrap.nix {
         inherit nixos-generators inputs overlays;
       };
-      rpiPkgs = import nixpkgs-nixos {
+      rpiPkgs = import nixpkgs-stable {
         system = "aarch64-linux";
         inherit overlays;
       };
