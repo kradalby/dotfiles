@@ -10,6 +10,13 @@ in {
 
   programs.fish = {
     enable = true;
+    # TODO: re-enable once home-manager's fish module works with fish >= 4.8.
+    # nixpkgs' fish 4.8 ships no python tooling in its output, so the
+    # build-time generator (share/fish/tools/create_manpage_completions.py)
+    # is gone and every *-fish-completions derivation fails. fish 4.8
+    # regenerates these itself at runtime, so disabling is no real loss.
+    # Tracking: https://github.com/NixOS/nixpkgs/issues/462025
+    generateCompletions = false;
     plugins = [
       # Need this when using Fish as a default macOS shell in order to pick
       # up ~/.nix-profile/bin

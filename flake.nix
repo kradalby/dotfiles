@@ -264,125 +264,138 @@
     };
   in
     {
-      nixosConfigurations = {
-        # "core.terra" = box.nixosBox {
-        #   arch = "x86_64-linux";
-        #   name = "core.terra";
-        #   tags = ["x86" "router" "terra"];
-        # };
+      nixosConfigurations = let
+        hosts = {
+          # "core.terra" = box.nixosBox {
+          #   arch = "x86_64-linux";
+          #   name = "core.terra";
+          #   tags = ["x86" "router" "terra"];
+          # };
 
-        # Out of rotation.
-        # "core.oracldn" = box.nixosBox {
-        #   arch = "aarch64-linux";
-        #   name = "core.oracldn";
-        #   tags = ["arm64" "oracle" "oracldn"];
-        #   modules = with inputs; [
-        #     headscale.nixosModules.default
-        #     golink.nixosModules.default
-        #     krapage.nixosModules.default
-        #     hvor.nixosModules.default
-        #     tasmota-exporter.nixosModules.default
-        #     homewizard-p1-exporter.nixosModules.default
-        #   ];
-        # };
+          # Out of rotation.
+          # "core.oracldn" = box.nixosBox {
+          #   arch = "aarch64-linux";
+          #   name = "core.oracldn";
+          #   tags = ["arm64" "oracle" "oracldn"];
+          #   modules = with inputs; [
+          #     headscale.nixosModules.default
+          #     golink.nixosModules.default
+          #     krapage.nixosModules.default
+          #     hvor.nixosModules.default
+          #     tasmota-exporter.nixosModules.default
+          #     homewizard-p1-exporter.nixosModules.default
+          #   ];
+          # };
 
-        # Out of rotation.
-        # "dev.oracfurt" = box.nixosBox {
-        #   arch = "aarch64-linux";
-        #   name = "dev.oracfurt";
-        #   tags = ["arm64" "oracle" "oracfurt"];
-        #   modules = with inputs; [
-        #     tsidp.nixosModules.default
-        #   ];
-        # };
+          # Out of rotation.
+          # "dev.oracfurt" = box.nixosBox {
+          #   arch = "aarch64-linux";
+          #   name = "dev.oracfurt";
+          #   tags = ["arm64" "oracle" "oracfurt"];
+          #   modules = with inputs; [
+          #     tsidp.nixosModules.default
+          #   ];
+          # };
 
-        "home.ldn" = box.nixosBox {
-          arch = "x86_64-linux";
-          name = "home.ldn";
-          tags = ["x86" "ldn"];
-          modules = with inputs; [
-            nefit-homekit.nixosModules.default
-            tasmota-homekit.nixosModules.default
-            z2m-homekit.nixosModules.default
-          ];
+          "home.ldn" = box.nixosBox {
+            arch = "x86_64-linux";
+            name = "home.ldn";
+            tags = ["x86" "ldn"];
+            modules = with inputs; [
+              nefit-homekit.nixosModules.default
+              tasmota-homekit.nixosModules.default
+              z2m-homekit.nixosModules.default
+            ];
+          };
+
+          # "rpi.vetle" = box.nixosBox {
+          #   arch = "aarch64-linux";
+          #   name = "home.ldn";
+          #   tags = ["arm64" "ldn"];
+          # };
+
+          "dev.ldn" = box.nixosBox {
+            arch = "x86_64-linux";
+            homeBase = home-manager;
+            name = "dev.ldn";
+            tags = ["x86" "ldn"];
+            allowLocalDeployment = true;
+            # Sole builder for the fleet.
+            buildOnTarget = true;
+          };
+
+          # Out of rotation.
+          # "rpi5.ldn" = box.nixosBox {
+          #   arch = "aarch64-linux";
+          #   name = "rpi5.ldn";
+          #   tags = ["arm64" "ldn"];
+          #   # LAN IP for the first deploy before the host joins
+          #   # tailscale. Drop to null once rpi5-ldn.<tailnet> resolves.
+          #   # targetHost = "10.65.0.196";
+          #   modules = with inputs; [
+          #     # raspberry-pi-5 modules consume nixos-raspberrypi as a
+          #     # module argument (normally set by the flake's own
+          #     # lib.nixosSystem via specialArgs). box.nixosBox calls
+          #     # plain nixpkgs.lib.nixosSystem so we wire the arg in.
+          #     ({...}: {_module.args.nixos-raspberrypi = nixos-raspberrypi;})
+          #     nixos-raspberrypi.nixosModules.raspberry-pi-5.base
+          #     nixos-raspberrypi.nixosModules.raspberry-pi-5.page-size-16k
+          #     nixos-raspberrypi.nixosModules.nixpkgs-rpi
+          #     nixos-raspberrypi.nixosModules.trusted-nix-caches
+          #     ({...}: {
+          #       nixpkgs.overlays = [
+          #         nixos-raspberrypi.overlays.bootloader
+          #         nixos-raspberrypi.overlays.vendor-kernel
+          #         nixos-raspberrypi.overlays.vendor-firmware
+          #         nixos-raspberrypi.overlays.kernel-and-firmware
+          #         nixos-raspberrypi.overlays.vendor-pkgs
+          #       ];
+          #     })
+          #   ];
+          # };
+
+          "storage.ldn" = box.nixosBox {
+            arch = "x86_64-linux";
+            name = "storage.ldn";
+            tags = ["x86" "ldn"];
+          };
+
+          "ts1p.ldn" = box.nixosBox {
+            arch = "x86_64-linux";
+            name = "ts1p.ldn";
+            tags = ["x86" "ldn"];
+            # Small VM: build on the deployer, not the target.
+            buildOnTarget = false;
+            modules = with inputs; [
+              ts1p.nixosModules.default
+            ];
+          };
+
+          # Out of rotation.
+          # "lenovo.ldn" = box.nixosBox {
+          #   arch = "x86_64-linux";
+          #   name = "lenovo.ldn";
+          #   tags = ["x86" "ldn"];
+          # };
+
+          "core.tjoda" = box.nixosBox {
+            arch = "x86_64-linux";
+            name = "core.tjoda";
+            tags = ["x86" "router" "tjoda"];
+          };
         };
-
-        # "rpi.vetle" = box.nixosBox {
-        #   arch = "aarch64-linux";
-        #   name = "home.ldn";
-        #   tags = ["arm64" "ldn"];
-        # };
-
-        "dev.ldn" = box.nixosBox {
-          arch = "x86_64-linux";
-          homeBase = home-manager;
-          name = "dev.ldn";
-          tags = ["x86" "ldn"];
-          allowLocalDeployment = true;
-          # Sole builder for the fleet.
-          buildOnTarget = true;
-        };
-
-        # Out of rotation.
-        # "rpi5.ldn" = box.nixosBox {
-        #   arch = "aarch64-linux";
-        #   name = "rpi5.ldn";
-        #   tags = ["arm64" "ldn"];
-        #   # LAN IP for the first deploy before the host joins
-        #   # tailscale. Drop to null once rpi5-ldn.<tailnet> resolves.
-        #   # targetHost = "10.65.0.196";
-        #   modules = with inputs; [
-        #     # raspberry-pi-5 modules consume nixos-raspberrypi as a
-        #     # module argument (normally set by the flake's own
-        #     # lib.nixosSystem via specialArgs). box.nixosBox calls
-        #     # plain nixpkgs.lib.nixosSystem so we wire the arg in.
-        #     ({...}: {_module.args.nixos-raspberrypi = nixos-raspberrypi;})
-        #     nixos-raspberrypi.nixosModules.raspberry-pi-5.base
-        #     nixos-raspberrypi.nixosModules.raspberry-pi-5.page-size-16k
-        #     nixos-raspberrypi.nixosModules.nixpkgs-rpi
-        #     nixos-raspberrypi.nixosModules.trusted-nix-caches
-        #     ({...}: {
-        #       nixpkgs.overlays = [
-        #         nixos-raspberrypi.overlays.bootloader
-        #         nixos-raspberrypi.overlays.vendor-kernel
-        #         nixos-raspberrypi.overlays.vendor-firmware
-        #         nixos-raspberrypi.overlays.kernel-and-firmware
-        #         nixos-raspberrypi.overlays.vendor-pkgs
-        #       ];
-        #     })
-        #   ];
-        # };
-
-        "storage.ldn" = box.nixosBox {
-          arch = "x86_64-linux";
-          name = "storage.ldn";
-          tags = ["x86" "ldn"];
-        };
-
-        "ts1p.ldn" = box.nixosBox {
-          arch = "x86_64-linux";
-          name = "ts1p.ldn";
-          tags = ["x86" "ldn"];
-          # Small VM: build on the deployer, not the target.
-          buildOnTarget = false;
-          modules = with inputs; [
-            ts1p.nixosModules.default
-          ];
-        };
-
-        # Out of rotation.
-        # "lenovo.ldn" = box.nixosBox {
-        #   arch = "x86_64-linux";
-        #   name = "lenovo.ldn";
-        #   tags = ["x86" "ldn"];
-        # };
-
-        "core.tjoda" = box.nixosBox {
-          arch = "x86_64-linux";
-          name = "core.tjoda";
-          tags = ["x86" "router" "tjoda"];
-        };
-      };
+      in
+        # garnix's attribute matcher is dot-delimited, so it can't build
+        # nixosConfigurations whose names contain '.'. Duplicate each host
+        # under a dot-free key (dev.ldn -> dev-ldn) so garnix builds them.
+        # Dotted originals stay canonical for colmena/deploy; the dupes are
+        # filtered back out of colmena below. Drop once garnix handles
+        # dotted/quoted names (see home/fish.nix TODO).
+        hosts
+        // builtins.listToAttrs (map (n: {
+          name = builtins.replaceStrings ["."] ["-"] n;
+          value = hosts.${n};
+        }) (builtins.attrNames hosts));
 
       # darwin-rebuild switch --flake .#kramacbook
       darwinConfigurations = {
@@ -427,7 +440,13 @@
         };
       };
 
-      colmena = box.mkColmenaFromNixOSConfigurations self.nixosConfigurations;
+      # Only the canonical dotted hosts deploy; the dot-free garnix dupes
+      # are filtered out so each host isn't a colmena node twice.
+      colmena = box.mkColmenaFromNixOSConfigurations (
+        nixpkgs-nixos.lib.filterAttrs
+        (name: _: nixpkgs-nixos.lib.hasInfix "." name)
+        self.nixosConfigurations
+      );
     }
     // flake-utils.lib.eachSystem ["x86_64-linux" "aarch64-darwin"]
     (system: let
