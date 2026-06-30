@@ -34,20 +34,7 @@ in {
           prettyping
           entr
           eb
-          (git-absorb.overrideAttrs (old: rec {
-            version = "3a1148ea2df3ca41cb69df8848f99d25e66dc0b5";
-            src = pkgs.fetchFromGitHub {
-              owner = "tummychow";
-              repo = "git-absorb";
-              rev = version;
-              hash = "sha256-CrpLWDHSnT2PgbLFDK6UyaeKgmW1mygvSIudsl/nbbQ=";
-            };
-            cargoDeps = old.cargoDeps.overrideAttrs {
-              inherit src;
-              outputHash = "sha256-03vHVC3PSmHMLouQSirPlIG5o7BpvgWjFCtKLAGnxg8=";
-              outputHashMode = "recursive";
-            };
-          }))
+          git-absorb
           git-open
           git-toolbelt
           difftastic
