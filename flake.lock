@@ -947,22 +947,6 @@
         "type": "github"
       }
     },
-    "nixpkgs_4": {
-      "locked": {
-        "lastModified": 1781607440,
-        "narHash": "sha256-rxO+uc/KFbSJp+pgyXRuAX6QlG9hJdnt0BXpEQRXY+U=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "3e41b24abd260e8f71dbe2f5737d24122f972158",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "ref": "nixpkgs-unstable",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
     "opencode": {
       "inputs": {
         "nixpkgs": [
@@ -1583,21 +1567,23 @@
         "flake-checks": "flake-checks_8",
         "flake-utils": "flake-utils_6",
         "headscale": "headscale_2",
-        "nixpkgs": "nixpkgs_4"
+        "nixpkgs": [
+          "nixpkgs-unstable"
+        ]
       },
       "locked": {
-        "lastModified": 1782589191,
-        "narHash": "sha256-6McBoir97OGZlKPbVwF4LpSrv/LZQtmGGjw/cOClR3Y=",
-        "ref": "initial",
-        "rev": "3c53b5761e980cfcb26f05f598f6aa72ea7da499",
-        "revCount": 27,
-        "type": "git",
-        "url": "file:///Users/kradalby/git/ts1p"
+        "lastModified": 1782664302,
+        "narHash": "sha256-euyb55yrvoeJl2Y7FMAe37TAr8xeIOXmEZaIPtwC1ak=",
+        "owner": "kradalby",
+        "repo": "ts1p",
+        "rev": "5add9e352750fc79306b4391426fbf0a40a7246b",
+        "type": "github"
       },
       "original": {
+        "owner": "kradalby",
         "ref": "initial",
-        "type": "git",
-        "url": "file:///Users/kradalby/git/ts1p"
+        "repo": "ts1p",
+        "type": "github"
       }
     },
     "tsidp": {
