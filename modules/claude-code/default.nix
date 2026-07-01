@@ -43,6 +43,22 @@
     ];
 
   enabled = lib.filterAttrs (_: ic: ic.enable) cfg;
+
+  # Rewrite each builder repo's origin remote to a real URL. Repos cloned via an
+  # insteadOf alias (e.g. `gh:`) store the alias in remote.origin.url; the bridge
+  # registers it verbatim and the API rejects new-session creation with 400 ("The
+  # request was invalid"). `get-url` expands the alias; a real URL is a no-op.
+  # Done at activation, not in ExecStart, so builders restart only on a real
+  # version/config change — never on an incidental git or bash bump.
+  normalizeRemotes =
+    lib.concatMapStringsSep "\n" (ic: let
+      dir = lib.escapeShellArg (resolvePath ic.path);
+    in ''
+      if ${pkgs.git}/bin/git -C ${dir} rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+        u="$(${pkgs.git}/bin/git -C ${dir} remote get-url origin 2>/dev/null || true)"
+        [ -n "$u" ] && ${pkgs.git}/bin/git -C ${dir} remote set-url origin "$u" || true
+      fi
+    '') (lib.attrValues enabled);
 in {
   imports = [
     ./linux.nix
@@ -126,7 +142,13 @@ in {
     }));
   };
 
-  config._module.args.claudeCodeLib = {
-    inherit resolvePath mkArgs enabled;
+  config = {
+    _module.args.claudeCodeLib = {
+      inherit resolvePath mkArgs enabled;
+    };
+
+    home.activation = lib.mkIf (enabled != {}) {
+      claudeNormalizeRemotes = lib.hm.dag.entryAfter ["writeBoundary"] normalizeRemotes;
+    };
   };
 }
