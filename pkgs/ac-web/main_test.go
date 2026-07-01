@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 )
 
 // validateBranch is the exec trust boundary; empty is allowed (main repo),
@@ -52,6 +53,24 @@ func TestServerRe(t *testing.T) {
 	for _, s := range []string{"", "dotfiles", "ac-;rm", "ac- x", "../x"} {
 		if serverRe.MatchString(s) {
 			t.Errorf("serverRe accepted invalid %q", s)
+		}
+	}
+}
+
+func TestAgo(t *testing.T) {
+	now := time.Now()
+	cases := []struct {
+		in   time.Time
+		want string
+	}{
+		{time.Time{}, ""},
+		{now.Add(-30 * time.Second), "just now"},
+		{now.Add(-3 * time.Hour), "3h"},
+		{now.Add(-2 * 24 * time.Hour), "2d"},
+	}
+	for _, c := range cases {
+		if got := ago(c.in); got != c.want {
+			t.Errorf("ago(%v) = %q, want %q", c.in, got, c.want)
 		}
 	}
 }
