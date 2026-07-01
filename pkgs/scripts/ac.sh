@@ -91,19 +91,24 @@ create_branch_worktree() {
 	# Ensure the parent dir exists for nested branch names (e.g. feature/foo).
 	mkdir -p "$(dirname "$target_path")"
 
+	# Fetch and pick the base the branch would be created from.
+	local base
 	if git -C "$main_wt" remote | grep -q '^upstream$'; then
 		echo "Fetching upstream..."
 		git -C "$main_wt" fetch upstream
-		echo "Creating worktree at $target_path from upstream/main..."
-		git -C "$main_wt" worktree add "$target_path" -b "$branch" upstream/main
+		base="upstream/main"
 	else
-		# Determine origin's default branch
-		local base
 		base=$(git -C "$main_wt" symbolic-ref refs/remotes/origin/HEAD 2>/dev/null |
 			sed 's@^refs/remotes/@@' || echo "origin/main")
-
 		echo "Fetching origin..."
 		git -C "$main_wt" fetch origin
+	fi
+
+	# If the branch already exists, check it out; otherwise create it from base.
+	if git -C "$main_wt" show-ref --verify --quiet "refs/heads/$branch"; then
+		echo "Checking out existing branch '$branch' at $target_path..."
+		git -C "$main_wt" worktree add "$target_path" "$branch"
+	else
 		echo "Creating worktree at $target_path from $base..."
 		git -C "$main_wt" worktree add "$target_path" -b "$branch" "$base"
 	fi
@@ -113,6 +118,41 @@ create_branch_worktree() {
 		echo "Allowing direnv in $target_path..."
 		direnv allow "$target_path"
 	fi
+}
+
+# ensure_worktree echoes the worktree dir for a branch, creating it if absent.
+# A branch already checked out is resolved to its actual worktree even when the
+# directory name differs from the branch (so we always end up in the right
+# place). With mode "interactive", prompts before creating; otherwise creates
+# silently. Progress goes to stderr so stdout is only the resolved path.
+ensure_worktree() {
+	local repo="$1" branch="$2" mode="${3:-}"
+
+	local main_wt existing
+	main_wt=$(find_main_worktree "$repo")
+
+	# Already checked out somewhere? Use that worktree, whatever it is named.
+	existing=$(git -C "$main_wt" worktree list --porcelain |
+		awk -v b="refs/heads/$branch" '/^worktree /{p=substr($0,10)} /^branch /{if($2==b){print p; exit}}')
+	if [[ -n "$existing" ]]; then
+		echo "$existing"
+		return 0
+	fi
+
+	# Conventional path under WT_ROOT.
+	local target_path="$WT_ROOT/$repo/$branch"
+	if [[ -d "$target_path" ]]; then
+		echo "$target_path"
+		return 0
+	fi
+
+	if [[ "$mode" == "interactive" ]]; then
+		local answer
+		read -rp "Branch '$branch' not found for $repo. Create? [y/N] " answer
+		[[ "$answer" =~ ^[Yy]$ ]] || return 1
+	fi
+	create_branch_worktree "$main_wt" "$target_path" "$branch" >&2
+	echo "$target_path"
 }
 
 server_alive() {
@@ -213,25 +253,13 @@ attach_session() {
 cmd_create_or_attach() {
 	local repo="$1" branch="${2:-}" agent="${3:-$DEFAULT_AGENT}"
 
-	# If a branch is specified and the worktree doesn't exist, offer to create it
-	if [[ -n "$branch" ]]; then
-		local target_path="$WT_ROOT/$repo/$branch"
-		if [[ ! -d "$target_path" ]]; then
-			local main_wt
-			main_wt=$(find_main_worktree "$repo")
-
-			local answer
-			read -rp "Branch '$branch' not found for $repo. Create? [y/N] " answer
-			if [[ "$answer" =~ ^[Yy]$ ]]; then
-				create_branch_worktree "$main_wt" "$target_path" "$branch"
-			else
-				return 1
-			fi
-		fi
-	fi
-
 	local dir effective_branch server
-	dir=$(resolve_path "$repo" "$branch")
+	if [[ -n "$branch" ]]; then
+		# Resolve to an existing worktree (creating on confirmation if none).
+		dir=$(ensure_worktree "$repo" "$branch" interactive) || return 1
+	else
+		dir=$(resolve_path "$repo" "")
+	fi
 	effective_branch=$(resolve_branch "$repo" "$branch")
 	server=$(server_name "$repo" "$effective_branch")
 
@@ -254,19 +282,14 @@ cmd_spawn() {
 	# attach later with `ac <repo> [branch]`.
 	local repo="$1" branch="${2:-}" agent="${3:-$DEFAULT_AGENT}"
 
-	# Create the branch worktree if it's missing (no prompt, unlike the
-	# interactive path).
-	if [[ -n "$branch" ]]; then
-		local target_path="$WT_ROOT/$repo/$branch"
-		if [[ ! -d "$target_path" ]]; then
-			local main_wt
-			main_wt=$(find_main_worktree "$repo")
-			create_branch_worktree "$main_wt" "$target_path" "$branch"
-		fi
-	fi
-
+	# Resolve to an existing worktree, creating it if missing (no prompt, unlike
+	# the interactive path).
 	local dir effective_branch server
-	dir=$(resolve_path "$repo" "$branch")
+	if [[ -n "$branch" ]]; then
+		dir=$(ensure_worktree "$repo" "$branch") || return 1
+	else
+		dir=$(resolve_path "$repo" "")
+	fi
 	effective_branch=$(resolve_branch "$repo" "$branch")
 	server=$(server_name "$repo" "$effective_branch")
 
@@ -455,7 +478,8 @@ Flags:
   -c, --claude           Use claude (default)
 
 If the branch worktree does not exist, you will be prompted to
-create it. The new branch is based on the appropriate remote:
+create it. An existing branch is checked out as-is; a new branch
+is based on the appropriate remote:
   - Repos with an 'upstream' remote: fetches upstream, branches
     from upstream/main (e.g., headscale forks)
   - All other repos: fetches origin, branches from origin's
