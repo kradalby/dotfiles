@@ -25,6 +25,7 @@ in {
     ./syncthing.nix
     ./paseo.nix
     ./claude-code.nix
+    ./ac-web.nix
   ];
 
   networking = {
