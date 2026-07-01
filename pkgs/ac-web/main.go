@@ -54,7 +54,8 @@ type session struct {
 }
 
 type worktree struct {
-	Branch     string
+	Branch     string // checked-out branch: the spawn identity, matches `ac`
+	Rel        string // path under wtRoot/<repo>: the delete identity
 	LastActive time.Time
 }
 
@@ -109,25 +110,43 @@ func lastActive(dir string) time.Time {
 }
 
 // worktreesFor returns the branch worktrees for a repo (those living under
-// wtRoot/<repo>/), derived from `git worktree list`. The branch id is the path
-// relative to wtRoot/<repo>, which is exactly what `ac spawn <repo> <branch>`
-// expects. The main worktree (under gitRoot) is excluded.
+// wtRoot/<repo>/), newest-first. Each carries the branch it has checked out —
+// the spawn identity, which `ac spawn <repo> <branch>` resolves the same way
+// the CLI does — and its path relative to wtRoot/<repo>, the unambiguous delete
+// identity (it can differ from the branch name after a rename). The main
+// worktree (under gitRoot) is excluded.
 func worktreesFor(name string) []worktree {
 	out, err := exec.Command("git", "-C", filepath.Join(gitRoot, name), "worktree", "list", "--porcelain").Output()
 	if err != nil {
 		return nil
 	}
 	prefix := filepath.Join(wtRoot, name) + "/"
+
 	var res []worktree
-	for line := range strings.SplitSeq(string(out), "\n") {
-		path, ok := strings.CutPrefix(line, "worktree ")
-		if !ok {
-			continue
+	var path, branch string
+	var under bool
+	commit := func() { // flush the current porcelain block
+		if under {
+			b := branch
+			if b == "" { // detached HEAD: fall back to the dir name
+				b = strings.TrimPrefix(path, prefix)
+			}
+			res = append(res, worktree{Branch: b, Rel: strings.TrimPrefix(path, prefix), LastActive: lastActive(path)})
 		}
-		if branch, under := strings.CutPrefix(path, prefix); under {
-			res = append(res, worktree{Branch: branch, LastActive: lastActive(path)})
+		path, branch, under = "", "", false
+	}
+	for line := range strings.SplitSeq(string(out), "\n") {
+		switch {
+		case strings.HasPrefix(line, "worktree "):
+			commit()
+			path = strings.TrimPrefix(line, "worktree ")
+			under = strings.HasPrefix(path, prefix)
+		case strings.HasPrefix(line, "branch "):
+			branch = strings.TrimPrefix(strings.TrimPrefix(line, "branch "), "refs/heads/")
 		}
 	}
+	commit()
+
 	sort.Slice(res, func(i, j int) bool { return res[i].LastActive.After(res[j].LastActive) })
 	return res
 }
@@ -191,21 +210,23 @@ func handleKill(w http.ResponseWriter, r *http.Request) {
 	run(w, r, "ac", "rm", server)
 }
 
-// handleRmWorktree removes a branch worktree (keeping the branch ref).
-// --force --force clears dirty trees and stale agent locks.
+// handleRmWorktree removes a worktree by its path under wtRoot/<repo> (keeping
+// the branch ref). Removing by path, not by branch name, is what makes this
+// correct when the two differ after a rename. --force --force clears dirty
+// trees and stale agent locks.
 func handleRmWorktree(w http.ResponseWriter, r *http.Request) {
 	repoName := r.FormValue("repo")
-	branch := r.FormValue("branch")
+	rel := r.FormValue("path")
 	if err := validateRepo(repoName); err != nil {
 		fail(w, err)
 		return
 	}
-	if err := validateBranch(branch); err != nil || branch == "" {
-		fail(w, fmt.Errorf("invalid branch: %q", branch))
+	if err := validateBranch(rel); err != nil || rel == "" { // same path-shape rules
+		fail(w, fmt.Errorf("invalid worktree path: %q", rel))
 		return
 	}
 	run(w, r, "git", "-C", filepath.Join(gitRoot, repoName),
-		"worktree", "remove", "--force", "--force", filepath.Join(wtRoot, repoName, branch))
+		"worktree", "remove", "--force", "--force", filepath.Join(wtRoot, repoName, rel))
 }
 
 // run executes a command and, on success, redirects back to the index; on
@@ -342,11 +363,11 @@ var page = template.Must(template.New("page").Funcs(template.FuncMap{"ago": ago}
  <form method=post action=/spawn>
   <input type=hidden name=repo value="{{$repo}}">
   <input type=hidden name=branch value="{{.Branch}}">
-  <button>spawn</button> <code>{{.Branch}}</code> <span class=muted>{{ago .LastActive}}</span>
+  <button>spawn</button> <code>{{.Branch}}</code>{{if ne .Branch .Rel}} <span class=muted>in {{.Rel}}</span>{{end}} <span class=muted>{{ago .LastActive}}</span>
  </form>
- <form method=post action=/rmworktree onsubmit="return confirm('Remove worktree {{$repo}}/{{.Branch}}?')">
+ <form method=post action=/rmworktree onsubmit="return confirm('Remove worktree {{$repo}}/{{.Rel}}?')">
   <input type=hidden name=repo value="{{$repo}}">
-  <input type=hidden name=branch value="{{.Branch}}">
+  <input type=hidden name=path value="{{.Rel}}">
   <button>rm</button>
  </form>
 </li>{{end}}
