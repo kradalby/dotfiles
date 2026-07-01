@@ -14,6 +14,8 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"sort"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -38,6 +40,7 @@ func main() {
 	mux.HandleFunc("/", handleIndex)
 	mux.HandleFunc("/spawn", handleSpawn)
 	mux.HandleFunc("/kill", handleKill)
+	mux.HandleFunc("/rmworktree", handleRmWorktree)
 
 	log.Printf("ac-web listening on http://%s  (git=%s wt=%s)", addr, gitRoot, wtRoot)
 	log.Fatal(http.ListenAndServe(addr, mux))
@@ -50,11 +53,15 @@ type session struct {
 	Attached                    bool
 }
 
-type worktree struct{ Branch string }
+type worktree struct {
+	Branch     string
+	LastActive time.Time
+}
 
 type repo struct {
 	Name      string
 	Worktrees []worktree
+	Active    time.Time
 }
 
 type pageData struct {
@@ -62,7 +69,9 @@ type pageData struct {
 	Repos    []repo
 }
 
-// repos lists directories under gitRoot that are git repos.
+// repos lists directories under gitRoot that are git repos, most-recently
+// active first. A repo's activity is the newest of its own HEAD and its
+// worktrees.
 func repos() []repo {
 	entries, err := os.ReadDir(gitRoot)
 	if err != nil {
@@ -76,9 +85,27 @@ func repos() []repo {
 		if _, err := os.Stat(filepath.Join(gitRoot, e.Name(), ".git")); err != nil {
 			continue
 		}
-		out = append(out, repo{Name: e.Name(), Worktrees: worktreesFor(e.Name())})
+		wts := worktreesFor(e.Name())
+		active := lastActive(filepath.Join(gitRoot, e.Name()))
+		if len(wts) > 0 && wts[0].LastActive.After(active) { // wts sorted newest-first
+			active = wts[0].LastActive
+		}
+		out = append(out, repo{Name: e.Name(), Worktrees: wts, Active: active})
 	}
+	sort.Slice(out, func(i, j int) bool { return out[i].Active.After(out[j].Active) })
 	return out
+}
+
+// lastActive returns the committer time of HEAD in dir, or zero on error.
+// ponytail: HEAD commit date is the signal; a worktree freshly branched from an
+// old base sorts old. If that bites, switch to the worktree admin-dir mtime.
+func lastActive(dir string) time.Time {
+	out, err := exec.Command("git", "-C", dir, "log", "-1", "--format=%ct", "HEAD").Output()
+	if err != nil {
+		return time.Time{}
+	}
+	sec, _ := strconv.ParseInt(strings.TrimSpace(string(out)), 10, 64)
+	return time.Unix(sec, 0)
 }
 
 // worktreesFor returns the branch worktrees for a repo (those living under
@@ -98,9 +125,10 @@ func worktreesFor(name string) []worktree {
 			continue
 		}
 		if branch, under := strings.CutPrefix(path, prefix); under {
-			res = append(res, worktree{Branch: branch})
+			res = append(res, worktree{Branch: branch, LastActive: lastActive(path)})
 		}
 	}
+	sort.Slice(res, func(i, j int) bool { return res[i].LastActive.After(res[j].LastActive) })
 	return res
 }
 
@@ -163,6 +191,23 @@ func handleKill(w http.ResponseWriter, r *http.Request) {
 	run(w, r, "ac", "rm", server)
 }
 
+// handleRmWorktree removes a branch worktree (keeping the branch ref).
+// --force --force clears dirty trees and stale agent locks.
+func handleRmWorktree(w http.ResponseWriter, r *http.Request) {
+	repoName := r.FormValue("repo")
+	branch := r.FormValue("branch")
+	if err := validateRepo(repoName); err != nil {
+		fail(w, err)
+		return
+	}
+	if err := validateBranch(branch); err != nil || branch == "" {
+		fail(w, fmt.Errorf("invalid branch: %q", branch))
+		return
+	}
+	run(w, r, "git", "-C", filepath.Join(gitRoot, repoName),
+		"worktree", "remove", "--force", "--force", filepath.Join(wtRoot, repoName, branch))
+}
+
 // run executes a command and, on success, redirects back to the index; on
 // failure it shows the combined output so the error isn't swallowed.
 func run(w http.ResponseWriter, r *http.Request, name string, args ...string) {
@@ -215,6 +260,24 @@ func home() string {
 	return h
 }
 
+// ago renders a coarse "time since" label for the UI: "", "just now", "3h", "5d".
+func ago(t time.Time) string {
+	if t.IsZero() {
+		return ""
+	}
+	d := time.Since(t)
+	switch {
+	case d < time.Minute:
+		return "just now"
+	case d < time.Hour:
+		return fmt.Sprintf("%dm", int(d.Minutes()))
+	case d < 24*time.Hour:
+		return fmt.Sprintf("%dh", int(d.Hours()))
+	default:
+		return fmt.Sprintf("%dd", int(d.Hours()/24))
+	}
+}
+
 func envOr(k, def string) string {
 	if v := os.Getenv(k); v != "" {
 		return v
@@ -238,7 +301,7 @@ func tailnetAddr() string {
 	return ""
 }
 
-var page = template.Must(template.New("page").Parse(`<!doctype html>
+var page = template.Must(template.New("page").Funcs(template.FuncMap{"ago": ago}).Parse(`<!doctype html>
 <html><head><meta charset=utf-8>
 <meta name=viewport content="width=device-width, initial-scale=1">
 <title>ac-web</title>
@@ -261,28 +324,33 @@ var page = template.Must(template.New("page").Parse(`<!doctype html>
 {{range .Sessions}}<li>
  <code>{{.Repo}}{{if .Branch}}/{{.Branch}}{{end}}</code> [{{.Agent}}]
  {{if .Attached}}<span class=att>* attached</span>{{end}}
- <form method=post action=/kill><input type=hidden name=server value="{{.Server}}"><button>kill</button></form>
+ <form method=post action=/kill onsubmit="return confirm('Kill session {{.Server}}?')"><input type=hidden name=server value="{{.Server}}"><button>kill</button></form>
 </li>{{end}}
 </ul>{{else}}<p class=muted>none</p>{{end}}
 
-<h2>Repos</h2>
+<h2>Repos <span class=muted>(newest first)</span></h2>
 {{range .Repos}}{{$repo := .Name}}
-<h3>{{.Name}}</h3>
+<h3>{{.Name}} <span class=muted>{{ago .Active}}</span></h3>
 <form method=post action=/spawn><input type=hidden name=repo value="{{$repo}}"><button>spawn main</button></form>
-{{if .Worktrees}}<ul>
-{{range .Worktrees}}<li>
- <form method=post action=/spawn>
-  <input type=hidden name=repo value="{{$repo}}">
-  <input type=hidden name=branch value="{{.Branch}}">
-  <button>spawn</button> <code>{{.Branch}}</code>
- </form>
-</li>{{end}}
-</ul>{{end}}
 <form method=post action=/spawn>
  <input type=hidden name=repo value="{{$repo}}">
  <input name=branch placeholder="new branch" required>
  <button>create + spawn</button>
 </form>
+{{if .Worktrees}}<ul>
+{{range .Worktrees}}<li>
+ <form method=post action=/spawn>
+  <input type=hidden name=repo value="{{$repo}}">
+  <input type=hidden name=branch value="{{.Branch}}">
+  <button>spawn</button> <code>{{.Branch}}</code> <span class=muted>{{ago .LastActive}}</span>
+ </form>
+ <form method=post action=/rmworktree onsubmit="return confirm('Remove worktree {{$repo}}/{{.Branch}}?')">
+  <input type=hidden name=repo value="{{$repo}}">
+  <input type=hidden name=branch value="{{.Branch}}">
+  <button>rm</button>
+ </form>
+</li>{{end}}
+</ul>{{end}}
 {{end}}
 </body></html>
 `))
