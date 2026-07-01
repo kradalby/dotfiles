@@ -100,7 +100,6 @@
     ts1p = {
       url = "github:kradalby/ts1p/initial";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
-      inputs.systems.follows = "flake-utils/systems";
     };
 
     tsidp = {
