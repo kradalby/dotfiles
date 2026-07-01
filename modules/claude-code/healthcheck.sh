@@ -72,6 +72,13 @@ fetch_window() {
 # plist path below must follow (the absent-instance self-test guards the basics).
 darwin_label() { echo "org.nix-community.home.claude-code-$1"; }
 
+# darwin_pid <instance> -> current launchd PID, empty if not running. Used to
+# tell "exited/respawned" from "ignored the signal" during a graceful restart.
+darwin_pid() {
+  launchctl list "$(darwin_label "$1")" 2>/dev/null \
+    | sed -n 's/^[[:space:]]*"PID"[^0-9]*\([0-9]\{1,\}\).*/\1/p'
+}
+
 # is_up <instance> -> 0 if the service is loaded/running, else 1.
 is_up() {
   case "$OS" in
@@ -93,7 +100,7 @@ start_instance() {
       dom="gui/$(id -u)"
       plist="$HOME/Library/LaunchAgents/$label.plist"
       if launchctl list 2>/dev/null | grep -q "$label\$"; then
-        launchctl kickstart -k "$dom/$label"
+        launchctl kickstart "$dom/$label"
       elif [ -f "$plist" ]; then
         launchctl bootstrap "$dom" "$plist"
       else
@@ -103,10 +110,28 @@ start_instance() {
   esac
 }
 
+# Always prefer a graceful restart over a forced kill: SIGTERM lets claude shut
+# down cleanly and PRESERVE its environment, so the restart resumes the same
+# builder instead of orphaning a fresh one (the whole reason the picker filled
+# with dead duplicates). Force-kill only after a grace window, so a genuinely
+# wedged process that ignores SIGTERM still gets recovered.
 restart_instance() {
   case "$OS" in
+    # KillSignal=SIGTERM in the unit -> systemctl restart is already graceful.
     Linux) systemctl --user restart "claude-code-$1.service" ;;
-    Darwin) launchctl kickstart -k "gui/$(id -u)/$(darwin_label "$1")" ;;
+    Darwin)
+      local svc pid0 now _
+      svc="gui/$(id -u)/$(darwin_label "$1")"
+      pid0=$(darwin_pid "$1")
+      launchctl kill SIGTERM "$svc" 2>/dev/null || true
+      # KeepAlive=true respawns on clean exit; wait for the pid to drop or change.
+      for _ in 1 2 3 4 5 6 7 8; do
+        sleep 2
+        now=$(darwin_pid "$1")
+        { [ -z "$now" ] || [ "$now" != "$pid0" ]; } && return 0
+      done
+      launchctl kickstart -k "$svc" # last resort: SIGKILL one that ignored SIGTERM
+      ;;
   esac
 }
 
