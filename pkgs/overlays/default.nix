@@ -23,6 +23,8 @@ in
 
     p3-controller = prev.callPackage ../p3-controller {};
 
+    ac-web = prev.callPackage ../ac-web {};
+
     ghostty-tab = prev.callPackage ./ghostty-tab.nix {};
 
     pm-cli = prev.callPackage ./pm-cli.nix {};
