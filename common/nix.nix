@@ -53,7 +53,9 @@ in {
 
     gc = {
       automatic = true;
-      dates = "2weeks";
+      # 1st + 15th (~every 2 weeks). `dates` is an OnCalendar spec; "2weeks"
+      # isn't valid, so systemd refused the timer and GC never ran.
+      dates = "*-*-1,15";
       options = "--delete-older-than 10d";
     };
 
