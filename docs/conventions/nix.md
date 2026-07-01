@@ -59,6 +59,22 @@ and `.overrideAttrs` to attach `meta` (description/homepage/license/mainProgram)
 - Split server/client concerns into separate modules; export each + a `default`. (tsnixcache: `module-server.nix` + `module-client.nix`)
 - **Test modules in CI**: a `nix eval` smoke test (z2m-homekit) or full NixOS VM tests in `nix/tests/*.nix` wired as `checks` (tsnixcache).
 
+## Graceful shutdown (always prefer over forced)
+
+Design services to stop **gracefully**; never rely on SIGKILL. The app gets
+SIGTERM (systemd `KillSignal=SIGTERM`, launchd's default unload) plus a generous
+`TimeoutStopSec` to flush state. For `claude remote-control` this is load-bearing:
+a clean SIGTERM lets it *preserve* its environment, so a restart resumes the same
+builder instead of orphaning a fresh one (forced kills filled the claude.ai picker
+with dead duplicates and lost in-flight sessions).
+
+- `KillMode=mixed` over `control-group`: SIGTERM hits the main pid so it
+  orchestrates its own teardown; SIGKILL only mops up stragglers at timeout.
+- Watchdog / restart paths restart gracefully first (`systemctl restart`,
+  `launchctl kill SIGTERM` + `KeepAlive`), escalating to a forced kill
+  (`kickstart -k`, SIGKILL) only after a grace window so a wedged process still
+  recovers. Never reach for `kickstart -k` as the default. (claude-code module)
+
 ## devShell
 
 `go_<ver>`, `gopls`, `golangci-lint`, `gofumpt`, `prek`, `gnumake`. `shellHook` may set `CGO_ENABLED=0` for static builds.

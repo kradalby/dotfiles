@@ -31,6 +31,10 @@
       # come back. StartLimitBurst below caps a genuine crash loop.
       Restart = "always";
       RestartSec = 15;
+      # Graceful over forced: SIGTERM lets claude preserve its environment so a
+      # restart resumes the same builder instead of orphaning a new one. mixed
+      # (SIGTERM to main, SIGKILL to stragglers at timeout) lets the main process
+      # orchestrate its own teardown; TimeoutStopSec gives it room to finish.
       KillSignal = "SIGTERM";
       KillMode = "mixed";
       TimeoutStopSec = 30;
