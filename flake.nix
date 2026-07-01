@@ -73,6 +73,12 @@
       inputs.nixpkgs.follows = "nixpkgs-stable";
     };
 
+    # Self-hosted garnix CI (our fork's integration branch). Update independently
+    # with `nix flake update garnix-ci`. Do NOT `follows` nixpkgs: garnix pins
+    # nixpkgs-25.11-small + its own nixpkgsUnstable + libkrun for krun; overriding
+    # them risks breaking the action-runner.
+    garnix-ci.url = "github:kradalby/garnix/integration";
+
     headscale = {
       # url = "github:juanfont/headscale/v0.26.0-beta.1";
       url = "github:juanfont/headscale/main";
@@ -393,6 +399,31 @@
             name = "core.tjoda";
             tags = ["x86" "router" "tjoda"];
           };
+
+          # gigabuilder: bare-metal Incus VM host + tsnixcache cache.
+          "gigabuilder" = box.nixosBox {
+            arch = "x86_64-linux";
+            name = "gigabuilder";
+            tags = ["x86" "builder"];
+            # The fleet's build box: build locally (32 cores) instead of the box
+            # default of offloading with max-jobs = 0. It has no upstream builder
+            # to offload to, so without this any uncached derivation fails.
+            buildOnTarget = true;
+            # First deploy via the public IP; drop to null once
+            # gigabuilder.<tailnet> resolves over tailscale.
+            targetHost = "194.32.107.146";
+            modules = with inputs; [
+              tsnixcache.nixosModules.tsnixcache
+            ];
+          };
+
+          # garnix CI: Incus VM on gigabuilder; the host is its remote nix builder.
+          "garnix" = box.nixosBox {
+            arch = "x86_64-linux";
+            name = "garnix";
+            tags = ["x86" "ci" "builder"];
+            targetHost = "10.68.10.10"; # → null once garnix.<tailnet> resolves
+          };
         };
       in
         # garnix's attribute matcher is dot-delimited, so it can't build
@@ -450,11 +481,14 @@
         };
       };
 
-      # Only the canonical dotted hosts deploy; the dot-free garnix dupes
-      # are filtered out so each host isn't a colmena node twice.
+      # Canonical hosts deploy: the dotted names plus the genuinely dot-free
+      # hosts (gigabuilder, garnix). The dot-free garnix *dupes* of dotted hosts
+      # are filtered out so each isn't a colmena node twice.
       colmena = box.mkColmenaFromNixOSConfigurations (
         nixpkgs-stable.lib.filterAttrs
-        (name: _: nixpkgs-stable.lib.hasInfix "." name)
+        (name: _:
+          nixpkgs-stable.lib.hasInfix "." name
+          || builtins.elem name ["gigabuilder" "garnix"])
         self.nixosConfigurations
       );
     }
