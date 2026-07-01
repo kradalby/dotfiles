@@ -5,6 +5,7 @@ pkgs.writeShellApplication {
   runtimeInputs = with pkgs; [
     tmux
     git
+    jq
     coreutils
     findutils
     gnused
