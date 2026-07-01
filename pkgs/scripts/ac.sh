@@ -453,7 +453,23 @@ cmd_remove() {
 	local target="$1"
 	local server
 	server=$(resolve_target "$target")
-	tmux -L "$server" kill-server
+
+	# Stop the agent gracefully: SIGTERM lets `claude remote-control` preserve
+	# its environment and deregister cleanly. A forced kill orphaned it and
+	# filled the claude.ai picker with dead duplicates. The agent runs as a
+	# child of the pane's shell, so signal the shell's children. Fall back to
+	# kill-server if it hasn't exited within the grace window.
+	local pane_pid
+	pane_pid=$(tmux -L "$server" list-panes -t work:agent -F '#{pane_pid}' 2>/dev/null | head -1)
+	if [[ -n "$pane_pid" ]]; then
+		pkill -TERM -P "$pane_pid" 2>/dev/null || true
+		for _ in $(seq 1 20); do # ~10s grace
+			pgrep -P "$pane_pid" >/dev/null 2>&1 || break
+			sleep 0.5
+		done
+	fi
+
+	tmux -L "$server" kill-server 2>/dev/null
 	echo "killed: $server"
 }
 
