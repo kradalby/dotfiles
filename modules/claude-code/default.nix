@@ -98,13 +98,15 @@ in {
 
         createSessionInDir = lib.mkOption {
           type = lib.types.bool;
-          default = false;
+          default = true;
           description = ''
             Pre-create a session in the working dir on start (claude's
-            `--[no-]create-session-in-dir`). Upstream defaults this on, which
-            makes every (re)start show an empty session in claude.ai/code
-            Recents. Default off here: register the builder without
-            pre-creating a session.
+            `--[no-]create-session-in-dir`). Must stay ON: the anchor session
+            is what gives the environment a stable identity, so a restart
+            *resumes* the same env (one builder per instance in claude.ai/code,
+            sessions restored across new versions). With `--no-create-session-in-dir`
+            every restart mints a fresh env, flooding the picker with dead
+            duplicates and losing in-flight sessions.
           '';
         };
 
