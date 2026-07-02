@@ -5,22 +5,31 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"html/template"
-	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"regexp"
-	"sort"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
 )
 
 const port = "8846"
+
+// Deadlines bound every subprocess so a wedged git/tmux/tailscale can't hang a
+// handler forever (Restart=always can't help a process that never exits). Reads
+// are quick; spawn runs `git fetch` on a fresh branch, which is legitimately slow.
+const (
+	readTimeout  = 15 * time.Second
+	spawnTimeout = 5 * time.Minute
+)
 
 var (
 	gitRoot = envOr("GIT_ROOT", filepath.Join(home(), "git"))
@@ -36,20 +45,35 @@ func main() {
 		addr = tailnetAddr()
 	}
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", handleIndex)
-	mux.HandleFunc("/spawn", handleSpawn)
-	mux.HandleFunc("/kill", handleKill)
-	mux.HandleFunc("/rmworktree", handleRmWorktree)
+	slog.Info("ac-web listening", "addr", addr, "git", gitRoot, "wt", wtRoot)
+	// CrossOriginProtection rejects cross-origin unsafe requests (Sec-Fetch-Site /
+	// Origin vs Host); same-origin form posts pass. With POST-only mutating routes
+	// below, this closes the CSRF hole a tailnet-device browser would otherwise open.
+	srv := &http.Server{
+		Addr:              addr,
+		Handler:           http.NewCrossOriginProtection().Handler(routes()),
+		ReadHeaderTimeout: 5 * time.Second,
+	}
+	slog.Error("serve", "err", srv.ListenAndServe())
+	os.Exit(1)
+}
 
-	log.Printf("ac-web listening on http://%s  (git=%s wt=%s)", addr, gitRoot, wtRoot)
-	log.Fatal(http.ListenAndServe(addr, mux))
+// routes wires the mux. Mutating endpoints are POST-only (method patterns), so a
+// forged GET (img/link/prefetch) 405s instead of running a command.
+func routes() http.Handler {
+	mux := http.NewServeMux()
+	mux.HandleFunc("GET /{$}", handleIndex)
+	mux.HandleFunc("POST /spawn", handleSpawn)
+	mux.HandleFunc("POST /kill", handleKill)
+	mux.HandleFunc("POST /rmworktree", handleRmWorktree)
+	return mux
 }
 
 // --- data ---
 
 type session struct {
 	Server, Repo, Branch, Agent string
+	Workdir                     string // cwd of the session, for the rm-worktree live check
 	Attached                    bool
 }
 
@@ -57,6 +81,7 @@ type worktree struct {
 	Branch     string // checked-out branch: the spawn identity, matches `ac`
 	Rel        string // path under wtRoot/<repo>: the delete identity
 	LastActive time.Time
+	path       string // absolute worktree path (for lastActive lookup)
 }
 
 type repo struct {
@@ -76,6 +101,7 @@ type pageData struct {
 func repos() []repo {
 	entries, err := os.ReadDir(gitRoot)
 	if err != nil {
+		slog.Error("read git root", "dir", gitRoot, "err", err)
 		return nil
 	}
 	var out []repo
@@ -93,7 +119,7 @@ func repos() []repo {
 		}
 		out = append(out, repo{Name: e.Name(), Worktrees: wts, Active: active})
 	}
-	sort.Slice(out, func(i, j int) bool { return out[i].Active.After(out[j].Active) })
+	slices.SortFunc(out, func(a, b repo) int { return b.Active.Compare(a.Active) })
 	return out
 }
 
@@ -101,7 +127,7 @@ func repos() []repo {
 // ponytail: HEAD commit date is the signal; a worktree freshly branched from an
 // old base sorts old. If that bites, switch to the worktree admin-dir mtime.
 func lastActive(dir string) time.Time {
-	out, err := exec.Command("git", "-C", dir, "log", "-1", "--format=%ct", "HEAD").Output()
+	out, err := output(readTimeout, "git", "-C", dir, "log", "-1", "--format=%ct", "HEAD")
 	if err != nil {
 		return time.Time{}
 	}
@@ -110,18 +136,30 @@ func lastActive(dir string) time.Time {
 }
 
 // worktreesFor returns the branch worktrees for a repo (those living under
-// wtRoot/<repo>/), newest-first. Each carries the branch it has checked out —
-// the spawn identity, which `ac spawn <repo> <branch>` resolves the same way
-// the CLI does — and its path relative to wtRoot/<repo>, the unambiguous delete
-// identity (it can differ from the branch name after a rename). The main
-// worktree (under gitRoot) is excluded.
+// wtRoot/<repo>/), newest-first, each with its last-active time filled in. The
+// parsing is in parseWorktrees; this wrapper does the git call and the per-path
+// activity lookup.
 func worktreesFor(name string) []worktree {
-	out, err := exec.Command("git", "-C", filepath.Join(gitRoot, name), "worktree", "list", "--porcelain").Output()
+	out, err := output(readTimeout, "git", "-C", filepath.Join(gitRoot, name), "worktree", "list", "--porcelain")
 	if err != nil {
+		slog.Error("worktree list", "repo", name, "err", err)
 		return nil
 	}
-	prefix := filepath.Join(wtRoot, name) + "/"
+	res := parseWorktrees(out, filepath.Join(wtRoot, name)+"/")
+	for i := range res {
+		res[i].LastActive = lastActive(res[i].path)
+	}
+	slices.SortFunc(res, func(a, b worktree) int { return b.LastActive.Compare(a.LastActive) })
+	return res
+}
 
+// parseWorktrees turns `git worktree list --porcelain` output into the branch
+// worktrees living under prefix. Each carries the branch it has checked out — the
+// spawn identity, which `ac spawn <repo> <branch>` resolves the same way the CLI
+// does — and its path relative to prefix, the unambiguous delete identity (it can
+// differ from the branch name after a rename). Detached HEAD falls back to the
+// dir name; the main worktree (outside prefix) is excluded.
+func parseWorktrees(out []byte, prefix string) []worktree {
 	var res []worktree
 	var path, branch string
 	var under bool
@@ -131,7 +169,7 @@ func worktreesFor(name string) []worktree {
 			if b == "" { // detached HEAD: fall back to the dir name
 				b = strings.TrimPrefix(path, prefix)
 			}
-			res = append(res, worktree{Branch: b, Rel: strings.TrimPrefix(path, prefix), LastActive: lastActive(path)})
+			res = append(res, worktree{Branch: b, Rel: strings.TrimPrefix(path, prefix), path: path})
 		}
 		path, branch, under = "", "", false
 	}
@@ -146,17 +184,23 @@ func worktreesFor(name string) []worktree {
 		}
 	}
 	commit()
-
-	sort.Slice(res, func(i, j int) bool { return res[i].LastActive.After(res[j].LastActive) })
 	return res
 }
 
 // sessions parses `ac ls --porcelain`.
 func sessions() []session {
-	out, err := exec.Command("ac", "ls", "--porcelain").Output()
+	out, err := output(readTimeout, "ac", "ls", "--porcelain")
 	if err != nil {
+		slog.Error("ac ls", "err", err)
 		return nil
 	}
+	return parseSessions(out)
+}
+
+// parseSessions decodes ac's porcelain contract, one live session per line:
+// server<TAB>repo<TAB>branch<TAB>agent<TAB>attached(0|1)<TAB>workdir. Kept in
+// lockstep with pkgs/scripts/ac.sh cmd_list_porcelain.
+func parseSessions(out []byte) []session {
 	var res []session
 	for line := range strings.SplitSeq(strings.TrimRight(string(out), "\n"), "\n") {
 		if line == "" {
@@ -166,7 +210,11 @@ func sessions() []session {
 		if len(f) < 5 {
 			continue
 		}
-		res = append(res, session{Server: f[0], Repo: f[1], Branch: f[2], Agent: f[3], Attached: f[4] == "1"})
+		s := session{Server: f[0], Repo: f[1], Branch: f[2], Agent: f[3], Attached: f[4] == "1"}
+		if len(f) >= 6 {
+			s.Workdir = f[5]
+		}
+		res = append(res, s)
 	}
 	return res
 }
@@ -174,12 +222,8 @@ func sessions() []session {
 // --- handlers ---
 
 func handleIndex(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" {
-		http.NotFound(w, r)
-		return
-	}
 	if err := page.Execute(w, pageData{Sessions: sessions(), Repos: repos()}); err != nil {
-		log.Print(err)
+		slog.Error("render", "err", err)
 	}
 }
 
@@ -212,8 +256,10 @@ func handleKill(w http.ResponseWriter, r *http.Request) {
 
 // handleRmWorktree removes a worktree by its path under wtRoot/<repo> (keeping
 // the branch ref). Removing by path, not by branch name, is what makes this
-// correct when the two differ after a rename. --force --force clears dirty
-// trees and stale agent locks.
+// correct when the two differ after a rename. It refuses if a live session's cwd
+// is that worktree — deleting it out from under a running agent orphans the
+// session and loses in-flight work, the exact failure graceful shutdown exists to
+// prevent. Single --force (not two): remove a dirty tree, but never a locked one.
 func handleRmWorktree(w http.ResponseWriter, r *http.Request) {
 	repoName := r.FormValue("repo")
 	rel := r.FormValue("path")
@@ -225,14 +271,27 @@ func handleRmWorktree(w http.ResponseWriter, r *http.Request) {
 		fail(w, fmt.Errorf("invalid worktree path: %q", rel))
 		return
 	}
+	target := filepath.Join(wtRoot, repoName, rel)
+	for _, s := range sessions() {
+		if s.Workdir == target {
+			fail(w, fmt.Errorf("session %s is live in %s/%s; kill it first", s.Server, repoName, rel))
+			return
+		}
+	}
 	run(w, r, "git", "-C", filepath.Join(gitRoot, repoName),
-		"worktree", "remove", "--force", "--force", filepath.Join(wtRoot, repoName, rel))
+		"worktree", "remove", "--force", target)
 }
 
 // run executes a command and, on success, redirects back to the index; on
-// failure it shows the combined output so the error isn't swallowed.
+// failure it shows the combined output so the error isn't swallowed. The deadline
+// (spawn's git fetch is the slow case) plus WaitDelay stops a wedged or
+// daemonizing child from holding the handler open.
 func run(w http.ResponseWriter, r *http.Request, name string, args ...string) {
-	out, err := exec.Command(name, args...).CombinedOutput()
+	ctx, cancel := context.WithTimeout(r.Context(), spawnTimeout)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, name, args...)
+	cmd.WaitDelay = time.Second
+	out, err := cmd.CombinedOutput()
 	if err != nil {
 		http.Error(w, fmt.Sprintf("%s %s failed: %v\n\n%s", name, strings.Join(args, " "), err, out), http.StatusInternalServerError)
 		return
@@ -273,10 +332,21 @@ func validateBranch(name string) error {
 
 // --- helpers ---
 
+// output runs name+args under a deadline and returns stdout. WaitDelay keeps a
+// child that daemonizes (holding the pipe) from stalling us after the kill.
+func output(timeout time.Duration, name string, args ...string) ([]byte, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, name, args...)
+	cmd.WaitDelay = time.Second
+	return cmd.Output()
+}
+
 func home() string {
 	h, err := os.UserHomeDir()
 	if err != nil {
-		log.Fatal(err)
+		slog.Error("home dir", "err", err)
+		os.Exit(1)
 	}
 	return h
 }
@@ -310,7 +380,7 @@ func envOr(k, def string) string {
 // may lag behind network-online at boot.
 func tailnetAddr() string {
 	for range 30 {
-		out, err := exec.Command("tailscale", "ip", "-4").Output()
+		out, err := output(readTimeout, "tailscale", "ip", "-4")
 		if err == nil {
 			if ip := strings.TrimSpace(strings.SplitN(string(out), "\n", 2)[0]); ip != "" {
 				return ip + ":" + port
@@ -318,7 +388,8 @@ func tailnetAddr() string {
 		}
 		time.Sleep(2 * time.Second)
 	}
-	log.Fatal("could not determine tailscale IPv4 (pass -listen to override)")
+	slog.Error("could not determine tailscale IPv4 (pass -listen to override)")
+	os.Exit(1)
 	return ""
 }
 

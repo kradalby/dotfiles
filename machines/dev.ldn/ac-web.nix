@@ -12,8 +12,9 @@
     systemd.user.services.ac-web = {
       Unit = {
         Description = "ac-web: spawn ac coding-agent sessions from the phone";
-        After = ["network-online.target"];
-        Wants = ["network-online.target"];
+        # No network-online ordering: a user unit can't order on the system
+        # target, and it's moot anyway — ac-web retries `tailscale ip -4` in-process
+        # (main.go tailnetAddr) until the tailnet address shows up.
       };
       Service = {
         ExecStart = "${pkgs.ac-web}/bin/ac-web";
