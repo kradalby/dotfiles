@@ -45,7 +45,7 @@ in {
     enable = true;
     hostname = "setec";
     vault = "ts1p";
-    tokenFile = config.age.secrets.ts1p-op-token.path;
+    environmentFile = config.age.secrets.ts1p-op-token.path;
     # Cache reads ~24h (jittered ±20%): secrets rarely rotate, and a long TTL
     # keeps cold reads — which serialize behind the op WASM mutex — rare. After
     # rotating a secret, flush via /debug/flush-cache or a Cache-Control:
