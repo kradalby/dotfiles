@@ -32,6 +32,12 @@ let
 
     # Tjoda hosts
     core-tjoda = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBSqEhLLds8shw8HMOSpN8UMBFjLPTCyg1TjHKqXvm1W";
+
+    # Bare-metal builder + tsnixcache + incus host
+    gigabuilder = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIfxql6LaBrlxvBDywHRWULRocO9Yo57DlrlsdDCkcis";
+
+    # garnix CI VM (Incus guest on gigabuilder)
+    garnix = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIH4QDcKi9nGekv41QHPMC8Wv+FfQ6PCE1vrvA0an9SxW";
   };
 
   global = (attrValues users) ++ (attrValues hosts);
@@ -40,7 +46,9 @@ let
 in
 with builtins;
 {
-  # Global secrets
+  # Global secrets. NOTE cloudflare-token is a zone-edit token that public-facing
+  # gigabuilder can now decrypt (for DNS-01 ACME) — accepted; scope it or move
+  # gigabuilder to HTTP-01 if the blast radius ever matters.
   "cloudflare-token.age".publicKeys = global;
   "cloudflare-ddns-token.age".publicKeys = global;
   "r.age".publicKeys = global;
@@ -122,5 +130,23 @@ with builtins;
   "tailscale-preauthkey.age".publicKeys = global;
   "headscale-client-preauthkey.age".publicKeys = global;
   "headscale-sfiber-client-preauthkey.age".publicKeys = global;
+
+  # tsnixcache (gigabuilder serves the binary cache); the tsnet nodes reuse the
+  # host's reusable join keys, so only the signing key is cache-specific.
+  "tsnixcache-sign-key.age".publicKeys = u ++ [ hosts.gigabuilder ];
+
+  # garnix CI (decrypted on the garnix VM)
+  "garnix-database-password.age".publicKeys = u ++ [ hosts.garnix ];
+  "garnix-jwt-key.age".publicKeys = u ++ [ hosts.garnix ];
+  "garnix-opensearch-credential.age".publicKeys = u ++ [ hosts.garnix ];
+  "garnix-repo-secrets-key.age".publicKeys = u ++ [ hosts.garnix ];
+  "garnix-repo-secrets-key-pub.age".publicKeys = u ++ [ hosts.garnix ];
+  "garnix-action-runner-ssh.age".publicKeys = u ++ [ hosts.garnix ];
+  "garnix-remote-builder-ssh.age".publicKeys = u ++ [ hosts.garnix ];
+  "garnix-github-app-id.age".publicKeys = u ++ [ hosts.garnix ];
+  "garnix-github-app-pk.age".publicKeys = u ++ [ hosts.garnix ];
+  "garnix-github-client-id.age".publicKeys = u ++ [ hosts.garnix ];
+  "garnix-github-client-secret.age".publicKeys = u ++ [ hosts.garnix ];
+  "garnix-github-webhook-secret.age".publicKeys = u ++ [ hosts.garnix ];
 
 }
