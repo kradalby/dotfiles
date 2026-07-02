@@ -33,42 +33,6 @@ server_name() {
 	fi
 }
 
-resolve_path() {
-	local repo="$1" branch="${2:-}"
-
-	# A branch maps to a worktree under $WT_ROOT/<repo>/<branch>.
-	if [[ -n "$branch" ]]; then
-		local path="$WT_ROOT/$repo/$branch"
-		if [[ -d "$path" ]]; then
-			echo "$path"
-			return 0
-		fi
-		die "worktree not found: $path"
-	fi
-
-	# No branch: the main repo itself at $GIT_ROOT/<repo>.
-	local repo_path="$GIT_ROOT/$repo"
-	if [[ -e "$repo_path/.git" ]]; then
-		echo "$repo_path"
-		return 0
-	fi
-
-	die "cannot resolve repo '$repo': $repo_path is not a git repo"
-}
-
-resolve_branch() {
-	# Given repo and optional branch, return the effective branch name
-	local repo="$1" branch="${2:-}"
-
-	if [[ -n "$branch" ]]; then
-		echo "$branch"
-		return 0
-	fi
-
-	# No branch given: the main repo has no branch component.
-	echo ""
-}
-
 find_main_worktree() {
 	# Locate the main worktree for a repo (needed to run git commands from)
 	local repo="$1"
@@ -265,9 +229,9 @@ cmd_create_or_attach() {
 		# Resolve to an existing worktree (creating on confirmation if none).
 		dir=$(ensure_worktree "$repo" "$branch" interactive) || return 1
 	else
-		dir=$(resolve_path "$repo" "")
+		dir=$(find_main_worktree "$repo")
 	fi
-	effective_branch=$(resolve_branch "$repo" "$branch")
+	effective_branch="$branch" # main repo has no branch component
 	server=$(server_name "$repo" "$effective_branch")
 
 	if server_alive "$server"; then
@@ -295,9 +259,9 @@ cmd_spawn() {
 	if [[ -n "$branch" ]]; then
 		dir=$(ensure_worktree "$repo" "$branch") || return 1
 	else
-		dir=$(resolve_path "$repo" "")
+		dir=$(find_main_worktree "$repo")
 	fi
-	effective_branch=$(resolve_branch "$repo" "$branch")
+	effective_branch="$branch" # main repo has no branch component
 	server=$(server_name "$repo" "$effective_branch")
 
 	if server_alive "$server"; then
@@ -350,9 +314,11 @@ cmd_list() {
 		ac_branch=$(tmux -L "$server" show-environment -t work AC_BRANCH 2>/dev/null | sed 's/^AC_BRANCH=//' || echo "")
 		ac_agent=$(tmux -L "$server" show-environment -t work AC_AGENT 2>/dev/null | sed 's/^AC_AGENT=//' || echo "?")
 
-		# Check if any client is attached
+		# Check if any client is attached (each ac server has one session, so no
+		# -t: list-sessions takes no target flag and would error out, wedging the
+		# count at 0 and hiding the attached marker).
 		local num_attached
-		num_attached=$(tmux -L "$server" list-sessions -t work -F '#{session_attached}' 2>/dev/null | head -1 || echo "0")
+		num_attached=$(tmux -L "$server" list-sessions -F '#{session_attached}' 2>/dev/null | head -1 || echo "0")
 
 		local marker=""
 		if [[ "${num_attached:-0}" -gt 0 ]]; then
@@ -385,7 +351,8 @@ cmd_list() {
 
 cmd_list_porcelain() {
 	# Machine-readable listing for ac-web. One live session per line, tab
-	# separated: server<TAB>repo<TAB>branch<TAB>agent<TAB>attached(0|1)
+	# separated: server<TAB>repo<TAB>branch<TAB>agent<TAB>attached(0|1)<TAB>workdir.
+	# workdir lets ac-web refuse deleting a worktree that backs a live session.
 	local dir
 	dir="$(sock_dir)"
 	[[ -d "$dir" ]] || return 0
@@ -395,7 +362,7 @@ cmd_list_porcelain() {
 		sockets+=("$sock")
 	done < <(find "$dir" -maxdepth 1 -name "${SERVER_PREFIX}-*" -print0 2>/dev/null | sort -z)
 
-	local sock server ac_repo ac_branch ac_agent num_attached attached
+	local sock server ac_repo ac_branch ac_agent ac_workdir num_attached attached
 	for sock in "${sockets[@]}"; do
 		[[ -e "$sock" ]] || continue
 		server=$(basename "$sock")
@@ -404,11 +371,12 @@ cmd_list_porcelain() {
 		ac_repo=$(tmux -L "$server" show-environment -t work AC_REPO 2>/dev/null | sed 's/^AC_REPO=//' || echo "")
 		ac_branch=$(tmux -L "$server" show-environment -t work AC_BRANCH 2>/dev/null | sed 's/^AC_BRANCH=//' || echo "")
 		ac_agent=$(tmux -L "$server" show-environment -t work AC_AGENT 2>/dev/null | sed 's/^AC_AGENT=//' || echo "")
-		num_attached=$(tmux -L "$server" list-sessions -t work -F '#{session_attached}' 2>/dev/null | head -1 || echo "0")
+		ac_workdir=$(tmux -L "$server" show-environment -t work AC_WORKDIR 2>/dev/null | sed 's/^AC_WORKDIR=//' || echo "")
+		num_attached=$(tmux -L "$server" list-sessions -F '#{session_attached}' 2>/dev/null | head -1 || echo "0")
 		attached=0
 		[[ "${num_attached:-0}" -gt 0 ]] && attached=1
 
-		printf '%s\t%s\t%s\t%s\t%s\n' "$server" "$ac_repo" "$ac_branch" "$ac_agent" "$attached"
+		printf '%s\t%s\t%s\t%s\t%s\t%s\n' "$server" "$ac_repo" "$ac_branch" "$ac_agent" "$attached" "$ac_workdir"
 	done
 }
 
@@ -466,8 +434,12 @@ cmd_remove() {
 	# filled the claude.ai picker with dead duplicates. The agent runs as a
 	# child of the pane's shell, so signal the shell's children. Fall back to
 	# kill-server if it hasn't exited within the grace window.
+	# `|| true`: if the agent window is gone (its shell exited; the term window
+	# keeps the server alive), list-panes exits 1 and pipefail+set -e would abort
+	# before kill-server, leaving the session unkilled. The [[ -n ]] guard handles
+	# the resulting empty pid.
 	local pane_pid
-	pane_pid=$(tmux -L "$server" list-panes -t work:agent -F '#{pane_pid}' 2>/dev/null | head -1)
+	pane_pid=$(tmux -L "$server" list-panes -t work:agent -F '#{pane_pid}' 2>/dev/null | head -1 || true)
 	if [[ -n "$pane_pid" ]]; then
 		pkill -TERM -P "$pane_pid" 2>/dev/null || true
 		for _ in $(seq 1 20); do # ~10s grace
@@ -476,7 +448,9 @@ cmd_remove() {
 		done
 	fi
 
-	tmux -L "$server" kill-server 2>/dev/null
+	# `|| true`: the goal state is a dead server; if it already exited during the
+	# grace window, kill-server's failure shouldn't make `ac rm` report an error.
+	tmux -L "$server" kill-server 2>/dev/null || true
 	echo "killed: $server"
 }
 
