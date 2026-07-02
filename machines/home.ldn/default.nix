@@ -5,7 +5,9 @@
   ...
 }: {
   imports = [
-    ../../common
+    ../../common/base.nix
+    ../../profiles/server.nix
+    ../../common/avahi.nix # owntone requires avahi-daemon.socket
     ../../common/incus-vm-ldn.nix
 
     ../../common/containers.nix

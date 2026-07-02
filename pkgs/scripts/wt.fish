@@ -109,6 +109,15 @@ Examples of resolved paths:
   ~/worktrees/headscale/kradalby/2388-topic  (slashes kept as nested dirs)"
 end
 
+# __wt_land cd's into a worktree and allows its direnv, so you arrive ready to
+# work instead of hitting a "blocked" .envrc. Mirrors `ac`'s behaviour.
+function __wt_land --argument-names dir
+    cd "$dir"
+    if test -f "$dir/.envrc"; and command -v direnv >/dev/null 2>&1
+        direnv allow "$dir"
+    end
+end
+
 function __wt_get_default_base
     set -l base (git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@')
     test -n "$base" && echo $base || echo main
@@ -123,7 +132,7 @@ function __wt_checkout
     set -l existing (git worktree list | grep "\[$branch\]" | awk '{print $1}')
     if test -n "$existing"
         echo "Worktree already exists: $existing"
-        cd "$existing"
+        __wt_land "$existing"
         return 0
     end
 
@@ -132,7 +141,7 @@ function __wt_checkout
         mkdir -p (dirname "$path")
         git worktree add "$path" "$branch"
         echo "Worktree created at: $path"
-        cd "$path"
+        __wt_land "$path"
     else
         echo "Error: Branch '$branch' does not exist" >&2
         echo "Use 'wt create $branch' to create a new branch" >&2
@@ -150,14 +159,14 @@ function __wt_create
     set -l existing (git worktree list | grep "\[$branch\]" | awk '{print $1}')
     if test -n "$existing"
         echo "Worktree already exists: $existing"
-        cd "$existing"
+        __wt_land "$existing"
         return 0
     end
 
     mkdir -p (dirname "$path")
     git worktree add "$path" -b "$branch" "$base"
     echo "Worktree created at: $path"
-    cd "$path"
+    __wt_land "$path"
 end
 
 function __wt_pr
@@ -188,7 +197,7 @@ function __wt_pr
     set -l existing (git worktree list | grep "\[$branch\]" | awk '{print $1}')
     if test -n "$existing"
         echo "Worktree already exists: $existing"
-        cd "$existing"
+        __wt_land "$existing"
         return 0
     end
 
@@ -204,7 +213,7 @@ function __wt_pr
     mkdir -p (dirname "$path")
     git worktree add "$path" -b "$branch" $pr_head
     echo "PR #$pr_number checked out at: $path"
-    cd "$path"
+    __wt_land "$path"
 end
 
 function __wt_remove

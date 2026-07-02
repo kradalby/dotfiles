@@ -1,0 +1,195 @@
+#!/usr/bin/env bash
+# claude remote-control watchdog.
+#
+# Restart an instance ONLY when it has been stuck disconnected from the
+# claude.ai bridge past THRESHOLD seconds. Healthy, busy, and idle instances are
+# left untouched. Silent self-heal: actions print to stdout, which the unit
+# captures (journal on Linux, log file on macOS). Usage:
+#
+#   healthcheck.sh <instance-name> [<instance-name> ...]
+#   healthcheck.sh --self-test
+#
+# NOTE: this scrapes the reconnect spinner ("Reconnecting ... disconnected
+# <N>[smh]") that `claude remote-control` prints. That string is not a stable
+# API and rides pkgs.master.claude-code, which updates often. The app's own
+# counter resets to 0s on each successful reconnect, so brief flaps stay small;
+# only a genuinely stuck/lost-login instance lets it grow. --self-test parses the
+# canned samples below, so a format drift fails loudly. Upgrade path: a real
+# `claude remote-control status` command, if one ever ships.
+set -euo pipefail
+
+THRESHOLD=300 # seconds disconnected before we restart
+WINDOW=2      # minutes of recent log to consider (freshness)
+OS=$(uname)
+
+# disc_seconds <text> -> echoes the disconnect counter from the text in seconds,
+# or nothing if no reconnect token is present.
+disc_seconds() {
+  local tok n unit
+  tok=$(grep -oE 'disconnected [0-9]+[smh]' <<<"$1" | tail -1) || true
+  [ -n "$tok" ] || return 0
+  n=${tok##disconnected }
+  unit=${n: -1}
+  n=${n%[smh]}
+  case "$unit" in
+    s) echo "$n" ;;
+    m) echo "$((n * 60))" ;;
+    h) echo "$((n * 3600))" ;;
+  esac
+}
+
+# should_restart <log window> -> 0 (restart) / 1 (leave alone). Pure decision
+# logic, exercised by --self-test. We look only at the LAST non-blank line: while
+# disconnected the spinner redraws every ~1-2s, so a stuck instance ends on a
+# reconnect line; one that flapped and recovered ends on normal activity.
+should_restart() {
+  local last secs
+  last=$(printf '%s' "$1" | tr '\r' '\n' | grep -vE '^[[:space:]]*$' | tail -1) || true
+  secs=$(disc_seconds "$last")
+  [ -n "$secs" ] && [ "$secs" -ge "$THRESHOLD" ]
+}
+
+# fetch_window <instance> -> prints the instance's fresh (last WINDOW min) log.
+# Empty output (idle/connected, emitting nothing) correctly means "leave alone".
+fetch_window() {
+  case "$OS" in
+    Linux)
+      journalctl --user -u "claude-code-$1.service" --since "-${WINDOW}min" -o cat 2>/dev/null
+      ;;
+    Darwin)
+      local log="$HOME/Library/Logs/claude-code-$1.log"
+      # No journald timestamps here, so gate on file mtime: an idle instance
+      # isn't writing, so a stale file means "not stuck right now".
+      if [ -f "$log" ] && find "$log" -mmin "-${WINDOW}" 2>/dev/null | grep -q .; then
+        tail -n 50 "$log" 2>/dev/null
+      fi
+      ;;
+  esac
+}
+
+# Darwin launchd label. home-manager names agents org.nix-community.home.<name>.
+# ponytail: hardcoded HM prefix; if HM changes its label scheme this and the
+# plist path below must follow (the absent-instance self-test guards the basics).
+darwin_label() { echo "org.nix-community.home.claude-code-$1"; }
+
+# darwin_pid <instance> -> current launchd PID, empty if not running. Used to
+# tell "exited/respawned" from "ignored the signal" during a graceful restart.
+darwin_pid() {
+  launchctl list "$(darwin_label "$1")" 2>/dev/null \
+    | sed -n 's/^[[:space:]]*"PID"[^0-9]*\([0-9]\{1,\}\).*/\1/p'
+}
+
+# is_up <instance> -> 0 if the service is loaded/running, else 1.
+is_up() {
+  case "$OS" in
+    Linux) systemctl --user is-active --quiet "claude-code-$1.service" ;;
+    Darwin) launchctl list 2>/dev/null | grep -q "$(darwin_label "$1")\$" ;;
+  esac
+}
+
+# start_instance <instance> -> bring a down service back. On Darwin this loads
+# the agent if it was never bootstrapped (the reload-race case), else kickstarts.
+# Returns non-zero if there's nothing to start (e.g. unit file missing -> needs
+# a switch, which the watchdog cannot do).
+start_instance() {
+  case "$OS" in
+    Linux) systemctl --user start "claude-code-$1.service" ;;
+    Darwin)
+      local label dom plist
+      label=$(darwin_label "$1")
+      dom="gui/$(id -u)"
+      plist="$HOME/Library/LaunchAgents/$label.plist"
+      if launchctl list 2>/dev/null | grep -q "$label\$"; then
+        launchctl kickstart "$dom/$label"
+      elif [ -f "$plist" ]; then
+        launchctl bootstrap "$dom" "$plist"
+      else
+        return 1
+      fi
+      ;;
+  esac
+}
+
+# Always prefer a graceful restart over a forced kill: SIGTERM lets claude shut
+# down cleanly and PRESERVE its environment, so the restart resumes the same
+# builder instead of orphaning a fresh one (the whole reason the picker filled
+# with dead duplicates). Force-kill only after a grace window, so a genuinely
+# wedged process that ignores SIGTERM still gets recovered.
+restart_instance() {
+  case "$OS" in
+    # KillSignal=SIGTERM in the unit -> systemctl restart is already graceful.
+    Linux) systemctl --user restart "claude-code-$1.service" ;;
+    Darwin)
+      local svc pid0 now _
+      svc="gui/$(id -u)/$(darwin_label "$1")"
+      pid0=$(darwin_pid "$1")
+      launchctl kill SIGTERM "$svc" 2>/dev/null || true
+      # KeepAlive=true respawns on clean exit; wait for the pid to drop or change.
+      for _ in 1 2 3 4 5 6 7 8; do
+        sleep 2
+        now=$(darwin_pid "$1")
+        { [ -z "$now" ] || [ "$now" != "$pid0" ]; } && return 0
+      done
+      launchctl kickstart -k "$svc" # last resort: SIGKILL one that ignored SIGTERM
+      ;;
+  esac
+}
+
+main() {
+  local name window
+  for name in "$@"; do
+    # Down-and-not-restarting is the one state fetch_window reads as "idle".
+    # Catch it first: a missing/crashed/un-bootstrapped service gets started.
+    if ! is_up "$name"; then
+      echo "claude-code-health: $name not running, starting"
+      start_instance "$name" || echo "claude-code-health: start of $name FAILED"
+      continue
+    fi
+    window=$(fetch_window "$name")
+    if should_restart "$window"; then
+      echo "claude-code-health: $name stuck disconnected >= ${THRESHOLD}s, restarting"
+      restart_instance "$name" || echo "claude-code-health: restart of $name FAILED"
+    fi
+  done
+}
+
+self_test() {
+  local fail=0 got
+  check() { # <desc> <yes|no> <log>
+    if should_restart "$3"; then got=yes; else got=no; fi
+    if [ "$got" = "$2" ]; then
+      echo "ok:   $1"
+    else
+      echo "FAIL: $1 (expected $2, got $got)"
+      fail=1
+    fi
+  }
+  check "6-min disconnect -> restart" yes \
+    '·—· Reconnecting · retrying in 602ms · disconnected 6m'
+  check "360s disconnect -> restart" yes \
+    '·/· Reconnecting · retrying in 2.0s · disconnected 360s'
+  check "10s flap -> leave alone" no \
+    '·—· Reconnecting · retrying in 602ms · disconnected 10s'
+  check "flap then recovered -> leave alone" no \
+    $'·—· Reconnecting · retrying in 1s · disconnected 48s\n    Capacity: 1/5 · New sessions will be created in the current directory'
+  check "idle / empty -> leave alone" no ""
+  check "normal activity only -> leave alone" no \
+    '    Capacity: 0/5 · New sessions will be created in the current directory'
+  check "just below threshold (299s) -> leave alone" no \
+    '·—· Reconnecting · retrying in 1s · disconnected 299s'
+  # The auto-start branch only fires when is_up reports down. If a bogus
+  # instance reads as "up", a genuinely down service would be skipped.
+  if is_up "claude-code-selftest-absent-xyz"; then
+    echo "FAIL: is_up true for an absent instance"; fail=1
+  else
+    echo "ok:   is_up false for an absent instance"
+  fi
+  [ "$fail" -eq 0 ] && echo "all self-tests passed"
+  return "$fail"
+}
+
+case "${1:-}" in
+  --self-test) self_test ;;
+  "") echo "usage: $0 <instance-name> [...] | --self-test" >&2; exit 2 ;;
+  *) main "$@" ;;
+esac

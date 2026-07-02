@@ -10,6 +10,13 @@ in {
 
   programs.fish = {
     enable = true;
+    # TODO: re-enable once home-manager's fish module works with fish >= 4.8.
+    # nixpkgs' fish 4.8 ships no python tooling in its output, so the
+    # build-time generator (share/fish/tools/create_manpage_completions.py)
+    # is gone and every *-fish-completions derivation fails. fish 4.8
+    # regenerates these itself at runtime, so disabling is no real loss.
+    # Tracking: https://github.com/NixOS/nixpkgs/issues/462025
+    generateCompletions = false;
     plugins = [
       # Need this when using Fish as a default macOS shell in order to pick
       # up ~/.nix-profile/bin
@@ -96,10 +103,6 @@ in {
       push = ''${pkgs.git}/bin/git push origin -u (${pkgs.git}/bin/git rev-parse --abbrev-ref HEAD)'';
       yolo = ''${pkgs.git}/bin/git push -f origin (${pkgs.git}/bin/git rev-parse --abbrev-ref HEAD)'';
 
-      rmkh = ''
-        ${pkgs.gnused}/bin/sed -i $argv'd' ~/.ssh/known_hosts
-      '';
-
       ragenix-update-key = ''
         set host $argv[1]
         set hostDash (echo $host | ${pkgs.gnused}/bin/sed 's/\./-/g')
@@ -173,6 +176,47 @@ in {
         else
             echo "Error: Found socket but it's not valid: $newest_socket" >&2
             return 1
+        end
+      '';
+
+    }
+    // lib.optionalAttrs pkgs.stdenv.isLinux {
+      tmux-recreate-socket = ''
+        # Recreate tmux socket by sending SIGUSR1 to the server
+        # https://github.com/tmux/tmux/wiki/FAQ#tmux-says-no-sessions-when-i-try-to-attach-but-i-definitely-had-sessions
+        set -l server_pid (${pkgs.procps}/bin/pgrep -x "tmux: server")
+
+        if test -z "$server_pid"
+            echo "No tmux server found"
+            return 1
+        end
+
+        kill -USR1 $server_pid
+        echo "Sent SIGUSR1 to tmux server (PID: $server_pid) to recreate socket"
+
+        # Find the actual socket path from the server process
+        set -l server_socket (${pkgs.gawk}/bin/awk '$NF ~ /tmux/ {print $NF}' /proc/$server_pid/net/unix)
+
+        if test -z "$server_socket"
+            echo "Warning: could not determine server socket path"
+            return 0
+        end
+
+        # Determine where the client expects the socket
+        set -l uid (id -u)
+        set -l client_dir "/tmp"
+        if set -q TMUX_TMPDIR
+            set client_dir "$TMUX_TMPDIR"
+        end
+        set -l client_socket "$client_dir/tmux-$uid/default"
+
+        if test "$server_socket" != "$client_socket"
+            echo "Server socket: $server_socket"
+            echo "Client expects: $client_socket"
+            mkdir -p (dirname $client_socket)
+            rm -f $client_socket
+            ln -s $server_socket $client_socket
+            echo "Created symlink: $client_socket -> $server_socket"
         end
       '';
     };

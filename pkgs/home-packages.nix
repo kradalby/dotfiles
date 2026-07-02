@@ -9,6 +9,8 @@
   tmp-cleanup = import ./scripts/tmp-cleanup.nix {inherit pkgs;};
 in {
   options.my.packages = {
+    userland.enable = (lib.mkEnableOption "Interactive userland (editor + shell tools)") // {default = true;};
+
     go.enable = (lib.mkEnableOption "Go development") // {default = true;};
     nix.enable = (lib.mkEnableOption "Nix tooling") // {default = true;};
     web.enable = (lib.mkEnableOption "Web/JS/TS development") // {default = true;};
@@ -32,20 +34,7 @@ in {
           prettyping
           entr
           eb
-          (git-absorb.overrideAttrs (old: rec {
-            version = "3a1148ea2df3ca41cb69df8848f99d25e66dc0b5";
-            src = pkgs.fetchFromGitHub {
-              owner = "tummychow";
-              repo = "git-absorb";
-              rev = version;
-              hash = "sha256-CrpLWDHSnT2PgbLFDK6UyaeKgmW1mygvSIudsl/nbbQ=";
-            };
-            cargoDeps = old.cargoDeps.overrideAttrs {
-              inherit src;
-              outputHash = "sha256-03vHVC3PSmHMLouQSirPlIG5o7BpvgWjFCtKLAGnxg8=";
-              outputHashMode = "recursive";
-            };
-          }))
+          git-absorb
           git-open
           git-toolbelt
           difftastic
@@ -58,6 +47,26 @@ in {
           shfmt
         ]);
     }
+
+    # Interactive userland — folded from the old pkgs/system.nix (a system-level
+    # set that only ever landed on home-manager machines). Editor + shell tools
+    # for the interactive user; off on minimal home-manager hosts (kradalby-llm).
+    # The everyday aliases (cat→bat, vim→nvim, ...) already live in home/fish.nix.
+    (lib.mkIf cfg.userland.enable {
+      home.packages = let
+        fake-editor = import ./scripts/fake-editor.nix {inherit pkgs;};
+      in
+        [fake-editor]
+        ++ (with pkgs; [
+          neovim
+          fzf
+          eternal-terminal
+          setec
+          nix-tree
+          nh
+          babelfish
+        ]);
+    })
 
     # Go ecosystem
     (lib.mkIf cfg.go.enable {
@@ -125,8 +134,11 @@ in {
 
     # Shell ecosystem
     (lib.mkIf cfg.shell.enable {
-      home.packages =
-        (with pkgs; [
+      home.packages = let
+        rmkh = import ./scripts/rmkh.nix {inherit pkgs;};
+      in
+        [rmkh]
+        ++ (with pkgs; [
           nushell
         ])
         ++ (with pkgs.unstable; [
@@ -166,6 +178,7 @@ in {
         ++ (with pkgs.unstable; [
           tailscale-tools
           ts-preauthkey
+          rnb
           prek
         ]);
     })
@@ -214,11 +227,13 @@ in {
       home.packages = let
         pamtouchfix = import ./scripts/pamtouchfix.nix {inherit pkgs;};
         rsync-photos-backup = import ./scripts/rsync-photos-backup.nix {inherit pkgs;};
+        exportphotos = import ./scripts/exportphotos.nix {inherit pkgs;};
+        tailscale-switch-toggle = import ./scripts/tailscale-switch-toggle.nix {inherit pkgs;};
+        ghostty-new-mosh-tab = import ./scripts/ghostty-new-mosh-tab.nix {inherit pkgs;};
       in
-        [pamtouchfix rsync-photos-backup]
+        [pamtouchfix rsync-photos-backup exportphotos tailscale-switch-toggle ghostty-new-mosh-tab]
         ++ (with pkgs; [
           ghostty-tab
-          terminal-notifier
           syncthing
           silicon
         ])

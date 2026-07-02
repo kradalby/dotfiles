@@ -67,7 +67,6 @@ in {
       # "/etc/profiles/per-user/$USER/bin"
       "$HOME/bin"
       "$HOME/.bin"
-      "$HOME/git/dotfiles/bin"
       "$HOME/.cargo/bin"
       "$HOME/.local/bin"
       "$HOME/.nixpkgs/bin"
@@ -144,6 +143,11 @@ in {
         experimental-features = nix-command flakes
       '';
 
+      # rnb (remote nix builder) reads its registry from here; single
+      # source of truth is common/rnb-builders.nix.
+      ".config/rnb/builders.json".text =
+        builtins.toJSON (import ../common/rnb-builders.nix);
+
       ".finicky.js" = lib.mkIf pkgs.stdenv.isDarwin {source = ../rc/finicky.js;};
 
       ".vale.ini".text = ''
@@ -174,6 +178,20 @@ in {
       nix-direnv = {
         enable = true;
       };
+      # secret_env [-v] — load `VAR  PATH` lines (resolved in parallel via
+      # secret-env) into the environment; fails the .envrc if any secret is
+      # missing. -v traces resolution (use it in your own repos, not public
+      # ones). Usage:
+      #   secret_env -v <<'EOF'
+      #   TF_VAR_x  infra/x
+      #   EOF
+      stdlib = ''
+        secret_env() {
+          local env
+          env=$(secret-env "$@") || { log_error "secret_env: secret load failed"; return 1; }
+          eval "$env"
+        }
+      '';
     };
 
     bat = {
@@ -193,7 +211,12 @@ in {
       fileWidgetOptions = [
         "--preview '${pkgs.bat}/bin/bat -n --color=always {}'"
         "--bind 'ctrl-/:change-preview-window(down|hidden|)'"
+        "--tmux center,85%"
       ];
+
+      tmux = {
+        enableShellIntegration = true;
+      };
     };
 
     htop.enable = true;

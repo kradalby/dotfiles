@@ -1,8 +1,8 @@
-#!/bin/sh
+#!/usr/bin/env bash
+set -euo pipefail
 # Toggle Tailscale account between host-specific pair.
-# Invoked from skhd (cmd+shift+s). Uses the macOS app binary directly
-# since skhd runs /bin/sh and does not source the fish alias.
-set -eu
+# Invoked from skhd. Uses the macOS app binary directly since skhd runs
+# /bin/sh and does not source the fish alias.
 
 PATH="/opt/homebrew/bin:$HOME/.nix-profile/bin:/run/current-system/sw/bin:$PATH"
 export PATH

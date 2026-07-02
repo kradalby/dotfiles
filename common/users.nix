@@ -23,6 +23,11 @@ in {
   config = {
     # age.secrets.r.file = ../secrets/r.age;
     programs.fish.enable = true;
+    # TODO: re-enable once the fish module works with fish >= 4.8.
+    # nixpkgs' fish 4.8 ships no python tooling, so the manpage completion
+    # generator fails every *_fish-completions build (same root cause as
+    # home/fish.nix). Tracking: https://github.com/NixOS/nixpkgs/issues/462025
+    programs.fish.generateCompletions = false;
 
     security.sudo = {
       enable = true;

@@ -24,7 +24,7 @@ _: {
       # exiftrans is a part of a linux only nix pkgs
       "exiftran"
 
-      # PAM module to make TouchID sudo work inside boo sessions
+      # PAM module to make TouchID sudo work in tmux
       "pam-reattach"
 
       # Incus isnt buildable from nixpkgs for macOS

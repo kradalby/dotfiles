@@ -8,12 +8,16 @@
   sshKeys = import ../../metadata/ssh.nix;
 in {
   imports = [
-    ../../common
+    ../../common/base.nix
+    ../../profiles/server.nix
     ../../common/incus-vm-ldn.nix
 
+    # Interactive userland (editor, shell tools) comes via home-manager
+    # (pkgs/home-packages.nix); tmux + its config come via common/base.nix.
     ../../common/containers.nix
 
     ../../common/tailscale.nix
+    ../../common/tsnixcache-client.nix
 
     inputs.ssh-agent-mux.nixosModules.default
 
@@ -21,6 +25,7 @@ in {
     ./syncthing.nix
     ./paseo.nix
     ./claude-code.nix
+    ./ac-web.nix
   ];
 
   networking = {
@@ -43,6 +48,10 @@ in {
   };
 
   boot.tmp.tmpfsSize = "4G";
+
+  # Build aarch64-linux here (qemu emulation) so `rnb dev.ldn` can serve arm
+  # builds; binfmt auto-advertises it via extra-platforms. Slow but handy.
+  boot.binfmt.emulatedSystems = ["aarch64-linux"];
 
   boot.kernel.sysctl = {
     # if you use ipv4, this is all you need
@@ -116,6 +125,7 @@ in {
     (pkgs.docker_29.override {clientOnly = true;})
     pkgs.unstable.lima-full
     pkgs.unstable.nodejs_26
+    pkgs.incus
   ];
 
   home-manager.users.kradalby = {

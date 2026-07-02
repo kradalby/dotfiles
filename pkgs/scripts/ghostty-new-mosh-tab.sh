@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/usr/bin/env bash
+set -euo pipefail
 # TODO(ghostty): Workaround for Ghostty lacking an exec/command keybind action.
 # Uses ghostty-tab (github.com/seruman/boo, installed as ghostty-tab) to open a
 # new Ghostty tab with a command via AppleScript, completely out-of-band from

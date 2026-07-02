@@ -30,6 +30,10 @@ in {
     modules ? [],
     targetHost ? null,
     allowLocalDeployment ? false,
+    # Default off: nodes don't build, neither as a colmena target
+    # (buildOnTarget) nor locally (max-jobs = 0 below). dev.ldn is the
+    # sole builder and opts back in with buildOnTarget = true.
+    buildOnTarget ? false,
   }:
     nixpkgs.lib.nixosSystem {
       modules =
@@ -43,6 +47,9 @@ in {
             system.configurationRevision = rev;
           }
 
+          # No local building unless this node builds on target.
+          {nix.settings.max-jobs = lib.mkIf (!buildOnTarget) 0;}
+
           (./.. + "/machines/${name}")
 
           {
@@ -50,6 +57,7 @@ in {
               inherit tags;
               inherit targetHost;
               inherit allowLocalDeployment;
+              inherit buildOnTarget;
             };
           }
         ]
@@ -96,10 +104,9 @@ in {
     base =
       {
         meta = {
-          machinesFile = /etc/nix/machines;
           # Reuse an existing NixOS host's pkgs to avoid a
-          # redundant nixpkgs instantiation. All hosts use
-          # buildOnTarget so this is only a fallback evaluator.
+          # redundant nixpkgs instantiation. Most hosts have
+          # buildOnTarget = false, so the deployer builds with this.
           nixpkgs =
             if nixosConfigurations ? "dev.ldn"
             then nixosConfigurations."dev.ldn".pkgs
@@ -118,7 +125,7 @@ in {
       // (builtins.mapAttrs
         (name: value: {
           deployment = {
-            buildOnTarget = true;
+            inherit (value._module.args) buildOnTarget;
             # Replace hostname with tailscale hostname to use tailscale auth.
             targetHost =
               if value._module.args.targetHost != null

@@ -115,6 +115,7 @@ in {
   my.mutableJson.claude-settings.value = lib.mkForce claudeSettings;
 
   my.packages = {
+    userland.enable = false;
     nix.enable = false;
     python.enable = false;
     infra.enable = false;

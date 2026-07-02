@@ -19,15 +19,28 @@
   #
   # To bootstrap: temporarily set to false, rebuild, then set back to true
   useRosettaBuilder = true;
+
+  # skhd runs commands via /bin/sh with a bare launchd PATH, so reference the
+  # script derivations by store path rather than relying on PATH lookup.
+  ghostty-new-mosh-tab = import ../../pkgs/scripts/ghostty-new-mosh-tab.nix {inherit pkgs;};
+  tailscale-switch-toggle = import ../../pkgs/scripts/tailscale-switch-toggle.nix {inherit pkgs;};
 in {
   imports = [
     ../darwin.nix
-    ../../pkgs/system.nix
+    # Base system toolset; the fuller interactive userland comes via
+    # home-manager (pkgs/home-packages.nix).
+    ../../pkgs/base.nix
+    ../../common/tmux.nix
     ../../pkgs/homebrew.nix
     ./syncthing.nix
     ./tailscale-notify.nix
     ../../modules/macos.nix
   ];
+
+  # Put fish in the system profile so the login shell
+  # (/run/current-system/sw/bin/fish) resolves; user-level fish config
+  # still comes from home-manager (home/fish.nix).
+  programs.fish.enable = true;
 
   # TODO(ghostty): Workaround for Ghostty lacking an exec/command keybind
   # action. skhd provides a global hotkey that runs an external command,
@@ -41,10 +54,10 @@ in {
     enable = true;
     skhdConfig = ''
       cmd + shift - t [
-          "Ghostty" : ghostty-new-mosh-tab
+          "Ghostty" : ${ghostty-new-mosh-tab}/bin/ghostty-new-mosh-tab
           *         ~
       ]
-      cmd + shift - b : tailscale-switch-toggle
+      cmd + shift - b : ${tailscale-switch-toggle}/bin/tailscale-switch-toggle
     '';
   };
 
@@ -57,11 +70,11 @@ in {
   nix = {
     settings = {
       trusted-users = [machine.username];
-      builders = "@/etc/nix/machines";
+      # builders = "@/etc/nix/machines";
     };
 
-    distributedBuilds = true;
-    buildMachines = import ../buildmachines.nix;
+    # distributedBuilds = true;
+    # buildMachines = import ../buildmachines.nix;
   };
 
   users.users.kradalby = {
@@ -71,7 +84,14 @@ in {
 
   home-manager = {
     verbose = true;
-    backupFileExtension = "hm_bak~";
+    # Force-overwrite backups instead of backupFileExtension, which aborts
+    # activation when a stale *.hm_bak~ already exists (apps like go/claude
+    # rewrite HM-managed config, so the collision recurs every switch). A
+    # failed activation freezes user services on the old generation, so new
+    # package versions are never adopted.
+    backupCommand = "${pkgs.writeShellScript "hm-backup" ''
+      exec ${pkgs.coreutils}/bin/mv -f "$1" "$1.hm_bak~"
+    ''}";
     useUserPackages = true;
     useGlobalPkgs = true;
     sharedModules = [inputs.nix-index-database.homeModules.nix-index];

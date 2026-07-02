@@ -7,7 +7,8 @@
   sshKeys = import ../../metadata/ssh.nix;
 in {
   imports = [
-    ../../common
+    ../../common/base.nix
+    ../../profiles/server.nix
     ../../common/incus-vm-ldn.nix
     ../../common/coredns.nix
     ../../common/ddns.nix

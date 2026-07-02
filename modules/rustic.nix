@@ -113,15 +113,18 @@
 #        AND client='com.kradalby.rustic-backup'"
 #
 # Notifications (enableNotifications = true, default):
+#   Delivered via the RusticNotify.app applet (../common/darwin/notify-applet.nix),
+#   replacing the EOL terminal-notifier. `display notification` cannot do
+#   notification grouping or Do Not Disturb override, so those are dropped;
+#   title, message, and sound are preserved.
 #   Failure: An ERR trap in backup/maintenance/verify scripts sends a
-#     macOS notification via terminal-notifier when the script fails.
-#     The notification uses the Basso sound and ignores Do Not Disturb.
+#     macOS notification (Basso sound) when the script fails.
 #   Watchdog: A separate launchd agent (rustic-check-<name>) runs daily
 #     at 09:00, queries the latest snapshot via `rustic snapshots --json`,
 #     and sends escalating notifications based on snapshot age:
 #       >= 1 day:   info (no sound)
 #       >= 5 days:  warning (Basso sound)
-#       >= 10 days: critical (Sosumi sound, ignores DnD)
+#       >= 10 days: critical (Sosumi sound)
 #     The watchdog doesn't need FDA (only queries the repo metadata).
 #
 # Paths (all must be absolute — rustic's TOML parser does NOT expand $HOME):
@@ -192,24 +195,44 @@ with lib; let
   # activation script copies the built .app here on every switch.
   fdaAppPath = "${cfg.fdaAppDir}/RusticBackup.app";
 
-  # ERR trap snippet for scripts. Sends a macOS notification
-  # via terminal-notifier when the script exits due to an error.
-  # Only included when enableNotifications is true.
-  # `label` controls the notification title (e.g. "Backup", "Maintenance", "Verify").
+  # Notification applet, built by the shared builder. Replaces the EOL
+  # terminal-notifier (Intel-only, deprecated NSUserNotification API).
+  # `display notification` can't do -group or -ignoreDnD, so those are
+  # dropped; sound, title, and message are preserved. iconSource is left
+  # unset — drop an .icns path here to give the alerts a custom icon.
+  rusticNotifier = import ../common/darwin/notify-applet.nix {inherit lib pkgs;} {
+    appName = "RusticNotify";
+    bundleId = "no.kradalby.RusticNotify";
+    urlScheme = "rusticnotify";
+  };
+
+  # Shell function `rnotify TITLE MESSAGE [SOUND]` posting via the applet's
+  # URL scheme. URL-encodes each field with jq. Injected into script
+  # preambles so the ERR trap and watchdog can call it.
+  notifyHelper = optionalString cfg.enableNotifications ''
+    rnotify() {
+      _t=$(printf '%s' "$1" | ${pkgs.jq}/bin/jq -sRr @uri)
+      _m=$(printf '%s' "$2" | ${pkgs.jq}/bin/jq -sRr @uri)
+      _s=$(printf '%s' "''${3:-}" | ${pkgs.jq}/bin/jq -sRr @uri)
+      /usr/bin/open "rusticnotify://show?title=$_t&msg=$_m&sound=$_s" >/dev/null 2>&1 || true
+    }
+  '';
+
+  # ERR trap snippet for scripts. Sends a macOS notification via the
+  # RusticNotify applet when the script exits due to an error. Only
+  # included when enableNotifications is true. `label` controls the
+  # notification title (e.g. "Backup", "Maintenance", "Verify"). Relies on
+  # rnotify being defined earlier in the preamble (see notifyHelper).
   mkErrTrap = name: label:
     optionalString cfg.enableNotifications ''
-      trap '${pkgs.terminal-notifier}/bin/terminal-notifier \
-        -title "${label} Failed" \
-        -message "rustic ${toLower label} ${name} failed at $(date)" \
-        -sound Basso \
-        -group "rustic-${name}-${toLower label}" \
-        -ignoreDnD' ERR
+      trap 'rnotify "${label} Failed" "rustic ${toLower label} ${name} failed at $(date)" Basso' ERR
     '';
 
   # Common preamble shared by backup, maintenance, and verify scripts.
   # Sets strict mode, ERR trap, 1Password token, and PATH.
   mkScriptPreamble = name: label: ''
     set -euo pipefail
+    ${notifyHelper}
     ${mkErrTrap name label}
 
     ${optionalString (cfg.opServiceAccountTokenFile != null) ''
@@ -291,11 +314,11 @@ with lib; let
   #   >= 10 days: critical (Sosumi sound, ignores Do Not Disturb)
   mkWatchdogScript = name: _backup: let
     rusticBin = "${pkgs.rustic}/bin/rustic";
-    notifier = "${pkgs.terminal-notifier}/bin/terminal-notifier";
     jq = "${pkgs.jq}/bin/jq";
   in
     pkgs.writers.writeBash "rustic-check-${name}" ''
       set -euo pipefail
+      ${notifyHelper}
 
       ${optionalString (cfg.opServiceAccountTokenFile != null) ''
         export OP_SERVICE_ACCOUNT_TOKEN="$(cat ${cfg.opServiceAccountTokenFile})"
@@ -313,12 +336,7 @@ with lib; let
         | ${jq} -r '[.[].snapshots[].time] | sort | last // empty')
 
       if [ -z "$latest" ]; then
-        ${notifier} \
-          -title "Backup Missing" \
-          -message "No snapshots found for rustic backup ${name}" \
-          -sound Sosumi \
-          -group "rustic-check-${name}" \
-          -ignoreDnD
+        rnotify "Backup Missing" "No snapshots found for rustic backup ${name}" Sosumi
         echo "ERROR: no snapshots found"
         exit 1
       fi
@@ -334,23 +352,11 @@ with lib; let
       echo "Latest snapshot: $latest (''${age_days}d ago)"
 
       if [ "$age_days" -ge 10 ]; then
-        ${notifier} \
-          -title "Backup Critical" \
-          -message "rustic ${name}: last backup ''${age_days} days ago" \
-          -sound Sosumi \
-          -group "rustic-check-${name}" \
-          -ignoreDnD
+        rnotify "Backup Critical" "rustic ${name}: last backup ''${age_days} days ago" Sosumi
       elif [ "$age_days" -ge 5 ]; then
-        ${notifier} \
-          -title "Backup Warning" \
-          -message "rustic ${name}: last backup ''${age_days} days ago" \
-          -sound Basso \
-          -group "rustic-check-${name}"
+        rnotify "Backup Warning" "rustic ${name}: last backup ''${age_days} days ago" Basso
       elif [ "$age_days" -ge 1 ]; then
-        ${notifier} \
-          -title "Backup Stale" \
-          -message "rustic ${name}: last backup ''${age_days} days ago" \
-          -group "rustic-check-${name}"
+        rnotify "Backup Stale" "rustic ${name}: last backup ''${age_days} days ago"
       else
         echo "Backup is fresh (''${age_days}d old), no notification needed"
       fi
@@ -711,7 +717,7 @@ in {
       description = ''
         Enable failure notifications and stale backup watchdog.
         When true, backup scripts get an ERR trap that sends a
-        macOS notification via terminal-notifier on failure, and
+        macOS notification via the RusticNotify applet on failure, and
         a separate watchdog launchd agent checks snapshot freshness
         daily and sends escalating notifications for stale backups.
       '';
@@ -788,7 +794,10 @@ in {
       # untracked file during codesign --verify.
       sourceMarker = "${fdaAppPath}.nix-source";
     in
-      optionalString anyFDA ''
+      optionalString cfg.enableNotifications ''
+        ${rusticNotifier.install}
+      ''
+      + optionalString anyFDA ''
         # Only reinstall when the source .app in the Nix store has
         # actually changed. The source store path is effectively a
         # content hash; if it matches the marker, nothing has changed
@@ -918,7 +927,7 @@ in {
         cfg.backups)
       # Stale backup watchdog agents — one per backup job.
       # Runs daily at 09:00, checks latest snapshot age, and sends
-      # escalating notifications via terminal-notifier.
+      # escalating notifications via the RusticNotify applet.
       // (optionalAttrs cfg.enableNotifications
         (mapAttrs'
           (name: backup:

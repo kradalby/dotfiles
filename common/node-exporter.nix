@@ -9,5 +9,9 @@
     enable = true;
   };
 
-  networking.firewall.interfaces."${config.my.lan}".allowedTCPPorts = [config.services.prometheus.exporters.node.port];
+  # Only open on the LAN if there is one; LAN-less hosts (public boxes reached
+  # over tailscale) leave my.lan unset and an empty iifname is an invalid rule.
+  networking.firewall.interfaces = lib.mkIf (config.my.lan != "") {
+    "${config.my.lan}".allowedTCPPorts = [config.services.prometheus.exporters.node.port];
+  };
 }

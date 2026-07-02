@@ -15,11 +15,15 @@ in
 
     ts-preauthkey = prev.callPackage ./ts-preauthkey {};
 
+    rnb = prev.callPackage ./rnb {};
+
     rustic = prev.callPackage ./rustic.nix {};
 
     rustic-wrapper = prev.callPackage ../rustic-wrapper {};
 
     p3-controller = prev.callPackage ../p3-controller {};
+
+    ac-web = prev.callPackage ../ac-web {};
 
     ghostty-tab = prev.callPackage ./ghostty-tab.nix {};
 

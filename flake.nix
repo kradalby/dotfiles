@@ -13,21 +13,22 @@
   inputs = {
     flake-utils.url = "github:numtide/flake-utils";
 
-    nixpkgs-nixos.url = "github:NixOS/nixpkgs/nixos-25.11";
-    nixpkgs-darwin.url = "github:NixOS/nixpkgs/nixpkgs-25.11-darwin";
+    # "stable" tracks the latest NixOS release (26.05) and is the box default.
+    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-26.05";
+    nixpkgs-darwin.url = "github:NixOS/nixpkgs/nixpkgs-26.05-darwin";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     nixpkgs-master.url = "github:NixOS/nixpkgs/master";
-    darwin.url = "github:nix-darwin/nix-darwin/nix-darwin-25.11";
+    darwin.url = "github:nix-darwin/nix-darwin/nix-darwin-26.05";
     darwin.inputs.nixpkgs.follows = "nixpkgs-darwin";
 
-    home-manager.url = "github:nix-community/home-manager/release-25.11";
-    home-manager.inputs.nixpkgs.follows = "nixpkgs-nixos";
+    home-manager.url = "github:nix-community/home-manager/release-26.05";
+    home-manager.inputs.nixpkgs.follows = "nixpkgs-stable";
     nix-index-database.url = "github:nix-community/nix-index-database";
-    nix-index-database.inputs.nixpkgs.follows = "nixpkgs-nixos";
+    nix-index-database.inputs.nixpkgs.follows = "nixpkgs-stable";
 
     nixos-generators = {
       url = "github:nix-community/nixos-generators";
-      inputs.nixpkgs.follows = "nixpkgs-nixos";
+      inputs.nixpkgs.follows = "nixpkgs-stable";
     };
 
     nix-rosetta-builder = {
@@ -38,25 +39,25 @@
     ragenix = {
       url = "github:yaxitech/ragenix";
       inputs."flake-utils".follows = "flake-utils";
-      inputs.nixpkgs.follows = "nixpkgs-nixos";
+      inputs.nixpkgs.follows = "nixpkgs-stable";
     };
 
     # Go based
     krapage = {
       url = "github:kradalby/kra";
-      inputs."utils".follows = "flake-utils";
+      inputs."flake-utils".follows = "flake-utils";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
     hvor = {
       url = "github:kradalby/hvor";
-      inputs."utils".follows = "flake-utils";
+      inputs."flake-utils".follows = "flake-utils";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
     tasmota-exporter = {
       url = "github:kradalby/tasmota-exporter";
-      inputs."utils".follows = "flake-utils";
+      inputs."flake-utils".follows = "flake-utils";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
@@ -64,6 +65,12 @@
       url = "github:kradalby/homewizard-p1-exporter";
       inputs."flake-utils".follows = "flake-utils";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+
+    # WIP Nix binary cache served over tailscale; pinned to the `initial` branch.
+    tsnixcache = {
+      url = "github:kradalby/tsnixcache/initial";
+      inputs.nixpkgs.follows = "nixpkgs-stable";
     };
 
     headscale = {
@@ -78,6 +85,14 @@
 
     golink = {
       url = "github:tailscale/golink";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+      inputs.systems.follows = "flake-utils/systems";
+    };
+
+    # setec-compatible secrets server. Pinned to the `initial` branch; brings
+    # its own nixpkgs/headscale pins (go toolchain sensitive), so no follows.
+    ts1p = {
+      url = "github:kradalby/ts1p/initial";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
       inputs.systems.follows = "flake-utils/systems";
     };
@@ -129,18 +144,14 @@
       inputs."flake-utils".follows = "flake-utils";
     };
 
-    paseo = {
-      url = "github:getpaseo/paseo";
+    opencode = {
+      url = "github:anomalyco/opencode";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
-    # coder/boo: GNU-screen-style multiplexer on libghostty. Tracked via flake
-    # input to stay current with its fast release cadence. Provides the `boo`
-    # command used by the `ac` agent-session manager.
-    boo = {
-      url = "github:coder/boo";
+    paseo = {
+      url = "github:getpaseo/paseo";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
-      inputs.flake-utils.follows = "flake-utils";
     };
 
     # Stock nixpkgs sd-image-aarch64 has no Pi5 support (no bcm2712 DTB,
@@ -151,7 +162,7 @@
 
   outputs = {
     self,
-    nixpkgs-nixos,
+    nixpkgs-stable,
     nixpkgs-darwin,
     darwin,
     home-manager,
@@ -159,29 +170,32 @@
     flake-utils,
     ...
   } @ inputs: let
-    mkGoOverlay = version: final: prev: {
-      go = final."go_${version}";
-      buildGoModule = final."buildGo${builtins.replaceStrings ["_"] [""] version}Module";
-    };
-    goOverlayStable = mkGoOverlay "1_25";
-    goOverlayUnstable = mkGoOverlay "1_26";
+    # Single go version for the whole fleet (stable, unstable, master).
+    # Bump here to move every in-repo go build at once.
+    goOverlay = let
+      version = "1_26";
+    in
+      final: _prev: {
+        go = final."go_${version}";
+        buildGoModule = final."buildGo${builtins.replaceStrings ["_"] [""] version}Module";
+      };
 
     overlay-pkgs = final: _: {
       unstable = import inputs.nixpkgs-unstable {
         system = final.stdenv.hostPlatform.system;
         config = {allowUnfree = true;};
-        overlays = [goOverlayUnstable (import ./pkgs/overlays {})];
+        overlays = [goOverlay (import ./pkgs/overlays {})];
       };
       master = import inputs.nixpkgs-master {
         system = final.stdenv.hostPlatform.system;
         config = {allowUnfree = true;};
-        overlays = [goOverlayUnstable];
+        overlays = [goOverlay];
       };
     };
 
     overlays = with inputs; [
       overlay-pkgs
-      goOverlayStable
+      goOverlay
       headscale.overlays.default
       golink.overlays.default
       krapage.overlays.default
@@ -194,13 +208,44 @@
       in {
         neovim = neovim-kradalby.packages."${system}".neovim-kradalby;
         tailscale = tailscale.packages."${system}".tailscale;
-        # coder/boo multiplexer. Overrides the nixpkgs `boo` (there is none)
-        # and shadows the local seruman/boo overlay, which is now ghostty-tab.
-        boo = inputs.boo.packages."${system}".default;
         ssh-agent-mux = inputs.ssh-agent-mux.packages."${system}".default;
         nefit-homekit = inputs.nefit-homekit.packages."${system}".default;
         tasmota-homekit = inputs.tasmota-homekit.packages."${system}".default;
         z2m-homekit = inputs.z2m-homekit.packages."${system}".default;
+        # Upstream Nix build requires bun >= 1.3.14; nixpkgs-unstable has 1.3.13.
+        # Use prebuilt binaries until nixpkgs ships bun 1.3.14+.
+        opencode = let
+          version = "1.16.2";
+          srcs = {
+            x86_64-linux = {
+              url = "https://github.com/anomalyco/opencode/releases/download/v${version}/opencode-linux-x64-baseline.tar.gz";
+              hash = "sha256-/jSwR+PU4vbYkfDS07T0SDfvUnHuz9m5iVHlOFfaaeY=";
+            };
+            aarch64-darwin = {
+              url = "https://github.com/anomalyco/opencode/releases/download/v${version}/opencode-darwin-arm64.zip";
+              hash = "sha256-AVhf9NFYIL06h45Lx8rPsep14jbR/tjC9fNZXtyLerU=";
+            };
+          };
+          src = prev.fetchurl srcs.${system};
+        in
+          prev.stdenv.mkDerivation {
+            pname = "opencode";
+            inherit version src;
+            nativeBuildInputs =
+              prev.lib.optionals prev.stdenv.hostPlatform.isLinux [prev.autoPatchelfHook]
+              ++ prev.lib.optionals (prev.lib.hasSuffix ".zip" srcs.${system}.url) [prev.unzip];
+            sourceRoot = ".";
+            unpackPhase =
+              if prev.lib.hasSuffix ".tar.gz" srcs.${system}.url
+              then "tar xzf $src"
+              else "unzip $src";
+            dontStrip = true; # bun standalone binaries append JS payload to ELF
+            installPhase = ''
+              install -Dm755 opencode $out/bin/opencode
+            '';
+            meta.mainProgram = "opencode";
+          };
+
         # lima 1.2.2 in stable branches is marked insecure/EOL.
         # Override so transitive consumers (nix-rosetta-builder)
         # get the unstable version.
@@ -222,115 +267,145 @@
     ];
 
     box = import ./lib/box.nix {
-      pkgs = nixpkgs-nixos;
+      pkgs = nixpkgs-stable;
       inherit inputs overlays;
-      lib = nixpkgs-nixos.lib;
-      rev = nixpkgs-nixos.lib.mkIf (self ? rev) self.rev;
+      lib = nixpkgs-stable.lib;
+      rev = nixpkgs-stable.lib.mkIf (self ? rev) self.rev;
     };
   in
     {
-      nixosConfigurations = {
-        # "core.terra" = box.nixosBox {
-        #   arch = "x86_64-linux";
-        #   name = "core.terra";
-        #   tags = ["x86" "router" "terra"];
-        # };
+      nixosConfigurations = let
+        hosts = {
+          # "core.terra" = box.nixosBox {
+          #   arch = "x86_64-linux";
+          #   name = "core.terra";
+          #   tags = ["x86" "router" "terra"];
+          # };
 
-        "core.oracldn" = box.nixosBox {
-          arch = "aarch64-linux";
-          name = "core.oracldn";
-          tags = ["arm64" "oracle" "oracldn"];
-          modules = with inputs; [
-            headscale.nixosModules.default
-            golink.nixosModules.default
-            krapage.nixosModules.default
-            hvor.nixosModules.default
-            tasmota-exporter.nixosModules.default
-            homewizard-p1-exporter.nixosModules.default
-          ];
+          # Out of rotation.
+          # "core.oracldn" = box.nixosBox {
+          #   arch = "aarch64-linux";
+          #   name = "core.oracldn";
+          #   tags = ["arm64" "oracle" "oracldn"];
+          #   modules = with inputs; [
+          #     headscale.nixosModules.default
+          #     golink.nixosModules.default
+          #     krapage.nixosModules.default
+          #     hvor.nixosModules.default
+          #     tasmota-exporter.nixosModules.default
+          #     homewizard-p1-exporter.nixosModules.default
+          #   ];
+          # };
+
+          # Out of rotation.
+          # "dev.oracfurt" = box.nixosBox {
+          #   arch = "aarch64-linux";
+          #   name = "dev.oracfurt";
+          #   tags = ["arm64" "oracle" "oracfurt"];
+          #   modules = with inputs; [
+          #     tsidp.nixosModules.default
+          #   ];
+          # };
+
+          "home.ldn" = box.nixosBox {
+            arch = "x86_64-linux";
+            name = "home.ldn";
+            tags = ["x86" "ldn"];
+            modules = with inputs; [
+              nefit-homekit.nixosModules.default
+              tasmota-homekit.nixosModules.default
+              z2m-homekit.nixosModules.default
+            ];
+          };
+
+          # "rpi.vetle" = box.nixosBox {
+          #   arch = "aarch64-linux";
+          #   name = "home.ldn";
+          #   tags = ["arm64" "ldn"];
+          # };
+
+          "dev.ldn" = box.nixosBox {
+            arch = "x86_64-linux";
+            homeBase = home-manager;
+            name = "dev.ldn";
+            tags = ["x86" "ldn"];
+            allowLocalDeployment = true;
+            # Sole builder for the fleet.
+            buildOnTarget = true;
+          };
+
+          # Out of rotation.
+          # "rpi5.ldn" = box.nixosBox {
+          #   arch = "aarch64-linux";
+          #   name = "rpi5.ldn";
+          #   tags = ["arm64" "ldn"];
+          #   # LAN IP for the first deploy before the host joins
+          #   # tailscale. Drop to null once rpi5-ldn.<tailnet> resolves.
+          #   # targetHost = "10.65.0.196";
+          #   modules = with inputs; [
+          #     # raspberry-pi-5 modules consume nixos-raspberrypi as a
+          #     # module argument (normally set by the flake's own
+          #     # lib.nixosSystem via specialArgs). box.nixosBox calls
+          #     # plain nixpkgs.lib.nixosSystem so we wire the arg in.
+          #     ({...}: {_module.args.nixos-raspberrypi = nixos-raspberrypi;})
+          #     nixos-raspberrypi.nixosModules.raspberry-pi-5.base
+          #     nixos-raspberrypi.nixosModules.raspberry-pi-5.page-size-16k
+          #     nixos-raspberrypi.nixosModules.nixpkgs-rpi
+          #     nixos-raspberrypi.nixosModules.trusted-nix-caches
+          #     ({...}: {
+          #       nixpkgs.overlays = [
+          #         nixos-raspberrypi.overlays.bootloader
+          #         nixos-raspberrypi.overlays.vendor-kernel
+          #         nixos-raspberrypi.overlays.vendor-firmware
+          #         nixos-raspberrypi.overlays.kernel-and-firmware
+          #         nixos-raspberrypi.overlays.vendor-pkgs
+          #       ];
+          #     })
+          #   ];
+          # };
+
+          "storage.ldn" = box.nixosBox {
+            arch = "x86_64-linux";
+            name = "storage.ldn";
+            tags = ["x86" "ldn"];
+          };
+
+          "ts1p.ldn" = box.nixosBox {
+            arch = "x86_64-linux";
+            name = "ts1p.ldn";
+            tags = ["x86" "ldn"];
+            # Small VM: build on the deployer, not the target.
+            buildOnTarget = false;
+            modules = with inputs; [
+              ts1p.nixosModules.default
+            ];
+          };
+
+          # Out of rotation.
+          # "lenovo.ldn" = box.nixosBox {
+          #   arch = "x86_64-linux";
+          #   name = "lenovo.ldn";
+          #   tags = ["x86" "ldn"];
+          # };
+
+          "core.tjoda" = box.nixosBox {
+            arch = "x86_64-linux";
+            name = "core.tjoda";
+            tags = ["x86" "router" "tjoda"];
+          };
         };
-
-        "dev.oracfurt" = box.nixosBox {
-          arch = "aarch64-linux";
-          name = "dev.oracfurt";
-          tags = ["arm64" "oracle" "oracfurt"];
-          modules = with inputs; [
-            tsidp.nixosModules.default
-          ];
-        };
-
-        "home.ldn" = box.nixosBox {
-          arch = "x86_64-linux";
-          name = "home.ldn";
-          tags = ["x86" "ldn"];
-          modules = with inputs; [
-            nefit-homekit.nixosModules.default
-            tasmota-homekit.nixosModules.default
-            z2m-homekit.nixosModules.default
-          ];
-        };
-
-        # "rpi.vetle" = box.nixosBox {
-        #   arch = "aarch64-linux";
-        #   name = "home.ldn";
-        #   tags = ["arm64" "ldn"];
-        # };
-
-        "dev.ldn" = box.nixosBox {
-          arch = "x86_64-linux";
-          homeBase = home-manager;
-          name = "dev.ldn";
-          tags = ["x86" "ldn"];
-          allowLocalDeployment = true;
-        };
-
-        "rpi5.ldn" = box.nixosBox {
-          arch = "aarch64-linux";
-          name = "rpi5.ldn";
-          tags = ["arm64" "ldn"];
-          # LAN IP for the first deploy before the host joins
-          # tailscale. Drop to null once rpi5-ldn.<tailnet> resolves.
-          # targetHost = "10.65.0.196";
-          modules = with inputs; [
-            # raspberry-pi-5 modules consume nixos-raspberrypi as a
-            # module argument (normally set by the flake's own
-            # lib.nixosSystem via specialArgs). box.nixosBox calls
-            # plain nixpkgs.lib.nixosSystem so we wire the arg in.
-            ({...}: {_module.args.nixos-raspberrypi = nixos-raspberrypi;})
-            nixos-raspberrypi.nixosModules.raspberry-pi-5.base
-            nixos-raspberrypi.nixosModules.raspberry-pi-5.page-size-16k
-            nixos-raspberrypi.nixosModules.nixpkgs-rpi
-            nixos-raspberrypi.nixosModules.trusted-nix-caches
-            ({...}: {
-              nixpkgs.overlays = [
-                nixos-raspberrypi.overlays.bootloader
-                nixos-raspberrypi.overlays.vendor-kernel
-                nixos-raspberrypi.overlays.vendor-firmware
-                nixos-raspberrypi.overlays.kernel-and-firmware
-                nixos-raspberrypi.overlays.vendor-pkgs
-              ];
-            })
-          ];
-        };
-
-        "storage.ldn" = box.nixosBox {
-          arch = "x86_64-linux";
-          name = "storage.ldn";
-          tags = ["x86" "ldn"];
-        };
-
-        "lenovo.ldn" = box.nixosBox {
-          arch = "x86_64-linux";
-          name = "lenovo.ldn";
-          tags = ["x86" "ldn"];
-        };
-
-        "core.tjoda" = box.nixosBox {
-          arch = "x86_64-linux";
-          name = "core.tjoda";
-          tags = ["x86" "router" "tjoda"];
-        };
-      };
+      in
+        # garnix's attribute matcher is dot-delimited, so it can't build
+        # nixosConfigurations whose names contain '.'. Duplicate each host
+        # under a dot-free key (dev.ldn -> dev-ldn) so garnix builds them.
+        # Dotted originals stay canonical for colmena/deploy; the dupes are
+        # filtered back out of colmena below. Drop once garnix handles
+        # dotted/quoted names (see home/fish.nix TODO).
+        hosts
+        // builtins.listToAttrs (map (n: {
+          name = builtins.replaceStrings ["."] ["-"] n;
+          value = hosts.${n};
+        }) (builtins.attrNames hosts));
 
       # darwin-rebuild switch --flake .#kramacbook
       darwinConfigurations = {
@@ -375,11 +450,17 @@
         };
       };
 
-      colmena = box.mkColmenaFromNixOSConfigurations self.nixosConfigurations;
+      # Only the canonical dotted hosts deploy; the dot-free garnix dupes
+      # are filtered out so each host isn't a colmena node twice.
+      colmena = box.mkColmenaFromNixOSConfigurations (
+        nixpkgs-stable.lib.filterAttrs
+        (name: _: nixpkgs-stable.lib.hasInfix "." name)
+        self.nixosConfigurations
+      );
     }
     // flake-utils.lib.eachSystem ["x86_64-linux" "aarch64-darwin"]
     (system: let
-      pkgs = import nixpkgs-nixos {
+      pkgs = import nixpkgs-stable {
         inherit overlays system;
       };
     in {
@@ -428,7 +509,7 @@
       mkRpiBootstrap = import ./lib/rpi-bootstrap.nix {
         inherit nixos-generators inputs overlays;
       };
-      rpiPkgs = import nixpkgs-nixos {
+      rpiPkgs = import nixpkgs-stable {
         system = "aarch64-linux";
         inherit overlays;
       };
