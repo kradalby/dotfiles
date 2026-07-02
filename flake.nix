@@ -73,6 +73,12 @@
       inputs.nixpkgs.follows = "nixpkgs-stable";
     };
 
+    # Self-hosted garnix CI (our fork's integration branch). Update independently
+    # with `nix flake update garnix-ci`. Do NOT `follows` nixpkgs: garnix pins
+    # nixpkgs-25.11-small + its own nixpkgsUnstable + libkrun for krun; overriding
+    # them risks breaking the action-runner.
+    garnix-ci.url = "github:kradalby/garnix/integration";
+
     headscale = {
       # url = "github:juanfont/headscale/v0.26.0-beta.1";
       url = "github:juanfont/headscale/main";
@@ -393,6 +399,29 @@
             name = "core.tjoda";
             tags = ["x86" "router" "tjoda"];
           };
+
+          # gigabuilder: bare-metal Incus VM host + tsnixcache cache.
+          "gigabuilder" = box.nixosBox {
+            arch = "x86_64-linux";
+            name = "gigabuilder";
+            tags = ["x86" "builder"];
+            # No upstream builder to offload to, so build on the target (32 cores).
+            buildOnTarget = true;
+            # Deploys reach it by tailnet name; uncomment to bootstrap by IP.
+            # targetHost = "194.32.107.146";
+            modules = with inputs; [
+              tsnixcache.nixosModules.tsnixcache
+            ];
+          };
+
+          # garnix CI: Incus VM on gigabuilder; the host is its remote nix builder.
+          "garnix" = box.nixosBox {
+            arch = "x86_64-linux";
+            name = "garnix";
+            tags = ["x86" "ci" "builder"];
+            # Deploys reach it by tailnet name; uncomment to bootstrap by IP.
+            # targetHost = "10.68.10.10";
+          };
         };
       in
         # garnix's attribute matcher is dot-delimited, so it can't build
@@ -450,12 +479,17 @@
         };
       };
 
-      # Only the canonical dotted hosts deploy; the dot-free garnix dupes
-      # are filtered out so each host isn't a colmena node twice.
+      # Deploy each host once: drop the dot-free dupes garnix needs (dev.ldn ->
+      # dev-ldn), i.e. any name that is the de-dotted form of a dotted host.
       colmena = box.mkColmenaFromNixOSConfigurations (
-        nixpkgs-stable.lib.filterAttrs
-        (name: _: nixpkgs-stable.lib.hasInfix "." name)
-        self.nixosConfigurations
+        let
+          cfgs = self.nixosConfigurations;
+          isDupe = name:
+            builtins.any
+            (n: nixpkgs-stable.lib.hasInfix "." n && builtins.replaceStrings ["."] ["-"] n == name)
+            (builtins.attrNames cfgs);
+        in
+          nixpkgs-stable.lib.filterAttrs (name: _: !isDupe name) cfgs
       );
     }
     // flake-utils.lib.eachSystem ["x86_64-linux" "aarch64-darwin"]
