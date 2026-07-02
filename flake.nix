@@ -95,12 +95,11 @@
       inputs.systems.follows = "flake-utils/systems";
     };
 
-    # setec-compatible secrets server. Pinned to the `initial` branch; brings
-    # its own nixpkgs/headscale pins (go toolchain sensitive), so no follows.
+    # setec-compatible secrets server, pinned to the `initial` branch. Follows
+    # nixpkgs-unstable so its go build tracks our toolchain.
     ts1p = {
       url = "github:kradalby/ts1p/initial";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
-      inputs.systems.follows = "flake-utils/systems";
     };
 
     tsidp = {
