@@ -45,13 +45,17 @@
   # alacritty, …) — a large aarch64 build under emulation for nothing.
   environment.enableAllTerminfo = lib.mkForce false;
 
-  # ripgrep/mdbook test suites panic under qemu-user emulation; the binaries are
-  # fine. Skip checks so the emulated aarch64 build completes.
+  # These test suites hang/fail under qemu-user emulation (the binaries build
+  # fine); nixos-raspberrypi's nixpkgs pin is ahead of Hydra's aarch64 cache, so
+  # they're compiled here rather than fetched. Skip checks to let the build pass.
   nixpkgs.overlays = [
-    (_: prev: {
-      ripgrep = prev.ripgrep.overrideAttrs (_: {doCheck = false;});
-      mdbook = prev.mdbook.overrideAttrs (_: {doCheck = false;});
-    })
+    (_: prev:
+      lib.genAttrs ["ripgrep" "mdbook" "git" "mercurial"]
+      (n:
+        prev.${n}.overrideAttrs (_: {
+          doCheck = false;
+          doInstallCheck = false;
+        })))
   ];
 
   # nixos-raspberrypi is migrating the default from "kernelboot" to
