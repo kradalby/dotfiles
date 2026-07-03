@@ -63,5 +63,14 @@
 
   monitoring.smartctl.devices = ["/dev/nvme0n1" "/dev/nvme1n1"];
 
+  # Build aarch64 (rpi5) here via qemu user emulation. The heavy rpi packages
+  # (linux-rpi kernel, firmware, u-boot) come from nixos-raspberrypi's cachix, so
+  # emulation only assembles the trivial config bits — never the kernel.
+  boot.binfmt.emulatedSystems = ["aarch64-linux"];
+  nix.settings.substituters = ["https://nixos-raspberrypi.cachix.org"];
+  nix.settings.trusted-public-keys = [
+    "nixos-raspberrypi.cachix.org-1:4iMO9LXa8BqhU+Rpg6LQKiGa2lsNh/j2oiYLNOQ5sPI="
+  ];
+
   system.stateVersion = "25.11";
 }
