@@ -41,6 +41,19 @@
 
   services.tailscale.tags = ["tag:ldn" "tag:server"];
 
+  # Headless: don't pull every terminal emulator's terminfo (contour → qtbase,
+  # alacritty, …) — a large aarch64 build under emulation for nothing.
+  environment.enableAllTerminfo = lib.mkForce false;
+
+  # ripgrep/mdbook test suites panic under qemu-user emulation; the binaries are
+  # fine. Skip checks so the emulated aarch64 build completes.
+  nixpkgs.overlays = [
+    (_: prev: {
+      ripgrep = prev.ripgrep.overrideAttrs (_: {doCheck = false;});
+      mdbook = prev.mdbook.overrideAttrs (_: {doCheck = false;});
+    })
+  ];
+
   # nixos-raspberrypi is migrating the default from "kernelboot" to
   # "kernel"; opt in explicitly to silence the deprecation warning.
   boot.loader.raspberry-pi.bootloader = "kernel";
