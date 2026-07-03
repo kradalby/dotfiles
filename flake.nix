@@ -162,7 +162,7 @@
     # Stock nixpkgs sd-image-aarch64 has no Pi5 support (no bcm2712 DTB,
     # u-boot, or [pi5] config.txt). nixos-raspberrypi ships proper Pi5
     # firmware + sd-image generator.
-    nixos-raspberrypi.url = "github:nvmd/nixos-raspberrypi/main";
+    nixos-raspberrypi.url = "github:nvmd/nixos-raspberrypi/nixos-26.05";
   };
 
   outputs = {
@@ -339,35 +339,40 @@
             buildOnTarget = true;
           };
 
-          # Out of rotation.
-          # "rpi5.ldn" = box.nixosBox {
-          #   arch = "aarch64-linux";
-          #   name = "rpi5.ldn";
-          #   tags = ["arm64" "ldn"];
-          #   # LAN IP for the first deploy before the host joins
-          #   # tailscale. Drop to null once rpi5-ldn.<tailnet> resolves.
-          #   # targetHost = "10.65.0.196";
-          #   modules = with inputs; [
-          #     # raspberry-pi-5 modules consume nixos-raspberrypi as a
-          #     # module argument (normally set by the flake's own
-          #     # lib.nixosSystem via specialArgs). box.nixosBox calls
-          #     # plain nixpkgs.lib.nixosSystem so we wire the arg in.
-          #     ({...}: {_module.args.nixos-raspberrypi = nixos-raspberrypi;})
-          #     nixos-raspberrypi.nixosModules.raspberry-pi-5.base
-          #     nixos-raspberrypi.nixosModules.raspberry-pi-5.page-size-16k
-          #     nixos-raspberrypi.nixosModules.nixpkgs-rpi
-          #     nixos-raspberrypi.nixosModules.trusted-nix-caches
-          #     ({...}: {
-          #       nixpkgs.overlays = [
-          #         nixos-raspberrypi.overlays.bootloader
-          #         nixos-raspberrypi.overlays.vendor-kernel
-          #         nixos-raspberrypi.overlays.vendor-firmware
-          #         nixos-raspberrypi.overlays.kernel-and-firmware
-          #         nixos-raspberrypi.overlays.vendor-pkgs
-          #       ];
-          #     })
-          #   ];
-          # };
+          # rpi5: aarch64, built on gigabuilder via emulation. nixpkgs-rpi +
+          # the vendor overlays align its derivations with nixos-raspberrypi's
+          # cachix, and trusted-nix-caches puts that cache on the Pi itself.
+          "rpi5.ldn" = box.nixosBox {
+            arch = "aarch64-linux";
+            # Build on nixos-raspberrypi's own nixpkgs pin — that's what their
+            # cachix was built against, so the kernel/firmware come from cache
+            # instead of rebuilding under emulation.
+            nixpkgs = inputs.nixos-raspberrypi.inputs.nixpkgs;
+            name = "rpi5.ldn";
+            tags = ["arm64" "ldn"];
+            # LAN IP for the first deploy before the host joins tailscale.
+            # targetHost = "10.65.0.196";
+            modules = with inputs; [
+              # raspberry-pi-5 modules consume nixos-raspberrypi as a module
+              # argument (normally set by the flake's own lib.nixosSystem via
+              # specialArgs). box.nixosBox calls plain nixpkgs.lib.nixosSystem so
+              # we wire the arg in.
+              ({...}: {_module.args.nixos-raspberrypi = nixos-raspberrypi;})
+              nixos-raspberrypi.nixosModules.raspberry-pi-5.base
+              nixos-raspberrypi.nixosModules.raspberry-pi-5.page-size-16k
+              nixos-raspberrypi.nixosModules.nixpkgs-rpi
+              nixos-raspberrypi.nixosModules.trusted-nix-caches
+              ({...}: {
+                nixpkgs.overlays = [
+                  nixos-raspberrypi.overlays.bootloader
+                  nixos-raspberrypi.overlays.vendor-kernel
+                  nixos-raspberrypi.overlays.vendor-firmware
+                  nixos-raspberrypi.overlays.kernel-and-firmware
+                  nixos-raspberrypi.overlays.vendor-pkgs
+                ];
+              })
+            ];
+          };
 
           "storage.ldn" = box.nixosBox {
             arch = "x86_64-linux";
