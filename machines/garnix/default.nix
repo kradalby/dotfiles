@@ -67,6 +67,12 @@ in {
   nix.settings = {
     min-free = 10 * 1024 * 1024 * 1024;
     max-free = 30 * 1024 * 1024 * 1024;
+    # rpi (aarch64) builds offload to gigabuilder but the coordinator may
+    # pre-substitute — let it pull the rpi kernel/firmware from cachix too.
+    substituters = ["https://nixos-raspberrypi.cachix.org"];
+    trusted-public-keys = [
+      "nixos-raspberrypi.cachix.org-1:4iMO9LXa8BqhU+Rpg6LQKiGa2lsNh/j2oiYLNOQ5sPI="
+    ];
   };
   garnix.custom-gc.targetPercent = 60;
 
@@ -118,7 +124,9 @@ in {
         name = "gigabuilder";
         hostname = "10.68.0.1"; # host over incusbr0 (a trustedInterface)
         user = "nix-ssh";
-        systems = ["x86_64-linux"];
+        # aarch64 (rpi5) offloads here too — gigabuilder builds it via qemu
+        # emulation, pulling the rpi kernel/firmware from cachix.
+        systems = ["x86_64-linux" "aarch64-linux"];
         maxJobs = 16;
         speedFactor = 4;
         supportedFeatures = ["big-parallel" "kvm" "nixos-test"];
