@@ -43,6 +43,21 @@
     interfaces = {
       "${config.my.wan}" = {
         useDHCP = true;
+        # Stable reserved public IP (152.67.129.235) NATs to this
+        # secondary private IP; DHCP keeps the primary private IP,
+        # which carries the ephemeral public IP.
+        ipv4.addresses = [
+          {
+            address = "192.168.122.10";
+            prefixLength = 24;
+          }
+        ];
+        ipv6.addresses = [
+          {
+            address = "2603:c020:c013:2600::10";
+            prefixLength = 64;
+          }
+        ];
       };
 
       ${config.my.lan} = {
@@ -90,11 +105,18 @@
       allowedUDPPorts = lib.mkForce [
         443 # HTTPS
         config.services.tailscale.port
-
       ];
 
       trustedInterfaces = [config.my.lan "docker0"];
     };
+  };
+
+  boot.kernel.sysctl = {
+    # IPv6 default route comes from OCI router advertisements; accept_ra=2
+    # keeps that working with forwarding enabled. No SLAAC (autoconf=0):
+    # OCI only routes addresses explicitly assigned to the VNIC.
+    "net.ipv6.conf.${config.my.wan}.accept_ra" = 2;
+    "net.ipv6.conf.${config.my.wan}.autoconf" = 0;
   };
 
   services.tailscale = {

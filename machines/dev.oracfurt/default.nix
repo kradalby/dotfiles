@@ -29,7 +29,24 @@
     domain = "oracfurt.fap.no";
     usePredictableInterfaceNames = lib.mkForce true;
 
-    interfaces.${config.my.wan}.useDHCP = true;
+    interfaces.${config.my.wan} = {
+      useDHCP = true;
+      # Stable reserved public IP (129.159.30.250) NATs to this
+      # secondary private IP; DHCP keeps the primary private IP,
+      # which carries the ephemeral public IP.
+      ipv4.addresses = [
+        {
+          address = "192.168.122.10";
+          prefixLength = 24;
+        }
+      ];
+      ipv6.addresses = [
+        {
+          address = "2603:c020:8026:db00::10";
+          prefixLength = 64;
+        }
+      ];
+    };
     interfaces.${config.my.lan} = {
       useDHCP = false;
       ipv4.addresses = [
@@ -68,13 +85,19 @@
       allowedUDPPorts = lib.mkForce [
         443 # HTTPS
         config.services.tailscale.port
-
       ];
 
       trustedInterfaces = [config.my.lan];
     };
   };
 
+  boot.kernel.sysctl = {
+    # IPv6 default route comes from OCI router advertisements; accept_ra=2
+    # keeps that working with forwarding enabled. No SLAAC (autoconf=0):
+    # OCI only routes addresses explicitly assigned to the VNIC.
+    "net.ipv6.conf.${config.my.wan}.accept_ra" = 2;
+    "net.ipv6.conf.${config.my.wan}.autoconf" = 0;
+  };
 
   services.tailscale = {
     advertiseRoutes = ["10.67.0.0/16"];
