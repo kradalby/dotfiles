@@ -82,7 +82,13 @@ in {
         enable_login_token = true;
       };
 
-      security.admin_password = "$__file{${config.age.secrets.grafana-admin.path}}";
+      security = {
+        admin_password = "$__file{${config.age.secrets.grafana-admin.path}}";
+        # NixOS 26.05 requires an explicit secret_key; this is the old
+        # upstream default the existing DB is encrypted with. Nothing
+        # sensitive lives in it (single passwordless local datasource).
+        secret_key = "SW2YcwTIb9zpOOhoPsMm";
+      };
 
       smtp = {
         enable = true;
