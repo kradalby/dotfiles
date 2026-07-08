@@ -22,6 +22,9 @@ in {
     endpoints = {
       "tcp:80" = "http://${consoleAddress}";
       "tcp:443" = "http://${consoleAddress}";
+      # S3 API for cross-site consumers (litestream replicas, backups);
+      # reachable via the svc:minio-* grants in the tailnet policy.
+      "tcp:9000" = "http://127.0.0.1:9000";
     };
   };
 }

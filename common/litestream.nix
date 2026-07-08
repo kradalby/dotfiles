@@ -8,16 +8,17 @@ with lib; let
   port = 54909;
   replicate = db: {
     inherit (db) path;
-    # litestream >= 0.5 allows one replica per database. Keep the local
-    # minio (reachable); off-site coverage comes from restic. tjoda's
-    # minio (10.62.0.1:9000) was unreachable when this was cut down.
+    # litestream >= 0.5 allows one replica per database. Replicate
+    # off-site to tjoda's minio (a local replica on the same host is no
+    # DR) over its tailnet VIP service; reachable via the svc:minio-tjoda
+    # grant. restic covers file-level off-site backup.
     replicas = [
       {
-        name = "oracldn";
+        name = "tjoda";
         type = "s3";
         bucket = "databases";
         path = db.name;
-        endpoint = "http://minio.oracldn.fap.no:9000";
+        endpoint = "http://minio-tjoda.dalby.ts.net:9000";
         region = "us-east-1";
         validation-interval = "24h";
       }
