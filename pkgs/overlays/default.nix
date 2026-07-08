@@ -25,6 +25,8 @@ in
 
     ac-web = prev.callPackage ../ac-web {};
 
+    oci-usage-exporter = prev.callPackage ../oci-usage-exporter {};
+
     ghostty-tab = prev.callPackage ./ghostty-tab.nix {};
 
     pm-cli = prev.callPackage ./pm-cli.nix {};
