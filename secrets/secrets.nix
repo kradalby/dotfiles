@@ -81,6 +81,8 @@ with builtins;
 
   "alertmanager-env.age".publicKeys = u ++ [ hosts.core-oracldn ];
 
+  "oci-usage-exporter.age".publicKeys = u ++ [ hosts.core-oracldn ];
+
   # minio
   "minio-oracldn.age".publicKeys = u ++ [
     hosts.core-oracldn

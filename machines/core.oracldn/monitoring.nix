@@ -203,6 +203,8 @@ in {
       }
 
       # Application-specific exporters
+      # OCI usage exporter binds localhost on this host, no ACL needed
+      (scrapeJob "oci-usage" ["localhost:63461"])
       (scrapeJob "litestream" ["core-oracldn:54909"])
       (scrapeJob "headscale" ["core-oracldn:54910"])
 
@@ -702,6 +704,28 @@ in {
                 annotations = {
                   summary = "PostgreSQL connections high on {{ $labels.instance }}: {{ $value }}";
                   description = "PostgreSQL on {{ $labels.instance }} has more than 80 active connections (default max is 100).";
+                };
+              }
+              {
+                alert = "OracleCostNonZero";
+                expr = "oci_usage_month_total > 0";
+                for = "15m";
+                labels.severity = "critical";
+                annotations = {
+                  summary = "Oracle account {{ $labels.account }} has spent {{ $value }} this month";
+                  description = "Oracle Cloud account {{ $labels.account }} reports nonzero cost this month; something has left the Always Free tier.";
+                };
+              }
+              {
+                alert = "OracleUsageStale";
+                # Covers both failing queries and a wedged poller; the
+                # exporter refreshes hourly on success.
+                expr = "time() - oci_usage_last_success_seconds > 3 * 3600";
+                for = "15m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "Oracle usage data for {{ $labels.account }} is stale";
+                  description = "The OCI usage exporter has not had a successful usage query for account {{ $labels.account }} in over 3 hours.";
                 };
               }
               {
