@@ -34,4 +34,9 @@
       };
     };
   };
+
+  # litestream (in the headscale group) writes its shadow dir inside the
+  # headscale state dir; the module default 0750 denies group write, so
+  # headscale replication silently failed. kuma/golink dirs are 0770.
+  systemd.services.headscale.serviceConfig.StateDirectoryMode = lib.mkForce "0770";
 }
