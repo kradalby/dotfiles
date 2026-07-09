@@ -14,5 +14,10 @@
     sfiber = wt "~/git/sfiber" 16;
     tsnixcache = wt "~/git/tsnixcache" 8;
     ts1p = wt "~/git/ts1p" 8;
+    infrastructure = {
+      path = "~/git/infrastructure";
+      spawn = "session";
+      verbose = true;
+    };
   };
 }
