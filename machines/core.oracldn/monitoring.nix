@@ -14,6 +14,22 @@
     "dev-ldn"
     "home-ldn"
     "storage-ldn"
+    "gigabuilder"
+    "ts1p-ldn"
+    "garnix"
+  ];
+
+  # Hosts running the postfix relay + its exporter (port 9154). These import
+  # profiles/server.nix; ts1p-ldn and garnix are base.nix-only (no postfix), so
+  # scraping them for postfix would be a permanent ExporterDown.
+  serverHosts = [
+    "core-oracldn"
+    "core-tjoda"
+    "dev-oracfurt"
+    "dev-ldn"
+    "home-ldn"
+    "storage-ldn"
+    "gigabuilder"
   ];
 
   # Hosts with ZFS pools (have zfs_exporter enabled)
@@ -21,11 +37,13 @@
     # "core-terra"
     "core-tjoda"
     "storage-ldn"
+    "gigabuilder"
   ];
 
   # Hosts with smartctl monitoring enabled
   smartctlHosts = [
     "core-tjoda"
+    "gigabuilder"
   ];
 
   # Hosts with smokeping exporter
@@ -45,6 +63,7 @@
   nginxlogHosts = [
     "core-oracldn"
     # "core-terra"
+    "gigabuilder"
   ];
 
   # Restic REST server Tailscale service names
@@ -75,17 +94,76 @@
         timeout: 10s
         icmp:
           preferred_ip_protocol: ip4
+      # Tailnet-only services: tsnet/Serve certs, and 401/403 count as alive
+      # (auth-gated endpoints like garnix /api/whoami).
+      http_tailnet:
+        prober: http
+        timeout: 5s
+        http:
+          method: GET
+          preferred_ip_protocol: "ip4"
+          ip_protocol_fallback: false
+          valid_status_codes: [200, 301, 302, 401, 403]
+          fail_if_ssl: false
+          fail_if_not_ssl: false
+      # End-to-end DNS through each site's CoreDNS resolver.
+      dns:
+        prober: dns
+        timeout: 5s
+        dns:
+          query_name: "kradalby.no"
+          query_type: "A"
+          transport_protocol: "udp"
+          preferred_ip_protocol: ip4
+      tcp_connect:
+        prober: tcp
+        timeout: 5s
+        tcp:
+          preferred_ip_protocol: ip4
   '';
 
   # Filesystem filter for disk alerts — excludes virtual, boot, and
   # Incus filesystems. Incus hosts have dedicated alerts.
   diskFilter = ''fstype!~"(tmpfs|ramfs)",mountpoint!~"^/boot.?/?.*",role!="incus"'';
 
+  # Every job carries a port-free "host" label so Alertmanager can group and
+  # inhibit per machine; the instance label includes the port, which made the
+  # inhibit rules' equal=["instance"] never match across exporters.
+  hostRelabel = {
+    source_labels = ["__address__"];
+    regex = "([^:]+):?.*";
+    target_label = "host";
+  };
+
+  # Helper for blackbox probe jobs: probe each target through the local
+  # blackbox exporter with the given module.
+  probeJob = name: module: targets: {
+    job_name = name;
+    metrics_path = "/probe";
+    params.module = [module];
+    static_configs = [{inherit targets;}];
+    relabel_configs = [
+      {
+        source_labels = ["__address__"];
+        target_label = "__param_target";
+      }
+      {
+        source_labels = ["__param_target"];
+        target_label = "instance";
+      }
+      {
+        target_label = "__address__";
+        replacement = "127.0.0.1:9115";
+      }
+    ];
+  };
+
   # Helper to create a simple scrape job with /metrics path
   scrapeJob = name: targets: {
     job_name = name;
     metrics_path = "/metrics";
     static_configs = [{inherit targets;}];
+    relabel_configs = [hostRelabel];
   };
 
   # Helper to create scrape jobs for exporters across multiple hosts
@@ -98,6 +176,7 @@
         targets = map (host: "${host}:${toString port}") hosts;
       }
     ];
+    relabel_configs = [hostRelabel];
   };
 in {
   services.tailscale.services = {
@@ -181,6 +260,48 @@ in {
         static_configs = [
           {targets = map (h: "${h}:80") resticHosts;}
         ];
+        relabel_configs = [hostRelabel];
+      }
+
+      # Pushgateway: backup success timestamps, sfiber proxy state, rustic
+      # laptops — anything Prometheus has no route into pushes here.
+      # honor_labels keeps the pushed instance/job labels intact. Scraped
+      # locally; producers push in over the svc:pushgateway VIP (ACL-scoped
+      # to tag:monitoring in ~/git/infrastructure).
+      {
+        job_name = "pushgateway";
+        metrics_path = "/metrics";
+        honor_labels = true;
+        static_configs = [{targets = ["localhost:9091"];}];
+      }
+
+      # ICMP ping of every scraped host over the tailnet. Splits "host is
+      # dead" from "exporter/firewall is broken" in the node alerts below.
+      {
+        job_name = "tailnet-ping";
+        metrics_path = "/probe";
+        params = {
+          module = ["icmp"];
+        };
+        static_configs = [{targets = allHosts;}];
+        relabel_configs = [
+          {
+            source_labels = ["__address__"];
+            target_label = "__param_target";
+          }
+          {
+            source_labels = ["__param_target"];
+            target_label = "instance";
+          }
+          {
+            source_labels = ["__param_target"];
+            target_label = "host";
+          }
+          {
+            target_label = "__address__";
+            replacement = "127.0.0.1:9115";
+          }
+        ];
       }
 
       # Incus hypervisor metrics (per-VM instance + host node_exporter)
@@ -196,11 +317,18 @@ in {
         };
         static_configs = [
           {
-            targets = ["core-ldn:8443"];
+            # core-ldn (IncusOS) also passes through host node_* series;
+            # gigabuilder (nixpkgs incus) exports incus_* only.
+            targets = ["core-ldn:8443" "gigabuilder:8443"];
             labels.role = "incus";
           }
         ];
+        relabel_configs = [hostRelabel];
       }
+
+      # tsnixcache: fleet nix cache AND the only GC on gigabuilder's store.
+      # tsnet node; private registry (no go_*/process_* series).
+      (scrapeJob "tsnixcache" ["tsnixcache:80"])
 
       # Application-specific exporters
       # OCI usage exporter binds localhost on this host, no ACL needed
@@ -208,8 +336,119 @@ in {
       (scrapeJob "litestream" ["core-oracldn:54909"])
       (scrapeJob "headscale" ["core-oracldn:54910"])
 
+      # Monitoring must watch itself; the Watchdog/dead-man covers the rest.
+      (scrapeJob "prometheus" ["localhost:9090"])
+      (scrapeJob "alertmanager" ["localhost:9093"])
+
+      # Syncthing native metrics via the GUI tailscale services
+      # (insecureAdminAccess, no creds). :81 on dev-oracfurt is the cooklang
+      # instance. This scrape is itself the liveness check.
+      (scrapeJob "syncthing" [
+        "syncthing-dev-oracfurt:80"
+        "syncthing-cooklang:80"
+        "syncthing-ldn:80"
+        "syncthing-tjoda:80"
+        "syncthing-dev-ldn:80"
+      ])
+
+      # MinIO cluster metrics (litestream's replica target, tjoda only). The
+      # v2 path is the real one; /metrics does not exist on minio.
+      {
+        job_name = "minio";
+        metrics_path = "/minio/v2/metrics/cluster";
+        static_configs = [{targets = ["core-tjoda:9000"];}];
+        relabel_configs = [hostRelabel];
+      }
+
       # PostgreSQL exporter (port 9187)
-      (scrapeJob "postgres" ["core-oracldn:9187"])
+      (scrapeJob "postgres" ["core-oracldn:9187" "garnix:9187"])
+
+      # garnix CI backend: native prometheus text on the ROOT path at :8323
+      # (prometheusApp [] — /metrics 404s). Queue gauges are NEGATIVE when
+      # idle (free slots) and positive when backlogged.
+      {
+        job_name = "garnix";
+        metrics_path = "/";
+        static_configs = [{targets = ["garnix:8323"];}];
+        relabel_configs = [hostRelabel];
+      }
+
+      # Postfix relay queue depth on every server (port 9154).
+      (exporterJob "postfix" serverHosts 9154)
+
+      # tailscaled usermetrics via the web client listener, fleet-wide.
+      # Requires a tailnet ACL grant for tcp:5252 from this host (out-of-band).
+      (exporterJob "tailscaled" allHosts 5252)
+
+      # Native app metrics over tailnet names. krapage/hvor/nefit expose only
+      # go runtime series — up{} liveness is the honest signal there.
+      (scrapeJob "grafana" ["localhost:3000"])
+      (scrapeJob "krapage" ["krapage:80"])
+      (scrapeJob "hvor" ["hvor:80"])
+      (scrapeJob "homekit-bridges" [
+        "nefit-homekit:80"
+        "tasmota-homekit:80"
+        "z2m-homekit:80"
+      ])
+
+      # golink: note the leading dot in the path; https with a ts.net cert.
+      {
+        job_name = "golink";
+        scheme = "https";
+        metrics_path = "/.metrics";
+        static_configs = [{targets = ["go:443"];}];
+        relabel_configs = [hostRelabel];
+      }
+
+      # ts1p (setec) secrets server. Assumes the fork exposes varz.Handler at
+      # an un-gated /metrics (only ts1p_* counters, no secret material). Full
+      # FQDN target so the ts.net cert validates. Reaching it needs the tcp:443
+      # tailnet ACL to setec.
+      {
+        job_name = "ts1p";
+        scheme = "https";
+        metrics_path = "/metrics";
+        static_configs = [{targets = ["setec.dalby.ts.net:443"];}];
+        relabel_configs = [hostRelabel];
+      }
+
+      # uptime-kuma: /metrics is auth-gated and the UI is public (nginx +
+      # ACME), so disabling auth to scrape it is unsafe. We watch liveness via
+      # the public https probe below; kuma notifies on its own monitors.
+
+      # Service-level probes: "does it respond at all", one tier per exposure.
+      (probeJob "tailnet-probes" "http_tailnet" [
+        "https://grafana.dalby.ts.net"
+        "https://idp.dalby.ts.net/.well-known/openid-configuration"
+        "https://setec.dalby.ts.net/healthz"
+        "https://cook.dalby.ts.net"
+        "https://pdf.dalby.ts.net"
+        "http://go.dalby.ts.net"
+        "https://paseo-dev-ldn.dalby.ts.net"
+        "http://dev-ldn:8846"
+        "https://owntone.dalby.ts.net"
+        "http://core-tjoda:9000/minio/health/live"
+      ])
+      (probeJob "dns-probes" "dns" [
+        "10.66.0.1"
+        "10.62.0.2"
+        "10.65.0.28"
+      ])
+      (probeJob "tcp-probes" "tcp_connect" [
+        "proton-bridge:143"
+        "core-tjoda:445"
+        "storage-ldn:445"
+      ])
+
+      # Watch the dead-man's own egress path. The Watchdog + litestream
+      # heartbeat ping hc-ping.com (the hosted healthchecks.io ping host — a
+      # SEPARATE domain from the healthchecks.io dashboard); if THIS box loses
+      # its route there (DNS, egress firewall, provider outage) the out-of-band
+      # notifier goes blind while we still look healthy. Probing the actual
+      # ping host means a broken transport pages via Discord now, instead of
+      # surfacing 15m later as a missed ping. Own job (not https-probes) so it
+      # stays warning, not a critical page for someone else's downtime.
+      (probeJob "deadman-transport" "http_prometheus" ["https://hc-ping.com"])
 
       # Blackbox HTTPS probing for public endpoints
       {
@@ -221,11 +460,16 @@ in {
         static_configs = [
           {
             targets = [
-              "https://headscale.kradalby.no"
+              # /health pings the headscale DB and 500s on failure; probing /
+              # only exercised a static 200 handler.
+              "https://headscale.kradalby.no/health"
               "https://uptime.kradalby.no"
               "https://kradalby.no"
               "https://umami.kradalby.no"
               "https://hvor.kradalby.no?from=discord"
+              # garnix CI edge; its documented failure mode (disk full →
+              # postgres recovery loop → 500s) fails this probe.
+              "https://garnix.kradalby.no"
             ];
           }
         ];
@@ -390,12 +634,24 @@ in {
               }
               {
                 alert = "NodeExporterDown";
-                expr = ''up{job="nodes"} == 0'';
+                # "unless ping ok" (not "and ping failed") so this still fires
+                # if the blackbox exporter itself is dead.
+                expr = ''up{job="nodes"} == 0 unless on (host) probe_success{job="tailnet-ping"} == 1'';
                 for = "5m";
                 labels.severity = "critical";
                 annotations = {
-                  summary = "Host {{ $labels.instance }} is unreachable";
-                  description = "Node exporter on {{ $labels.instance }} has been down for more than 5 minutes. Is the host powered on? Is Tailscale running?";
+                  summary = "Host {{ $labels.host }} is unreachable";
+                  description = "Node exporter is down and the host does not answer ping over the tailnet. Is it powered on? Is Tailscale running?";
+                };
+              }
+              {
+                alert = "HostUpScrapeBroken";
+                expr = ''up{job="nodes"} == 0 and on (host) probe_success{job="tailnet-ping"} == 1'';
+                for = "5m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "{{ $labels.host }} answers ping but its node exporter is unreachable";
+                  description = "The host is alive but the scrape fails — exporter crashed or a firewall change closed the port (check interfaces.tailscale0.allowedTCPPorts).";
                 };
               }
               {
@@ -491,26 +747,61 @@ in {
               }
               {
                 alert = "ServiceFlapping";
-                expr = ''
-                  changes(systemd_unit_state{state="failed"}[5m])
-                                  > 5 or (changes(systemd_unit_state{state="failed"}[1h]) > 15
-                                  unless changes(systemd_unit_state{state="failed"}[30m]) < 7)
-                '';
+                # The old 5m branch was dead code: at a 1m scrape interval a
+                # 5m window holds ≤5 samples, so changes() can never exceed 5.
+                expr = ''changes(systemd_unit_state{state="failed"}[1h]) > 15'';
                 for = "5m";
                 labels.severity = "warning";
                 annotations = {
-                  summary = "{{ $labels.instance }}: service {{ $labels.name }} is flapping";
-                  description = "The systemd unit {{ $labels.name }} on {{ $labels.instance }} has been changing state rapidly (>5x in 5min or >15x in 1h).";
+                  summary = "{{ $labels.host }}: service {{ $labels.name }} is flapping";
+                  description = "The systemd unit {{ $labels.name }} has changed failed-state more than 15 times in the last hour.";
+                };
+              }
+              {
+                alert = "ServiceRestartLoop";
+                # State sampling at 1m misses fast restart loops entirely;
+                # the restart counter does not.
+                expr = ''increase(systemd_service_restart_total[15m]) > 3'';
+                for = "5m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "{{ $labels.host }}: {{ $labels.name }} restarted {{ $value }} times in 15m";
+                  description = "The service is crash-looping (Restart=always hides this from failed-state alerts).";
                 };
               }
               {
                 alert = "SystemdUnitActivatingTooLong";
-                expr = ''systemd_unit_state{state="activating"} == 1'';
+                # Oneshot backup jobs report "activating" for their entire
+                # runtime; hourly restic uploads routinely exceed 5m. They get
+                # their own long fuse below instead of training alert-blindness.
+                expr = ''systemd_unit_state{state="activating",name!~"restic-backups-.*\\.service|postgresqlBackup-.*\\.service"} == 1'';
                 for = "5m";
                 labels.severity = "warning";
                 annotations = {
-                  summary = "{{ $labels.instance }}: unit {{ $labels.name }} stuck activating";
-                  description = "The systemd unit {{ $labels.name }} on {{ $labels.instance }} has been in activating state for more than 5 minutes.";
+                  summary = "{{ $labels.host }}: unit {{ $labels.name }} stuck activating";
+                  description = "The systemd unit {{ $labels.name }} has been in activating state for more than 5 minutes.";
+                };
+              }
+              {
+                alert = "BackupJobRunningTooLong";
+                expr = ''systemd_unit_state{state="activating",name=~"restic-backups-.*\\.service|postgresqlBackup-.*\\.service"} == 1'';
+                for = "6h";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "{{ $labels.host }}: backup job {{ $labels.name }} running for over 6h";
+                  description = "A backup unit has been running far longer than any normal upload; it is probably wedged.";
+                };
+              }
+              {
+                alert = "PushgatewayGroupStale";
+                # Rustic laptops are excluded: they legitimately go offline for
+                # days (travel) and have their own 3-day RusticBackupStale rule.
+                expr = ''time() - push_time_seconds{job!="rustic"} > 86400'';
+                for = "30m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "Stale pushgateway group: {{ $labels.job }}/{{ $labels.instance }}";
+                  description = "Nothing has pushed to this pushgateway group for over a day; the producer (backup wrapper, proxy check) has gone quiet.";
                 };
               }
             ];
@@ -551,6 +842,39 @@ in {
                 };
               }
               {
+                alert = "ZfsSnapshotStale";
+                # From the sanoid textfile exporter; 0 (never/parse failure)
+                # also fires. 25h of slack over the daily cadence.
+                expr = ''time() - zfs_snapshot_newest_creation_seconds > 90000'';
+                for = "30m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "Newest snapshot of {{ $labels.dataset }} on {{ $labels.host }} is stale";
+                  description = "sanoid has not produced a snapshot for over 25 hours; snapshotting has silently stalled.";
+                };
+              }
+              {
+                alert = "ZpoolStatusErrors";
+                expr = ''zfs_pool_status_errors == 1'';
+                for = "15m";
+                labels.severity = "critical";
+                annotations = {
+                  summary = "zpool status reports errors on {{ $labels.pool }} ({{ $labels.host }})";
+                  description = "The pool is accumulating checksum/scrub errors while staying ONLINE — zfs_pool_health alone does not catch this.";
+                };
+              }
+              {
+                alert = "TimeMachineFlatline";
+                # written_bytes rather than delta(used): TM thinning makes
+                # `used` non-monotonic.
+                expr = ''max_over_time(zfs_dataset_written_bytes{name=~".*timemachine.*"}[7d]) == 0'';
+                labels.severity = "warning";
+                annotations = {
+                  summary = "No Time Machine writes to {{ $labels.name }} for 7 days";
+                  description = "A laptop has silently stopped backing up over samba, or the share is broken.";
+                };
+              }
+              {
                 alert = "ZFSPoolSpaceCritical";
                 expr = "(zfs_pool_allocated_bytes / zfs_pool_size_bytes) * 100 > 90";
                 for = "5m";
@@ -575,6 +899,19 @@ in {
                 annotations = {
                   summary = "SMART reports disk {{ $labels.device }} unhealthy on {{ $labels.instance }}";
                   description = "SMART self-assessment on {{ $labels.device }} ({{ $labels.model_name }}) indicates the disk is failing.";
+                };
+              }
+              {
+                alert = "SmartctlDiskMissing";
+                # core.tjoda monitors 5 disks by ID (machines/core.tjoda/
+                # default.nix); a disk vanishing from the exporter is itself a
+                # failure signal, not a reason for silence.
+                expr = ''count by (host) (smartctl_device_smart_status{host="core-tjoda"}) < 5'';
+                for = "15m";
+                labels.severity = "critical";
+                annotations = {
+                  summary = "{{ $labels.host }}: only {{ $value }}/5 disks report SMART";
+                  description = "A monitored disk disappeared from the smartctl exporter — dead disk, dead controller, or the by-id list is stale.";
                 };
               }
               {
@@ -612,6 +949,96 @@ in {
                 annotations = {
                   summary = "HTTPS probe failed for {{ $labels.instance }}";
                   description = "The public HTTPS endpoint {{ $labels.instance }} has been unreachable or returning errors for more than 5 minutes.";
+                };
+              }
+              {
+                alert = "TailnetServiceDown";
+                expr = ''probe_success{job=~"tailnet-probes|tcp-probes"} == 0'';
+                for = "10m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "Tailnet service {{ $labels.instance }} not responding";
+                  description = "Convenience-tier service is down: dead tsnet node, expired node key, broken Serve mapping, or the backend itself.";
+                };
+              }
+              {
+                alert = "DeadmanNotifierUnreachable";
+                expr = ''probe_success{job="deadman-transport"} == 0'';
+                for = "10m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "core.oracldn cannot reach hc-ping.com";
+                  description = "The Watchdog and litestream heartbeat cannot ping the out-of-band dead-man; if the pipeline dies now, nothing will notice. Check egress/DNS, or healthchecks.io status.";
+                };
+              }
+              {
+                alert = "TailscaledRouteApprovalPending";
+                # Advertised routes that were never approved (e.g. after a
+                # gateway re-auth): LAN/subnet sites become unreachable while
+                # every other signal stays green. Both gauges are registered at
+                # startup (source-verified, ipn/ipnlocal/local.go) so they read 0
+                # on non-routers — the expr self-selects the subnet routers.
+                # Needs the tcp:5252 tailnet ACL for the tailscaled scrape.
+                expr = ''tailscaled_advertised_routes - tailscaled_approved_routes > 0'';
+                for = "15m";
+                labels.severity = "critical";
+                annotations = {
+                  summary = "{{ $labels.host }}: {{ $value }} advertised route(s) not approved";
+                  description = "A subnet router is advertising routes the control plane has not approved; the LAN/subnet behind it is unreachable over the tailnet.";
+                };
+              }
+              {
+                alert = "CorednsUpstreamBroken";
+                # Single counter, no `to` label — earliest all-upstreams-down
+                # signal; the 1h cache masks outages for cached names.
+                expr = ''increase(coredns_forward_healthcheck_broken_total[10m]) > 0'';
+                for = "5m";
+                labels.severity = "critical";
+                annotations = {
+                  summary = "CoreDNS on {{ $labels.host }} lost all upstreams";
+                  description = "All DNS forward upstreams are failing health checks; resolution runs on cache fumes.";
+                };
+              }
+              {
+                alert = "ProtonBridgeLoginFailing";
+                expr = ''proton_bridge_login_ok == 0'';
+                for = "30m";
+                labels.severity = "critical";
+                annotations = {
+                  summary = "protonmail-bridge on dev-oracfurt rejects IMAP login";
+                  description = "The bridge is signed out or broken — the fleet's outgoing mail path (and the email alert fallback) is dead until someone re-runs `protonmail-bridge --cli` login.";
+                };
+              }
+              {
+                alert = "PostfixQueueBacklog";
+                expr = ''postfix_showq_message_size_bytes_count{queue="deferred"} > 100'';
+                for = "30m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "{{ $labels.host }}: {{ $value }} deferred mails in the postfix queue";
+                  description = "The relay path (smtp.fap.no / proton bridge) is failing; alert emails and cron mail are silently piling up.";
+                };
+              }
+              {
+                alert = "DnsProbeDown";
+                expr = ''probe_success{job="dns-probes"} == 0'';
+                for = "10m";
+                labels.severity = "critical";
+                annotations = {
+                  summary = "CoreDNS resolver {{ $labels.instance }} failing end-to-end queries";
+                  description = "LAN clients at this site cannot resolve; note the 1h cache can mask this for cached names.";
+                };
+              }
+              {
+                alert = "SmartPlugTelemetryDown";
+                # These exporters emit per-target probe_success; their up{}
+                # stays 1 when subnet-route forwarding breaks — that's the bug.
+                expr = ''probe_success{job=~"tasmota|homewizard"} == 0'';
+                for = "10m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "No response from {{ $labels.instance }}";
+                  description = "Smart plug / P1 meter unreachable — device offline or the LDN subnet route is broken.";
                 };
               }
               {
@@ -674,16 +1101,114 @@ in {
           {
             name = "application";
             rules = [
+              # Metric names verified against the pinned litestream 0.5.11
+              # source (db.go, internal/internal.go). The replica_operation
+              # counters cover the S3/minio path (expired creds, unreachable
+              # endpoint); sync counters cover the local WAL sync.
               {
-                alert = "LitestreamReplicationLag";
-                # Litestream exposes replica lag; if it doesn't match this metric name
-                # exactly, the rule is harmless (matches no series).
-                expr = "litestream_replica_lag_seconds > 300";
+                alert = "LitestreamReplicaOpErrors";
+                expr = "increase(litestream_replica_operation_errors_total[15m]) > 0";
                 for = "5m";
                 labels.severity = "critical";
                 annotations = {
-                  summary = "Litestream replication lagging for {{ $labels.db }} to {{ $labels.name }}";
-                  description = "Litestream replication for database {{ $labels.db }} to replica {{ $labels.name }} has been lagging more than 5 minutes.";
+                  summary = "Litestream replica operations failing on {{ $labels.instance }}";
+                  description = "Litestream S3 replica operations have been failing for 15 minutes. Check minio reachability and the credentials in secrets/litestream.age.";
+                };
+              }
+              {
+                alert = "LitestreamSyncErrors";
+                expr = "increase(litestream_sync_error_count[15m]) > 0";
+                for = "5m";
+                labels.severity = "critical";
+                annotations = {
+                  summary = "Litestream local sync failing for {{ $labels.db }}";
+                  description = "Litestream cannot sync the local database {{ $labels.db }}; replication is stalled.";
+                };
+              }
+              {
+                alert = "LitestreamVerifyErrors";
+                expr = "increase(litestream_compaction_verify_error_count[6h]) > 0";
+                for = "5m";
+                labels.severity = "critical";
+                annotations = {
+                  summary = "Litestream compaction verification failed on {{ $labels.instance }}";
+                  description = "Litestream compaction verification errors indicate the replica may not be restorable.";
+                };
+              }
+              {
+                alert = "LitestreamMetricsMissing";
+                # Canary against metric renames: a future litestream bump that
+                # renames its metrics must page, not silently go green.
+                expr = ''absent(litestream_sync_count) and on() up{job="litestream"} == 1'';
+                for = "15m";
+                labels.severity = "critical";
+                annotations = {
+                  summary = "Litestream exporter is up but litestream_sync_count is absent";
+                  description = "The litestream metric names have changed (version bump?). All litestream alerts are blind until the rules are updated.";
+                };
+              }
+              {
+                alert = "LitestreamRestoreStale";
+                # litestream-restore-test stamps this on a clean weekly restore
+                # + integrity check (textfile collector). >2 weeks means the
+                # test has been failing or the timer stopped — a replica we
+                # can no longer prove is restorable.
+                expr = ''time() - litestream_restore_test_last_success_seconds > 14 * 86400'';
+                for = "1h";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "Litestream has not passed a restore test in over two weeks";
+                  description = "The weekly restore + integrity check has not succeeded recently; the sqlite replicas may not be restorable. Check litestream-restore-test.service.";
+                };
+              }
+              # Syncthing folder states verified against pinned 2.0.15 source:
+              # 0=idle … 8=error (lib/model/folderstate.go).
+              {
+                alert = "SyncthingFolderError";
+                expr = ''syncthing_model_folder_state == 8'';
+                for = "15m";
+                labels.severity = "critical";
+                annotations = {
+                  summary = "Syncthing folder {{ $labels.folder }} on {{ $labels.host }} is in error state";
+                  description = "The folder has stopped syncing; restic is snapshotting stale data until this is fixed.";
+                };
+              }
+              {
+                alert = "SyncthingFolderStuck";
+                expr = ''min_over_time(syncthing_model_folder_state[6h]) > 0'';
+                labels.severity = "warning";
+                annotations = {
+                  summary = "Syncthing folder {{ $labels.folder }} on {{ $labels.host }} not idle for 6h";
+                  description = "The folder has been scanning/syncing continuously for 6 hours — likely wedged.";
+                };
+              }
+              {
+                alert = "SyncthingFolderConflicts";
+                expr = ''increase(syncthing_model_folder_conflicts_total[1h]) > 0'';
+                labels.severity = "warning";
+                annotations = {
+                  summary = "New syncthing conflicts in {{ $labels.folder }} on {{ $labels.host }}";
+                  description = "Conflicting edits are being shelved as .sync-conflict files; someone should reconcile them.";
+                };
+              }
+              {
+                alert = "SyncthingNoConnections";
+                expr = ''sum by (host, instance) (syncthing_connections_active) == 0'';
+                for = "12h";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "Syncthing {{ $labels.instance }} has had no connected peers for 12h";
+                  description = "Nothing is syncing with this instance. Laptop peers sleep — hence the long fuse — but half a day of isolation on a server instance is real.";
+                };
+              }
+              {
+                alert = "MinioUnhealthy";
+                expr = "minio_cluster_health_status == 0";
+                for = "5m";
+                labels.severity = "critical";
+                annotations = {
+                  summary = "MinIO on {{ $labels.host }} reports unhealthy";
+                  description = "MinIO is the litestream replica target — sqlite replication is failing while this is down.";
                 };
               }
               {
@@ -729,6 +1254,21 @@ in {
                 };
               }
               {
+                alert = "OracleUsageMetricsMissing";
+                # Canary: exporter up but emitting no usage series (renamed
+                # metric, broken OCI query at startup). Without
+                # oci_usage_month_total the critical OracleCostNonZero can
+                # never fire, so a cost overrun would pass silently — and a
+                # time()-based staleness check cannot fire on an absent series.
+                expr = ''absent(oci_usage_month_total) and on () up{job="oci-usage"} == 1'';
+                for = "1h";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "OCI usage exporter is up but emitting no usage metrics";
+                  description = "oci_usage_month_total is absent while the oci-usage scrape is up; the Oracle cost and staleness alerts are both blind.";
+                };
+              }
+              {
                 alert = "ResticBackupStale";
                 expr = ''time() - systemd_timer_last_trigger_seconds{name=~"restic-backups-.*\\.timer",name!~"restic-backups-jotta\\.timer"} > 2 * 3600'';
                 for = "30m";
@@ -739,6 +1279,28 @@ in {
                 };
               }
               {
+                alert = "SensorPipelineSilent";
+                # Catches the whole class of "exporter up, broker empty" breaks
+                # (wrong broker, z2m dead, zigbee radio wedged).
+                expr = ''sum(increase(sensor_message_total[1h])) == 0 or absent(sensor_message_total)'';
+                for = "30m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "No zigbee sensor messages for over an hour";
+                  description = "mqtt-exporter on home-ldn is not seeing any messages; zigbee2mqtt, its broker, or the exporter subscription is broken.";
+                };
+              }
+              {
+                alert = "SensorBatteryLow";
+                expr = ''min by (sensor) (sensor_battery) < 15'';
+                for = "6h";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "Zigbee sensor {{ $labels.sensor }} battery at {{ $value }}%";
+                  description = "Replace the battery before the sensor goes dark.";
+                };
+              }
+              {
                 alert = "ResticBackupStaleJotta";
                 expr = ''time() - systemd_timer_last_trigger_seconds{name=~"restic-backups-jotta\\.timer"} > 4 * 3600'';
                 for = "30m";
@@ -746,6 +1308,323 @@ in {
                 annotations = {
                   summary = "Restic Jottacloud backup {{ $labels.name }} stale on {{ $labels.instance }}";
                   description = "The Jottacloud restic backup timer {{ $labels.name }} on {{ $labels.instance }} has not triggered in over 4 hours (expected: hourly, but rclone uploads can be slow).";
+                };
+              }
+              # Backup TRUTH: the timer alerts above only prove the timer
+              # fired. restic-jobs.nix pushes a success timestamp after every
+              # completed run; a backup that runs-and-fails hourly goes stale
+              # here while the timer alert stays green.
+              {
+                alert = "ResticBackupNotSucceeding";
+                expr = ''time() - restic_backup_last_success_timestamp_seconds{repo!="jotta"} > 3 * 3600'';
+                for = "30m";
+                labels.severity = "critical";
+                annotations = {
+                  summary = "Restic {{ $labels.repo }} on {{ $labels.instance }}: no successful backup for 3h";
+                  description = "The backup unit is firing but not completing successfully (hourly schedule expected). Check the unit log; ServiceFailed may have details.";
+                };
+              }
+              {
+                alert = "ResticBackupNotSucceedingJotta";
+                expr = ''time() - restic_backup_last_success_timestamp_seconds{repo="jotta"} > 8 * 3600'';
+                for = "30m";
+                labels.severity = "critical";
+                annotations = {
+                  summary = "Restic jotta on {{ $labels.instance }}: no successful offsite backup for 8h";
+                  description = "The Jottacloud job is the only offsite copy of /storage; slow rclone uploads get 8h of slack, silence beyond that is real.";
+                };
+              }
+              {
+                alert = "ResticRepoNoNewSnapshots";
+                # Repo-side cross-check on the REST servers: snapshot blobs
+                # written per repo. Counter resets on restart, hence increase()
+                # guarded by the exporter being up; secondary to the client
+                # push above.
+                expr = ''sum by (repo) (increase(rest_server_blob_write_bytes_total{type="snapshots"}[26h])) == 0 and on () up{job="restic-server"} == 1'';
+                for = "1h";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "No new snapshots written to repo {{ $labels.repo }} in 26h";
+                  description = "No client has completed a backup into this repository for over a day.";
+                };
+              }
+              {
+                alert = "PostgresqlBackupStale";
+                expr = ''time() - systemd_timer_last_trigger_seconds{name=~"postgresqlBackup-.*\\.timer"} > 26 * 3600'';
+                for = "30m";
+                labels.severity = "critical";
+                annotations = {
+                  summary = "postgres dump {{ $labels.name }} stale on {{ $labels.host }}";
+                  description = "The nightly pg_dump timer has not fired for over a day; the restic snapshots are carrying a stale dump.";
+                };
+              }
+              {
+                alert = "RusticBackupStale";
+                # macOS laptops (krair/kratail2) back up irreplaceable data
+                # (iMessage, Signal, Keychains) via rustic; the watchdog pushes
+                # the newest-snapshot timestamp to the pushgateway. This is the
+                # consumer: a laptop online but silently not backing up ages the
+                # timestamp even while push_time stays fresh. 3 days tolerates
+                # travel; the pushed value persists in the pushgateway so an
+                # offline laptop still trips this rather than PushgatewayGroupStale.
+                expr = ''time() - rustic_backup_last_snapshot_timestamp_seconds > 3 * 86400'';
+                for = "30m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "rustic backup on {{ $labels.host }} is stale (>3d)";
+                  description = "No fresh rustic snapshot for over three days; the laptop's backups have silently stopped.";
+                };
+              }
+              {
+                alert = "RusticBackupMetricsMissing";
+                # Canary against the metric name being wrong or the pushgateway
+                # being wiped — the RusticBackupStale threshold can never fire if
+                # the series does not exist at all.
+                expr = ''absent(rustic_backup_last_snapshot_timestamp_seconds)'';
+                for = "6h";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "No rustic backup timestamp is being pushed by any laptop";
+                  description = "rustic_backup_last_snapshot_timestamp_seconds is absent fleet-wide; the macOS backup dead-man is blind.";
+                };
+              }
+              {
+                alert = "SfiberProxyDown";
+                # sfiber-check on core.tjoda pushes sfiber_proxy_up{proxy}=0 for a
+                # tailscale-proxy that is not Running (expired key / dead foreign
+                # headscale). The 0 is the whole signal — a down-but-still-pushing
+                # proxy never trips PushgatewayGroupStale.
+                expr = ''sfiber_proxy_up == 0'';
+                for = "30m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "sfiber proxy {{ $labels.proxy }} is down";
+                  description = "A remote-client backup-ingest tailscale proxy is not Running; remote backups into it fail silently.";
+                };
+              }
+              {
+                alert = "NginxLogParseErrors";
+                # The only signal that a log-format change silently zeroed the
+                # nginxlog counters — which would make the nginx availability SLO
+                # read 100% healthy against no data.
+                expr = ''rate(nginxlog_parse_errors_total[10m]) > 0'';
+                for = "10m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "nginxlog exporter failing to parse the access log on {{ $labels.host }}";
+                  description = "Parse errors mean the log format drifted; nginxlog_http_response_count_total is silently undercounting and the nginx SLO is blind.";
+                };
+              }
+              {
+                alert = "Ts1pOpAuthFailed";
+                # A revoked/expired 1Password service-account credential —
+                # otherwise hidden behind the 24h secret cache until it drains.
+                # ts1p_op_auth_failed_total is a varz counter (source-verified);
+                # requires the ts1p /metrics fork + tcp:443 ACL to setec.
+                expr = ''increase(ts1p_op_auth_failed_total[30m]) > 0'';
+                for = "5m";
+                labels.severity = "critical";
+                annotations = {
+                  summary = "ts1p (setec) 1Password authentication is failing";
+                  description = "The fleet secrets server cannot authenticate to 1Password; secret warms will fail once the cache drains.";
+                };
+              }
+            ];
+          }
+
+          # Headscale — the tailnet control plane. Alerts use only NATIVE,
+          # namespaced headscale_* metrics (verified in hscontrol/metrics.go):
+          # mapresponse errors, nodestore, queue depth, resource use. We
+          # deliberately do NOT touch go-chi's http_requests_total — it is
+          # OPTIONS-only upstream (Skip bug) and adds nothing over these.
+          {
+            name = "headscale";
+            rules = [
+              {
+                alert = "HeadscaleNodestoreEmpty";
+                # The fingerprint of a bad restore / wiped sqlite: process up,
+                # zero nodes.
+                expr = ''headscale_nodestore_nodes == 0'';
+                for = "15m";
+                labels.severity = "critical";
+                annotations = {
+                  summary = "Headscale reports zero nodes";
+                  description = "The node table is empty while headscale runs — wiped or corrupt database, or a bad litestream restore.";
+                };
+              }
+              {
+                alert = "HeadscaleMapResponseErrors";
+                expr = ''sum(rate(headscale_mapresponse_sent_total{status="error"}[10m])) > 0'';
+                for = "10m";
+                labels.severity = "critical";
+                annotations = {
+                  summary = "Headscale is failing to send map responses";
+                  description = "Clients are not receiving netmap updates; the tailnet is degrading.";
+                };
+              }
+              {
+                alert = "HeadscaleQueueBacklog";
+                # sqlite write-contention proxy.
+                expr = ''headscale_nodestore_queue_depth > 10'';
+                for = "10m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "Headscale nodestore queue depth {{ $value }}";
+                  description = "Write operations are queueing — sqlite contention or an overloaded event loop.";
+                };
+              }
+              {
+                alert = "HeadscaleResourceExhaustion";
+                # fd ratio is the earliest overload signal: every long-poll
+                # holds a descriptor. CPU/goroutine bounds tuned vs. an idle
+                # baseline of a small homelab tailnet.
+                expr = ''
+                  process_open_fds{job="headscale"} / process_max_fds{job="headscale"} > 0.8
+                                    or rate(process_cpu_seconds_total{job="headscale"}[5m]) > 0.8
+                                    or go_goroutines{job="headscale"} > 1000
+                                    or process_resident_memory_bytes{job="headscale"} > 1e9
+                '';
+                for = "15m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "Headscale resource pressure on {{ $labels.instance }}";
+                  description = "File descriptors, CPU, goroutines, or RSS are far above baseline — headscale is overloaded or leaking.";
+                };
+              }
+            ];
+          }
+
+          # Saturation / oversubscription — the "everything is slow but
+          # nothing is down" tier for the small shared Oracle VMs. PSI is the
+          # load-bearing signal; steal stays ~0 on A1 Flex (dedicated OCPUs),
+          # so no steal alert.
+          {
+            name = "saturation";
+            rules = [
+              {
+                alert = "CPUPressure";
+                expr = ''rate(node_pressure_cpu_waiting_seconds_total[10m]) > 0.25'';
+                for = "30m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "{{ $labels.host }}: tasks waiting for CPU {{ $value | humanizePercentage }} of the time";
+                  description = "Sustained CPU pressure — the box is oversubscribed for its workload.";
+                };
+              }
+              {
+                alert = "MemoryPressure";
+                expr = ''rate(node_pressure_memory_stalled_seconds_total[10m]) > 0.05'';
+                for = "15m";
+                labels.severity = "critical";
+                annotations = {
+                  summary = "{{ $labels.host }}: actively thrashing on memory";
+                  description = "Tasks are fully stalled on memory reclaim; the host is effectively unusable until pressure drops.";
+                };
+              }
+              {
+                alert = "SwapThrash";
+                expr = ''
+                  rate(node_vmstat_pswpout[10m]) > 1000
+                                    and (node_memory_SwapTotal_bytes - node_memory_SwapFree_bytes) / node_memory_SwapTotal_bytes > 0.8
+                '';
+                for = "15m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "{{ $labels.host }}: swapping heavily with swap nearly full";
+                  description = "zram/swap is thrashing — memory is oversubscribed. Mere swap usage never alerts; sustained swap-out does.";
+                };
+              }
+              {
+                alert = "ConntrackNearLimit";
+                # Ratio self-selects the NAT gateways; other hosts idle far
+                # below the limit.
+                expr = ''node_nf_conntrack_entries / node_nf_conntrack_entries_limit > 0.8'';
+                for = "10m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "{{ $labels.host }}: conntrack table {{ $value | humanizePercentage }} full";
+                  description = "The NAT gateway is about to start dropping new connections.";
+                };
+              }
+              {
+                alert = "FileDescriptorsNearLimit";
+                expr = ''node_filefd_allocated / node_filefd_maximum > 0.8'';
+                for = "10m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "{{ $labels.host }}: system file descriptors {{ $value | humanizePercentage }} of max";
+                  description = "Something is leaking fds; services will start failing to open sockets/files.";
+                };
+              }
+              {
+                alert = "HttpsProbeSlow";
+                # The 1–5s degraded band: the probe module times out at 5s
+                # (down), but sustained slowness is the earliest user-visible
+                # oversubscription signal.
+                expr = ''probe_duration_seconds{job="https-probes"} > 2'';
+                for = "15m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "{{ $labels.instance }} responding slowly ({{ $value }}s)";
+                  description = "The endpoint answers but takes >2s — degraded, likely host saturation or upstream trouble.";
+                };
+              }
+            ];
+          }
+
+          # Monitoring-of-the-monitoring. The Watchdog fires always; a
+          # dedicated Alertmanager route forwards it to healthchecks.io, which
+          # pages out-of-band when the pings stop. Everything else here would
+          # otherwise fail silently into the same Discord webhook it reports on.
+          {
+            name = "monitoring";
+            rules = [
+              {
+                alert = "Watchdog";
+                expr = "vector(1)";
+                labels.severity = "heartbeat";
+                annotations = {
+                  summary = "Dead-man heartbeat";
+                  description = "Always firing. If healthchecks.io stops receiving this, Prometheus, Alertmanager, or the delivery path is down.";
+                };
+              }
+              {
+                alert = "PrometheusRuleEvalFailures";
+                expr = "increase(prometheus_rule_evaluation_failures_total[15m]) > 0";
+                for = "5m";
+                labels.severity = "critical";
+                annotations = {
+                  summary = "Prometheus rule evaluation is failing";
+                  description = "{{ $value }} rule evaluation failures in 15m — some alerts are not being evaluated at all.";
+                };
+              }
+              {
+                alert = "PrometheusNotificationErrors";
+                expr = "increase(prometheus_notifications_errors_total[15m]) > 0";
+                for = "5m";
+                labels.severity = "critical";
+                annotations = {
+                  summary = "Prometheus cannot deliver alerts to Alertmanager";
+                  description = "Errors on the Prometheus → Alertmanager leg; firing alerts may not be reaching any receiver.";
+                };
+              }
+              {
+                alert = "PrometheusTSDBErrors";
+                expr = "increase(prometheus_tsdb_compactions_failed_total[4h]) > 0 or increase(prometheus_tsdb_wal_corruptions_total[4h]) > 0";
+                labels.severity = "critical";
+                annotations = {
+                  summary = "Prometheus TSDB compaction/WAL errors on {{ $labels.instance }}";
+                  description = "The metrics store itself is unhealthy; history and alerting are at risk.";
+                };
+              }
+              {
+                alert = "AlertmanagerConfigReloadFailed";
+                expr = "alertmanager_config_last_reload_successful == 0";
+                for = "10m";
+                labels.severity = "critical";
+                annotations = {
+                  summary = "Alertmanager is running a stale configuration";
+                  description = "The last Alertmanager config reload failed; routing/receiver changes are not in effect.";
                 };
               }
             ];
@@ -788,6 +1667,40 @@ in {
 
               # Per-VM instance alerts
               {
+                alert = "IncusVMVanished";
+                # The Incus suite has no "instance stopped" rule; a VM that
+                # stops (or is deleted) simply drops its series.
+                expr = ''absent(incus_memory_MemTotal_bytes{name="ts1p"}) or absent(incus_memory_MemTotal_bytes{name="dev"}) or absent(incus_memory_MemTotal_bytes{name="home"}) or absent(incus_memory_MemTotal_bytes{name="storage"}) or absent(incus_memory_MemTotal_bytes{name="garnix"})'';
+                for = "10m";
+                labels.severity = "critical";
+                annotations = {
+                  # absent() carries the name label from its equality matcher.
+                  summary = "Incus VM {{ $labels.name }} has vanished from hypervisor metrics";
+                  description = "The VM no longer reports from its hypervisor — stopped, deleted, or renamed.";
+                };
+              }
+              {
+                alert = "TsnixcacheDiskFull";
+                # tsnixcache is the ONLY GC on gigabuilder's nix store (fleet
+                # GC is force-disabled); if GC wedges, the build host fills up.
+                expr = ''tsnixcache_gc_disk_used_pct > 97'';
+                for = "1h";
+                labels.severity = "critical";
+                annotations = {
+                  summary = "tsnixcache store disk {{ $value }}% full";
+                  description = "GC is not keeping up (or is broken) on gigabuilder; builds will start failing when the store fills.";
+                };
+              }
+              {
+                alert = "TsnixcacheGCErrors";
+                expr = ''increase(tsnixcache_gc_errors_total[1h]) > 0'';
+                labels.severity = "warning";
+                annotations = {
+                  summary = "tsnixcache GC reporting errors";
+                  description = "Garbage collection on the fleet nix cache is failing; disk-full follows if this persists.";
+                };
+              }
+              {
                 alert = "IncusInstanceOOMKill";
                 expr = "increase(incus_memory_OOM_kills_total[5m]) > 0";
                 for = "1m";
@@ -828,7 +1741,15 @@ in {
                 };
               }
 
-              # Hypervisor host alerts (node_* metrics from Incus endpoint)
+              # Hypervisor host alerts. IncusOS passes node_* series through
+              # its /1.0/metrics endpoint (live-verified 2026-07: 4483 node_*
+              # series incl. fstype="ext4",mountpoint="/"). Only the default
+              # node_exporter collectors come through (cpu/meminfo/filesystem/
+              # diskstats/loadavg/hwmon/netdev/nvme) — the systemd collector is
+              # NOT among them, so there is no node_systemd_unit_state to alert
+              # a failed hypervisor unit on. SMART is likewise absent —
+              # smartmontools runs on IncusOS itself; the physical disks' SMART
+              # is an accepted blind spot here.
               {
                 alert = "HypervisorLowMem";
                 expr = ''(node_memory_MemAvailable_bytes{role="incus"} / node_memory_MemTotal_bytes{role="incus"}) * 100 < 5'';
@@ -887,6 +1808,7 @@ in {
         route = {
           group_by = [
             "alertname"
+            "host"
             "instance"
           ];
           group_wait = "30s";
@@ -895,8 +1817,17 @@ in {
           receiver = "discord";
           routes = [
             {
+              # Dead-man heartbeat: continuously re-notified to healthchecks.io,
+              # never to Discord. Silence on this route is what pages.
+              match = {severity = "heartbeat";};
+              receiver = "deadman";
+              group_wait = "10s";
+              group_interval = "1m";
+              repeat_interval = "4m";
+            }
+            {
               match = {severity = "critical";};
-              receiver = "discord";
+              receiver = "critical";
               group_wait = "10s";
               group_interval = "1m";
               repeat_interval = "1h";
@@ -911,24 +1842,27 @@ in {
           ];
         };
 
+        # Inhibits match on the port-free "host" label; "instance" carries the
+        # exporter port (core-tjoda:9100 vs :9558) and never matched across
+        # jobs, so a dead host used to flood one alert per exporter.
         inhibit_rules = [
           {
-            # If a node is down, suppress all other alerts from that instance
+            # If a node is down, suppress all other alerts from that host
             source_matchers = ["alertname=\"NodeExporterDown\""];
             target_matchers = ["alertname!=\"NodeExporterDown\""];
-            equal = ["instance"];
+            equal = ["host"];
           }
           {
-            # If an exporter is down, suppress downstream alerts from that instance
+            # If an exporter is down, suppress downstream alerts from that host
             source_matchers = ["alertname=\"ExporterDown\""];
             target_matchers = ["alertname!~\"ExporterDown|NodeExporterDown\""];
-            equal = ["instance"];
+            equal = ["host" "job"];
           }
           {
-            # Critical inhibits warning for the same alert+instance
+            # Critical inhibits warning for the same alert+host
             source_matchers = ["severity=\"critical\""];
             target_matchers = ["severity=\"warning\""];
-            equal = ["alertname" "instance"];
+            equal = ["alertname" "host"];
           }
         ];
 
@@ -938,6 +1872,35 @@ in {
             discord_configs = [
               {
                 webhook_url = "$DISCORD_WEBHOOK_URL";
+              }
+            ];
+          }
+          {
+            # Critical fans out to Discord AND email so a dead webhook alone
+            # can't hide a page. Email relays through the local postfix.
+            name = "critical";
+            discord_configs = [
+              {
+                webhook_url = "$DISCORD_WEBHOOK_URL";
+              }
+            ];
+            email_configs = [
+              {
+                to = "kristoffer@dalby.cc";
+                from = "alertmanager@oracldn.fap.no";
+                smarthost = "localhost:25";
+                require_tls = false;
+              }
+            ];
+          }
+          {
+            # healthchecks.io ping URL; pinged on every Watchdog re-notify.
+            # HEALTHCHECKS_WATCHDOG_URL must exist in secrets/alertmanager-env.age.
+            name = "deadman";
+            webhook_configs = [
+              {
+                url = "$HEALTHCHECKS_WATCHDOG_URL";
+                send_resolved = false;
               }
             ];
           }

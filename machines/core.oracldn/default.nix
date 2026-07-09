@@ -13,12 +13,12 @@
 
     ../../common/coredns.nix
     ../../common/miniupnp.nix
-    ../../common/minio.nix
     ../../common/tailscale.nix
 
     ./restic.nix
     ./kuma.nix
     ./monitoring.nix
+    ./slo.nix
     ./grafana.nix
     ./postgres.nix
     ./stirling-pdf.nix
@@ -105,6 +105,9 @@
       allowedUDPPorts = lib.mkForce [
         443 # HTTPS
         config.services.tailscale.port
+        # headscale DERP STUN. headscale.nix also opens this, but the mkForce
+        # here used to silently discard it — it must live inside this list.
+        3478
       ];
 
       trustedInterfaces = [config.my.lan "docker0"];
