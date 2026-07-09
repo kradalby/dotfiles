@@ -11,14 +11,21 @@
   # configures the server before creating incusbr0, so binding the bridge IP there
   # fails (cannot assign requested address).
   systemd.services.incus-https-address = {
-    description = "Bind the incus API (firewall restricts it to tailscale/bridge)";
+    description = "Bind the incus API + open metrics (firewall restricts it to tailscale/bridge)";
     after = ["incus-preseed.service"];
     requires = ["incus-preseed.service"];
     wantedBy = ["multi-user.target"];
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
-      ExecStart = ''${pkgs.incus}/bin/incus config set core.https_address "[::]:8443"'';
+      # Same reason the API can't go in the preseed applies here: incus configures
+      # the server before incusbr0 exists. metrics_authentication=false exposes the
+      # /1.0/metrics endpoint on :8443 without a client cert, scrapeable over the
+      # firewalled tailnet/bridge.
+      ExecStart = [
+        ''${pkgs.incus}/bin/incus config set core.https_address "[::]:8443"''
+        ''${pkgs.incus}/bin/incus config set core.metrics_authentication false''
+      ];
     };
   };
 

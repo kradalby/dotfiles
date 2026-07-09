@@ -9,6 +9,7 @@ in {
   imports = [
     ../../common/base.nix
     ../../common/incus-vm-ldn.nix
+    ../../common/systemd-exporter.nix
     ../../common/tailscale.nix
   ];
 
@@ -58,6 +59,17 @@ in {
 
   # op CLI for the 1Password service account (token provisioned separately).
   environment.systemPackages = [pkgs._1password-cli];
+
+  # Reach node (9100) and systemd (9558) exporters over the tailnet. The host
+  # joins the tailscale.com tailnet as node "ts1p-ldn" (separate from the "setec"
+  # tsnet listener), and tailscale0 is not a trusted interface here, so open the
+  # exporter ports on it explicitly. node-exporter only opens on my.lan (enp5s0)
+  # and systemd-exporter opens globally, but we pin both to tailscale0 to make the
+  # scrape path intentional.
+  networking.firewall.interfaces.tailscale0.allowedTCPPorts = [
+    config.services.prometheus.exporters.node.port
+    config.services.prometheus.exporters.systemd.port
+  ];
 
   # ts1p lives only on the tailscale.com tailnet (as setec.dalby.ts.net).
   # common/tailscale.nix also wires a secondary headscale.kradalby.no instance;

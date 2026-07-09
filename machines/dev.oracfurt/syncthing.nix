@@ -64,4 +64,12 @@ in {
       "tcp:443" = "http://127.0.0.1:8384";
     };
   };
+
+  # The cooklang recipe-sync syncthing instance (backs the cook-server app)
+  # gets its own VIP so its scrape target and ACL grant are self-documenting.
+  services.tailscale.services.syncthing-cooklang = {
+    endpoints = {
+      "tcp:80" = "http://127.0.0.1:8385";
+    };
+  };
 }

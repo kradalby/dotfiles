@@ -5,6 +5,7 @@
 }: {
   imports = [
     ../../common/zfs.nix
+    ../../common/sanoid-exporter.nix
   ];
 
   services.zfs.trim.enable = true;

@@ -8,6 +8,7 @@
     ../../common/base.nix
     ../../profiles/server.nix
     ../../common/tailscale.nix
+    ../../common/zfs.nix # zfs exporter + forceImportRoot (scrub/ARC tuned inline below)
 
     ./hardware-configuration.nix
     ./networking.nix # wan0 + static public IP + base firewall
@@ -31,10 +32,6 @@
   };
   boot.loader.efi.canTouchEfiVariables = true;
   services.zfs.autoScrub.enable = true;
-  # Remote headless box: an unimportable root pool after an unclean shutdown is
-  # worse than the data-loss risk force-import guards against (26.11 default flips).
-  boot.zfs.forceImportRoot = true;
-
   # Cap ZFS ARC (default 50% RAM is too greedy on a VM host). Evictable read
   # cache, so a ceiling not a reservation — tune if VMs get squeezed.
   boot.kernelParams = ["zfs.zfs_arc_max=8589934592"]; # 8 GiB

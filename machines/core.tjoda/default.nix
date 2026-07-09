@@ -93,7 +93,16 @@
     owner = config.users.users.tailscale-proxy.name;
   };
 
-  monitoring.smartctl.devices = ["/dev/sda"];
+  # Every physical disk, by stable ID (sdX naming reshuffles across boots;
+  # /dev/sda alone left the restic-repo disks without SMART). Live-enumerated
+  # 2026-07; the SmartctlDiskMissing alert on core.oracldn pins this count.
+  monitoring.smartctl.devices = [
+    "/dev/disk/by-id/ata-CT250MX500SSD1_1914E1F7A84D"
+    "/dev/disk/by-id/ata-HGST_HUS728T8TALE6L4_VG0D0SZG"
+    "/dev/disk/by-id/ata-KINGSTON_SA400S37480G_50026B7785A27E08"
+    "/dev/disk/by-id/ata-Samsung_SSD_850_EVO_500GB_S2RBNXAH342406T"
+    "/dev/disk/by-id/ata-WDC_WDS200T2B0A-00SM50_23014N802795"
+  ];
 
   system.stateVersion = "24.11";
 }

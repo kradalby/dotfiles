@@ -56,15 +56,17 @@ in {
   networking.firewall.allowedTCPPorts = [port];
   networking.firewall.allowedUDPPorts = [port];
 
-  services.mqtt-exporter = let
-    inherit ((builtins.elemAt config.services.mosquitto.listeners 0).users.exporter) password;
-  in {
+  # zigbee2mqtt publishes to z2m-homekit's embedded broker (:51833, localhost,
+  # no auth), NOT to mosquitto — live-verified 2026-07: mosquitto carries zero
+  # traffic. Scraping mosquitto here meant the mqtt job was up==1 on an empty
+  # broker. Tasmota energy data comes via the tasmota-exporter HTTP probes,
+  # not MQTT.
+  services.mqtt-exporter = {
     enable = true;
     openFirewall = true;
 
     mqtt = {
-      inherit password;
-      username = "exporter";
+      port = config.services.z2m-homekit.ports.mqtt;
       keepalive = 30;
     };
 

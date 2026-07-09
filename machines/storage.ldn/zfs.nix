@@ -3,6 +3,9 @@
     "backup"
     "books"
     "dropbox"
+    # photo masters from krair (was on core.terra, offline since 2025-11).
+    # Needs a one-time `zfs create -o canmount=on -o mountpoint=/storage/hugin storage/hugin` on deploy.
+    "hugin"
     "libraries"
     "pictures"
     "software"
@@ -12,6 +15,7 @@
 in {
   imports = [
     ../../common/zfs.nix
+    ../../common/sanoid-exporter.nix
   ];
   # Disk preparation (single 5 TB disk at /dev/sdb)
   # The disk is stably exposed as /dev/sdb inside the VM.

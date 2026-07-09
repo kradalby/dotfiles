@@ -24,6 +24,10 @@ in {
     ../../common/base.nix
     ../../common/tailscale.nix
     ../../common/incus.nix
+    # systemd_exporter (:9558) with restart-count; node_exporter (:9100) already
+    # comes via base.nix. Both are exposed over the tailnet by the tailscale0
+    # firewall rules below — see the monitoring block near the datastores.
+    ../../common/systemd-exporter.nix
     # Postgres + OpenSearch are separate fork modules; co-located below instead.
     inputs.garnix-ci.nixosModules.garnix
   ];
@@ -188,6 +192,45 @@ in {
       "http.port" = 9200;
       "discovery.type" = "single-node";
     };
+  };
+
+  # --- Monitoring (scraped by core.oracldn's prometheus over the tailnet) ---
+  #
+  # This VM is a first-class tailnet node (hostname `garnix`, tag:server), so
+  # prometheus reaches every exporter directly as `garnix:<port>`. base.nix opens
+  # node_exporter only on my.lan and systemd-exporter.nix opens 9558 globally;
+  # rather than lean on tailscaled's implicit accept rule (fragile — see the
+  # monitoring audit §2.11), open each metrics port explicitly on tailscale0.
+  # Per-interface rules also survive any mkForce of the global allowedTCPPorts.
+  #   9100 node_exporter · 9558 systemd_exporter · 9187 postgres_exporter
+  #   8323 garnix backend metrics (module default --metrics-port, root path `/`)
+  networking.firewall.interfaces.tailscale0.allowedTCPPorts = [9100 9558 9187 8323];
+
+  # postgres_exporter for pg_up (catches the #1 documented outage: disk fills →
+  # postgres crashes into recovery → every API 500). common/postgres.nix is NOT
+  # imported deliberately — it would force postgresql_14 (this VM pins _18 for the
+  # garnix migrations), flip on enableTCPIP, and enable postgresqlBackup (the VM
+  # is disposable, durable copies live on gigabuilder). Mirror just its exporter.
+  # runAsLocalSuperUser connects over the local socket, which the trust auth above
+  # accepts.
+  services.prometheus.exporters.postgres = {
+    enable = true;
+    runAsLocalSuperUser = true;
+  };
+
+  # Give fluent-bit an HTTP server so its output-retry/health metrics exist (the
+  # opensearch port/TLS flush failure has happened once, silently). The garnix
+  # fork's fluent-bit module renders [SERVICE] verbatim from this attrset and sets
+  # no `.service` default of its own, so re-state the shipped defaults alongside
+  # the HTTP keys or they'd be dropped. Bound to loopback per the plan; a remote
+  # scrape would need a tailnet-reachable bind or a proxy (see return notes).
+  garnix.fluent-bit.configuration.service = {
+    flush = 5;
+    logLevel = "debug";
+    daemon = "false";
+    HTTP_Server = "On";
+    HTTP_Listen = "127.0.0.1";
+    HTTP_Port = 2020;
   };
 
   garnix.actionRunner = {
