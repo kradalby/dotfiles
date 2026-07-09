@@ -22,6 +22,7 @@
     ./avahi.nix
     ./restic.nix
     ./minio.nix
+    ./pictures.nix
   ];
 
   # TODO: Figure a way to allowlist some URLs
@@ -93,7 +94,7 @@
     owner = config.users.users.tailscale-proxy.name;
   };
 
-  monitoring.smartctl.devices = ["/dev/sda"];
+  monitoring.smartctl.devices = ["/dev/sda" "/dev/sdd" "/dev/sde"];
 
   system.stateVersion = "24.11";
 }
