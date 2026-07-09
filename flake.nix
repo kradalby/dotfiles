@@ -281,12 +281,6 @@
     {
       nixosConfigurations = let
         hosts = {
-          # "core.terra" = box.nixosBox {
-          #   arch = "x86_64-linux";
-          #   name = "core.terra";
-          #   tags = ["x86" "router" "terra"];
-          # };
-
           "core.oracldn" = box.nixosBox {
             arch = "aarch64-linux";
             name = "core.oracldn";
@@ -496,6 +490,16 @@
       };
     in {
       formatter = pkgs.alejandra;
+
+      # `nix flake check` / CI: unit tests for every deployed alert rule
+      # (incl. the sloth-generated burn-rate rules) and a VM test of the
+      # prometheus → alertmanager → webhook delivery pipeline.
+      checks = pkgs.lib.optionalAttrs (system == "x86_64-linux") {
+        prometheus-rules = import ./checks/prometheus-rules {inherit pkgs self;};
+        monitoring-pipeline = import ./checks/monitoring-pipeline.nix {inherit pkgs self;};
+        # Fail if any host exposes an exporter/service that nothing scrapes.
+        monitoring-coverage = import ./checks/monitoring-coverage {inherit pkgs self;};
+      };
 
       devShells.default = let
         hostNames = builtins.attrNames self.nixosConfigurations;

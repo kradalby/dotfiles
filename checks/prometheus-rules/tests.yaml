@@ -1,0 +1,278 @@
+# promtool unit tests over the FULL rendered rule set: the inline rules from
+# machines/core.oracldn/monitoring.nix plus the sloth-generated burn-rate
+# rules. Substituted paths come from checks/prometheus-rules/default.nix.
+rule_files:
+  - "@rules@"
+  - "@sloth@"
+
+evaluation_interval: 1m
+
+tests:
+  # Host-dead vs exporter-broken split: h1 answers ping (scrape broken),
+  # h2 does not (host down). Each fires exactly one of the pair.
+  - interval: 1m
+    input_series:
+      - series: 'up{job="nodes", instance="h1:9100", host="h1"}'
+        values: "0x30"
+      - series: 'probe_success{job="tailnet-ping", instance="h1", host="h1"}'
+        values: "1x30"
+      - series: 'up{job="nodes", instance="h2:9100", host="h2"}'
+        values: "0x30"
+    alert_rule_test:
+      - eval_time: 10m
+        alertname: HostUpScrapeBroken
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              job: nodes
+              instance: h1:9100
+              host: h1
+            exp_annotations:
+              summary: "h1 answers ping but its node exporter is unreachable"
+              description: "The host is alive but the scrape fails — exporter crashed or a firewall change closed the port (check interfaces.tailscale0.allowedTCPPorts)."
+      - eval_time: 10m
+        alertname: NodeExporterDown
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              job: nodes
+              instance: h2:9100
+              host: h2
+            exp_annotations:
+              summary: "Host h2 is unreachable"
+              description: "Node exporter is down and the host does not answer ping over the tailnet. Is it powered on? Is Tailscale running?"
+
+  # Oneshot backup units report "activating" for their whole runtime: they
+  # must NOT trip the 5m stuck-unit alert, only the 6h fuse.
+  - interval: 1m
+    input_series:
+      - series: 'systemd_unit_state{state="activating", name="restic-backups-tjoda.service", instance="h1:9558", host="h1"}'
+        values: "1x400"
+      - series: 'systemd_unit_state{state="activating", name="wedged.service", instance="h1:9558", host="h1"}'
+        values: "1x400"
+    alert_rule_test:
+      - eval_time: 10m
+        alertname: SystemdUnitActivatingTooLong
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              state: activating
+              name: wedged.service
+              instance: h1:9558
+              host: h1
+            exp_annotations:
+              summary: "h1: unit wedged.service stuck activating"
+              description: "The systemd unit wedged.service has been in activating state for more than 5 minutes."
+      - eval_time: 370m
+        alertname: BackupJobRunningTooLong
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              state: activating
+              name: restic-backups-tjoda.service
+              instance: h1:9558
+              host: h1
+            exp_annotations:
+              summary: "h1: backup job restic-backups-tjoda.service running for over 6h"
+              description: "A backup unit has been running far longer than any normal upload; it is probably wedged."
+
+  # Backup TRUTH: a success timestamp that stops advancing pages after 3h
+  # (26h grace for jotta — not yet stale at 4h, stale at 9h).
+  - interval: 1m
+    input_series:
+      - series: 'restic_backup_last_success_timestamp_seconds{repo="tjoda", instance="h1", job="restic"}'
+        values: "60x540"
+      - series: 'restic_backup_last_success_timestamp_seconds{repo="jotta", instance="h1", job="restic"}'
+        values: "60x540"
+    alert_rule_test:
+      - eval_time: 240m
+        alertname: ResticBackupNotSucceeding
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              repo: tjoda
+              instance: h1
+              job: restic
+            exp_annotations:
+              summary: "Restic tjoda on h1: no successful backup for 3h"
+              description: "The backup unit is firing but not completing successfully (hourly schedule expected). Check the unit log; ServiceFailed may have details."
+      - eval_time: 240m
+        alertname: ResticBackupNotSucceedingJotta
+        exp_alerts: []
+      - eval_time: 540m
+        alertname: ResticBackupNotSucceedingJotta
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              repo: jotta
+              instance: h1
+              job: restic
+            exp_annotations:
+              summary: "Restic jotta on h1: no successful offsite backup for 8h"
+              description: "The Jottacloud job is the only offsite copy of /storage; slow rclone uploads get 8h of slack, silence beyond that is real."
+
+  # Litestream: sync errors page; and the sloth SLI records the right ratio
+  # (1 error/min against 2 ops/min = 0.5).
+  - interval: 1m
+    input_series:
+      - series: 'litestream_sync_error_count{db="kuma.db", instance="core-oracldn:54909", job="litestream"}'
+        values: "0+1x120"
+      - series: 'litestream_sync_count{db="kuma.db", instance="core-oracldn:54909", job="litestream"}'
+        values: "0+2x120"
+    alert_rule_test:
+      - eval_time: 30m
+        alertname: LitestreamSyncErrors
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              db: kuma.db
+              instance: core-oracldn:54909
+              job: litestream
+            exp_annotations:
+              summary: "Litestream local sync failing for kuma.db"
+              description: "Litestream cannot sync the local database kuma.db; replication is stalled."
+    promql_expr_test:
+      - expr: 'sum(slo:sli_error:ratio_rate5m{sloth_slo="litestream-sync"})'
+        eval_time: 30m
+        exp_samples:
+          - value: 0.5
+
+  # Metric-rename canary: exporter up, expected series absent → page. This is
+  # the guard against the litestream_replica_lag_seconds class of dead rule.
+  - interval: 1m
+    input_series:
+      - series: 'up{job="litestream", instance="core-oracldn:54909", host="core-oracldn"}'
+        values: "1x30"
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: LitestreamMetricsMissing
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+            exp_annotations:
+              summary: "Litestream exporter is up but litestream_sync_count is absent"
+              description: "The litestream metric names have changed (version bump?). All litestream alerts are blind until the rules are updated."
+
+  # The dead-man heartbeat must always be firing.
+  - interval: 1m
+    input_series: []
+    alert_rule_test:
+      - eval_time: 5m
+        alertname: Watchdog
+        exp_alerts:
+          - exp_labels:
+              severity: heartbeat
+            exp_annotations:
+              summary: "Dead-man heartbeat"
+              description: "Always firing. If healthchecks.io stops receiving this, Prometheus, Alertmanager, or the delivery path is down."
+
+  # Exporter up + zero messages flowing = the zigbee "empty broker" class.
+  - interval: 1m
+    input_series:
+      - series: 'sensor_message_total{sensor="zigbee2mqtt/kitchen", instance="home-ldn:9000", job="mqtt"}'
+        values: "5x120"
+    alert_rule_test:
+      - eval_time: 45m
+        alertname: SensorPipelineSilent
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+            exp_annotations:
+              summary: "No zigbee sensor messages for over an hour"
+              description: "mqtt-exporter on home-ldn is not seeing any messages; zigbee2mqtt, its broker, or the exporter subscription is broken."
+
+  # The dead-man's egress path is watched by the still-alive pipeline: no route
+  # to hc-ping.com (the healthchecks.io ping host) pages via Discord (warning)
+  # before the missed ping.
+  - interval: 1m
+    input_series:
+      - series: 'probe_success{job="deadman-transport", instance="https://hc-ping.com"}'
+        values: "0x30"
+    alert_rule_test:
+      - eval_time: 15m
+        alertname: DeadmanNotifierUnreachable
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              job: deadman-transport
+              instance: https://hc-ping.com
+            exp_annotations:
+              summary: "core.oracldn cannot reach hc-ping.com"
+              description: "The Watchdog and litestream heartbeat cannot ping the out-of-band dead-man; if the pipeline dies now, nothing will notice. Check egress/DNS, or healthchecks.io status."
+
+  # Oracle cloud spend: usage that stops refreshing goes stale after 3h (fresh
+  # at 4m, stale at 4h with the timestamp frozen at 60).
+  - interval: 1m
+    input_series:
+      - series: 'oci_usage_month_total{account="prod", instance="localhost:63461", job="oci-usage"}'
+        values: "0x540"
+      - series: 'oci_usage_last_success_seconds{account="prod", instance="localhost:63461", job="oci-usage"}'
+        values: "60x540"
+      - series: 'up{job="oci-usage", instance="localhost:63461", host="localhost"}'
+        values: "1x540"
+    alert_rule_test:
+      - eval_time: 4m
+        alertname: OracleCostNonZero
+        exp_alerts: []
+      - eval_time: 240m
+        alertname: OracleUsageStale
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              account: prod
+              instance: localhost:63461
+              job: oci-usage
+            exp_annotations:
+              summary: "Oracle usage data for prod is stale"
+              description: "The OCI usage exporter has not had a successful usage query for account prod in over 3 hours."
+
+  # Any nonzero month total is a departure from the Always Free tier → critical.
+  - interval: 1m
+    input_series:
+      - series: 'oci_usage_month_total{account="prod", instance="localhost:63461", job="oci-usage"}'
+        values: "5x30"
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: OracleCostNonZero
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              account: prod
+              instance: localhost:63461
+              job: oci-usage
+            exp_annotations:
+              summary: "Oracle account prod has spent 5 this month"
+              description: "Oracle Cloud account prod reports nonzero cost this month; something has left the Always Free tier."
+
+  # Metric-rename canary: exporter up, oci_usage_month_total absent → the cost
+  # alert is blind, so page. Guards the same class as LitestreamMetricsMissing.
+  - interval: 1m
+    input_series:
+      - series: 'up{job="oci-usage", instance="localhost:63461", host="localhost"}'
+        values: "1x120"
+    alert_rule_test:
+      - eval_time: 70m
+        alertname: OracleUsageMetricsMissing
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+            exp_annotations:
+              summary: "OCI usage exporter is up but emitting no usage metrics"
+              description: "oci_usage_month_total is absent while the oci-usage scrape is up; the Oracle cost and staleness alerts are both blind."
+
+  # litestream restore-test freshness: a last-success stamp far in the past
+  # (>14d before now) pages. A large-negative epoch keeps the sample fresh at a
+  # modest eval time instead of needing a 14-day series.
+  - interval: 1m
+    input_series:
+      - series: "litestream_restore_test_last_success_seconds"
+        values: "-1300000x120"
+    alert_rule_test:
+      - eval_time: 90m
+        alertname: LitestreamRestoreStale
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+            exp_annotations:
+              summary: "Litestream has not passed a restore test in over two weeks"
+              description: "The weekly restore + integrity check has not succeeded recently; the sqlite replicas may not be restorable. Check litestream-restore-test.service."
