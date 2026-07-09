@@ -1,7 +1,11 @@
-{ config, ... }: let
+{config, ...}: let
   paths = [
     "/etc/nixos"
     "/var/lib/zigbee2mqtt"
+    # HomeKit pairing keys — losing these means re-pairing every accessory.
+    "/var/lib/nefit-homekit"
+    "/var/lib/tasmota-homekit"
+    "/var/lib/z2m-homekit"
   ];
 
   mkJob = site: {

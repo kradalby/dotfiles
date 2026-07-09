@@ -1,5 +1,4 @@
-{ config, ... }:
-let
+{config, ...}: let
   paths = [
     "/root"
     "/etc/nixos"
@@ -13,13 +12,17 @@ let
     # Covered by /storage/backup
     # config.services.minio.configDir
   ];
-
-in
-{
+in {
   services.restic.jobs.jotta = {
     enable = true;
     repository = "rclone:Jotta:1d444f272fa766893d9a06cc4d392cd5";
     secret = "restic-core-tjoda-token";
     inherit paths;
+    # rclone to Jottacloud: reading pack data costs egress and takes forever;
+    # verify metadata only, monthly. The local REST repo gets the read-data check.
+    check = {
+      args = [];
+      interval = "monthly";
+    };
   };
 }
