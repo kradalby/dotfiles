@@ -56,7 +56,7 @@ in {
         "/fast/hugin" = {
           id = "dd5mf-nwmas";
           path = "/Volumes/storage/hugin";
-          devices = ["core.terra"];
+          devices = ["storage.ldn"];
           type = "sendonly";
           ignorePatterns = macosIgnorePatterns;
         };

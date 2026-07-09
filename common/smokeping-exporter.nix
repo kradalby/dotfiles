@@ -8,6 +8,7 @@
 
     hosts = [
       "core-oracldn.dalby.ts.net"
+      "dev-oracfurt.dalby.ts.net"
       "dev.ldn.fap.no"
       "core.tjoda.fap.no"
       "vg.no"
