@@ -312,6 +312,9 @@ with lib; let
   #   >= 1 day:  info (no sound)
   #   >= 5 days: warning (Basso sound)
   #   >= 10 days: critical (Sosumi sound, ignores Do Not Disturb)
+  # It also pushes the newest-snapshot timestamp to the fleet pushgateway
+  # over the tailnet (best-effort) so backup freshness is observable
+  # off-device — the on-screen notifications are the only signal otherwise.
   mkWatchdogScript = name: _backup: let
     rusticBin = "${pkgs.rustic}/bin/rustic";
     jq = "${pkgs.jq}/bin/jq";
@@ -350,6 +353,18 @@ with lib; let
       age_days=$(( (now_epoch - snapshot_epoch) / 86400 ))
 
       echo "Latest snapshot: $latest (''${age_days}d ago)"
+
+      # Push the newest-snapshot timestamp to the fleet pushgateway over
+      # the tailnet (scraped with honor_labels on core.oracldn) so backup
+      # freshness is visible off-device, not just on this laptop's screen.
+      # Best-effort: a short connect timeout means a travelling laptop off
+      # the tailnet simply skips the push, and any push failure is swallowed
+      # (|| true) so it never disturbs the watchdog. RusticBackupStale on
+      # core.oracldn consumes this (>3d). /usr/bin/curl avoids any nix curl.
+      host=$(hostname -s)
+      /usr/bin/curl -fsS --connect-timeout 5 --max-time 15 \
+        --data-binary "rustic_backup_last_snapshot_timestamp_seconds{host=\"$host\"} $snapshot_epoch" \
+        "http://pushgateway/metrics/job/rustic/instance/$host" >/dev/null 2>&1 || true
 
       if [ "$age_days" -ge 10 ]; then
         rnotify "Backup Critical" "rustic ${name}: last backup ''${age_days} days ago" Sosumi
@@ -418,21 +433,21 @@ with lib; let
   # opServiceAccountTokenFile is configured.
   mkSetupScript = let
     itemInfo = concatStringsSep "\n" (mapAttrsToList (name: backup:
-        optionalString (backup.passwordCommand != null)
-        "echo ${escapeShellArg "  ${name}: ${backup.passwordCommand}"}")
-      cfg.backups);
+      optionalString (backup.passwordCommand != null)
+      "echo ${escapeShellArg "  ${name}: ${backup.passwordCommand}"}")
+    cfg.backups);
 
     verificationCommands = concatStringsSep "\n" (mapAttrsToList (name: backup:
-        optionalString (backup.passwordCommand != null) ''
-          echo "  Testing backup '${name}'..."
-          if ${backup.passwordCommand} &>/dev/null; then
-            echo "    OK"
-          else
-            echo "    FAILED"
-            VERIFY_FAILED=1
-          fi
-        '')
-      cfg.backups);
+      optionalString (backup.passwordCommand != null) ''
+        echo "  Testing backup '${name}'..."
+        if ${backup.passwordCommand} &>/dev/null; then
+          echo "    OK"
+        else
+          echo "    FAILED"
+          VERIFY_FAILED=1
+        fi
+      '')
+    cfg.backups);
   in
     pkgs.writeShellApplication {
       name = "rustic-setup-op";

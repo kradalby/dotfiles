@@ -1,8 +1,10 @@
-{ config, lib, pkgs, ... }:
-
-with lib;
-
-let
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
+with lib; let
   cfg = config.services.restic.jobs;
 
   defaultPrune = [
@@ -12,7 +14,7 @@ let
     "--keep-yearly 75"
   ];
 
-  jobModule = { name, ... }: {
+  jobModule = {name, ...}: {
     options = {
       enable = mkEnableOption "restic job ${name}";
 
@@ -111,95 +113,118 @@ let
         default = {};
         description = "Additional attributes merged into `services.restic.backups.<name>`.";
       };
+
+      check = {
+        enable = mkOption {
+          type = types.bool;
+          default = pkgs.stdenv.isLinux;
+          description = "Periodically verify the repository with `restic check`. Failures land the unit in `failed`, which the fleet-wide ServiceFailed alert pages on.";
+        };
+
+        args = mkOption {
+          type = types.listOf types.str;
+          default = ["--read-data-subset=1/14"];
+          description = "Arguments to `restic check`. The default reads ~7% of pack data per run; set to [] for a metadata-only check (e.g. paid-egress remotes).";
+        };
+
+        interval = mkOption {
+          type = types.str;
+          default = "weekly";
+          description = "systemd OnCalendar expression for the check timer.";
+        };
+      };
     };
   };
 
-  defaultTargetHost =
-    let
-      fqdn = lib.attrByPath ["networking" "fqdn"] null config;
-      hostName = lib.attrByPath ["networking" "hostName"] null config;
-      domain = lib.attrByPath ["networking" "domain"] null config;
-    in
-      if fqdn != null && fqdn != ""
-      then fqdn
-      else if hostName != null && domain != null && domain != ""
-      then "${hostName}.${domain}"
-      else hostName or "localhost";
+  defaultTargetHost = let
+    fqdn = lib.attrByPath ["networking" "fqdn"] null config;
+    hostName = lib.attrByPath ["networking" "hostName"] null config;
+    domain = lib.attrByPath ["networking" "domain"] null config;
+  in
+    if fqdn != null && fqdn != ""
+    then fqdn
+    else if hostName != null && domain != null && domain != ""
+    then "${hostName}.${domain}"
+    else hostName or "localhost";
 
-  buildJob = jobName: jobCfg:
-    let
-      targetHost = if jobCfg.targetHost != null then jobCfg.targetHost else defaultTargetHost;
-      repository =
-        if jobCfg.repository != null
-        then jobCfg.repository
-        else if jobCfg.site != null
-        then "rest:https://restic-${jobCfg.site}.dalby.ts.net/${targetHost}"
-        else null;
+  buildJob = jobName: jobCfg: let
+    targetHost =
+      if jobCfg.targetHost != null
+      then jobCfg.targetHost
+      else defaultTargetHost;
+    repository =
+      if jobCfg.repository != null
+      then jobCfg.repository
+      else if jobCfg.site != null
+      then "rest:https://restic-${jobCfg.site}.dalby.ts.net/${targetHost}"
+      else null;
 
-      darwinExtras =
-        if pkgs.stdenv.isDarwin
-        then {
-          logPath =
-            if jobCfg.logPath != null
-            then jobCfg.logPath
-            else "/Users/kradalby/Library/Logs";
-          calendarInterval =
-            if jobCfg.calendarInterval != null
-            then jobCfg.calendarInterval
-            else {
-              Minute = 30;
-            };
-        }
-        else {};
-
-      linuxExtras =
-        if pkgs.stdenv.isLinux
-        then {
-          timerConfig =
-            if jobCfg.timerConfig != null
-            then jobCfg.timerConfig
-            else {
-              OnCalendar = "hourly";
-            };
-        }
-        else {};
-
-      backupConfig =
-        {
-          inherit repository;
-          inherit (jobCfg) paths pruneOpts initialize extraBackupArgs extraOptions;
-          passwordFile = config.age.secrets.${jobCfg.secret}.path;
-        }
-        // optionalAttrs (jobCfg.dynamicFilesFrom != null) {
-          dynamicFilesFrom = jobCfg.dynamicFilesFrom;
-        }
-        // darwinExtras
-        // linuxExtras
-        // jobCfg.extraConfig;
-    in
-      if jobCfg.enable
+    darwinExtras =
+      if pkgs.stdenv.isDarwin
       then {
-        assertions = [
-          {
-            assertion = repository != null;
-            message = "services.restic.jobs.${jobName} requires either `repository` or `site`.";
-          }
-        ];
-
-        secrets.${jobCfg.secret} = {
-          file = ../secrets + "/${jobCfg.secret}.age";
-          owner = jobCfg.owner;
-        };
-
-        backups.${jobName} = backupConfig;
+        logPath =
+          if jobCfg.logPath != null
+          then jobCfg.logPath
+          else "/Users/kradalby/Library/Logs";
+        calendarInterval =
+          if jobCfg.calendarInterval != null
+          then jobCfg.calendarInterval
+          else {
+            Minute = 30;
+          };
       }
-      else {
-        assertions = [];
-        secrets = {};
-        backups = {};
+      else {};
+
+    linuxExtras =
+      if pkgs.stdenv.isLinux
+      then {
+        timerConfig =
+          if jobCfg.timerConfig != null
+          then jobCfg.timerConfig
+          else {
+            OnCalendar = "hourly";
+          };
+      }
+      else {};
+
+    backupConfig =
+      {
+        inherit repository;
+        inherit (jobCfg) paths pruneOpts initialize extraBackupArgs extraOptions;
+        passwordFile = config.age.secrets.${jobCfg.secret}.path;
+      }
+      // optionalAttrs (jobCfg.dynamicFilesFrom != null) {
+        dynamicFilesFrom = jobCfg.dynamicFilesFrom;
+      }
+      // darwinExtras
+      // linuxExtras
+      // jobCfg.extraConfig;
+  in
+    if jobCfg.enable
+    then {
+      assertions = [
+        {
+          assertion = repository != null;
+          message = "services.restic.jobs.${jobName} requires either `repository` or `site`.";
+        }
+      ];
+
+      secrets.${jobCfg.secret} = {
+        file = ../secrets + "/${jobCfg.secret}.age";
+        owner = jobCfg.owner;
       };
 
+      backups.${jobName} = backupConfig;
+    }
+    else {
+      assertions = [];
+      secrets = {};
+      backups = {};
+    };
+
   jobResults = mapAttrsToList buildJob cfg;
+  # The symlink guard and pushgateway success-push drop-ins live in
+  # ./restic-jobs-linux.nix (Linux-only, where the systemd units run).
 in {
   options.services.restic.jobs = mkOption {
     type = types.attrsOf (types.submodule jobModule);
