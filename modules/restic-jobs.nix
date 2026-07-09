@@ -47,7 +47,7 @@ with lib; let
         description = ''
           Shortcut for homelab restic endpoints. When set, and `repository` is
           left null, the module generates
-          `rest:https://restic-<site>.dalby.ts.net/<targetHost>`.
+          `rest:http://restic-<site>.dalby.ts.net/<targetHost>`.
         '';
       };
 
@@ -156,7 +156,10 @@ with lib; let
       if jobCfg.repository != null
       then jobCfg.repository
       else if jobCfg.site != null
-      then "rest:https://restic-${jobCfg.site}.dalby.ts.net/${targetHost}"
+      # http, not https: the restic-<site> VIP passes tcp:80/443 straight
+      # through to a plain-HTTP rest-server (no TLS termination), so https
+      # dials into a bare HTTP server. The tailnet already encrypts transit.
+      then "rest:http://restic-${jobCfg.site}.dalby.ts.net/${targetHost}"
       else null;
 
     darwinExtras =
