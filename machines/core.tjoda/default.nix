@@ -22,6 +22,7 @@
     ./avahi.nix
     ./restic.nix
     ./minio.nix
+    ./sfiber-check.nix
   ];
 
   # TODO: Figure a way to allowlist some URLs
@@ -72,7 +73,6 @@
         linkConfig.Name = "lan0";
       };
     };
-
   };
 
   boot.kernel.sysctl = {

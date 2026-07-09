@@ -54,4 +54,42 @@
   };
 
   environment.systemPackages = [pkgs.protonmail-bridge];
+
+  age.secrets.proton-imap-check = {
+    file = ../../secrets/proton-imap-check.age;
+  };
+
+  # A signed-out bridge keeps its listeners up and passes any banner/TCP
+  # check; an authenticated LOGIN is the only real "mail path works" signal.
+  # Pushed to the pushgateway; staleness/0 is alerted on core.oracldn.
+  systemd.services.proton-login-check = {
+    description = "authenticated IMAP login probe of protonmail-bridge";
+    serviceConfig = {
+      Type = "oneshot";
+      EnvironmentFile = config.age.secrets.proton-imap-check.path;
+    };
+    script = ''
+      if ${pkgs.curl}/bin/curl -s --max-time 20 \
+        --user "$PROTON_IMAP_USER:$PROTON_IMAP_PASSWORD" \
+        "imap://127.0.0.1:1143/" >/dev/null; then
+        ok=1
+      else
+        ok=0
+      fi
+      ${pkgs.curl}/bin/curl -s --max-time 30 --data-binary @- \
+        "http://pushgateway/metrics/job/proton-bridge/instance/dev-oracfurt" <<EOF || true
+      # TYPE proton_bridge_login_ok gauge
+      proton_bridge_login_ok $ok
+      EOF
+    '';
+  };
+
+  systemd.timers.proton-login-check = {
+    wantedBy = ["timers.target"];
+    timerConfig = {
+      OnBootSec = "10m";
+      OnUnitActiveSec = "30m";
+      Persistent = true;
+    };
+  };
 }
