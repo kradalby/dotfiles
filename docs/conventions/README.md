@@ -17,7 +17,7 @@ Starting a new project? Read this file, then the file for your stack.
 ## Per-stack
 
 [Go](go.md) · [Nix](nix.md) · [Git / CI / prek](git.md) · [Secrets](secrets.md)
-· [Web / Frontend](frontend.md) · [Terraform](terraform.md)
+· [Web / Frontend](frontend.md) · [Terraform](terraform.md) · [Services](services.md)
 · [Elm](elm.md) · [Python](python.md) · [Swift](swift.md)
 
 ## Reference repos (copy from these)

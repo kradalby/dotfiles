@@ -1,5 +1,15 @@
 # Repository Guidelines
 
+## Conventions (read first)
+
+Before changing anything, read [`docs/conventions/`](docs/conventions/) — the
+`README.md` index, the file for the stack you're touching, and
+[`services.md`](docs/conventions/services.md) for anything you run on the fleet
+(Tailscale reachability + Prometheus observability + backups). Follow them. If a
+change would contradict a convention, or you notice one that's missing, wrong, or
+stale, **propose an update to the convention doc in the same change** rather than
+silently diverging.
+
 ## Project Structure & Module Organization
 The flake root (`flake.nix` plus helpers in `lib/box.nix`) stitches together the major layouts:
 - `common/`: shared NixOS/darwin modules, reusable service fragments, or opinionated defaults that multiple hosts import.

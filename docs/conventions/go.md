@@ -11,6 +11,7 @@
 - **Never `internal/`, `pkg/`, `pkgs/`** or generic container dirs (generated code excepted). (headscale)
 - `main` packages under `cmd/<name>/`, thin → one `Run()`/`Execute()`; logic lives in packages. (headscale, kra)
 - Generated code in `gen/`, marked `// Code generated …`, lint-excluded.
+- Every app serves on **both** a tsnet listener and a local listener, unless explicitly opted out.
 
 ## Dependencies
 
@@ -26,7 +27,7 @@ stdlib → `tailscale.com/*` → `kra/*` → blessed dep (below) → your own. S
 | Internal decoupling                        | `tailscale.com/util/eventbus`                                                                                            |
 | All HTML                                   | `github.com/chasefleming/elem-go` + htmx + SSE (server-rendered, no SPA)                                                 |
 | Tests                                      | `testify/require` + `google/go-cmp`                                                                                      |
-| Metrics                                    | `prometheus/client_golang`                                                                                               |
+| Metrics                                    | `prometheus/client_golang` (exposition → Debug & metrics)                                                                |
 | Backoff (never `time.Sleep`)               | `cenkalti/backoff/v5`                                                                                                    |
 
 Specifics:
@@ -37,6 +38,12 @@ Specifics:
 - **slog** constructed once, passed via constructor; no `fmt.Println`, no `log.Fatal`.
 - `net/netip` not `net.IP`; `envknob` for toggles; `errgroup` + `context` threaded top-down (no bare `go`).
 - **Twelve-factor:** config from env, log to stdout, stateless where possible.
+
+## Debug & metrics
+
+- **Internal apps** (personal use): build on `kra/web`. It wraps tsnet + a local loopback listener and mounts `tsweb.Debugger` on both — one gated `/debug/` surface: varz, expvar (`/debug/vars`), pprof, `/debug/gc`, statsviz — plus `/metrics` (promhttp) linked from `/debug`. All gated to tailnet peers + loopback. Free; don't hand-roll.
+- **Open-source / standalone apps** that can't depend on `kra` (ts1p, headscale): wire `tsweb.Debugger(mux)` yourself — on the local listener always, on tsnet when present — register statsviz, expose `/metrics` (promhttp), and link it from the `/debug` index (`debugHandler.URL("/metrics", "Metrics (Prometheus)")`). Import `_ "tailscale.com/tsweb/promvarz"` so `/debug/varz` carries the Prometheus registry too.
+- Never a bare `/metrics` on an ad-hoc port with no `/debug`. Prometheus scrapes `/metrics`; access is `tsweb.AllowDebugAccess` (tailnet peers + loopback), no separate auth.
 
 ## Errors
 
@@ -64,6 +71,7 @@ Specifics:
 - `tsnixcache` — freshest full repo: ff/v3 ffcli subcommands, slog, package layout, bench tests
 - `gigahost-go` — **ff/v4** (`ff.Command` tree) + koanf config, Option pattern (`client/options.go`)
 - `headscale/.golangci.yaml` — enable-all / disable-few lint config
+- `kra/web` — tsnet + local listener, `tsweb.Debugger` on both, statsviz, `/metrics`
 
 ## Stay current
 
