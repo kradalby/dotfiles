@@ -74,8 +74,6 @@ in {
   nixpkgs.config = {
     # allowUnfree is set in lib/box.nix via commonModules
     permittedInsecurePackages = [
-      "litestream-0.3.13"
-      "olm-3.2.16"
       # minio is abandoned upstream and flagged insecure in 26.05 (multiple
       # unpatched CVEs, no fixed version in nixpkgs). Only core.tjoda builds
       # it. Revisit the version string on each bump and migrate off minio

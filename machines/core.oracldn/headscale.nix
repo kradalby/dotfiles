@@ -113,7 +113,9 @@ in {
     # Restart the service when the config file content changes.
     restartTriggers = [configFile];
     environment = {
-      HEADSCALE_LOG_LEVEL = "trace";
+      # trace logging in production drowns the journal and costs CPU on a
+      # small shared VM; the metrics + /health probe carry the signal now.
+      HEADSCALE_LOG_LEVEL = "info";
       # GRPC_GO_LOG_VERBOSITY_LEVEL = "2";
       # GRPC_GO_LOG_SEVERITY_LEVEL = "info";
       HEADSCALE_DEBUG_TAILSQL_STATE_DIR = "${config.users.users.headscale.home}/tailsql";
