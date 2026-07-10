@@ -145,9 +145,6 @@ in
     # host's reusable join keys, so only the signing key is cache-specific.
     "tsnixcache-sign-key.age".publicKeys = u ++ [hosts.gigabuilder];
 
-    # gigahost SMTP relay creds (texthash map for postfix on gigabuilder)
-    "gigahost-smtp.age".publicKeys = u ++ [hosts.gigabuilder];
-
     # garnix CI (decrypted on the garnix VM)
     "garnix-database-password.age".publicKeys = u ++ [hosts.garnix];
     "garnix-jwt-key.age".publicKeys = u ++ [hosts.garnix];
