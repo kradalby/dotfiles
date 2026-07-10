@@ -9,7 +9,8 @@
   imports = [
     ../common/systemd-exporter.nix
     ../common/smartctl-exporter.nix # inert until monitoring.smartctl.devices is set
-    ../common/postfix.nix
+    # postfix moved to common/base.nix so every machine — not just servers —
+    # relays mail through gigabuilder (smtp.fap.no -> spamvask.terrahost.no).
   ];
 
   environment.systemPackages = with pkgs;

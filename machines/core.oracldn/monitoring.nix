@@ -376,8 +376,10 @@ in {
         relabel_configs = [hostRelabel];
       }
 
-      # Postfix relay queue depth on every server (port 9154).
-      (exporterJob "postfix" serverHosts 9154)
+      # Postfix queue depth on the fleet relay. gigabuilder is the only host
+      # running postfix now — every other machine uses send-only nullmailer
+      # (no queue exporter), so a stuck-mail signal only exists here.
+      (exporterJob "postfix" ["gigabuilder"] 9154)
 
       # tailscaled usermetrics via the web client listener, fleet-wide.
       # Requires a tailnet ACL grant for tcp:5252 from this host (out-of-band).
