@@ -16,6 +16,10 @@
     (lib.filter (name: !(lib.elem name excluded))
       (lib.attrNames config.services.sanoid.datasets));
 in {
+  # Jotta needs a one-off manual rclone login on this host (root). Get a
+  # personal login token at https://www.jottacloud.com/web/secure (single-use,
+  # expires in minutes), then run:
+  #   rclone config create Jotta jottacloud config_type=standard config_login_token=<token>
   services.restic.jobs.jotta = {
     enable = true;
     repository = "rclone:Jotta:ZW1QYWNrYWdlcyA9IFsKICAgIHBrZ3MuZG";
