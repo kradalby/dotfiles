@@ -152,7 +152,6 @@
       allowedUDPPorts = lib.mkForce [
         443 # HTTPS
         config.services.tailscale.port
-
       ];
 
       trustedInterfaces = [config.my.lan];

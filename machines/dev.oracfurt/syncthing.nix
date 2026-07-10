@@ -61,6 +61,7 @@ in {
   services.tailscale.services.syncthing-dev-oracfurt = {
     endpoints = {
       "tcp:80" = "http://127.0.0.1:8384";
+      # tcp:443 has no TLS termination — Tailscale VIP bug (tailscale/tailscale#19724, #18381); consumers use http. TODO(kradalby): revert when fixed.
       "tcp:443" = "http://127.0.0.1:8384";
     };
   };

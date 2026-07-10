@@ -26,6 +26,7 @@ in {
   services.tailscale.services.${serviceName} = {
     endpoints = {
       "tcp:80" = "http://${consoleAddress}";
+      # tcp:443 has no TLS termination — Tailscale VIP bug (tailscale/tailscale#19724, #18381); consumers use http. TODO(kradalby): revert when fixed.
       "tcp:443" = "http://${consoleAddress}";
       # S3 API for cross-site consumers (litestream replicas, backups);
       # reachable via the svc:minio-* grants in the tailnet policy.

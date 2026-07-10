@@ -11,6 +11,7 @@ in
       services.tailscale.services.pdf = {
         endpoints = {
           "tcp:80" = "http://localhost:${toString port}";
+          # tcp:443 has no TLS termination — Tailscale VIP bug (tailscale/tailscale#19724, #18381); consumers use http. TODO(kradalby): revert when fixed.
           "tcp:443" = "http://localhost:${toString port}";
         };
       };
