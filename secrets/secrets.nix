@@ -95,13 +95,9 @@ in
         hosts.core-tjoda
       ];
 
-    # litestream
-    "litestream.age".publicKeys =
-      u
-      ++ [
-        hosts.core-oracldn
-        hosts.headscale-oracldn
-      ];
+    # litestream (per-host garage keys; also in setec under
+    # infra/garage/tjoda/litestream-<host>/ for the tofu grants)
+    "litestream-oracldn.age".publicKeys = u ++ [hosts.core-oracldn];
 
     # hugin
     "hugin-basicauth.age".publicKeys = u ++ [hosts.core-terra];

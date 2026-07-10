@@ -6,15 +6,19 @@
 }:
 with lib; let
   port = 54909;
-  # Off-site replica to tjoda's minio over its tailnet VIP; restic covers files.
+  location = lib.elemAt (lib.splitString "." config.networking.domain) 0;
+  # Off-site replica to tjoda's garage over its tailnet VIP; restic covers
+  # files. Per-host bucket + key (granted only that bucket, via the garage/
+  # tofu root in ~/git/infrastructure) so one host's credential can't touch
+  # another host's replicas.
   replicate = db: {
     inherit (db) path;
     replica = {
       type = "s3";
-      bucket = "databases";
+      bucket = "litestream-${location}";
       path = db.name;
-      endpoint = "http://minio-tjoda.dalby.ts.net:9000";
-      region = "us-east-1";
+      endpoint = "http://s3-tjoda.dalby.ts.net:9000";
+      region = "garage";
       validation-interval = "24h";
     };
   };
@@ -28,7 +32,7 @@ in {
 
   config = lib.mkIf (config.my.litestream.databases != []) {
     age.secrets.litestream = {
-      file = ../secrets/litestream.age;
+      file = ../secrets + "/litestream-${location}.age";
     };
 
     services.litestream = {
