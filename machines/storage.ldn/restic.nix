@@ -16,6 +16,13 @@
     (lib.filter (name: !(lib.elem name excluded))
       (lib.attrNames config.services.sanoid.datasets));
 in {
+  # Mint the Jotta rclone remote from a login token in age (replaces the
+  # hand-run `rclone config` wizard). Only mints when logged out.
+  services.rclone-jotta = {
+    enable = true;
+    secret = "rclone-jotta-storage-ldn-token";
+  };
+
   services.restic.jobs.jotta = {
     enable = true;
     repository = "rclone:Jotta:ZW1QYWNrYWdlcyA9IFsKICAgIHBrZ3MuZG";
