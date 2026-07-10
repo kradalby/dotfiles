@@ -373,12 +373,11 @@ in {
         "syncthing-dev-ldn:80"
       ])
 
-      # MinIO cluster metrics (litestream's replica target, tjoda only). The
-      # v2 path is the real one; /metrics does not exist on minio.
+      # Garage metrics (litestream's replica target, tjoda only), on the
+      # admin API via the s3-tjoda VIP; /metrics is public (no metrics_token).
       {
-        job_name = "minio";
-        metrics_path = "/minio/v2/metrics/cluster";
-        static_configs = [{targets = ["core-tjoda:9000"];}];
+        job_name = "garage";
+        static_configs = [{targets = ["s3-tjoda:3903"];}];
         relabel_configs = [hostRelabel];
       }
 
@@ -460,7 +459,7 @@ in {
         "http://paseo-dev-ldn.dalby.ts.net"
         "http://dev-ldn:8846"
         "http://owntone.dalby.ts.net"
-        "http://core-tjoda:9000/minio/health/live"
+        "http://s3-tjoda:3903/health"
       ])
 
       # The Jotta offsite path: VIP → rclone serve restic on core.tjoda. Every
@@ -1144,7 +1143,7 @@ in {
             rules = [
               # Metric names verified against the pinned litestream 0.5.11
               # source (db.go, internal/internal.go). The replica_operation
-              # counters cover the S3/minio path (expired creds, unreachable
+              # counters cover the S3/garage path (expired creds, unreachable
               # endpoint); sync counters cover the local WAL sync.
               {
                 alert = "LitestreamReplicaOpErrors";
@@ -1153,7 +1152,7 @@ in {
                 labels.severity = "critical";
                 annotations = {
                   summary = "Litestream replica operations failing on {{ $labels.instance }}";
-                  description = "Litestream S3 replica operations have been failing for 15 minutes. Check minio reachability and the credentials in secrets/litestream.age.";
+                  description = "Litestream S3 replica operations have been failing for 15 minutes. Check garage reachability and the credentials in secrets/litestream-oracldn.age.";
                 };
               }
               {
@@ -1243,13 +1242,13 @@ in {
                 };
               }
               {
-                alert = "MinioUnhealthy";
-                expr = "minio_cluster_health_status == 0";
+                alert = "GarageUnhealthy";
+                expr = "cluster_healthy == 0";
                 for = "5m";
                 labels.severity = "critical";
                 annotations = {
-                  summary = "MinIO on {{ $labels.host }} reports unhealthy";
-                  description = "MinIO is the litestream replica target — sqlite replication is failing while this is down.";
+                  summary = "Garage on {{ $labels.host }} reports unhealthy";
+                  description = "Garage is the litestream replica target — sqlite replication is failing while this is down.";
                 };
               }
               {
