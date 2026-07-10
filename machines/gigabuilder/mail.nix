@@ -5,11 +5,12 @@
 }: {
   # gigabuilder is the fleet's outbound SMTP relay. Every host sends to
   # smtp.fap.no (which resolves here over the tailnet); gigabuilder relays out
-  # through gigahost. gigahost authorises by source IP (gigabuilder is hosted
-  # there), so no SMTP AUTH is needed.
+  # through Terrahost's spamvask relay (same provider as gigahost — PTR is
+  # mx.gigahost.no). It authorises hosted IPs, so no SMTP AUTH is needed; this
+  # is the relay core.terra used. Port 25 (587 is blocked for the hosted IP).
   services.postfix.settings.main = {
     # Break the smtp.fap.no -> gigabuilder loop from common/postfix.nix.
-    relayhost = lib.mkForce ["[smtp.gigahost.no]:25"];
+    relayhost = lib.mkForce ["[spamvask.terrahost.no]:25"];
 
     # Accept relay from the tailnet (CGNAT v4 + tailscale ULA v6) + localhost.
     mynetworks = [
