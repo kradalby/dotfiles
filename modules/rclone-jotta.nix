@@ -28,20 +28,38 @@ with lib; let
   bootstrap = pkgs.writeShellScript "rclone-jotta-bootstrap" ''
     set -eu
     conf=${escapeShellArg cfg.configFile}
-    # Liveness check: a real API call proves the token is alive — do nothing.
-    if ${pkgs.rclone}/bin/rclone --config "$conf" lsd Jotta: >/dev/null 2>&1; then
-      echo "Jotta logged in; skipping bootstrap"
-      exit 0
-    fi
-    echo "Jotta not logged in; minting config from login token"
+    rclone=${pkgs.rclone}/bin/rclone
+
+    # Are we already logged in? A real API call proves the token is alive. Retry
+    # a few times: if we ARE logged in, a still-settling network (or a token
+    # mid-rotation) must not read as "logged out" and trigger a needless
+    # re-login that clobbers the live token family.
+    for _ in 1 2 3 4 5; do
+      if "$rclone" --config "$conf" lsd Jotta: >/dev/null 2>&1; then
+        echo "Jotta logged in; skipping bootstrap"
+        exit 0
+      fi
+      sleep 5
+    done
+
+    # Genuinely logged out (fresh host, or a dead/revoked token needing a new
+    # login token). Mint in place, then verify. A spent/expired token makes
+    # `config create` write a tokenless [Jotta] that would corrupt the config
+    # and make every later run re-mint and fail — so on any failure delete the
+    # partial remote, leaving the rest of the config untouched. (This also
+    # self-heals a host already corrupted by the old behaviour.)
+    echo "Jotta not logged in; minting from login token"
     mkdir -p "$(dirname "$conf")"
-    # doTokenAuth exchanges the login token over pure HTTP (no browser). The
-    # device confirm defaults to false -> standard Jotta/Archive mountpoint.
-    # rclone only writes [Jotta] on a *successful* exchange, so a spent/expired
-    # token fails here without corrupting an existing working config.
-    ${pkgs.rclone}/bin/rclone --config "$conf" config create Jotta jottacloud \
-      config_type=standard \
-      config_login_token="$(cat "$CREDENTIALS_DIRECTORY/login-token")"
+    if "$rclone" --config "$conf" config create Jotta jottacloud \
+         config_type=standard \
+         config_login_token="$(cat "$CREDENTIALS_DIRECTORY/login-token")" \
+       && "$rclone" --config "$conf" lsd Jotta: >/dev/null 2>&1; then
+      echo "Jotta minted and verified"
+    else
+      "$rclone" --config "$conf" config delete Jotta 2>/dev/null || true
+      echo "mint failed (spent/expired login token?); removed partial Jotta" >&2
+      exit 1
+    fi
   '';
 in {
   options.services.rclone-jotta = {
