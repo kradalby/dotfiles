@@ -8,6 +8,15 @@
 # (both invalidate the "token family"). Hence: put the login token in a per-host
 # .age file, and let a boot-time oneshot mint the config from it — but only when
 # we're actually logged out, so a live rotated token is never clobbered.
+#
+# BRING UP ONE HOST AT A TIME. The personal login token is short-lived (minutes)
+# and the account holds a single active one — generating a new token invalidates
+# the previous, and a stashed token expires long before any later use. So the
+# .age secret is a just-in-time credential, not an armed recovery secret. Per
+# host: generate a fresh token, `EDITOR='cp tok' ragenix -e` it into that host's
+# secret, deploy that host immediately (bootstrap mints while the token is live),
+# then move to the next host. Same drill to recover a logged-out host.
+# Verified end-to-end: mint -> `rclone lsd Jotta:` -> restic reads the repo.
 {
   config,
   pkgs,
@@ -41,10 +50,11 @@ in {
     secret = mkOption {
       type = types.str;
       description = ''
-        Name of the age secret (in secrets/) holding a single-use Jottacloud
-        personal login token. Per-host — a token must never be shared between
-        machines. On logout, drop a fresh token in this file and restart
-        rclone-jotta-bootstrap (or reboot).
+        Name of the age secret (in secrets/) holding a Jottacloud personal login
+        token. Per-host, and just-in-time: the token is short-lived and the
+        account has a single active one, so re-encrypt a fresh token and deploy
+        this host immediately (do it one host at a time). On logout, same drill —
+        fresh token in this file, then deploy/restart rclone-jotta-bootstrap.
       '';
     };
 

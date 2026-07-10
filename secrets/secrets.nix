@@ -64,8 +64,9 @@ in
     "restic-kraairm2-token.age".publicKeys = u;
     "restic-kratail-token.age".publicKeys = u;
 
-    # rclone Jottacloud — single-use personal login token, one per host, never
-    # shared (sharing invalidates the token family). See modules/rclone-jotta.nix.
+    # rclone Jottacloud — short-lived personal login token, one per host. The
+    # account holds a single active token; bring hosts up one at a time (fresh
+    # token -> deploy that host now -> next). See modules/rclone-jotta.nix.
     "rclone-jotta-core-tjoda-token.age".publicKeys = u ++ [hosts.core-tjoda];
     "rclone-jotta-storage-ldn-token.age".publicKeys = u ++ [hosts.storage-ldn];
 
