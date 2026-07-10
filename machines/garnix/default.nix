@@ -58,15 +58,16 @@ in {
 
   # sfiber tailnet membership (tag:ci, forced by the preauth key): the
   # notify-deployd action pokes the sfiber deploy hosts after green CI.
-  # Actions egress via NAT through the VM's stack and cannot reach loopback
-  # (slirp4netns --disable-host-loopback), so the SOCKS proxy binds the
-  # bridge address instead; the ACL caps what tag:ci reaches to deployd:9100.
+  # pasta mirrors the VM's own address into the action sandbox, so actions
+  # reach this proxy only via host.containers.internal -> host loopback;
+  # bind everything (VM firewall keeps it off the wire), the sfiber ACL
+  # caps what tag:ci reaches to deployd's poke port.
   services.tailscales.sfiber = {
     enable = true;
     authKeyFile = config.age.secrets.headscale-sfiber-ci-preauthkey.path;
     extraUpFlags = ["--login-server=https://headscale.sandefjordfiber.no"];
     extraSetFlags = ["--hostname=garnix"];
-    extraDaemonFlags = ["--socks5-server=10.68.10.10:1055"];
+    extraDaemonFlags = ["--socks5-server=:1055"];
   };
 
   # Our only resolver is the incus bridge dnsmasq (plain DNS), so the fleet's
