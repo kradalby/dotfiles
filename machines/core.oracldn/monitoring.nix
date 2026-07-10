@@ -106,6 +106,18 @@
           valid_status_codes: [200, 301, 302, 401, 403]
           fail_if_ssl: false
           fail_if_not_ssl: false
+      # restic REST endpoints answer 404 on / — any HTTP status proves the
+      # VIP → daemon path (a dead backend is a connection error, not a 404).
+      http_restic:
+        prober: http
+        timeout: 5s
+        http:
+          method: GET
+          preferred_ip_protocol: "ip4"
+          ip_protocol_fallback: false
+          valid_status_codes: [200, 404, 405]
+          fail_if_ssl: false
+          fail_if_not_ssl: false
       # End-to-end DNS through each site's CoreDNS resolver.
       dns:
         prober: dns
@@ -265,6 +277,12 @@ in {
         ];
         relabel_configs = [hostRelabel];
       }
+
+      # rclone serve restic (Jotta proxy) on core.tjoda: core transfer stats
+      # only — no per-repo series like rest-server (rclone#7980). Target-down
+      # is covered by the generic up==0 alert; the traffic cross-check and
+      # metric-rename canary live in the backup rules below.
+      (scrapeJob "rclone-jotta" ["core-tjoda:56901"])
 
       # Pushgateway: backup success timestamps, sfiber proxy state, rustic
       # laptops — anything Prometheus has no route into pushes here.
@@ -443,6 +461,14 @@ in {
         "http://owntone.dalby.ts.net"
         "http://core-tjoda:9000/minio/health/live"
       ])
+
+      # The Jotta offsite path: VIP → rclone serve restic on core.tjoda. Every
+      # fleet host's only offsite copy rides this endpoint, so it gets its own
+      # probe and alert rather than the generic tailnet tier.
+      (probeJob "restic-jotta-probe" "http_restic" [
+        "http://restic-jotta.dalby.ts.net"
+      ])
+
       (probeJob "dns-probes" "dns" [
         "10.66.0.1"
         "10.62.0.2"
@@ -1360,6 +1386,45 @@ in {
                 annotations = {
                   summary = "No new snapshots written to repo {{ $labels.repo }} in 26h";
                   description = "No client has completed a backup into this repository for over a day.";
+                };
+              }
+              # Jotta proxy (rclone serve restic on core.tjoda): the whole
+              # fleet's offsite path. Warning tier — the per-client
+              # ResticBackupNotSucceedingJotta criticals are the backstop.
+              {
+                alert = "ResticJottaProxyDown";
+                expr = ''probe_success{job="restic-jotta-probe"} == 0'';
+                for = "15m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "Jotta restic proxy is not answering on its VIP";
+                  description = "restic-jotta.dalby.ts.net is unreachable: rclone-jotta.service on core.tjoda is down, the VIP advertisement broke, or the grant changed. Every host's offsite backup fails until this is back.";
+                };
+              }
+              {
+                alert = "ResticJottaProxyNoTraffic";
+                # Repo-side cross-check, the rest_server_blob_write equivalent
+                # for the proxy: rclone only has core transfer stats, but
+                # hourly client backups mean bytes must flow daily. Counter
+                # resets on restart, hence increase() guarded by up.
+                expr = ''sum(increase(rclone_bytes_transferred_total{job="rclone-jotta"}[26h])) == 0 and on () up{job="rclone-jotta"} == 1'';
+                for = "1h";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "No bytes moved through the Jotta restic proxy in 26h";
+                  description = "The proxy is up but no client backup has pushed data through it for over a day; check the client jotta jobs and the token-check unit on core.tjoda.";
+                };
+              }
+              {
+                alert = "ResticJottaProxyMetricsMissing";
+                # Metric-rename canary: without it a renamed series turns the
+                # no-traffic cross-check silently green.
+                expr = ''absent(rclone_bytes_transferred_total) and on () up{job="rclone-jotta"} == 1'';
+                for = "15m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "Jotta proxy scrape is up but rclone_bytes_transferred_total is absent";
+                  description = "The rclone metric names have changed (version bump?); ResticJottaProxyNoTraffic is blind until the rules are updated.";
                 };
               }
               {

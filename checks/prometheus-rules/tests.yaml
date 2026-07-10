@@ -111,6 +111,64 @@ tests:
               summary: "Restic jotta on h1: no successful offsite backup for 8h"
               description: "The Jottacloud job is the only offsite copy of /storage; slow rclone uploads get 8h of slack, silence beyond that is real."
 
+  # Jotta proxy: a failed VIP probe pages after 15m.
+  - interval: 1m
+    input_series:
+      - series: 'probe_success{job="restic-jotta-probe", instance="http://restic-jotta.dalby.ts.net"}'
+        values: "0x30"
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: ResticJottaProxyDown
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              job: restic-jotta-probe
+              instance: http://restic-jotta.dalby.ts.net
+            exp_annotations:
+              summary: "Jotta restic proxy is not answering on its VIP"
+              description: "restic-jotta.dalby.ts.net is unreachable: rclone-jotta.service on core.tjoda is down, the VIP advertisement broke, or the grant changed. Every host's offsite backup fails until this is back."
+
+  # Jotta proxy traffic cross-check: proxy up with a frozen transfer counter
+  # fires (and the canary stays quiet — the series exists). A counter that
+  # never moves has increase()==0 over any partial window, so a short series
+  # exercises the 26h rule.
+  - interval: 1m
+    input_series:
+      - series: 'rclone_bytes_transferred_total{job="rclone-jotta", instance="core-tjoda:56901", host="core-tjoda"}'
+        values: "100x200"
+      - series: 'up{job="rclone-jotta", instance="core-tjoda:56901", host="core-tjoda"}'
+        values: "1x200"
+    alert_rule_test:
+      - eval_time: 2h
+        alertname: ResticJottaProxyNoTraffic
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+            exp_annotations:
+              summary: "No bytes moved through the Jotta restic proxy in 26h"
+              description: "The proxy is up but no client backup has pushed data through it for over a day; check the client jotta jobs and the token-check unit on core.tjoda."
+      - eval_time: 2h
+        alertname: ResticJottaProxyMetricsMissing
+        exp_alerts: []
+
+  # Jotta proxy metric-rename canary: scrape up, expected series absent → page.
+  - interval: 1m
+    input_series:
+      - series: 'up{job="rclone-jotta", instance="core-tjoda:56901", host="core-tjoda"}'
+        values: "1x30"
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: ResticJottaProxyMetricsMissing
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+            exp_annotations:
+              summary: "Jotta proxy scrape is up but rclone_bytes_transferred_total is absent"
+              description: "The rclone metric names have changed (version bump?); ResticJottaProxyNoTraffic is blind until the rules are updated."
+      - eval_time: 20m
+        alertname: ResticJottaProxyNoTraffic
+        exp_alerts: []
+
   # Litestream: sync errors page; and the sloth SLI records the right ratio
   # (1 error/min against 2 ops/min = 0.5).
   - interval: 1m
