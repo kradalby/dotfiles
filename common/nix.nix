@@ -8,6 +8,14 @@
 in {
   i18n.defaultLocale = "en_US.UTF-8";
 
+  # Cap boot entries so /boot can't fill. GC's --delete-older-than is by age;
+  # a dev box that rebuilds many times within the window still piles up kernels
+  # (dev.ldn hit 32 generations on a 249 MB /boot). configurationLimit bounds it
+  # by count regardless of age. mkDefault so a host can override. Both loaders
+  # set — the option is inert on whichever isn't enabled.
+  boot.loader.systemd-boot.configurationLimit = lib.mkDefault 15;
+  boot.loader.grub.configurationLimit = lib.mkDefault 15;
+
   systemd.settings.Manager.DefaultLimitNOFILE = 1048576;
   security.pam.loginLimits = [
     {
@@ -53,9 +61,10 @@ in {
 
     gc = {
       automatic = true;
-      # 1st + 15th (~every 2 weeks). `dates` is an OnCalendar spec; "2weeks"
-      # isn't valid, so systemd refused the timer and GC never ran.
-      dates = "*-*-1,15";
+      # Weekly. `dates` is an OnCalendar spec; "2weeks" isn't valid, so an
+      # earlier "2weeks" silently disabled the timer. Twice-a-month wasn't
+      # enough on dev boxes that rebuild often — weekly keeps the store lean.
+      dates = "weekly";
       options = "--delete-older-than 10d";
     };
 
