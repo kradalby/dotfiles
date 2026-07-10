@@ -157,8 +157,12 @@ with lib; let
       then jobCfg.repository
       else if jobCfg.site != null
       # http, not https: the restic-<site> VIP passes tcp:80/443 straight
-      # through to a plain-HTTP rest-server (no TLS termination), so https
-      # dials into a bare HTTP server. The tailnet already encrypts transit.
+      # through to a plain-HTTP rest-server — Tailscale VIP tcp:443 does not
+      # TLS-terminate, so https dials into a bare HTTP server. The tailnet
+      # already encrypts transit. http-only until upstream fixes it:
+      #   https://github.com/tailscale/tailscale/issues/19724
+      #   https://github.com/tailscale/tailscale/issues/18381
+      # TODO(tailscale-vip-tls): revert to https once resolved.
       then "rest:http://restic-${jobCfg.site}.dalby.ts.net/${targetHost}"
       else null;
 

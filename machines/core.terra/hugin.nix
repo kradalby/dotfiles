@@ -1,4 +1,4 @@
-{ config, ... }: let
+{config, ...}: let
   domain = "hugin.kradalby.no";
 in {
   age.secrets.hugin-basicauth = {

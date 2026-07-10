@@ -179,6 +179,9 @@
     relabel_configs = [hostRelabel];
   };
 in {
+  # tcp:443 endpoints have no TLS termination — Tailscale VIP bug
+  # (tailscale/tailscale#19724, #18381); consumers use http.
+  # TODO(tailscale-vip-tls): revert when fixed.
   services.tailscale.services = {
     prom = {
       endpoints = {
@@ -417,16 +420,25 @@ in {
       # the public https probe below; kuma notifies on its own monitors.
 
       # Service-level probes: "does it respond at all", one tier per exposure.
+      #
+      # Tailscale VIP tcp:443 does NOT TLS-terminate — an https probe hits a bare
+      # HTTP backend ("http response to https client"). These VIPs are http-only
+      # until upstream fixes it:
+      #   https://github.com/tailscale/tailscale/issues/19724
+      #   https://github.com/tailscale/tailscale/issues/18381
+      # TODO(tailscale-vip-tls): revert grafana/cook/pdf/paseo/owntone to https
+      # once resolved. idp + setec stay https — they are tsnet apps that
+      # terminate TLS themselves, not services.tailscale.services passthrough.
       (probeJob "tailnet-probes" "http_tailnet" [
-        "https://grafana.dalby.ts.net"
+        "http://grafana.dalby.ts.net"
         "https://idp.dalby.ts.net/.well-known/openid-configuration"
         "https://setec.dalby.ts.net/healthz"
-        "https://cook.dalby.ts.net"
-        "https://pdf.dalby.ts.net"
+        "http://cook.dalby.ts.net"
+        "http://pdf.dalby.ts.net"
         "http://go.dalby.ts.net"
-        "https://paseo-dev-ldn.dalby.ts.net"
+        "http://paseo-dev-ldn.dalby.ts.net"
         "http://dev-ldn:8846"
-        "https://owntone.dalby.ts.net"
+        "http://owntone.dalby.ts.net"
         "http://core-tjoda:9000/minio/health/live"
       ])
       (probeJob "dns-probes" "dns" [

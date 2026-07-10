@@ -63,7 +63,8 @@
   # placeholder key "-". openrouter is built-in to opencode, so overriding only
   # its baseURL unlocks the whole openrouter catalog (glm/deepseek/qwen/…)
   # through the proxy.
-  opencodeSettings = lib.recursiveUpdate
+  opencodeSettings =
+    lib.recursiveUpdate
     (builtins.removeAttrs aiConfig.opencode ["plugin"])
     {
       provider = {

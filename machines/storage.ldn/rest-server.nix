@@ -17,6 +17,7 @@ in {
   services.tailscale.services.restic-ldn = {
     endpoints = {
       "tcp:80" = "http://127.0.0.1:${toString port}";
+      # tcp:443 has no TLS termination — Tailscale VIP bug (tailscale/tailscale#19724, #18381); consumers use http. TODO(tailscale-vip-tls): revert when fixed.
       "tcp:443" = "http://127.0.0.1:${toString port}";
     };
   };

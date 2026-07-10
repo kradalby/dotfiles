@@ -1,4 +1,4 @@
-{ config, ... }: let
+{config, ...}: let
   paths = [
     "/home/kradalby"
     "/root"
