@@ -22,7 +22,8 @@
     ./avahi.nix
     ./restic.nix
     ./restic-jotta.nix
-    ./minio.nix
+    ./minio.nix # burn-in fallback; remove after garage has run clean for a week
+    ./garage.nix
     ./sfiber-check.nix
   ];
 

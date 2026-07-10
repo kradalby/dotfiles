@@ -83,6 +83,10 @@ in
     # bridge keeps listening; only a LOGIN proves it works)
     "proton-imap-check.age".publicKeys = u ++ [hosts.dev-oracfurt];
 
+    # garage (RPC secret + admin token; token also in setec for the
+    # infrastructure garage/ tofu root)
+    "garage.age".publicKeys = u ++ [hosts.core-tjoda];
+
     # minio
     "minio-oracldn.age".publicKeys =
       u
