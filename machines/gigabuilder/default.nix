@@ -16,6 +16,7 @@
     ./cache.nix # tsnixcache binary cache
     ./web.nix # nginx TLS terminator + ACME
     ./builder.nix # remote nix builder for the garnix VM
+    ./mail.nix # fleet outbound SMTP relay (smtp.fap.no -> gigahost)
   ];
 
   networking.hostName = "gigabuilder";
