@@ -56,6 +56,19 @@ in {
     };
   };
 
+  # sfiber tailnet membership (tag:ci, forced by the preauth key): the
+  # notify-deployd action pokes the sfiber deploy hosts after green CI.
+  # Actions egress via NAT through the VM's stack and cannot reach loopback
+  # (slirp4netns --disable-host-loopback), so the SOCKS proxy binds the
+  # bridge address instead; the ACL caps what tag:ci reaches to deployd:9100.
+  services.tailscales.sfiber = {
+    enable = true;
+    authKeyFile = config.age.secrets.headscale-sfiber-ci-preauthkey.path;
+    extraUpFlags = ["--login-server=https://headscale.sandefjordfiber.no"];
+    extraSetFlags = ["--hostname=garnix"];
+    extraDaemonFlags = ["--socks5-server=10.68.10.10:1055"];
+  };
+
   # Our only resolver is the incus bridge dnsmasq (plain DNS), so the fleet's
   # forced DoT/DNSSEC breaks every lookup. Override the settings.Resolve keys
   # common/resolved.nix sets (the top-level options are deprecated in 26.05).
@@ -260,6 +273,7 @@ in {
     garnix-repo-secrets-key-pub = s "garnix-repo-secrets-key-pub";
     garnix-action-runner-ssh = s "garnix-action-runner-ssh";
     garnix-remote-builder-ssh = s "garnix-remote-builder-ssh";
+    headscale-sfiber-ci-preauthkey = s "headscale-sfiber-ci-preauthkey";
   };
 
   system.stateVersion = "25.11";

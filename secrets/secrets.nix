@@ -145,6 +145,10 @@ in
     # host's reusable join keys, so only the signing key is cache-specific.
     "tsnixcache-sign-key.age".publicKeys = u ++ [hosts.gigabuilder];
 
+    # sfiber tailnet membership for the garnix VM (tag:ci, forced by the
+    # key): build-success pokes to the sfiber deployd hosts.
+    "headscale-sfiber-ci-preauthkey.age".publicKeys = u ++ [hosts.garnix];
+
     # garnix CI (decrypted on the garnix VM)
     "garnix-database-password.age".publicKeys = u ++ [hosts.garnix];
     "garnix-jwt-key.age".publicKeys = u ++ [hosts.garnix];
