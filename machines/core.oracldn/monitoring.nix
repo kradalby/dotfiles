@@ -1891,7 +1891,7 @@ in {
           }
           {
             # Critical fans out to Discord AND email so a dead webhook alone
-            # can't hide a page. Email relays through the local postfix.
+            # can't hide a page. Email relays through gigabuilder (smtp.fap.no).
             name = "critical";
             discord_configs = [
               {
@@ -1902,7 +1902,10 @@ in {
               {
                 to = "kristoffer@dalby.cc";
                 from = "alertmanager@oracldn.fap.no";
-                smarthost = "localhost:25";
+                # core.oracldn no longer runs a local postfix (it uses send-only
+                # nullmailer). Relay email through gigabuilder's SMTP relay, same
+                # as the rest of the fleet.
+                smarthost = "smtp.fap.no:25";
                 require_tls = false;
               }
             ];
