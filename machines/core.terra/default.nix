@@ -25,7 +25,6 @@
     ./postfix.nix
     ./hugin.nix
     ./postgres.nix
-    ./files.nix
   ];
 
   my.wan = "enp4s0f0";
