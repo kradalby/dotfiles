@@ -17,7 +17,7 @@
     ./resolved.nix
     ./nix.nix
     ./node-exporter.nix
-    ./postfix.nix # every machine relays mail through gigabuilder (smtp.fap.no)
+    ./nullmailer.nix # every machine forwards root/user mail via gigabuilder (smtp.fap.no)
     ./ssh.nix
     ./time.nix
     ./timezone.nix
