@@ -641,11 +641,11 @@
         "treetop": "treetop"
       },
       "locked": {
-        "lastModified": 1782997848,
-        "narHash": "sha256-bDgF3dh/l0w1ANW/N1uEVM7TlTIXuQX+aWH95SbBNmw=",
+        "lastModified": 1783698817,
+        "narHash": "sha256-ydiGekLsoKjITJOqiGuk0Crl4plwk8ZtuUskigzB27k=",
         "owner": "kradalby",
         "repo": "garnix",
-        "rev": "bd7a2f9ffec7c516848ee9663b7897c72924c4f1",
+        "rev": "15c538c611c599b470c8f9fbbc4970b07c8735c9",
         "type": "github"
       },
       "original": {
