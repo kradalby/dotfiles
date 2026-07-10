@@ -21,6 +21,7 @@
     ./samba.nix
     ./avahi.nix
     ./restic.nix
+    ./restic-jotta.nix
     ./minio.nix
     ./sfiber-check.nix
   ];
