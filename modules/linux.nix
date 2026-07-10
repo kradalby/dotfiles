@@ -9,6 +9,7 @@
     ./vhost.nix
     ./restic-jobs.nix
     ./restic-jobs-linux.nix
+    ./rclone-jotta.nix
 
     ./cook-server.nix
     ./syncthing-nixos.nix
