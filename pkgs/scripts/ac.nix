@@ -3,11 +3,10 @@ pkgs.writeShellApplication {
   name = "ac";
 
   runtimeInputs = with pkgs; [
-    tmux
+    herdr
     git
     jq
     coreutils
-    findutils
     gnused
   ];
 

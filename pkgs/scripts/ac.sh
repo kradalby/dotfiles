@@ -6,7 +6,11 @@ set -euo pipefail
 GIT_ROOT="${GIT_ROOT:-$HOME/git}"
 WT_ROOT="${WT_ROOT:-$HOME/worktrees}"
 DEFAULT_AGENT="claude"
-SERVER_PREFIX="ac"
+
+# All agent sessions live inside ONE herdr session, so they show up together in a
+# single overview and a single `herdr` attach — one workspace per repo/branch.
+# Everything below drives that session over herdr's socket API.
+HERDR_SESSION="${HERDR_SESSION:-ac}"
 
 # --- helpers ---
 
@@ -15,22 +19,40 @@ die() {
 	exit 1
 }
 
-sock_dir() {
-	echo "${TMUX_TMPDIR:-/tmp}/tmux-$(id -u)"
+# h: run a herdr control command against our session. Wrapping keeps the
+# --session plumbing in one place and out of every call site.
+h() {
+	herdr --session "$HERDR_SESSION" "$@"
 }
 
 sanitize() {
-	# Replace / with - for use in tmux server socket names
+	# Slashes are illegal in herdr agent names; branch names contain them.
 	echo "$1" | tr '/' '-'
 }
 
-server_name() {
+# display: human name for a session — "repo/branch" or just "repo".
+display() {
 	local repo="$1" branch="$2"
-	if [[ -n "$branch" ]]; then
-		echo "${SERVER_PREFIX}-${repo}-$(sanitize "$branch")"
-	else
-		echo "${SERVER_PREFIX}-${repo}"
-	fi
+	if [[ -n "$branch" ]]; then echo "$repo/$branch"; else echo "$repo"; fi
+}
+
+agent_label() {
+	case "$1" in
+	opencode) echo "oc" ;;
+	claude) echo "cl" ;;
+	*) echo "$1" ;;
+	esac
+}
+
+# The workspace label is the single source of truth for repo/branch/agent:
+#   "<repo>[/<branch>] [<al>]"   e.g. "headscale/kradalby/3049 [cl]"
+# It stays human-readable in herdr's sidebar and parses back unambiguously
+# (repo has no '/', so the first '/' splits repo from branch; the trailing
+# "[al]" is the agent). Workdir is read separately from the pane's real cwd, so
+# a worktree checked out off-convention is still reported correctly.
+make_label() {
+	local repo="$1" branch="$2" agent="$3"
+	echo "$(display "$repo" "$branch") [$(agent_label "$agent")]"
 }
 
 find_main_worktree() {
@@ -126,11 +148,6 @@ ensure_worktree() {
 	echo "$target_path"
 }
 
-server_alive() {
-	local server="$1"
-	tmux -L "$server" list-sessions &>/dev/null
-}
-
 ensure_trusted() {
 	# Pre-accept claude's per-directory workspace-trust dialog for $1, so a
 	# freshly created worktree doesn't leave the agent blocked at the trust
@@ -155,96 +172,113 @@ ensure_trusted() {
 	fi
 }
 
+# --- herdr server / lookup ---
+
+server_running() {
+	h status server 2>/dev/null | grep -q '^status: running'
+}
+
+ensure_server() {
+	# Control commands do not auto-start the server (attaching to a dead socket
+	# errors), so make sure it's up. On the deployed box a systemd user unit owns
+	# it; fall back to spawning a detached server for anywhere that unit isn't
+	# running (first boot, a mac, a throwaway shell).
+	server_running && return 0
+	systemctl --user start herdr 2>/dev/null || true
+	if ! server_running; then
+		nohup herdr --session "$HERDR_SESSION" server >/dev/null 2>&1 &
+	fi
+	# Socket appears a beat after the process; wait briefly.
+	for _ in $(seq 1 20); do
+		server_running && return 0
+		sleep 0.25
+	done
+	die "herdr server for session '$HERDR_SESSION' did not come up"
+}
+
+# find_workspace echoes the workspace_id whose session (repo/branch) matches,
+# or nothing. Match is on the display part of the label (agent-agnostic, so
+# `ac repo` and `ac -o repo` share one workspace — mirrors the old server name).
+find_workspace() {
+	local repo="$1" branch="$2" want
+	want="$(display "$repo" "$branch")"
+	h workspace list 2>/dev/null |
+		jq -r --arg w "$want" '
+			.result.workspaces[]
+			| select((.label | sub(" \\[[^]]*\\]$"; "")) == $w)
+			| .workspace_id' | head -1
+}
+
 # --- commands ---
 
 create_session() {
-	local server="$1" dir="$2" agent="$3" repo="$4" branch="$5"
+	# Create the workspace + agent pane for a repo/branch. Echoes agent name.
+	local dir="$1" agent="$2" repo="$3" branch="$4"
 
-	# Build display title: "repo/branch [agent]" or "repo [agent]"
-	local agent_label
-	case "$agent" in
-	opencode) agent_label="oc" ;;
-	claude) agent_label="cl" ;;
-	*) agent_label="$agent" ;;
-	esac
+	local label name wid
+	label="$(make_label "$repo" "$branch" "$agent")"
+	name="$(sanitize "$(display "$repo" "$branch")")" # unique agent handle
 
-	local display
-	if [[ -n "$branch" ]]; then
-		display="$repo/$branch"
-	else
-		display="$repo"
-	fi
+	# Workspace holds two panes in one tab: the root shell (the old `term`
+	# window) and the agent pane started next. --no-focus so a headless spawn
+	# doesn't steal the attached client's view.
+	wid=$(h workspace create --cwd "$dir" --label "$label" --no-focus |
+		jq -r '.result.workspace.workspace_id')
+	[[ -n "$wid" && "$wid" != "null" ]] || die "workspace create failed"
 
-	# Create server with agent window
-	tmux -L "$server" new-session -d -s work -n agent -c "$dir"
-
-	# Set terminal title so Ghostty tabs show something useful
-	tmux -L "$server" set-option -g set-titles on
-	tmux -L "$server" set-option -g set-titles-string "$display [$agent_label] #W"
-
-	# Create terminal window
-	tmux -L "$server" new-window -t work -n term -c "$dir"
-
-	# Store metadata for listing
-	tmux -L "$server" set-environment -t work AC_REPO "$repo"
-	tmux -L "$server" set-environment -t work AC_BRANCH "$branch"
-	tmux -L "$server" set-environment -t work AC_AGENT "$agent"
-	tmux -L "$server" set-environment -t work AC_WORKDIR "$dir"
-
-	# Launch agent in first window (shell survives if agent exits). For claude:
-	# run with --dangerously-skip-permissions (no tool prompts), pre-trust the
-	# dir (no trust prompt — a separate gate, pinned explicitly so it survives
-	# claude behaviour drift), and enable Remote Control named
+	# Launch the agent. For claude: --dangerously-skip-permissions (no tool
+	# prompts), pre-trust the dir (a separate gate, pinned explicitly so it
+	# survives claude behaviour drift), and Remote Control named
 	# <host>-<repo>-<branch> so the session is also reachable from claude.ai /
-	# the phone. AC_TRUST=0 / AC_REMOTE_CONTROL=0 opt out respectively.
-	local launch="$agent"
+	# the phone. AC_TRUST=0 / AC_REMOTE_CONTROL=0 opt out respectively. argv goes
+	# straight to herdr after `--`, no shell in between.
+	local argv=("$agent")
 	if [[ "$agent" == "claude" ]]; then
 		ensure_trusted "$dir"
-		launch="$agent --dangerously-skip-permissions"
+		argv=("$agent" --dangerously-skip-permissions)
 		if [[ "${AC_REMOTE_CONTROL:-1}" == "1" ]]; then
 			local rc_name
 			rc_name="$(hostname -s)-${repo}"
 			[[ -n "$branch" ]] && rc_name="${rc_name}-$(sanitize "$branch")"
-			launch="$launch --remote-control $rc_name"
+			argv+=(--remote-control "$rc_name")
 		fi
 	fi
-	tmux -L "$server" send-keys -t work:agent "$launch" Enter
+	h agent start "$name" --workspace "$wid" --cwd "$dir" --no-focus -- "${argv[@]}" >/dev/null
 
-	# Focus the agent window
-	tmux -L "$server" select-window -t work:agent
+	echo "$name"
 }
 
-attach_session() {
-	local server="$1"
-	# TMUX='' allows attaching from inside another tmux session
-	# -d detaches other clients (phone takes over from laptop)
-	TMUX='' tmux -L "$server" attach -d -t work
+# attach focuses the workspace (and its agent pane) then hands off to the herdr
+# TUI, so `ac <repo>` always lands you in the one session on the right pane.
+attach_workspace() {
+	local wid="$1" name="$2"
+	h workspace focus "$wid" >/dev/null 2>&1 || true
+	h agent focus "$name" >/dev/null 2>&1 || true
+	exec herdr --session "$HERDR_SESSION"
 }
 
 cmd_create_or_attach() {
 	local repo="$1" branch="${2:-}" agent="${3:-$DEFAULT_AGENT}"
 
-	local dir effective_branch server
+	local dir
 	if [[ -n "$branch" ]]; then
 		# Resolve to an existing worktree (creating on confirmation if none).
 		dir=$(ensure_worktree "$repo" "$branch" interactive) || return 1
 	else
 		dir=$(find_main_worktree "$repo")
 	fi
-	effective_branch="$branch" # main repo has no branch component
-	server=$(server_name "$repo" "$effective_branch")
 
-	if server_alive "$server"; then
-		attach_session "$server"
+	ensure_server
+
+	local wid name
+	wid=$(find_workspace "$repo" "$branch")
+	if [[ -n "$wid" ]]; then
+		name="$(sanitize "$(display "$repo" "$branch")")"
 	else
-		# Clean up stale socket if present
-		local sock
-		sock="$(sock_dir)/$server"
-		[[ -e "$sock" ]] && rm -f "$sock"
-
-		create_session "$server" "$dir" "$agent" "$repo" "$effective_branch"
-		attach_session "$server"
+		name=$(create_session "$dir" "$agent" "$repo" "$branch")
+		wid=$(find_workspace "$repo" "$branch")
 	fi
+	attach_workspace "$wid" "$name"
 }
 
 cmd_spawn() {
@@ -253,252 +287,171 @@ cmd_spawn() {
 	# attach later with `ac <repo> [branch]`.
 	local repo="$1" branch="${2:-}" agent="${3:-$DEFAULT_AGENT}"
 
-	# Resolve to an existing worktree, creating it if missing (no prompt, unlike
-	# the interactive path).
-	local dir effective_branch server
+	local dir
 	if [[ -n "$branch" ]]; then
 		dir=$(ensure_worktree "$repo" "$branch") || return 1
 	else
 		dir=$(find_main_worktree "$repo")
 	fi
-	effective_branch="$branch" # main repo has no branch component
-	server=$(server_name "$repo" "$effective_branch")
 
-	if server_alive "$server"; then
-		echo "already running: $server"
+	ensure_server
+
+	if [[ -n "$(find_workspace "$repo" "$branch")" ]]; then
+		echo "already running: $(display "$repo" "$branch")"
 		return 0
 	fi
 
-	# Clean up stale socket if present
-	local sock
-	sock="$(sock_dir)/$server"
-	[[ -e "$sock" ]] && rm -f "$sock"
-
-	create_session "$server" "$dir" "$agent" "$repo" "$effective_branch"
-	echo "spawned: $server"
+	create_session "$dir" "$agent" "$repo" "$branch" >/dev/null
+	echo "spawned: $(display "$repo" "$branch")"
 }
 
-cmd_list() {
-	local dir
-	dir="$(sock_dir)"
-
-	if [[ ! -d "$dir" ]]; then
-		echo "no agent sessions"
-		return 0
-	fi
-
-	local found=0 idx=0
-	local sockets=()
-	while IFS= read -r -d '' sock; do
-		sockets+=("$sock")
-	done < <(find "$dir" -maxdepth 1 -name "${SERVER_PREFIX}-*" -print0 2>/dev/null | sort -z)
-
-	for sock in "${sockets[@]}"; do
-		[[ -e "$sock" ]] || continue
-
-		local server
-		server=$(basename "$sock")
-
-		if ! server_alive "$server"; then
-			# Stale socket, clean up silently
-			rm -f "$sock"
-			continue
-		fi
-
-		idx=$((idx + 1))
-		found=1
-
-		# Read metadata from tmux environment
-		local ac_repo ac_branch ac_agent
-		ac_repo=$(tmux -L "$server" show-environment -t work AC_REPO 2>/dev/null | sed 's/^AC_REPO=//' || echo "?")
-		ac_branch=$(tmux -L "$server" show-environment -t work AC_BRANCH 2>/dev/null | sed 's/^AC_BRANCH=//' || echo "")
-		ac_agent=$(tmux -L "$server" show-environment -t work AC_AGENT 2>/dev/null | sed 's/^AC_AGENT=//' || echo "?")
-
-		# Check if any client is attached (each ac server has one session, so no
-		# -t: list-sessions takes no target flag and would error out, wedging the
-		# count at 0 and hiding the attached marker).
-		local num_attached
-		num_attached=$(tmux -L "$server" list-sessions -F '#{session_attached}' 2>/dev/null | head -1 || echo "0")
-
-		local marker=""
-		if [[ "${num_attached:-0}" -gt 0 ]]; then
-			marker=" *"
-		fi
-
-		# Short agent label
-		local agent_label
-		case "$ac_agent" in
-		opencode) agent_label="oc" ;;
-		claude) agent_label="cl" ;;
-		*) agent_label="$ac_agent" ;;
-		esac
-
-		# Display name
-		local display
-		if [[ -n "$ac_branch" ]]; then
-			display="$ac_repo/$ac_branch"
-		else
-			display="$ac_repo"
-		fi
-
-		printf "%d %s [%s]%s\n" "$idx" "$display" "$agent_label" "$marker"
-	done
-
-	if [[ "$found" -eq 0 ]]; then
-		echo "no agent sessions"
-	fi
+# workdir_of echoes the real cwd of a workspace (its root pane), so ac-web can
+# refuse deleting a worktree that backs a live session.
+workdir_of() {
+	h pane list --workspace "$1" 2>/dev/null |
+		jq -r '.result.panes[0].cwd // ""'
 }
 
 cmd_list_porcelain() {
 	# Machine-readable listing for ac-web. One live session per line, tab
-	# separated: server<TAB>repo<TAB>branch<TAB>agent<TAB>attached(0|1)<TAB>workdir.
-	# workdir lets ac-web refuse deleting a worktree that backs a live session.
-	local dir
-	dir="$(sock_dir)"
-	[[ -d "$dir" ]] || return 0
+	# separated: workspace<TAB>repo<TAB>branch<TAB>agent<TAB>attached(0|1)<TAB>workdir.
+	# repo/branch/agent come from the label; workdir from the pane's real cwd;
+	# attached(=focused) marks the workspace the TUI is currently showing.
+	server_running || return 0
 
-	local sockets=()
-	while IFS= read -r -d '' sock; do
-		sockets+=("$sock")
-	done < <(find "$dir" -maxdepth 1 -name "${SERVER_PREFIX}-*" -print0 2>/dev/null | sort -z)
+	local wid label focused
+	while IFS=$'\t' read -r wid label focused; do
+		[[ -n "$wid" ]] || continue
 
-	local sock server ac_repo ac_branch ac_agent ac_workdir num_attached attached
-	for sock in "${sockets[@]}"; do
-		[[ -e "$sock" ]] || continue
-		server=$(basename "$sock")
-		server_alive "$server" || continue
-
-		ac_repo=$(tmux -L "$server" show-environment -t work AC_REPO 2>/dev/null | sed 's/^AC_REPO=//' || echo "")
-		ac_branch=$(tmux -L "$server" show-environment -t work AC_BRANCH 2>/dev/null | sed 's/^AC_BRANCH=//' || echo "")
-		ac_agent=$(tmux -L "$server" show-environment -t work AC_AGENT 2>/dev/null | sed 's/^AC_AGENT=//' || echo "")
-		ac_workdir=$(tmux -L "$server" show-environment -t work AC_WORKDIR 2>/dev/null | sed 's/^AC_WORKDIR=//' || echo "")
-		num_attached=$(tmux -L "$server" list-sessions -F '#{session_attached}' 2>/dev/null | head -1 || echo "0")
+		local agent_l disp repo branch agent workdir attached
+		# label = "DISPLAY [al]" — split off the trailing agent tag.
+		agent_l="${label##*\[}"
+		agent_l="${agent_l%\]}"
+		disp="${label% \[*\]}"
+		case "$agent_l" in
+		cl) agent="claude" ;;
+		oc) agent="opencode" ;;
+		*) agent="$agent_l" ;;
+		esac
+		# repo has no '/', so the first '/' splits repo from branch.
+		if [[ "$disp" == */* ]]; then
+			repo="${disp%%/*}"
+			branch="${disp#*/}"
+		else
+			repo="$disp"
+			branch=""
+		fi
+		workdir=$(workdir_of "$wid")
 		attached=0
-		[[ "${num_attached:-0}" -gt 0 ]] && attached=1
+		[[ "$focused" == "true" ]] && attached=1
 
-		printf '%s\t%s\t%s\t%s\t%s\t%s\n' "$server" "$ac_repo" "$ac_branch" "$ac_agent" "$attached" "$ac_workdir"
-	done
+		printf '%s\t%s\t%s\t%s\t%s\t%s\n' "$wid" "$repo" "$branch" "$agent" "$attached" "$workdir"
+	done < <(h workspace list 2>/dev/null |
+		jq -r '.result.workspaces[] | [.workspace_id, .label, .focused] | @tsv')
 }
 
-# Resolve a target (name or index number) to a server name
+# Resolve a target (workspace_id or repo[/branch] display name) to a workspace_id.
 resolve_target() {
 	local target="$1"
 
-	# If it's a number, resolve from listing order
-	if [[ "$target" =~ ^[0-9]+$ ]]; then
-		local dir
-		dir="$(sock_dir)"
-		[[ -d "$dir" ]] || die "no agent sessions"
+	local ids
+	ids=$(h workspace list 2>/dev/null | jq -r '.result.workspaces[].workspace_id')
 
-		local idx=0
-		local sockets=()
-		while IFS= read -r -d '' sock; do
-			sockets+=("$sock")
-		done < <(find "$dir" -maxdepth 1 -name "${SERVER_PREFIX}-*" -print0 2>/dev/null | sort -z)
-
-		for sock in "${sockets[@]}"; do
-			[[ -e "$sock" ]] || continue
-			local server
-			server=$(basename "$sock")
-			server_alive "$server" || continue
-			idx=$((idx + 1))
-			if [[ "$idx" -eq "$target" ]]; then
-				echo "$server"
-				return 0
-			fi
-		done
-		die "no session at index $target"
-	fi
-
-	# Otherwise treat as server name (with or without prefix)
-	local server="$target"
-	if [[ ! "$server" =~ ^${SERVER_PREFIX}- ]]; then
-		server="${SERVER_PREFIX}-${server}"
-	fi
-
-	if server_alive "$server"; then
-		echo "$server"
+	# Exact workspace_id (what ac-web passes back from the porcelain listing).
+	if grep -qxF "$target" <<<"$ids"; then
+		echo "$target"
 		return 0
 	fi
+
+	# Otherwise treat it as a repo[/branch] display name.
+	local wid
+	wid=$(h workspace list 2>/dev/null |
+		jq -r --arg w "$target" '
+			.result.workspaces[]
+			| select((.label | sub(" \\[[^]]*\\]$"; "")) == $w)
+			| .workspace_id' | head -1)
+	[[ -n "$wid" ]] && {
+		echo "$wid"
+		return 0
+	}
 
 	die "no session found: $target"
 }
 
 cmd_remove() {
 	local target="$1"
-	local server
-	server=$(resolve_target "$target")
+	local wid
+	wid=$(resolve_target "$target")
 
-	# Stop the agent gracefully: SIGTERM lets `claude remote-control` preserve
-	# its environment and deregister cleanly. A forced kill orphaned it and
-	# filled the claude.ai picker with dead duplicates. The agent runs as a
-	# child of the pane's shell, so signal the shell's children. Fall back to
-	# kill-server if it hasn't exited within the grace window.
-	# `|| true`: if the agent window is gone (its shell exited; the term window
-	# keeps the server alive), list-panes exits 1 and pipefail+set -e would abort
-	# before kill-server, leaving the session unkilled. The [[ -n ]] guard handles
-	# the resulting empty pid.
-	local pane_pid
-	pane_pid=$(tmux -L "$server" list-panes -t work:agent -F '#{pane_pid}' 2>/dev/null | head -1 || true)
-	if [[ -n "$pane_pid" ]]; then
-		pkill -TERM -P "$pane_pid" 2>/dev/null || true
-		for _ in $(seq 1 20); do # ~10s grace
-			pgrep -P "$pane_pid" >/dev/null 2>&1 || break
-			sleep 0.5
-		done
+	# Stop the agent gracefully before tearing the workspace down: SIGTERM lets
+	# `claude remote-control` deregister cleanly (a forced kill orphaned it and
+	# filled the claude.ai picker with dead duplicates). herdr runs the agent
+	# argv directly as the pane process, so its shell_pid IS the agent — signal
+	# it, wait out a grace window, then close the workspace (which also disposes
+	# the term pane). `|| true`: goal state is a closed workspace; if the agent
+	# already exited, the missing pid/pane must not abort us before close.
+	local pane pid
+	pane=$(h agent list 2>/dev/null |
+		jq -r --arg w "$wid" '.result.agents[] | select(.workspace_id==$w) | .pane_id' | head -1)
+	if [[ -n "$pane" && "$pane" != "null" ]]; then
+		pid=$(h pane process-info --pane "$pane" 2>/dev/null |
+			jq -r '.result.process_info.shell_pid // empty')
+		if [[ -n "$pid" ]]; then
+			kill -TERM "$pid" 2>/dev/null || true
+			# ~10s grace for the agent to deregister and exit
+			for _ in $(seq 1 20); do
+				kill -0 "$pid" 2>/dev/null || break
+				sleep 0.5
+			done
+		fi
 	fi
 
-	# `|| true`: the goal state is a dead server; if it already exited during the
-	# grace window, kill-server's failure shouldn't make `ac rm` report an error.
-	tmux -L "$server" kill-server 2>/dev/null || true
-	echo "killed: $server"
+	h workspace close "$wid" 2>/dev/null || true
+	echo "killed: $wid"
 }
 
 cmd_help() {
 	cat <<'EOF'
 Usage: ac [flags] [command|repo] [branch]
 
-Agent code session manager — create, attach, and manage
-coding agent sessions in isolated tmux servers.
+Agent code session manager — one herdr session ("ac") holds every coding-agent
+session as a workspace, so they share a single overview and a single attach.
 
 Commands:
-  (no args)              List all agent sessions
-  <repo> [branch]        Create or attach to session
-  <number>               Attach to session by index
-  ls [--porcelain]       List all agent sessions (--porcelain: tab-separated)
-  spawn <repo> [branch]  Create a detached session without attaching (for ac-web)
-  rm <name|number>       Kill a session
+  <repo> [branch]        Create the workspace if needed, then attach the herdr
+                         session focused on that repo/branch's agent pane
+  ls --porcelain         Tab-separated listing (for ac-web)
+  spawn <repo> [branch]  Create a detached workspace without attaching (for ac-web)
+  rm <workspace|name>    Gracefully stop the agent and close the workspace
   help                   Show this help
 
 Flags:
   -o, --opencode         Use opencode instead of claude
   -c, --claude           Use claude (default)
 
-If the branch worktree does not exist, you will be prompted to
-create it. An existing branch is checked out as-is; a new branch
-is based on the appropriate remote:
-  - Repos with an 'upstream' remote: fetches upstream, branches
-    from upstream/main (e.g., headscale forks)
-  - All other repos: fetches origin, branches from origin's
-    default branch
+To list, switch, or split sessions interactively, attach the herd with `herdr`
+(or `herdr --session ac`) and use its TUI — that's the single overview.
 
-The main repo lives at ~/git/<repo>; branch worktrees are created
-under $WT_ROOT/<repo>/<branch> (default WT_ROOT: ~/worktrees).
+If the branch worktree does not exist, you will be prompted to create it. An
+existing branch is checked out as-is; a new branch is based on the appropriate
+remote:
+  - Repos with an 'upstream' remote: fetches upstream, branches from
+    upstream/main (e.g., headscale forks)
+  - All other repos: fetches origin, branches from origin's default branch
+
+The main repo lives at ~/git/<repo>; branch worktrees are created under
+$WT_ROOT/<repo>/<branch> (default WT_ROOT: ~/worktrees).
 
 Examples:
-  ac                             List sessions
   ac headscale                   claude on ~/git/headscale (main repo)
   ac headscale kradalby/3049     claude on ~/worktrees/headscale/kradalby/3049
   ac headscale kradalby/new      prompts to create branch from upstream/main
-  ac dotfiles                    claude on ~/git/dotfiles
   ac sfiber planet-olt -o        opencode on ~/worktrees/sfiber/planet-olt
-  ac 2                           Attach to session #2
-  ac rm 2                        Kill session #2
-  ac rm headscale-kradalby-3049  Kill by name
+  ac rm headscale/kradalby/3049  Gracefully close that workspace
 
-Each session opens two tmux windows:
-  agent   Coding agent (opencode/claude), launched via send-keys
-  term    Plain terminal in the same directory
+Each workspace opens two herdr panes in one tab:
+  agent   Coding agent (opencode/claude), launched directly (argv, no shell)
+  shell   Plain terminal in the same directory (the workspace root pane)
 
 claude sessions launch with --dangerously-skip-permissions (no tool prompts)
 and Remote Control named <host>-<repo>-<branch>, so they are reachable from
@@ -548,9 +501,12 @@ main() {
 		esac
 	done
 
-	# No args: list sessions
+	# No args: point at the herd. Listing/switching is herdr's job now.
 	if [[ ${#args[@]} -eq 0 ]]; then
-		cmd_list
+		if server_running; then
+			exec herdr --session "$HERDR_SESSION"
+		fi
+		echo "no agent sessions (herdr server not running)"
 		return 0
 	fi
 
@@ -562,7 +518,9 @@ main() {
 		if [[ "$porcelain" == 1 ]]; then
 			cmd_list_porcelain
 		else
-			cmd_list
+			# Human listing is the herdr TUI; a bare `ac ls` just attaches it.
+			server_running && exec herdr --session "$HERDR_SESSION"
+			echo "no agent sessions (herdr server not running)"
 		fi
 		;;
 	spawn)
@@ -570,22 +528,16 @@ main() {
 		cmd_spawn "${args[1]}" "${args[2]:-}" "$agent"
 		;;
 	rm | remove | kill)
-		[[ ${#args[@]} -ge 2 ]] || die "usage: ac rm <name|number>"
+		[[ ${#args[@]} -ge 2 ]] || die "usage: ac rm <workspace|name>"
+		ensure_server
 		cmd_remove "${args[1]}"
 		;;
 	help)
 		cmd_help
 		;;
 	*)
-		# Number: attach by index
-		if [[ "$first" =~ ^[0-9]+$ ]] && [[ ${#args[@]} -eq 1 ]]; then
-			local server
-			server=$(resolve_target "$first")
-			attach_session "$server"
-		else
-			# repo [branch]: create or attach
-			cmd_create_or_attach "$first" "${args[1]:-}" "$agent"
-		fi
+		# repo [branch]: create or attach
+		cmd_create_or_attach "$first" "${args[1]:-}" "$agent"
 		;;
 	esac
 }
