@@ -77,7 +77,10 @@ in {
   users.users.kradalby.linger = true;
 
   services.tailscale = {
-    advertiseRoutes = ["10.65.0.0/16" "2a02:6b66:7019::/64"];
+    # 192.168.156.0/24 = the IoT VLAN (unifi vlan 156); routed here so
+    # core.oracldn's tasmota/homewizard exporters can reach *.ldn devices.
+    # Needs the unifi LAN->IoT firewall to permit the probe.
+    advertiseRoutes = ["10.65.0.0/16" "192.168.156.0/24" "2a02:6b66:7019::/64"];
     # tag:server comes from the incus-vm-ldn.nix baseline.
     tags = ["tag:backup-client" "tag:deployer" "tag:dev" "tag:gateway"];
   };
