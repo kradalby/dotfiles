@@ -11,17 +11,10 @@
 in {
   # restic REST proxy fronting Jottacloud: tailnet hosts back up offsite via
   # rest:http://restic-jotta.dalby.ts.net/<scrambled> without holding Jotta
-  # credentials. This service owns the ONLY Jotta token family for the proxy —
-  # separate from root's config used by this host's own direct jotta job
-  # (./restic.nix); Jotta rotates the refresh token on every refresh, so the
-  # config must be persistent, writable, and never shared or restored from
-  # backup.
-  #
-  # One-off manual login (single-use token from
-  # https://www.jottacloud.com/web/secure, expires in minutes; only one
-  # login-token bring-up at a time account-wide):
-  #   rclone --config /var/lib/rclone-jotta/rclone.conf config create Jotta jottacloud config_type=standard config_login_token=<token>
-  #   chown -R rclone-jotta:rclone-jotta /var/lib/rclone-jotta
+  # credentials. This service owns the ONLY Jotta login on this host — the
+  # local jotta job (./restic.nix) also goes through it. Jotta rotates the
+  # refresh token on every refresh, so the config must be persistent,
+  # writable, and never copied (a diverging copy kills the token family).
 
   users.users.rclone-jotta = {
     isSystemUser = true;
