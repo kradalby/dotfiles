@@ -19,7 +19,13 @@
   darwinPath = "${config.home.profileDirectory}/bin:/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin";
 in {
   config = lib.mkMerge [
-    {home.packages = [pkgs.herdr];}
+    {
+      home.packages = [pkgs.herdr];
+      # Make "ac" the default session so a bare `herdr` attaches the herd —
+      # resolution order is --session > HERDR_SOCKET_PATH > HERDR_SESSION >
+      # default. ac.sh already defaults to "ac", and the server unit pins it.
+      home.sessionVariables.HERDR_SESSION = "ac";
+    }
 
     (lib.mkIf pkgs.stdenv.isLinux {
       systemd.user.services.herdr = {
