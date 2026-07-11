@@ -54,8 +54,8 @@ in {
     ];
     systemd.services.litestream-restore-test = {
       description = "litestream restore verification";
-      # bare mktemp/mv/rm in the script; systemd's default PATH has no coreutils
-      path = [pkgs.coreutils];
+      # bare mktemp/mv/rm/grep in the script; systemd's default PATH has none
+      path = [pkgs.coreutils pkgs.gnugrep];
       serviceConfig = {
         Type = "oneshot";
         EnvironmentFile = config.age.secrets.litestream.path;
@@ -69,7 +69,7 @@ in {
         + lib.concatMapStrings (db: ''
           out=$(mktemp -d)
           if ! { ${pkgs.litestream}/bin/litestream restore -config /etc/litestream.yml -o "$out/restored.db" "${db.path}" \
-                 && ${pkgs.sqlite}/bin/sqlite3 "$out/restored.db" 'PRAGMA integrity_check;' | grep -qx ok; }; then
+                 && ${pkgs.sqlite}/bin/sqlite3 -batch -init /dev/null "$out/restored.db" 'PRAGMA integrity_check;' | grep -qx ok; }; then
             ok=0
           fi
           rm -rf "$out"
