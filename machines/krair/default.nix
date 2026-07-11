@@ -26,6 +26,8 @@
   };
 
   home-manager.users.kradalby = {
+    imports = [../../home/herdr.nix];
+
     home.packages = with pkgs; [
       pm-cli
     ];

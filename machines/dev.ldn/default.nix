@@ -129,6 +129,8 @@ in {
   ];
 
   home-manager.users.kradalby = {
+    imports = [../../home/herdr.nix];
+
     programs.git.settings = {
       commit.gpgsign = true;
       gpg.format = "ssh";
