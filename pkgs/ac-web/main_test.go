@@ -50,12 +50,13 @@ func TestValidateRepo(t *testing.T) {
 }
 
 func TestServerRe(t *testing.T) {
-	for _, s := range []string{"ac-dotfiles", "ac-headscale-kradalby-3049"} {
+	// Opaque herdr workspace handles: any bare token (letters, digits, . _ -).
+	for _, s := range []string{"ac-dotfiles", "dotfiles", "ws_1", "01H9-abc.def"} {
 		if !serverRe.MatchString(s) {
 			t.Errorf("serverRe rejected valid %q", s)
 		}
 	}
-	for _, s := range []string{"", "dotfiles", "ac-;rm", "ac- x", "../x"} {
+	for _, s := range []string{"", "a/b", "x;rm", "a b", "../x"} {
 		if serverRe.MatchString(s) {
 			t.Errorf("serverRe accepted invalid %q", s)
 		}
@@ -163,7 +164,7 @@ func TestRoutes(t *testing.T) {
 		{"GET", "/kill", "", http.StatusMethodNotAllowed},
 		{"GET", "/rmworktree", "", http.StatusMethodNotAllowed},
 		{"POST", "/spawn", "repo=", http.StatusBadRequest},
-		{"POST", "/kill", "server=notac", http.StatusBadRequest},
+		{"POST", "/kill", "server=a/b", http.StatusBadRequest},
 		{"POST", "/rmworktree", "repo=&path=", http.StatusBadRequest},
 	}
 	for _, c := range cases {
