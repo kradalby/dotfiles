@@ -106,8 +106,9 @@
           valid_status_codes: [200, 301, 302, 401, 403]
           fail_if_ssl: false
           fail_if_not_ssl: false
-      # restic REST endpoints answer 404 on / — any HTTP status proves the
-      # VIP → daemon path (a dead backend is a connection error, not a 404).
+      # restic REST endpoints answer 400 on / (verified against the live
+      # rclone serve restic) — any HTTP status proves the VIP → daemon path
+      # (a dead backend is a connection error, not a status code).
       http_restic:
         prober: http
         timeout: 5s
@@ -115,7 +116,7 @@
           method: GET
           preferred_ip_protocol: "ip4"
           ip_protocol_fallback: false
-          valid_status_codes: [200, 404, 405]
+          valid_status_codes: [200, 400, 404, 405]
           fail_if_ssl: false
           fail_if_not_ssl: false
       # End-to-end DNS through each site's CoreDNS resolver.
