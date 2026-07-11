@@ -228,8 +228,11 @@ func handleIndex(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleSpawn(w http.ResponseWriter, r *http.Request) {
-	repoName := r.FormValue("repo")
-	branch := r.FormValue("branch")
+	// Lowercase before validating: iPhone auto-capitalizes the branch text field,
+	// and a stray capital would otherwise fork a duplicate workspace. Repo/branch
+	// are always lowercase by convention, so this only ever undoes the phone.
+	repoName := strings.ToLower(r.FormValue("repo"))
+	branch := strings.ToLower(r.FormValue("branch"))
 	if err := validateRepo(repoName); err != nil {
 		fail(w, err)
 		return
@@ -261,8 +264,8 @@ func handleKill(w http.ResponseWriter, r *http.Request) {
 // session and loses in-flight work, the exact failure graceful shutdown exists to
 // prevent. Single --force (not two): remove a dirty tree, but never a locked one.
 func handleRmWorktree(w http.ResponseWriter, r *http.Request) {
-	repoName := r.FormValue("repo")
-	rel := r.FormValue("path")
+	repoName := strings.ToLower(r.FormValue("repo"))
+	rel := strings.ToLower(r.FormValue("path"))
 	if err := validateRepo(repoName); err != nil {
 		fail(w, err)
 		return
@@ -304,7 +307,10 @@ func fail(w http.ResponseWriter, err error) { http.Error(w, err.Error(), http.St
 // --- validation (the exec trust boundary; args go via argv, never a shell) ---
 
 var (
-	serverRe = regexp.MustCompile(`^ac-[A-Za-z0-9._-]+$`)
+	// An opaque herdr workspace handle from `ac ls --porcelain`, passed straight
+	// back to `ac rm` via argv (no shell). Any bare token is safe; the old `ac-`
+	// prefix was a tmux-socket-name artifact and no longer applies.
+	serverRe = regexp.MustCompile(`^[A-Za-z0-9._-]+$`)
 	branchRe = regexp.MustCompile(`^[A-Za-z0-9._/-]+$`)
 )
 
