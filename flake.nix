@@ -159,6 +159,13 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
+    # Agent multiplexer (tmux replacement for `ac`). Do NOT `follows` its
+    # rust-overlay — the package is built against the toolchain herdr pins.
+    herdr = {
+      url = "github:ogulcancelik/herdr/v0.7.3";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+
     # Stock nixpkgs sd-image-aarch64 has no Pi5 support (no bcm2712 DTB,
     # u-boot, or [pi5] config.txt). nixos-raspberrypi ships proper Pi5
     # firmware + sd-image generator.
@@ -214,6 +221,9 @@
         neovim = neovim-kradalby.packages."${system}".neovim-kradalby;
         tailscale = tailscale.packages."${system}".tailscale;
         ssh-agent-mux = inputs.ssh-agent-mux.packages."${system}".default;
+        # Direct package (not herdr.overlays.default — that composes
+        # rust-overlay and drags rust-bin into pkgs).
+        herdr = inputs.herdr.packages."${system}".default;
         nefit-homekit = inputs.nefit-homekit.packages."${system}".default;
         tasmota-homekit = inputs.tasmota-homekit.packages."${system}".default;
         z2m-homekit = inputs.z2m-homekit.packages."${system}".default;
