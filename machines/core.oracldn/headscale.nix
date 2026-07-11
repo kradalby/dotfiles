@@ -8,8 +8,10 @@
   domain = "headscale.kradalby.no";
   aclConfig = {
     tagOwners = {
-      "tag:server" = ["kradalby"];
-      "tag:isolated" = ["kradalby"];
+      # Usernames in headscale policy carry an @ suffix; the bare form fails
+      # policy parsing ("invalid owner format") and crash-loops the server.
+      "tag:server" = ["kradalby@"];
+      "tag:isolated" = ["kradalby@"];
     };
     acls = [
       # Trusted nodes (my user's devices + tagged servers) reach everything,
