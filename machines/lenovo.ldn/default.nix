@@ -22,7 +22,7 @@
   };
 
   services.tailscale = {
-    tags = ["tag:ldn" "tag:server"];
+    tags = ["tag:server"];
   };
 
   virtualisation.docker.enable = lib.mkForce false;

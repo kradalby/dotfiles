@@ -13,8 +13,11 @@
     };
   };
 
+  # Baseline for ldn incus VMs; per-machine role tags merge on top. Location
+  # tags dropped (nothing keys off them). Authoritative assignment is in
+  # infrastructure/tailscale/device_tags.tf — this is only the advertise-on-up.
   services.tailscale = {
-    tags = ["tag:ldn" "tag:server"];
+    tags = ["tag:server"];
   };
 
   system.stateVersion = "24.05";

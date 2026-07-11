@@ -39,7 +39,7 @@
 
   age.secrets.ldn-wifi.file = ../../secrets/ldn-wifi.age;
 
-  services.tailscale.tags = ["tag:ldn" "tag:server"];
+  services.tailscale.tags = ["tag:server"];
 
   # nixos-raspberrypi is migrating the default from "kernelboot" to
   # "kernel"; opt in explicitly to silence the deprecation warning.

@@ -124,7 +124,7 @@
 
   services.tailscale = {
     advertiseRoutes = ["10.66.0.0/16"];
-    tags = ["tag:oracldn" "tag:gateway" "tag:server"];
+    tags = ["tag:backup-client" "tag:gateway" "tag:monitoring" "tag:server"];
   };
 
   # This value determines the NixOS release from which the default

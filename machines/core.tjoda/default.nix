@@ -87,7 +87,7 @@
 
   services.tailscale = {
     advertiseRoutes = ["10.62.0.0/16"];
-    tags = ["tag:tjoda" "tag:gateway" "tag:server"];
+    tags = ["tag:backup-client" "tag:gateway" "tag:server" "tag:storage"];
   };
 
   age.secrets.headscale-sfiber-authkey = {

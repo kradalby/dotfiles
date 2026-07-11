@@ -78,7 +78,8 @@ in {
 
   services.tailscale = {
     advertiseRoutes = ["10.65.0.0/16" "2a02:6b66:7019::/64"];
-    tags = ["tag:ldn" "tag:gateway" "tag:server"];
+    # tag:server comes from the incus-vm-ldn.nix baseline.
+    tags = ["tag:backup-client" "tag:deployer" "tag:dev" "tag:gateway"];
   };
 
   # Secondary Tailscale instance: headscale.sandefjordfiber.no (dev.ldn only).
