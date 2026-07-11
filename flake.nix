@@ -224,6 +224,10 @@
         # Direct package (not herdr.overlays.default — that composes
         # rust-overlay and drags rust-bin into pkgs).
         herdr = inputs.herdr.packages."${system}".default;
+        # The agent skill (teaches an agent to drive herdr) ships in herdr's
+        # source, so pin it straight from the input — updates with `nix flake
+        # update herdr`, nothing to vendor or maintain.
+        herdr-skill = inputs.herdr + "/SKILL.md";
         nefit-homekit = inputs.nefit-homekit.packages."${system}".default;
         tasmota-homekit = inputs.tasmota-homekit.packages."${system}".default;
         z2m-homekit = inputs.z2m-homekit.packages."${system}".default;

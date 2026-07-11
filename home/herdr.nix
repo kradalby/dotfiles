@@ -18,6 +18,17 @@
   linuxPath = "${config.home.profileDirectory}/bin:/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin:/usr/bin:/bin";
   darwinPath = "${config.home.profileDirectory}/bin:/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin";
 in {
+  options.my.herdr.integrations = lib.mkOption {
+    type = lib.types.listOf lib.types.str;
+    default = ["claude" "opencode"];
+    description = ''
+      Agents to install herdr state-detection hooks for. Each runs
+      `herdr integration install <agent>` on activation, which drops a hook
+      and registers it in that agent's (mutable) config. Valid names: claude,
+      codex, opencode, and the rest herdr supports.
+    '';
+  };
+
   config = lib.mkMerge [
     {
       home.packages = [pkgs.herdr];
@@ -25,6 +36,21 @@ in {
       # resolution order is --session > HERDR_SOCKET_PATH > HERDR_SESSION >
       # default. ac.sh already defaults to "ac", and the server unit pins it.
       home.sessionVariables.HERDR_SESSION = "ac";
+
+      # The herdr agent skill, pinned from the flake input (no vendoring). It
+      # gates on HERDR_ENV=1, so it only activates for an agent running inside
+      # a herdr pane — teaching it to drive herdr's socket API.
+      home.file.".claude/skills/herdr/SKILL.md".source = pkgs.herdr-skill;
+
+      # Install per-agent state hooks so herdr reports precise agent status
+      # (blocked/working/idle/done) instead of guessing. Runs after mutableJson
+      # so the agents' writable configs exist; idempotent, so it self-heals and
+      # tracks the herdr version. `|| true`: a missing agent must not fail switch.
+      home.activation.herdrIntegrations =
+        lib.hm.dag.entryAfter ["writeBoundary" "mutableJson"]
+        (lib.concatMapStringsSep "\n"
+          (a: ''run ${herdr} integration install ${a} || true'')
+          config.my.herdr.integrations);
     }
 
     (lib.mkIf pkgs.stdenv.isLinux {
