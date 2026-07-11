@@ -101,7 +101,7 @@
 
   services.tailscale = {
     advertiseRoutes = ["10.67.0.0/16"];
-    tags = ["tag:oracfurt" "tag:gateway" "tag:server"];
+    tags = ["tag:backup-client" "tag:dev" "tag:gateway" "tag:server"];
   };
 
   services.tsidp.enable = true;

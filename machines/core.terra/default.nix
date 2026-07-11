@@ -159,7 +159,7 @@
 
   services.tailscale = {
     advertiseRoutes = ["10.60.0.0/16" "2a03:94e0:200d::/48"];
-    tags = ["tag:terra" "tag:gateway" "tag:server"];
+    tags = ["tag:gateway" "tag:server" "tag:storage"];
   };
 
   # TODO: Fix disk monitoring somehow

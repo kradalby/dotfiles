@@ -28,6 +28,8 @@ in {
   };
 
   services.tailscale.advertiseRoutes = ["10.65.0.0/24"];
+  # Merges with the tag:server baseline from incus-vm-ldn.nix.
+  services.tailscale.tags = ["tag:backup-client" "tag:storage"];
 
   networking = {
     hostName = "storage";

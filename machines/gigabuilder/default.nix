@@ -51,7 +51,7 @@
 
   services.tailscale = {
     advertiseRoutes = ["10.68.0.0/16"]; # the VM subnet
-    tags = ["tag:server" "tag:builder" "tag:incus"];
+    tags = ["tag:builder" "tag:incus" "tag:server" "tag:smtp"];
   };
 
   # Trust the VM bridge; open 41641 so tailscale connects directly, not via DERP.
