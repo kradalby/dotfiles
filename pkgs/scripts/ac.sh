@@ -40,6 +40,7 @@ agent_label() {
 	case "$1" in
 	opencode) echo "oc" ;;
 	claude) echo "cl" ;;
+	codex) echo "cx" ;;
 	*) echo "$1" ;;
 	esac
 }
@@ -331,6 +332,7 @@ cmd_list_porcelain() {
 		case "$agent_l" in
 		cl) agent="claude" ;;
 		oc) agent="opencode" ;;
+		cx) agent="codex" ;;
 		*) agent="$agent_l" ;;
 		esac
 		# repo has no '/', so the first '/' splits repo from branch.
@@ -428,6 +430,7 @@ Commands:
 Flags:
   -o, --opencode         Use opencode instead of claude
   -c, --claude           Use claude (default)
+  -x, --codex            Use codex
 
 To list, switch, or split sessions interactively, attach the herd with `herdr`
 (or `herdr --session ac`) and use its TUI — that's the single overview.
@@ -450,7 +453,7 @@ Examples:
   ac rm headscale/kradalby/3049  Gracefully close that workspace
 
 Each workspace opens two herdr panes in one tab:
-  agent   Coding agent (opencode/claude), launched directly (argv, no shell)
+  agent   Coding agent (claude/opencode/codex), launched directly (argv, no shell)
   shell   Plain terminal in the same directory (the workspace root pane)
 
 claude sessions launch with --dangerously-skip-permissions (no tool prompts)
@@ -476,6 +479,10 @@ main() {
 			;;
 		-c | --claude)
 			agent="claude"
+			shift
+			;;
+		-x | --codex)
+			agent="codex"
 			shift
 			;;
 		-p | --porcelain)
