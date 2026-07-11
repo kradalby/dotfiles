@@ -54,6 +54,8 @@ in {
     ];
     systemd.services.litestream-restore-test = {
       description = "litestream restore verification";
+      # bare mktemp/mv/rm in the script; systemd's default PATH has no coreutils
+      path = [pkgs.coreutils];
       serviceConfig = {
         Type = "oneshot";
         EnvironmentFile = config.age.secrets.litestream.path;
