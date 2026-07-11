@@ -28,11 +28,15 @@
     };
   };
 
-  systemd.tmpfiles.rules = [
-    "d /storage/backup/garage 0750 garage garage -"
-    "d /storage/backup/garage/meta 0750 garage garage -"
-    "d /storage/backup/garage/data 0750 garage garage -"
-  ];
+  # Not tmpfiles: /storage/backup is owned by the storage user, and
+  # systemd-tmpfiles refuses the "unsafe path transition" into a
+  # garage-owned subtree, leaving the dirs missing and the unit failing
+  # namespace setup (ReadWritePaths on nonexistent paths).
+  system.activationScripts.garage-dirs.text = ''
+    mkdir -p /storage/backup/garage/meta /storage/backup/garage/data
+    chown garage:garage /storage/backup/garage /storage/backup/garage/meta /storage/backup/garage/data
+    chmod 0750 /storage/backup/garage /storage/backup/garage/meta /storage/backup/garage/data
+  '';
 
   # Objects are content-addressed blocks (immutable files, restic-safe), but
   # the metadata DB needs a consistent copy: snapshot it daily next to
