@@ -40,17 +40,24 @@ in {
     User = "atuin";
     Group = "atuin";
     StateDirectory = "atuin";
-    StateDirectoryMode = "0770";
+    # setgid (2xxx) so every file — including the -wal/-shm that litestream may
+    # create first — inherits group atuin, not the creator's primary group.
+    # Without it litestream's wal/shm land as litestream:litestream and atuin
+    # can't open its own db (SQLITE_CANTOPEN); with it both users share group
+    # atuin and 0660 lets each read+write the other's files.
+    StateDirectoryMode = "2770";
     # litestream (group atuin) writes _litestream_seq into the db, so it needs
     # group WRITE, not just read — 0007 → 0660 db. (0027/read-only made
     # litestream fail with "attempt to write a readonly database".)
     UMask = lib.mkForce "0007";
   };
-  # The db created before the UMask fix is 0640; force it group-writable on
-  # activation so litestream can write without recreating the db (and its
-  # already-synced history).
+  # The db + wal/shm created before the mode fixes have the old owner/perms;
+  # correct them on activation so litestream and atuin can both open them
+  # without recreating the db (and its already-synced history).
   systemd.tmpfiles.rules = [
     "z /var/lib/atuin/atuin.db 0660 atuin atuin - -"
+    "z /var/lib/atuin/atuin.db-wal 0660 atuin atuin - -"
+    "z /var/lib/atuin/atuin.db-shm 0660 atuin atuin - -"
   ];
 
   # Native Prometheus metrics. Bind 0.0.0.0 so the monitoring stack on
