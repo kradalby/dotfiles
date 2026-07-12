@@ -41,8 +41,17 @@ in {
     Group = "atuin";
     StateDirectory = "atuin";
     StateDirectoryMode = "0770";
-    UMask = lib.mkForce "0027"; # 0640 db → litestream (group atuin) can read
+    # litestream (group atuin) writes _litestream_seq into the db, so it needs
+    # group WRITE, not just read — 0007 → 0660 db. (0027/read-only made
+    # litestream fail with "attempt to write a readonly database".)
+    UMask = lib.mkForce "0007";
   };
+  # The db created before the UMask fix is 0640; force it group-writable on
+  # activation so litestream can write without recreating the db (and its
+  # already-synced history).
+  systemd.tmpfiles.rules = [
+    "z /var/lib/atuin/atuin.db 0660 atuin atuin - -"
+  ];
 
   # Native Prometheus metrics. Bind 0.0.0.0 so the monitoring stack on
   # core.oracldn can scrape dev-oracfurt over the tailnet; the module only
