@@ -67,6 +67,11 @@ in {
 
   # Work-specific overrides
   home-manager.users.kradalby = {
+    imports = [../../home/atuin.nix];
+    # Same client config as personal, but a SEPARATE atuin account (own user +
+    # key, set up at runtime) so work history never mixes with krair/dev.ldn.
+    my.atuin.enable = true;
+
     my.packages.ai.enable = false;
 
     programs.git.settings.user = {

@@ -133,7 +133,11 @@ in {
   ];
 
   home-manager.users.kradalby = {
-    imports = [../../home/herdr.nix];
+    imports = [
+      ../../home/herdr.nix
+      ../../home/atuin.nix
+    ];
+    my.atuin.enable = true; # personal account (shared with krair)
 
     programs.git.settings = {
       commit.gpgsign = true;
