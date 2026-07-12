@@ -1,10 +1,14 @@
-{...}: let
+{pkgs, ...}: let
   paths = [
     "/etc/nixos"
     # tsidp runs with DynamicUser; /var/lib/tsidp is a symlink whose target
     # is the real state — backing up the symlink stored ~20 bytes.
     "/var/lib/private/tsidp"
     "/var/lib/cook-server"
+    # Consistent daily dump of the atuin sqlite db (below). litestream handles
+    # the live/PITR path to garage; this is the offsite snapshot copy — never
+    # restic the live db directly (torn snapshot).
+    "/var/lib/atuin-backup"
   ];
 
   mkJob = site: {
@@ -13,6 +17,29 @@
     secret = "restic-dev-oracfurt-token";
   };
 in {
+  # Atomic sqlite copy for restic. sqlite3 .backup is safe against the live db.
+  # StateDirectory creates /var/lib/atuin-backup owned by atuin (/var/lib is
+  # root-only, so the service can't mkdir it itself).
+  systemd.services.atuin-db-dump = {
+    serviceConfig = {
+      Type = "oneshot";
+      User = "atuin";
+      Group = "atuin";
+      StateDirectory = "atuin-backup";
+    };
+    path = [pkgs.sqlite];
+    script = ''
+      sqlite3 /var/lib/atuin/atuin.db ".backup /var/lib/atuin-backup/atuin.db"
+    '';
+  };
+  systemd.timers.atuin-db-dump = {
+    wantedBy = ["timers.target"];
+    timerConfig = {
+      OnCalendar = "daily";
+      Persistent = true;
+    };
+  };
+
   services.restic.jobs = {
     tjoda = mkJob "tjoda";
     ldn = mkJob "ldn";

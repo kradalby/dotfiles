@@ -16,6 +16,8 @@
     ./syncthing.nix
     ./proton.nix
     ./cook.nix
+    ./atuin.nix
+    ./litestream.nix
   ];
 
   # Disable built-in tsidp module in favor of the flake input
