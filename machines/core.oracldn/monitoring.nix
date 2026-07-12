@@ -423,11 +423,13 @@ in {
       ])
 
       # golink: note the leading dot in the path; https with a ts.net cert.
+      # Full FQDN target so the ts.net cert validates (the cert is for
+      # go.dalby.ts.net; the bare "go" name failed x509 SAN verification).
       {
         job_name = "golink";
         scheme = "https";
         metrics_path = "/.metrics";
-        static_configs = [{targets = ["go:443"];}];
+        static_configs = [{targets = ["go.dalby.ts.net:443"];}];
         relabel_configs = [hostRelabel];
       }
 
