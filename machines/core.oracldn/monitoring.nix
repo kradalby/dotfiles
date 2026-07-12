@@ -475,11 +475,25 @@ in {
         "http://restic-jotta.dalby.ts.net"
       ])
 
-      (probeJob "dns-probes" "dns" [
-        "10.66.0.1"
-        "10.62.0.2"
-        "10.65.0.28"
-      ])
+      # Per-site labels so a resolver-down alert can inhibit that site's
+      # downstream name-resolution-dependent probes (see inhibit_rules).
+      ((probeJob "dns-probes" "dns" [])
+        // {
+          static_configs = [
+            {
+              targets = ["10.66.0.1"];
+              labels.site = "oracldn";
+            }
+            {
+              targets = ["10.62.0.2"];
+              labels.site = "tjoda";
+            }
+            {
+              targets = ["10.65.0.28"];
+              labels.site = "ldn";
+            }
+          ];
+        })
       (probeJob "tcp-probes" "tcp_connect" [
         "proton-bridge:143"
         "core-tjoda:445"
@@ -544,6 +558,10 @@ in {
         };
         static_configs = [
           {
+            # site label lets a tjoda-resolver DnsProbeDown inhibit this whole
+            # job — the targets are *.tjoda.fap.no and can't resolve when the
+            # resolver is unreachable, so the pings fail as a downstream effect.
+            labels.site = "tjoda";
             targets = [
               # Unifi
               "hus-kontor-printer.tjoda.fap.no"
@@ -1948,6 +1966,15 @@ in {
             source_matchers = ["severity=\"critical\""];
             target_matchers = ["severity=\"warning\""];
             equal = ["alertname" "host"];
+          }
+          {
+            # A resolver being unreachable (DnsProbeDown) makes every ICMP probe
+            # for names in that site fail too — they can't resolve. Suppress the
+            # per-device flood (e.g. 13× TjodaPingDown) and page once on the
+            # resolver. Matches on the shared "site" label set on both jobs.
+            source_matchers = ["alertname=\"DnsProbeDown\""];
+            target_matchers = ["alertname=\"TjodaPingDown\""];
+            equal = ["site"];
           }
         ];
 
