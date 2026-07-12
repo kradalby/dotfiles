@@ -355,8 +355,12 @@ in {
       # Application-specific exporters
       # OCI usage exporter binds localhost on this host, no ACL needed
       (scrapeJob "oci-usage" ["localhost:63461"])
-      (scrapeJob "litestream" ["core-oracldn:54909"])
+      (scrapeJob "litestream" ["core-oracldn:54909" "dev-oracfurt:54909"])
       (scrapeJob "headscale" ["core-oracldn:54910"])
+
+      # atuin shell-history sync server on dev.oracfurt (native metrics).
+      # up{job="atuin"} feeds the generic scrape-success burn-rate SLO.
+      (scrapeJob "atuin" ["dev-oracfurt:8889"])
 
       # Monitoring must watch itself; the Watchdog/dead-man covers the rest.
       (scrapeJob "prometheus" ["localhost:9090"])
@@ -455,6 +459,7 @@ in {
         "https://setec.dalby.ts.net/healthz"
         "http://cook.dalby.ts.net"
         "http://pdf.dalby.ts.net"
+        "http://atuin.dalby.ts.net"
         "http://go.dalby.ts.net"
         "http://paseo-dev-ldn.dalby.ts.net"
         "http://dev-ldn:8846"
