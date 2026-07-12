@@ -496,7 +496,7 @@ in {
         command = let
           isUnixGui = (builtins.substring 0 1 cfg.guiAddress) == "/";
           args = escapeShellArgs (
-            (lib.cli.toGNUCommandLine {} {
+            (lib.cli.toCommandLineGNU {} {
               no-browser = true;
               gui-address =
                 (
