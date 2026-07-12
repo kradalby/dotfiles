@@ -135,9 +135,13 @@
           preferred_ip_protocol: ip4
   '';
 
-  # Filesystem filter for disk alerts — excludes virtual, boot, and
-  # Incus filesystems. Incus hosts have dedicated alerts.
-  diskFilter = ''fstype!~"(tmpfs|ramfs)",mountpoint!~"^/boot.?/?.*",role!="incus"'';
+  # Filesystem filter for disk alerts — excludes virtual, boot, and Incus
+  # filesystems. Incus guests have dedicated alerts (role="incus"), but the
+  # Incus *host* carries no role label, so two host-side mounts leak through and
+  # storm on every build spike: /var/lib/lxcfs (fuse.lxcfs always reports 0 free)
+  # and the per-VM /var/lib/incus/devices/*.mount config datasets (~500MB ZFS
+  # metadata, not the real VM disk). Exclude both by fstype and mountpoint.
+  diskFilter = ''fstype!~"(tmpfs|ramfs|fuse.lxcfs)",mountpoint!~"^/boot.?/?.*",mountpoint!~"^/var/lib/incus/devices/.*",role!="incus"'';
 
   # Every job carries a port-free "host" label so Alertmanager can group and
   # inhibit per machine; the instance label includes the port, which made the
