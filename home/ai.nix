@@ -76,15 +76,17 @@
     skipDangerousModePermissionPrompt = true;
 
     # The non-interactive Bash tool never sources the shell rc, so direnv
-    # and `nix develop` never activate. These hooks run nix-dev-env.sh (see
-    # home/default.nix) on session start and every directory change, which
-    # loads per-directory dev envs via CLAUDE_ENV_FILE: direnv (.envrc)
-    # primary, `nix print-dev-env` for a flake.nix as fallback.
+    # and `nix develop` never activate. This hook runs nix-dev-env.sh (see
+    # home/default.nix) on session start, which loads per-directory dev envs
+    # via CLAUDE_ENV_FILE: direnv (.envrc) primary, `nix print-dev-env` for a
+    # flake.nix as fallback.
+    #
+    # NB: a CwdChanged hook (reload on `cd`) is documented but not yet shipped
+    # in released Claude Code (>=2.1.207 rejects it as an "Invalid key", which
+    # makes Claude discard the whole settings.json). Re-add it once a release
+    # lands the event, otherwise the entire file is silently dropped.
     hooks = {
       SessionStart = [
-        {hooks = [{type = "command"; command = ''bash "$HOME/.claude/hooks/nix-dev-env.sh" || true'';}];}
-      ];
-      CwdChanged = [
         {hooks = [{type = "command"; command = ''bash "$HOME/.claude/hooks/nix-dev-env.sh" || true'';}];}
       ];
     };
