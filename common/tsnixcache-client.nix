@@ -1,5 +1,6 @@
 # Auto-push locally-built paths to the gigabuilder cache (nix post-build hook).
 {
+  config,
   inputs,
   pkgs,
   ...
@@ -15,4 +16,9 @@ in {
     substituters = [];
     postBuildHook.enable = true;
   };
+
+  # The client module only references the binary by store path (post-build
+  # hook / watch daemon), so expose it on $PATH too for ad-hoc client use
+  # (tsnixcache push/gc/waitfor/watch).
+  environment.systemPackages = [config.services.tsnixcache-client.package];
 }
