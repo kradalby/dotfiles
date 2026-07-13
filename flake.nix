@@ -67,9 +67,13 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
-    # WIP Nix binary cache served over tailscale; pinned to the `initial` branch.
+    # WIP Nix binary cache served over tailscale. Pinned to a specific rev
+    # rather than the `initial` branch tip: the tip (a28065e) imports
+    # tailscale.com/tsweb/promvarz without vendoring it, which breaks the Go
+    # build. 5907250e is the last rev that builds. Revert to the branch ref
+    # once upstream fixes the vendoring.
     tsnixcache = {
-      url = "github:kradalby/tsnixcache/initial";
+      url = "github:kradalby/tsnixcache/5907250e11e849ad4074eb23b8c5e1e3c1ae9bcf";
       inputs.nixpkgs.follows = "nixpkgs-stable";
     };
 
