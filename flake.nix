@@ -269,11 +269,6 @@
             meta.mainProgram = "opencode";
           };
 
-        # lima 1.2.2 in stable branches is marked insecure/EOL.
-        # Override so transitive consumers (nix-rosetta-builder)
-        # get the unstable version.
-        inherit (prev.unstable) lima lima-full;
-
         # fish 4.2.1 in darwin-25.11 hangs on startup (aarch64).
         # Use the unstable version until the fix lands in stable.
         inherit (prev.unstable) fish;
