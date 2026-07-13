@@ -249,12 +249,31 @@ create_session() {
 	echo "$name"
 }
 
+# attach_herd hands off to the herdr TUI so `ac`/`ac ls` land you in the one
+# session's overview. When already inside herdr (HERDR_ENV=1) the client is
+# attached to this very session, so exec'ing the TUI would nest herdr inside the
+# current pane — just say so and return instead.
+attach_herd() {
+	if [[ "${HERDR_ENV:-}" == "1" ]]; then
+		echo "already attached to herd (session: $HERDR_SESSION)"
+		return 0
+	fi
+	exec herdr --session "$HERDR_SESSION"
+}
+
 # attach focuses the workspace (and its agent pane) then hands off to the herdr
 # TUI, so `ac <repo>` always lands you in the one session on the right pane.
+# Inside herdr the focus calls already move the attached client's view to the
+# target, so we skip the exec (which would nest herdr in the current pane) and
+# just hand the prompt back — the view has already switched.
 attach_workspace() {
-	local wid="$1" name="$2"
+	local wid="$1" name="$2" repo="${3:-}" branch="${4:-}"
 	h workspace focus "$wid" >/dev/null 2>&1 || true
 	h agent focus "$name" >/dev/null 2>&1 || true
+	if [[ "${HERDR_ENV:-}" == "1" ]]; then
+		echo "switched to $(display "$repo" "$branch")"
+		return 0
+	fi
 	exec herdr --session "$HERDR_SESSION"
 }
 
@@ -279,7 +298,7 @@ cmd_create_or_attach() {
 		name=$(create_session "$dir" "$agent" "$repo" "$branch")
 		wid=$(find_workspace "$repo" "$branch")
 	fi
-	attach_workspace "$wid" "$name"
+	attach_workspace "$wid" "$name" "$repo" "$branch"
 }
 
 cmd_spawn() {
@@ -511,7 +530,8 @@ main() {
 	# No args: point at the herd. Listing/switching is herdr's job now.
 	if [[ ${#args[@]} -eq 0 ]]; then
 		if server_running; then
-			exec herdr --session "$HERDR_SESSION"
+			attach_herd
+			return 0
 		fi
 		echo "no agent sessions (herdr server not running)"
 		return 0
@@ -526,8 +546,11 @@ main() {
 			cmd_list_porcelain
 		else
 			# Human listing is the herdr TUI; a bare `ac ls` just attaches it.
-			server_running && exec herdr --session "$HERDR_SESSION"
-			echo "no agent sessions (herdr server not running)"
+			if server_running; then
+				attach_herd
+			else
+				echo "no agent sessions (herdr server not running)"
+			fi
 		fi
 		;;
 	spawn)
