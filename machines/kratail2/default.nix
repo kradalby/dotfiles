@@ -49,6 +49,16 @@ in
     ./rustic.nix
   ];
 
+  # kratail2 is a 16-core / 128 GB box, so give the linux builder more than the
+  # shared 8-core / 6 GiB default. onDemand: the VM powers off when idle and
+  # spins up on the first Linux build (a few seconds), reclaiming the RAM the
+  # rest of the time.
+  nix-rosetta-builder = {
+    cores = 12;
+    memory = "24GiB";
+    onDemand = true;
+  };
+
   # Configure SSH agent mux for work machine
   services.ssh-agent-mux = {
     enable = true;
