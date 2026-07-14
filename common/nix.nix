@@ -89,6 +89,13 @@ in {
       # it. Revisit the version string on each bump and migrate off minio
       # (Garage/SeaweedFS) — see the deploy notes.
       "minio-2025-10-15T17-29-55Z"
+
+      # Build-time only: `prettier` (home-packages) fetches its node_modules via
+      # `fetchPnpmDeps` with `pnpm_9`, which is EOL (2026-04-30) and flagged for
+      # CVE-2026-48995 et al. pnpm never runs at runtime — it only assembles deps
+      # at build. TODO: drop once prettier moves off pnpm_9 upstream —
+      # tracking NixOS/nixpkgs#529285 (Tracking: pnpm 9 EOL).
+      "pnpm-9.15.9"
     ];
   };
 
