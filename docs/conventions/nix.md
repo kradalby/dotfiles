@@ -64,7 +64,7 @@ and `.overrideAttrs` to attach `meta` (description/homepage/license/mainProgram)
 Design services to stop **gracefully**; never rely on SIGKILL. The app gets
 SIGTERM (systemd `KillSignal=SIGTERM`, launchd's default unload) plus a generous
 `TimeoutStopSec` to flush state. For `claude remote-control` this is load-bearing:
-a clean SIGTERM lets it *preserve* its environment, so a restart resumes the same
+a clean SIGTERM lets it _preserve_ its environment, so a restart resumes the same
 builder instead of orphaning a fresh one (forced kills filled the claude.ai picker
 with dead duplicates and lost in-flight sessions).
 
@@ -81,7 +81,9 @@ with dead duplicates and lost in-flight sessions).
 
 ## Formatter
 
-`treefmt` (`treefmt.toml`) orchestrates gofumpt + goimports + nixpkgs-fmt; exposed as `formatter = fc.formatter common`. `alejandra` in dotfiles. Pick one nix formatter per repo, stay consistent.
+`treefmt` orchestrates **every** formatter — one entrypoint, never standalone per-tool prek hooks. Backends, fleet-wide and non-negotiable: **nixfmt-rfc-style** (Nix, RFC 166 — not alejandra/nixpkgs-fmt), gofumpt + `goimports -local`, prettier (markdown/web), shfmt (`-i 2 -ci`). Exposed as `formatter`; prek runs `treefmt --fail-on-change`.
+
+Wire it in-flake via `treefmt-nix` (`treefmt-nix.lib.evalModule pkgs { … }`, `formatter = eval.config.build.wrapper`) or through `fc.formatter` (flake-checks' `treefmt.toml`). Either way the nix backend is nixfmt-rfc-style — no per-repo formatter drift. (dotfiles, tsnixcache)
 
 ## Containers (when needed)
 

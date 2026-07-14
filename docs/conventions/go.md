@@ -17,18 +17,18 @@
 
 stdlib → `tailscale.com/*` → `kra/*` → blessed dep (below) → your own. Stop at the first that works.
 
-| Need                                       | Use                                                                                                                      |
-| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------ |
-| Networking / mesh / debug                  | `tailscale.com/*` — tsnet, tsweb, envknob, net/netip, util/eventbus                                                      |
-| Shared HTTP+Tailscale server, HTML helpers | `kra/web`, `kra/html`                                                                                                    |
-| Logging                                    | `log/slog` (zerolog only in headscale — tailscale heritage)                                                              |
-| Config                                     | `github.com/knadh/koanf/v2` (env-only light; add `file` provider when a config file exists). `Netflix/go-env` is legacy. |
+| Need                                       | Use                                                                                                                                             |
+| ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| Networking / mesh / debug                  | `tailscale.com/*` — tsnet, tsweb, envknob, net/netip, util/eventbus                                                                             |
+| Shared HTTP+Tailscale server, HTML helpers | `kra/web`, `kra/html`                                                                                                                           |
+| Logging                                    | `log/slog` (zerolog only in headscale — tailscale heritage)                                                                                     |
+| Config                                     | `github.com/knadh/koanf/v2` (env-only light; add `file` provider when a config file exists). `Netflix/go-env` is legacy.                        |
 | CLI / flags                                | `github.com/peterbourgon/ff/v4` (the `ff.Command` tree) — **never cobra**. Prefer v4; `ff/v3/ffcli` is the older pattern, migrate when touched. |
-| Internal decoupling                        | `tailscale.com/util/eventbus`                                                                                            |
-| All HTML                                   | `github.com/chasefleming/elem-go` + htmx + SSE (server-rendered, no SPA)                                                 |
-| Tests                                      | `testify/require` + `google/go-cmp`                                                                                      |
-| Metrics                                    | `prometheus/client_golang` (exposition → Debug & metrics)                                                                |
-| Backoff (never `time.Sleep`)               | `cenkalti/backoff/v5`                                                                                                    |
+| Internal decoupling                        | `tailscale.com/util/eventbus`                                                                                                                   |
+| All HTML                                   | `github.com/chasefleming/elem-go` + htmx + SSE (server-rendered, no SPA)                                                                        |
+| Tests                                      | `testify/require` + `google/go-cmp`                                                                                                             |
+| Metrics                                    | `prometheus/client_golang` (exposition → Debug & metrics)                                                                                       |
+| Backoff (never `time.Sleep`)               | `cenkalti/backoff/v5`                                                                                                                           |
 
 Specifics:
 
@@ -62,7 +62,7 @@ Specifics:
 ## Style / lint
 
 - `golangci-lint` via `.golangci.yaml`: **enable all, disable a few** — copy the disable list from headscale (cyclop, funlen, lll, wsl, varnamelen, wrapcheck, mnd, exhaustruct, …). Don't curate from scratch.
-- Formatting via `treefmt.toml`: gofumpt → `goimports -local github.com/kradalby/<repo>` → nixpkgs-fmt. (tsnixcache). Custom forbidigo bans (`time.Sleep`, inline log-field strings).
+- Formatting via treefmt: gofumpt → `goimports -local github.com/kradalby/<repo>`, nixfmt-rfc-style for the flake. (tsnixcache). Custom forbidigo bans (`time.Sleep`, inline log-field strings).
 - Comments **terse, explain why not what**; package doc comment mandatory; short names in tight scopes.
 
 ## Copy from

@@ -9,7 +9,8 @@ Starting a new project? Read this file, then the file for your stack.
 - **Comments are terse and explain _why_, not _what_.**
 - **Nix-first.** Every repo has a `flake.nix`. Build/test/lint/format are flake outputs, not ad-hoc scripts.
 - **All checks go through [`kradalby/flake-checks`](https://github.com/kradalby/flake-checks).** Extend it, don't fork the pattern. CI just calls the checks. → [nix.md](nix.md)
-- **prek** runs format+lint hooks; `prek run --all-files` before commit. → [git.md](git.md)
+- **Formatting: treefmt, always.** One entrypoint orchestrating every language's formatter (nixfmt-rfc-style, gofumpt + goimports, prettier, shfmt) — no standalone per-tool hooks, no per-repo formatter drift. → [nix.md](nix.md)
+- **prek** runs format+lint hooks (`treefmt --fail-on-change` for formatting); `prek run --all-files` before commit. → [git.md](git.md)
 - **Commits: `package: imperative summary`** — lowercase, no period, no Conventional-Commits prefixes. → [git.md](git.md)
 - **Secrets never in git.** Dev: `.envrc` + 1Password `op read`. Prod: ragenix `age.secrets`. → [secrets.md](secrets.md)
 - **No speculative abstraction.** Smallest thing that works; no abstraction for a single caller.
