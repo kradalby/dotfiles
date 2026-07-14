@@ -271,6 +271,7 @@ in
           ghostty-tab
           syncthing
           silicon
+          nix-forecast
           # nixos-26.05 ships a current lima/colima, so the stable set is no
           # longer EOL. Unstable's lima 2.1.4 crashes cctools ld while linking
           # limactl (SIGTRAP); 26.05's 2.1.3 is the last version that links.
