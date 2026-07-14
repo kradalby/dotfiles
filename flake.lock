@@ -191,30 +191,6 @@
         "type": "github"
       }
     },
-    "flake-checks_10": {
-      "inputs": {
-        "flake-utils": "flake-utils_10",
-        "nixpkgs": [
-          "tsnixcache",
-          "headscale",
-          "nixpkgs"
-        ],
-        "treefmt-nix": "treefmt-nix_13"
-      },
-      "locked": {
-        "lastModified": 1781951072,
-        "narHash": "sha256-hA9u6hB4QzpReP8hudxqiaa4vLhoRvtXi6YmUgJRGEs=",
-        "owner": "kradalby",
-        "repo": "flake-checks",
-        "rev": "3d2882efec5cf10f8b5a8a035d93ba6ba9f21717",
-        "type": "github"
-      },
-      "original": {
-        "owner": "kradalby",
-        "repo": "flake-checks",
-        "type": "github"
-      }
-    },
     "flake-checks_2": {
       "inputs": {
         "flake-utils": [
@@ -450,24 +426,6 @@
     "flake-utils_10": {
       "inputs": {
         "systems": "systems_11"
-      },
-      "locked": {
-        "lastModified": 1731533236,
-        "narHash": "sha256-l0KFg5HjrsfsO/JpG+r7fRrqm12kzFHyUHqHCVpMMbI=",
-        "owner": "numtide",
-        "repo": "flake-utils",
-        "rev": "11707dc2f618dd54ca8739b309ec4fc024de578b",
-        "type": "github"
-      },
-      "original": {
-        "owner": "numtide",
-        "repo": "flake-utils",
-        "type": "github"
-      }
-    },
-    "flake-utils_11": {
-      "inputs": {
-        "systems": "systems_12"
       },
       "locked": {
         "lastModified": 1731533236,
@@ -724,21 +682,20 @@
     },
     "headscale_3": {
       "inputs": {
-        "flake-checks": "flake-checks_10",
-        "flake-utils": "flake-utils_11",
+        "flake-utils": "flake-utils_10",
         "nixpkgs": "nixpkgs_5"
       },
       "locked": {
-        "lastModified": 1782008223,
-        "narHash": "sha256-VvzMWljcA7F0ySNOcAqn3aBgBDVZEUMdvK+F3XGhUnU=",
+        "lastModified": 1782917259,
+        "narHash": "sha256-zQ3dmb96fLhFwZjZUiifI73F+CRvDz6aiVafHaTuU/c=",
         "owner": "juanfont",
         "repo": "headscale",
-        "rev": "33a65052c9aa0bd492b937408b0cf4e618a1bdc8",
+        "rev": "8eea89488c642f3d5f617fab5493d5f51f6f4ad0",
         "type": "github"
       },
       "original": {
         "owner": "juanfont",
-        "ref": "main",
+        "ref": "v0.29.2",
         "repo": "headscale",
         "type": "github"
       }
@@ -1501,21 +1458,6 @@
         "type": "github"
       }
     },
-    "systems_12": {
-      "locked": {
-        "lastModified": 1681028828,
-        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
-        "owner": "nix-systems",
-        "repo": "default",
-        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nix-systems",
-        "repo": "default",
-        "type": "github"
-      }
-    },
     "systems_2": {
       "locked": {
         "lastModified": 1681028828,
@@ -1797,29 +1739,6 @@
         "type": "github"
       }
     },
-    "treefmt-nix_13": {
-      "inputs": {
-        "nixpkgs": [
-          "tsnixcache",
-          "headscale",
-          "flake-checks",
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1780220602,
-        "narHash": "sha256-eynAfOmbmxJnkp7YewvCEbShNnnYJ9gLLqkzsYtBPeM=",
-        "owner": "numtide",
-        "repo": "treefmt-nix",
-        "rev": "db947814a175b7ca6ded66e21383d938df01c227",
-        "type": "github"
-      },
-      "original": {
-        "owner": "numtide",
-        "repo": "treefmt-nix",
-        "type": "github"
-      }
-    },
     "treefmt-nix_2": {
       "inputs": {
         "nixpkgs": [
@@ -2083,17 +2002,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1783017547,
-        "narHash": "sha256-PT1g3Rgyzd4doghAcyj3hZMtVQKa0wxVmOv9/ZpZK0M=",
+        "lastModified": 1784008769,
+        "narHash": "sha256-S5Fbf8vzclREzayKIH9+8yK5u3ld6QlzdqZmcdgPQQc=",
         "owner": "kradalby",
         "repo": "tsnixcache",
-        "rev": "5907250e11e849ad4074eb23b8c5e1e3c1ae9bcf",
+        "rev": "58c756a0f0b7e7a3fb4887b5ef0a75fd166a9183",
         "type": "github"
       },
       "original": {
         "owner": "kradalby",
+        "ref": "initial",
         "repo": "tsnixcache",
-        "rev": "5907250e11e849ad4074eb23b8c5e1e3c1ae9bcf",
         "type": "github"
       }
     },
