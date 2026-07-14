@@ -170,6 +170,10 @@
     # u-boot, or [pi5] config.txt). nixos-raspberrypi ships proper Pi5
     # firmware + sd-image generator.
     nixos-raspberrypi.url = "github:nvmd/nixos-raspberrypi/main";
+    # Follow the fleet nixpkgs (26.05) so the Pi build matches home-manager
+    # and the rest of the fleet — its own pin (25.11) lacks lib/services,
+    # which home-manager 26.05 needs.
+    nixos-raspberrypi.inputs.nixpkgs.follows = "nixpkgs-stable";
   };
 
   outputs = {
@@ -578,6 +582,8 @@
         ./common
         ./common/tailscale.nix
         ./common/bootstrap-common.nix
+        inputs.home-manager.nixosModules.home-manager
+        ./common/home.nix
         inputs.nixos-raspberrypi.nixosModules.raspberry-pi-5.base
         inputs.nixos-raspberrypi.nixosModules.raspberry-pi-5.page-size-16k
         inputs.nixos-raspberrypi.nixosModules.sd-image
