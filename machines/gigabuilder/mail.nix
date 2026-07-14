@@ -2,7 +2,8 @@
   config,
   lib,
   ...
-}: {
+}:
+{
   # gigabuilder is the fleet's SMTP relay. The rest of the fleet forwards to
   # smtp.fap.no (which resolves here over the tailnet) with nullmailer;
   # gigabuilder runs the full postfix that accepts those and relays out through
@@ -19,7 +20,7 @@
     settings.main = {
       myhostname = "${config.networking.hostName}.${config.networking.domain}";
       myorigin = "${config.networking.hostName}.${config.networking.domain}";
-      relayhost = ["[spamvask.terrahost.no]:25"];
+      relayhost = [ "[spamvask.terrahost.no]:25" ];
 
       # Accept relay only from the tailnet (CGNAT v4 + tailscale ULA v6) + local.
       mynetworks = [
@@ -39,7 +40,7 @@
 
   # :25 is exposed ONLY on the tailnet interface and, in the ACL, only via
   # tag:smtp — never the public WAN, or gigabuilder becomes an open relay.
-  networking.firewall.interfaces.tailscale0.allowedTCPPorts = [25];
+  networking.firewall.interfaces.tailscale0.allowedTCPPorts = [ 25 ];
 
   # Postfix queue depth is the signal of stuck outbound mail on the relay.
   services.prometheus.exporters.postfix = {

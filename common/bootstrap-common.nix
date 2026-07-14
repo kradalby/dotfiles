@@ -4,9 +4,11 @@
   pkgs,
   ...
 }:
-with lib; let
+with lib;
+let
   cfg = config.my.bootstrap;
-in {
+in
+{
   options.my.bootstrap = {
     enable = mkEnableOption "Raspberry Pi bootstrap image configuration";
 
@@ -30,7 +32,7 @@ in {
 
     tags = mkOption {
       type = types.listOf types.str;
-      default = ["tag:server"];
+      default = [ "tag:server" ];
       description = "Tailscale tags to advertise on first up.";
     };
 

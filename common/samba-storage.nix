@@ -1,11 +1,13 @@
-{...}: let
+{ ... }:
+let
   guestShare = path: {
     inherit path;
     browsable = "yes";
     public = "yes";
     "read only" = "yes";
   };
-in {
+in
+{
   services.samba = {
     settings = {
       storage = {

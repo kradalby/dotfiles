@@ -1,4 +1,5 @@
-{config, ...}: let
+{ config, ... }:
+let
   paths = [
     "/root"
     "/etc/nixos"
@@ -10,7 +11,8 @@
     # "/storage/restic"
     config.services.postgresqlBackup.location
   ];
-in {
+in
+{
   services.restic.jobs.jotta = {
     enable = true;
     repository = "rclone:Jotta:3cee607f10a34c3fd67e4b292fda606f";
@@ -19,7 +21,7 @@ in {
     # rclone to Jottacloud: reading pack data costs egress and takes forever;
     # verify metadata only, monthly.
     check = {
-      args = [];
+      args = [ ];
       interval = "monthly";
     };
   };

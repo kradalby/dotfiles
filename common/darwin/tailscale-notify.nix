@@ -9,14 +9,16 @@
   lib,
   pkgs,
   ...
-}: let
-  notifier = import ./notify-applet.nix {inherit lib pkgs;} {
+}:
+let
+  notifier = import ./notify-applet.nix { inherit lib pkgs; } {
     appName = "TailscaleNotify";
     bundleId = "no.kradalby.TailscaleNotify";
     urlScheme = "tailscalenotify";
     iconSource = "/Applications/Tailscale.app/Contents/Resources/AppIcon.icns";
   };
-in {
+in
+{
   # nix-darwin only wires predefined activation phases (preActivation,
   # extraActivation, postActivation, postUserActivation); custom names
   # are silently ignored. mkAfter concats with other modules (rustic)

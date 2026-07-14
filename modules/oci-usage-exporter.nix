@@ -4,9 +4,11 @@
   lib,
   ...
 }:
-with lib; let
+with lib;
+let
   cfg = config.services.oci-usage-exporter;
-in {
+in
+{
   options.services.oci-usage-exporter = {
     enable = mkEnableOption "Prometheus exporter for Oracle Cloud usage/cost";
 
@@ -39,9 +41,9 @@ in {
 
   config = mkIf cfg.enable {
     systemd.services.oci-usage-exporter = {
-      wantedBy = ["multi-user.target"];
-      after = ["network-online.target"];
-      wants = ["network-online.target"];
+      wantedBy = [ "multi-user.target" ];
+      after = [ "network-online.target" ];
+      wants = [ "network-online.target" ];
 
       environment = {
         OCI_USAGE_LISTEN_ADDR = cfg.listenAddr;
@@ -65,7 +67,10 @@ in {
         ProtectHome = true;
         ProtectKernelTunables = true;
         ProtectSystem = "strict";
-        RestrictAddressFamilies = ["AF_INET" "AF_INET6"];
+        RestrictAddressFamilies = [
+          "AF_INET"
+          "AF_INET6"
+        ];
       };
     };
   };

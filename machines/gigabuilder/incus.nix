@@ -1,7 +1,7 @@
-{pkgs, ...}: {
+{ pkgs, ... }: {
   virtualisation.incus.enable = true;
   virtualisation.incus.package = pkgs.incus; # not incus-lts (flagged insecure)
-  users.users.kradalby.extraGroups = ["incus-admin"];
+  users.users.kradalby.extraGroups = [ "incus-admin" ];
 
   # The Incus bridge is the host's trusted LAN; local services bind here, not wan0.
   my.lan = "incusbr0";
@@ -12,9 +12,9 @@
   # fails (cannot assign requested address).
   systemd.services.incus-https-address = {
     description = "Bind the incus API + open metrics (firewall restricts it to tailscale/bridge)";
-    after = ["incus-preseed.service"];
-    requires = ["incus-preseed.service"];
-    wantedBy = ["multi-user.target"];
+    after = [ "incus-preseed.service" ];
+    requires = [ "incus-preseed.service" ];
+    wantedBy = [ "multi-user.target" ];
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
@@ -24,7 +24,7 @@
       # firewalled tailnet/bridge.
       ExecStart = [
         ''${pkgs.incus}/bin/incus config set core.https_address "[::]:8443"''
-        ''${pkgs.incus}/bin/incus config set core.metrics_authentication false''
+        "${pkgs.incus}/bin/incus config set core.metrics_authentication false"
       ];
     };
   };

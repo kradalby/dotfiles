@@ -2,7 +2,12 @@
 pkgs.writeShellApplication {
   name = "tøm.sh";
 
-  runtimeInputs = with pkgs; [findutils git gnugrep coreutils];
+  runtimeInputs = with pkgs; [
+    findutils
+    git
+    gnugrep
+    coreutils
+  ];
 
   text = ''
     delete_git_repos_with_remote() {

@@ -2,9 +2,11 @@
   pkgs,
   config,
   ...
-}: let
+}:
+let
   domain = "kradalby.no";
-in {
+in
+{
   age.secrets.krapage-env = {
     file = ../../secrets/krapage-env.age;
     owner = config.services.krapage.user;
@@ -19,7 +21,7 @@ in {
     description = "krapage";
   };
 
-  users.groups.krapage = {};
+  users.groups.krapage = { };
 
   services.krapage = {
     enable = true;

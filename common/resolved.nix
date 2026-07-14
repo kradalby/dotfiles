@@ -2,7 +2,8 @@
   lib,
   pkgs,
   ...
-}: let
+}:
+let
   isLinux = pkgs.stdenv.isLinux;
 
   cloudflareServers = [
@@ -12,17 +13,17 @@
     "2606:4700:4700::1001#one.one.one.one"
   ];
 in
-  lib.mkIf isLinux {
-    networking.resolvconf.enable = lib.mkForce false;
-    networking.nameservers = lib.mkDefault cloudflareServers;
+lib.mkIf isLinux {
+  networking.resolvconf.enable = lib.mkForce false;
+  networking.nameservers = lib.mkDefault cloudflareServers;
 
-    services.resolved = {
-      enable = true;
-      settings.Resolve = {
-        DNSSEC = "true";
-        DNSOverTLS = "true";
-        Domains = ["~."];
-        FallbackDNS = cloudflareServers;
-      };
+  services.resolved = {
+    enable = true;
+    settings.Resolve = {
+      DNSSEC = "true";
+      DNSOverTLS = "true";
+      Domains = [ "~." ];
+      FallbackDNS = cloudflareServers;
     };
-  }
+  };
+}

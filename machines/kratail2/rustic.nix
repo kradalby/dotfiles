@@ -12,7 +12,8 @@
 #   launchctl kickstart -k gui/$(id -u)/org.nixos.rustic-backups-jotta
 #   tail -f ~/Library/Logs/rustic-jotta.log
 #   rustic -P jotta snapshots
-{...}: let
+{ ... }:
+let
   home = "/Users/kradalby";
 
   basePaths = [
@@ -63,7 +64,8 @@
     ++ [
       "${home}/Pictures"
     ];
-in {
+in
+{
   services.rustic.opServiceAccountTokenFile = "/Users/kradalby/.config/op/service-account-token";
 
   services.rustic.backups = {
@@ -86,7 +88,10 @@ in {
       extraConfig = {
         backup = {
           # Skip directories containing these marker files
-          exclude-if-present = [".nobackup" "CACHEDIR.TAG"];
+          exclude-if-present = [
+            ".nobackup"
+            "CACHEDIR.TAG"
+          ];
           git-ignore = true;
         };
       };

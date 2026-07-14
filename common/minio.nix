@@ -3,11 +3,13 @@
   lib,
   config,
   ...
-}: let
+}:
+let
   location = lib.elemAt (lib.splitString "." config.networking.domain) 0;
   serviceName = "minio-${location}";
   consoleAddress = "127.0.0.1:49005";
-in {
+in
+{
   age.secrets.minio-oracldn = {
     file = ../secrets/minio-oracldn.age;
   };

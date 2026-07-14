@@ -31,14 +31,21 @@ rec {
       short = "qwen35b";
       label = "qwen3.6 35b";
       vision = true;
-      contexts = [ 32768 131072 262144 ];
+      contexts = [
+        32768
+        131072
+        262144
+      ];
     }
     {
       base = "gemma4:31b-mlx";
       short = "gemma31b";
       label = "gemma4 31b";
       # vision defaults false — gemma4 mlx builds are text-only
-      contexts = [ 32768 131072 ];
+      contexts = [
+        32768
+        131072
+      ];
     }
   ];
 
@@ -48,15 +55,22 @@ rec {
 
   # Flattened (model × context) list both consumers map over, with `defaults`
   # merged into each model first.
-  variants = builtins.concatMap
-    (m0:
-      let m = defaults // m0; in
-      map
-        (ctx: {
-          inherit (m) base label vision tools reasoning output;
-          context = ctx;
-          tag = tag m ctx;
-        })
-        m.contexts)
-    models;
+  variants = builtins.concatMap (
+    m0:
+    let
+      m = defaults // m0;
+    in
+    map (ctx: {
+      inherit (m)
+        base
+        label
+        vision
+        tools
+        reasoning
+        output
+        ;
+      context = ctx;
+      tag = tag m ctx;
+    }) m.contexts
+  ) models;
 }

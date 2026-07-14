@@ -9,11 +9,13 @@
   config,
   lib,
   ...
-}: let
+}:
+let
   port = 8888; # atuin default
   metricsPort = 8889; # atuin metrics default
   dbDir = "/var/lib/atuin";
-in {
+in
+{
   services.atuin = {
     enable = true;
     openRegistration = true;
@@ -34,7 +36,7 @@ in {
     isSystemUser = true;
     group = "atuin";
   };
-  users.groups.atuin = {};
+  users.groups.atuin = { };
   systemd.services.atuin.serviceConfig = {
     DynamicUser = lib.mkForce false;
     User = "atuin";
@@ -70,7 +72,7 @@ in {
   };
   # Metrics reachable on the tailnet only (never WAN); the VIP itself carries
   # the user-facing http traffic.
-  networking.firewall.interfaces.tailscale0.allowedTCPPorts = [metricsPort];
+  networking.firewall.interfaces.tailscale0.allowedTCPPorts = [ metricsPort ];
 
   # VIP on the home tailnet → atuin.dalby.ts.net.
   services.tailscale.services.atuin.endpoints = {

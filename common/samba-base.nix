@@ -2,9 +2,11 @@
   lib,
   config,
   ...
-}: let
-  site = builtins.replaceStrings [".fap.no"] [""] config.networking.domain;
-in {
+}:
+let
+  site = builtins.replaceStrings [ ".fap.no" ] [ "" ] config.networking.domain;
+in
+{
   services.samba = {
     # REMIND: `smbpasswd -a`
 

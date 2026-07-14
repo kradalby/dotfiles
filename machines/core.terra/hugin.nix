@@ -1,6 +1,8 @@
-{config, ...}: let
+{ config, ... }:
+let
   domain = "hugin.kradalby.no";
-in {
+in
+{
   age.secrets.hugin-basicauth = {
     file = ../../secrets/hugin-basicauth.age;
     owner = "nginx";

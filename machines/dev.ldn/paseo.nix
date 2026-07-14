@@ -2,14 +2,15 @@
   config,
   inputs,
   ...
-}: {
-  imports = [inputs.paseo.nixosModules.default];
+}:
+{
+  imports = [ inputs.paseo.nixosModules.default ];
 
   services.paseo = {
     enable = true;
     user = "kradalby";
     relay.enable = false;
-    hostnames = ["paseo-dev-ldn.dalby.ts.net"];
+    hostnames = [ "paseo-dev-ldn.dalby.ts.net" ];
     listenAddress = "0.0.0.0";
   };
 

@@ -4,9 +4,11 @@
   lib,
   system,
   ...
-}: let
+}:
+let
   domain = "uptime.kradalby.no";
-in {
+in
+{
   services.uptime-kuma = {
     enable = true;
   };
@@ -19,7 +21,7 @@ in {
     createHome = true;
     group = "uptime-kuma";
   };
-  users.groups.uptime-kuma = {};
+  users.groups.uptime-kuma = { };
 
   systemd.services.uptime-kuma.serviceConfig = {
     DynamicUser = lib.mkForce false;

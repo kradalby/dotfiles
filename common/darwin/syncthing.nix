@@ -1,8 +1,17 @@
-{config, ...}: let
+{ config, ... }:
+let
   cfg = import ../../metadata/syncthing.nix;
-  macosIgnorePatterns = [".DS_Store" "._*" ".Spotlight-V100" ".Trashes" ".fseventsd" ".TemporaryItems"];
-in {
-  imports = [../../modules/syncthing-darwin.nix];
+  macosIgnorePatterns = [
+    ".DS_Store"
+    "._*"
+    ".Spotlight-V100"
+    ".Trashes"
+    ".fseventsd"
+    ".TemporaryItems"
+  ];
+in
+{
+  imports = [ ../../modules/syncthing-darwin.nix ];
 
   services = {
     syncthing = {
@@ -56,14 +65,14 @@ in {
         "/fast/hugin" = {
           id = "dd5mf-nwmas";
           path = "/Volumes/storage/hugin";
-          devices = ["storage.ldn"];
+          devices = [ "storage.ldn" ];
           type = "sendonly";
           ignorePatterns = macosIgnorePatterns;
         };
         "cooklang-recipes" = {
           id = "cooklang-recipes";
           path = "/Users/kradalby/cooklang";
-          devices = ["dev.oracfurt-cooklang"];
+          devices = [ "dev.oracfurt-cooklang" ];
           type = "sendreceive";
           ignorePatterns = macosIgnorePatterns;
         };

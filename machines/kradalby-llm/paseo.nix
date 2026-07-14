@@ -3,17 +3,19 @@
   inputs,
   config,
   ...
-}: let
+}:
+let
   paseo = inputs.paseo.packages.${pkgs.stdenv.hostPlatform.system}.default;
   port = 6767;
   dataDir = "${config.home.homeDirectory}/.paseo";
-in {
-  home.packages = [paseo];
+in
+{
+  home.packages = [ paseo ];
 
   systemd.user.services.paseo = {
     Unit = {
       Description = "Paseo - self-hosted daemon for AI coding agents";
-      After = ["network.target"];
+      After = [ "network.target" ];
     };
 
     Service = {
@@ -32,6 +34,6 @@ in {
       ];
     };
 
-    Install.WantedBy = ["default.target"];
+    Install.WantedBy = [ "default.target" ];
   };
 }

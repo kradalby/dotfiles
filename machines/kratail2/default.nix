@@ -4,7 +4,8 @@
   lib,
   pkgs,
   ...
-}: let
+}:
+let
   # Shared with home/ai.nix (opencode) so the served tags and the model list
   # can never drift.
   registry = import ../../common/models.nix;
@@ -12,21 +13,16 @@
 
   # Largest offered window across all variants; the server default (see
   # OLLAMA_CONTEXT_LENGTH).
-  maxCtx =
-    lib.foldl' (a: v:
-      if v.context > a
-      then v.context
-      else a)
-    0
-    registry.variants;
+  maxCtx = lib.foldl' (a: v: if v.context > a then v.context else a) 0 registry.variants;
 
   # Distinct base models to ensure are pulled before creating variants.
   bases = lib.unique (map (v: v.base) registry.variants);
 
   # Modelfile pinning num_ctx on top of a base model. Shares the base's blobs,
   # so no re-download.
-  mkModelfile = v:
-    pkgs.writeText "${lib.replaceStrings [":"] ["-"] v.tag}.Modelfile" ''
+  mkModelfile =
+    v:
+    pkgs.writeText "${lib.replaceStrings [ ":" ] [ "-" ] v.tag}.Modelfile" ''
       FROM ${v.base}
       PARAMETER num_ctx ${toString v.context}
     '';
@@ -41,14 +37,13 @@
       ${ollamaBin} list >/dev/null 2>&1 && break
       sleep 2
     done
-    ${lib.concatMapStringsSep "\n    "
-      (b: "${ollamaBin} pull '${b}'")
-      bases}
-    ${lib.concatMapStringsSep "\n    "
-      (v: "${ollamaBin} create '${v.tag}' -f ${mkModelfile v}")
-      registry.variants}
+    ${lib.concatMapStringsSep "\n    " (b: "${ollamaBin} pull '${b}'") bases}
+    ${lib.concatMapStringsSep "\n    " (
+      v: "${ollamaBin} create '${v.tag}' -f ${mkModelfile v}"
+    ) registry.variants}
   '';
-in {
+in
+{
   imports = [
     ../../common/darwin/kradalby-base.nix
     ./rustic.nix
@@ -67,7 +62,7 @@ in {
 
   # Work-specific overrides
   home-manager.users.kradalby = {
-    imports = [../../home/atuin.nix];
+    imports = [ ../../home/atuin.nix ];
     # Same client config as personal, but a SEPARATE atuin account (own user +
     # key, set up at runtime) so work history never mixes with krair/dev.ldn.
     my.atuin.enable = true;
@@ -85,7 +80,9 @@ in {
   };
 
   services.syncthing.devices = {
-    "kradalby-llm" = {id = "NCR7O6Z-XRY3NIN-XKHAZOE-2EUNNP5-PZ7H53H-47BK2YF-PDWEMQB-FLC4DQU";};
+    "kradalby-llm" = {
+      id = "NCR7O6Z-XRY3NIN-XKHAZOE-2EUNNP5-PZ7H53H-47BK2YF-PDWEMQB-FLC4DQU";
+    };
   };
 
   # Userspace Tailscale node on the kradalby.no tailnet, alongside the
@@ -136,7 +133,10 @@ in {
   launchd.user.agents.ollama = {
     serviceConfig = {
       Label = "ollama";
-      ProgramArguments = [ollamaBin "serve"];
+      ProgramArguments = [
+        ollamaBin
+        "serve"
+      ];
       RunAtLoad = true;
       KeepAlive = true;
       ProcessType = "Interactive"; # full GPU/perf, not background-throttled
@@ -202,7 +202,7 @@ in {
   launchd.user.agents.ollama-models = {
     serviceConfig = {
       Label = "ollama-models";
-      ProgramArguments = ["${ollamaModels}"];
+      ProgramArguments = [ "${ollamaModels}" ];
       RunAtLoad = true;
       StandardOutPath = "/Users/kradalby/Library/Logs/ollama-models.log";
       StandardErrorPath = "/Users/kradalby/Library/Logs/ollama-models.log";
@@ -220,7 +220,7 @@ in {
     "llm-git" = {
       id = "f6vv9-fsjeq";
       path = "/Users/kradalby/git";
-      devices = ["kradalby-llm"];
+      devices = [ "kradalby-llm" ];
       type = "sendreceive";
       ignorePatterns = [
         # macOS

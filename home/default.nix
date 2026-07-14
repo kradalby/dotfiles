@@ -3,7 +3,8 @@
   pkgs,
   lib,
   ...
-}: let
+}:
+let
   agentsBase = builtins.readFile ../rc/AGENTS.md;
   agentsExtra = config.my.agents.extraInstructions;
   agentsContent = agentsBase + lib.optionalString (agentsExtra != "") ("\n" + agentsExtra);
@@ -11,8 +12,9 @@
   # Hook script that makes Claude Code's non-interactive Bash tool adopt
   # per-directory dev envs (direnv primary, `nix print-dev-env` fallback).
   # Wired into settings.json hooks via home/ai.nix.
-  nixDevEnvHook = import ../pkgs/scripts/nix-dev-env.nix {inherit pkgs;};
-in {
+  nixDevEnvHook = import ../pkgs/scripts/nix-dev-env.nix { inherit pkgs; };
+in
+{
   # Available options
   # https://nix-community.github.io/home-manager/options.html
 
@@ -136,8 +138,7 @@ in {
       # opencode equivalent of the Claude dev-env hook: a shell.env plugin that
       # injects the per-directory Nix dev env into every shell command. Auto-
       # discovered from the plugin dir; no opencode.json entry needed.
-      ".config/opencode/plugin/nix-dev-env.js".source =
-        ../pkgs/scripts/opencode-nix-dev-env.js;
+      ".config/opencode/plugin/nix-dev-env.js".source = ../pkgs/scripts/opencode-nix-dev-env.js;
 
       ".config/nix/nix.conf".text = ''
         experimental-features = nix-command flakes
@@ -145,10 +146,9 @@ in {
 
       # rnb (remote nix builder) reads its registry from here; single
       # source of truth is common/rnb-builders.nix.
-      ".config/rnb/builders.json".text =
-        builtins.toJSON (import ../common/rnb-builders.nix);
+      ".config/rnb/builders.json".text = builtins.toJSON (import ../common/rnb-builders.nix);
 
-      ".finicky.js" = lib.mkIf pkgs.stdenv.isDarwin {source = ../rc/finicky.js;};
+      ".finicky.js" = lib.mkIf pkgs.stdenv.isDarwin { source = ../rc/finicky.js; };
 
       ".vale.ini".text = ''
         # This goes in a file named either `.vale.ini` or `_vale.ini`.

@@ -1,5 +1,5 @@
 # Personal Mac configuration
-{pkgs, ...}: {
+{ pkgs, ... }: {
   imports = [
     ../../common/darwin/kradalby-base.nix
     ./rustic.nix

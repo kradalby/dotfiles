@@ -10,17 +10,22 @@
   pkgs,
   lib,
   ...
-}: let
+}:
+let
   herdr = "${pkgs.herdr}/bin/herdr";
   fish = "${pkgs.fish}/bin/fish";
   # Panes are spawned by the server, so its env is theirs: profile bin for
   # claude/opencode/ac, plus the usual system paths.
   linuxPath = "${config.home.profileDirectory}/bin:/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin:/usr/bin:/bin";
   darwinPath = "${config.home.profileDirectory}/bin:/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin";
-in {
+in
+{
   options.my.herdr.integrations = lib.mkOption {
     type = lib.types.listOf lib.types.str;
-    default = ["claude" "opencode"];
+    default = [
+      "claude"
+      "opencode"
+    ];
     description = ''
       Agents to install herdr state-detection hooks for. Each runs
       `herdr integration install <agent>` on activation, which drops a hook
@@ -31,7 +36,7 @@ in {
 
   config = lib.mkMerge [
     {
-      home.packages = [pkgs.herdr];
+      home.packages = [ pkgs.herdr ];
       # Make "ac" the default session so a bare `herdr` attaches the herd —
       # resolution order is --session > HERDR_SOCKET_PATH > HERDR_SESSION >
       # default. ac.sh already defaults to "ac", and the server unit pins it.
@@ -46,11 +51,11 @@ in {
       # (blocked/working/idle/done) instead of guessing. Runs after mutableJson
       # so the agents' writable configs exist; idempotent, so it self-heals and
       # tracks the herdr version. `|| true`: a missing agent must not fail switch.
-      home.activation.herdrIntegrations =
-        lib.hm.dag.entryAfter ["writeBoundary" "mutableJson"]
-        (lib.concatMapStringsSep "\n"
-          (a: ''run ${herdr} integration install ${a} || true'')
-          config.my.herdr.integrations);
+      home.activation.herdrIntegrations = lib.hm.dag.entryAfter [ "writeBoundary" "mutableJson" ] (
+        lib.concatMapStringsSep "\n" (
+          a: "run ${herdr} integration install ${a} || true"
+        ) config.my.herdr.integrations
+      );
     }
 
     (lib.mkIf pkgs.stdenv.isLinux {
@@ -74,7 +79,7 @@ in {
             "SHELL=${fish}"
           ];
         };
-        Install.WantedBy = ["default.target"];
+        Install.WantedBy = [ "default.target" ];
       };
     })
 
@@ -82,7 +87,12 @@ in {
       launchd.agents.herdr = {
         enable = true;
         config = {
-          ProgramArguments = [herdr "--session" "ac" "server"];
+          ProgramArguments = [
+            herdr
+            "--session"
+            "ac"
+            "server"
+          ];
           RunAtLoad = true;
           # Respawn only on a crash: a clean `server stop` (exit 0) stays down,
           # and a restart would drop every pane anyway.

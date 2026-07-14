@@ -4,9 +4,11 @@
   lib,
   ...
 }:
-with lib; let
+with lib;
+let
   cfg = config.services.mqtt-exporter;
-in {
+in
+{
   options.services.mqtt-exporter = {
     enable = mkEnableOption "MQTT exporter for Prometheus, exposing zigbee2mqtt metrics.";
 
@@ -15,17 +17,21 @@ in {
       description = ''
         MQTT exporter package to use
       '';
-      default = let
-        packageOverrides = pkgs.callPackage ./python-packages.nix {};
-        python = pkgs.python3.override {inherit packageOverrides;};
-      in
-        python.withPackages (ps: [ps."paho-mqtt" ps."prometheus-client"]);
+      default =
+        let
+          packageOverrides = pkgs.callPackage ./python-packages.nix { };
+          python = pkgs.python3.override { inherit packageOverrides; };
+        in
+        python.withPackages (ps: [
+          ps."paho-mqtt"
+          ps."prometheus-client"
+        ]);
       defaultText = literalExpression "python with overridden dependencies";
     };
 
     mqtt.ignoredTopics = mkOption {
       type = types.listOf types.str;
-      default = [];
+      default = [ ];
       description = "Lists of topics to ignore";
     };
 
@@ -104,41 +110,48 @@ in {
     openFirewall = mkEnableOption "opening of the metric in the firewall";
   };
 
-  config = mkIf cfg.enable (let
-    mqttExporterSrc = pkgs.fetchFromGitHub {
-      owner = "kpetremann";
-      repo = "mqtt-exporter";
-      rev = "774617eead7b2be3c0ba3b020585b9e7ad06c93d";
-      hash = "sha256-oPLVMHWizcA35eGQPfYJZzEM2Nd+Dbpv4W+mHCp2UeQ=";
-    };
-  in {
-    networking.firewall.allowedTCPPorts = mkIf cfg.openFirewall [cfg.prometheus.port];
+  config = mkIf cfg.enable (
+    let
+      mqttExporterSrc = pkgs.fetchFromGitHub {
+        owner = "kpetremann";
+        repo = "mqtt-exporter";
+        rev = "774617eead7b2be3c0ba3b020585b9e7ad06c93d";
+        hash = "sha256-oPLVMHWizcA35eGQPfYJZzEM2Nd+Dbpv4W+mHCp2UeQ=";
+      };
+    in
+    {
+      networking.firewall.allowedTCPPorts = mkIf cfg.openFirewall [ cfg.prometheus.port ];
 
-    systemd.services.mqtt-exporter = {
-      enable = true;
-      script = ''
-        ${cfg.package}/bin/python ${mqttExporterSrc}/exporter.py
-      '';
-      wantedBy = ["multi-user.target"];
-      after = ["network.target" "zigbee2mqtt.service" "mosquitto.service"];
-      serviceConfig = {
-        User = cfg.user;
-        Group = cfg.group;
-        Restart = "always";
-        RestartSec = "15";
+      systemd.services.mqtt-exporter = {
+        enable = true;
+        script = ''
+          ${cfg.package}/bin/python ${mqttExporterSrc}/exporter.py
+        '';
+        wantedBy = [ "multi-user.target" ];
+        after = [
+          "network.target"
+          "zigbee2mqtt.service"
+          "mosquitto.service"
+        ];
+        serviceConfig = {
+          User = cfg.user;
+          Group = cfg.group;
+          Restart = "always";
+          RestartSec = "15";
+        };
+        environment = {
+          IGNORED_TOPICS = builtins.concatStringsSep "," cfg.mqtt.ignoredTopics;
+          LOG_LEVEL = cfg.logLevel;
+          MQTT_ADDRESS = cfg.mqtt.address;
+          MQTT_PORT = toString cfg.mqtt.port;
+          MQTT_KEEPALIVE = toString cfg.mqtt.keepalive;
+          MQTT_USERNAME = cfg.mqtt.username;
+          MQTT_PASSWORD = cfg.mqtt.password;
+          PROMETHEUS_PORT = toString cfg.prometheus.port;
+          PROMETHEUS_PREFIX = cfg.prometheus.prefix;
+          TOPIC_LABEL = cfg.prometheus.topicLabel;
+        };
       };
-      environment = {
-        IGNORED_TOPICS = builtins.concatStringsSep "," cfg.mqtt.ignoredTopics;
-        LOG_LEVEL = cfg.logLevel;
-        MQTT_ADDRESS = cfg.mqtt.address;
-        MQTT_PORT = toString cfg.mqtt.port;
-        MQTT_KEEPALIVE = toString cfg.mqtt.keepalive;
-        MQTT_USERNAME = cfg.mqtt.username;
-        MQTT_PASSWORD = cfg.mqtt.password;
-        PROMETHEUS_PORT = toString cfg.prometheus.port;
-        PROMETHEUS_PREFIX = cfg.prometheus.prefix;
-        TOPIC_LABEL = cfg.prometheus.topicLabel;
-      };
-    };
-  });
+    }
+  );
 }

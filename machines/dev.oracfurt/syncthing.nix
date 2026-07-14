@@ -3,9 +3,11 @@
   pkgs,
   lib,
   ...
-}: let
+}:
+let
   cfg = import ../../metadata/syncthing.nix;
-in {
+in
+{
   services.syncthings = {
     personal = {
       enable = true;
@@ -50,7 +52,7 @@ in {
           "cooklang-recipes" = {
             id = "cooklang-recipes";
             path = "/var/lib/cook-server";
-            devices = ["krair"];
+            devices = [ "krair" ];
             type = "sendreceive";
           };
         };

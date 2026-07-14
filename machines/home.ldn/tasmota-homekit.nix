@@ -3,7 +3,8 @@
   pkgs,
   lib,
   ...
-}: let
+}:
+let
   plugsFile = pkgs.writeText "tasmota-homekit-plugs.hujson" (
     builtins.toJSON {
       plugs = [
@@ -134,7 +135,8 @@
       ];
     }
   );
-in {
+in
+{
   imports = [
     ../../common/tskey.nix
   ];

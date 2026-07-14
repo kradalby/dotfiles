@@ -3,40 +3,41 @@
   pkgs,
   lib,
   ...
-}: let
+}:
+let
   port = 63456;
 in
-  lib.mkMerge [
-    {
-      services.tailscale.services.pdf = {
-        endpoints = {
-          "tcp:80" = "http://localhost:${toString port}";
-          # tcp:443 has no TLS termination — Tailscale VIP bug (tailscale/tailscale#19724, #18381); consumers use http. TODO(kradalby): revert when fixed.
-          "tcp:443" = "http://localhost:${toString port}";
-        };
+lib.mkMerge [
+  {
+    services.tailscale.services.pdf = {
+      endpoints = {
+        "tcp:80" = "http://localhost:${toString port}";
+        # tcp:443 has no TLS termination — Tailscale VIP bug (tailscale/tailscale#19724, #18381); consumers use http. TODO(kradalby): revert when fixed.
+        "tcp:443" = "http://localhost:${toString port}";
       };
+    };
 
-      users.users.stirling = {
-        home = "/var/lib/stirling";
-        createHome = true;
-        group = "stirling";
-        isSystemUser = true;
-        isNormalUser = false;
-        description = "Stirling PDF";
-      };
+    users.users.stirling = {
+      home = "/var/lib/stirling";
+      createHome = true;
+      group = "stirling";
+      isSystemUser = true;
+      isNormalUser = false;
+      description = "Stirling PDF";
+    };
 
-      users.groups.stirling = {};
+    users.groups.stirling = { };
 
-      virtualisation.oci-containers.containers.stirling = {
-        image = (import ../../metadata/versions.nix).stirling;
-        user = config.users.users.stirling.uid;
-        autoStart = true;
-        ports = [
-          "${toString port}:8080/tcp"
-        ];
-        environment = {};
-        volumes = [
-        ];
-      };
-    }
-  ]
+    virtualisation.oci-containers.containers.stirling = {
+      image = (import ../../metadata/versions.nix).stirling;
+      user = config.users.users.stirling.uid;
+      autoStart = true;
+      ports = [
+        "${toString port}:8080/tcp"
+      ];
+      environment = { };
+      volumes = [
+      ];
+    };
+  }
+]

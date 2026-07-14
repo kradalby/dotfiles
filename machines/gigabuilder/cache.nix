@@ -4,7 +4,8 @@
   lib,
   pkgs,
   ...
-}: {
+}:
+{
   # This /nix/store IS the cache tsnixcache serves, and CI outputs here aren't
   # gcroots — the fleet's time-based nix-collect-garbage would wipe them. Let
   # tsnixcache's disk-pressure GC (below) be the sole collector instead.
@@ -18,7 +19,7 @@
     script = "${config.nix.package}/bin/nix-env -p /nix/var/nix/profiles/system --delete-generations 30d";
   };
   systemd.timers.prune-system-generations = {
-    wantedBy = ["timers.target"];
+    wantedBy = [ "timers.target" ];
     timerConfig = {
       OnCalendar = "weekly";
       Persistent = true;
@@ -46,7 +47,7 @@
     package = inputs.tsnixcache.packages.${pkgs.stdenv.hostPlatform.system}.default;
     signKeyFile = config.age.secrets.tsnixcache-sign-key.path;
 
-    listen = ["10.68.0.1:5000"]; # local/subnet only, never wan0
+    listen = [ "10.68.0.1:5000" ]; # local/subnet only, never wan0
     serveCompression = "zstd";
 
     # Two control planes (kradalby tailnet + sfiber headscale), same hostname,
@@ -91,7 +92,10 @@
   # rather than come up dead.
   systemd.services.tsnixcache-wait-incusbr0 = {
     description = "Wait for incusbr0 to own 10.68.0.1 (tsnixcache listen address)";
-    after = ["incus.service" "sys-subsystem-net-devices-incusbr0.device"];
+    after = [
+      "incus.service"
+      "sys-subsystem-net-devices-incusbr0.device"
+    ];
     serviceConfig.Type = "oneshot";
     script = ''
       for _ in $(seq 1 60); do
@@ -103,7 +107,7 @@
     '';
   };
   systemd.services.tsnixcache = {
-    after = ["tsnixcache-wait-incusbr0.service"];
-    requires = ["tsnixcache-wait-incusbr0.service"];
+    after = [ "tsnixcache-wait-incusbr0.service" ];
+    requires = [ "tsnixcache-wait-incusbr0.service" ];
   };
 }

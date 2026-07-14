@@ -3,7 +3,8 @@
   pkgs,
   lib,
   ...
-}: {
+}:
+{
   imports = [
     ../../common
     ./hardware-configuration.nix
@@ -22,7 +23,7 @@
   };
 
   services.tailscale = {
-    tags = ["tag:server"];
+    tags = [ "tag:server" ];
   };
 
   virtualisation.docker.enable = lib.mkForce false;

@@ -3,9 +3,11 @@
   config,
   lib,
   ...
-}: let
+}:
+let
   isDarwin = pkgs.stdenv.isDarwin;
-in {
+in
+{
   programs.gh = {
     enable = true;
 
@@ -33,7 +35,8 @@ in {
       user = {
         name = "Kristoffer Dalby";
         email = "kristoffer@dalby.cc";
-      } // lib.optionalAttrs isDarwin {
+      }
+      // lib.optionalAttrs isDarwin {
         signingkey = "~/.ssh/id_ed25519.pub";
       };
       core = {
@@ -65,7 +68,9 @@ in {
         insteadOf = "gh:";
         pushInsteadOf = "gh:";
       };
-      github = {user = "kradalby";};
+      github = {
+        user = "kradalby";
+      };
 
       commit = {
         gpgsign = lib.mkDefault isDarwin;

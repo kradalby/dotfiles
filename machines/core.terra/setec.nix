@@ -3,7 +3,8 @@
   lib,
   config,
   ...
-}: {
+}:
+{
   users.users.setec = {
     home = config.services.setec.dataDir;
     createHome = true;
@@ -13,7 +14,7 @@
     description = "setec";
   };
 
-  users.groups.setec = {};
+  users.groups.setec = { };
 
   services.setec = {
     enable = true;

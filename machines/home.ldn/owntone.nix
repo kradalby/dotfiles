@@ -2,7 +2,8 @@
   config,
   pkgs,
   ...
-}: let
+}:
+let
   musicDir = "/var/lib/owntone/music";
   radioDir = "${musicDir}/radio";
 
@@ -11,7 +12,8 @@
     #EXTINF:-1,NRK P3 - Musikk
     https://lyd.nrk.no/icecast/mp3/high/s0w7hwn47m/p3
   '';
-in {
+in
+{
   imports = [
     ../../modules/owntone.nix
   ];
@@ -28,7 +30,7 @@ in {
       };
       library = {
         name = "P3 Streamer";
-        directories = [musicDir];
+        directories = [ musicDir ];
       };
     };
 
@@ -57,7 +59,10 @@ in {
         groups = [
           {
             name = "Living Room";
-            members = ["Right" "Living Room"];
+            members = [
+              "Right"
+              "Living Room"
+            ];
           }
         ];
         weekday = [

@@ -2,7 +2,8 @@
   config,
   pkgs,
   ...
-}: {
+}:
+{
   # Things that require setcap wrappers. Everything else is in ../home
   programs = {
     iotop.enable = true;

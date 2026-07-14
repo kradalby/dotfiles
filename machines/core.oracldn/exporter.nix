@@ -1,4 +1,4 @@
-{config, ...}: {
+{ config, ... }: {
   age.secrets.oci-usage-exporter = {
     file = ../../secrets/oci-usage-exporter.age;
   };

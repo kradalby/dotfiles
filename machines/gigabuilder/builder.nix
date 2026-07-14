@@ -2,11 +2,12 @@
   pkgs,
   config,
   ...
-}: {
+}:
+{
   # gigabuilder as the garnix VM's remote nix builder: it offloads realisation
   # here over SSH (incusbr0 is trusted, so no extra firewall rule), builds in the
   # sandbox, and populates the host store tsnixcache serves.
-  users.groups.nix-ssh = {};
+  users.groups.nix-ssh = { };
   users.users.nix-ssh = {
     isSystemUser = true;
     group = "nix-ssh";
@@ -17,7 +18,7 @@
       "command=\"${config.nix.package}/bin/nix-daemon --stdio\",restrict ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIB/gPdHyIXk4sq1+ZskMFEt2Kn1IDQU0k9sTolwl4UA2 garnix-remote-builder"
     ];
   };
-  nix.settings.trusted-users = ["nix-ssh"];
+  nix.settings.trusted-users = [ "nix-ssh" ];
 
   # Confine builds to cores 4-31, leaving 0-3 for the co-located garnix VM
   # (pinned there in ~/git/infrastructure). Without this, offloaded builds starve

@@ -3,7 +3,8 @@
   pkgs,
   lib,
   ...
-}: let
+}:
+let
   devicesFile = pkgs.writeText "z2m-homekit-devices.hujson" (
     builtins.toJSON {
       devices = [
@@ -96,7 +97,8 @@
       ];
     }
   );
-in {
+in
+{
   imports = [
     ../../common/tskey.nix
   ];

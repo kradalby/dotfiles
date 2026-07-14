@@ -3,9 +3,11 @@
   pkgs,
   lib,
   ...
-}: let
+}:
+let
   sshKeys = import ../../metadata/ssh.nix;
-in {
+in
+{
   imports = [
     ../../common/base.nix
     ../../common/incus-vm-ldn.nix
@@ -58,7 +60,7 @@ in {
   };
 
   # op CLI for the 1Password service account (token provisioned separately).
-  environment.systemPackages = [pkgs._1password-cli];
+  environment.systemPackages = [ pkgs._1password-cli ];
 
   # Reach node (9100) and systemd (9558) exporters over the tailnet. The host
   # joins the tailscale.com tailnet as node "ts1p-ldn" (separate from the "setec"

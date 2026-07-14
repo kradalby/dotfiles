@@ -2,7 +2,8 @@
   config,
   lib,
   ...
-}: {
+}:
+{
   # Lightest reliable MTA for the fleet: a send-only spool that forwards ALL
   # local mail (root, users, cron, systemd OnFailure) to the personal inbox via
   # gigabuilder's relay. No listener, no full postfix — just a queue + sendmail

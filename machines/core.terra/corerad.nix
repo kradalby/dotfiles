@@ -2,28 +2,27 @@
   config,
   lib,
   ...
-}: {
+}:
+{
   services.corerad = {
     enable = true;
     settings = {
       interfaces =
         # Upstream monitoring interfaces.
-        lib.forEach [config.my.wan]
-        (ifi: {
+        lib.forEach [ config.my.wan ] (ifi: {
           name = ifi;
           monitor = true;
         })
         # Downstream advertising interfaces.
-        ++ lib.forEach [config.my.lan]
-        (ifi: {
+        ++ lib.forEach [ config.my.lan ] (ifi: {
           name = ifi;
           advertise = true;
 
           # Advertise all /64 prefixes on the interface.
-          prefix = [{}];
+          prefix = [ { } ];
 
           # Automatically use the appropriate interface address as a DNS server.
-          rdnss = [{}];
+          rdnss = [ { } ];
         });
       # Optionally enable Prometheus metrics.
       debug = {
@@ -33,5 +32,5 @@
     };
   };
 
-  networking.firewall.interfaces.enp1s0f0.allowedTCPPorts = [9430];
+  networking.firewall.interfaces.enp1s0f0.allowedTCPPorts = [ 9430 ];
 }

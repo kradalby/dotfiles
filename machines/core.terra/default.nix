@@ -3,7 +3,8 @@
   pkgs,
   lib,
   ...
-}: {
+}:
+{
   imports = [
     ../../common
 
@@ -87,7 +88,7 @@
     };
 
     bridges = {
-      lan0.interfaces = [];
+      lan0.interfaces = [ ];
     };
 
     interfaces = {
@@ -128,8 +129,8 @@
     nat = {
       enable = true;
       externalInterface = config.my.wan;
-      internalIPs = ["10.0.0.0/8"];
-      internalInterfaces = [config.my.lan];
+      internalIPs = [ "10.0.0.0/8" ];
+      internalInterfaces = [ config.my.lan ];
       forwardPorts = [
         {
           sourcePort = 64322;
@@ -153,13 +154,20 @@
         config.services.tailscale.port
       ];
 
-      trustedInterfaces = [config.my.lan];
+      trustedInterfaces = [ config.my.lan ];
     };
   };
 
   services.tailscale = {
-    advertiseRoutes = ["10.60.0.0/16" "2a03:94e0:200d::/48"];
-    tags = ["tag:gateway" "tag:server" "tag:storage"];
+    advertiseRoutes = [
+      "10.60.0.0/16"
+      "2a03:94e0:200d::/48"
+    ];
+    tags = [
+      "tag:gateway"
+      "tag:server"
+      "tag:storage"
+    ];
   };
 
   # TODO: Fix disk monitoring somehow

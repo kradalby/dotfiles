@@ -4,7 +4,8 @@
   pkgs,
   ...
 }:
-with lib; let
+with lib;
+let
   port = 54909;
   location = lib.elemAt (lib.splitString "." config.networking.domain) 0;
   # Off-site replica to tjoda's garage over its tailnet VIP; restic covers
@@ -22,15 +23,16 @@ with lib; let
       validation-interval = "24h";
     };
   };
-in {
+in
+{
   options = {
     my.litestream.databases = lib.mkOption {
       type = types.listOf (types.attrsOf types.str);
-      default = [];
+      default = [ ];
     };
   };
 
-  config = lib.mkIf (config.my.litestream.databases != []) {
+  config = lib.mkIf (config.my.litestream.databases != [ ]) {
     age.secrets.litestream = {
       file = ../secrets + "/litestream-${location}.age";
     };
@@ -55,38 +57,39 @@ in {
     systemd.services.litestream-restore-test = {
       description = "litestream restore verification";
       # bare mktemp/mv/rm/grep in the script; systemd's default PATH has none
-      path = [pkgs.coreutils pkgs.gnugrep];
+      path = [
+        pkgs.coreutils
+        pkgs.gnugrep
+      ];
       serviceConfig = {
         Type = "oneshot";
         EnvironmentFile = config.age.secrets.litestream.path;
         PrivateTmp = true;
       };
-      script =
-        ''
-          set -euo pipefail
-          ok=1
-        ''
-        + lib.concatMapStrings (db: ''
-          out=$(mktemp -d)
-          if ! { ${pkgs.litestream}/bin/litestream restore -config /etc/litestream.yml -o "$out/restored.db" "${db.path}" \
-                 && ${pkgs.sqlite}/bin/sqlite3 -batch -init /dev/null "$out/restored.db" 'PRAGMA integrity_check;' | grep -qx ok; }; then
-            ok=0
-          fi
-          rm -rf "$out"
-        '')
-        config.my.litestream.databases
-        + ''
-          d=/var/lib/prometheus-node-exporter-textfile
-          if [ "$ok" = 1 ]; then
-            printf 'litestream_restore_test_last_success_seconds %s\n' "$(date +%s)" >"$d/.lrt.$$"
-            mv "$d/.lrt.$$" "$d/litestream-restore-test.prom"  # atomic for the collector
-          fi
-          [ "$ok" = 1 ]
-        '';
+      script = ''
+        set -euo pipefail
+        ok=1
+      ''
+      + lib.concatMapStrings (db: ''
+        out=$(mktemp -d)
+        if ! { ${pkgs.litestream}/bin/litestream restore -config /etc/litestream.yml -o "$out/restored.db" "${db.path}" \
+               && ${pkgs.sqlite}/bin/sqlite3 -batch -init /dev/null "$out/restored.db" 'PRAGMA integrity_check;' | grep -qx ok; }; then
+          ok=0
+        fi
+        rm -rf "$out"
+      '') config.my.litestream.databases
+      + ''
+        d=/var/lib/prometheus-node-exporter-textfile
+        if [ "$ok" = 1 ]; then
+          printf 'litestream_restore_test_last_success_seconds %s\n' "$(date +%s)" >"$d/.lrt.$$"
+          mv "$d/.lrt.$$" "$d/litestream-restore-test.prom"  # atomic for the collector
+        fi
+        [ "$ok" = 1 ]
+      '';
     };
 
     systemd.timers.litestream-restore-test = {
-      wantedBy = ["timers.target"];
+      wantedBy = [ "timers.target" ];
       timerConfig = {
         OnCalendar = "weekly";
         Persistent = true;

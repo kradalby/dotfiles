@@ -4,17 +4,18 @@
   pkgs,
   ...
 }:
-with lib; {
+with lib;
+{
   options = {
     monitoring.smartctl.devices = mkOption {
       type = types.listOf types.str;
-      default = [];
+      default = [ ];
       description = "List of disks to monitor";
     };
   };
 
   config = mkIf (builtins.length config.monitoring.smartctl.devices > 0) {
-    environment.systemPackages = [pkgs.smartmontools];
+    environment.systemPackages = [ pkgs.smartmontools ];
 
     services.prometheus.exporters.smartctl = {
       enable = true;
@@ -24,8 +25,8 @@ with lib; {
       devices = config.monitoring.smartctl.devices;
     };
 
-    networking.firewall.allowedTCPPorts =
-      lib.mkIf config.networking.firewall.enable
-      [config.services.prometheus.exporters.smartctl.port];
+    networking.firewall.allowedTCPPorts = lib.mkIf config.networking.firewall.enable [
+      config.services.prometheus.exporters.smartctl.port
+    ];
   };
 }

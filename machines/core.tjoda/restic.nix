@@ -1,4 +1,5 @@
-{config, ...}: let
+{ config, ... }:
+let
   paths = [
     "/root"
     "/etc/nixos"
@@ -12,7 +13,8 @@
     # Covered by /storage/backup
     # config.services.minio.configDir
   ];
-in {
+in
+{
   # Same repo the old direct rclone:Jotta: job wrote (the proxy serves the
   # Jotta root), now via the local proxy — its state dir holds this host's
   # only Jotta login (./restic-jotta.nix). localhost, not the VIP: local
@@ -25,7 +27,7 @@ in {
     # rclone to Jottacloud: reading pack data costs egress and takes forever;
     # verify metadata only, monthly. The local REST repo gets the read-data check.
     check = {
-      args = [];
+      args = [ ];
       interval = "monthly";
     };
   };
@@ -33,7 +35,7 @@ in {
   # The backup dials the proxy on this host; order after it so the
   # boot-time Persistent timer run doesn't fail and page ServiceFailed.
   systemd.services.restic-backups-jotta = {
-    after = ["rclone-jotta.service"];
-    wants = ["rclone-jotta.service"];
+    after = [ "rclone-jotta.service" ];
+    wants = [ "rclone-jotta.service" ];
   };
 }

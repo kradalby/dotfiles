@@ -4,21 +4,22 @@
   lib,
   claudeCodeLib,
   ...
-}: let
+}:
+let
   inherit (claudeCodeLib) resolvePath mkArgs enabled;
 
   linuxPath = "${config.home.profileDirectory}/bin:/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin:/usr/bin:/bin";
 
   # Self-contained: bundles journalctl/systemctl plus the text utils it needs,
   # so the watchdog works regardless of what the login session exports.
-  healthcheck = import ./healthcheck.nix {inherit pkgs lib;};
+  healthcheck = import ./healthcheck.nix { inherit pkgs lib; };
   instanceNames = lib.escapeShellArgs (lib.attrNames enabled);
 
   mkSystemdUnit = name: ic: {
     Unit = {
       Description = "claude remote-control: ${name}";
-      After = ["network-online.target"];
-      Wants = ["network-online.target"];
+      After = [ "network-online.target" ];
+      Wants = [ "network-online.target" ];
       # Cap restart bursts so a wedged service doesn't hammer the bridge.
       StartLimitIntervalSec = 300;
       StartLimitBurst = 5;
@@ -47,10 +48,11 @@
         "HOME=${config.home.homeDirectory}"
       ];
     };
-    Install.WantedBy = ["default.target"];
+    Install.WantedBy = [ "default.target" ];
   };
-in {
-  config = lib.mkIf (pkgs.stdenv.isLinux && enabled != {}) {
+in
+{
+  config = lib.mkIf (pkgs.stdenv.isLinux && enabled != { }) {
     systemd.user.services =
       (lib.mapAttrs' (n: ic: lib.nameValuePair "claude-code-${n}" (mkSystemdUnit n ic)) enabled)
       // {
@@ -72,7 +74,7 @@ in {
         OnBootSec = "2min";
         OnUnitActiveSec = "2min";
       };
-      Install.WantedBy = ["timers.target"];
+      Install.WantedBy = [ "timers.target" ];
     };
   };
 }

@@ -3,17 +3,18 @@
   lib,
   config,
   ...
-}: {
+}:
+{
   options = {
     my.postgres = {
       databases = lib.mkOption {
         type = lib.types.listOf lib.types.str;
-        default = [];
+        default = [ ];
       };
 
       extraBackups = lib.mkOption {
         type = lib.types.listOf lib.types.str;
-        default = [];
+        default = [ ];
       };
     };
   };
@@ -26,15 +27,10 @@
 
       enableTCPIP = true;
 
-      ensureUsers =
-        builtins.map
-        (
-          database: {
-            name = database;
-            ensureDBOwnership = true;
-          }
-        )
-        config.my.postgres.databases;
+      ensureUsers = builtins.map (database: {
+        name = database;
+        ensureDBOwnership = true;
+      }) config.my.postgres.databases;
 
       ensureDatabases = config.my.postgres.databases;
     };

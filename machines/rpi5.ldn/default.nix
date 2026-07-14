@@ -2,7 +2,8 @@
   config,
   lib,
   ...
-}: {
+}:
+{
   imports = [
     ../../common
     ../../common/tailscale.nix
@@ -39,7 +40,7 @@
 
   age.secrets.ldn-wifi.file = ../../secrets/ldn-wifi.age;
 
-  services.tailscale.tags = ["tag:server"];
+  services.tailscale.tags = [ "tag:server" ];
 
   # nixos-raspberrypi is migrating the default from "kernelboot" to
   # "kernel"; opt in explicitly to silence the deprecation warning.
@@ -102,12 +103,15 @@
     "/" = {
       device = "/dev/disk/by-label/NIXOS_SD";
       fsType = "ext4";
-      options = ["noatime"];
+      options = [ "noatime" ];
     };
     "/boot/firmware" = {
       device = "/dev/disk/by-label/FIRMWARE";
       fsType = "vfat";
-      options = ["nofail" "noauto"];
+      options = [
+        "nofail"
+        "noauto"
+      ];
     };
   };
 

@@ -3,7 +3,8 @@
   pkgs,
   lib,
   ...
-}: {
+}:
+{
   services.miniupnpd = {
     enable = true;
     upnp = true;

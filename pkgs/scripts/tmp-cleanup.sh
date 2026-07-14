@@ -101,12 +101,18 @@ while [ $# -gt 0 ]; do
     -y | --execute) EXECUTE=1 ;;
     -d)
       shift
-      [ $# -gt 0 ] || { echo "tmp-cleanup: -d needs a value" >&2; exit 2; }
+      [ $# -gt 0 ] || {
+        echo "tmp-cleanup: -d needs a value" >&2
+        exit 2
+      }
       AGE_MIN="$1"
       ;;
     -v) VERBOSE=1 ;;
     --no-lsof) USE_LSOF=0 ;;
-    -h | --help) usage; exit 0 ;;
+    -h | --help)
+      usage
+      exit 0
+      ;;
     *)
       echo "tmp-cleanup: unknown arg: $1" >&2
       usage >&2

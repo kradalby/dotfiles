@@ -3,7 +3,8 @@
   config,
   lib,
   ...
-}: let
+}:
+let
   # All NixOS hosts reachable via Tailscale
   # These all have node_exporter and systemd_exporter enabled
   allHosts = [
@@ -147,7 +148,7 @@
   # inhibit per machine; the instance label includes the port, which made the
   # inhibit rules' equal=["instance"] never match across exporters.
   hostRelabel = {
-    source_labels = ["__address__"];
+    source_labels = [ "__address__" ];
     regex = "([^:]+):?.*";
     target_label = "host";
   };
@@ -157,15 +158,15 @@
   probeJob = name: module: targets: {
     job_name = name;
     metrics_path = "/probe";
-    params.module = [module];
-    static_configs = [{inherit targets;}];
+    params.module = [ module ];
+    static_configs = [ { inherit targets; } ];
     relabel_configs = [
       {
-        source_labels = ["__address__"];
+        source_labels = [ "__address__" ];
         target_label = "__param_target";
       }
       {
-        source_labels = ["__param_target"];
+        source_labels = [ "__param_target" ];
         target_label = "instance";
       }
       {
@@ -179,8 +180,8 @@
   scrapeJob = name: targets: {
     job_name = name;
     metrics_path = "/metrics";
-    static_configs = [{inherit targets;}];
-    relabel_configs = [hostRelabel];
+    static_configs = [ { inherit targets; } ];
+    relabel_configs = [ hostRelabel ];
   };
 
   # Helper to create scrape jobs for exporters across multiple hosts
@@ -193,9 +194,10 @@
         targets = map (host: "${host}:${toString port}") hosts;
       }
     ];
-    relabel_configs = [hostRelabel];
+    relabel_configs = [ hostRelabel ];
   };
-in {
+in
+{
   # tcp:443 endpoints have no TLS termination — Tailscale VIP bug
   # (tailscale/tailscale#19724, #18381); consumers use http.
   # TODO(kradalby): revert when fixed.
@@ -243,7 +245,7 @@ in {
         scheme = "http";
         path_prefix = "/";
         static_configs = [
-          {targets = ["localhost:${toString config.services.prometheus.alertmanager.port}"];}
+          { targets = [ "localhost:${toString config.services.prometheus.alertmanager.port}" ]; }
         ];
       }
     ];
@@ -271,23 +273,23 @@ in {
       (exporterJob "nginxlog" nginxlogHosts 9117)
 
       # MQTT exporter on home-ldn (port 9000)
-      (scrapeJob "mqtt" ["home-ldn:9000"])
+      (scrapeJob "mqtt" [ "home-ldn:9000" ])
 
       # Restic REST server metrics (via Tailscale service names)
       {
         job_name = "restic-server";
         metrics_path = "/metrics";
         static_configs = [
-          {targets = map (h: "${h}:80") resticHosts;}
+          { targets = map (h: "${h}:80") resticHosts; }
         ];
-        relabel_configs = [hostRelabel];
+        relabel_configs = [ hostRelabel ];
       }
 
       # rclone serve restic (Jotta proxy) on core.tjoda: core transfer stats
       # only — no per-repo series like rest-server (rclone#7980). Target-down
       # is covered by the generic up==0 alert; the traffic cross-check and
       # metric-rename canary live in the backup rules below.
-      (scrapeJob "rclone-jotta" ["core-tjoda:56901"])
+      (scrapeJob "rclone-jotta" [ "core-tjoda:56901" ])
 
       # Pushgateway: backup success timestamps, sfiber proxy state, rustic
       # laptops — anything Prometheus has no route into pushes here.
@@ -298,7 +300,7 @@ in {
         job_name = "pushgateway";
         metrics_path = "/metrics";
         honor_labels = true;
-        static_configs = [{targets = ["localhost:9091"];}];
+        static_configs = [ { targets = [ "localhost:9091" ]; } ];
       }
 
       # ICMP ping of every scraped host over the tailnet. Splits "host is
@@ -307,20 +309,20 @@ in {
         job_name = "tailnet-ping";
         metrics_path = "/probe";
         params = {
-          module = ["icmp"];
+          module = [ "icmp" ];
         };
-        static_configs = [{targets = allHosts;}];
+        static_configs = [ { targets = allHosts; } ];
         relabel_configs = [
           {
-            source_labels = ["__address__"];
+            source_labels = [ "__address__" ];
             target_label = "__param_target";
           }
           {
-            source_labels = ["__param_target"];
+            source_labels = [ "__param_target" ];
             target_label = "instance";
           }
           {
-            source_labels = ["__param_target"];
+            source_labels = [ "__param_target" ];
             target_label = "host";
           }
           {
@@ -345,30 +347,36 @@ in {
           {
             # core-ldn (IncusOS) also passes through host node_* series;
             # gigabuilder (nixpkgs incus) exports incus_* only.
-            targets = ["core-ldn:8443" "gigabuilder:8443"];
+            targets = [
+              "core-ldn:8443"
+              "gigabuilder:8443"
+            ];
             labels.role = "incus";
           }
         ];
-        relabel_configs = [hostRelabel];
+        relabel_configs = [ hostRelabel ];
       }
 
       # tsnixcache: fleet nix cache AND the only GC on gigabuilder's store.
       # tsnet node; private registry (no go_*/process_* series).
-      (scrapeJob "tsnixcache" ["tsnixcache:80"])
+      (scrapeJob "tsnixcache" [ "tsnixcache:80" ])
 
       # Application-specific exporters
       # OCI usage exporter binds localhost on this host, no ACL needed
-      (scrapeJob "oci-usage" ["localhost:63461"])
-      (scrapeJob "litestream" ["core-oracldn:54909" "dev-oracfurt:54909"])
-      (scrapeJob "headscale" ["core-oracldn:54910"])
+      (scrapeJob "oci-usage" [ "localhost:63461" ])
+      (scrapeJob "litestream" [
+        "core-oracldn:54909"
+        "dev-oracfurt:54909"
+      ])
+      (scrapeJob "headscale" [ "core-oracldn:54910" ])
 
       # atuin shell-history sync server on dev.oracfurt (native metrics).
       # up{job="atuin"} feeds the generic scrape-success burn-rate SLO.
-      (scrapeJob "atuin" ["dev-oracfurt:8889"])
+      (scrapeJob "atuin" [ "dev-oracfurt:8889" ])
 
       # Monitoring must watch itself; the Watchdog/dead-man covers the rest.
-      (scrapeJob "prometheus" ["localhost:9090"])
-      (scrapeJob "alertmanager" ["localhost:9093"])
+      (scrapeJob "prometheus" [ "localhost:9090" ])
+      (scrapeJob "alertmanager" [ "localhost:9093" ])
 
       # Syncthing native metrics via the GUI tailscale services
       # (insecureAdminAccess, no creds). :81 on dev-oracfurt is the cooklang
@@ -385,12 +393,15 @@ in {
       # admin API via the s3-tjoda VIP; /metrics is public (no metrics_token).
       {
         job_name = "garage";
-        static_configs = [{targets = ["s3-tjoda:3903"];}];
-        relabel_configs = [hostRelabel];
+        static_configs = [ { targets = [ "s3-tjoda:3903" ]; } ];
+        relabel_configs = [ hostRelabel ];
       }
 
       # PostgreSQL exporter (port 9187)
-      (scrapeJob "postgres" ["core-oracldn:9187" "garnix:9187"])
+      (scrapeJob "postgres" [
+        "core-oracldn:9187"
+        "garnix:9187"
+      ])
 
       # garnix CI backend: native prometheus text on the ROOT path at :8323
       # (prometheusApp [] — /metrics 404s). Queue gauges are NEGATIVE when
@@ -398,14 +409,14 @@ in {
       {
         job_name = "garnix";
         metrics_path = "/";
-        static_configs = [{targets = ["garnix:8323"];}];
-        relabel_configs = [hostRelabel];
+        static_configs = [ { targets = [ "garnix:8323" ]; } ];
+        relabel_configs = [ hostRelabel ];
       }
 
       # Postfix queue depth on the fleet relay. gigabuilder is the only host
       # running postfix now — every other machine uses send-only nullmailer
       # (no queue exporter), so a stuck-mail signal only exists here.
-      (exporterJob "postfix" ["gigabuilder"] 9154)
+      (exporterJob "postfix" [ "gigabuilder" ] 9154)
 
       # tailscaled usermetrics via the web client listener, fleet-wide.
       # Requires a tailnet ACL grant for tcp:5252 from this host (out-of-band).
@@ -413,9 +424,9 @@ in {
 
       # Native app metrics over tailnet names. krapage/hvor/nefit expose only
       # go runtime series — up{} liveness is the honest signal there.
-      (scrapeJob "grafana" ["localhost:3000"])
-      (scrapeJob "krapage" ["krapage:80"])
-      (scrapeJob "hvor" ["hvor:80"])
+      (scrapeJob "grafana" [ "localhost:3000" ])
+      (scrapeJob "krapage" [ "krapage:80" ])
+      (scrapeJob "hvor" [ "hvor:80" ])
       (scrapeJob "homekit-bridges" [
         "nefit-homekit:80"
         "tasmota-homekit:80"
@@ -429,8 +440,8 @@ in {
         job_name = "golink";
         scheme = "https";
         metrics_path = "/.metrics";
-        static_configs = [{targets = ["go.dalby.ts.net:443"];}];
-        relabel_configs = [hostRelabel];
+        static_configs = [ { targets = [ "go.dalby.ts.net:443" ]; } ];
+        relabel_configs = [ hostRelabel ];
       }
 
       # ts1p (setec) secrets server. Assumes the fork exposes varz.Handler at
@@ -441,8 +452,8 @@ in {
         job_name = "ts1p";
         scheme = "https";
         metrics_path = "/metrics";
-        static_configs = [{targets = ["setec.dalby.ts.net:443"];}];
-        relabel_configs = [hostRelabel];
+        static_configs = [ { targets = [ "setec.dalby.ts.net:443" ]; } ];
+        relabel_configs = [ hostRelabel ];
       }
 
       # uptime-kuma: /metrics is auth-gated and the UI is public (nginx +
@@ -482,23 +493,25 @@ in {
 
       # Per-site labels so a resolver-down alert can inhibit that site's
       # downstream name-resolution-dependent probes (see inhibit_rules).
-      ((probeJob "dns-probes" "dns" [])
+      (
+        (probeJob "dns-probes" "dns" [ ])
         // {
           static_configs = [
             {
-              targets = ["10.66.0.1"];
+              targets = [ "10.66.0.1" ];
               labels.site = "oracldn";
             }
             {
-              targets = ["10.62.0.2"];
+              targets = [ "10.62.0.2" ];
               labels.site = "tjoda";
             }
             {
-              targets = ["10.65.0.28"];
+              targets = [ "10.65.0.28" ];
               labels.site = "ldn";
             }
           ];
-        })
+        }
+      )
       (probeJob "tcp-probes" "tcp_connect" [
         "proton-bridge:143"
         "core-tjoda:445"
@@ -513,14 +526,14 @@ in {
       # ping host means a broken transport pages via Discord now, instead of
       # surfacing 15m later as a missed ping. Own job (not https-probes) so it
       # stays warning, not a critical page for someone else's downtime.
-      (probeJob "deadman-transport" "http_prometheus" ["https://hc-ping.com"])
+      (probeJob "deadman-transport" "http_prometheus" [ "https://hc-ping.com" ])
 
       # Blackbox HTTPS probing for public endpoints
       {
         job_name = "https-probes";
         metrics_path = "/probe";
         params = {
-          module = ["http_prometheus"];
+          module = [ "http_prometheus" ];
         };
         static_configs = [
           {
@@ -540,11 +553,11 @@ in {
         ];
         relabel_configs = [
           {
-            source_labels = ["__address__"];
+            source_labels = [ "__address__" ];
             target_label = "__param_target";
           }
           {
-            source_labels = ["__param_target"];
+            source_labels = [ "__param_target" ];
             target_label = "instance";
           }
           {
@@ -559,7 +572,7 @@ in {
         job_name = "tjoda-ping";
         metrics_path = "/probe";
         params = {
-          module = ["icmp"];
+          module = [ "icmp" ];
         };
         static_configs = [
           {
@@ -605,11 +618,11 @@ in {
         ];
         relabel_configs = [
           {
-            source_labels = ["__address__"];
+            source_labels = [ "__address__" ];
             target_label = "__param_target";
           }
           {
-            source_labels = ["__param_target"];
+            source_labels = [ "__param_target" ];
             target_label = "instance";
           }
           {
@@ -643,11 +656,11 @@ in {
         ];
         relabel_configs = [
           {
-            source_labels = ["__address__"];
+            source_labels = [ "__address__" ];
             target_label = "__param_target";
           }
           {
-            source_labels = ["__param_target"];
+            source_labels = [ "__param_target" ];
             target_label = "instance";
           }
           {
@@ -664,16 +677,16 @@ in {
         scrape_interval = "10s";
         static_configs = [
           {
-            targets = ["power-p1-meter.ldn"];
+            targets = [ "power-p1-meter.ldn" ];
           }
         ];
         relabel_configs = [
           {
-            source_labels = ["__address__"];
+            source_labels = [ "__address__" ];
             target_label = "__param_target";
           }
           {
-            source_labels = ["__param_target"];
+            source_labels = [ "__param_target" ];
             target_label = "instance";
           }
           {
@@ -725,7 +738,7 @@ in {
               }
               {
                 alert = "InstanceLowDiskAbs";
-                expr = ''node_filesystem_avail_bytes{${diskFilter}} / 1024 / 1024 < 1024'';
+                expr = "node_filesystem_avail_bytes{${diskFilter}} / 1024 / 1024 < 1024";
                 for = "5m";
                 labels.severity = "critical";
                 annotations = {
@@ -736,7 +749,8 @@ in {
               (
                 let
                   low_megabyte = 70;
-                in {
+                in
+                {
                   alert = "InstanceLowBootDiskAbs";
                   expr = ''node_filesystem_avail_bytes{mountpoint=~"^/boot.?/?.*"} / 1024 / 1024 < ${toString low_megabyte}'';
                   for = "5m";
@@ -749,7 +763,7 @@ in {
               )
               {
                 alert = "InstanceLowDiskPerc";
-                expr = ''100 * (node_filesystem_avail_bytes{${diskFilter}} / node_filesystem_size_bytes{${diskFilter}}) < 10'';
+                expr = "100 * (node_filesystem_avail_bytes{${diskFilter}} / node_filesystem_size_bytes{${diskFilter}}) < 10";
                 for = "5m";
                 labels.severity = "warning";
                 annotations = {
@@ -759,7 +773,7 @@ in {
               }
               {
                 alert = "InstanceLowDiskPrediction12Hours";
-                expr = ''predict_linear(node_filesystem_free_bytes{${diskFilter}}[3h],12 * 3600) < 0'';
+                expr = "predict_linear(node_filesystem_free_bytes{${diskFilter}}[3h],12 * 3600) < 0";
                 for = "2h";
                 labels.severity = "warning";
                 annotations = {
@@ -830,7 +844,7 @@ in {
                 alert = "ServiceRestartLoop";
                 # State sampling at 1m misses fast restart loops entirely;
                 # the restart counter does not.
-                expr = ''increase(systemd_service_restart_total[15m]) > 3'';
+                expr = "increase(systemd_service_restart_total[15m]) > 3";
                 for = "5m";
                 labels.severity = "warning";
                 annotations = {
@@ -914,7 +928,7 @@ in {
                 alert = "ZfsSnapshotStale";
                 # From the sanoid textfile exporter; 0 (never/parse failure)
                 # also fires. 25h of slack over the daily cadence.
-                expr = ''time() - zfs_snapshot_newest_creation_seconds > 90000'';
+                expr = "time() - zfs_snapshot_newest_creation_seconds > 90000";
                 for = "30m";
                 labels.severity = "warning";
                 annotations = {
@@ -924,7 +938,7 @@ in {
               }
               {
                 alert = "ZpoolStatusErrors";
-                expr = ''zfs_pool_status_errors == 1'';
+                expr = "zfs_pool_status_errors == 1";
                 for = "15m";
                 labels.severity = "critical";
                 annotations = {
@@ -1048,7 +1062,7 @@ in {
                 # startup (source-verified, ipn/ipnlocal/local.go) so they read 0
                 # on non-routers — the expr self-selects the subnet routers.
                 # Needs the tcp:5252 tailnet ACL for the tailscaled scrape.
-                expr = ''tailscaled_advertised_routes - tailscaled_approved_routes > 0'';
+                expr = "tailscaled_advertised_routes - tailscaled_approved_routes > 0";
                 for = "15m";
                 labels.severity = "critical";
                 annotations = {
@@ -1060,7 +1074,7 @@ in {
                 alert = "CorednsUpstreamBroken";
                 # Single counter, no `to` label — earliest all-upstreams-down
                 # signal; the 1h cache masks outages for cached names.
-                expr = ''increase(coredns_forward_healthcheck_broken_total[10m]) > 0'';
+                expr = "increase(coredns_forward_healthcheck_broken_total[10m]) > 0";
                 for = "5m";
                 labels.severity = "critical";
                 annotations = {
@@ -1070,7 +1084,7 @@ in {
               }
               {
                 alert = "ProtonBridgeLoginFailing";
-                expr = ''proton_bridge_login_ok == 0'';
+                expr = "proton_bridge_login_ok == 0";
                 for = "30m";
                 labels.severity = "critical";
                 annotations = {
@@ -1222,7 +1236,7 @@ in {
                 # + integrity check (textfile collector). >2 weeks means the
                 # test has been failing or the timer stopped — a replica we
                 # can no longer prove is restorable.
-                expr = ''time() - litestream_restore_test_last_success_seconds > 14 * 86400'';
+                expr = "time() - litestream_restore_test_last_success_seconds > 14 * 86400";
                 for = "1h";
                 labels.severity = "warning";
                 annotations = {
@@ -1234,7 +1248,7 @@ in {
               # 0=idle … 8=error (lib/model/folderstate.go).
               {
                 alert = "SyncthingFolderError";
-                expr = ''syncthing_model_folder_state == 8'';
+                expr = "syncthing_model_folder_state == 8";
                 for = "15m";
                 labels.severity = "critical";
                 annotations = {
@@ -1244,7 +1258,7 @@ in {
               }
               {
                 alert = "SyncthingFolderStuck";
-                expr = ''min_over_time(syncthing_model_folder_state[6h]) > 0'';
+                expr = "min_over_time(syncthing_model_folder_state[6h]) > 0";
                 labels.severity = "warning";
                 annotations = {
                   summary = "Syncthing folder {{ $labels.folder }} on {{ $labels.host }} not idle for 6h";
@@ -1253,7 +1267,7 @@ in {
               }
               {
                 alert = "SyncthingFolderConflicts";
-                expr = ''increase(syncthing_model_folder_conflicts_total[1h]) > 0'';
+                expr = "increase(syncthing_model_folder_conflicts_total[1h]) > 0";
                 labels.severity = "warning";
                 annotations = {
                   summary = "New syncthing conflicts in {{ $labels.folder }} on {{ $labels.host }}";
@@ -1262,7 +1276,7 @@ in {
               }
               {
                 alert = "SyncthingNoConnections";
-                expr = ''sum by (host, instance) (syncthing_connections_active) == 0'';
+                expr = "sum by (host, instance) (syncthing_connections_active) == 0";
                 for = "12h";
                 labels.severity = "warning";
                 annotations = {
@@ -1351,7 +1365,7 @@ in {
                 alert = "SensorPipelineSilent";
                 # Catches the whole class of "exporter up, broker empty" breaks
                 # (wrong broker, z2m dead, zigbee radio wedged).
-                expr = ''sum(increase(sensor_message_total[1h])) == 0 or absent(sensor_message_total)'';
+                expr = "sum(increase(sensor_message_total[1h])) == 0 or absent(sensor_message_total)";
                 for = "30m";
                 labels.severity = "warning";
                 annotations = {
@@ -1361,7 +1375,7 @@ in {
               }
               {
                 alert = "SensorBatteryLow";
-                expr = ''min by (sensor) (sensor_battery) < 15'';
+                expr = "min by (sensor) (sensor_battery) < 15";
                 for = "6h";
                 labels.severity = "warning";
                 annotations = {
@@ -1475,7 +1489,7 @@ in {
                 # timestamp even while push_time stays fresh. 3 days tolerates
                 # travel; the pushed value persists in the pushgateway so an
                 # offline laptop still trips this rather than PushgatewayGroupStale.
-                expr = ''time() - rustic_backup_last_snapshot_timestamp_seconds > 3 * 86400'';
+                expr = "time() - rustic_backup_last_snapshot_timestamp_seconds > 3 * 86400";
                 for = "30m";
                 labels.severity = "warning";
                 annotations = {
@@ -1488,7 +1502,7 @@ in {
                 # Canary against the metric name being wrong or the pushgateway
                 # being wiped — the RusticBackupStale threshold can never fire if
                 # the series does not exist at all.
-                expr = ''absent(rustic_backup_last_snapshot_timestamp_seconds)'';
+                expr = "absent(rustic_backup_last_snapshot_timestamp_seconds)";
                 for = "6h";
                 labels.severity = "warning";
                 annotations = {
@@ -1502,7 +1516,7 @@ in {
                 # tailscale-proxy that is not Running (expired key / dead foreign
                 # headscale). The 0 is the whole signal — a down-but-still-pushing
                 # proxy never trips PushgatewayGroupStale.
-                expr = ''sfiber_proxy_up == 0'';
+                expr = "sfiber_proxy_up == 0";
                 for = "30m";
                 labels.severity = "warning";
                 annotations = {
@@ -1515,7 +1529,7 @@ in {
                 # The only signal that a log-format change silently zeroed the
                 # nginxlog counters — which would make the nginx availability SLO
                 # read 100% healthy against no data.
-                expr = ''rate(nginxlog_parse_errors_total[10m]) > 0'';
+                expr = "rate(nginxlog_parse_errors_total[10m]) > 0";
                 for = "10m";
                 labels.severity = "warning";
                 annotations = {
@@ -1529,7 +1543,7 @@ in {
                 # otherwise hidden behind the 24h secret cache until it drains.
                 # ts1p_op_auth_failed_total is a varz counter (source-verified);
                 # requires the ts1p /metrics fork + tcp:443 ACL to setec.
-                expr = ''increase(ts1p_op_auth_failed_total[30m]) > 0'';
+                expr = "increase(ts1p_op_auth_failed_total[30m]) > 0";
                 for = "5m";
                 labels.severity = "critical";
                 annotations = {
@@ -1552,7 +1566,7 @@ in {
                 alert = "HeadscaleNodestoreEmpty";
                 # The fingerprint of a bad restore / wiped sqlite: process up,
                 # zero nodes.
-                expr = ''headscale_nodestore_nodes == 0'';
+                expr = "headscale_nodestore_nodes == 0";
                 for = "15m";
                 labels.severity = "critical";
                 annotations = {
@@ -1573,7 +1587,7 @@ in {
               {
                 alert = "HeadscaleQueueBacklog";
                 # sqlite write-contention proxy.
-                expr = ''headscale_nodestore_queue_depth > 10'';
+                expr = "headscale_nodestore_queue_depth > 10";
                 for = "10m";
                 labels.severity = "warning";
                 annotations = {
@@ -1611,7 +1625,7 @@ in {
             rules = [
               {
                 alert = "CPUPressure";
-                expr = ''rate(node_pressure_cpu_waiting_seconds_total[10m]) > 0.25'';
+                expr = "rate(node_pressure_cpu_waiting_seconds_total[10m]) > 0.25";
                 for = "30m";
                 labels.severity = "warning";
                 annotations = {
@@ -1621,7 +1635,7 @@ in {
               }
               {
                 alert = "MemoryPressure";
-                expr = ''rate(node_pressure_memory_stalled_seconds_total[10m]) > 0.05'';
+                expr = "rate(node_pressure_memory_stalled_seconds_total[10m]) > 0.05";
                 for = "15m";
                 labels.severity = "critical";
                 annotations = {
@@ -1646,7 +1660,7 @@ in {
                 alert = "ConntrackNearLimit";
                 # Ratio self-selects the NAT gateways; other hosts idle far
                 # below the limit.
-                expr = ''node_nf_conntrack_entries / node_nf_conntrack_entries_limit > 0.8'';
+                expr = "node_nf_conntrack_entries / node_nf_conntrack_entries_limit > 0.8";
                 for = "10m";
                 labels.severity = "warning";
                 annotations = {
@@ -1656,7 +1670,7 @@ in {
               }
               {
                 alert = "FileDescriptorsNearLimit";
-                expr = ''node_filefd_allocated / node_filefd_maximum > 0.8'';
+                expr = "node_filefd_allocated / node_filefd_maximum > 0.8";
                 for = "10m";
                 labels.severity = "warning";
                 annotations = {
@@ -1791,7 +1805,7 @@ in {
                 alert = "TsnixcacheDiskFull";
                 # tsnixcache is the ONLY GC on gigabuilder's nix store (fleet
                 # GC is force-disabled); if GC wedges, the build host fills up.
-                expr = ''tsnixcache_gc_disk_used_pct > 97'';
+                expr = "tsnixcache_gc_disk_used_pct > 97";
                 for = "1h";
                 labels.severity = "critical";
                 annotations = {
@@ -1801,7 +1815,7 @@ in {
               }
               {
                 alert = "TsnixcacheGCErrors";
-                expr = ''increase(tsnixcache_gc_errors_total[1h]) > 0'';
+                expr = "increase(tsnixcache_gc_errors_total[1h]) > 0";
                 labels.severity = "warning";
                 annotations = {
                   summary = "tsnixcache GC reporting errors";
@@ -1927,21 +1941,27 @@ in {
             {
               # Dead-man heartbeat: continuously re-notified to healthchecks.io,
               # never to Discord. Silence on this route is what pages.
-              match = {severity = "heartbeat";};
+              match = {
+                severity = "heartbeat";
+              };
               receiver = "deadman";
               group_wait = "10s";
               group_interval = "1m";
               repeat_interval = "4m";
             }
             {
-              match = {severity = "critical";};
+              match = {
+                severity = "critical";
+              };
               receiver = "critical";
               group_wait = "10s";
               group_interval = "1m";
               repeat_interval = "1h";
             }
             {
-              match = {severity = "warning";};
+              match = {
+                severity = "warning";
+              };
               receiver = "discord";
               group_wait = "2m";
               group_interval = "10m";
@@ -1956,30 +1976,36 @@ in {
         inhibit_rules = [
           {
             # If a node is down, suppress all other alerts from that host
-            source_matchers = ["alertname=\"NodeExporterDown\""];
-            target_matchers = ["alertname!=\"NodeExporterDown\""];
-            equal = ["host"];
+            source_matchers = [ "alertname=\"NodeExporterDown\"" ];
+            target_matchers = [ "alertname!=\"NodeExporterDown\"" ];
+            equal = [ "host" ];
           }
           {
             # If an exporter is down, suppress downstream alerts from that host
-            source_matchers = ["alertname=\"ExporterDown\""];
-            target_matchers = ["alertname!~\"ExporterDown|NodeExporterDown\""];
-            equal = ["host" "job"];
+            source_matchers = [ "alertname=\"ExporterDown\"" ];
+            target_matchers = [ "alertname!~\"ExporterDown|NodeExporterDown\"" ];
+            equal = [
+              "host"
+              "job"
+            ];
           }
           {
             # Critical inhibits warning for the same alert+host
-            source_matchers = ["severity=\"critical\""];
-            target_matchers = ["severity=\"warning\""];
-            equal = ["alertname" "host"];
+            source_matchers = [ "severity=\"critical\"" ];
+            target_matchers = [ "severity=\"warning\"" ];
+            equal = [
+              "alertname"
+              "host"
+            ];
           }
           {
             # A resolver being unreachable (DnsProbeDown) makes every ICMP probe
             # for names in that site fail too — they can't resolve. Suppress the
             # per-device flood (e.g. 13× TjodaPingDown) and page once on the
             # resolver. Matches on the shared "site" label set on both jobs.
-            source_matchers = ["alertname=\"DnsProbeDown\""];
-            target_matchers = ["alertname=\"TjodaPingDown\""];
-            equal = ["site"];
+            source_matchers = [ "alertname=\"DnsProbeDown\"" ];
+            target_matchers = [ "alertname=\"TjodaPingDown\"" ];
+            equal = [ "site" ];
           }
         ];
 
@@ -2043,6 +2069,6 @@ in {
   # The NixOS module sets an empty CapabilityBoundingSet which blocks the
   # AmbientCapabilities=CAP_NET_RAW needed for ICMP probes.
   systemd.services.prometheus-blackbox-exporter.serviceConfig = {
-    CapabilityBoundingSet = ["CAP_NET_RAW"];
+    CapabilityBoundingSet = [ "CAP_NET_RAW" ];
   };
 }

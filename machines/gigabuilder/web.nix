@@ -1,4 +1,4 @@
-{lib, ...}: {
+{ lib, ... }: {
   imports = [
     ../../common/nginx.nix
     ../../common/acme.nix # ACME DNS-01 via Cloudflare
@@ -8,7 +8,10 @@
   # mkForce drops common/nginx.nix's globally-open nginxlog exporter port — on a
   # public box metrics must not face wan0 (still scrapable over tailscale/bridge).
   # SSH is gated in networking.nix, not here.
-  networking.firewall.allowedTCPPorts = lib.mkForce [80 443];
+  networking.firewall.allowedTCPPorts = lib.mkForce [
+    80
+    443
+  ];
 
   # Attr name is the domain; modules/vhost.nix provisions the ACME cert + vhost.
   services.vhost = {

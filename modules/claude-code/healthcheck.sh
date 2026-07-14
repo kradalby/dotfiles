@@ -75,8 +75,8 @@ darwin_label() { echo "org.nix-community.home.claude-code-$1"; }
 # darwin_pid <instance> -> current launchd PID, empty if not running. Used to
 # tell "exited/respawned" from "ignored the signal" during a graceful restart.
 darwin_pid() {
-  launchctl list "$(darwin_label "$1")" 2>/dev/null \
-    | sed -n 's/^[[:space:]]*"PID"[^0-9]*\([0-9]\{1,\}\).*/\1/p'
+  launchctl list "$(darwin_label "$1")" 2>/dev/null |
+    sed -n 's/^[[:space:]]*"PID"[^0-9]*\([0-9]\{1,\}\).*/\1/p'
 }
 
 # is_up <instance> -> 0 if the service is loaded/running, else 1.
@@ -180,7 +180,8 @@ self_test() {
   # The auto-start branch only fires when is_up reports down. If a bogus
   # instance reads as "up", a genuinely down service would be skipped.
   if is_up "claude-code-selftest-absent-xyz"; then
-    echo "FAIL: is_up true for an absent instance"; fail=1
+    echo "FAIL: is_up true for an absent instance"
+    fail=1
   else
     echo "ok:   is_up false for an absent instance"
   fi
@@ -190,6 +191,9 @@ self_test() {
 
 case "${1:-}" in
   --self-test) self_test ;;
-  "") echo "usage: $0 <instance-name> [...] | --self-test" >&2; exit 2 ;;
+  "")
+    echo "usage: $0 <instance-name> [...] | --self-test" >&2
+    exit 2
+    ;;
   *) main "$@" ;;
 esac

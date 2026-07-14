@@ -4,7 +4,7 @@
 # ../profiles/server.nix on top, and workstations additionally get the
 # home-manager userland. Excludes fail2ban (deleted), avahi (opt-in per machine),
 # and the heavier exporters/mail (server profile).
-{...}: {
+{ ... }: {
   imports = [
     ./ca.nix
     ./cpufreq.nix

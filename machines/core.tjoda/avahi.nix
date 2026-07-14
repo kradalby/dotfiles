@@ -1,6 +1,9 @@
-{config, ...}: {
+{ config, ... }: {
   services.avahi = {
-    allowInterfaces = [config.my.lan "tailscale0"];
+    allowInterfaces = [
+      config.my.lan
+      "tailscale0"
+    ];
     extraServiceFiles = {
       timemachine-tjoda = ''
         <?xml version="1.0" standalone='no'?><!--*-nxml-*-->

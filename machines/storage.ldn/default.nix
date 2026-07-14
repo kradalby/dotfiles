@@ -3,9 +3,11 @@
   pkgs,
   lib,
   ...
-}: let
+}:
+let
   sshKeys = import ../../metadata/ssh.nix;
-in {
+in
+{
   imports = [
     ../../common/base.nix
     ../../profiles/server.nix
@@ -27,9 +29,12 @@ in {
     "net.ipv6.conf.all.forwarding" = 1;
   };
 
-  services.tailscale.advertiseRoutes = ["10.65.0.0/24"];
+  services.tailscale.advertiseRoutes = [ "10.65.0.0/24" ];
   # Merges with the tag:server baseline from incus-vm-ldn.nix.
-  services.tailscale.tags = ["tag:backup-client" "tag:storage"];
+  services.tailscale.tags = [
+    "tag:backup-client"
+    "tag:storage"
+  ];
 
   networking = {
     hostName = "storage";
@@ -55,10 +60,10 @@ in {
     storage = true;
     timemachine = true;
   };
-  my.coredns.bind = ["10.65.0.28"];
+  my.coredns.bind = [ "10.65.0.28" ];
   my.ddns = {
     enable = true;
-    domains = ["ldn.fap.no"];
+    domains = [ "ldn.fap.no" ];
   };
 
   users.users.root.openssh.authorizedKeys.keys = sshKeys.main ++ sshKeys.kradalby ++ sshKeys.work;
@@ -66,6 +71,6 @@ in {
 
   environment.systemPackages = [
     # docker_29 client; the default docker-client (28.5.2) is flagged insecure.
-    (pkgs.docker_29.override {clientOnly = true;})
+    (pkgs.docker_29.override { clientOnly = true; })
   ];
 }

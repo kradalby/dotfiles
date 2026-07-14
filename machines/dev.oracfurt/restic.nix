@@ -1,4 +1,5 @@
-{pkgs, ...}: let
+{ pkgs, ... }:
+let
   paths = [
     "/etc/nixos"
     # tsidp runs with DynamicUser; /var/lib/tsidp is a symlink whose target
@@ -16,7 +17,8 @@
     inherit site paths;
     secret = "restic-dev-oracfurt-token";
   };
-in {
+in
+{
   # Atomic sqlite copy for restic. sqlite3 .backup is safe against the live db.
   # StateDirectory creates /var/lib/atuin-backup owned by atuin (/var/lib is
   # root-only, so the service can't mkdir it itself).
@@ -27,13 +29,13 @@ in {
       Group = "atuin";
       StateDirectory = "atuin-backup";
     };
-    path = [pkgs.sqlite];
+    path = [ pkgs.sqlite ];
     script = ''
       sqlite3 /var/lib/atuin/atuin.db ".backup /var/lib/atuin-backup/atuin.db"
     '';
   };
   systemd.timers.atuin-db-dump = {
-    wantedBy = ["timers.target"];
+    wantedBy = [ "timers.target" ];
     timerConfig = {
       OnCalendar = "daily";
       Persistent = true;
@@ -46,16 +48,14 @@ in {
     # Offsite via the Jotta proxy on core.tjoda (no Jotta credentials here).
     # targetHost is the opaque repo name on Jotta — house convention, nothing
     # host-identifying on the provider side.
-    jotta =
-      mkJob "jotta"
-      // {
-        targetHost = "531e044d80bba9c63ec9d1ff2dd12c96";
-        # Jotta egress is paid/slow: verify metadata only, monthly. The REST
-        # repos get the read-data checks.
-        check = {
-          args = [];
-          interval = "monthly";
-        };
+    jotta = mkJob "jotta" // {
+      targetHost = "531e044d80bba9c63ec9d1ff2dd12c96";
+      # Jotta egress is paid/slow: verify metadata only, monthly. The REST
+      # repos get the read-data checks.
+      check = {
+        args = [ ];
+        interval = "monthly";
       };
+    };
   };
 }

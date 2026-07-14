@@ -3,7 +3,8 @@
   pkgs,
   lib,
   ...
-}: {
+}:
+{
   imports = [
     ../../common
     ./hardware-configuration.nix
@@ -21,7 +22,7 @@
   ];
 
   # Disable built-in tsidp module in favor of the flake input
-  disabledModules = ["services/security/tsidp.nix"];
+  disabledModules = [ "services/security/tsidp.nix" ];
 
   my.wan = "enp0s3";
   my.lan = "enp1s0";
@@ -62,8 +63,11 @@
     nat = {
       enable = true;
       externalInterface = config.my.wan;
-      internalIPs = ["10.0.0.0/8"];
-      internalInterfaces = [config.my.lan "iot"];
+      internalIPs = [ "10.0.0.0/8" ];
+      internalInterfaces = [
+        config.my.lan
+        "iot"
+      ];
       forwardPorts = [
         {
           sourcePort = 64322;
@@ -89,7 +93,7 @@
         config.services.tailscale.port
       ];
 
-      trustedInterfaces = [config.my.lan];
+      trustedInterfaces = [ config.my.lan ];
     };
   };
 
@@ -102,8 +106,13 @@
   };
 
   services.tailscale = {
-    advertiseRoutes = ["10.67.0.0/16"];
-    tags = ["tag:backup-client" "tag:dev" "tag:gateway" "tag:server"];
+    advertiseRoutes = [ "10.67.0.0/16" ];
+    tags = [
+      "tag:backup-client"
+      "tag:dev"
+      "tag:gateway"
+      "tag:server"
+    ];
   };
 
   services.tsidp.enable = true;

@@ -4,9 +4,11 @@
   lib,
   inputs,
   ...
-}: let
+}:
+let
   sshKeys = import ../../metadata/ssh.nix;
-in {
+in
+{
   imports = [
     ../../common/base.nix
     ../../profiles/server.nix
@@ -51,7 +53,7 @@ in {
 
   # Build aarch64-linux here (qemu emulation) so `rnb dev.ldn` can serve arm
   # builds; binfmt auto-advertises it via extra-platforms. Slow but handy.
-  boot.binfmt.emulatedSystems = ["aarch64-linux"];
+  boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
 
   boot.kernel.sysctl = {
     # if you use ipv4, this is all you need
@@ -80,9 +82,18 @@ in {
     # 192.168.156.0/24 = the IoT VLAN (unifi vlan 156); routed here so
     # core.oracldn's tasmota/homewizard exporters can reach *.ldn devices.
     # Needs the unifi LAN->IoT firewall to permit the probe.
-    advertiseRoutes = ["10.65.0.0/16" "192.168.156.0/24" "2a02:6b66:7019::/64"];
+    advertiseRoutes = [
+      "10.65.0.0/16"
+      "192.168.156.0/24"
+      "2a02:6b66:7019::/64"
+    ];
     # tag:server comes from the incus-vm-ldn.nix baseline.
-    tags = ["tag:backup-client" "tag:deployer" "tag:dev" "tag:gateway"];
+    tags = [
+      "tag:backup-client"
+      "tag:deployer"
+      "tag:dev"
+      "tag:gateway"
+    ];
   };
 
   # Secondary Tailscale instance: headscale.sandefjordfiber.no (dev.ldn only).
@@ -93,8 +104,8 @@ in {
   services.tailscales.sfiber = {
     enable = true;
     authKeyFile = config.age.secrets.headscale-sfiber-client-preauthkey.path;
-    extraUpFlags = ["--login-server=https://headscale.sandefjordfiber.no"];
-    extraSetFlags = ["--hostname=dev-ldn"];
+    extraUpFlags = [ "--login-server=https://headscale.sandefjordfiber.no" ];
+    extraSetFlags = [ "--hostname=dev-ldn" ];
   };
 
   services.ssh-agent-mux = {
@@ -126,7 +137,7 @@ in {
   environment.systemPackages = [
     # Do install the docker CLI to talk to podman.
     # Not needed when virtualisation.docker.enable = true;
-    (pkgs.docker_29.override {clientOnly = true;})
+    (pkgs.docker_29.override { clientOnly = true; })
     pkgs.unstable.lima-full
     pkgs.unstable.nodejs_26
     pkgs.incus
@@ -150,11 +161,11 @@ in {
 
   security.sudo.extraRules = [
     {
-      users = ["kradalby"];
+      users = [ "kradalby" ];
       commands = [
         {
           command = "ALL";
-          options = ["NOPASSWD"]; # "SETENV"
+          options = [ "NOPASSWD" ]; # "SETENV"
         }
       ];
     }

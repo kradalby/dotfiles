@@ -1,10 +1,10 @@
-{modulesPath, ...}: {
-  imports = [(modulesPath + "/profiles/qemu-guest.nix")];
+{ modulesPath, ... }: {
+  imports = [ (modulesPath + "/profiles/qemu-guest.nix") ];
 
   # boot.binfmt.emulatedSystems = [ "amd64-linux" ];
 
   boot.growPartition = true;
-  boot.initrd.kernelModules = ["nvme"];
+  boot.initrd.kernelModules = [ "nvme" ];
   boot.loader.grub = {
     efiSupport = true;
     efiInstallAsRemovable = true;

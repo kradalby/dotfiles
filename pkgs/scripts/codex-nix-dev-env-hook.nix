@@ -1,9 +1,9 @@
-{pkgs, ...}:
+{ pkgs, ... }:
 pkgs.writeShellApplication {
   name = "codex-nix-dev-env-hook";
 
   # Manages its own control flow (non-zero exits are intentional passthrough).
-  bashOptions = [];
+  bashOptions = [ ];
 
   runtimeInputs = with pkgs; [
     jq

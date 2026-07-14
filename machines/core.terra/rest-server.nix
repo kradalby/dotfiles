@@ -3,15 +3,17 @@
   lib,
   config,
   ...
-}: let
+}:
+let
   port = 56899;
-in {
+in
+{
   services.restic.server = {
     enable = true;
     dataDir = "/storage/restic";
     prometheus = true;
     listenAddress = "127.0.0.1:${toString port}";
-    extraFlags = ["--no-auth"];
+    extraFlags = [ "--no-auth" ];
   };
 
   services.tailscale.services.restic-terra = {
@@ -30,13 +32,13 @@ in {
     shell = "/run/current-system/sw/bin/nologin";
     group = "tailscale-restic-proxy";
   };
-  users.groups.tailscale-restic-proxy = {};
+  users.groups.tailscale-restic-proxy = { };
 
   systemd.services.tailscale-restic-proxy = {
     enable = true;
     description = "Tailscale Restic Proxy";
-    wantedBy = ["multi-user.target"];
-    after = ["restic-rest-server.service"];
+    wantedBy = [ "multi-user.target" ];
+    after = [ "restic-rest-server.service" ];
 
     script = ''
         export TS_AUTHKEY=$(cat ${config.age.secrets.tailscale-preauthkey.path})

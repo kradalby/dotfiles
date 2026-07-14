@@ -3,7 +3,8 @@
   lib,
   config,
   ...
-}: {
+}:
+{
   imports = [
     ./journal-volatile.nix
   ];
@@ -15,7 +16,12 @@
       useTmpfs = true;
     };
 
-    initrd.availableKernelModules = ["xhci_pci" "uas" "usbhid" "usb_storage"];
+    initrd.availableKernelModules = [
+      "xhci_pci"
+      "uas"
+      "usbhid"
+      "usb_storage"
+    ];
     kernelParams = lib.mkForce [
       "8250.nr_uarts=1"
 
@@ -58,12 +64,15 @@
     "/" = {
       device = "/dev/disk/by-label/NIXOS_SD";
       fsType = "ext4";
-      options = ["noatime"];
+      options = [ "noatime" ];
     };
     "/boot/firmware" = {
       device = "/dev/disk/by-label/FIRMWARE";
       fsType = "vfat";
-      options = ["nofail" "noauto"];
+      options = [
+        "nofail"
+        "noauto"
+      ];
     };
   };
 }

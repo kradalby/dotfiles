@@ -3,7 +3,8 @@
   lib,
   pkgs,
   ...
-}: let
+}:
+let
   # Only meaningful on hosts that actually run sanoid.
   cfg = config.services.sanoid;
   datasets = lib.attrNames cfg.datasets;
@@ -17,27 +18,24 @@
   # ascending so `tail -1` is the newest snapshot. -d1 keeps us on the dataset
   # itself (not its children). Missing/empty -> 0, which reads as "epoch old"
   # and correctly trips a snapshot-freshness alert.
-  snapshotLines =
-    lib.concatMapStrings (ds: ''
-      ts=$(${pkgs.zfs}/bin/zfs list -H -p -t snapshot -o creation -s creation -d1 ${lib.escapeShellArg ds} 2>/dev/null | tail -1)
-      printf 'zfs_snapshot_newest_creation_seconds{dataset="%s"} %s\n' ${lib.escapeShellArg ds} "''${ts:-0}" >>"$tmp"
-    '')
-    datasets;
+  snapshotLines = lib.concatMapStrings (ds: ''
+    ts=$(${pkgs.zfs}/bin/zfs list -H -p -t snapshot -o creation -s creation -d1 ${lib.escapeShellArg ds} 2>/dev/null | tail -1)
+    printf 'zfs_snapshot_newest_creation_seconds{dataset="%s"} %s\n' ${lib.escapeShellArg ds} "''${ts:-0}" >>"$tmp"
+  '') datasets;
 
   # `zpool status -x <pool>` prints "pool '<pool>' is healthy" when all is well;
   # anything else (DEGRADED, checksum/read/write errors, scrub findings) means
   # the pool needs attention even while it stays ONLINE.
-  poolLines =
-    lib.concatMapStrings (pool: ''
-      if ${pkgs.zfs}/bin/zpool status -x ${lib.escapeShellArg pool} 2>/dev/null | grep -q 'is healthy'; then
-        err=0
-      else
-        err=1
-      fi
-      printf 'zfs_pool_status_errors{pool="%s"} %s\n' ${lib.escapeShellArg pool} "$err" >>"$tmp"
-    '')
-    pools;
-in {
+  poolLines = lib.concatMapStrings (pool: ''
+    if ${pkgs.zfs}/bin/zpool status -x ${lib.escapeShellArg pool} 2>/dev/null | grep -q 'is healthy'; then
+      err=0
+    else
+      err=1
+    fi
+    printf 'zfs_pool_status_errors{pool="%s"} %s\n' ${lib.escapeShellArg pool} "$err" >>"$tmp"
+  '') pools;
+in
+{
   config = lib.mkIf cfg.enable {
     systemd.tmpfiles.rules = [
       "d ${textfileDir} 0755 root root -"
@@ -65,7 +63,7 @@ in {
     };
 
     systemd.timers.sanoid-exporter = {
-      wantedBy = ["timers.target"];
+      wantedBy = [ "timers.target" ];
       timerConfig = {
         OnBootSec = "5m";
         OnUnitActiveSec = "15m";

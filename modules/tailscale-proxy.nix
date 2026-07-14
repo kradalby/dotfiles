@@ -3,15 +3,18 @@
   pkgs,
   lib,
   ...
-} @ args:
-with lib; let
+}@args:
+with lib;
+let
   cfg = config.services.tailscale-proxies;
   username = "tailscale-proxy";
   baseDataDir = "/var/lib/${username}";
-in {
+in
+{
   options.services.tailscale-proxies = mkOption {
-    default = {};
-    type = with types;
+    default = { };
+    type =
+      with types;
       attrsOf (submodule {
         options = {
           enable = mkEnableOption "Enable tailscale-proxy";
@@ -51,7 +54,7 @@ in {
     '';
   };
 
-  config = mkIf (cfg != {}) {
+  config = mkIf (cfg != { }) {
     users.users.tailscale-proxy = {
       home = baseDataDir;
       createHome = true;
@@ -61,37 +64,37 @@ in {
       description = username;
     };
 
-    users.groups.tailscale-proxy = {};
+    users.groups.tailscale-proxy = { };
 
     systemd.services = flip mapAttrs' cfg (
-      subSvcName: svcConfig: let
+      subSvcName: svcConfig:
+      let
         svcName = "${username}-${subSvcName}";
         dataDir = "${baseDataDir}/${subSvcName}";
       in
-        nameValuePair svcName
-        {
-          inherit (svcConfig) enable;
-          wantedBy = ["multi-user.target"];
-          after = ["network.target"];
-          restartTriggers = [svcConfig.package];
-          script = ''
-            mkdir -p ${dataDir}
-            export TS_AUTHKEY=`cat ${svcConfig.tailscaleKeyPath}`
-            ${svcConfig.package}/bin/proxy-to-grafana \
-              --hostname=${svcConfig.hostname} \
-              --backend-addr=localhost:${toString svcConfig.backendPort} \
-              --state-dir=${dataDir} \
-              --login-server=${svcConfig.loginServer} \
-              --use-https=false
-          '';
-          serviceConfig = {
-            User = username;
-            Group = username;
-            Restart = "always";
-            RestartSec = "15";
-            WorkingDirectory = baseDataDir;
-          };
-        }
+      nameValuePair svcName {
+        inherit (svcConfig) enable;
+        wantedBy = [ "multi-user.target" ];
+        after = [ "network.target" ];
+        restartTriggers = [ svcConfig.package ];
+        script = ''
+          mkdir -p ${dataDir}
+          export TS_AUTHKEY=`cat ${svcConfig.tailscaleKeyPath}`
+          ${svcConfig.package}/bin/proxy-to-grafana \
+            --hostname=${svcConfig.hostname} \
+            --backend-addr=localhost:${toString svcConfig.backendPort} \
+            --state-dir=${dataDir} \
+            --login-server=${svcConfig.loginServer} \
+            --use-https=false
+        '';
+        serviceConfig = {
+          User = username;
+          Group = username;
+          Restart = "always";
+          RestartSec = "15";
+          WorkingDirectory = baseDataDir;
+        };
+      }
     );
   };
 }

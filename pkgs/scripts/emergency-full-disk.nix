@@ -1,7 +1,11 @@
 { pkgs, ... }:
 pkgs.writeShellApplication {
   name = "emergency-full-disk";
-  runtimeInputs = with pkgs; [coreutils util-linux nix];
+  runtimeInputs = with pkgs; [
+    coreutils
+    util-linux
+    nix
+  ];
   text = ''
     EMPTY_FILE_PATH=/delete_me.empty
     if [ -f $EMPTY_FILE_PATH ]; then

@@ -4,8 +4,8 @@ read -rs password
 echo
 
 OUT="$(mktemp -d /tmp/output.XXXXXXXXXX)" || {
-	echo "Failed to create temp file"
-	exit 1
+  echo "Failed to create temp file"
+  exit 1
 }
 cp boot.py main.py "$OUT/"
 find "$OUT" -type f -exec sed -i "s/@WIFI_SSID@/$WIFI_IOT_SSID/g" {} \;

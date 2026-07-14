@@ -1,4 +1,4 @@
-{...}: {
+{ ... }: {
   imports = [
     ./ca.nix
     ./darwin/system.nix

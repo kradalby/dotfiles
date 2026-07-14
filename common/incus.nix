@@ -3,7 +3,8 @@
   lib,
   modulesPath,
   ...
-}: {
+}:
+{
   imports = [
     (modulesPath + "/profiles/qemu-guest.nix")
   ];
@@ -14,7 +15,12 @@
     loader.systemd-boot.enable = true;
     loader.efi.canTouchEfiVariables = true;
 
-    initrd.availableKernelModules = ["virtio_pci" "virtio_scsi" "ahci" "sd_mod"];
+    initrd.availableKernelModules = [
+      "virtio_pci"
+      "virtio_scsi"
+      "ahci"
+      "sd_mod"
+    ];
   };
 
   fileSystems = {
@@ -29,7 +35,7 @@
     };
   };
 
-  swapDevices = [];
+  swapDevices = [ ];
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
 

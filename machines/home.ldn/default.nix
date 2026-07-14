@@ -3,7 +3,8 @@
   pkgs,
   lib,
   ...
-}: {
+}:
+{
   imports = [
     ../../common/base.nix
     ../../profiles/server.nix
@@ -25,7 +26,10 @@
 
   # Merges with the tag:server baseline from incus-vm-ldn.nix. tag:homeauto
   # gates the mqtt ports and approves the owntone/p3/z2m VIP advertisements.
-  services.tailscale.tags = ["tag:backup-client" "tag:homeauto"];
+  services.tailscale.tags = [
+    "tag:backup-client"
+    "tag:homeauto"
+  ];
 
   networking = {
     hostName = "home";

@@ -6,10 +6,14 @@
 #      active version). op is NOT a nix dependency; it's used from PATH if found.
 # -v/--verbose traces which source answered, to stderr (stdout stays the value).
 # One source of truth: the "ts1p" 1Password vault. setec serves it; op reads it.
-{pkgs}:
+{ pkgs }:
 pkgs.writeShellApplication {
   name = "secret";
-  runtimeInputs = [pkgs.curl pkgs.coreutils pkgs.findutils];
+  runtimeInputs = [
+    pkgs.curl
+    pkgs.coreutils
+    pkgs.findutils
+  ];
   text = ''
     verbose=0
     case "''${1:-}" in

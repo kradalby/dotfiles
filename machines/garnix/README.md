@@ -52,7 +52,7 @@ incus resets it (`incusd: Instance stopped … reason=disconnect`, ~every 80 min
 Not a memory problem. Fixed by CPU isolation, **deployed**: VM pinned to cores
 `0-3` (`limits.cpu = "0-3"` in `gigabuilder_instances.tf`), host builds confined to
 `4-31` (`nix-daemon` `CPUAffinity = "4-31"` in `../gigabuilder/builder.nix`). incus
-can't switch a *running* VM to pinning — reconcile once stopped (`incus stop` →
+can't switch a _running_ VM to pinning — reconcile once stopped (`incus stop` →
 `incus config set … limits.cpu 0-3` → `incus start`); the `.tf` stays source of
 truth.
 
@@ -68,7 +68,7 @@ Keep the VM at 16 GiB; gigabuilder needs its 64 GiB for the offloaded builds.
 
 State is postgres db `garnix`. `builds.status` is an enum, `NULL` = pending. garnix
 does **not** resume orphaned pending builds after a crash, and never rebuilds
-*superseded* commits — their GitHub checks sit `in_progress` forever (harmless; the
+_superseded_ commits — their GitHub checks sit `in_progress` forever (harmless; the
 PR uses the latest commit). Reset the queue with SQL on `builds`:
 
 ```bash
@@ -157,20 +157,20 @@ the laptop (which has the `gigabuilder` incus remote). `type = virtual-machine`,
 Twelve `garnix-*.age` secrets, encrypted to the garnix host key (added as a
 recipient in `secrets/secrets.nix`):
 
-| secret (`secrets/`)                   | how to make it |
-|---------------------------------------|----------------|
-| `garnix-database-password.age`        | `openssl rand -hex 32` |
-| `garnix-github-app-id.age`            | from the GitHub App |
-| `garnix-github-app-pk.age`            | GitHub App private key (PEM) |
-| `garnix-github-client-id.age`         | from the GitHub App |
-| `garnix-github-client-secret.age`     | from the GitHub App |
-| `garnix-github-webhook-secret.age`    | random; same value in the App |
-| `garnix-opensearch-credential.age`    | random (unused under trust auth) |
-| `garnix-jwt-key.age`                  | `Servant.Auth.Server.writeKey` |
-| `garnix-repo-secrets-key.age`         | age **private** key (`age-keygen`) |
-| `garnix-repo-secrets-key-pub.age`     | matching age **public** key |
-| `garnix-action-runner-ssh.age`        | ssh keypair; pub → `garnix.actionRunner.authorizedKey` |
-| `garnix-remote-builder-ssh.age`       | ssh keypair; pub → gigabuilder `builder.nix` nix-ssh key |
+| secret (`secrets/`)                | how to make it                                           |
+| ---------------------------------- | -------------------------------------------------------- |
+| `garnix-database-password.age`     | `openssl rand -hex 32`                                   |
+| `garnix-github-app-id.age`         | from the GitHub App                                      |
+| `garnix-github-app-pk.age`         | GitHub App private key (PEM)                             |
+| `garnix-github-client-id.age`      | from the GitHub App                                      |
+| `garnix-github-client-secret.age`  | from the GitHub App                                      |
+| `garnix-github-webhook-secret.age` | random; same value in the App                            |
+| `garnix-opensearch-credential.age` | random (unused under trust auth)                         |
+| `garnix-jwt-key.age`               | `Servant.Auth.Server.writeKey`                           |
+| `garnix-repo-secrets-key.age`      | age **private** key (`age-keygen`)                       |
+| `garnix-repo-secrets-key-pub.age`  | matching age **public** key                              |
+| `garnix-action-runner-ssh.age`     | ssh keypair; pub → `garnix.actionRunner.authorizedKey`   |
+| `garnix-remote-builder-ssh.age`    | ssh keypair; pub → gigabuilder `builder.nix` nix-ssh key |
 
 ### GitHub App
 

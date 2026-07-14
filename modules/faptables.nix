@@ -4,7 +4,8 @@
   lib,
   ...
 }:
-with lib; let
+with lib;
+let
   cfg = config.networking.faptables;
 
   # Produces a CSV list of interface names.
@@ -44,7 +45,8 @@ with lib; let
       parameter-problem,
     } counter accept
   '';
-in {
+in
+{
   options.networking.faptables = {
     enable = mkEnableOption "fap tables is a service wrapper around nftables for my routers";
 
@@ -66,15 +68,15 @@ in {
 
     wans = mkOption {
       type = lib.types.listOf (lib.types.attrsOf lib.types.str);
-      default = [];
-      example = [{name = "wan0";}];
+      default = [ ];
+      example = [ { name = "wan0"; } ];
       description = "WAN / Internet facing interfaces";
     };
 
     lan = {
       trusted = mkOption {
         type = lib.types.listOf (lib.types.attrsOf lib.types.str);
-        default = [];
+        default = [ ];
         example = [
           {
             name = "lan0";
@@ -85,7 +87,7 @@ in {
       };
       untrusted = mkOption {
         type = lib.types.listOf (lib.types.attrsOf lib.types.str);
-        default = [];
+        default = [ ];
         example = [
           {
             name = "selskap0";
@@ -111,11 +113,7 @@ in {
         table inet filter {
           # Incoming connections to router itself.
           chain input {
-            meta nftrace set ${
-          if cfg.trace
-          then "1"
-          else "0"
-        }
+            meta nftrace set ${if cfg.trace then "1" else "0"}
 
             type filter hook input priority 0
             policy drop
@@ -191,12 +189,9 @@ in {
             } counter accept comment "router untrusted UDP"
 
             # Drop traffic trying to cross VLANs or broadcast.
-            ${
-          lib.concatMapStrings (ifi: ''
-            # iifname ${ifi.name} ip daddr != ${ifi.prefix} counter drop comment "${ifi.name} traffic leaving IPv4 VLAN"
-          '')
-          cfg.lan.untrusted
-        }
+            ${lib.concatMapStrings (ifi: ''
+              # iifname ${ifi.name} ip daddr != ${ifi.prefix} counter drop comment "${ifi.name} traffic leaving IPv4 VLAN"
+            '') cfg.lan.untrusted}
 
 
             counter drop

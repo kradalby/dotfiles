@@ -3,7 +3,8 @@
   pkgs,
   config,
   ...
-}: {
+}:
+{
   imports = [
     ../../common/litestream.nix
   ];

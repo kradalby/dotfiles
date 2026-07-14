@@ -4,7 +4,8 @@
   lib,
   ...
 }:
-with lib; let
+with lib;
+let
   nextdnsProfile = "842cee";
   nextdnsUpstreams = [
     "tls://2a07:a8c0::ae:9cfd"
@@ -20,7 +21,8 @@ with lib; let
     "tls://[2606:4700:4700::1001]"
   ];
 
-in {
+in
+{
   imports = [
     ../modules/blocklist.nix
   ];
@@ -28,7 +30,7 @@ in {
   options = {
     my.coredns.bind = mkOption {
       type = types.listOf types.str;
-      default = [];
+      default = [ ];
     };
   };
 
@@ -37,75 +39,71 @@ in {
 
     services.coredns = {
       enable = true;
-      config = let
-        currentSite = builtins.replaceStrings [".fap.no"] [""] config.networking.domain;
-      in ''
-        (b) {
-        ${
-          if (builtins.length config.my.coredns.bind > 0)
-          then ''bind ${lib.concatStringsSep " " config.my.coredns.bind}''
-          else ""
-        }
-        }
-
-        dalby.ts.net {
-          import b
-          forward . 100.100.100.100:53 {
-            health_check 5s
+      config =
+        let
+          currentSite = builtins.replaceStrings [ ".fap.no" ] [ "" ] config.networking.domain;
+        in
+        ''
+          (b) {
+          ${
+            if (builtins.length config.my.coredns.bind > 0) then
+              "bind ${lib.concatStringsSep " " config.my.coredns.bind}"
+            else
+              ""
           }
-        }
+          }
 
-        # Internal zones.
-        ${currentSite} {
-          import b
-          hosts {
-        ${
-          lib.concatMapStrings (host: ''
+          dalby.ts.net {
+            import b
+            forward . 100.100.100.100:53 {
+              health_check 5s
+            }
+          }
+
+          # Internal zones.
+          ${currentSite} {
+            import b
+            hosts {
+          ${lib.concatMapStrings (host: ''
             ${host.ipAddress} ${host.hostname}.${currentSite}
-          '')
-          config.my.machines
-        }
+          '') config.my.machines}
+            }
           }
-        }
 
-        (nextdns) {
-          forward . ${concatStringsSep " " nextdnsUpstreams} {
-            tls_servername ${nextdnsProfile}.dns.nextdns.io
-            policy sequential
-            health_check 5s
+          (nextdns) {
+            forward . ${concatStringsSep " " nextdnsUpstreams} {
+              tls_servername ${nextdnsProfile}.dns.nextdns.io
+              policy sequential
+              health_check 5s
+            }
           }
-        }
 
-        (cloudflare) {
-          forward . ${concatStringsSep " " cloudflareUpstreams} {
-            tls_servername ${cloudflareTlsHost}
-            health_check 5s
+          (cloudflare) {
+            forward . ${concatStringsSep " " cloudflareUpstreams} {
+              tls_servername ${cloudflareTlsHost}
+              health_check 5s
+            }
           }
-        }
 
-        (blacklist) {
-          hosts ${config.services.blocklist-downloader.dataDir}/${config.services.blocklist-downloader.fileName} {
-            reload 3600s
-            no_reverse
-            fallthrough
+          (blacklist) {
+            hosts ${config.services.blocklist-downloader.dataDir}/${config.services.blocklist-downloader.fileName} {
+              reload 3600s
+              no_reverse
+              fallthrough
+            }
           }
-        }
 
-        . {
-          cache 3600 {
-            success 8192
-            denial 4096
+          . {
+            cache 3600 {
+              success 8192
+              denial 4096
+            }
+            prometheus :9153
+          ${if config.services.blocklist-downloader.enable then "import blacklist" else ""}
+            import b
+            import nextdns
           }
-          prometheus :9153
-        ${
-          if config.services.blocklist-downloader.enable
-          then "import blacklist"
-          else ""
-        }
-          import b
-          import nextdns
-        }
-      '';
+        '';
     };
 
     systemd.services.coredns = {
@@ -117,8 +115,11 @@ in {
 
     # networking.firewall.interfaces."${config.my.lan}".allowedTCPPorts = [ 53 9153 ];
     # networking.firewall.interfaces."${config.my.lan}".allowedUDPPorts = [ 53 ];
-    networking.firewall.allowedTCPPorts = [53 9153];
-    networking.firewall.allowedUDPPorts = [53];
+    networking.firewall.allowedTCPPorts = [
+      53
+      9153
+    ];
+    networking.firewall.allowedUDPPorts = [ 53 ];
 
   };
 }

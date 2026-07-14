@@ -1,4 +1,4 @@
-{buildGoModule}:
+{ buildGoModule }:
 buildGoModule {
   pname = "authkey";
   version = "unstable";

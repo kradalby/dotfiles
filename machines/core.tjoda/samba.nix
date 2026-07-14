@@ -1,4 +1,4 @@
-{lib, ...}: {
+{ lib, ... }: {
   imports = [
     ../../common/samba-base.nix
     ../../common/samba-storage.nix

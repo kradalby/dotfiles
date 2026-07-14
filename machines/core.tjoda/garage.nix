@@ -2,7 +2,8 @@
   config,
   lib,
   ...
-}: {
+}:
+{
   imports = [
     ../../common/garage.nix
   ];
@@ -52,7 +53,7 @@
     };
   };
   systemd.timers.garage-meta-snapshot = {
-    wantedBy = ["timers.target"];
+    wantedBy = [ "timers.target" ];
     timerConfig = {
       OnCalendar = "daily";
       Persistent = true;

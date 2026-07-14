@@ -2,7 +2,8 @@
   config,
   lib,
   ...
-}: {
+}:
+{
   services.prometheus.exporters.smokeping = {
     enable = true;
 
@@ -18,9 +19,9 @@
   };
 
   systemd.services."prometheus-smokeping-exporter" = {
-    wantedBy = ["multi-user.target"];
-    wants = ["network-online.target"];
-    after = ["network-online.target"];
+    wantedBy = [ "multi-user.target" ];
+    wants = [ "network-online.target" ];
+    after = [ "network-online.target" ];
   };
 
 }

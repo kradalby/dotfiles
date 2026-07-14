@@ -87,7 +87,14 @@
     # lands the event, otherwise the entire file is silently dropped.
     hooks = {
       SessionStart = [
-        {hooks = [{type = "command"; command = ''bash "$HOME/.claude/hooks/nix-dev-env.sh" || true'';}];}
+        {
+          hooks = [
+            {
+              type = "command";
+              command = ''bash "$HOME/.claude/hooks/nix-dev-env.sh" || true'';
+            }
+          ];
+        }
       ];
     };
 
@@ -160,12 +167,10 @@
         };
         # One entry per (model, context); keys are the ollama variant tags.
         models = builtins.listToAttrs (
-          map
-            (v: {
-              name = v.tag;
-              value = mkModel v;
-            })
-            registry.variants
+          map (v: {
+            name = v.tag;
+            value = mkModel v;
+          }) registry.variants
         );
       };
 

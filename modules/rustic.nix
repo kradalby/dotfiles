@@ -143,16 +143,18 @@
   pkgs,
   ...
 }:
-with lib; let
+with lib;
+let
   cfg = config.services.rustic;
 
   # Generate a rustic TOML profile for a backup job.
   # Placed in /etc/rustic/<name>.toml via environment.etc and loaded
   # by rustic with `-P <name>`.
-  mkProfile = name: backup: let
-    # Build the repository section
-    repositorySection =
-      {
+  mkProfile =
+    name: backup:
+    let
+      # Build the repository section
+      repositorySection = {
         repository = backup.repository;
       }
       // optionalAttrs (backup.passwordCommand != null) {
@@ -162,18 +164,14 @@ with lib; let
         password-file = backup.passwordFile;
       };
 
-    # Build the forget section from pruneOpts
-    forgetSection =
-      backup.pruneOpts
-      // {
+      # Build the forget section from pruneOpts
+      forgetSection = backup.pruneOpts // {
         prune = true;
       };
 
-    # Build the full config (recursiveUpdate so extraConfig
-    # can add keys to backup/forget without overwriting them)
-    profileConfig =
-      recursiveUpdate
-      {
+      # Build the full config (recursiveUpdate so extraConfig
+      # can add keys to backup/forget without overwriting them)
+      profileConfig = recursiveUpdate {
         repository = repositorySection;
         backup = {
           init = backup.initialize;
@@ -184,10 +182,9 @@ with lib; let
           ];
         };
         forget = forgetSection;
-      }
-      backup.extraConfig;
-  in
-    (pkgs.formats.toml {}).generate "rustic-${name}.toml" profileConfig;
+      } backup.extraConfig;
+    in
+    (pkgs.formats.toml { }).generate "rustic-${name}.toml" profileConfig;
 
   # Stable .app bundle path for Full Disk Access.
   # Must live outside the Nix store at a fixed path so the macOS FDA
@@ -200,7 +197,7 @@ with lib; let
   # `display notification` can't do -group or -ignoreDnD, so those are
   # dropped; sound, title, and message are preserved. iconSource is left
   # unset — drop an .icns path here to give the alerts a custom icon.
-  rusticNotifier = import ../common/darwin/notify-applet.nix {inherit lib pkgs;} {
+  rusticNotifier = import ../common/darwin/notify-applet.nix { inherit lib pkgs; } {
     appName = "RusticNotify";
     bundleId = "no.kradalby.RusticNotify";
     urlScheme = "rusticnotify";
@@ -223,7 +220,8 @@ with lib; let
   # included when enableNotifications is true. `label` controls the
   # notification title (e.g. "Backup", "Maintenance", "Verify"). Relies on
   # rnotify being defined earlier in the preamble (see notifyHelper).
-  mkErrTrap = name: label:
+  mkErrTrap =
+    name: label:
     optionalString cfg.enableNotifications ''
       trap 'rnotify "${label} Failed" "rustic ${toLower label} ${name} failed at $(date)" Basso' ERR
     '';
@@ -238,7 +236,12 @@ with lib; let
     ${optionalString (cfg.opServiceAccountTokenFile != null) ''
       export OP_SERVICE_ACCOUNT_TOKEN="$(cat ${cfg.opServiceAccountTokenFile})"
     ''}
-    export PATH="${lib.makeBinPath [pkgs.rclone pkgs._1password-cli]}:$PATH"
+    export PATH="${
+      lib.makeBinPath [
+        pkgs.rclone
+        pkgs._1password-cli
+      ]
+    }:$PATH"
   '';
 
   # AC power guard — exits 0 (not an error) when on battery so the
@@ -262,9 +265,11 @@ with lib; let
   # flows from the wrapper (the .app's main executable) to the child
   # bash/rustic/rclone processes regardless of where the script lives
   # on disk.
-  mkJobScript = name: _backup: let
-    rusticBin = "${pkgs.rustic}/bin/rustic";
-  in
+  mkJobScript =
+    name: _backup:
+    let
+      rusticBin = "${pkgs.rustic}/bin/rustic";
+    in
     pkgs.writers.writeBash "rustic-backup-${name}" ''
       ${mkScriptPreamble name "Backup"}
 
@@ -275,9 +280,11 @@ with lib; let
 
   # Daily maintenance script: forget+prune and metadata check.
   # Runs on its own schedule, separate from the backup agent.
-  mkMaintenanceScript = name: backup: let
-    rusticBin = "${pkgs.rustic}/bin/rustic";
-  in
+  mkMaintenanceScript =
+    name: backup:
+    let
+      rusticBin = "${pkgs.rustic}/bin/rustic";
+    in
     pkgs.writers.writeBash "rustic-maint-${name}" ''
       ${mkScriptPreamble name "Maintenance"}
 
@@ -292,9 +299,11 @@ with lib; let
 
   # Weekly deep verification script: check --read-data-subset.
   # Verifies actual data integrity over time.
-  mkVerifyScript = name: backup: let
-    rusticBin = "${pkgs.rustic}/bin/rustic";
-  in
+  mkVerifyScript =
+    name: backup:
+    let
+      rusticBin = "${pkgs.rustic}/bin/rustic";
+    in
     pkgs.writers.writeBash "rustic-verify-${name}" ''
       ${mkScriptPreamble name "Verify"}
 
@@ -315,10 +324,12 @@ with lib; let
   # It also pushes the newest-snapshot timestamp to the fleet pushgateway
   # over the tailnet (best-effort) so backup freshness is observable
   # off-device — the on-screen notifications are the only signal otherwise.
-  mkWatchdogScript = name: _backup: let
-    rusticBin = "${pkgs.rustic}/bin/rustic";
-    jq = "${pkgs.jq}/bin/jq";
-  in
+  mkWatchdogScript =
+    name: _backup:
+    let
+      rusticBin = "${pkgs.rustic}/bin/rustic";
+      jq = "${pkgs.jq}/bin/jq";
+    in
     pkgs.writers.writeBash "rustic-check-${name}" ''
       set -euo pipefail
       ${notifyHelper}
@@ -326,7 +337,12 @@ with lib; let
       ${optionalString (cfg.opServiceAccountTokenFile != null) ''
         export OP_SERVICE_ACCOUNT_TOKEN="$(cat ${cfg.opServiceAccountTokenFile})"
       ''}
-      export PATH="${lib.makeBinPath [pkgs.rclone pkgs._1password-cli]}:$PATH"
+      export PATH="${
+        lib.makeBinPath [
+          pkgs.rclone
+          pkgs._1password-cli
+        ]
+      }:$PATH"
 
       echo "=== rustic-check ${name} started at $(date) ==="
 
@@ -431,27 +447,35 @@ with lib; let
   # Guides the operator through creating a read-only service account,
   # saving the token, and verifying access. Added to PATH when
   # opServiceAccountTokenFile is configured.
-  mkSetupScript = let
-    itemInfo = concatStringsSep "\n" (mapAttrsToList (name: backup:
-      optionalString (backup.passwordCommand != null)
-      "echo ${escapeShellArg "  ${name}: ${backup.passwordCommand}"}")
-    cfg.backups);
+  mkSetupScript =
+    let
+      itemInfo = concatStringsSep "\n" (
+        mapAttrsToList (
+          name: backup:
+          optionalString (
+            backup.passwordCommand != null
+          ) "echo ${escapeShellArg "  ${name}: ${backup.passwordCommand}"}"
+        ) cfg.backups
+      );
 
-    verificationCommands = concatStringsSep "\n" (mapAttrsToList (name: backup:
-      optionalString (backup.passwordCommand != null) ''
-        echo "  Testing backup '${name}'..."
-        if ${backup.passwordCommand} &>/dev/null; then
-          echo "    OK"
-        else
-          echo "    FAILED"
-          VERIFY_FAILED=1
-        fi
-      '')
-    cfg.backups);
-  in
+      verificationCommands = concatStringsSep "\n" (
+        mapAttrsToList (
+          name: backup:
+          optionalString (backup.passwordCommand != null) ''
+            echo "  Testing backup '${name}'..."
+            if ${backup.passwordCommand} &>/dev/null; then
+              echo "    OK"
+            else
+              echo "    FAILED"
+              VERIFY_FAILED=1
+            fi
+          ''
+        ) cfg.backups
+      );
+    in
     pkgs.writeShellApplication {
       name = "rustic-setup-op";
-      runtimeInputs = [pkgs._1password-cli];
+      runtimeInputs = [ pkgs._1password-cli ];
       text = ''
         VAULT_NAME=${escapeShellArg cfg.opVault}
         TOKEN_FILE=${escapeShellArg cfg.opServiceAccountTokenFile}
@@ -553,7 +577,8 @@ with lib; let
         echo "  3. Logs: tail -f ~/Library/Logs/rustic-jotta.log"
       '';
     };
-in {
+in
+{
   options.services.rustic = {
     backups = mkOption {
       description = ''
@@ -566,164 +591,176 @@ in {
 
         Logs are written to the configured logPath (default ~/Library/Logs).
       '';
-      type = types.attrsOf (types.submodule ({name, ...}: {
-        options = {
-          repository = mkOption {
-            type = types.str;
-            description = ''
-              Repository to backup to. Supports rclone remotes
-              (e.g. rclone:Jotta:bucket), REST servers, local paths,
-              and OpenDAL backends.
-            '';
-            example = "rclone:Jotta:my-backup-bucket";
-          };
+      type = types.attrsOf (
+        types.submodule (
+          { name, ... }: {
+            options = {
+              repository = mkOption {
+                type = types.str;
+                description = ''
+                  Repository to backup to. Supports rclone remotes
+                  (e.g. rclone:Jotta:bucket), REST servers, local paths,
+                  and OpenDAL backends.
+                '';
+                example = "rclone:Jotta:my-backup-bucket";
+              };
 
-          passwordCommand = mkOption {
-            type = types.nullOr types.str;
-            default = null;
-            description = ''
-              Command to retrieve the repository password.
-              Useful for 1Password CLI integration.
-            '';
-            example = ''op read "op://Rustic/myhost/password"'';
-          };
+              passwordCommand = mkOption {
+                type = types.nullOr types.str;
+                default = null;
+                description = ''
+                  Command to retrieve the repository password.
+                  Useful for 1Password CLI integration.
+                '';
+                example = ''op read "op://Rustic/myhost/password"'';
+              };
 
-          passwordFile = mkOption {
-            type = types.nullOr types.str;
-            default = null;
-            description = ''
-              Read the repository password from a file.
-              Used with agenix/ragenix secrets.
-            '';
-            example = "/run/agenix/restic-password";
-          };
+              passwordFile = mkOption {
+                type = types.nullOr types.str;
+                default = null;
+                description = ''
+                  Read the repository password from a file.
+                  Used with agenix/ragenix secrets.
+                '';
+                example = "/run/agenix/restic-password";
+              };
 
-          paths = mkOption {
-            type = types.listOf types.str;
-            description = ''
-              Directories to back up.
-            '';
-            example = ["/Users/kradalby/git" "/Users/kradalby/Pictures"];
-          };
+              paths = mkOption {
+                type = types.listOf types.str;
+                description = ''
+                  Directories to back up.
+                '';
+                example = [
+                  "/Users/kradalby/git"
+                  "/Users/kradalby/Pictures"
+                ];
+              };
 
-          pruneOpts = mkOption {
-            type = types.attrsOf types.int;
-            default = {
-              keep-daily = 7;
-              keep-weekly = 5;
-              keep-monthly = 12;
-              keep-yearly = 75;
-            };
-            description = ''
-              Retention policy for rustic forget --prune.
-            '';
-          };
+              pruneOpts = mkOption {
+                type = types.attrsOf types.int;
+                default = {
+                  keep-daily = 7;
+                  keep-weekly = 5;
+                  keep-monthly = 12;
+                  keep-yearly = 75;
+                };
+                description = ''
+                  Retention policy for rustic forget --prune.
+                '';
+              };
 
-          initialize = mkOption {
-            type = types.bool;
-            default = true;
-            description = ''
-              Automatically initialize the repository on first backup.
-            '';
-          };
+              initialize = mkOption {
+                type = types.bool;
+                default = true;
+                description = ''
+                  Automatically initialize the repository on first backup.
+                '';
+              };
 
-          calendarInterval = mkOption {
-            type = types.attrsOf types.int;
-            default = {Minute = 30;};
-            description = ''
-              When to run the backup. Maps to launchd StartCalendarInterval.
-              An empty attrset means every minute. Omitted fields are wildcards.
-            '';
-            example = {
-              Hour = 2;
-              Minute = 0;
-            };
-          };
+              calendarInterval = mkOption {
+                type = types.attrsOf types.int;
+                default = {
+                  Minute = 30;
+                };
+                description = ''
+                  When to run the backup. Maps to launchd StartCalendarInterval.
+                  An empty attrset means every minute. Omitted fields are wildcards.
+                '';
+                example = {
+                  Hour = 2;
+                  Minute = 0;
+                };
+              };
 
-          logPath = mkOption {
-            type = types.str;
-            default = "/Users/kradalby/Library/Logs";
-            description = ''
-              Directory for backup log files.
-            '';
-          };
+              logPath = mkOption {
+                type = types.str;
+                default = "/Users/kradalby/Library/Logs";
+                description = ''
+                  Directory for backup log files.
+                '';
+              };
 
-          maintenanceOnACOnly = mkOption {
-            type = types.bool;
-            default = true;
-            description = ''
-              Only run maintenance (forget+prune, check) and deep
-              verification when on AC power. Saves battery on laptops.
-            '';
-          };
+              maintenanceOnACOnly = mkOption {
+                type = types.bool;
+                default = true;
+                description = ''
+                  Only run maintenance (forget+prune, check) and deep
+                  verification when on AC power. Saves battery on laptops.
+                '';
+              };
 
-          maintenanceCalendarInterval = mkOption {
-            type = types.attrsOf types.int;
-            default = {
-              Hour = 3;
-              Minute = 0;
-            };
-            description = ''
-              When to run maintenance (forget+prune, metadata check).
-              Maps to launchd StartCalendarInterval. Default: daily at 03:00.
-            '';
-          };
+              maintenanceCalendarInterval = mkOption {
+                type = types.attrsOf types.int;
+                default = {
+                  Hour = 3;
+                  Minute = 0;
+                };
+                description = ''
+                  When to run maintenance (forget+prune, metadata check).
+                  Maps to launchd StartCalendarInterval. Default: daily at 03:00.
+                '';
+              };
 
-          verifyCalendarInterval = mkOption {
-            type = types.attrsOf types.int;
-            default = {
-              Weekday = 0;
-              Hour = 4;
-              Minute = 0;
-            };
-            description = ''
-              When to run deep data verification (check --read-data-subset).
-              Maps to launchd StartCalendarInterval. Default: Sunday at 04:00.
-            '';
-          };
+              verifyCalendarInterval = mkOption {
+                type = types.attrsOf types.int;
+                default = {
+                  Weekday = 0;
+                  Hour = 4;
+                  Minute = 0;
+                };
+                description = ''
+                  When to run deep data verification (check --read-data-subset).
+                  Maps to launchd StartCalendarInterval. Default: Sunday at 04:00.
+                '';
+              };
 
-          deepCheckSubset = mkOption {
-            type = types.str;
-            default = "1/7";
-            description = ''
-              Subset specification for `rustic check --read-data-subset`.
-              Format: N/M means check 1/M-th of data each run. With
-              weekly runs and "1/7", full coverage every 7 weeks.
-            '';
-          };
+              deepCheckSubset = mkOption {
+                type = types.str;
+                default = "1/7";
+                description = ''
+                  Subset specification for `rustic check --read-data-subset`.
+                  Format: N/M means check 1/M-th of data each run. With
+                  weekly runs and "1/7", full coverage every 7 weeks.
+                '';
+              };
 
-          enableFDA = mkOption {
-            type = types.bool;
-            default = true;
-            description = ''
-              Route the backup through a wrapper .app bundle so
-              it can be granted Full Disk Access in System Settings.
-              The .app is the direct launchd entry point so macOS
-              sees it as the responsible process for TCC checks.
-              After the first darwin-rebuild switch, manually add
-              the .app to System Settings > Privacy & Security >
-              Full Disk Access.
-            '';
-          };
+              enableFDA = mkOption {
+                type = types.bool;
+                default = true;
+                description = ''
+                  Route the backup through a wrapper .app bundle so
+                  it can be granted Full Disk Access in System Settings.
+                  The .app is the direct launchd entry point so macOS
+                  sees it as the responsible process for TCC checks.
+                  After the first darwin-rebuild switch, manually add
+                  the .app to System Settings > Privacy & Security >
+                  Full Disk Access.
+                '';
+              };
 
-          extraConfig = mkOption {
-            type = types.attrs;
-            default = {};
-            description = ''
-              Extra attributes merged into the generated rustic TOML
-              profile. Use this for advanced options like hooks,
-              excludes, tags, or backend-specific settings.
-            '';
-            example = {
-              backup = {
-                exclude-if-present = [".nobackup" "CACHEDIR.TAG"];
-                git-ignore = true;
+              extraConfig = mkOption {
+                type = types.attrs;
+                default = { };
+                description = ''
+                  Extra attributes merged into the generated rustic TOML
+                  profile. Use this for advanced options like hooks,
+                  excludes, tags, or backend-specific settings.
+                '';
+                example = {
+                  backup = {
+                    exclude-if-present = [
+                      ".nobackup"
+                      "CACHEDIR.TAG"
+                    ];
+                    git-ignore = true;
+                  };
+                };
               };
             };
-          };
-        };
-      }));
-      default = {};
+          }
+        )
+      );
+      default = { };
     };
 
     enableNotifications = mkOption {
@@ -788,27 +825,27 @@ in {
     };
   };
 
-  config = mkIf (cfg.backups != {}) {
+  config = mkIf (cfg.backups != { }) {
     # Ensure rustic and rclone are available system-wide.
     # The FDA wrapper resolves rustic via /run/current-system/sw/bin/rustic.
-    environment.systemPackages =
-      [
-        pkgs.rustic
-        pkgs.rclone
-      ]
-      ++ optional (cfg.opServiceAccountTokenFile != null) mkSetupScript;
+    environment.systemPackages = [
+      pkgs.rustic
+      pkgs.rclone
+    ]
+    ++ optional (cfg.opServiceAccountTokenFile != null) mkSetupScript;
 
     # Install the FDA wrapper .app via activation script so it
     # persists across rebuilds at a stable path.
-    system.activationScripts.postActivation.text = let
-      anyFDA = any (b: b.enableFDA) (attrValues cfg.backups);
-      sourceApp = "${mkFdaApp}/RusticBackup.app";
-      # Marker file lives next to the bundle, not inside it. If it
-      # were inside, codesign would either hash it (breaking the
-      # "bit-identical re-signature" property) or complain about an
-      # untracked file during codesign --verify.
-      sourceMarker = "${fdaAppPath}.nix-source";
-    in
+    system.activationScripts.postActivation.text =
+      let
+        anyFDA = any (b: b.enableFDA) (attrValues cfg.backups);
+        sourceApp = "${mkFdaApp}/RusticBackup.app";
+        # Marker file lives next to the bundle, not inside it. If it
+        # were inside, codesign would either hash it (breaking the
+        # "bit-identical re-signature" property) or complain about an
+        # untracked file during codesign --verify.
+        sourceMarker = "${fdaAppPath}.nix-source";
+      in
       optionalString cfg.enableNotifications ''
         ${rusticNotifier.install}
       ''
@@ -863,159 +900,166 @@ in {
     # Helper to build a launchd agent for a given script. Handles
     # the FDA vs non-FDA split in one place instead of duplicating it
     # for each agent type (backup, maintenance, verify).
-    launchd.user.agents = let
-      mkAgent = {
-        agentName,
-        script,
-        lockFile,
-        calendarInterval,
-        logPrefix,
-        backup,
-        runAtLoad ? false,
-      }: let
-        wrapperBin = "${fdaAppPath}/Contents/MacOS/rustic-wrapper";
-        fallbackRunScript = pkgs.writers.writeBash "run-${agentName}" ''
-          ${pkgs.flock}/bin/flock -n ${lockFile} ${script}
-        '';
-        commonConfig =
+    launchd.user.agents =
+      let
+        mkAgent =
           {
-            Disabled = false;
-            StartCalendarInterval = [calendarInterval];
-            ProcessType = "Background";
-            LowPriorityIO = true;
-            StandardOutPath = "${backup.logPath}/${logPrefix}.log";
-            StandardErrorPath = "${backup.logPath}/${logPrefix}-error.log";
-          }
-          // optionalAttrs runAtLoad {RunAtLoad = true;};
+            agentName,
+            script,
+            lockFile,
+            calendarInterval,
+            logPrefix,
+            backup,
+            runAtLoad ? false,
+          }:
+          let
+            wrapperBin = "${fdaAppPath}/Contents/MacOS/rustic-wrapper";
+            fallbackRunScript = pkgs.writers.writeBash "run-${agentName}" ''
+              ${pkgs.flock}/bin/flock -n ${lockFile} ${script}
+            '';
+            commonConfig = {
+              Disabled = false;
+              StartCalendarInterval = [ calendarInterval ];
+              ProcessType = "Background";
+              LowPriorityIO = true;
+              StandardOutPath = "${backup.logPath}/${logPrefix}.log";
+              StandardErrorPath = "${backup.logPath}/${logPrefix}-error.log";
+            }
+            // optionalAttrs runAtLoad { RunAtLoad = true; };
+          in
+          nameValuePair agentName (
+            if backup.enableFDA then
+              {
+                serviceConfig = commonConfig // {
+                  ProgramArguments = [
+                    wrapperBin
+                    script
+                    lockFile
+                  ];
+                };
+              }
+            else
+              {
+                command = "${fallbackRunScript}";
+                serviceConfig = commonConfig;
+              }
+          );
       in
-        nameValuePair agentName (
-          if backup.enableFDA
-          then {
-            serviceConfig =
-              commonConfig
-              // {
-                ProgramArguments = [wrapperBin script lockFile];
-              };
-          }
-          else {
-            command = "${fallbackRunScript}";
-            serviceConfig = commonConfig;
-          }
-        );
-    in
       # Backup agents — one per backup job, runs on calendarInterval.
-      (mapAttrs'
-        (name: backup:
-          mkAgent {
-            agentName = "rustic-backups-${name}";
-            script = "${mkJobScript name backup}";
-            lockFile = "/tmp/rustic_${name}.lockfile";
-            calendarInterval = backup.calendarInterval;
-            logPrefix = "rustic-${name}";
-            inherit backup;
-            runAtLoad = true;
-          })
-        cfg.backups)
+      (mapAttrs' (
+        name: backup:
+        mkAgent {
+          agentName = "rustic-backups-${name}";
+          script = "${mkJobScript name backup}";
+          lockFile = "/tmp/rustic_${name}.lockfile";
+          calendarInterval = backup.calendarInterval;
+          logPrefix = "rustic-${name}";
+          inherit backup;
+          runAtLoad = true;
+        }
+      ) cfg.backups)
       # Maintenance agents — daily forget+prune and metadata check.
-      // (mapAttrs'
-        (name: backup:
-          mkAgent {
-            agentName = "rustic-maint-${name}";
-            script = "${mkMaintenanceScript name backup}";
-            lockFile = "/tmp/rustic_maint_${name}.lockfile";
-            calendarInterval = backup.maintenanceCalendarInterval;
-            logPrefix = "rustic-maint-${name}";
-            inherit backup;
-          })
-        cfg.backups)
+      // (mapAttrs' (
+        name: backup:
+        mkAgent {
+          agentName = "rustic-maint-${name}";
+          script = "${mkMaintenanceScript name backup}";
+          lockFile = "/tmp/rustic_maint_${name}.lockfile";
+          calendarInterval = backup.maintenanceCalendarInterval;
+          logPrefix = "rustic-maint-${name}";
+          inherit backup;
+        }
+      ) cfg.backups)
       # Verify agents — weekly deep data integrity check.
-      // (mapAttrs'
-        (name: backup:
-          mkAgent {
-            agentName = "rustic-verify-${name}";
-            script = "${mkVerifyScript name backup}";
-            lockFile = "/tmp/rustic_verify_${name}.lockfile";
-            calendarInterval = backup.verifyCalendarInterval;
-            logPrefix = "rustic-verify-${name}";
-            inherit backup;
-          })
-        cfg.backups)
+      // (mapAttrs' (
+        name: backup:
+        mkAgent {
+          agentName = "rustic-verify-${name}";
+          script = "${mkVerifyScript name backup}";
+          lockFile = "/tmp/rustic_verify_${name}.lockfile";
+          calendarInterval = backup.verifyCalendarInterval;
+          logPrefix = "rustic-verify-${name}";
+          inherit backup;
+        }
+      ) cfg.backups)
       # Stale backup watchdog agents — one per backup job.
       # Runs daily at 09:00, checks latest snapshot age, and sends
       # escalating notifications via the RusticNotify applet.
-      // (optionalAttrs cfg.enableNotifications
-        (mapAttrs'
-          (name: backup:
-            nameValuePair "rustic-check-${name}" {
-              command = "${mkWatchdogScript name backup}";
-              serviceConfig = {
-                Disabled = false;
-                StartCalendarInterval = [
-                  {
-                    Hour = 9;
-                    Minute = 0;
-                  }
-                ];
-                ProcessType = "Background";
-                StandardOutPath = "${backup.logPath}/rustic-check-${name}.log";
-                StandardErrorPath = "${backup.logPath}/rustic-check-${name}-error.log";
-              };
-            })
-          cfg.backups));
+      // (optionalAttrs cfg.enableNotifications (
+        mapAttrs' (
+          name: backup:
+          nameValuePair "rustic-check-${name}" {
+            command = "${mkWatchdogScript name backup}";
+            serviceConfig = {
+              Disabled = false;
+              StartCalendarInterval = [
+                {
+                  Hour = 9;
+                  Minute = 0;
+                }
+              ];
+              ProcessType = "Background";
+              StandardOutPath = "${backup.logPath}/rustic-check-${name}.log";
+              StandardErrorPath = "${backup.logPath}/rustic-check-${name}-error.log";
+            };
+          }
+        ) cfg.backups
+      ));
 
     # TOML profiles in /etc/rustic/ (one of rustic's default search
     # paths) plus newsyslog rotation configs, merged into one etc block.
     environment.etc =
-      (mapAttrs'
-        (name: backup:
-          nameValuePair "rustic/${name}.toml" {
-            source = mkProfile name backup;
-          })
-        cfg.backups)
-      // (mapAttrs'
-        (name: backup:
-          nameValuePair "newsyslog.d/rustic-${name}.conf" {
+      (mapAttrs' (
+        name: backup:
+        nameValuePair "rustic/${name}.toml" {
+          source = mkProfile name backup;
+        }
+      ) cfg.backups)
+      // (mapAttrs' (
+        name: backup:
+        nameValuePair "newsyslog.d/rustic-${name}.conf" {
+          text = ''
+            # logfilename                                [owner:group]   mode   count   size   when  flags
+            ${backup.logPath}/rustic-${name}.log         kradalby:staff      750    10      10240  *     NJ
+            ${backup.logPath}/rustic-${name}-error.log   kradalby:staff      750    10      10240  *     NJ
+
+          '';
+        }
+      ) cfg.backups)
+      // (mapAttrs' (
+        name: backup:
+        nameValuePair "newsyslog.d/rustic-maint-${name}.conf" {
+          text = ''
+            # logfilename                                      [owner:group]   mode   count   size   when  flags
+            ${backup.logPath}/rustic-maint-${name}.log         kradalby:staff      750    10      10240  *     NJ
+            ${backup.logPath}/rustic-maint-${name}-error.log   kradalby:staff      750    10      10240  *     NJ
+
+          '';
+        }
+      ) cfg.backups)
+      // (mapAttrs' (
+        name: backup:
+        nameValuePair "newsyslog.d/rustic-verify-${name}.conf" {
+          text = ''
+            # logfilename                                       [owner:group]   mode   count   size   when  flags
+            ${backup.logPath}/rustic-verify-${name}.log         kradalby:staff      750    10      10240  *     NJ
+            ${backup.logPath}/rustic-verify-${name}-error.log   kradalby:staff      750    10      10240  *     NJ
+
+          '';
+        }
+      ) cfg.backups)
+      // (optionalAttrs cfg.enableNotifications (
+        mapAttrs' (
+          name: backup:
+          nameValuePair "newsyslog.d/rustic-check-${name}.conf" {
             text = ''
-              # logfilename                                [owner:group]   mode   count   size   when  flags
-              ${backup.logPath}/rustic-${name}.log         kradalby:staff      750    10      10240  *     NJ
-              ${backup.logPath}/rustic-${name}-error.log   kradalby:staff      750    10      10240  *     NJ
+              # logfilename                                     [owner:group]   mode   count   size   when  flags
+              ${backup.logPath}/rustic-check-${name}.log        kradalby:staff      750    10      10240  *     NJ
+              ${backup.logPath}/rustic-check-${name}-error.log  kradalby:staff      750    10      10240  *     NJ
 
             '';
-          })
-        cfg.backups)
-      // (mapAttrs'
-        (name: backup:
-          nameValuePair "newsyslog.d/rustic-maint-${name}.conf" {
-            text = ''
-              # logfilename                                      [owner:group]   mode   count   size   when  flags
-              ${backup.logPath}/rustic-maint-${name}.log         kradalby:staff      750    10      10240  *     NJ
-              ${backup.logPath}/rustic-maint-${name}-error.log   kradalby:staff      750    10      10240  *     NJ
-
-            '';
-          })
-        cfg.backups)
-      // (mapAttrs'
-        (name: backup:
-          nameValuePair "newsyslog.d/rustic-verify-${name}.conf" {
-            text = ''
-              # logfilename                                       [owner:group]   mode   count   size   when  flags
-              ${backup.logPath}/rustic-verify-${name}.log         kradalby:staff      750    10      10240  *     NJ
-              ${backup.logPath}/rustic-verify-${name}-error.log   kradalby:staff      750    10      10240  *     NJ
-
-            '';
-          })
-        cfg.backups)
-      // (optionalAttrs cfg.enableNotifications
-        (mapAttrs'
-          (name: backup:
-            nameValuePair "newsyslog.d/rustic-check-${name}.conf" {
-              text = ''
-                # logfilename                                     [owner:group]   mode   count   size   when  flags
-                ${backup.logPath}/rustic-check-${name}.log        kradalby:staff      750    10      10240  *     NJ
-                ${backup.logPath}/rustic-check-${name}-error.log  kradalby:staff      750    10      10240  *     NJ
-
-              '';
-            })
-          cfg.backups));
+          }
+        ) cfg.backups
+      ));
   };
 }

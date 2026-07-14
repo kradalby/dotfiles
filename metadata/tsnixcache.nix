@@ -6,5 +6,5 @@
 
   # tsnet MagicDNS name on the kradalby tailnet, port 80. priority 30 ⇒ preferred
   # over cachix (41/42) so our own builds resolve from here first.
-  substituters = ["http://tsnixcache?priority=30"];
+  substituters = [ "http://tsnixcache?priority=30" ];
 }

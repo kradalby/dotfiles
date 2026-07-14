@@ -2,10 +2,12 @@
   pkgs,
   config,
   ...
-}: let
+}:
+let
   domain = "umami.kradalby.no";
   port = 63458;
-in {
+in
+{
   users.users.umami = {
     home = "/var/lib/umami";
     createHome = true;
@@ -15,7 +17,7 @@ in {
     description = "umami analytics";
   };
 
-  users.groups.umami = {};
+  users.groups.umami = { };
 
   virtualisation.oci-containers.containers.umami = {
     image = (import ../../metadata/versions.nix).umami;
@@ -30,8 +32,8 @@ in {
       DISABLE_TELEMETRY = "1";
       DISABLE_UPDATES = "1";
     };
-    environmentFiles = [];
-    volumes = [];
+    environmentFiles = [ ];
+    volumes = [ ];
   };
 
   services.vhost."${domain}" = {

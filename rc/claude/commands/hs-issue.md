@@ -82,14 +82,15 @@ cause cannot or should not be fixed now, and record what follow-up is
 needed to address it later.
 
 The plan should include:
-  - Required code changes
-  - Potential impacts on other parts of the system
-  - Necessary tests to be written or updated (beyond the reproduction test)
-  - Documentation updates
-  - Performance considerations
-  - Security implications
-  - Backwards compatibility (if applicable)
-  - Include the reference link to the source issue and any related discussions
+
+- Required code changes
+- Potential impacts on other parts of the system
+- Necessary tests to be written or updated (beyond the reproduction test)
+- Documentation updates
+- Performance considerations
+- Security implications
+- Backwards compatibility (if applicable)
+- Include the reference link to the source issue and any related discussions
 
 Think deeply about all aspects of the task. Consider edge cases, potential
 challenges, and best practices for addressing the issue.

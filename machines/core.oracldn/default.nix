@@ -3,7 +3,8 @@
   pkgs,
   lib,
   ...
-}: {
+}:
+{
   imports = [
     ../../common
     ./hardware-configuration.nix
@@ -34,7 +35,7 @@
 
   my.wan = "enp0s3";
   my.lan = "enp1s0";
-  my.coredns.bind = ["10.66.0.1"];
+  my.coredns.bind = [ "10.66.0.1" ];
 
   networking = {
     hostName = "core";
@@ -75,8 +76,11 @@
     nat = {
       enable = true;
       externalInterface = config.my.wan;
-      internalIPs = ["10.0.0.0/8"];
-      internalInterfaces = [config.my.lan "iot"];
+      internalIPs = [ "10.0.0.0/8" ];
+      internalInterfaces = [
+        config.my.lan
+        "iot"
+      ];
       forwardPorts = [
         {
           sourcePort = 64322;
@@ -110,7 +114,10 @@
         3478
       ];
 
-      trustedInterfaces = [config.my.lan "docker0"];
+      trustedInterfaces = [
+        config.my.lan
+        "docker0"
+      ];
     };
   };
 
@@ -123,8 +130,13 @@
   };
 
   services.tailscale = {
-    advertiseRoutes = ["10.66.0.0/16"];
-    tags = ["tag:backup-client" "tag:gateway" "tag:monitoring" "tag:server"];
+    advertiseRoutes = [ "10.66.0.0/16" ];
+    tags = [
+      "tag:backup-client"
+      "tag:gateway"
+      "tag:monitoring"
+      "tag:server"
+    ];
   };
 
   # This value determines the NixOS release from which the default

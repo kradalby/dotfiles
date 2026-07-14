@@ -2,9 +2,11 @@
   config,
   lib,
   ...
-}: let
+}:
+let
   cfg = config.my.ddns;
-in {
+in
+{
   options.my.ddns = {
     enable = lib.mkOption {
       type = lib.types.bool;

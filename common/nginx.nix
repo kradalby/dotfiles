@@ -3,7 +3,8 @@
   lib,
   pkgs,
   ...
-}: {
+}:
+{
   imports = [
     ../modules/tailscale-nginx-auth.nix
   ];
@@ -39,22 +40,27 @@
         user = "nginx";
 
         settings = {
-          namespaces = let
-            # format = ''
-            #   $remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent"
-            # '';
-            mkApp = domain: {
-              name = domain;
-              metrics_override = {prefix = "nginxlog";};
-              source.files = ["/var/log/nginx/${domain}.access.log"];
-              namespace_label = "vhost";
-            };
-          in
+          namespaces =
+            let
+              # format = ''
+              #   $remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent"
+              # '';
+              mkApp = domain: {
+                name = domain;
+                metrics_override = {
+                  prefix = "nginxlog";
+                };
+                source.files = [ "/var/log/nginx/${domain}.access.log" ];
+                namespace_label = "vhost";
+              };
+            in
             [
               {
                 name = "catch";
-                metrics_override = {prefix = "nginxlog";};
-                source.files = ["/var/log/nginx/access.log"];
+                metrics_override = {
+                  prefix = "nginxlog";
+                };
+                source.files = [ "/var/log/nginx/access.log" ];
                 namespace_label = "vhost";
               }
             ]
@@ -63,9 +69,10 @@
       };
     };
 
-    networking.firewall.allowedTCPPorts =
-      lib.mkIf config.networking.firewall.enable
-      [80 config.services.prometheus.exporters.nginxlog.port];
+    networking.firewall.allowedTCPPorts = lib.mkIf config.networking.firewall.enable [
+      80
+      config.services.prometheus.exporters.nginxlog.port
+    ];
 
   };
 }

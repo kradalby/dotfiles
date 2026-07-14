@@ -1,8 +1,10 @@
-{...}: let
+{ ... }:
+let
   domain = "files.kradalby.no";
-in {
+in
+{
   # TODO: no restic here yet; /var/lib/files is unbacked until then.
-  systemd.tmpfiles.rules = ["d /var/lib/files 0755 root root -"];
+  systemd.tmpfiles.rules = [ "d /var/lib/files 0755 root root -" ];
 
   security.acme.certs."${domain}".domain = domain;
 

@@ -3,16 +3,18 @@
   inputs,
   pkgs,
   ...
-}: let
+}:
+let
   cache = import ../metadata/tsnixcache.nix;
-in {
-  imports = [inputs.tsnixcache.nixosModules.tsnixcache-client];
+in
+{
+  imports = [ inputs.tsnixcache.nixosModules.tsnixcache-client ];
 
   services.tsnixcache-client = {
     enable = true;
     package = inputs.tsnixcache.packages.${pkgs.stdenv.hostPlatform.system}.default;
     publicKey = cache.publicKey;
-    substituters = [];
+    substituters = [ ];
     postBuildHook.enable = true;
   };
 }

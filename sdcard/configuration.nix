@@ -3,7 +3,8 @@
   pkgs,
   lib,
   ...
-}: {
+}:
+{
   imports = [
     ../common/ssh.nix
     ../common/users.nix
@@ -14,7 +15,7 @@
   networking.useDHCP = true;
   networking.firewall.enable = false;
 
-  nix.trustedUsers = ["kradalby"];
+  nix.trustedUsers = [ "kradalby" ];
 
   services.openssh = {
     enable = true;

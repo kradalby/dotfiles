@@ -2,14 +2,17 @@
   config,
   lib,
   ...
-}: let
+}:
+let
   cfg = import ../metadata/syncthing.nix;
-  location = let
-    components = lib.splitString "." config.networking.domain;
-  in
+  location =
+    let
+      components = lib.splitString "." config.networking.domain;
+    in
     lib.elemAt components 0;
   tailscaleService = "syncthing-${location}";
-in {
+in
+{
   services = {
     syncthings.storage = {
       enable = true;

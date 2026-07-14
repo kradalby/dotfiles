@@ -4,14 +4,15 @@
   config,
   inputs,
   ...
-}: let
+}:
+let
   domain = "headscale.kradalby.no";
   aclConfig = {
     tagOwners = {
       # Usernames in headscale policy carry an @ suffix; the bare form fails
       # policy parsing ("invalid owner format") and crash-loops the server.
-      "tag:server" = ["kradalby@"];
-      "tag:isolated" = ["kradalby@"];
+      "tag:server" = [ "kradalby@" ];
+      "tag:isolated" = [ "kradalby@" ];
     };
     acls = [
       # Trusted nodes (my user's devices + tagged servers) reach everything,
@@ -20,17 +21,23 @@
       # VM images. (Tailscale ACLs are default-deny; omission = no access.)
       {
         action = "accept";
-        src = ["autogroup:member" "tag:server"];
-        dst = ["*:*"];
+        src = [
+          "autogroup:member"
+          "tag:server"
+        ];
+        dst = [ "*:*" ];
       }
     ];
 
     ssh = [
       {
         action = "accept";
-        src = ["autogroup:member"];
-        dst = ["autogroup:self"];
-        users = ["kradalby" "root"];
+        src = [ "autogroup:member" ];
+        dst = [ "autogroup:self" ];
+        users = [
+          "kradalby"
+          "root"
+        ];
       }
     ];
   };
@@ -40,9 +47,10 @@
   };
 
   cfg = config.services.headscale;
-  settingsFormat = pkgs.formats.yaml {};
+  settingsFormat = pkgs.formats.yaml { };
   configFile = settingsFormat.generate "headscale.yaml" cfg.settings;
-in {
+in
+{
   age.secrets = {
     headscale-private-key = {
       owner = "headscale";
@@ -58,7 +66,11 @@ in {
     };
   };
 
-  environment.systemPackages = [pkgs.headscale pkgs.sqlite-interactive pkgs.sqlite-web];
+  environment.systemPackages = [
+    pkgs.headscale
+    pkgs.sqlite-interactive
+    pkgs.sqlite-web
+  ];
 
   # Ensure groups (litestream) have access for backups.
   users.users.headscale.homeMode = "770";
@@ -75,7 +87,7 @@ in {
       dns = {
         base_domain = "fap";
         nameservers = {
-          global = ["1.1.1.1"];
+          global = [ "1.1.1.1" ];
         };
       };
 
@@ -111,7 +123,7 @@ in {
   };
 
   # Allow UDP for STUN
-  networking.firewall.allowedUDPPorts = [3478];
+  networking.firewall.allowedUDPPorts = [ 3478 ];
 
   systemd.services.headscale = {
     serviceConfig = {
@@ -121,7 +133,7 @@ in {
       RestrictAddressFamilies = lib.mkForce "";
     };
     # Restart the service when the config file content changes.
-    restartTriggers = [configFile];
+    restartTriggers = [ configFile ];
     environment = {
       # trace logging in production drowns the journal and costs CPU on a
       # small shared VM; the metrics + /health probe carry the signal now.

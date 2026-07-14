@@ -3,7 +3,8 @@
   lib,
   config,
   ...
-}: {
+}:
+{
   services.postfix = lib.mkForce {
     enable = true;
     enableHeaderChecks = false;

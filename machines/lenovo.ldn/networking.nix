@@ -2,9 +2,11 @@
   lib,
   config,
   ...
-}: let
+}:
+let
   maxVMs = 5;
-in {
+in
+{
   networking = {
     hostId = "007f0200";
     hostName = "lenovo";
@@ -30,12 +32,12 @@ in {
         443 # HTTPS
       ];
 
-      trustedInterfaces = [config.my.lan];
+      trustedInterfaces = [ config.my.lan ];
     };
 
     nat = {
       enable = true;
-      internalIPs = ["172.16.0.0/24"];
+      internalIPs = [ "172.16.0.0/24" ];
       # Change this to the interface with upstream Internet access
       externalInterface = "lan0";
     };
@@ -48,42 +50,44 @@ in {
 
       config.networkConfig.SpeedMeter = "yes";
 
-      networks =
-        {
-        }
-        // (builtins.listToAttrs (
-          map (index: {
-            name = "30-vm${toString index}";
-            value = {
-              matchConfig.Name = "vm${toString index}";
-              # Host's addresses
-              address = [
-                "172.16.0.0/32"
-                "fec0::/128"
-              ];
-              # Setup routes to the VM
-              routes = [
-                {
-                  Destination = "172.16.0.${toString index}/32";
-                }
-                {
-                  Destination = "fec0::${lib.toHexString index}/128";
-                }
-              ];
-              # Enable routing
-              networkConfig = {
-                IPv4Forwarding = true;
-                IPv6Forwarding = true;
-              };
+      networks = {
+      }
+      // (builtins.listToAttrs (
+        map (index: {
+          name = "30-vm${toString index}";
+          value = {
+            matchConfig.Name = "vm${toString index}";
+            # Host's addresses
+            address = [
+              "172.16.0.0/32"
+              "fec0::/128"
+            ];
+            # Setup routes to the VM
+            routes = [
+              {
+                Destination = "172.16.0.${toString index}/32";
+              }
+              {
+                Destination = "fec0::${lib.toHexString index}/128";
+              }
+            ];
+            # Enable routing
+            networkConfig = {
+              IPv4Forwarding = true;
+              IPv6Forwarding = true;
             };
-          }) (lib.genList (i: i + 1) maxVMs)
-        ));
+          };
+        }) (lib.genList (i: i + 1) maxVMs)
+      ));
     };
 
     # Tailscale readiness and DNS tweaks.
     # Ignore wan1 as it is only available if my iPhone
     # is broadcasting a hotspot
-    network.wait-online.ignoredInterfaces = lib.mkAfter ["wan1"];
-    services.tailscaled.after = ["network-online.target" "systemd-resolved.service"];
+    network.wait-online.ignoredInterfaces = lib.mkAfter [ "wan1" ];
+    services.tailscaled.after = [
+      "network-online.target"
+      "systemd-resolved.service"
+    ];
   };
 }

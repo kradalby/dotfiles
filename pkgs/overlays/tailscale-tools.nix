@@ -3,7 +3,8 @@
   fetchFromGitHub,
   lib,
   installShellFiles,
-}: let
+}:
+let
   versions = import ../../metadata/versions.nix;
 in
 buildGoModule rec {

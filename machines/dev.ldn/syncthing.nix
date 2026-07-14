@@ -1,6 +1,8 @@
-{config, ...}: let
+{ config, ... }:
+let
   cfg = import ../../metadata/syncthing.nix;
-in {
+in
+{
   services.syncthings = {
     personal = {
       enable = true;

@@ -3,12 +3,13 @@
   config,
   pkgs,
   ...
-}: let
+}:
+let
   aiConfig = import ../../home/ai.nix;
 
   # Codex equivalent of the Claude dev-env hook: a PreToolUse hook that wraps
   # every Bash command so it runs inside the per-directory Nix dev env.
-  codexDevEnvHook = import ../../pkgs/scripts/codex-nix-dev-env-hook.nix {inherit pkgs;};
+  codexDevEnvHook = import ../../pkgs/scripts/codex-nix-dev-env-hook.nix { inherit pkgs; };
 
   # Codex work config: route through the corp Aperture proxy + its MCP server.
   # Codex only speaks the Responses API (the `chat` wire API was removed). The
@@ -63,32 +64,30 @@
   # placeholder key "-". openrouter is built-in to opencode, so overriding only
   # its baseURL unlocks the whole openrouter catalog (glm/deepseek/qwen/…)
   # through the proxy.
-  opencodeSettings =
-    lib.recursiveUpdate
-    (builtins.removeAttrs aiConfig.opencode ["plugin"])
-    {
-      provider = {
-        anthropic.options = {
-          baseURL = "http://ai.corp.ts.net/v1";
-          apiKey = "-";
-        };
-        openai.options = {
-          baseURL = "http://ai.corp.ts.net/v1";
-          apiKey = "-";
-        };
-        openrouter.options = {
-          baseURL = "http://ai.corp.ts.net/v1";
-          apiKey = "-";
-        };
+  opencodeSettings = lib.recursiveUpdate (builtins.removeAttrs aiConfig.opencode [ "plugin" ]) {
+    provider = {
+      anthropic.options = {
+        baseURL = "http://ai.corp.ts.net/v1";
+        apiKey = "-";
       };
-      mcp.aperture = {
-        type = "remote";
-        url = "http://ai.corp.ts.net/v1/mcp";
-        enabled = true;
+      openai.options = {
+        baseURL = "http://ai.corp.ts.net/v1";
+        apiKey = "-";
       };
-      disabled_providers = ["opencode"];
+      openrouter.options = {
+        baseURL = "http://ai.corp.ts.net/v1";
+        apiKey = "-";
+      };
     };
-in {
+    mcp.aperture = {
+      type = "remote";
+      url = "http://ai.corp.ts.net/v1/mcp";
+      enabled = true;
+    };
+    disabled_providers = [ "opencode" ];
+  };
+in
+{
   imports = [
     ../../home
     ../../home/herdr.nix
@@ -96,7 +95,11 @@ in {
   ];
 
   # This box runs codex too, so add its state hook alongside claude/opencode.
-  my.herdr.integrations = ["claude" "codex" "opencode"];
+  my.herdr.integrations = [
+    "claude"
+    "codex"
+    "opencode"
+  ];
 
   home.username = "ubuntu";
   home.homeDirectory = "/home/ubuntu";
@@ -109,8 +112,16 @@ in {
   # "gh:" alias and any SSH github remotes resolve to HTTPS.
   programs.git.settings.url = lib.mkForce {
     "https://github.com/" = {
-      insteadOf = ["gh:" "git@github.com:" "ssh://git@github.com/"];
-      pushInsteadOf = ["gh:" "git@github.com:" "ssh://git@github.com/"];
+      insteadOf = [
+        "gh:"
+        "git@github.com:"
+        "ssh://git@github.com/"
+      ];
+      pushInsteadOf = [
+        "gh:"
+        "git@github.com:"
+        "ssh://git@github.com/"
+      ];
     };
   };
   programs.gh.settings.git_protocol = lib.mkForce "https";
@@ -128,7 +139,7 @@ in {
     ai.opencode = true;
   };
 
-  home.packages = [pkgs.master.codex];
+  home.packages = [ pkgs.master.codex ];
 
   # codex persists trust (project trust, hook trust) back into config.toml, so
   # it must be writable — a read-only store symlink makes codex fail with

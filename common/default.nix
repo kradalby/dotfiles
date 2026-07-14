@@ -3,7 +3,7 @@
 # everywhere) and avahi (now opt-in per machine). Migrate machines to import
 # `./base.nix` (+ `../profiles/server.nix`) directly; this keeps the un-migrated
 # ones working in the meantime.
-{...}: {
+{ ... }: {
   imports = [
     ./base.nix
     ../profiles/server.nix

@@ -16,7 +16,7 @@ Never a public / Funnel surface unless the service is deliberately public.
 
 The tailscale `tailscale_service` objects **and** the ACL policy live in the
 separate infrastructure repo, `~/git/infrastructure` (`kradalby/infrastructure`),
-not in dotfiles — the dotfiles side only *advertises* the VIP / opens the port.
+not in dotfiles — the dotfiles side only _advertises_ the VIP / opens the port.
 → [terraform.md](terraform.md). **Always pair a `tag:svc` (or a specific tag)
 with an ACL grant scoped to the narrowest src → dst → ports** that works; a VIP
 with no grant is unreachable, and a broad grant defeats the point. Give a

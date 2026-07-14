@@ -4,9 +4,11 @@
   lib,
   ...
 }:
-with lib; let
+with lib;
+let
   cfg = config.services.cook-server;
-in {
+in
+{
   options.services.cook-server = {
     enable = mkEnableOption "Cook recipe server";
 
@@ -48,7 +50,7 @@ in {
       home = cfg.dataDir;
     };
 
-    users.groups.${cfg.group} = {};
+    users.groups.${cfg.group} = { };
 
     systemd.tmpfiles.rules = [
       "d ${cfg.dataDir} 0755 ${cfg.user} ${cfg.group} -"
@@ -56,9 +58,9 @@ in {
 
     systemd.services.cook-server = {
       description = "Cook recipe server";
-      wantedBy = ["multi-user.target"];
-      after = ["network-online.target"];
-      wants = ["network-online.target"];
+      wantedBy = [ "multi-user.target" ];
+      after = [ "network-online.target" ];
+      wants = [ "network-online.target" ];
 
       script = ''
         exec ${cfg.package}/bin/cook server --port ${toString cfg.port} --host

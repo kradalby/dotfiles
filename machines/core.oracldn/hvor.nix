@@ -2,9 +2,11 @@
   pkgs,
   config,
   ...
-}: let
+}:
+let
   domain = "hvor.kradalby.no";
-in {
+in
+{
   age.secrets.hvor-tskey = {
     file = ../../secrets/hvor-tskey.age;
     owner = config.services.hvor.user;
@@ -24,7 +26,7 @@ in {
     description = "hvor";
   };
 
-  users.groups.hvor = {};
+  users.groups.hvor = { };
 
   services.hvor = {
     enable = true;

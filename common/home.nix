@@ -4,7 +4,8 @@
   lib,
   inputs,
   ...
-}: {
+}:
+{
   environment.homeBinInPath = true;
   # HM's activation service is a bare oneshot, so switch-to-configuration
   # (colmena/nixos-rebuild) won't re-run it on a live switch -- it only fires
@@ -25,7 +26,7 @@
     ''}";
     useGlobalPkgs = true;
     useUserPackages = true;
-    sharedModules = [inputs.nix-index-database.homeModules.nix-index];
+    sharedModules = [ inputs.nix-index-database.homeModules.nix-index ];
     users = {
       kradalby = {
         imports = [

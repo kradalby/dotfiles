@@ -1,6 +1,8 @@
-{...}: let
+{ ... }:
+let
   port = 9080;
-in {
+in
+{
   services.tailscale.services.cook = {
     endpoints = {
       "tcp:80" = "http://localhost:${toString port}";

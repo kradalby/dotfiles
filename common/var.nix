@@ -2,7 +2,8 @@
   config,
   lib,
   ...
-}: {
+}:
+{
   options = {
     my.shellAliases = lib.mkOption {
       type = lib.types.attrsOf lib.types.anything;

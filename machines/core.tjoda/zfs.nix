@@ -2,7 +2,8 @@
   config,
   lib,
   ...
-}: {
+}:
+{
   imports = [
     ../../common/zfs.nix
     ../../common/sanoid-exporter.nix
@@ -24,16 +25,21 @@
         "autoprune" = true;
       };
     };
-    datasets = builtins.listToAttrs (builtins.map
-      (item: {
-        name = item;
-        value = {useTemplate = ["normal"];};
-      }) [
-        "storage/backup"
-        "storage/libraries"
-        "storage/pictures"
-        "storage/software"
-        "storage/sync"
-      ]);
+    datasets = builtins.listToAttrs (
+      builtins.map
+        (item: {
+          name = item;
+          value = {
+            useTemplate = [ "normal" ];
+          };
+        })
+        [
+          "storage/backup"
+          "storage/libraries"
+          "storage/pictures"
+          "storage/software"
+          "storage/sync"
+        ]
+    );
   };
 }

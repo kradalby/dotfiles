@@ -2,7 +2,7 @@
 pkgs.writeShellApplication {
   name = "exif-set-photographer";
 
-  runtimeInputs = with pkgs; [exiftool];
+  runtimeInputs = with pkgs; [ exiftool ];
 
   text = ''
     if [ "$#" -ne 2 ]; then

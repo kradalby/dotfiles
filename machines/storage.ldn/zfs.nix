@@ -1,4 +1,5 @@
-{config, ...}: let
+{ config, ... }:
+let
   storageDatasets = [
     "backup"
     "books"
@@ -12,7 +13,8 @@
     "sync"
     "timemachine"
   ];
-in {
+in
+{
   imports = [
     ../../common/zfs.nix
     ../../common/sanoid-exporter.nix
@@ -34,10 +36,10 @@ in {
   #     zfs create -o canmount=on -o mountpoint=/storage/$fs storage/$fs
   #   done
 
-  boot.supportedFilesystems = ["zfs"];
+  boot.supportedFilesystems = [ "zfs" ];
   # Don't block boot if the ZFS pool is missing (e.g., on clean machine deployment)
   boot.zfs.forceImportAll = false;
-  boot.zfs.extraPools = ["storage"];
+  boot.zfs.extraPools = [ "storage" ];
 
   services.zfs = {
     trim.enable = true;
@@ -57,11 +59,13 @@ in {
         autoprune = true;
       };
     };
-    datasets = builtins.listToAttrs (map
-      (item: {
+    datasets = builtins.listToAttrs (
+      map (item: {
         name = "storage/${item}";
-        value = {useTemplate = ["normal"];};
-      })
-      storageDatasets);
+        value = {
+          useTemplate = [ "normal" ];
+        };
+      }) storageDatasets
+    );
   };
 }

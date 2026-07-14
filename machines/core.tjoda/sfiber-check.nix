@@ -3,7 +3,8 @@
   pkgs,
   lib,
   ...
-}: let
+}:
+let
   # The sfiber proxies join a FOREIGN headscale net that Prometheus cannot
   # reach, and their units run Restart=always, so an expired preauth key or a
   # dead control server leaves them "active" but non-functional forever with no
@@ -14,8 +15,7 @@
   # Enumerate the tailscale-proxy instances straight from config (currently
   # restic-sfiber + minio-sfiber) so the check tracks whatever proxies exist
   # rather than a hardcoded, drift-prone list.
-  proxyNames =
-    lib.attrNames (lib.filterAttrs (_: p: p.enable) config.services.tailscale-proxies);
+  proxyNames = lib.attrNames (lib.filterAttrs (_: p: p.enable) config.services.tailscale-proxies);
 
   pushgateway = "http://pushgateway/metrics/job/sfiber-proxy/instance/core-tjoda";
 
@@ -30,11 +30,12 @@
   # NeedsLogin and reports down.
   journalctl = "${config.systemd.package}/bin/journalctl";
   systemctl = "${config.systemd.package}/bin/systemctl";
-in {
+in
+{
   systemd.services.sfiber-proxy-check = {
     description = "Push sfiber tailscale-proxy liveness to the fleet pushgateway";
-    after = ["network-online.target"];
-    wants = ["network-online.target"];
+    after = [ "network-online.target" ];
+    wants = [ "network-online.target" ];
 
     serviceConfig.Type = "oneshot";
 
@@ -65,8 +66,8 @@ in {
   };
 
   systemd.timers.sfiber-proxy-check = {
-    wantedBy = ["timers.target"];
-    partOf = ["sfiber-proxy-check.service"];
+    wantedBy = [ "timers.target" ];
+    partOf = [ "sfiber-proxy-check.service" ];
     timerConfig = {
       OnBootSec = "5min";
       OnUnitActiveSec = "15min";

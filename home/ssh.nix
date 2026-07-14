@@ -2,7 +2,8 @@
   pkgs,
   lib,
   ...
-}: let
+}:
+let
   isWorkstation = pkgs.stdenv.isDarwin && pkgs.stdenv.isAarch64;
   kradalbyLogin = hostname: {
     HostName = hostname;
@@ -14,7 +15,8 @@
     User = "root";
     Port = 22;
   };
-in {
+in
+{
   programs.ssh = {
     enable = true;
     enableDefaultConfig = false;
@@ -41,7 +43,8 @@ in {
       "bunny*".User = "ubuntu";
       "control*".User = "ubuntu";
       "kradalby-workstation*".User = "ubuntu";
-      "tailscale-proxy".header = "Match host !bunny.corp.tailscale.com,*.tailscale.com,control,shard*,derp*,trunkd*";
+      "tailscale-proxy".header =
+        "Match host !bunny.corp.tailscale.com,*.tailscale.com,control,shard*,derp*,trunkd*";
     };
   };
 

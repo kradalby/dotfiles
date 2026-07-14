@@ -3,10 +3,12 @@
   lib,
   config,
   ...
-}: let
+}:
+let
   versions = import ../metadata/versions.nix;
-in {
-  imports = [../common/var.nix];
+in
+{
+  imports = [ ../common/var.nix ];
 
   programs.fish = {
     enable = true;
@@ -42,11 +44,11 @@ in {
       }
     ];
 
-    loginShellInit = let
-      fishReorderPath = path: "fish_add_path --move --prepend ${path}";
+    loginShellInit =
+      let
+        fishReorderPath = path: "fish_add_path --move --prepend ${path}";
 
-      path =
-        [
+        path = [
           (fishReorderPath "/opt/homebrew/sbin")
           (fishReorderPath "/nix/var/nix/profiles/default/bin")
           (fishReorderPath "/etc/profiles/per-user/$USER/bin")
@@ -56,16 +58,17 @@ in {
           # Where sudo lives, needed for linux.
           (fishReorderPath "/run/wrappers/bin")
         ];
-    in ''
-      ${builtins.concatStringsSep "\n" path}
-    '';
+      in
+      ''
+        ${builtins.concatStringsSep "\n" path}
+      '';
 
     interactiveShellInit = ''
       source ${../pkgs/scripts/wt.fish}
     '';
 
     shellAliases = {
-      s = ''${pkgs.findutils}/bin/xargs ${pkgs.perl}/bin/perl -pi -E'';
+      s = "${pkgs.findutils}/bin/xargs ${pkgs.perl}/bin/perl -pi -E";
       ag = "${pkgs.ripgrep}/bin/rg";
       cat = "${pkgs.bat}/bin/bat";
       du = "du -hs";
@@ -78,13 +81,14 @@ in {
       watch = "${pkgs.viddy}/bin/viddy --shell ${pkgs.fish}/bin/fish --differences";
 
       osxphotos_missing_path = builtins.concatStringsSep " | " [
-        ''osxphotos query --json --only-photos''
+        "osxphotos query --json --only-photos"
         ''${pkgs.jq}/bin/jq ".[] | select((.path == null)and .path_edited == null)"''
       ];
       tailscale =
-        if pkgs.stdenv.isDarwin
-        then "/Applications/Tailscale.app/Contents/MacOS/Tailscale"
-        else "tailscale";
+        if pkgs.stdenv.isDarwin then
+          "/Applications/Tailscale.app/Contents/MacOS/Tailscale"
+        else
+          "tailscale";
       ts = "tailscale";
       tss = "tailscale status";
       tsp = "tailscale ping";
@@ -98,10 +102,10 @@ in {
     functions = {
       mkcd = "mkdir -p $argv[1]; and cd $argv[1]";
 
-      gi = ''${pkgs.curl}/bin/curl -L -s https://www.gitignore.io/api/$argv'';
+      gi = "${pkgs.curl}/bin/curl -L -s https://www.gitignore.io/api/$argv";
 
-      push = ''${pkgs.git}/bin/git push origin -u (${pkgs.git}/bin/git rev-parse --abbrev-ref HEAD)'';
-      yolo = ''${pkgs.git}/bin/git push -f origin (${pkgs.git}/bin/git rev-parse --abbrev-ref HEAD)'';
+      push = "${pkgs.git}/bin/git push origin -u (${pkgs.git}/bin/git rev-parse --abbrev-ref HEAD)";
+      yolo = "${pkgs.git}/bin/git push -f origin (${pkgs.git}/bin/git rev-parse --abbrev-ref HEAD)";
 
       ragenix-update-key = ''
         set host $argv[1]

@@ -14,7 +14,7 @@ _: {
       # Homebrew brew@e0d818b made `bundle --cleanup` prompt unless --force-cleanup
       # is passed, breaking onActivation.cleanup during non-interactive activation.
       # https://github.com/nix-darwin/nix-darwin/issues/1787
-      extraFlags = ["--force-cleanup"];
+      extraFlags = [ "--force-cleanup" ];
     };
 
     brews = [

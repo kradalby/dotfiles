@@ -4,10 +4,11 @@
   lib,
   pkgs,
   ...
-}: let
+}:
+let
   # Default build set for repos with no garnix.yaml (our fork reads
   # GARNIX_DEFAULT_CONFIG). Drops darwinConfigurations — no macOS builders.
-  garnixDefaultConfig = (pkgs.formats.yaml {}).generate "garnix-default-config.yaml" {
+  garnixDefaultConfig = (pkgs.formats.yaml { }).generate "garnix-default-config.yaml" {
     builds.include = [
       "*.x86_64-linux.*"
       "defaultPackage.x86_64-linux"
@@ -16,7 +17,8 @@
       "nixosConfigurations.*"
     ];
   };
-in {
+in
+{
   # garnix CI coordinator + action-runner in an Incus VM; gigabuilder is its
   # remote builder, so the untrusted GitHub-facing parts stay in this guest while
   # realisation runs on bare metal. Operational docs live in ./README.md.
@@ -35,7 +37,9 @@ in {
   # A consumed flake exposes `.inputs` but not `self`; graft it back on for the
   # garnix module's specialArgs.
   _module.args = {
-    flakeInputs = inputs.garnix-ci.inputs // {self = inputs.garnix-ci;};
+    flakeInputs = inputs.garnix-ci.inputs // {
+      self = inputs.garnix-ci;
+    };
     flakePackages = inputs.garnix-ci.packages.x86_64-linux;
   };
 
@@ -43,7 +47,7 @@ in {
     hostName = "garnix";
     domain = "fap.no";
     # Static address so the host's nginx proxy and builder-SSH target are stable.
-    nameservers = ["10.68.0.1"];
+    nameservers = [ "10.68.0.1" ];
     interfaces.${config.my.lan}.ipv4.addresses = [
       {
         address = "10.68.10.10";
@@ -65,9 +69,9 @@ in {
   services.tailscales.sfiber = {
     enable = true;
     authKeyFile = config.age.secrets.headscale-sfiber-ci-preauthkey.path;
-    extraUpFlags = ["--login-server=https://headscale.sandefjordfiber.no"];
-    extraSetFlags = ["--hostname=garnix"];
-    extraDaemonFlags = ["--socks5-server=:1055"];
+    extraUpFlags = [ "--login-server=https://headscale.sandefjordfiber.no" ];
+    extraSetFlags = [ "--hostname=garnix" ];
+    extraDaemonFlags = [ "--socks5-server=:1055" ];
   };
 
   # Our only resolver is the incus bridge dnsmasq (plain DNS), so the fleet's
@@ -105,7 +109,7 @@ in {
 
   # tag:server only — the shared preauth key isn't authorized for tag:ci, and
   # tag:ci only grants attic (unused; garnix uses tsnixcache).
-  services.tailscale.tags = ["tag:server"];
+  services.tailscale.tags = [ "tag:server" ];
 
   services.garnixServer = {
     enable = true;
@@ -136,10 +140,14 @@ in {
         name = "gigabuilder";
         hostname = "10.68.0.1"; # host over incusbr0 (a trustedInterface)
         user = "nix-ssh";
-        systems = ["x86_64-linux"];
+        systems = [ "x86_64-linux" ];
         maxJobs = 16;
         speedFactor = 4;
-        supportedFeatures = ["big-parallel" "kvm" "nixos-test"];
+        supportedFeatures = [
+          "big-parallel"
+          "kvm"
+          "nixos-test"
+        ];
       }
     ];
 
@@ -176,7 +184,10 @@ in {
 
   # Pre-trust the builder's host key, else nix's non-interactive SSH to it fails.
   programs.ssh.knownHosts.gigabuilder = {
-    hostNames = ["gigabuilder" "10.68.0.1"];
+    hostNames = [
+      "gigabuilder"
+      "10.68.0.1"
+    ];
     publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIfxql6LaBrlxvBDywHRWULRocO9Yo57DlrlsdDCkcis";
   };
 
@@ -185,7 +196,7 @@ in {
   services.postgresql = {
     enable = true;
     package = pkgs.postgresql_18; # matches garnix's migrations
-    ensureDatabases = ["garnix"];
+    ensureDatabases = [ "garnix" ];
     ensureUsers = [
       {
         name = "garnix";
@@ -218,7 +229,12 @@ in {
   # Per-interface rules also survive any mkForce of the global allowedTCPPorts.
   #   9100 node_exporter · 9558 systemd_exporter · 9187 postgres_exporter
   #   8323 garnix backend metrics (module default --metrics-port, root path `/`)
-  networking.firewall.interfaces.tailscale0.allowedTCPPorts = [9100 9558 9187 8323];
+  networking.firewall.interfaces.tailscale0.allowedTCPPorts = [
+    9100
+    9558
+    9187
+    8323
+  ];
 
   # postgres_exporter for pg_up (catches the #1 documented outage: disk fills →
   # postgres crashes into recovery → every API 500). common/postgres.nix is NOT
@@ -259,23 +275,25 @@ in {
     forceSSL = lib.mkForce false;
   };
 
-  age.secrets = let
-    s = name: {file = ../../secrets/${name}.age;};
-  in {
-    garnix-database-password = s "garnix-database-password";
-    garnix-github-webhook-secret = s "garnix-github-webhook-secret";
-    garnix-github-client-secret = s "garnix-github-client-secret";
-    garnix-github-client-id = s "garnix-github-client-id";
-    garnix-github-app-id = s "garnix-github-app-id";
-    garnix-github-app-pk = s "garnix-github-app-pk";
-    garnix-opensearch-credential = s "garnix-opensearch-credential";
-    garnix-jwt-key = s "garnix-jwt-key";
-    garnix-repo-secrets-key = s "garnix-repo-secrets-key";
-    garnix-repo-secrets-key-pub = s "garnix-repo-secrets-key-pub";
-    garnix-action-runner-ssh = s "garnix-action-runner-ssh";
-    garnix-remote-builder-ssh = s "garnix-remote-builder-ssh";
-    headscale-sfiber-ci-preauthkey = s "headscale-sfiber-ci-preauthkey";
-  };
+  age.secrets =
+    let
+      s = name: { file = ../../secrets/${name}.age; };
+    in
+    {
+      garnix-database-password = s "garnix-database-password";
+      garnix-github-webhook-secret = s "garnix-github-webhook-secret";
+      garnix-github-client-secret = s "garnix-github-client-secret";
+      garnix-github-client-id = s "garnix-github-client-id";
+      garnix-github-app-id = s "garnix-github-app-id";
+      garnix-github-app-pk = s "garnix-github-app-pk";
+      garnix-opensearch-credential = s "garnix-opensearch-credential";
+      garnix-jwt-key = s "garnix-jwt-key";
+      garnix-repo-secrets-key = s "garnix-repo-secrets-key";
+      garnix-repo-secrets-key-pub = s "garnix-repo-secrets-key-pub";
+      garnix-action-runner-ssh = s "garnix-action-runner-ssh";
+      garnix-remote-builder-ssh = s "garnix-remote-builder-ssh";
+      headscale-sfiber-ci-preauthkey = s "headscale-sfiber-ci-preauthkey";
+    };
 
   system.stateVersion = "25.11";
 }

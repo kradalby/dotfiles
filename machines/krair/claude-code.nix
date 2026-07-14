@@ -1,4 +1,4 @@
-{...}: {
+{ ... }: {
   home-manager.users.kradalby.services.claude-code = {
     # macOS-only work lives here; everything else runs on dev.ldn.
     dotfiles = {

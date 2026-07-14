@@ -1,12 +1,12 @@
-{...}: {
-  imports = [../../common/postgres.nix];
+{ ... }: {
+  imports = [ ../../common/postgres.nix ];
 
   my.postgres.databases = [
     "umami"
     "keycloak"
   ];
 
-  my.postgres.extraBackups = [];
+  my.postgres.extraBackups = [ ];
 
   # Allow the dockerized umami container to connect via trust auth.
   services.postgresql.authentication = ''

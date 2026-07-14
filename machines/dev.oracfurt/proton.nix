@@ -3,7 +3,8 @@
   lib,
   config,
   ...
-}: {
+}:
+{
   # Setup:
   # su - proton
   # protonmail-bridge --cli
@@ -18,14 +19,14 @@
     shell = pkgs.bash;
   };
 
-  users.groups.proton = {};
+  users.groups.proton = { };
 
   systemd.services.protonmail-bridge = {
     enable = true;
     description = "protonmail bridge";
-    wantedBy = ["multi-user.target"];
-    after = ["network-online.target"];
-    wants = ["network-online.target"];
+    wantedBy = [ "multi-user.target" ];
+    after = [ "network-online.target" ];
+    wants = [ "network-online.target" ];
 
     script = "${lib.getExe pkgs.protonmail-bridge} --noninteractive --log-level debug";
 
@@ -41,7 +42,11 @@
       HOME = config.users.users.proton.home;
     };
 
-    path = [pkgs.pass pkgs.pass-secret-service pkgs.dbus];
+    path = [
+      pkgs.pass
+      pkgs.pass-secret-service
+      pkgs.dbus
+    ];
   };
 
   # Tailscale Services configuration for Proton Bridge
@@ -53,7 +58,7 @@
     };
   };
 
-  environment.systemPackages = [pkgs.protonmail-bridge];
+  environment.systemPackages = [ pkgs.protonmail-bridge ];
 
   age.secrets.proton-imap-check = {
     file = ../../secrets/proton-imap-check.age;
@@ -85,7 +90,7 @@
   };
 
   systemd.timers.proton-login-check = {
-    wantedBy = ["timers.target"];
+    wantedBy = [ "timers.target" ];
     timerConfig = {
       OnBootSec = "10m";
       OnUnitActiveSec = "30m";

@@ -3,18 +3,26 @@
   lib,
   pkgs,
   ...
-}: {
+}:
+{
   boot = {
     loader.grub = {
       enable = true;
       device = "/dev/disk/by-id/ata-KINGSTON_SA400S37480G_50026B7785A27E08";
     };
 
-    initrd.availableKernelModules = ["xhci_pci" "ehci_pci" "ahci" "usbhid" "uas" "sd_mod"];
-    initrd.kernelModules = [];
-    kernelModules = ["kvm-intel"];
-    extraModulePackages = [];
-    supportedFilesystems = ["zfs"];
+    initrd.availableKernelModules = [
+      "xhci_pci"
+      "ehci_pci"
+      "ahci"
+      "usbhid"
+      "uas"
+      "sd_mod"
+    ];
+    initrd.kernelModules = [ ];
+    kernelModules = [ "kvm-intel" ];
+    extraModulePackages = [ ];
+    supportedFilesystems = [ "zfs" ];
     zfs.extraPools = [
       "storage"
     ];
@@ -27,7 +35,7 @@
     fsType = "ext4";
   };
 
-  swapDevices = [{device = "/dev/disk/by-uuid/d471b41a-e5cd-42ef-b818-198bcf636787";}];
+  swapDevices = [ { device = "/dev/disk/by-uuid/d471b41a-e5cd-42ef-b818-198bcf636787"; } ];
 
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 }

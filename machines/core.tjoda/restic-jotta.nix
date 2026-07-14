@@ -2,13 +2,15 @@
   pkgs,
   config,
   ...
-}: let
+}:
+let
   port = 56900;
   metricsPort = 56901;
   stateDir = "/var/lib/rclone-jotta";
   rcloneConf = "${stateDir}/rclone.conf";
   rclone = "${pkgs.rclone}/bin/rclone --config ${rcloneConf}";
-in {
+in
+{
   # restic REST proxy fronting Jottacloud: tailnet hosts back up offsite via
   # rest:http://restic-jotta.dalby.ts.net/<scrambled> without holding Jotta
   # credentials. This service owns the ONLY Jotta login on this host — the
@@ -20,13 +22,13 @@ in {
     isSystemUser = true;
     group = "rclone-jotta";
   };
-  users.groups.rclone-jotta = {};
+  users.groups.rclone-jotta = { };
 
   systemd.services.rclone-jotta = {
     description = "restic REST proxy for Jottacloud";
-    wantedBy = ["multi-user.target"];
-    after = ["network-online.target"];
-    wants = ["network-online.target"];
+    wantedBy = [ "multi-user.target" ];
+    after = [ "network-online.target" ];
+    wants = [ "network-online.target" ];
 
     serviceConfig = {
       User = "rclone-jotta";
@@ -64,7 +66,7 @@ in {
     };
   };
   systemd.timers.rclone-jotta-token-check = {
-    wantedBy = ["timers.target"];
+    wantedBy = [ "timers.target" ];
     timerConfig = {
       OnCalendar = "daily";
       Persistent = true;
@@ -83,5 +85,5 @@ in {
   # rclone core metrics (no per-repo series — see rclone#7980); scraped as
   # core-tjoda:56901. ACL-approved port: needs the matching grant for
   # tag:monitoring in infrastructure/tailscale/policy.hujson.
-  networking.firewall.interfaces.tailscale0.allowedTCPPorts = [metricsPort];
+  networking.firewall.interfaces.tailscale0.allowedTCPPorts = [ metricsPort ];
 }

@@ -3,25 +3,49 @@
   pkgs,
   lib,
   ...
-}: let
+}:
+let
   cfg = config.my.packages;
-  tom = import ./scripts/tom.nix {inherit pkgs;};
-  tmp-cleanup = import ./scripts/tmp-cleanup.nix {inherit pkgs;};
-in {
+  tom = import ./scripts/tom.nix { inherit pkgs; };
+  tmp-cleanup = import ./scripts/tmp-cleanup.nix { inherit pkgs; };
+in
+{
   options.my.packages = {
-    userland.enable = (lib.mkEnableOption "Interactive userland (editor + shell tools)") // {default = true;};
+    userland.enable = (lib.mkEnableOption "Interactive userland (editor + shell tools)") // {
+      default = true;
+    };
 
-    go.enable = (lib.mkEnableOption "Go development") // {default = true;};
-    nix.enable = (lib.mkEnableOption "Nix tooling") // {default = true;};
-    web.enable = (lib.mkEnableOption "Web/JS/TS development") // {default = true;};
-    python.enable = (lib.mkEnableOption "Python development") // {default = true;};
-    shell.enable = (lib.mkEnableOption "Shell tools") // {default = true;};
+    go.enable = (lib.mkEnableOption "Go development") // {
+      default = true;
+    };
+    nix.enable = (lib.mkEnableOption "Nix tooling") // {
+      default = true;
+    };
+    web.enable = (lib.mkEnableOption "Web/JS/TS development") // {
+      default = true;
+    };
+    python.enable = (lib.mkEnableOption "Python development") // {
+      default = true;
+    };
+    shell.enable = (lib.mkEnableOption "Shell tools") // {
+      default = true;
+    };
 
-    editor.enable = (lib.mkEnableOption "General editor support") // {default = true;};
-    infra.enable = (lib.mkEnableOption "Infrastructure and ops") // {default = true;};
-    media.enable = (lib.mkEnableOption "Media and data tools") // {default = true;};
-    ai.enable = (lib.mkEnableOption "AI coding assistants") // {default = true;};
-    ai.opencode = (lib.mkEnableOption "opencode AI assistant") // {default = true;};
+    editor.enable = (lib.mkEnableOption "General editor support") // {
+      default = true;
+    };
+    infra.enable = (lib.mkEnableOption "Infrastructure and ops") // {
+      default = true;
+    };
+    media.enable = (lib.mkEnableOption "Media and data tools") // {
+      default = true;
+    };
+    ai.enable = (lib.mkEnableOption "AI coding assistants") // {
+      default = true;
+    };
+    ai.opencode = (lib.mkEnableOption "opencode AI assistant") // {
+      default = true;
+    };
   };
 
   config = lib.mkMerge [
@@ -53,10 +77,11 @@ in {
     # for the interactive user; off on minimal home-manager hosts (kradalby-llm).
     # The everyday aliases (cat→bat, vim→nvim, ...) already live in home/fish.nix.
     (lib.mkIf cfg.userland.enable {
-      home.packages = let
-        fake-editor = import ./scripts/fake-editor.nix {inherit pkgs;};
-      in
-        [fake-editor]
+      home.packages =
+        let
+          fake-editor = import ./scripts/fake-editor.nix { inherit pkgs; };
+        in
+        [ fake-editor ]
         ++ (with pkgs; [
           neovim
           fzf
@@ -134,10 +159,11 @@ in {
 
     # Shell ecosystem
     (lib.mkIf cfg.shell.enable {
-      home.packages = let
-        rmkh = import ./scripts/rmkh.nix {inherit pkgs;};
-      in
-        [rmkh]
+      home.packages =
+        let
+          rmkh = import ./scripts/rmkh.nix { inherit pkgs; };
+        in
+        [ rmkh ]
         ++ (with pkgs; [
           nushell
         ])
@@ -171,7 +197,7 @@ in {
           headscale
           nmap
           ipcalc
-          (docker_29.override {clientOnly = true;})
+          (docker_29.override { clientOnly = true; })
           dive
           act
         ])
@@ -185,10 +211,11 @@ in {
 
     # Media and data
     (lib.mkIf cfg.media.enable {
-      home.packages = let
-        exif-set-photographer = import ./scripts/exif-set-photographer.nix {inherit pkgs;};
-      in
-        [exif-set-photographer]
+      home.packages =
+        let
+          exif-set-photographer = import ./scripts/exif-set-photographer.nix { inherit pkgs; };
+        in
+        [ exif-set-photographer ]
         ++ (with pkgs; [
           ffmpeg
           exiftool
@@ -204,10 +231,11 @@ in {
 
     # AI coding assistants
     (lib.mkIf cfg.ai.enable {
-      home.packages = let
-        ac = import ./scripts/ac.nix {inherit pkgs;};
-      in
-        [ac]
+      home.packages =
+        let
+          ac = import ./scripts/ac.nix { inherit pkgs; };
+        in
+        [ ac ]
         ++ (with pkgs; [
           nodejs_24
           python3
@@ -224,14 +252,21 @@ in {
 
     # Darwin-specific packages (not togglable)
     (lib.mkIf pkgs.stdenv.isDarwin {
-      home.packages = let
-        pamtouchfix = import ./scripts/pamtouchfix.nix {inherit pkgs;};
-        rsync-photos-backup = import ./scripts/rsync-photos-backup.nix {inherit pkgs;};
-        exportphotos = import ./scripts/exportphotos.nix {inherit pkgs;};
-        tailscale-switch-toggle = import ./scripts/tailscale-switch-toggle.nix {inherit pkgs;};
-        ghostty-new-mosh-tab = import ./scripts/ghostty-new-mosh-tab.nix {inherit pkgs;};
-      in
-        [pamtouchfix rsync-photos-backup exportphotos tailscale-switch-toggle ghostty-new-mosh-tab]
+      home.packages =
+        let
+          pamtouchfix = import ./scripts/pamtouchfix.nix { inherit pkgs; };
+          rsync-photos-backup = import ./scripts/rsync-photos-backup.nix { inherit pkgs; };
+          exportphotos = import ./scripts/exportphotos.nix { inherit pkgs; };
+          tailscale-switch-toggle = import ./scripts/tailscale-switch-toggle.nix { inherit pkgs; };
+          ghostty-new-mosh-tab = import ./scripts/ghostty-new-mosh-tab.nix { inherit pkgs; };
+        in
+        [
+          pamtouchfix
+          rsync-photos-backup
+          exportphotos
+          tailscale-switch-toggle
+          ghostty-new-mosh-tab
+        ]
         ++ (with pkgs; [
           ghostty-tab
           syncthing

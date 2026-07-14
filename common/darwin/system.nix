@@ -2,7 +2,8 @@
   lib,
   machine,
   ...
-}: {
+}:
+{
   # Available options
   # https://daiderd.com/nix-darwin/manual/index.html#sec-options
   system = {

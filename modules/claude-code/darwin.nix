@@ -4,12 +4,13 @@
   lib,
   claudeCodeLib,
   ...
-}: let
+}:
+let
   inherit (claudeCodeLib) resolvePath mkArgs enabled;
 
   darwinPath = "${config.home.profileDirectory}/bin:/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin";
 
-  healthcheck = import ./healthcheck.nix {inherit pkgs lib;};
+  healthcheck = import ./healthcheck.nix { inherit pkgs lib; };
 
   mkLaunchdAgent = name: ic: {
     enable = true;
@@ -30,8 +31,9 @@
       StandardErrorPath = "${config.home.homeDirectory}/Library/Logs/claude-code-${name}-error.log";
     };
   };
-in {
-  config = lib.mkIf (pkgs.stdenv.isDarwin && enabled != {}) {
+in
+{
+  config = lib.mkIf (pkgs.stdenv.isDarwin && enabled != { }) {
     launchd.agents =
       (lib.mapAttrs' (n: ic: lib.nameValuePair "claude-code-${n}" (mkLaunchdAgent n ic)) enabled)
       // {
@@ -41,7 +43,7 @@ in {
         claude-code-health = {
           enable = true;
           config = {
-            ProgramArguments = ["${healthcheck}/bin/claude-code-health"] ++ lib.attrNames enabled;
+            ProgramArguments = [ "${healthcheck}/bin/claude-code-health" ] ++ lib.attrNames enabled;
             StartInterval = 120;
             ProcessType = "Background";
             EnvironmentVariables = {

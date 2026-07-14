@@ -6,7 +6,8 @@
   config,
   lib,
   ...
-}: {
+}:
+{
   options.my.atuin.enable = lib.mkEnableOption "atuin shell-history sync client";
 
   config = lib.mkIf config.my.atuin.enable {
@@ -14,7 +15,7 @@
       enable = true;
       enableFishIntegration = true;
       # Keep fish's own up-arrow history; atuin search stays on ctrl-r.
-      flags = ["--disable-up-arrow"];
+      flags = [ "--disable-up-arrow" ];
       settings = {
         # VIP on the home tailnet. http, not https: the tcp:443 VIP endpoint
         # does not TLS-terminate (tailscale/tailscale#19724, #18381).

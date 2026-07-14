@@ -8,7 +8,8 @@
   stdenv,
   inputs,
   ...
-}: let
+}:
+let
   # Linux builder configuration for cross-compiling to aarch64-linux
   #
   # Bootstrap process for new machines:
@@ -22,9 +23,10 @@
 
   # skhd runs commands via /bin/sh with a bare launchd PATH, so reference the
   # script derivations by store path rather than relying on PATH lookup.
-  ghostty-new-mosh-tab = import ../../pkgs/scripts/ghostty-new-mosh-tab.nix {inherit pkgs;};
-  tailscale-switch-toggle = import ../../pkgs/scripts/tailscale-switch-toggle.nix {inherit pkgs;};
-in {
+  ghostty-new-mosh-tab = import ../../pkgs/scripts/ghostty-new-mosh-tab.nix { inherit pkgs; };
+  tailscale-switch-toggle = import ../../pkgs/scripts/tailscale-switch-toggle.nix { inherit pkgs; };
+in
+{
   imports = [
     ../darwin.nix
     # Base system toolset; the fuller interactive userland comes via
@@ -69,7 +71,7 @@ in {
 
   nix = {
     settings = {
-      trusted-users = [machine.username];
+      trusted-users = [ machine.username ];
       # builders = "@/etc/nix/machines";
     };
 
@@ -94,7 +96,7 @@ in {
     ''}";
     useUserPackages = true;
     useGlobalPkgs = true;
-    sharedModules = [inputs.nix-index-database.homeModules.nix-index];
+    sharedModules = [ inputs.nix-index-database.homeModules.nix-index ];
     users."${machine.username}" = {
       imports = [
         ../../home

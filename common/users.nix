@@ -3,9 +3,11 @@
   config,
   lib,
   ...
-}: let
+}:
+let
   sshKeys = import ../metadata/ssh.nix;
-in {
+in
+{
   options = {
     my.users = {
       storage = lib.mkOption {
@@ -36,14 +38,14 @@ in {
           commands = [
             {
               command = "${pkgs.systemd}/bin/reboot";
-              options = ["NOPASSWD"];
+              options = [ "NOPASSWD" ];
             }
             {
               command = "${pkgs.systemd}/bin/poweroff";
-              options = ["NOPASSWD"];
+              options = [ "NOPASSWD" ];
             }
           ];
-          groups = ["wheel"];
+          groups = [ "wheel" ];
         }
       ];
     };
@@ -65,7 +67,12 @@ in {
         kradalby = {
           isNormalUser = true;
           uid = 21000;
-          extraGroups = ["wireshark" "docker" "wheel" "storage"];
+          extraGroups = [
+            "wireshark"
+            "docker"
+            "wheel"
+            "storage"
+          ];
           shell = pkgs.fish;
           openssh.authorizedKeys.keys = sshKeys.main ++ sshKeys.kradalby;
           # passwordFile = config.age.secrets.r.path;
@@ -79,7 +86,7 @@ in {
         storage = lib.mkIf config.my.users.storage {
           isSystemUser = true;
           uid = 22000;
-          extraGroups = [];
+          extraGroups = [ ];
           shell = pkgs.bash;
           group = "storage";
           home = "/storage";

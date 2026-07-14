@@ -3,7 +3,8 @@
   pkgs,
   lib,
   ...
-}: {
+}:
+{
   imports = [
     ../../common/base.nix
     ../../profiles/server.nix
@@ -36,10 +37,10 @@
     users.storage = true;
     users.timemachine = true;
 
-    coredns.bind = ["10.62.0.2"];
+    coredns.bind = [ "10.62.0.2" ];
     ddns = {
       enable = true;
-      domains = ["tjoda.fap.no"];
+      domains = [ "tjoda.fap.no" ];
     };
   };
 
@@ -62,7 +63,7 @@
       address = "10.62.0.1";
       interface = config.my.lan;
     };
-    nameservers = ["10.62.0.1"];
+    nameservers = [ "10.62.0.1" ];
   };
 
   systemd.network = {
@@ -86,8 +87,13 @@
   };
 
   services.tailscale = {
-    advertiseRoutes = ["10.62.0.0/16"];
-    tags = ["tag:backup-client" "tag:gateway" "tag:server" "tag:storage"];
+    advertiseRoutes = [ "10.62.0.0/16" ];
+    tags = [
+      "tag:backup-client"
+      "tag:gateway"
+      "tag:server"
+      "tag:storage"
+    ];
   };
 
   age.secrets.headscale-sfiber-authkey = {

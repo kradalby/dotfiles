@@ -1,26 +1,28 @@
 # The homelab SLO definitions, pure data — imported by slo.nix (build) and
 # checks/prometheus-rules (unit tests) so both always compile the same spec.
 let
-  mkSLO = {
-    name,
-    description,
-    objective,
-    errorQuery,
-    totalQuery,
-    alertName,
-  }: {
-    inherit name description objective;
-    sli.events = {
-      error_query = errorQuery;
-      total_query = totalQuery;
+  mkSLO =
+    {
+      name,
+      description,
+      objective,
+      errorQuery,
+      totalQuery,
+      alertName,
+    }:
+    {
+      inherit name description objective;
+      sli.events = {
+        error_query = errorQuery;
+        total_query = totalQuery;
+      };
+      alerting = {
+        name = alertName;
+        page_alert.labels.severity = "critical";
+        ticket_alert.labels.severity = "warning";
+        annotations.summary = "${alertName}: burning error budget too fast";
+      };
     };
-    alerting = {
-      name = alertName;
-      page_alert.labels.severity = "critical";
-      ticket_alert.labels.severity = "warning";
-      annotations.summary = "${alertName}: burning error budget too fast";
-    };
-  };
 
   sloSpec = {
     version = "prometheus/v1";
@@ -45,7 +47,7 @@ let
         description = "CoreDNS SERVFAIL ratio per site resolver";
         objective = 99.9;
         errorQuery = ''sum by (instance) (rate(coredns_dns_responses_total{rcode="SERVFAIL"}[{{.window}}]))'';
-        totalQuery = ''sum by (instance) (rate(coredns_dns_responses_total[{{.window}}]))'';
+        totalQuery = "sum by (instance) (rate(coredns_dns_responses_total[{{.window}}]))";
         alertName = "CorednsErrorBudgetBurn";
       })
 
@@ -55,8 +57,8 @@ let
         name = "litestream-sync";
         description = "litestream local sync error ratio per database";
         objective = 99.9;
-        errorQuery = ''sum by (db) (rate(litestream_sync_error_count[{{.window}}]))'';
-        totalQuery = ''sum by (db) (rate(litestream_sync_count[{{.window}}]))'';
+        errorQuery = "sum by (db) (rate(litestream_sync_error_count[{{.window}}]))";
+        totalQuery = "sum by (db) (rate(litestream_sync_count[{{.window}}]))";
         alertName = "LitestreamErrorBudgetBurn";
       })
 
@@ -66,8 +68,8 @@ let
         name = "alertmanager-delivery";
         description = "Alertmanager notification failure ratio";
         objective = 99.0;
-        errorQuery = ''sum(rate(alertmanager_notifications_failed_total[{{.window}}]))'';
-        totalQuery = ''sum(rate(alertmanager_notifications_total[{{.window}}]))'';
+        errorQuery = "sum(rate(alertmanager_notifications_failed_total[{{.window}}]))";
+        totalQuery = "sum(rate(alertmanager_notifications_total[{{.window}}]))";
         alertName = "AlertmanagerDeliveryErrorBudgetBurn";
       })
 
@@ -96,8 +98,8 @@ let
         name = "scrape-success";
         description = "Prometheus scrape success ratio per job";
         objective = 99.9;
-        errorQuery = ''sum by (job) (count_over_time(up[{{.window}}]) - sum_over_time(up[{{.window}}]))'';
-        totalQuery = ''sum by (job) (count_over_time(up[{{.window}}]))'';
+        errorQuery = "sum by (job) (count_over_time(up[{{.window}}]) - sum_over_time(up[{{.window}}]))";
+        totalQuery = "sum by (job) (count_over_time(up[{{.window}}]))";
         alertName = "ScrapeErrorBudgetBurn";
       })
 
@@ -109,4 +111,4 @@ let
     ];
   };
 in
-  sloSpec
+sloSpec

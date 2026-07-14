@@ -4,11 +4,12 @@
   pkgs,
   inputs,
   ...
-}: {
+}:
+{
   imports = [
     {
-      disabledModules = ["services/home-automation/zigbee2mqtt.nix"];
-      imports = ["${inputs.nixpkgs-unstable}/nixos/modules/services/home-automation/zigbee2mqtt.nix"];
+      disabledModules = [ "services/home-automation/zigbee2mqtt.nix" ];
+      imports = [ "${inputs.nixpkgs-unstable}/nixos/modules/services/home-automation/zigbee2mqtt.nix" ];
     }
   ];
 
@@ -121,7 +122,7 @@
     };
   };
 
-  networking.firewall.allowedTCPPorts = [config.services.zigbee2mqtt.settings.frontend.port];
+  networking.firewall.allowedTCPPorts = [ config.services.zigbee2mqtt.settings.frontend.port ];
 
   services.tailscale.services.zigbee2mqtt-ldn = {
     endpoints = {

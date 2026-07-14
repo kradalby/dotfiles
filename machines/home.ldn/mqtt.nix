@@ -2,9 +2,11 @@
   config,
   lib,
   ...
-}: let
+}:
+let
   port = 1883;
-in {
+in
+{
   services.mosquitto = {
     enable = true;
     persistence = false;
@@ -53,8 +55,8 @@ in {
     ];
   };
 
-  networking.firewall.allowedTCPPorts = [port];
-  networking.firewall.allowedUDPPorts = [port];
+  networking.firewall.allowedTCPPorts = [ port ];
+  networking.firewall.allowedUDPPorts = [ port ];
 
   # zigbee2mqtt publishes to z2m-homekit's embedded broker (:51833, localhost,
   # no auth), NOT to mosquitto — live-verified 2026-07: mosquitto carries zero

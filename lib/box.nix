@@ -5,7 +5,8 @@
   lib,
   rev ? "DIRTY",
   ...
-}: let
+}:
+let
   commonModules = pkgBase: [
     inputs.ragenix.nixosModules.age
     {
@@ -17,30 +18,32 @@
     {
       # pin system nixpkgs to the same version as the flake input
       # (don't see a way to declaratively set channels but this seems to work fine?)
-      nix.nixPath = ["nixpkgs=${pkgBase}"];
+      nix.nixPath = [ "nixpkgs=${pkgBase}" ];
     }
   ];
-in {
-  nixosBox = {
-    arch,
-    nixpkgs ? pkgs,
-    homeBase ? null,
-    name,
-    tags ? [],
-    modules ? [],
-    targetHost ? null,
-    allowLocalDeployment ? false,
-    # Default off: nodes don't build, neither as a colmena target
-    # (buildOnTarget) nor locally (max-jobs = 0 below). dev.ldn is the
-    # sole builder and opts back in with buildOnTarget = true.
-    buildOnTarget ? false,
-  }:
+in
+{
+  nixosBox =
+    {
+      arch,
+      nixpkgs ? pkgs,
+      homeBase ? null,
+      name,
+      tags ? [ ],
+      modules ? [ ],
+      targetHost ? null,
+      allowLocalDeployment ? false,
+      # Default off: nodes don't build, neither as a colmena target
+      # (buildOnTarget) nor locally (max-jobs = 0 below). dev.ldn is the
+      # sole builder and opts back in with buildOnTarget = true.
+      buildOnTarget ? false,
+    }:
     nixpkgs.lib.nixosSystem {
       modules =
         (commonModules nixpkgs)
         ++ modules
         ++ [
-          {nixpkgs.hostPlatform = arch;}
+          { nixpkgs.hostPlatform = arch; }
           inputs.tailscale.nixosModules.default
           (import ../modules/linux.nix)
           {
@@ -48,7 +51,7 @@ in {
           }
 
           # No local building unless this node builds on target.
-          {nix.settings.max-jobs = lib.mkIf (!buildOnTarget) 0;}
+          { nix.settings.max-jobs = lib.mkIf (!buildOnTarget) 0; }
 
           (./.. + "/machines/${name}")
 
@@ -62,25 +65,27 @@ in {
           }
         ]
         ++ (
-          if homeBase == null
-          then []
-          else [
-            homeBase.nixosModules.home-manager
-            ../common/home.nix
-          ]
+          if homeBase == null then
+            [ ]
+          else
+            [
+              homeBase.nixosModules.home-manager
+              ../common/home.nix
+            ]
         );
       specialArgs = {
         inherit inputs;
       };
     };
 
-  macBox = machine: pkgBase: homeBase: additionalModules:
+  macBox =
+    machine: pkgBase: homeBase: additionalModules:
     pkgBase.lib.darwinSystem {
       modules =
         (commonModules pkgBase)
         ++ additionalModules
         ++ [
-          {nixpkgs.hostPlatform = machine.arch;}
+          { nixpkgs.hostPlatform = machine.arch; }
           (./.. + "/machines/${machine.hostname}")
           homeBase.darwinModules.home-manager
           # inputs.nix-rosetta-builder.darwinModules.default
@@ -91,7 +96,7 @@ in {
           # nixpkgs-darwin input, otherwise NIX_PATH points at the
           # nix-darwin source and nix-shell -p cannot find <nixpkgs>.
           {
-            nix.nixPath = lib.mkForce ["nixpkgs=${inputs.nixpkgs-darwin}"];
+            nix.nixPath = lib.mkForce [ "nixpkgs=${inputs.nixpkgs-darwin}" ];
           }
         ];
       specialArgs = {
@@ -100,21 +105,24 @@ in {
       };
     };
 
-  mkColmenaFromNixOSConfigurations = nixosConfigurations: let
-    base =
-      {
+  mkColmenaFromNixOSConfigurations =
+    nixosConfigurations:
+    let
+      base = {
         meta = {
           # Reuse an existing NixOS host's pkgs to avoid a
           # redundant nixpkgs instantiation. Most hosts have
           # buildOnTarget = false, so the deployer builds with this.
           nixpkgs =
-            if nixosConfigurations ? "dev.ldn"
-            then nixosConfigurations."dev.ldn".pkgs
+            if nixosConfigurations ? "dev.ldn" then
+              nixosConfigurations."dev.ldn".pkgs
             else
               import pkgs {
                 system = "x86_64-linux";
                 inherit overlays;
-                config = {allowUnfree = true;};
+                config = {
+                  allowUnfree = true;
+                };
               };
 
           specialArgs = {
@@ -122,21 +130,20 @@ in {
           };
         };
       }
-      // (builtins.mapAttrs
-        (name: value: {
-          deployment = {
-            inherit (value._module.args) buildOnTarget;
-            # Replace hostname with tailscale hostname to use tailscale auth.
-            targetHost =
-              if value._module.args.targetHost != null
-              then value._module.args.targetHost
-              else builtins.replaceStrings ["."] ["-"] name;
-            inherit (value._module.args) tags;
-            inherit (value._module.args) allowLocalDeployment;
-          };
-          imports = value._module.args.modules;
-        })
-        nixosConfigurations);
-  in
+      // (builtins.mapAttrs (name: value: {
+        deployment = {
+          inherit (value._module.args) buildOnTarget;
+          # Replace hostname with tailscale hostname to use tailscale auth.
+          targetHost =
+            if value._module.args.targetHost != null then
+              value._module.args.targetHost
+            else
+              builtins.replaceStrings [ "." ] [ "-" ] name;
+          inherit (value._module.args) tags;
+          inherit (value._module.args) allowLocalDeployment;
+        };
+        imports = value._module.args.modules;
+      }) nixosConfigurations);
+    in
     base;
 }

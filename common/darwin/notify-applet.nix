@@ -24,12 +24,14 @@
 {
   lib,
   pkgs,
-}: {
+}:
+{
   appName, # e.g. "TailscaleNotify" -> /Applications/TailscaleNotify.app
   bundleId, # e.g. "no.kradalby.TailscaleNotify"
   urlScheme, # e.g. "tailscalenotify"
   iconSource ? null, # optional .icns path, copied in on every activation
-}: let
+}:
+let
   appPath = "/Applications/${appName}.app";
   appleScript = ''
     use scripting additions
@@ -57,13 +59,14 @@
   urlTypesJson = builtins.toJSON [
     {
       CFBundleURLName = "${appName} URL";
-      CFBundleURLSchemes = [urlScheme];
+      CFBundleURLSchemes = [ urlScheme ];
     }
   ];
   # Bump the version prefix to force a rebuild on existing hosts.
   inputStamp = builtins.hashString "sha256" "v3|${bundleId}|${urlScheme}|${appleScript}";
   lsregister = "/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/LaunchServices.framework/Versions/A/Support/lsregister";
-in {
+in
+{
   install = pkgs.writeShellScript "${urlScheme}-install" ''
     set -eu
     APP=${lib.escapeShellArg appPath}

@@ -6,7 +6,8 @@
   pkgs,
   lib,
   ...
-}: {
+}:
+{
   environment.etc."tmux.conf".text = ''
     # --- equivalents of the old programs.tmux structured options ---
     set  -g default-terminal "xterm-256color"

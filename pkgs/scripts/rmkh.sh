@@ -26,5 +26,5 @@ ssh-keygen -F "$arg" -f "$kh"
 read -rp "Delete all of the above? [y/N] " reply
 case "$reply" in
   [yY]) ssh-keygen -R "$arg" -f "$kh" ;;
-  *)    echo "Aborted." ;;
+  *) echo "Aborted." ;;
 esac

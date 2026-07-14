@@ -3,10 +3,12 @@
   lib,
   config,
   ...
-}: let
+}:
+let
   location = lib.elemAt (lib.splitString "." config.networking.domain) 0;
   serviceName = "s3-${location}";
-in {
+in
+{
   # GARAGE_RPC_SECRET + GARAGE_ADMIN_TOKEN. The admin token also lives in
   # setec (infra/garage/tjoda/admin-token) for the garage/ tofu root in
   # ~/git/infrastructure, which manages buckets/keys over the admin API.
@@ -66,7 +68,7 @@ in {
     isSystemUser = true;
     group = "garage";
   };
-  users.groups.garage = {};
+  users.groups.garage = { };
 
   services.tailscale.services.${serviceName} = {
     endpoints = {

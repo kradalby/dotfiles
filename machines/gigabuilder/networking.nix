@@ -1,4 +1,4 @@
-{config, ...}: {
+{ config, ... }: {
   # Rename the cabled 10Gbps port to a stable name keyed on its MAC, so config
   # never depends on kernel probe order. (my.lan = incusbr0, set in incus.nix.)
   my.wan = "wan0";
@@ -21,7 +21,7 @@
     #   217.120.73.18 isc, 77.164.248.136 ldn, 51.174.163.104 core.tjoda (ddns)
     firewall = {
       enable = true;
-      trustedInterfaces = ["tailscale0"];
+      trustedInterfaces = [ "tailscale0" ];
       extraInputRules = ''
         ip saddr { 217.120.73.18, 77.164.248.136, 51.174.163.104 } tcp dport 22 accept
       '';
@@ -54,6 +54,9 @@
 
     # ponytail: provider gave no nameserver; Cloudflare is the safe default.
     # Swap if they hand you a resolver.
-    nameservers = ["1.1.1.1" "2606:4700:4700::1111"];
+    nameservers = [
+      "1.1.1.1"
+      "2606:4700:4700::1111"
+    ];
   };
 }

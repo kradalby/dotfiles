@@ -4,9 +4,11 @@
   lib,
   ...
 }:
-with lib; let
+with lib;
+let
   cfg = config.services.setec;
-in {
+in
+{
   options.services.setec = {
     enable = mkEnableOption "Tailscale setec secret store";
 
@@ -72,9 +74,9 @@ in {
         export TS_AUTHKEY=$(cat ${cfg.tailscaleKeyPath})
         ${cfg.package}/bin/setec server --hostname=${cfg.hostname} --kms-key-name=${cfg.kmsKeyName} --state-dir ${cfg.dataDir}
       '';
-      wantedBy = ["multi-user.target"];
-      after = ["network-online.target"];
-      wants = ["network-online.target"];
+      wantedBy = [ "multi-user.target" ];
+      after = [ "network-online.target" ];
+      wants = [ "network-online.target" ];
 
       serviceConfig = {
         # DynamicUser = true;

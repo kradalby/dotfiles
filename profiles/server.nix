@@ -5,7 +5,8 @@
   pkgs,
   lib,
   ...
-}: {
+}:
+{
   imports = [
     ../common/systemd-exporter.nix
     ../common/smartctl-exporter.nix # inert until monitoring.smartctl.devices is set
@@ -13,7 +14,8 @@
     # relays mail through gigabuilder (smtp.fap.no -> spamvask.terrahost.no).
   ];
 
-  environment.systemPackages = with pkgs;
+  environment.systemPackages =
+    with pkgs;
     [
       restic
       rclone
@@ -21,6 +23,6 @@
     ]
     ++ lib.optionals stdenv.isLinux [
       usbutils
-      (import ../pkgs/scripts/emergency-full-disk.nix {inherit pkgs;})
+      (import ../pkgs/scripts/emergency-full-disk.nix { inherit pkgs; })
     ];
 }

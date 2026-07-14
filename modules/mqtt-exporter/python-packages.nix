@@ -5,7 +5,8 @@
   fetchurl,
   fetchgit,
   fetchhg,
-}: self: super: {
+}:
+self: super: {
   "paho-mqtt" = super.buildPythonPackage rec {
     pname = "paho-mqtt";
     version = "1.6.1";
@@ -14,10 +15,10 @@
       sha256 = "0vy2xy78nqqqwbgk96cfrb5lgivjldc5ba5mf81w1bi32v4930ia";
     };
     format = "setuptools";
-    buildInputs = [];
-    checkInputs = [];
-    nativeBuildInputs = [];
-    propagatedBuildInputs = [];
+    buildInputs = [ ];
+    checkInputs = [ ];
+    nativeBuildInputs = [ ];
+    propagatedBuildInputs = [ ];
   };
   "prometheus-client" = super.buildPythonPackage rec {
     pname = "prometheus-client";
@@ -27,9 +28,9 @@
       sha256 = "00fwahfrq64a7wz471jax2lba56z88plawr7ksl24a184pbdwbsj";
     };
     format = "wheel";
-    buildInputs = [];
-    checkInputs = [];
-    nativeBuildInputs = [];
-    propagatedBuildInputs = [];
+    buildInputs = [ ];
+    checkInputs = [ ];
+    nativeBuildInputs = [ ];
+    propagatedBuildInputs = [ ];
   };
 }

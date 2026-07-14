@@ -1,8 +1,12 @@
-{pkgs, ...}:
+{ pkgs, ... }:
 pkgs.writeShellApplication {
   name = "rsync-photos-backup";
 
-  runtimeInputs = with pkgs; [rsync coreutils gnugrep];
+  runtimeInputs = with pkgs; [
+    rsync
+    coreutils
+    gnugrep
+  ];
 
   text = ''
     # Configuration
