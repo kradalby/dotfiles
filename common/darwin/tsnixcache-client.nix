@@ -1,4 +1,6 @@
 # Auto-push locally-built paths to the gigabuilder cache (nix post-build hook).
+# The hook also covers offloaded (rosetta-builder) aarch64-linux builds — the
+# local daemon orchestrates the remote build and runs the hook on the result.
 {
   inputs,
   pkgs,
