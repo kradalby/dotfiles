@@ -21,29 +21,17 @@ repos:
       - id: check-shebang-scripts-are-executable
       - id: destroyed-symlinks
 
-  # Prettier for markdown formatting
-  - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v3.1.0
-    hooks:
-      - id: prettier
-        types_or: [markdown]
-
+  # All formatting (nix/markdown/shell) runs through treefmt; its config lives
+  # in flake.nix. treefmt comes from the devShell, hence language: system.
   - repo: local
     hooks:
-      - id: alejandra
-        name: alejandra
-        entry: alejandra
+      - id: treefmt
+        name: treefmt
+        entry: treefmt --fail-on-change
         language: system
-        files: \.nix$
+        pass_filenames: false
 
   - repo: https://github.com/gruntwork-io/pre-commit
     rev: v0.1.12
     hooks:
       - id: shellcheck
-
-  # shfmt for shell script formatting
-  - repo: https://github.com/scop/pre-commit-shfmt
-    rev: v3.10.0-1
-    hooks:
-      - id: shfmt
-        args: ['-i', '2', '-ci']

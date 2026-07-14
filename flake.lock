@@ -351,7 +351,7 @@
           "ts1p",
           "nixpkgs"
         ],
-        "treefmt-nix": "treefmt-nix_11"
+        "treefmt-nix": "treefmt-nix_12"
       },
       "locked": {
         "lastModified": 1782156198,
@@ -374,7 +374,7 @@
           "tsnixcache",
           "nixpkgs"
         ],
-        "treefmt-nix": "treefmt-nix_12"
+        "treefmt-nix": "treefmt-nix_13"
       },
       "locked": {
         "lastModified": 1781951072,
@@ -1304,6 +1304,7 @@
         "tailscale": "tailscale",
         "tasmota-exporter": "tasmota-exporter",
         "tasmota-homekit": "tasmota-homekit",
+        "treefmt-nix": "treefmt-nix_11",
         "ts1p": "ts1p",
         "tsidp": "tsidp",
         "tsnixcache": "tsnixcache",
@@ -1684,6 +1685,26 @@
     "treefmt-nix_11": {
       "inputs": {
         "nixpkgs": [
+          "nixpkgs-stable"
+        ]
+      },
+      "locked": {
+        "lastModified": 1780220602,
+        "narHash": "sha256-eynAfOmbmxJnkp7YewvCEbShNnnYJ9gLLqkzsYtBPeM=",
+        "owner": "numtide",
+        "repo": "treefmt-nix",
+        "rev": "db947814a175b7ca6ded66e21383d938df01c227",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "treefmt-nix",
+        "type": "github"
+      }
+    },
+    "treefmt-nix_12": {
+      "inputs": {
+        "nixpkgs": [
           "ts1p",
           "flake-checks",
           "nixpkgs"
@@ -1703,7 +1724,7 @@
         "type": "github"
       }
     },
-    "treefmt-nix_12": {
+    "treefmt-nix_13": {
       "inputs": {
         "nixpkgs": [
           "tsnixcache",
