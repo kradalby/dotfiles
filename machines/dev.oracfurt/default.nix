@@ -12,6 +12,7 @@
     ../../common/containers.nix
 
     ../../common/tailscale.nix
+    ../../common/tsnixcache-client.nix
 
     ./restic.nix
     ./syncthing.nix

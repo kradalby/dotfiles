@@ -15,6 +15,7 @@
     ../../common/coredns.nix
     ../../common/miniupnp.nix
     ../../common/tailscale.nix
+    ../../common/tsnixcache-client.nix
 
     ./restic.nix
     ./kuma.nix
