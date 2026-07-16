@@ -32,6 +32,22 @@ in
     };
   };
 
+  # Every userspace instance gets an outbound SOCKS5+HTTP proxy by default.
+  # ponytail: all plural instances share :1056 — fine because no host runs
+  # more than one today. A second userspace instance on one host trips the
+  # module's proxyListenAddress uniqueness assertion at build; give that one
+  # an explicit port then.
+  options.services.tailscales = lib.mkOption {
+    type = lib.types.attrsOf (
+      lib.types.submodule {
+        config = {
+          proxy = lib.mkDefault "both";
+          proxyListenAddress = lib.mkDefault "localhost:1056";
+        };
+      }
+    );
+  };
+
   config = {
     # Primary Tailscale instance: upstream SaaS (kradalby.no tailnet).
     # TUN mode with full routing features.
@@ -40,6 +56,9 @@ in
 
       authKeyFile = config.age.secrets.tailscale-preauthkey.path;
       useRoutingFeatures = "both";
+
+      # Outbound SOCKS5+HTTP proxy on the module default localhost:1055.
+      proxy = "both";
 
       extraSetFlags = [
         "--ssh=true"
