@@ -1,4 +1,5 @@
-# Auto-push locally-built paths to the gigabuilder cache (nix post-build hook).
+# Auto-push new store paths to the gigabuilder cache (out-of-band watch daemon,
+# so the push doesn't block build completion like the post-build hook does).
 {
   inputs,
   pkgs,
@@ -15,6 +16,6 @@ in
     package = inputs.tsnixcache.packages.${pkgs.stdenv.hostPlatform.system}.default;
     publicKey = cache.publicKey;
     substituters = [ ];
-    postBuildHook.enable = true;
+    watch.enable = true;
   };
 }

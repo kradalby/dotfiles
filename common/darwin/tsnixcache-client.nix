@@ -1,6 +1,7 @@
-# Auto-push locally-built paths to the gigabuilder cache (nix post-build hook).
-# The hook also covers offloaded (rosetta-builder) aarch64-linux builds — the
-# local daemon orchestrates the remote build and runs the hook on the result.
+# Auto-push new store paths to the gigabuilder cache (out-of-band watch daemon,
+# so the push doesn't block build completion like the post-build hook does).
+# The watcher also covers offloaded (rosetta-builder) aarch64-linux builds — the
+# result lands in the local store, which the daemon monitors.
 {
   inputs,
   pkgs,
@@ -17,6 +18,6 @@ in
     package = inputs.tsnixcache.packages.${pkgs.stdenv.hostPlatform.system}.default;
     publicKey = cache.publicKey;
     substituters = [ ];
-    postBuildHook.enable = true;
+    watch.enable = true;
   };
 }
