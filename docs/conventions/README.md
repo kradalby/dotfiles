@@ -8,6 +8,7 @@ Starting a new project? Read this file, then the file for your stack.
 - **Refresh before building.** This guide goes stale. Before starting, check the newest toolchain/language release and its notes, the relevant upstream (nixpkgs & `lib`, stdlib, framework changelogs, project issues/forums), _and_ my freshest repo. Adopt new idioms and helpers; don't cargo-cult this file.
 - **Comments are terse and explain _why_, not _what_.**
 - **Nix-first.** Every repo has a `flake.nix`. Build/test/lint/format are flake outputs, not ad-hoc scripts.
+- **Ship the tool and its output.** A binary that generates an artifact exposes both the CLI package and a derivation of its built output; consumers choose Nix or not. → [nix.md](nix.md)
 - **All checks go through [`kradalby/flake-checks`](https://github.com/kradalby/flake-checks).** Extend it, don't fork the pattern. CI just calls the checks. → [nix.md](nix.md)
 - **Formatting: treefmt, always.** One entrypoint orchestrating every language's formatter (nixfmt-rfc-style, gofumpt + goimports, prettier, shfmt) — no standalone per-tool hooks, no per-repo formatter drift. → [nix.md](nix.md)
 - **prek** runs format+lint hooks (`treefmt --fail-on-change` for formatting); `prek run --all-files` before commit. → [git.md](git.md)
