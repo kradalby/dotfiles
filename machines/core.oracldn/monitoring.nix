@@ -15,6 +15,7 @@ let
     "dev-ldn"
     "home-ldn"
     "storage-ldn"
+    "rpi5-ldn"
     "gigabuilder"
     "ts1p-ldn"
     "garnix"
