@@ -476,7 +476,6 @@ in
         "https://setec.dalby.ts.net/healthz"
         "http://cook.dalby.ts.net"
         "http://pdf.dalby.ts.net"
-        "http://atuin.dalby.ts.net"
         "http://go.dalby.ts.net"
         "http://dev-ldn:8846"
         "http://owntone.dalby.ts.net"
