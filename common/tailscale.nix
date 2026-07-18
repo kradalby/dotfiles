@@ -49,6 +49,59 @@ in
   };
 
   config = {
+    # Hardening: every Tailscale instance (primary + each services.tailscales.*)
+    # opens an outbound SOCKS5/HTTP proxy. If two land on the same 127.0.0.1
+    # port, the second daemon fails "address already in use", crash-loops, and
+    # the node silently drops off the tailnet — no build error, discovered only
+    # when something can't reach it. The upstream plural assertion misses this:
+    # it compares only plural proxyListenAddress values, ignoring the primary and
+    # any raw --socks5-server/--outbound-http-proxy-listen in extraDaemonFlags
+    # (which override proxyListenAddress at the daemon). Assert the *effective*
+    # ports every instance binds are unique across the whole host, at eval.
+    assertions =
+      let
+        portOf = a: lib.toInt (lib.last (lib.splitString ":" a));
+        rawPort =
+          flags: prefix:
+          let
+            f = lib.findFirst (x: lib.hasPrefix prefix x) null flags;
+          in
+          if f == null then null else portOf (lib.removePrefix prefix f);
+        # Ports an instance actually binds for its outbound proxies.
+        proxyPorts =
+          inst:
+          let
+            flags = inst.extraDaemonFlags or [ ];
+            base = if (inst.proxy or "none") != "none" then portOf inst.proxyListenAddress else null;
+            pick =
+              prefix:
+              let
+                r = rawPort flags prefix;
+              in
+              if r != null then r else base;
+          in
+          lib.unique (
+            lib.filter (p: p != null) [
+              (pick "--socks5-server=")
+              (pick "--outbound-http-proxy-listen=")
+            ]
+          );
+        instances =
+          lib.optional config.services.tailscale.enable config.services.tailscale
+          ++ lib.attrValues config.services.tailscales;
+        ports = lib.concatMap proxyPorts instances;
+      in
+      [
+        {
+          assertion = ports == lib.unique ports;
+          message =
+            "tailscale: outbound-proxy port collision on ${config.networking.hostName} "
+            + "(effective ports ${lib.concatMapStringsSep ", " toString ports}). Each Tailscale "
+            + "instance needs a unique proxyListenAddress port; don't hand-roll a colliding "
+            + "--socks5-server in extraDaemonFlags.";
+        }
+      ];
+
     # Primary Tailscale instance: upstream SaaS (kradalby.no tailnet).
     # TUN mode with full routing features.
     services.tailscale = {
