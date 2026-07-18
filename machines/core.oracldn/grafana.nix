@@ -1,4 +1,5 @@
 {
+  inputs,
   pkgs,
   lib,
   config,
@@ -39,6 +40,12 @@ let
         name = "incus.json";
       }
     } $out/incus.json
+
+    # tsnixcache dashboard, generated from Go (Foundation SDK) in the tsnixcache
+    # repo and shipped as a flake package, so it tracks the metrics it charts.
+    cp ${
+      inputs.tsnixcache.packages.${pkgs.stdenv.hostPlatform.system}.grafanaDashboards
+    }/tsnixcache.json $out/tsnixcache.json
   '';
 in
 {
