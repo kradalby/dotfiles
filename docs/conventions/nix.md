@@ -41,6 +41,33 @@ in {
 - Expose `overlays.default`, and for services `nixosModules.default`.
 - Flake apps for ergonomics: `nix run .#test` / `.#test-race` / `.#lint` / `.#coverage`. (z2m-homekit)
 
+## Generated artifacts (ship the tool _and_ its output)
+
+A binary whose job is to emit an artifact (dashboard JSON, config, schema,
+codegen, docs) exposes **two** flake outputs: the CLI, and a derivation that
+runs it and captures only the output.
+
+```nix
+# 1. the tool — for humans / non-Nix consumers (`nix run .#dashboard`)
+dashboard = fc.goBuild (common // {
+  pname       = "myapp-dashboard";
+  subPackages = [ "cmd/dashboard" ];              # own build; keeps SDK deps
+});                                                #   out of the service binary
+
+# 2. the built artifact — for Nix consumers to depend on directly.
+#    Build() validates, so a bad artifact fails here instead of shipping.
+grafanaDashboards = pkgs.runCommand "myapp-grafana-dashboards" { } ''
+  mkdir -p $out
+  ${dashboard}/bin/dashboard > $out/myapp.json
+'';
+
+packages = { inherit dashboard grafanaDashboards; default = app; };
+```
+
+- **Generator lives beside what it describes.** Source and artifact move together — one bump updates both, no hand-edited output, no drift. (tsnixcache: the Grafana dashboard is generated next to the metrics it charts.)
+- **Consumers pick their level.** Run the CLI (no Nix), or reference `${x.packages.<sys>.grafanaDashboards}/…` from a `runCommand`/module. A downstream flake gets the artifact through its existing input — no extra fetch.
+- **Validation is the build.** The emit path is pure and deterministic (stdout or a file arg) and exits non-zero on a bad artifact, so the derivation fails rather than ships. (tsnixcache: `cmd/dashboard` → `grafanaDashboards`.)
+
 ## vendorHash churn → flakehashes.json
 
 Hashes that change often live in a root `flakehashes.json`, read with
@@ -91,7 +118,7 @@ Prefer nix-built images (`dockerTools.buildLayeredImage`); fall back to a multi-
 
 ## Copy from
 
-- `tsnixcache` `flake.nix` + `nix/module-{server,client}.nix` + `nix/tests/*.nix` — freshest full example
+- `tsnixcache` `flake.nix` + `nix/module-{server,client}.nix` + `nix/tests/*.nix` — freshest full example; `cmd/dashboard` + `grafanaDashboards` — the ship-tool-and-output pattern
 - `z2m-homekit/flake.nix` + `z2m-homekit/nix/module.nix` — modern flake + module + CI
 - `kra/flake.nix` — minimal flake-checks wiring
 - `headscale/flake.nix` — full (overlay, module, flakehashes, docker)
