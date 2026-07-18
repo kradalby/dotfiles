@@ -62,7 +62,6 @@ _: {
       "geotag-photos-pro" # photo geotagging
       "remote-desktop-manager"
       "transmit" # SFTP/file transfer client
-      "paseo" # paseo client
 
       # Quiz
       "youtube-to-mp3"

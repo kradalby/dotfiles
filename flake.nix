@@ -159,11 +159,6 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
-    paseo = {
-      url = "github:getpaseo/paseo";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-    };
-
     # Agent multiplexer (tmux replacement for `ac`). Do NOT `follows` its
     # rust-overlay — the package is built against the toolchain herdr pins.
     herdr = {

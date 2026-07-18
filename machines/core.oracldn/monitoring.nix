@@ -467,7 +467,7 @@ in
       # until upstream fixes it:
       #   https://github.com/tailscale/tailscale/issues/19724
       #   https://github.com/tailscale/tailscale/issues/18381
-      # TODO(kradalby): revert grafana/cook/pdf/paseo/owntone to https
+      # TODO(kradalby): revert grafana/cook/pdf/owntone to https
       # once resolved. idp + setec stay https — they are tsnet apps that
       # terminate TLS themselves, not services.tailscale.services passthrough.
       (probeJob "tailnet-probes" "http_tailnet" [
@@ -478,7 +478,6 @@ in
         "http://pdf.dalby.ts.net"
         "http://atuin.dalby.ts.net"
         "http://go.dalby.ts.net"
-        "http://paseo-dev-ldn.dalby.ts.net"
         "http://dev-ldn:8846"
         "http://owntone.dalby.ts.net"
         "http://s3-tjoda:3903/health"
