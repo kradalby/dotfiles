@@ -74,6 +74,13 @@ in
     extraDaemonFlags = [ "--socks5-server=:1055" ];
   };
 
+  # sfiber's socks binds :1055 (all interfaces) so the CI action sandbox in its
+  # own netns can reach it. That raw --socks5-server flag bypasses the module's
+  # proxyListenAddress uniqueness assertion, so it silently collides with the
+  # main tailscale's default localhost:1055 — both fight over 127.0.0.1:1055 and
+  # crash-loop tailscaled on boot. Move the main's socks off :1055.
+  services.tailscale.proxyListenAddress = lib.mkForce "localhost:1057";
+
   # Our only resolver is the incus bridge dnsmasq (plain DNS), so the fleet's
   # forced DoT/DNSSEC breaks every lookup. Override the settings.Resolve keys
   # common/resolved.nix sets (the top-level options are deprecated in 26.05).
