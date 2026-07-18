@@ -1229,26 +1229,6 @@
         "type": "github"
       }
     },
-    "paseo": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs-unstable"
-        ]
-      },
-      "locked": {
-        "lastModified": 1784300614,
-        "narHash": "sha256-eHnTG9Mlt4OPXDTEVJxSr8tXyQ7EI1CUkR/D9ugJico=",
-        "owner": "getpaseo",
-        "repo": "paseo",
-        "rev": "1977d330edefb8d7c8c0f0673e911586d40a6262",
-        "type": "github"
-      },
-      "original": {
-        "owner": "getpaseo",
-        "repo": "paseo",
-        "type": "github"
-      }
-    },
     "ragenix": {
       "inputs": {
         "agenix": "agenix",
@@ -1298,7 +1278,6 @@
         "nixpkgs-stable": "nixpkgs-stable_2",
         "nixpkgs-unstable": "nixpkgs-unstable",
         "opencode": "opencode",
-        "paseo": "paseo",
         "ragenix": "ragenix",
         "ssh-agent-mux": "ssh-agent-mux",
         "tailscale": "tailscale",
