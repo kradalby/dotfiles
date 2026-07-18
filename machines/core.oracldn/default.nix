@@ -13,7 +13,6 @@
     ../../common/containers.nix
 
     ../../common/coredns.nix
-    ../../common/miniupnp.nix
     ../../common/tailscale.nix
     ../../common/tsnixcache-client.nix
 
