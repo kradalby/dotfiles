@@ -2009,11 +2009,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1784008769,
-        "narHash": "sha256-S5Fbf8vzclREzayKIH9+8yK5u3ld6QlzdqZmcdgPQQc=",
+        "lastModified": 1784362057,
+        "narHash": "sha256-oshGNYy92HzUrtXKnjC7U7cFMEw27nTsfwULQCrDKfA=",
         "owner": "kradalby",
         "repo": "tsnixcache",
-        "rev": "58c756a0f0b7e7a3fb4887b5ef0a75fd166a9183",
+        "rev": "27fbf7efab3422e37cdeccff6a313b02a056149a",
         "type": "github"
       },
       "original": {
