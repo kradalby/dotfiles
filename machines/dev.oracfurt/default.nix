@@ -14,6 +14,7 @@
     ../../common/tailscale.nix
     ../../common/tsnixcache-client.nix
 
+    ./garnix-builder.nix
     ./restic.nix
     ./syncthing.nix
     ./proton.nix

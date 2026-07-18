@@ -149,6 +149,20 @@ in
           "nixos-test"
         ];
       }
+      {
+        # Native aarch64 builder (Ampere), so the Oracle/rpi nixosConfig checks
+        # finally build instead of failing "no aarch64 builder". Reached over the
+        # tailnet on a non-22 port (see Port pin below + dev.oracfurt/garnix-
+        # builder.nix). maxJobs 1: small VM, and these are infrequent PR builds.
+        # No kvm/nixos-test — Ampere has no /dev/kvm.
+        name = "dev-oracfurt";
+        hostname = "dev-oracfurt.dalby.ts.net";
+        user = "nix-ssh";
+        systems = [ "aarch64-linux" ];
+        maxJobs = 1;
+        speedFactor = 2;
+        supportedFeatures = [ "big-parallel" ];
+      }
     ];
 
     # Outputs already land in gigabuilder's tsnixcache-served store.
@@ -189,6 +203,18 @@ in
       "10.68.0.1"
     ];
     publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIfxql6LaBrlxvBDywHRWULRocO9Yo57DlrlsdDCkcis";
+  };
+
+  # dev-oracfurt's build sshd is on :2222 (tailnet :22 is Tailscale SSH). garnix
+  # emits the Host alias without a Port, so pin it — ssh merges keywords across
+  # matching Host blocks, taking the Port from here and the rest from garnix.
+  programs.ssh.extraConfig = ''
+    Host dev-oracfurt
+      Port 2222
+  '';
+  programs.ssh.knownHosts.dev-oracfurt = {
+    hostNames = [ "[dev-oracfurt.dalby.ts.net]:2222" ];
+    publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIE65s/hRn34v5UNhSIC8/JN/452hLdqn131gVqqBTPnl";
   };
 
   # Loopback-only datastores, so peer/trust auth and no TLS — the fork's own
