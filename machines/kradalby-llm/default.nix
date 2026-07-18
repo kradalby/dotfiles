@@ -91,7 +91,6 @@ in
   imports = [
     ../../home
     ../../home/herdr.nix
-    ./paseo.nix
   ];
 
   # This box runs codex too, so add its state hook alongside claude/opencode.
