@@ -12,8 +12,10 @@
 # checkConfig=false and the rule unit tests cannot see. Only the timers are
 # shortened so the dead-man's re-notify is observable within the test window.
 let
-  prodRoute =
-    self.nixosConfigurations.core-oracldn.config.services.prometheus.alertmanager.configuration.route;
+  prodAm =
+    self.nixosConfigurations.core-oracldn.config.services.prometheus.alertmanager.configuration;
+  prodRoute = prodAm.route;
+  prodInhibits = prodAm.inhibit_rules;
   fastRoute = prodRoute // {
     group_wait = "1s";
     group_interval = "2s";
@@ -57,6 +59,32 @@ pkgs.testers.runNixOSTest {
                   expr = "vector(1)";
                   labels.severity = "warning";
                 }
+                # Inhibition trio: NodeExporterDown{target=X} must suppress a
+                # dependent alert sharing target=X, but NOT one with target=Y.
+                {
+                  alert = "NodeExporterDown";
+                  expr = "vector(1)";
+                  labels = {
+                    severity = "critical";
+                    target = "inhibit-test-host";
+                  };
+                }
+                {
+                  alert = "DependentAlert";
+                  expr = "vector(1)";
+                  labels = {
+                    severity = "critical";
+                    target = "inhibit-test-host";
+                  };
+                }
+                {
+                  alert = "IndependentAlert";
+                  expr = "vector(1)";
+                  labels = {
+                    severity = "critical";
+                    target = "other-test-host";
+                  };
+                }
               ];
             }
           ];
@@ -75,6 +103,9 @@ pkgs.testers.runNixOSTest {
         listenAddress = "127.0.0.1";
         configuration = {
           route = fastRoute;
+          # The REAL production inhibit rules — so this test also guards that a
+          # dead host's dependents are suppressed while independents still fire.
+          inhibit_rules = prodInhibits;
           # Stub the three production receivers to a local webhook. Names MUST
           # match what the real route references (discord / critical / deadman)
           # — a rename in the route with no matching receiver fails the test.
@@ -106,13 +137,21 @@ pkgs.testers.runNixOSTest {
       wantedBy = [ "multi-user.target" ];
       serviceConfig.ExecStart = pkgs.writers.writePython3 "webhook-stub" { } ''
         import http.server
+        import json
 
 
         class H(http.server.BaseHTTPRequestHandler):
             def do_POST(self):
-                self.rfile.read(int(self.headers.get("Content-Length", 0)))
+                body = self.rfile.read(int(self.headers.get("Content-Length", 0)))
+                try:
+                    names = ",".join(
+                        a["labels"]["alertname"]
+                        for a in json.loads(body).get("alerts", [])
+                    )
+                except Exception:
+                    names = ""
                 with open("/tmp/hits", "a") as f:
-                    f.write(self.path + "\n")
+                    f.write(self.path + " " + names + "\n")
                 self.send_response(200)
                 self.end_headers()
 
@@ -141,5 +180,13 @@ pkgs.testers.runNixOSTest {
         "[ $(grep -c /deadman /tmp/hits) -gt $(grep -c /deadman /tmp/hits.snapshot) ]",
         timeout=120,
     )
+
+    # Inhibition: NodeExporterDown{target=inhibit-test-host} must suppress
+    # DependentAlert (same target) but NOT IndependentAlert (other target).
+    # Wait for the independent + source to arrive (pipeline settled), then
+    # assert the dependent was never delivered — the suppression held.
+    machine.wait_until_succeeds("grep -q IndependentAlert /tmp/hits", timeout=120)
+    machine.succeed("grep -q NodeExporterDown /tmp/hits")
+    machine.fail("grep -q DependentAlert /tmp/hits")
   '';
 }

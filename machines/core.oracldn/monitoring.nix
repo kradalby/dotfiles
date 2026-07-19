@@ -2069,10 +2069,12 @@ in
 
       configuration = {
         route = {
+          # Group by the dependency target so a same-name fan-out (e.g. six
+          # ResticBackupNotSucceeding, or every ExporterDown on a host) arrives
+          # as one notification. Alerts without `target` group by alertname only.
           group_by = [
             "alertname"
-            "host"
-            "instance"
+            "target"
           ];
           group_wait = "30s";
           group_interval = "5m";
@@ -2111,15 +2113,18 @@ in
           ];
         };
 
-        # Inhibits match on the port-free "host" label; "instance" carries the
-        # exporter port (core-tjoda:9100 vs :9558) and never matched across
-        # jobs, so a dead host used to flood one alert per exporter.
+        # Inhibits key on the normalized `target` label (the host whose failure
+        # an alert reflects — see targetRelabel/vipBacking/resticTargetRelabels
+        # above). NodeExporterDown always carries target=<its host>, so a target
+        # that lacks the label is never matched and still pages (footgun-safe).
         inhibit_rules = [
           {
-            # If a node is down, suppress all other alerts from that host
+            # A dead host suppresses every alert that depends on it — its own
+            # exporters/services AND cross-host dependents (that host's VIP
+            # probes, the backups targeting it, litestream→garage, …). One page.
             source_matchers = [ "alertname=\"NodeExporterDown\"" ];
             target_matchers = [ "alertname!=\"NodeExporterDown\"" ];
-            equal = [ "host" ];
+            equal = [ "target" ];
           }
           {
             # If an exporter is down, suppress downstream alerts from that host
@@ -2147,6 +2152,21 @@ in
             source_matchers = [ "alertname=\"DnsProbeDown\"" ];
             target_matchers = [ "alertname=\"TjodaPingDown\"" ];
             equal = [ "site" ];
+          }
+          {
+            # A scrape-SLO burn is redundant with the exporter/node being down
+            # that caused it — page on the symptom, not the burn. Sloth burn
+            # alerts carry `job` (not host/target), so match on job.
+            source_matchers = [ ''alertname=~"ExporterDown|NodeExporterDown"'' ];
+            target_matchers = [ ''alertname="ScrapeErrorBudgetBurn"'' ];
+            equal = [ "job" ];
+          }
+          {
+            # Same for probe-SLO burn: suppress it while the probe it measures is
+            # already firing down. Both carry the probe URL as `instance`.
+            source_matchers = [ ''alertname=~"TailnetServiceDown|HttpsProbeDown"'' ];
+            target_matchers = [ ''alertname=~"TailnetProbeErrorBudgetBurn|PublicProbeErrorBudgetBurn"'' ];
+            equal = [ "instance" ];
           }
         ];
 
