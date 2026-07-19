@@ -148,7 +148,10 @@ in
         hostname = "10.68.0.1"; # host over incusbr0 (a trustedInterface)
         user = "nix-ssh";
         systems = [ "x86_64-linux" ];
-        maxJobs = 16;
+        # Kept in step with GARNIX_NIX_BUILD_POOL_SIZE above: no point letting the
+        # nix-daemon dispatch more concurrent builds than the coordinator pool
+        # admits. 8 × 4 cores/job ≈ the 28 build cores (4-31) on gigabuilder.
+        maxJobs = 8;
         speedFactor = 4;
         supportedFeatures = [
           "big-parallel"
@@ -198,10 +201,27 @@ in
     # out ~50 evals at ~0.5 GiB each); cap them. Raise if the VM grows.
     GARNIX_NIX_EVAL_POOL_SIZE = "6";
     GARNIX_FOD_CHECK_POOL_SIZE = "4";
+    # Cap concurrent `nix build` dispatch (fork feature). Previously unbounded —
+    # every attribute of a flake fired `nix build` at once, oversubscribing the
+    # builder and (because the build timeout wrapped the queue wait) making
+    # backlogged builds spuriously time out. 8 ≈ gigabuilder's 28 build cores /
+    # 4 cores-per-job; the maxJobs below is kept in step. Builds beyond 8 queue
+    # untimed rather than starving.
+    GARNIX_NIX_BUILD_POOL_SIZE = "8";
     # Owner allowlist (fork feature): upstream gates only by denylist, so an
     # internet-facing App builds for anyone who installs it. Unset ⇒ allow all.
     GARNIX_ALLOWED_OWNERS = "kradalby,juanfont";
   };
+
+  # OOM containment. eval/build subprocesses inherit garnixServer's oom_score_adj,
+  # so a memory spike there makes garnix's own tree the kernel's preferred victim
+  # rather than the datastores — which it has historically killed (OpenSearch/
+  # postgres down = the #1 documented outage). If garnixServer itself is reaped,
+  # Restart=always brings it back and the startup reconciler clears any builds
+  # orphaned by the kill.
+  systemd.services.garnixServer.serviceConfig.OOMScoreAdjust = 500;
+  systemd.services.postgresql.serviceConfig.OOMScoreAdjust = -800;
+  systemd.services.opensearch.serviceConfig.OOMScoreAdjust = -800;
 
   # Pre-trust the builder's host key, else nix's non-interactive SSH to it fails.
   programs.ssh.knownHosts.gigabuilder = {
