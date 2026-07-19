@@ -191,7 +191,10 @@ let
         "repo"
         "instance"
       ];
-      regex = "jotta;(core-oracldn|dev-ldn|dev-oracfurt|home-ldn|core-tjoda)";
+      # restic `instance` is the short host token (core|dev|home|storage), not
+      # the full hostname. jotta rides the core-tjoda proxy for all of them
+      # EXCEPT storage (which uploads to Jottacloud directly → leave unset).
+      regex = "jotta;(core|dev|home)";
       target_label = "target";
       replacement = "core-tjoda";
     }
