@@ -216,6 +216,13 @@ let
     "syncthing-dev-ldn" = "dev-ldn";
     "go.dalby.ts.net" = "core-oracldn";
     "setec.dalby.ts.net" = "ts1p-ldn";
+    # tsnet apps + loopback services scraped by name, backed by a real host
+    "hvor" = "core-oracldn";
+    "krapage" = "core-oracldn";
+    "localhost" = "core-oracldn"; # prometheus/alertmanager/grafana/oci-usage on this box
+    "nefit-homekit" = "home-ldn";
+    "tasmota-homekit" = "home-ldn";
+    "z2m-homekit" = "home-ldn";
   };
   vipTargetRelabels = lib.mapAttrsToList (vip: host: {
     source_labels = [ "host" ];
