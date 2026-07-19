@@ -599,11 +599,11 @@
         "treetop": "treetop"
       },
       "locked": {
-        "lastModified": 1783698817,
-        "narHash": "sha256-ydiGekLsoKjITJOqiGuk0Crl4plwk8ZtuUskigzB27k=",
+        "lastModified": 1784472738,
+        "narHash": "sha256-bBW8sKVp51uVGURzo5L7ykuOzU3m0ecRqjUqVOGe9o4=",
         "owner": "kradalby",
         "repo": "garnix",
-        "rev": "15c538c611c599b470c8f9fbbc4970b07c8735c9",
+        "rev": "010e13e0ac65345d73b180152511add614f19f19",
         "type": "github"
       },
       "original": {
