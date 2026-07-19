@@ -63,13 +63,30 @@ garnix hard-codes SaaS-sized concurrency; on the 16 GiB VM a big repo (headscale
 kills OpenSearch and nix. The fork makes the pools env-configurable — set in
 `default.nix`: `GARNIX_NIX_EVAL_POOL_SIZE = "6"`, `GARNIX_FOD_CHECK_POOL_SIZE = "4"`.
 Keep the VM at 16 GiB; gigabuilder needs its 64 GiB for the offloaded builds.
+`services.systemd` OOMScoreAdjust (garnixServer `+500`, postgres/opensearch `-800`)
+makes garnix's own tree the OOM victim instead of the datastores.
+
+### Build concurrency / starvation
+
+Realisation used to be unbounded: every attribute of a flake fired `nix build` at
+once, and because the build timeout wrapped the *queue wait*, a big push left tail
+builds spuriously timing out while they waited for a slot (→ repush → worse). The
+fork adds a build-dispatch pool acquired *outside* the timeout; set in `default.nix`:
+`GARNIX_NIX_BUILD_POOL_SIZE = "8"`, kept in step with the gigabuilder remote-builder
+`maxJobs = 8` (8 × 4 cores/job ≈ the 28 build cores). Backlogged builds now wait
+untimed instead of failing. Raise both together if gigabuilder grows.
 
 ### Queue / reset
 
 State is postgres db `garnix`. `builds.status` is an enum, `NULL` = pending. garnix
-does **not** resume orphaned pending builds after a crash, and never rebuilds
-_superseded_ commits — their GitHub checks sit `in_progress` forever (harmless; the
-PR uses the latest commit). Reset the queue with SQL on `builds`:
+does **not** resume orphaned pending builds after a crash — but the fork now runs a
+**startup reconciler** (`Garnix.Reconcile.reconcileOrphanedBuilds`, called before
+webhooks are served) that, for every still-`NULL` build, first **closes its GitHub
+check run** (best-effort — bounded one-shot, so not the crash-loop that trips the 403
+secondary limit) so a PR no longer hangs on a forever-spinning required check, then
+marks it `cancelled` in the DB. A restart thus self-heals without a repush. garnix
+still never rebuilds _superseded_ commits; their checks sit `in_progress` forever
+(harmless; the PR uses the latest commit). Manual reset is still SQL on `builds`:
 
 ```bash
 incus exec gigabuilder:garnix -- bash -lc "sudo -u postgres psql -d garnix"
