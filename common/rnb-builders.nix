@@ -57,4 +57,19 @@
     publicHostKey = "c3NoLWVkMjU1MTkgQUFBQUMzTnphQzFsWkRJMU5URTVBQUFBSUh3NTFUQ1BmWkxnbm5ZLzc5ZHZGNDdOc0pFZmptNy9oWVdleUxmZ0J2bUE=";
     hasRosetta = true;
   }
+
+  # dev.oracfurt via Tailscale (native aarch64-linux; real hardware, not qemu)
+  {
+    name = "dev.oracfurt";
+    host = "dev.oracfurt";
+    hostName = "dev-oracfurt.dalby.ts.net";
+    systems = ["aarch64-linux"];
+    sshUser = "root";
+    sshKey = ""; # Tailscale SSH — no key file (mac path in the entries above is wrong on linux)
+    maxJobs = 4;
+    speedFactor = 2;
+    supportedFeatures = ["big-parallel" "kvm" "nixos-test"];
+    publicHostKey = "c3NoLWVkMjU1MTkgQUFBQUMzTnphQzFsWkRJMU5URTVBQUFBSUU2NXMvaFJuMzR2NVVOaFNJQzgvSk4vNDUyaExkcW4xMzFnVnFxQlRQbmwgcm9vdEBkZXYK";
+    hasRosetta = false;
+  }
 ]
