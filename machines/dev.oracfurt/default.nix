@@ -114,6 +114,10 @@
       "tag:dev"
       "tag:gateway"
       "tag:server"
+      # garnix aarch64 build target — see machines/garnix + the kradalby.no ACL
+      # (src tag:garnix -> dst tag:garnix-builder). Also the cache-push identity,
+      # so oracfurt no longer relies on tag:dev being in the tsnixcache push src.
+      "tag:garnix-builder"
     ];
   };
 
