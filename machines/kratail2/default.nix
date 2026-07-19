@@ -3,6 +3,7 @@
   config,
   lib,
   pkgs,
+  inputs,
   ...
 }:
 let
@@ -50,13 +51,55 @@ in
   ];
 
   # kratail2 is a 16-core / 128 GB box, so give the linux builder more than the
-  # shared 8-core / 6 GiB default. onDemand: the VM powers off when idle and
-  # spins up on the first Linux build (a few seconds), reclaiming the RAM the
-  # rest of the time.
+  # shared 8-core / 6 GiB default. onDemand is OFF: the VM also serves garnix CI
+  # as an aarch64 builder over the tailnet (extra module below), and garnix can't
+  # trigger the Mac-local on-demand wake — it only reaches the VM's tailnet IP
+  # when the VM is already up. Always-on keeps it reliably present so garnix
+  # prefers it over dev.oracfurt; when the Mac is off the node drops off the
+  # tailnet and garnix falls back. 48 GiB gives headroom for parallel garnix +
+  # local builds.
   nix-rosetta-builder = {
     cores = 12;
-    memory = "24GiB";
-    onDemand = true;
+    memory = "48GiB";
+    onDemand = false;
+
+    # Let the tailscale auth below be driven with `ssh rosetta-builder` from the
+    # Mac (the guest has no secret store, so `tailscale up` is interactive once).
+    permitNonRootSshAccess = true;
+
+    # Turn the builder VM into a garnix aarch64 build target ON THE TAILNET, so
+    # garnix's SSH foothold lands in this disposable VM, never on the work Mac.
+    # The guest runs PLAIN tailscale (no --ssh), so its :22 stays a normal sshd
+    # that honours authorized_keys — the nix-ssh forced-command boundary works on
+    # :22 directly (no second port, unlike dev.oracfurt). garnix realises here in
+    # the sandbox and the tsnixcache watch daemon pushes the outputs.
+    # `inputs` is the Mac's flake inputs (captured here, embedded into the guest
+    # module) since the guest nixosSystem only has bare nixpkgs otherwise.
+    potentiallyInsecureExtraNixosModule = {
+      imports = [
+        # nix-ssh system user + forced-command `nix-daemon --stdio` + trusted-users.
+        # Same trusted builder key garnix already uses for gigabuilder/dev.oracfurt.
+        ../../common/garnix-build-target.nix
+        inputs.tsnixcache.nixosModules.tsnixcache-client
+      ];
+
+      services.tailscale.enable = true; # NO --ssh; auth interactively (see steps)
+
+      services.tsnixcache-client = {
+        enable = true;
+        package = inputs.tsnixcache.packages.aarch64-linux.default;
+        publicKey = (import ../../metadata/tsnixcache.nix).publicKey;
+        substituters = [ ];
+        watch.enable = true;
+      };
+
+      # The guest has no secret store, so `tailscale up` is run interactively
+      # once (repeated only when the VM is recreated). Give `builder` sudo for it.
+      # mkForce: the rosetta base image pins sudo off (debugInsecurely=false).
+      security.sudo.enable = lib.mkForce true;
+      security.sudo.wheelNeedsPassword = lib.mkForce false;
+      users.users.builder.extraGroups = [ "wheel" ];
+    };
   };
 
   # Configure SSH agent mux for work machine
