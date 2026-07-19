@@ -154,6 +154,80 @@ let
     target_label = "host";
   };
 
+  # The normalized dependency label: `target` = the host whose failure this
+  # alert reflects. For host-scoped exporter jobs that is the host itself, so
+  # derive it the same way as `host`. Cross-host sources (blackbox probes,
+  # pushed restic metrics, litestream) set `target` explicitly to their backing
+  # host below. Alertmanager inhibit_rules key on `target` to collapse a whole
+  # host's cascade into one page; anything without `target` is never matched and
+  # still pages (footgun-safe by construction — the source always carries it).
+  targetRelabel = {
+    source_labels = [ "__address__" ];
+    regex = "([^:]+):?.*";
+    target_label = "target";
+  };
+
+  # Restic success timestamps arrive via pushgateway with a `repo` label
+  # (tjoda|ldn|jotta) and no host. Map repo → the backup DESTINATION host so a
+  # dead destination inhibits its dependent backups. jotta goes through the
+  # rclone proxy on core-tjoda for every host EXCEPT storage-ldn (which uploads
+  # to Jottacloud directly — no fleet host, so leave `target` unset ⇒ it pages
+  # on its own). Go RE2 has no negative lookahead, so allowlist the proxy users.
+  resticTargetRelabels = [
+    {
+      source_labels = [ "repo" ];
+      regex = "tjoda";
+      target_label = "target";
+      replacement = "core-tjoda";
+    }
+    {
+      source_labels = [ "repo" ];
+      regex = "ldn";
+      target_label = "target";
+      replacement = "storage-ldn";
+    }
+    {
+      source_labels = [
+        "repo"
+        "instance"
+      ];
+      regex = "jotta;(core-oracldn|dev-ldn|dev-oracfurt|home-ldn|core-tjoda)";
+      target_label = "target";
+      replacement = "core-tjoda";
+    }
+  ];
+
+  # Some scrape jobs target a VIP name (s3-tjoda, restic-tjoda, syncthing-*,
+  # go.dalby.ts.net, setec…), so hostRelabel/targetRelabel above derive the VIP
+  # name, not the host that backs it. Remap `target` to the backing host so a
+  # backing-host outage inhibits the VIP's alerts. Anchored + dot-escaped, so it
+  # only fires on these exact VIP names and is a no-op for real hostnames.
+  vipBacking = {
+    "s3-tjoda" = "core-tjoda";
+    "restic-tjoda" = "core-tjoda";
+    "restic-ldn" = "storage-ldn";
+    "syncthing-tjoda" = "core-tjoda";
+    "syncthing-ldn" = "storage-ldn";
+    "syncthing-dev-oracfurt" = "dev-oracfurt";
+    "syncthing-cooklang" = "dev-oracfurt";
+    "syncthing-dev-ldn" = "dev-ldn";
+    "go.dalby.ts.net" = "core-oracldn";
+    "setec.dalby.ts.net" = "ts1p-ldn";
+  };
+  vipTargetRelabels = lib.mapAttrsToList (vip: host: {
+    source_labels = [ "host" ];
+    regex = builtins.replaceStrings [ "." ] [ ''\.'' ] vip;
+    target_label = "target";
+    replacement = host;
+  }) vipBacking;
+
+  # The full host/target relabel chain used by every simple exporter job.
+  hostTargetRelabels = [
+    hostRelabel
+    targetRelabel
+  ]
+  ++ vipTargetRelabels;
+
   # Helper for blackbox probe jobs: probe each target through the local
   # blackbox exporter with the given module.
   probeJob = name: module: targets: {
@@ -177,12 +251,28 @@ let
     ];
   };
 
+  # Blackbox probe job whose targets are grouped by the backing host, so each
+  # probe carries `target = <backing host>`. A backing-host outage then inhibits
+  # its VIP/endpoint probes. Groups are { target = "host"; targets = [ … ]; }.
+  probeJobT =
+    name: module: groups:
+    (probeJob name module [ ])
+    // {
+      static_configs = map (g: {
+        inherit (g) targets;
+        labels = {
+          target = g.target;
+        }
+        // (g.labels or { });
+      }) groups;
+    };
+
   # Helper to create a simple scrape job with /metrics path
   scrapeJob = name: targets: {
     job_name = name;
     metrics_path = "/metrics";
     static_configs = [ { inherit targets; } ];
-    relabel_configs = [ hostRelabel ];
+    relabel_configs = hostTargetRelabels;
   };
 
   # Helper to create scrape jobs for exporters across multiple hosts
@@ -195,7 +285,7 @@ let
         targets = map (host: "${host}:${toString port}") hosts;
       }
     ];
-    relabel_configs = [ hostRelabel ];
+    relabel_configs = hostTargetRelabels;
   };
 in
 {
@@ -283,7 +373,7 @@ in
         static_configs = [
           { targets = map (h: "${h}:80") resticHosts; }
         ];
-        relabel_configs = [ hostRelabel ];
+        relabel_configs = hostTargetRelabels;
       }
 
       # rclone serve restic (Jotta proxy) on core.tjoda: core transfer stats
@@ -302,6 +392,8 @@ in
         metrics_path = "/metrics";
         honor_labels = true;
         static_configs = [ { targets = [ "localhost:9091" ]; } ];
+        # Derive `target` from the pushed restic `repo` label (no host on these).
+        metric_relabel_configs = resticTargetRelabels;
       }
 
       # ICMP ping of every scraped host over the tailnet. Splits "host is
@@ -355,7 +447,7 @@ in
             labels.role = "incus";
           }
         ];
-        relabel_configs = [ hostRelabel ];
+        relabel_configs = hostTargetRelabels;
       }
 
       # tsnixcache: fleet nix cache AND the only GC on gigabuilder's store.
@@ -395,7 +487,7 @@ in
       {
         job_name = "garage";
         static_configs = [ { targets = [ "s3-tjoda:3903" ]; } ];
-        relabel_configs = [ hostRelabel ];
+        relabel_configs = hostTargetRelabels;
       }
 
       # PostgreSQL exporter (port 9187)
@@ -411,7 +503,7 @@ in
         job_name = "garnix";
         metrics_path = "/";
         static_configs = [ { targets = [ "garnix:8323" ]; } ];
-        relabel_configs = [ hostRelabel ];
+        relabel_configs = hostTargetRelabels;
       }
 
       # Postfix queue depth on the fleet relay. gigabuilder is the only host
@@ -442,7 +534,7 @@ in
         scheme = "https";
         metrics_path = "/.metrics";
         static_configs = [ { targets = [ "go.dalby.ts.net:443" ]; } ];
-        relabel_configs = [ hostRelabel ];
+        relabel_configs = hostTargetRelabels;
       }
 
       # ts1p (setec) secrets server. Assumes the fork exposes varz.Handler at
@@ -454,7 +546,7 @@ in
         scheme = "https";
         metrics_path = "/metrics";
         static_configs = [ { targets = [ "setec.dalby.ts.net:443" ]; } ];
-        relabel_configs = [ hostRelabel ];
+        relabel_configs = hostTargetRelabels;
       }
 
       # uptime-kuma: /metrics is auth-gated and the UI is public (nginx +
@@ -471,50 +563,82 @@ in
       # TODO(kradalby): revert grafana/cook/pdf/owntone to https
       # once resolved. idp + setec stay https — they are tsnet apps that
       # terminate TLS themselves, not services.tailscale.services passthrough.
-      (probeJob "tailnet-probes" "http_tailnet" [
-        "http://grafana.dalby.ts.net"
-        "https://idp.dalby.ts.net/.well-known/openid-configuration"
-        "https://setec.dalby.ts.net/healthz"
-        "http://cook.dalby.ts.net"
-        "http://pdf.dalby.ts.net"
-        "http://go.dalby.ts.net"
-        "http://dev-ldn:8846"
-        "http://owntone.dalby.ts.net"
-        "http://s3-tjoda:3903/health"
+      (probeJobT "tailnet-probes" "http_tailnet" [
+        {
+          target = "core-oracldn";
+          targets = [
+            "http://grafana.dalby.ts.net"
+            "http://pdf.dalby.ts.net"
+            "http://go.dalby.ts.net"
+          ];
+        }
+        {
+          target = "dev-oracfurt";
+          targets = [
+            "https://idp.dalby.ts.net/.well-known/openid-configuration"
+            "http://cook.dalby.ts.net"
+          ];
+        }
+        {
+          target = "ts1p-ldn";
+          targets = [ "https://setec.dalby.ts.net/healthz" ];
+        }
+        {
+          target = "dev-ldn";
+          targets = [ "http://dev-ldn:8846" ];
+        }
+        {
+          target = "home-ldn";
+          targets = [ "http://owntone.dalby.ts.net" ];
+        }
+        {
+          target = "core-tjoda";
+          targets = [ "http://s3-tjoda:3903/health" ];
+        }
       ])
 
       # The Jotta offsite path: VIP → rclone serve restic on core.tjoda. Every
       # fleet host's only offsite copy rides this endpoint, so it gets its own
       # probe and alert rather than the generic tailnet tier.
-      (probeJob "restic-jotta-probe" "http_restic" [
-        "http://restic-jotta.dalby.ts.net"
+      (probeJobT "restic-jotta-probe" "http_restic" [
+        {
+          target = "core-tjoda";
+          targets = [ "http://restic-jotta.dalby.ts.net" ];
+        }
       ])
 
       # Per-site labels so a resolver-down alert can inhibit that site's
       # downstream name-resolution-dependent probes (see inhibit_rules).
-      (
-        (probeJob "dns-probes" "dns" [ ])
-        // {
-          static_configs = [
-            {
-              targets = [ "10.66.0.1" ];
-              labels.site = "oracldn";
-            }
-            {
-              targets = [ "10.62.0.2" ];
-              labels.site = "tjoda";
-            }
-            {
-              targets = [ "10.65.0.28" ];
-              labels.site = "ldn";
-            }
-          ];
+      (probeJobT "dns-probes" "dns" [
+        {
+          target = "core-oracldn";
+          targets = [ "10.66.0.1" ];
+          labels.site = "oracldn";
         }
-      )
-      (probeJob "tcp-probes" "tcp_connect" [
-        "proton-bridge:143"
-        "core-tjoda:445"
-        "storage-ldn:445"
+        {
+          target = "core-tjoda";
+          targets = [ "10.62.0.2" ];
+          labels.site = "tjoda";
+        }
+        {
+          target = "storage-ldn";
+          targets = [ "10.65.0.28" ];
+          labels.site = "ldn";
+        }
+      ])
+      (probeJobT "tcp-probes" "tcp_connect" [
+        {
+          target = "dev-oracfurt";
+          targets = [ "proton-bridge:143" ];
+        }
+        {
+          target = "core-tjoda";
+          targets = [ "core-tjoda:445" ];
+        }
+        {
+          target = "storage-ldn";
+          targets = [ "storage-ldn:445" ];
+        }
       ])
 
       # Watch the dead-man's own egress path. The Watchdog + litestream
@@ -536,6 +660,8 @@ in
         };
         static_configs = [
           {
+            # all served from core-oracldn (nginx + the apps behind it)
+            labels.target = "core-oracldn";
             targets = [
               # /health pings the headscale DB and 500s on failure; probing /
               # only exercised a static 200 handler.
@@ -544,10 +670,13 @@ in
               "https://kradalby.no"
               "https://umami.kradalby.no"
               "https://hvor.kradalby.no?from=discord"
-              # garnix CI edge; its documented failure mode (disk full →
-              # postgres recovery loop → 500s) fails this probe.
-              "https://garnix.kradalby.no"
             ];
+          }
+          {
+            # garnix CI edge; its documented failure mode (disk full →
+            # postgres recovery loop → 500s) fails this probe.
+            labels.target = "garnix";
+            targets = [ "https://garnix.kradalby.no" ];
           }
         ];
         relabel_configs = [
@@ -1192,6 +1321,7 @@ in
                 expr = "increase(litestream_replica_operation_errors_total[15m]) > 0";
                 for = "5m";
                 labels.severity = "critical";
+                labels.target = "core-tjoda"; # depends on garage (s3-tjoda)
                 annotations = {
                   summary = "Litestream replica operations failing on {{ $labels.instance }}";
                   description = "Litestream S3 replica operations have been failing for 15 minutes. Check garage reachability and the credentials in secrets/litestream-oracldn.age.";
@@ -1202,6 +1332,7 @@ in
                 expr = "increase(litestream_sync_error_count[15m]) > 0";
                 for = "5m";
                 labels.severity = "critical";
+                labels.target = "core-tjoda"; # depends on garage (s3-tjoda)
                 annotations = {
                   summary = "Litestream local sync failing for {{ $labels.db }}";
                   description = "Litestream cannot sync the local database {{ $labels.db }}; replication is stalled.";
@@ -1212,6 +1343,7 @@ in
                 expr = "increase(litestream_compaction_verify_error_count[6h]) > 0";
                 for = "5m";
                 labels.severity = "critical";
+                labels.target = "core-tjoda"; # depends on garage (s3-tjoda)
                 annotations = {
                   summary = "Litestream compaction verification failed on {{ $labels.instance }}";
                   description = "Litestream compaction verification errors indicate the replica may not be restorable.";

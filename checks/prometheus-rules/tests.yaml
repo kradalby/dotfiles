@@ -183,6 +183,7 @@ tests:
         exp_alerts:
           - exp_labels:
               severity: critical
+              target: core-tjoda
               db: kuma.db
               instance: core-oracldn:54909
               job: litestream
