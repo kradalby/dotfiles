@@ -83,7 +83,15 @@ in
         inputs.tsnixcache.nixosModules.tsnixcache-client
       ];
 
-      services.tailscale.enable = true; # NO --ssh; auth interactively (see steps)
+      # Plain node (NO --ssh, so :22 stays a normal sshd for the nix-ssh key).
+      # No secret store in the guest, so auth interactively once per VM recreation:
+      #   ssh rosetta-builder
+      #   sudo tailscale up --hostname=rosetta-kratail2 --advertise-tags=tag:garnix-builder
+      # Do NOT pass --accept-dns=false: the tsnixcache-client below pushes to the
+      # MagicDNS name http://tsnixcache, so the guest must keep MagicDNS or `nix
+      # copy` can't resolve the cache and pushes fail silently. Sanity-check with
+      # `getent hosts tsnixcache`.
+      services.tailscale.enable = true;
 
       services.tsnixcache-client = {
         enable = true;
