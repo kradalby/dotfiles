@@ -272,14 +272,13 @@ in
   };
 
   # The guest sshd host key is generated when the Lima VM is (re)created, so it
-  # rotates on any config/image change to kratail2's rosetta-builder. Read it
-  # after provisioning from the Mac's working dir and paste it here:
-  #   /var/lib/rosetta-builder/ssh_host_ed25519_key.pub
-  # Refresh this whenever the VM is recreated (same caveat as dev-oracfurt).
-  # TODO(kradalby): fill in the guest host key after first `tailscale up`.
+  # rotates on any config/image change to kratail2's rosetta-builder. Refresh it
+  # then (same caveat as dev-oracfurt) — read it on the Mac from
+  #   /var/lib/rosetta-builder/ssh_known_hosts   (alias `rosetta-builder-key`)
+  # or in the guest with `ssh-keygen -yf /etc/ssh/ssh_host_ed25519_key`.
   programs.ssh.knownHosts.rosetta-kratail2 = {
     hostNames = [ "rosetta-kratail2.dalby.ts.net" ];
-    publicKey = "ssh-ed25519 AAAA_REPLACE_WITH_GUEST_HOST_KEY rosetta-kratail2";
+    publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPoOcoyzwFaNSP0YQtya9Btny/0PIPPXBt0yE+PyF+Uc";
   };
 
   # Loopback-only datastores, so peer/trust auth and no TLS — the fork's own
