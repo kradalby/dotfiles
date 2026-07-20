@@ -69,9 +69,9 @@ makes garnix's own tree the OOM victim instead of the datastores.
 ### Build concurrency / starvation
 
 Realisation used to be unbounded: every attribute of a flake fired `nix build` at
-once, and because the build timeout wrapped the *queue wait*, a big push left tail
+once, and because the build timeout wrapped the _queue wait_, a big push left tail
 builds spuriously timing out while they waited for a slot (→ repush → worse). The
-fork adds a build-dispatch pool acquired *outside* the timeout; set in `default.nix`:
+fork adds a build-dispatch pool acquired _outside_ the timeout; set in `default.nix`:
 `GARNIX_NIX_BUILD_POOL_SIZE = "8"`, kept in step with the gigabuilder remote-builder
 `maxJobs = 8` (8 × 4 cores/job ≈ the 28 build cores). Backlogged builds now wait
 untimed instead of failing. Raise both together if gigabuilder grows.
