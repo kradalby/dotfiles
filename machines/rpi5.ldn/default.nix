@@ -42,6 +42,32 @@
 
   services.tailscale.tags = [ "tag:server" ];
 
+  # Headless Pi built under aarch64 emulation: it doesn't need the full
+  # workstation userland home-manager ships to every host, and none of it is in
+  # the aarch64 cache for this pin — so it all compiles from source and dwarfs
+  # the build. Two big cuts:
+  #
+  #   1. enableAllTerminfo pulls every terminal emulator's terminfo, dragging in
+  #      a whole GUI stack on a headless box (contour → qtbase, ghostty → gtk4/
+  #      wayland/zig, rio, vulkan-loader).
+  #   2. The home-manager package groups: the custom neovim alone bundles ~284
+  #      treesitter grammars (≈45% of the closure); plus the Go/Node/Python/Rust/
+  #      AI toolchains this Pi has no use for.
+  environment.enableAllTerminfo = lib.mkForce false;
+
+  home-manager.users.kradalby.my.packages = {
+    userland.enable = false; # neovim (+~284 treesitter grammars), fzf, nh, nix-tree
+    go.enable = false;
+    nix.enable = false;
+    web.enable = false;
+    python.enable = false; # uv/ruff/mypy/pyright → numpy/sphinx/websockets/pydantic
+    shell.enable = false;
+    editor.enable = false;
+    infra.enable = false; # ansible/headscale/docker/rnb
+    media.enable = false; # ffmpeg/cook-cli/sql-studio/squibble
+    ai.enable = false; # claude-code/gemini-cli/opencode/nodejs/python3
+  };
+
   # nixos-raspberrypi is migrating the default from "kernelboot" to
   # "kernel"; opt in explicitly to silence the deprecation warning.
   boot.loader.raspberry-pi.bootloader = "kernel";
