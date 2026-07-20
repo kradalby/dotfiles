@@ -41,6 +41,18 @@ let
       }
     } $out/incus.json
 
+    # Sloth SLO dashboard. Panels reference the datasource by the unresolved
+    # ''${DS_PROMETHEUS} input uid, which Grafana falls back to our default
+    # (Prometheus) datasource for — same as incus above, so no sed needed.
+    cp ${
+      fetchDashboard {
+        id = 14348;
+        rev = versions.grafanaDashboards.sloth.rev;
+        hash = versions.grafanaDashboards.sloth.hash;
+        name = "sloth.json";
+      }
+    } $out/sloth.json
+
     # tsnixcache dashboard, generated from Go (Foundation SDK) in the tsnixcache
     # repo and shipped as a flake package, so it tracks the metrics it charts.
     cp ${
