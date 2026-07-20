@@ -17,6 +17,11 @@
       rev = "2";
       hash = "sha256-3+f11v3qfTmM6poCwjUAlQmyZNs9X0TwcCdxFTreyuQ=";
     };
+    # https://grafana.com/grafana/dashboards/14348-sloth-slo-detail/
+    sloth = {
+      rev = "5";
+      hash = "sha256-kmJoFy8ZmSKN0WsoBUQEepOpfNfmTjGciKFzhcFgeCU=";
+    };
   };
 
   # https://github.com/umami-software/umami/pkgs/container/umami
