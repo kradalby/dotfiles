@@ -15,6 +15,7 @@ let
     "dev-ldn"
     "home-ldn"
     "storage-ldn"
+    "storage-bassan"
     "rpi5-ldn"
     "gigabuilder"
     "ts1p-ldn"
@@ -31,6 +32,7 @@ let
     "dev-ldn"
     "home-ldn"
     "storage-ldn"
+    "storage-bassan"
     "gigabuilder"
   ];
 
@@ -39,12 +41,14 @@ let
     # "core-terra"
     "core-tjoda"
     "storage-ldn"
+    "storage-bassan"
     "gigabuilder"
   ];
 
   # Hosts with smartctl monitoring enabled
   smartctlHosts = [
     "core-tjoda"
+    "storage-bassan"
     "gigabuilder"
   ];
 
@@ -211,6 +215,7 @@ let
     "restic-ldn" = "storage-ldn";
     "syncthing-tjoda" = "core-tjoda";
     "syncthing-ldn" = "storage-ldn";
+    "syncthing-bassan" = "storage-bassan";
     "syncthing-dev-oracfurt" = "dev-oracfurt";
     "syncthing-cooklang" = "dev-oracfurt";
     "syncthing-dev-ldn" = "dev-ldn";
@@ -493,6 +498,7 @@ in
         "syncthing-ldn:80"
         "syncthing-tjoda:80"
         "syncthing-dev-ldn:80"
+        "syncthing-bassan:80"
       ])
 
       # Garage metrics (litestream's replica target, tjoda only), on the

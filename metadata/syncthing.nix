@@ -18,6 +18,7 @@
       "dev.oracfurt" = device "JKYGSCI-JXCDYUM-BPOU6RM-TORXNQE-VFNAKQV-PTTBORO-FEEJIZE-FVQDIAL";
       "dev.ldn" = device "5S3RMNQ-QS6SAJ7-AWGAIW7-BEILMOS-UYHYBCW-EDYSQZA-425UFC2-PVF2BAN";
       "storage.ldn" = device "5IPOAQL-TKKUN7K-DGL26VV-JZGMADN-CCS2M4E-J5UCEJ7-BPQIP7B-W5VNRAN";
+      "storage.bassan" = device "7CRTZEY-WHLMLLV-YI4YH5V-KI5FDAS-7NA46SW-DNDD2I4-5DGPFL6-2NFA2QP";
 
       "dev.oracfurt-cooklang" = device "JJTIDK5-36EOH5Y-LJYBN65-S4QDT7X-6IQMP6U-FSDNREU-2EVPA6H-TAFJ6AQ";
     };
@@ -28,5 +29,8 @@
     "core.terra"
     "dev.ldn"
     "storage.ldn"
+    # storage.bassan is intentionally NOT here: it is an untrusted offsite
+    # mirror, shared to encrypted (receiveencrypted) from common/syncthing-storage.nix,
+    # not a plaintext peer.
   ];
 }
