@@ -650,11 +650,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1784635659,
-        "narHash": "sha256-1V5dOB//jpa+nNuWGEa5/rsdMqGDe4NhC6Pgiq2UnFs=",
+        "lastModified": 1784639292,
+        "narHash": "sha256-6QKt7vZ0FuS5s7N779eoV7MurHivA10bE4Kr2+x/axk=",
         "ref": "refs/heads/main",
-        "rev": "46b508d7e5a2f3425e8f41958fb75c387ce81e35",
-        "revCount": 13,
+        "rev": "a90d823e81c3c5a4d8bed344289aadd51a8a6998",
+        "revCount": 14,
         "type": "git",
         "url": "file:///home/kradalby/git/ghdl"
       },
