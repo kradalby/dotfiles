@@ -72,6 +72,13 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
+    # TODO: switch to github:kradalby/ghdl once the repo is pushed.
+    ghdl = {
+      url = "git+file:///home/kradalby/git/ghdl";
+      inputs."flake-utils".follows = "flake-utils";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+
     # WIP Nix binary cache served over tailscale; pinned to the `initial` branch.
     tsnixcache = {
       url = "github:kradalby/tsnixcache/initial";
@@ -228,6 +235,7 @@
         hvor.overlays.default
         tasmota-exporter.overlays.default
         homewizard-p1-exporter.overlays.default
+        ghdl.overlays.default
         (import ./pkgs/overlays { })
         (
           _final: prev:
@@ -325,6 +333,7 @@
                 hvor.nixosModules.default
                 tasmota-exporter.nixosModules.default
                 homewizard-p1-exporter.nixosModules.default
+                ghdl.nixosModules.default
               ];
             };
 
