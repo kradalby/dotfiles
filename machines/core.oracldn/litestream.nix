@@ -22,6 +22,10 @@
       name = "headscale.sqlite";
       path = "/var/lib/headscale/db.sqlite";
     }
+    {
+      name = "ghdl.db";
+      path = "/var/lib/ghdl/ghdl.db";
+    }
   ];
 
   users = {
@@ -31,6 +35,7 @@
           "uptime-kuma"
           config.services.golink.group
           "headscale"
+          "ghdl"
         ];
       };
     };
