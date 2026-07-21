@@ -436,12 +436,16 @@
               ];
             };
 
-            # Out of rotation.
-            # "lenovo.ldn" = box.nixosBox {
-            #   arch = "x86_64-linux";
-            #   name = "lenovo.ldn";
-            #   tags = ["x86" "ldn"];
-            # };
+            # Remote backup / syncthing mirror at bassan (Sebastian's house);
+            # the old lenovo.ldn dummy box repurposed. Bare-metal, ZFS data pool.
+            "storage.bassan" = box.nixosBox {
+              arch = "x86_64-linux";
+              name = "storage.bassan";
+              tags = [
+                "x86"
+                "bassan"
+              ];
+            };
 
             "core.tjoda" = box.nixosBox {
               arch = "x86_64-linux";

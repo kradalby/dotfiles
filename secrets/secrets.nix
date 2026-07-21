@@ -15,7 +15,7 @@ let
     core-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICRRxykpKi6wemG1DPI+9gpWtbGQWGP1D5xb6oATreAv";
     home-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHfmOgoC9GlB9r1lTBEnDp6YO8/FDgGRMEAv+A9sB7de";
     dev-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHNrRieVfrCvnqNbuxEr06c6D1/lhGlEIvS8NNQhrmJt";
-    lenovo-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJTZ76SNK6QJ2ptArkXstRNOdY1PxNHHon9gh3k+fDo+";
+    storage-bassan = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJTZ76SNK6QJ2ptArkXstRNOdY1PxNHHon9gh3k+fDo+";
     storage-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICj6c1im2tC/E1ZYlFtryyqNui58+onflUqBiVOuc1on";
     rpi5-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHCZ2YG1xvb9BJjYbv9MWWeqhjCNzZROWkwaPQFM76/T";
     ts1p-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHXka6MsWIgSNxAyhdILZ7+hWbR4CvWgKdBCVQWQM/MV";
@@ -27,8 +27,6 @@ let
     # Oracle London hosts
     headscale-oracldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEktSTKX3EnWnU4oi/VaBenvd8DYM8tYFjZ6qm27JDU3";
 
-    # Storage at bassan
-    # storage-bassan = "";
 
     # Tjoda hosts
     core-tjoda = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBSqEhLLds8shw8HMOSpN8UMBFjLPTCyg1TjHKqXvm1W";
@@ -65,6 +63,16 @@ with builtins;
   "restic-kramacbook-token.age".publicKeys = u;
   "restic-kraairm2-token.age".publicKeys = u;
   "restic-kratail-token.age".publicKeys = u;
+  # Uncomment once the storage-bassan host key is filled in above (deploy: ssh-keyscan):
+  # "restic-storage-bassan-token.age".publicKeys = u ++ [ hosts.storage-bassan ];
+
+  # Syncthing: shared encryption passphrase for the untrusted offsite mirror
+  # (storage.bassan). Held only by the trusted senders; bassan is NOT a recipient.
+  "syncthing-storage-enc.age".publicKeys = u ++ [
+    hosts.storage-ldn
+    hosts.core-terra
+    hosts.core-tjoda
+  ];
 
   # Unifi
   "unifi-tjoda-read-only.age".publicKeys = u ++ [ hosts.core-tjoda ];

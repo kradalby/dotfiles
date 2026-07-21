@@ -21,7 +21,8 @@
     initrd.kernelModules = [ ];
     kernelModules = [ "kvm-intel" ];
     extraModulePackages = [ ];
-    kernelPackages = pkgs.linuxPackages_latest;
+    # Default kernel (not linuxPackages_latest): the ZFS module lags the very
+    # latest kernel and _latest routinely breaks the build on a ZFS host.
   };
 
   fileSystems."/" = {
