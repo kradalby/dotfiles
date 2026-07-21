@@ -650,17 +650,18 @@
         ]
       },
       "locked": {
-        "lastModified": 1784639292,
+        "lastModified": 1784643407,
         "narHash": "sha256-6QKt7vZ0FuS5s7N779eoV7MurHivA10bE4Kr2+x/axk=",
-        "ref": "refs/heads/main",
-        "rev": "a90d823e81c3c5a4d8bed344289aadd51a8a6998",
-        "revCount": 14,
-        "type": "git",
-        "url": "file:///home/kradalby/git/ghdl"
+        "owner": "kradalby",
+        "repo": "ghdl",
+        "rev": "2d21afd880bd836f829ea6cb3c514d6920a69db1",
+        "type": "github"
       },
       "original": {
-        "type": "git",
-        "url": "file:///home/kradalby/git/ghdl"
+        "owner": "kradalby",
+        "ref": "initial",
+        "repo": "ghdl",
+        "type": "github"
       }
     },
     "golink": {
