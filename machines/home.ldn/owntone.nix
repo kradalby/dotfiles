@@ -97,13 +97,36 @@ in
     };
   };
 
-  # Deploy NRK radio playlists into OwnTone's music directory.
-  # C+ copies the file so OwnTone sees the real filename (not the
-  # Nix store hash-prefixed path it would get by following a symlink).
+  # Deploy the NRK radio playlist as a real file in OwnTone's music
+  # directory. It must be a copy, not a symlink: following a symlink,
+  # OwnTone names the playlist after the hash-prefixed store path, and
+  # the link dangles once the store path is GC'd (which is exactly how
+  # p3 broke — a stale pre-copy symlink outlived its target).
+  #
+  # tmpfiles `C`/`C+` only copies when the destination does not already
+  # exist — it silently no-ops over any existing file or (dangling)
+  # symlink, so it can neither migrate an old symlink nor propagate a
+  # changed playlist. Force the copy on every activation instead.
   systemd.tmpfiles.rules = [
     "d ${radioDir} 0755 ${config.services.owntone.user} ${config.services.owntone.group} -"
-    "C+ ${radioDir}/nrk-p3.m3u - - - - ${nrkP3Playlist}"
   ];
+
+  systemd.services.owntone-playlist = {
+    description = "Install NRK P3 playlist into OwnTone music dir";
+    wantedBy = [ "owntone.service" ];
+    before = [ "owntone.service" ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+    };
+    # install overwrites unconditionally, so a stale symlink or an
+    # outdated copy is always replaced with the current playlist.
+    script = ''
+      install -D -m0644 \
+        -o ${config.services.owntone.user} -g ${config.services.owntone.group} \
+        ${nrkP3Playlist} ${radioDir}/nrk-p3.m3u
+    '';
+  };
 
   # Expose OwnTone web UI and JSON API via Tailscale.
   services.tailscale.services.owntone = {
