@@ -29,6 +29,10 @@ stdlib → `tailscale.com/*` → `kra/*` → blessed dep (below) → your own. S
 | Tests                                      | `testify/require` + `google/go-cmp`                                                                                                             |
 | Metrics                                    | `prometheus/client_golang` (exposition → Debug & metrics)                                                                                       |
 | Backoff (never `time.Sleep`)               | `cenkalti/backoff/v5`                                                                                                                           |
+| SQLite (embedded store)                    | `modernc.org/sqlite` (pure Go, `CGO_ENABLED=0`), opened via headscale `hscontrol/db/sqliteconfig` (WAL, busy_timeout, immediate txlock)         |
+| SQLite migrations                          | `github.com/tailscale/squibble` — embedded `schema.sql` + hash-chained `UpdateRule`s, `schema.Apply` at open                                    |
+| Typed SQL                                  | `sqlc` (engine sqlite): `db/queries/*.sql` + schema → generated package; `sqlc generate` in the dev shell                                       |
+| Grafana dashboards                         | generate from Go with `github.com/grafana/grafana-foundation-sdk/go`; ship via the nix generated-artifact pattern (→ [nix.md](nix.md))          |
 
 Specifics:
 
@@ -38,6 +42,8 @@ Specifics:
 - **slog** constructed once, passed via constructor; no `fmt.Println`, no `log.Fatal`.
 - `net/netip` not `net.IP`; `envknob` for toggles; `errgroup` + `context` threaded top-down (no bare `go`).
 - **Twelve-factor:** config from env, log to stdout, stateless where possible.
+- **SQLite persistence:** `modernc.org/sqlite` (no cgo) opened via `sqliteconfig.Default(path).ToURL()`; migrate with `squibble` (`//go:embed schema.sql` → `squibble.Schema{Current}`, `schema.Apply` at open, changes append hash-chained `UpdateRule`s that must match `schema.sql` byte-for-byte); typed queries via `sqlc` into a `db/dbsqlc` package. WAL mode makes the file litestream-replicable (→ [services.md](services.md)). (sfiber, ghdl)
+- **Grafana dashboards are generated from Go**, never hand-edited JSON: build them with the Grafana Foundation SDK in `cmd/dashboard`, and **put a legend on every panel**. Ship them with the ship-tool-and-output pattern (→ [nix.md](nix.md)) so the dashboard tracks the metrics/endpoints it charts. (tsnixcache, ghdl)
 
 ## Debug & metrics
 
@@ -72,6 +78,8 @@ Specifics:
 - `gigahost-go` — **ff/v4** (`ff.Command` tree) + koanf config, Option pattern (`client/options.go`)
 - `headscale/.golangci.yaml` — enable-all / disable-few lint config
 - `kra/web` — tsnet + local listener, `tsweb.Debugger` on both, statsviz, `/metrics`
+- `sfiber/fiberdb/db` — squibble + sqlc + `sqliteconfig` SQLite persistence
+- `ghdl` — scraper → SQLite (squibble/sqlc) → JSON API for Grafana; generated dashboards (`cmd/dashboard`)
 
 ## Stay current
 

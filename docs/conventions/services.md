@@ -35,6 +35,8 @@ A service nothing watches fails CI (`checks.monitoring-coverage`). Take the high
 
 Fleet rules: one Discord sink; the external dead-man (healthchecks.io) is the only thing that fires when the pipeline itself dies. A new exporter or host with no scrape fails `checks.monitoring-coverage` until it is wired up or allowlisted with a reason. Every rule carries a promtool unit test in `checks/prometheus-rules` — an alert with no test is not done.
 
+**Dashboards are generated from Go** (Grafana Foundation SDK in a `cmd/dashboard`), never hand-edited JSON, and **every panel carries a legend** (→ [go.md](go.md)). Ship them with the ship-tool-and-output pattern so the dashboard tracks the metrics it charts (→ [nix.md](nix.md)); provision the built `grafanaDashboards` into Grafana's dashboard dir.
+
 **Physical disks get SMART.** Every bare-metal host runs `monitoring.smartctl` over all disks by stable `/dev/disk/by-id` (`SmartctlDiskMissing` pins the count). VMs have no real SMART. Immutable hosts that hide SMART behind a vendor API instead of an exporter get bridged to a textfile — e.g. IncusOS serves per-drive SMART as JSON at `GET :8443/os/1.0/system/storage`, not on `/metrics` (core.ldn bridge: TODO).
 
 ### Metrics transport — textfile first, pushgateway only when unavoidable
