@@ -464,6 +464,9 @@ in
       # tsnet node; private registry (no go_*/process_* series).
       (scrapeJob "tsnixcache" [ "tsnixcache:80" ])
 
+      # ghdl download-metrics scraper: tsnet node, /metrics on :80.
+      (scrapeJob "ghdl" [ "ghdl:80" ])
+
       # Application-specific exporters
       # OCI usage exporter binds localhost on this host, no ACL needed
       (scrapeJob "oci-usage" [ "localhost:63461" ])
@@ -1383,6 +1386,32 @@ in
                 annotations = {
                   summary = "Litestream has not passed a restore test in over two weeks";
                   description = "The weekly restore + integrity check has not succeeded recently; the sqlite replicas may not be restorable. Check litestream-restore-test.service.";
+                };
+              }
+              {
+                alert = "GhdlScrapeStale";
+                # Per-source freshness: a source (github_release/dockerhub/ghcr)
+                # that stops updating while the exporter is still up — e.g. the
+                # GHCR HTML scrape breaking — goes stale after 36h (daily scrape
+                # plus margin).
+                expr = "time() - ghdl_last_success_timestamp > 36 * 3600";
+                for = "1h";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "ghdl source {{ $labels.source }} is stale";
+                  description = "ghdl has not had a successful {{ $labels.source }} collection in over 36h. The source API or scrape may have broken.";
+                };
+              }
+              {
+                alert = "GhdlMetricsMissing";
+                # Canary against metric renames: exporter up but the health
+                # metric gone (version bump, or no collection ever succeeded).
+                expr = ''absent(ghdl_last_success_timestamp) and on() up{job="ghdl"} == 1'';
+                for = "15m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "ghdl is up but ghdl_last_success_timestamp is absent";
+                  description = "The ghdl metric names changed (version bump?), or no collection has ever succeeded. All ghdl freshness alerts are blind until fixed.";
                 };
               }
               # Syncthing folder states verified against pinned 2.0.15 source:

@@ -212,6 +212,45 @@ tests:
               summary: "Litestream exporter is up but litestream_sync_count is absent"
               description: "The litestream metric names have changed (version bump?). All litestream alerts are blind until the rules are updated."
 
+  # ghdl per-source freshness: last_success frozen while the exporter stays up
+  # → stale after 36h. Fresh at 100m, stale at 2220m.
+  - interval: 1m
+    input_series:
+      - series: 'ghdl_last_success_timestamp{source="ghcr", instance="ghdl:80", job="ghdl"}'
+        values: "0x2400"
+      - series: 'up{job="ghdl", instance="ghdl:80", host="ghdl"}'
+        values: "1x2400"
+    alert_rule_test:
+      - eval_time: 100m
+        alertname: GhdlScrapeStale
+        exp_alerts: []
+      - eval_time: 2280m
+        alertname: GhdlScrapeStale
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              source: ghcr
+              instance: ghdl:80
+              job: ghdl
+            exp_annotations:
+              summary: "ghdl source ghcr is stale"
+              description: "ghdl has not had a successful ghcr collection in over 36h. The source API or scrape may have broken."
+
+  # ghdl metric-rename canary: scrape up, expected series absent → page.
+  - interval: 1m
+    input_series:
+      - series: 'up{job="ghdl", instance="ghdl:80", host="ghdl"}'
+        values: "1x30"
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: GhdlMetricsMissing
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+            exp_annotations:
+              summary: "ghdl is up but ghdl_last_success_timestamp is absent"
+              description: "The ghdl metric names changed (version bump?), or no collection has ever succeeded. All ghdl freshness alerts are blind until fixed."
+
   # The dead-man heartbeat must always be firing.
   - interval: 1m
     input_series: []
