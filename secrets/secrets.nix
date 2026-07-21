@@ -81,6 +81,9 @@ with builtins;
 
   "oci-usage-exporter.age".publicKeys = u ++ [ hosts.core-oracldn ];
 
+  # ghdl: GHDL_GITHUB_TOKEN + TS_AUTHKEY
+  "ghdl.age".publicKeys = u ++ [ hosts.core-oracldn ];
+
   # bridge IMAP credentials for the authenticated login probe (a signed-out
   # bridge keeps listening; only a LOGIN proves it works)
   "proton-imap-check.age".publicKeys = u ++ [ hosts.dev-oracfurt ];
