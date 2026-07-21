@@ -31,6 +31,9 @@
 
   services.ghdl = {
     enable = true;
+    # 9091 is the pushgateway; ghdl serves its real endpoints over tsnet on :80
+    # anyway, so the local listener just needs a free loopback port.
+    localAddr = "127.0.0.1:63462";
     environmentFile = config.age.secrets.ghdl.path;
   };
 }

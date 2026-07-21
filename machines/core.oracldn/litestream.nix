@@ -61,5 +61,19 @@
     "z /var/lib/headscale/db.sqlite 0660 headscale headscale - -"
     "z /var/lib/headscale/db.sqlite-wal 0660 headscale headscale - -"
     "z /var/lib/headscale/db.sqlite-shm 0660 headscale headscale - -"
+    # Same litestream wal/shm race as headscale: litestream (group ghdl) can win
+    # the boot and create -wal/-shm as litestream:ghdl 0640, leaving ghdl unable
+    # to write its own db (SQLITE_READONLY). ghdl's dir is setgid 2770 + UMask
+    # 0007; heal any bad perms here and order litestream after ghdl below.
+    "z /var/lib/ghdl/ghdl.db 0660 ghdl ghdl - -"
+    "z /var/lib/ghdl/ghdl.db-wal 0660 ghdl ghdl - -"
+    "z /var/lib/ghdl/ghdl.db-shm 0660 ghdl ghdl - -"
   ];
+
+  # Let ghdl open its db first so the -wal/-shm are born ghdl:ghdl group-writable;
+  # litestream (in group ghdl) then reads/writes them fine.
+  systemd.services.litestream = {
+    after = [ "ghdl.service" ];
+    wants = [ "ghdl.service" ];
+  };
 }
