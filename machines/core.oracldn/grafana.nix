@@ -58,6 +58,16 @@ let
     cp ${
       inputs.tsnixcache.packages.${pkgs.stdenv.hostPlatform.system}.grafanaDashboards
     }/tsnixcache.json $out/tsnixcache.json
+
+    # ghdl dashboards, likewise generated from Go and shipped as a flake package:
+    # ghdl.json (downloads, via the Infinity datasource) and ghdl-service.json
+    # (scrape health, via Prometheus).
+    cp ${
+      inputs.ghdl.packages.${pkgs.stdenv.hostPlatform.system}.grafanaDashboards
+    }/ghdl.json $out/ghdl.json
+    cp ${
+      inputs.ghdl.packages.${pkgs.stdenv.hostPlatform.system}.grafanaDashboards
+    }/ghdl-service.json $out/ghdl-service.json
   '';
 in
 {
@@ -80,6 +90,10 @@ in
 
   services.grafana = {
     enable = true;
+
+    # The Infinity datasource (below) reads ghdl's JSON API. declarativePlugins
+    # pins the plugin set, so any future plugin must be added here too.
+    declarativePlugins = [ pkgs.grafanaPlugins.yesoreyeram-infinity-datasource ];
 
     settings = {
       server = {
@@ -136,6 +150,15 @@ in
             jsonData = {
               timeInterval = "60s";
             };
+          }
+          {
+            # ghdl's JSON API, served on the tailnet node "ghdl" (:80). The data
+            # dashboard queries /api/timeseries through this.
+            name = "ghdl";
+            type = "yesoreyeram-infinity-datasource";
+            access = "proxy";
+            url = "http://ghdl";
+            jsonData = { };
           }
         ];
       };
