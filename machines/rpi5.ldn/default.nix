@@ -56,16 +56,16 @@
   environment.enableAllTerminfo = lib.mkForce false;
 
   home-manager.users.kradalby.my.packages = {
-    userland.enable = false; # neovim (+~284 treesitter grammars), fzf, nh, nix-tree
-    go.enable = false;
-    nix.enable = false;
-    web.enable = false;
-    python.enable = false; # uv/ruff/mypy/pyright → numpy/sphinx/websockets/pydantic
-    shell.enable = false;
-    editor.enable = false;
-    infra.enable = false; # ansible/headscale/docker/rnb
+    userland.enable = true; # neovim (+~284 treesitter grammars), fzf, nh, nix-tree
+    go.enable = true;
+    nix.enable = true;
+    web.enable = true;
+    python.enable = true; # uv/ruff/mypy/pyright → numpy/sphinx/websockets/pydantic
+    shell.enable = true;
+    editor.enable = true;
+    infra.enable = true; # ansible/headscale/docker/rnb
     media.enable = false; # ffmpeg/cook-cli/sql-studio/squibble
-    ai.enable = false; # claude-code/gemini-cli/opencode/nodejs/python3
+    ai.enable = true; # claude-code/gemini-cli/opencode/nodejs/python3
   };
 
   # nixos-raspberrypi is migrating the default from "kernelboot" to
