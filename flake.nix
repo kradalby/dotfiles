@@ -72,9 +72,9 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
-    # TODO: switch to github:kradalby/ghdl once the repo is pushed.
+    # On the `initial` branch until kradalby/ghdl#1 merges to main.
     ghdl = {
-      url = "git+file:///home/kradalby/git/ghdl";
+      url = "github:kradalby/ghdl/initial";
       inputs."flake-utils".follows = "flake-utils";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
