@@ -659,6 +659,9 @@
               '')
             ];
           };
+
+        # Warm tsnixcache with the arm hosts' closures (see pkgs/cache-arm.nix).
+        apps.cache-arm = import ./pkgs/cache-arm.nix { inherit pkgs inputs system; };
       }
     )
     // (
