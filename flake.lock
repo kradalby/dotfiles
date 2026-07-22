@@ -650,11 +650,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1784673270,
-        "narHash": "sha256-zf+0xky1G9hNLDMoD0p7Od970af9u//tn7SWQvWFYik=",
+        "lastModified": 1784705345,
+        "narHash": "sha256-cjK/BQG6ewQawBos5o7PlqEs7hqUX+k3K5BDkFb8GvA=",
         "owner": "kradalby",
         "repo": "ghdl",
-        "rev": "87695b60a64c21f31307e0488a0972c96739d3bd",
+        "rev": "7d89bfd948d15b0cfd96a873cfd3f6d5cb80d4d9",
         "type": "github"
       },
       "original": {
