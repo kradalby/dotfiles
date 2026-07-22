@@ -1093,8 +1093,10 @@ in
               {
                 alert = "TimeMachineFlatline";
                 # written_bytes rather than delta(used): TM thinning makes
-                # `used` non-monotonic.
-                expr = ''max_over_time(zfs_dataset_written_bytes{name=~".*timemachine.*"}[7d]) == 0'';
+                # `used` non-monotonic. storage.bassan mirrors storage.ldn but
+                # does not sync the timemachine folder, so its empty dataset
+                # would flatline-alert forever — exclude it.
+                expr = ''max_over_time(zfs_dataset_written_bytes{name=~".*timemachine.*", instance!~"storage-bassan.*"}[7d]) == 0'';
                 labels.severity = "warning";
                 annotations = {
                   summary = "No Time Machine writes to {{ $labels.name }} for 7 days";
