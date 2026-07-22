@@ -63,8 +63,7 @@ with builtins;
   "restic-kramacbook-token.age".publicKeys = u;
   "restic-kraairm2-token.age".publicKeys = u;
   "restic-kratail-token.age".publicKeys = u;
-  # Uncomment once the storage-bassan host key is filled in above (deploy: ssh-keyscan):
-  # "restic-storage-bassan-token.age".publicKeys = u ++ [ hosts.storage-bassan ];
+  "restic-storage-bassan-token.age".publicKeys = u ++ [ hosts.storage-bassan ];
 
   # Syncthing: shared encryption passphrase for the untrusted offsite mirror
   # (storage.bassan). Held only by the trusted senders; bassan is NOT a recipient.
