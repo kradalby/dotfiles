@@ -45,7 +45,11 @@ let
           failed+=("$host")
           continue
         fi
-        echo "==> pushing $host closure to $cache"
+        # tsnixcache push first computes the closure + queries which paths the
+        # cache already has (silent), then uploads — drawing per-path bars only
+        # on a TTY. Announce the closure size up front so a long silent query on
+        # a big host doesn't look hung.
+        echo "==> pushing $host closure to $cache ($(nix path-info -r "$out" | wc -l) paths)"
         if ! tsnixcache push --to "$cache" "$out"; then
           echo "!! push failed: $host" >&2
           failed+=("$host")
