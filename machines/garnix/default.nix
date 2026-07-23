@@ -91,13 +91,19 @@ in
 
   # Remote builds copy every output closure back to this store, so it fills fast;
   # a burst once overran the hourly GC and crashed postgres. The VM is disposable
-  # (durable copies live on gigabuilder), so GC hard: min/max-free keeps the
-  # daemon collecting continuously, and custom-gc's target is tightened.
+  # (durable copies live on gigabuilder), so GC keeps the disk clear: min/max-free
+  # keeps the daemon collecting continuously.
+  #
+  # But 60% was too tight — a full-fleet build (every drv new, e.g. a flake bump)
+  # crossed the target mid-build and custom-gc collected the queued derivations
+  # out from under their own builds ("failed to obtain derivation"), failing CI
+  # across all repos. Disk bumped to 200GiB (infrastructure/incus) and target to
+  # 90% so a build's queued drvs survive; min/max-free stays as a runaway floor.
   nix.settings = {
     min-free = 10 * 1024 * 1024 * 1024;
     max-free = 30 * 1024 * 1024 * 1024;
   };
-  garnix.custom-gc.targetPercent = 60;
+  garnix.custom-gc.targetPercent = 90;
 
   # fluent-bit's opensearch fqdn/auth come from services.garnixServer.opensearch,
   # but port/tls stay at the SaaS defaults (443 + TLS) — point them at our plain
