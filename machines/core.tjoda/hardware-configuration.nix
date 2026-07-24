@@ -35,6 +35,13 @@
     fsType = "ext4";
   };
 
+  # Crucial 250GB — spare cache scratch
+  fileSystems."/cachestore" = {
+    device = "/dev/disk/by-uuid/7e7f5ab7-bcc6-4207-b401-690a8c22bda4";
+    fsType = "ext4";
+    options = [ "nofail" ];
+  };
+
   swapDevices = [ { device = "/dev/disk/by-uuid/d471b41a-e5cd-42ef-b818-198bcf636787"; } ];
 
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
