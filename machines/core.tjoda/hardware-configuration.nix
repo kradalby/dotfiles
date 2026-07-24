@@ -42,6 +42,20 @@
     options = [ "nofail" ];
   };
 
+  # WDC 2TB — photo album export (independent of the /storage pool)
+  fileSystems."/pictures/album" = {
+    device = "/dev/disk/by-uuid/a7a0d495-f21e-4123-9323-25b2fd51da4f";
+    fsType = "ext4";
+    options = [ "nofail" ];
+  };
+
+  # Samsung 850 EVO 500GB — generated hugin album
+  fileSystems."/pictures/hugin" = {
+    device = "/dev/disk/by-uuid/e7ae0ad1-19fe-4537-b0a3-919e087451a0";
+    fsType = "ext4";
+    options = [ "nofail" ];
+  };
+
   swapDevices = [ { device = "/dev/disk/by-uuid/d471b41a-e5cd-42ef-b818-198bcf636787"; } ];
 
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
