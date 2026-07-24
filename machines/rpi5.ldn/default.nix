@@ -134,10 +134,12 @@
     "/boot/firmware" = {
       device = "/dev/disk/by-label/FIRMWARE";
       fsType = "vfat";
-      options = [
-        "nofail"
-        "noauto"
-      ];
+      # Must be mounted (not noauto): the RPi bootloader installer writes kernels
+      # + config.txt here on every switch. With noauto it wrote to a shadow dir on
+      # the root fs and the real FAT partition never updated, so reboots kept
+      # booting the stale generation. nofail keeps the headless box bootable if
+      # the partition is ever missing.
+      options = [ "nofail" ];
     };
   };
 
