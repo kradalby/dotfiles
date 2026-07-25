@@ -43,6 +43,7 @@ in
       settings = {
         devices = {
           "krair" = cfg.devices."krair";
+          "kratail2" = cfg.devices."kratail2";
         };
         gui = {
           insecureSkipHostcheck = true;
@@ -52,7 +53,10 @@ in
           "cooklang-recipes" = {
             id = "cooklang-recipes";
             path = "/var/lib/cook-server";
-            devices = [ "krair" ];
+            devices = [
+              "krair"
+              "kratail2"
+            ];
             type = "sendreceive";
           };
         };
