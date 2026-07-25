@@ -7,9 +7,6 @@ let
   };
 
   hosts = {
-    # Terra hosts
-    dev-terra = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMWqiendEfZNjhaXu0RTrNUPcNeRJKeiu2pZ+mjAWWsM";
-
     # Leiden hosts
     core-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICRRxykpKi6wemG1DPI+9gpWtbGQWGP1D5xb6oATreAv";
     home-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHfmOgoC9GlB9r1lTBEnDp6YO8/FDgGRMEAv+A9sB7de";
@@ -58,7 +55,6 @@ with builtins;
   "restic-dev-ldn-token.age".publicKeys = u ++ [ hosts.dev-ldn ];
   "restic-core-tjoda-token.age".publicKeys = u ++ [ hosts.core-tjoda ];
   "restic-storage-ldn-token.age".publicKeys = u ++ [ hosts.storage-ldn ];
-  "restic-kramacbook-token.age".publicKeys = u;
   "restic-kraairm2-token.age".publicKeys = u;
   "restic-kratail-token.age".publicKeys = u;
   "restic-storage-bassan-token.age".publicKeys = u ++ [ hosts.storage-bassan ];
