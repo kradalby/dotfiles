@@ -22,7 +22,6 @@
   storage = [
     "krair"
     "core.tjoda"
-    "dev.ldn"
     "storage.ldn"
     # storage.bassan is intentionally NOT here: it is an untrusted offsite
     # mirror, shared to encrypted (receiveencrypted) from common/syncthing-storage.nix,
