@@ -645,11 +645,12 @@ in
           labels.site = "ldn";
         }
       ])
+      # proton-bridge (:143 IMAP) is NOT tcp-probed here: it is a tailnet VIP
+      # that doesn't resolve from this host, and a signed-out bridge passes a
+      # bare TCP connect anyway. dev.oracfurt's proton-login-check does a real
+      # authenticated IMAP login and pushes proton_bridge_login_ok — that is the
+      # actual mail-path signal, alerted separately.
       (probeJobT "tcp-probes" "tcp_connect" [
-        {
-          target = "dev-oracfurt";
-          targets = [ "proton-bridge:143" ];
-        }
         {
           target = "core-tjoda";
           targets = [ "core-tjoda:445" ];
