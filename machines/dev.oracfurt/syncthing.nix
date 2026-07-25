@@ -26,7 +26,12 @@ in
           "kradalby - Sync" = {
             id = "xTDuT-kZeuK";
             path = "/home/kradalby/Sync";
-            devices = builtins.attrNames config.services.syncthings.personal.settings.devices;
+            # storage.bassan only gets this folder encrypted, from
+            # core.tjoda/storage.ldn (common/syncthing-storage.nix); keep it
+            # out of this plain device list.
+            devices = lib.filter (d: d != "storage.bassan") (
+              builtins.attrNames config.services.syncthings.personal.settings.devices
+            );
             type = "sendreceive";
           };
         };

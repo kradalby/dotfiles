@@ -1,6 +1,13 @@
-{ config, ... }:
+{ config, lib, ... }:
 let
   cfg = import ../../metadata/syncthing.nix;
+  # storage.bassan is the untrusted offsite mirror -- it only ever gets this
+  # folder encrypted (from core.tjoda/storage.ldn via
+  # common/syncthing-storage.nix's mirrorDevice), and darwin has no agenix to
+  # hold the passphrase anyway, so keep it out of the plain device list here.
+  syncDevices = lib.filter (d: d != "storage.bassan") (
+    builtins.attrNames config.services.syncthing.devices
+  );
   macosIgnorePatterns = [
     ".DS_Store"
     "._*"
@@ -30,7 +37,7 @@ in
         "Sync" = {
           id = "xTDuT-kZeuK";
           path = "/Users/kradalby/Sync";
-          devices = builtins.attrNames config.services.syncthing.devices;
+          devices = syncDevices;
           type = "sendreceive";
           ignorePatterns = macosIgnorePatterns;
         };
