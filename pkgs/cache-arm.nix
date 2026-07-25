@@ -65,4 +65,8 @@ in
 {
   type = "app";
   program = "${cache-arm}/bin/cache-arm";
+  meta = {
+    description = "Build the aarch64 nixos hosts and push their closures to tsnixcache";
+    mainProgram = "cache-arm";
+  };
 }
