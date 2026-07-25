@@ -4,7 +4,6 @@ let
     "backup"
     "books"
     "dropbox"
-    "hugin"
     "libraries"
     "pictures"
     "software"
@@ -29,7 +28,7 @@ in
   #     -O utf8only=on \
   #     -O normalization=formD \
   #     storage /dev/disk/by-id/ata-ST5000LM000-2U8170_WCJC5JSY
-  #   for fs in backup books dropbox hugin libraries pictures software sync timemachine; do
+  #   for fs in backup books dropbox libraries pictures software sync timemachine; do
   #     zfs create -o canmount=on -o mountpoint=/storage/$fs storage/$fs
   #   done
 

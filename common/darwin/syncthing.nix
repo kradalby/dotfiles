@@ -62,13 +62,6 @@ in
           type = "sendreceive";
           ignorePatterns = macosIgnorePatterns;
         };
-        "/fast/hugin" = {
-          id = "dd5mf-nwmas";
-          path = "/Volumes/storage/hugin";
-          devices = [ "storage.ldn" ];
-          type = "sendonly";
-          ignorePatterns = macosIgnorePatterns;
-        };
         "cooklang-recipes" = {
           id = "cooklang-recipes";
           path = "/Users/kradalby/cooklang";

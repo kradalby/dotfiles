@@ -275,7 +275,6 @@ in
     "/storage/books".enable = false;
     "/storage/pictures".enable = false;
     "/storage/backup".enable = false;
-    "/fast/hugin".enable = false;
     "Sync".enable = false;
 
     "llm-git" = {
