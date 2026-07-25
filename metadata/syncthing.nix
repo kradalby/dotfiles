@@ -12,7 +12,6 @@
       "kratail2" = device "JE6KCCC-C4UPRRJ-QKXGGWJ-7VSUSP4-SB4ZMDS-EONA44U-NDMVKAB-74QTDQG";
       "krair" = device "NVYXJFI-XRYR3S3-WLLNMMH-QIOPEHB-5WAB44G-4Y2KE3G-HCFNVNI-Z5QBAQ5";
       "core.tjoda" = device "5WDUBHD-ZWYSK7Z-IQV37HN-ELB2X4X-WOAADCJ-ODUV2FH-BX62TRL-HHAH3AJ";
-      "core.terra" = device "EJBC4LG-JL3MYOO-OKUOAT3-UYNIPR2-PXVPQPZ-MHKCCEL-YO3TBLS-52NXVQA";
       "core.oracldn" = device "PODB2YZ-L5ZSWOZ-LJA5SOY-YXW2DKD-WVAOEUL-2DSJH52-I2QP6H5-PDXDVAO";
       "dev.terra" = device "IMAN3KP-YRAZ7OA-OZEXWO2-VALZ6IB-JNLEANA-CHSMUP4-24WNQ33-SXU2MAE";
       "dev.oracfurt" = device "JKYGSCI-JXCDYUM-BPOU6RM-TORXNQE-VFNAKQV-PTTBORO-FEEJIZE-FVQDIAL";
@@ -26,7 +25,6 @@
   storage = [
     "krair"
     "core.tjoda"
-    "core.terra"
     "dev.ldn"
     "storage.ldn"
     # storage.bassan is intentionally NOT here: it is an untrusted offsite

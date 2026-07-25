@@ -8,7 +8,6 @@ let
 
   hosts = {
     # Terra hosts
-    core-terra = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGEzxjps58aIrw1ZxgDUuj1W7T3Bx6ZbO6Q34a0xj2BA";
     dev-terra = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMWqiendEfZNjhaXu0RTrNUPcNeRJKeiu2pZ+mjAWWsM";
 
     # Leiden hosts
@@ -59,7 +58,6 @@ with builtins;
   "restic-dev-ldn-token.age".publicKeys = u ++ [ hosts.dev-ldn ];
   "restic-core-tjoda-token.age".publicKeys = u ++ [ hosts.core-tjoda ];
   "restic-storage-ldn-token.age".publicKeys = u ++ [ hosts.storage-ldn ];
-  "restic-core-terra-token.age".publicKeys = u ++ [ hosts.core-terra ];
   "restic-kramacbook-token.age".publicKeys = u;
   "restic-kraairm2-token.age".publicKeys = u;
   "restic-kratail-token.age".publicKeys = u;
@@ -69,7 +67,6 @@ with builtins;
   # (storage.bassan). Held only by the trusted senders; bassan is NOT a recipient.
   "syncthing-storage-enc.age".publicKeys = u ++ [
     hosts.storage-ldn
-    hosts.core-terra
     hosts.core-tjoda
   ];
 
@@ -109,10 +106,6 @@ with builtins;
   # infra/garage/tjoda/litestream-<host>/ for the tofu grants)
   "litestream-oracldn.age".publicKeys = u ++ [ hosts.core-oracldn ];
   "litestream-oracfurt.age".publicKeys = u ++ [ hosts.dev-oracfurt ];
-
-  # hugin
-  "hugin-basicauth.age".publicKeys = u ++ [ hosts.core-terra ];
-  "hugin-tokens.age".publicKeys = u ++ [ hosts.core-terra ];
 
   # golink
   "golink-tskey.age".publicKeys = u ++ [ hosts.core-oracldn ];
