@@ -312,15 +312,11 @@ in
 
   homebrew = {
     casks = [
-      "imageoptim"
       "monitorcontrol"
-      "raycast"
       "slack"
       "slack-cli"
-      "tigervnc"
       "utm"
       "zoom"
-      "krisp"
     ];
   };
 }
