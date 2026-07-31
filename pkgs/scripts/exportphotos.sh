@@ -1,19 +1,27 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Export the Photos library to the storage album via osxphotos, refresh the
-# people index, and prune the generated extra albums. osxphotos is not in
-# nixpkgs; it is expected on PATH (brew/pipx). The config lives next to this
-# script and is substituted in by exportphotos.nix.
+# osxphotos is not in nixpkgs, so it is expected on PATH (brew/pipx) rather
+# than in runtimeInputs.
 
 CONFIG="@config@"
-DIR="/Volumes/storage/hugin/album/"
+DIR="/Volumes/album"
+
+command -v osxphotos >/dev/null || {
+  echo "osxphotos not on PATH (brew install osxphotos)" >&2
+  exit 1
+}
+
+# macOS creates /Volumes/<name> on the boot disk for an unmounted share, and an
+# export into that fills the system SSD. The sentinel is made by hand on the
+# server, never here.
+[ -e "$DIR/.album-here" ] || {
+  echo "album share not mounted at $DIR" >&2
+  exit 1
+}
 
 osxphotos export --load-config "$CONFIG" "$DIR"
-osxphotos persons --json | jq '.["persons"] | {people: keys}' >"$DIR/people.json"
-touch "$DIR/.stfolder"
-chmod -R 755 "$DIR"
 
-for extra in RAW Smarts Grafikk Snapchat WhatsApp; do
-  rm -rf "${DIR:?}/$extra"
-done
+# After the export: --cleanup deletes everything it did not put there.
+osxphotos persons --json | jq '.["persons"] | {people: keys}' >"$DIR/people.json.tmp"
+mv "$DIR/people.json.tmp" "$DIR/people.json"

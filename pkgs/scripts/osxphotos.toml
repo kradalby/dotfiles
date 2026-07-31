@@ -4,7 +4,13 @@ cleanup = true
 retry = 5
 convert_to_jpeg = true
 jpeg_ext = "jpeg"
-directory = "{folder_album}"
+# Photos are exported once per album they belong to, so membership of these
+# spills extra top-level dirs into the export; remove() keeps them from being
+# written at all. Exact-match on the album path, so nested albums are untouched.
+# Safe because `folder` below is the selection whitelist: every exported photo
+# keeps at least one folder_album value, and osxphotos aborts loudly rather than
+# misplacing a photo if that ever stops holding.
+directory = "{folder_album|remove(RAW)|remove(Smarts)|remove(Grafikk)|remove(Snapchat)|remove(WhatsApp)}"
 download_missing = true
 # use_photokit = true
 skip_raw = true
