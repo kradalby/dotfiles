@@ -36,16 +36,9 @@ in
         "fruit:time machine max size" = "1200G";
       };
 
-      # REMIND: one-time `mkdir -p /pictures/album/gallery` +
-      # `chown storage:storage /pictures/album/gallery /pictures/hugin`.
-      # Deliberately not systemd.tmpfiles: both disks are `nofail`, and a missed
-      # mount must fail closed (writes denied) rather than quietly filling the
-      # boot SSD with a 2TB album.
-      #
-      # gallery/ rather than the drive root because osxphotos --cleanup deletes
-      # anything in the export dir it did not put there -- including ext4's
-      # root-owned lost+found.
-      album = pictureShare "/pictures/album/gallery";
+      # Ownership is set by hand: a tmpfiles rule would recreate these on the
+      # boot SSD when a `nofail` mount is missing.
+      album = pictureShare "/pictures/album";
       hugin = pictureShare "/pictures/hugin";
     };
   };

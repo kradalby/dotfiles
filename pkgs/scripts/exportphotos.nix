@@ -29,8 +29,18 @@ let
     export = {
       # What gets picked up.
       only_photos = true;
-      cleanup = true;
-      retry = 5;
+      not_hidden = true;
+      folder = folders;
+
+      # Where it lands.
+      # Only safe while `folder` stays a whitelist: a photo left with no value
+      # aborts the export.
+      directory = "{folder_album${lib.concatMapStrings (a: "|remove(${a})") excludedAlbums}}";
+      filename_template = "{created}-{uuid}";
+
+      # Which rendition, and in what format.
+      skip_raw = true;
+      skip_original_if_edited = true;
       convert_to_jpeg = true;
       jpeg_ext = "jpeg";
       download_missing = true;
