@@ -3,9 +3,10 @@ set -euo pipefail
 
 # Export the Photos library to the storage album via osxphotos, refresh the
 # people index, and prune the generated extra albums. osxphotos is not in
-# nixpkgs; it is expected on PATH (brew/pipx).
+# nixpkgs; it is expected on PATH (brew/pipx). The config lives next to this
+# script and is substituted in by exportphotos.nix.
 
-CONFIG="$HOME/Sync/config/osxphotos.toml"
+CONFIG="@config@"
 DIR="/Volumes/storage/hugin/album/"
 
 osxphotos export --load-config "$CONFIG" "$DIR"

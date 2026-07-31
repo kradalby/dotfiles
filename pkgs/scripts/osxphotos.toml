@@ -1,0 +1,63 @@
+[export]
+only_photos = true
+cleanup = true
+retry = 5
+convert_to_jpeg = true
+jpeg_ext = "jpeg"
+directory = "{folder_album}"
+download_missing = true
+# use_photokit = true
+skip_raw = true
+exiftool = true
+exiftool_merge_keywords = true
+exiftool_merge_persons = true
+skip_original_if_edited = true
+# finder_tag_keywords = true
+not_hidden = true
+# ramdb: unset on purpose -- osxphotos forces it when the export db lives on a
+# network volume, which it now does.
+filename_template = "{created}-{uuid}"
+folder = [
+    "2026",
+    "2025",
+    "2024",
+    "2023",
+    "2022",
+    "2021",
+    "2020",
+    "2019",
+    "2018",
+    "2017",
+    "2016",
+    "2015",
+    "2014",
+    "2013",
+    "2012",
+    "2011",
+    "2010",
+    "2009",
+    "2008",
+    "2007",
+    "2006",
+    "2005",
+    "2004",
+    "2003",
+    "2001",
+    "1992",
+    "Familie",
+    "Unfinished",
+]
+keyword_template = [
+    "{place.name.country}",
+    "{place.name.area_of_interest}",
+    "{place.name.city}",
+    "{place.name.state_province}",
+    "{searchinfo.venue_type}",
+    "{searchinfo.venue}",
+    "{searchinfo.activity}",
+    "{searchinfo.holiday}",
+    "{searchinfo.season}",
+]
+# overwrite = true
+person_keyword = true
+force_update = true

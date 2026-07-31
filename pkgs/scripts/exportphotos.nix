@@ -4,5 +4,7 @@ pkgs.writeShellApplication {
 
   runtimeInputs = with pkgs; [ jq ];
 
-  text = builtins.readFile ./exportphotos.sh;
+  text = builtins.replaceStrings [ "@config@" ] [ "${./osxphotos.toml}" ] (
+    builtins.readFile ./exportphotos.sh
+  );
 }
