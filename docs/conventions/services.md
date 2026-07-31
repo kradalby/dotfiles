@@ -14,6 +14,17 @@ Legacy services predate this; bring one up to it when you next touch it.
 
 Never a public / Funnel surface unless the service is deliberately public.
 
+**Carve-out — LAN-discovery protocols (SMB, Time Machine).** Clients find these
+by mDNS and mount them by LAN address, so tailnet-only means avahi advertises a
+service whose port is dropped and Finder hangs instead of failing. These may live
+on the trusted LAN interface **and** `tailscale0`, never on WAN; keep avahi's
+`allowInterfaces` in step. Hosts that already set
+`networking.firewall.trustedInterfaces` (core.tjoda, gigabuilder, dev.oracfurt)
+get this implicitly — at the cost of exposing every port on that host to those
+interfaces, so weigh it per host rather than reaching for it by default.
+Applies only to protocols whose discovery is link-local; everything else takes
+the ladder above. (core.tjoda/samba.nix + core.tjoda/avahi.nix)
+
 The tailscale `tailscale_service` objects **and** the ACL policy live in the
 separate infrastructure repo, `~/git/infrastructure` (`kradalby/infrastructure`),
 not in dotfiles — the dotfiles side only _advertises_ the VIP / opens the port.

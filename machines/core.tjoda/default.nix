@@ -64,6 +64,11 @@
       interface = config.my.lan;
     };
     nameservers = [ "10.62.0.1" ];
+
+    firewall.trustedInterfaces = [
+      config.my.lan
+      "tailscale0"
+    ];
   };
 
   systemd.network = {

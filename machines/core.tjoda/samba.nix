@@ -19,12 +19,6 @@ in
     ../../common/samba-storage.nix
   ];
 
-  # The missing half: smbd listened on nothing reachable, so every share here
-  # was dark. Tailnet-only per services.md tier 3 -- group:kradalby already holds
-  # the wildcard grant to tag:storage in infrastructure/tailscale, and core.tjoda
-  # carries that tag. SMB2+ only, so no 137-139.
-  networking.firewall.interfaces.tailscale0.allowedTCPPorts = [ 445 ];
-
   services.samba = {
     settings = {
       TimeMachineTjoda = {
