@@ -107,6 +107,13 @@
       inputs.systems.follows = "flake-utils/systems";
     };
 
+    hugin = {
+      url = "github:kradalby/hugin";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+      inputs."flake-utils".follows = "flake-utils";
+      inputs.treefmt-nix.follows = "treefmt-nix";
+    };
+
     # setec-compatible secrets server, pinned to the `initial` branch. Follows
     # nixpkgs-unstable so its go build tracks our toolchain.
     ts1p = {
@@ -463,6 +470,9 @@
                 "x86"
                 "router"
                 "tjoda"
+              ];
+              modules = with inputs; [
+                hugin.nixosModules.default
               ];
             };
 

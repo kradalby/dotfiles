@@ -222,6 +222,7 @@ let
     "go.dalby.ts.net" = "core-oracldn";
     "setec.dalby.ts.net" = "ts1p-ldn";
     # tsnet apps + loopback services scraped by name, backed by a real host
+    "hugin" = "core-tjoda";
     "hvor" = "core-oracldn";
     "krapage" = "core-oracldn";
     "localhost" = "core-oracldn"; # prometheus/alertmanager/grafana/oci-usage on this box
@@ -539,6 +540,7 @@ in
       (scrapeJob "grafana" [ "localhost:3000" ])
       (scrapeJob "krapage" [ "krapage:80" ])
       (scrapeJob "hvor" [ "hvor:80" ])
+      (scrapeJob "hugin" [ "hugin:80" ])
       (scrapeJob "homekit-bridges" [
         "nefit-homekit:80"
         "tasmota-homekit:80"

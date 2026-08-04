@@ -20,6 +20,7 @@
     ./zfs.nix
     ./rest-server.nix
     ./samba.nix
+    ./hugin.nix
     ./avahi.nix
     ./restic.nix
     ./restic-jotta.nix

@@ -105,6 +105,9 @@ with builtins;
   # golink
   "golink-tskey.age".publicKeys = u ++ [ hosts.core-oracldn ];
 
+  # hugin
+  "hugin-tskey.age".publicKeys = u ++ [ hosts.core-tjoda ];
+
   # hvor
   "hvor-tskey.age".publicKeys = u ++ [ hosts.core-oracldn ];
   "hvor-env.age".publicKeys = u ++ [ hosts.core-oracldn ];
