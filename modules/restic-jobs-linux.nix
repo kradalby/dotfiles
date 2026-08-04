@@ -67,7 +67,15 @@ in
               # which is not on this unit's PATH, and the check dies with
               # "didn't find section in config file". Mirror the backup unit.
               User = config.services.restic.backups.${jobName}.user;
-              ExecStart = "/run/current-system/sw/bin/restic-${jobName} check ${escapeShellArgs jobCfg.check.args}";
+              # Type=oneshot defaults to no start timeout. A wedged rclone or
+              # REST connection would hang in `activating` forever — which is
+              # not `failed`, so ServiceFailed never fires. Bound it clear of
+              # the lock wait plus a --read-data-subset run.
+              TimeoutStartSec = "6h";
+              # Backups run hourly and this timer has a 6h random delay, so
+              # overlap is routine; restic defaults to no lock retry and exits
+              # 11 the moment it finds the repository locked.
+              ExecStart = "/run/current-system/sw/bin/restic-${jobName} check --retry-lock=1h ${escapeShellArgs jobCfg.check.args}";
             };
           }
         )
