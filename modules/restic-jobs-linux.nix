@@ -62,6 +62,11 @@ in
             # password file, and extra options (incl. rclone remotes).
             serviceConfig = {
               Type = "oneshot";
+              # systemd only exports $HOME when User= is set. rclone needs it
+              # to find rclone.conf; without it it shells out to `getent`,
+              # which is not on this unit's PATH, and the check dies with
+              # "didn't find section in config file". Mirror the backup unit.
+              User = config.services.restic.backups.${jobName}.user;
               ExecStart = "/run/current-system/sw/bin/restic-${jobName} check ${escapeShellArgs jobCfg.check.args}";
             };
           }
