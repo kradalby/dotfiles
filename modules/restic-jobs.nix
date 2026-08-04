@@ -206,9 +206,13 @@ let
           paths
           pruneOpts
           initialize
-          extraBackupArgs
           extraOptions
           ;
+        # `restic check` takes an exclusive lock, so once it stops failing
+        # fast it will hold one for real. Backups have to wait it out too, or
+        # the fix just moves the failure to the backup unit. 45m keeps a
+        # waiting backup from running past the next hourly tick.
+        extraBackupArgs = [ "--retry-lock=45m" ] ++ jobCfg.extraBackupArgs;
         passwordFile = config.age.secrets.${jobCfg.secret}.path;
       }
       // optionalAttrs (jobCfg.dynamicFilesFrom != null) {
