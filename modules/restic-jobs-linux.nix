@@ -8,6 +8,16 @@ with lib;
 let
   cfg = config.services.restic.jobs;
 
+  # Fleet identity is <host>-<site> (core-tjoda, dev-ldn) — the same name the
+  # tailnet and every scrape target uses. NEVER the bare hostName: `core`,
+  # `dev` and `storage` are each shared by two machines, so a bare name merges
+  # two hosts into one pushgateway series and a failing host is hidden behind
+  # its healthy twin. Hosts without a site (garnix, gigabuilder) keep their
+  # plain name, since removeSuffix leaves nothing to dash.
+  fleetInstance = builtins.replaceStrings [ "." ] [ "-" ] (
+    removeSuffix ".fap.no" config.networking.fqdnOrHostName
+  );
+
   # State directories of DynamicUser units live under /var/lib/private/<x>;
   # /var/lib/<x> is only a symlink and restic snapshots it as ~20 bytes.
   # A backup path that is itself a symlink is essentially always this
@@ -34,7 +44,7 @@ let
     pkgs.writeShellScript "restic-push-success-${jobName}" ''
       [ "$SERVICE_RESULT" = "success" ] || exit 0
       ${pkgs.curl}/bin/curl -s --max-time 30 --data-binary @- \
-        "http://pushgateway/metrics/job/restic/instance/$(${pkgs.coreutils}/bin/uname -n)/repo/${jobName}" <<EOF || true
+        "http://pushgateway/metrics/job/restic/instance/${fleetInstance}/repo/${jobName}" <<EOF || true
       # TYPE restic_backup_last_success_timestamp_seconds gauge
       restic_backup_last_success_timestamp_seconds $(${pkgs.coreutils}/bin/date +%s)
       EOF
