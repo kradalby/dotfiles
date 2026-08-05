@@ -1151,12 +1151,21 @@ in
               }
               {
                 alert = "SMARTDiskTemperature";
-                expr = ''smartctl_device_temperature{temperature_type="current"} > 55'';
+                # NVMe runs hot by design and reports a composite temperature;
+                # 55C is a spinning-rust/SATA number and false-positives on it.
+                # gigabuilder's Kingston SNV3S500G warns at 75C and throttles at
+                # 80C (its own Warning/Critical Comp. Temp. Thresholds), so 70C
+                # still leaves room to act before the drive complains.
+                expr = ''
+                  smartctl_device_temperature{temperature_type="current",device!~"nvme.*"} > 55
+                  or
+                  smartctl_device_temperature{temperature_type="current",device=~"nvme.*"} > 70
+                '';
                 for = "15m";
                 labels.severity = "warning";
                 annotations = {
                   summary = "Disk {{ $labels.device }} on {{ $labels.instance }} is {{ $value }}C";
-                  description = "Disk temperature on {{ $labels.device }} ({{ $labels.model_name }}) has been above 55C for more than 15 minutes.";
+                  description = "Disk temperature on {{ $labels.device }} ({{ $labels.model_name }}) has been high for more than 15 minutes (limit 55C, or 70C for NVMe).";
                 };
               }
             ];
