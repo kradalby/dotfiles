@@ -60,6 +60,13 @@ in
           mkIf jobCfg.enable {
             serviceConfig.ExecStartPre = [ (symlinkGuard jobName jobCfg) ];
             serviceConfig.ExecStopPost = [ (pushSuccess jobName) ];
+            # restic streams pack files through $TMPDIR. The default /tmp is a
+            # 4G tmpfs here, so unrelated scratch files can starve a backup:
+            # every job on dev-ldn died on "no space left on device" writing
+            # /tmp/restic-temp-pack-*. CacheDirectory= already gives us a
+            # disk-backed per-job dir; point TMPDIR at it so backups only
+            # compete with themselves.
+            environment.TMPDIR = "/var/cache/restic-backups-${jobName}";
           }
         )
       ) cfg)
@@ -68,10 +75,16 @@ in
         nameValuePair "restic-check-${jobName}" (
           mkIf (jobCfg.enable && jobCfg.check.enable) {
             description = "restic repository check for ${jobName}";
+            # Same tmpfs starvation applies to `check`, which unpacks into
+            # $TMPDIR while verifying — keep it on disk with the backup job.
+            environment.TMPDIR = "/var/cache/restic-backups-${jobName}";
             # The restic module's generated wrapper carries the repository,
             # password file, and extra options (incl. rclone remotes).
             serviceConfig = {
               Type = "oneshot";
+              # Same dir the backup unit gets; declared here too so the check
+              # cannot run before it exists (TMPDIR above points into it).
+              CacheDirectory = "restic-backups-${jobName}";
               # systemd only exports $HOME when User= is set. rclone needs it
               # to find rclone.conf; without it it shells out to `getent`,
               # which is not on this unit's PATH, and the check dies with
