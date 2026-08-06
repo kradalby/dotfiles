@@ -1543,7 +1543,15 @@ in
               }
               {
                 alert = "ResticBackupStale";
-                expr = ''time() - systemd_timer_last_trigger_seconds{name=~"restic-backups-.*\\.timer",name!~"restic-backups-jotta\\.timer"} > 2 * 3600'';
+                # The `> 0` guard: systemd reports LastTriggerUSec=0 for a
+                # timer that has not fired since boot, so `time() - 0` looks
+                # infinitely stale and every reboot false-paged until the next
+                # tick. A timer that never fires is still covered by
+                # ResticBackupNotSucceeding and ResticRepoNoNewSnapshots.
+                expr = ''
+                  time() - systemd_timer_last_trigger_seconds{name=~"restic-backups-.*\\.timer",name!~"restic-backups-jotta\\.timer"} > 2 * 3600
+                  and systemd_timer_last_trigger_seconds{name=~"restic-backups-.*\\.timer",name!~"restic-backups-jotta\\.timer"} > 0
+                '';
                 for = "30m";
                 labels.severity = "critical";
                 annotations = {
@@ -1575,7 +1583,11 @@ in
               }
               {
                 alert = "ResticBackupStaleJotta";
-                expr = ''time() - systemd_timer_last_trigger_seconds{name=~"restic-backups-jotta\\.timer"} > 4 * 3600'';
+                # See ResticBackupStale for why the `> 0` guard is needed.
+                expr = ''
+                  time() - systemd_timer_last_trigger_seconds{name=~"restic-backups-jotta\\.timer"} > 4 * 3600
+                  and systemd_timer_last_trigger_seconds{name=~"restic-backups-jotta\\.timer"} > 0
+                '';
                 for = "30m";
                 labels.severity = "critical";
                 annotations = {
@@ -1662,7 +1674,13 @@ in
               }
               {
                 alert = "PostgresqlBackupStale";
-                expr = ''time() - systemd_timer_last_trigger_seconds{name=~"postgresqlBackup-.*\\.timer"} > 26 * 3600'';
+                # See ResticBackupStale for the `> 0` guard. This one bit
+                # hardest: pg_dump is nightly, so a reboot false-paged
+                # critical for hours rather than until the next hourly tick.
+                expr = ''
+                  time() - systemd_timer_last_trigger_seconds{name=~"postgresqlBackup-.*\\.timer"} > 26 * 3600
+                  and systemd_timer_last_trigger_seconds{name=~"postgresqlBackup-.*\\.timer"} > 0
+                '';
                 for = "30m";
                 labels.severity = "critical";
                 annotations = {
