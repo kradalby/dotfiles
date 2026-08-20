@@ -7,7 +7,8 @@ in
     settings = {
       connect-timeout = 5;
       fallback = true;
-      accept-flake-config = true;
+      # See common/nix.nix: accept-flake-config left off so no third-party
+      # flake's nixConfig auto-applies.
       substituters = [
         "https://nix-community.cachix.org?priority=41"
         "https://numtide.cachix.org?priority=42"

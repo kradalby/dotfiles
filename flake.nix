@@ -1,14 +1,9 @@
 {
   description = "kradalby's system config";
 
-  nixConfig = {
-    extra-substituters = [
-      "https://nixos-raspberrypi.cachix.org"
-    ];
-    extra-trusted-public-keys = [
-      "nixos-raspberrypi.cachix.org-1:4iMO9LXa8BqhU+Rpg6LQKiGa2lsNh/j2oiYLNOQ5sPI="
-    ];
-  };
+  # No flake-level nixConfig: it only applies with accept-flake-config, which
+  # we keep off (see common/nix.nix). Caches belong in nix.settings on the
+  # hosts that need them.
 
   inputs = {
     flake-utils.url = "github:numtide/flake-utils";

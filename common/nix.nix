@@ -33,7 +33,11 @@ in
     settings = {
       connect-timeout = 5;
       fallback = true;
-      accept-flake-config = true;
+      # accept-flake-config deliberately unset (defaults false): with it on,
+      # any `nix build/run` of a third-party flake auto-applies that flake's
+      # nixConfig — extra-substituters + post-build-hook — i.e. arbitrary code
+      # from an untrusted flake. The nixos-raspberrypi cache lives only on the
+      # hosts that build rpi closures (rpi5.ldn, dev.ldn, dev.oracfurt).
       # Let remote builders substitute missing deps from the configured
       # caches instead of failing when the local store lacks a closure.
       builders-use-substitutes = true;
@@ -72,7 +76,9 @@ in
 
     optimise = {
       automatic = true;
-      dates = [ "03:45" ];
+      # Weekly, not daily: optimise walks the whole store — needless wear on
+      # SD-card hosts and pure overhead on boxes that rarely rebuild.
+      dates = [ "weekly" ];
     };
 
     # This is an attempt to make nix-index work:
@@ -85,12 +91,6 @@ in
   nixpkgs.config = {
     # allowUnfree is set in lib/box.nix via commonModules
     permittedInsecurePackages = [
-      # minio is abandoned upstream and flagged insecure in 26.05 (multiple
-      # unpatched CVEs, no fixed version in nixpkgs). Only core.tjoda builds
-      # it. Revisit the version string on each bump and migrate off minio
-      # (Garage/SeaweedFS) — see the deploy notes.
-      "minio-2025-10-15T17-29-55Z"
-
       # Build-time only: `prettier` (home-packages) fetches its node_modules via
       # `fetchPnpmDeps` with `pnpm_9`, which is EOL (2026-04-30) and flagged for
       # CVE-2026-48995 et al. pnpm never runs at runtime — it only assembles deps
