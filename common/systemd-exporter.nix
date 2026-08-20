@@ -12,7 +12,8 @@
     extraFlags = [ "--systemd.collector.enable-restart-count" ];
   };
 
-  networking.firewall.allowedTCPPorts = lib.mkIf config.networking.firewall.enable [
+  # Tailnet-only scrape: tailscale0-scoped, not a global open (services.md).
+  networking.firewall.interfaces.tailscale0.allowedTCPPorts = [
     config.services.prometheus.exporters.systemd.port
   ];
 }

@@ -49,6 +49,11 @@
       ];
     };
     interfaces.wlan0.useDHCP = false;
-    firewall.enable = lib.mkForce false;
+    # Firewall ON with the LAN trusted: HomeKit/mDNS and the home-automation
+    # stack get full LAN access without opening every other interface. Tailnet
+    # scrapes ride the tailscale0-scoped opens from the common exporter
+    # modules.
+    firewall.enable = true;
+    firewall.trustedInterfaces = [ config.my.lan ];
   };
 }

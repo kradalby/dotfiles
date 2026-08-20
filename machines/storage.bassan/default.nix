@@ -41,16 +41,8 @@ in
   # See metadata/smartctl.nix (shared with the SmartctlDiskMissing alert count).
   monitoring.smartctl.devices = (import ../../metadata/smartctl.nix).storage-bassan;
 
-  # First-class tailnet node scraped by core.oracldn as storage-bassan:<port>.
-  # node-exporter binds only my.lan and this box won't be on a routed LAN at
-  # bassan's, so open each metrics port on tailscale0 explicitly rather than lean
-  # on tailscaled's fragile implicit accept rule (same as garnix/ts1p.ldn).
-  networking.firewall.interfaces.tailscale0.allowedTCPPorts = [
-    config.services.prometheus.exporters.node.port
-    config.services.prometheus.exporters.systemd.port
-    config.services.prometheus.exporters.zfs.port
-    config.services.prometheus.exporters.smartctl.port
-  ];
+  # Metrics ports open on tailscale0 via the common exporter modules; no
+  # host-local opens needed since that became the fleet-wide pattern.
 
   users.users.root.openssh.authorizedKeys.keys = sshKeys.main ++ sshKeys.kradalby ++ sshKeys.work;
   users.users.kradalby.openssh.authorizedKeys.keys = sshKeys.main ++ sshKeys.kradalby ++ sshKeys.work;

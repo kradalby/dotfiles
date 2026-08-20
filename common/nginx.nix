@@ -5,14 +5,8 @@
   ...
 }:
 {
-  imports = [
-    ../modules/tailscale-nginx-auth.nix
-  ];
-
   config = {
     services = {
-      tailscale-nginx-auth.enable = true;
-
       nginx = {
         enable = true;
         package = pkgs.nginx;
@@ -69,8 +63,9 @@
       };
     };
 
-    networking.firewall.allowedTCPPorts = lib.mkIf config.networking.firewall.enable [
-      80
+    # 80 is deliberately public (vhosts/ACME); the log exporter is tailnet-only.
+    networking.firewall.allowedTCPPorts = lib.mkIf config.networking.firewall.enable [ 80 ];
+    networking.firewall.interfaces.tailscale0.allowedTCPPorts = [
       config.services.prometheus.exporters.nginxlog.port
     ];
 
