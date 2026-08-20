@@ -98,10 +98,9 @@
     ];
   };
 
-  age.secrets.headscale-sfiber-authkey = {
-    file = ../../secrets/headscale-sfiber-client-preauthkey.age;
-    owner = config.users.users.tailscale-proxy.name;
-  };
+  # No owner override: the tailscale-proxy module reads this via
+  # LoadCredential as root, so the file stays 0400 root.
+  age.secrets.headscale-sfiber-authkey.file = ../../secrets/headscale-sfiber-client-preauthkey.age;
 
   # Every physical disk, by stable ID (sdX naming reshuffles across boots;
   # /dev/sda alone left the restic-repo disks without SMART). Live-enumerated

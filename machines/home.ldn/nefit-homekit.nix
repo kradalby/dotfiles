@@ -6,8 +6,12 @@
 }:
 {
   imports = [
-    ../../common/tskey.nix
   ];
+
+  # Shared homekit bridge key (tag:homekit, reusable — infra terraform).
+  # Declared once here for all three bridges; root:0400, read via
+  # LoadCredential by each bridge module.
+  age.secrets.homekit-tskey.file = ../../secrets/homekit-tskey.age;
 
   age.secrets.nefit-homekit-env = {
     file = ../../secrets/nefit-homekit-env.age;
@@ -36,7 +40,7 @@
 
     tailscale = {
       hostname = "nefit-homekit";
-      authKeyFile = config.age.secrets.tailscale-preauthkey.path;
+      authKeyFile = config.age.secrets.homekit-tskey.path;
     };
 
     user = "nefit-homekit";

@@ -138,7 +138,6 @@ let
 in
 {
   imports = [
-    ../../common/tskey.nix
   ];
 
   services.tasmota-homekit = {
@@ -162,7 +161,7 @@ in
 
     tailscale = {
       hostname = "tasmota-homekit";
-      authKeyFile = config.age.secrets.tailscale-preauthkey.path;
+      authKeyFile = config.age.secrets.homekit-tskey.path;
     };
 
     log.level = lib.mkForce "debug";

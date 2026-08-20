@@ -106,6 +106,13 @@ with builtins;
 
   # krapage
   "krapage-tskey.age".publicKeys = u ++ [ hosts.core-oracldn ];
+  # Shared by the three home.ldn homekit bridges (tag:homekit, reusable —
+  # from infrastructure/tailscale authkey_homekit.tf). Root:0400; the bridges
+  # read it via LoadCredential.
+  "homekit-tskey.age".publicKeys = u ++ [ hosts.home-ldn ];
+  # tsnixcache's kradalby-tailnet node (authkey_tsnixcache.tf); its sfiber
+  # node keeps the sfiber key.
+  "tsnixcache-tskey.age".publicKeys = u ++ [ hosts.gigabuilder ];
   "krapage-env.age".publicKeys = u ++ [ hosts.core-oracldn ];
 
   # WIFI
@@ -120,15 +127,24 @@ with builtins;
   # ts1p (setec) — OP_SERVICE_ACCOUNT_TOKEN (+ optional TS_AUTHKEY) EnvironmentFile
   "ts1p-op-token.age".publicKeys = u ++ [ hosts.ts1p-ldn ];
 
-  # Pre authenticated keys for joining my tailscale/headscale network
-  # this file is only used upon joining and will contain an expired key,
-  # or a key that can only be used once.
+  # Fleet host-join key: single-use, minted on demand (authkey -reusable=false)
+  # and spent the moment a host joins, so the committed copy is normally a
+  # burned key. Root-only on-host (common/tskey.nix); every service carries its
+  # own key (sole exception: the grafana proxy, see tskey.nix). Recipients stay
+  # broad because
+  # any host may need to rebuild-join, and a spent one-time key is inert.
   "tailscale-preauthkey.age".publicKeys = global;
-  "headscale-client-preauthkey.age".publicKeys = global;
-  "headscale-sfiber-client-preauthkey.age".publicKeys = global;
+  # sfiber tailnet join key, scoped to its consumers (gigabuilder cache,
+  # dev.ldn plural instance, core.tjoda proxies; garnix has its own CI key).
+  "headscale-sfiber-client-preauthkey.age".publicKeys = u ++ [
+    hosts.gigabuilder
+    hosts.dev-ldn
+    hosts.core-tjoda
+  ];
 
-  # tsnixcache (gigabuilder serves the binary cache); the tsnet nodes reuse the
-  # host's reusable join keys, so only the signing key is cache-specific.
+  # tsnixcache (gigabuilder serves the binary cache); its kradalby-tailnet
+  # node has its own key (tsnixcache-tskey above), the sfiber node uses the
+  # sfiber join key.
   "tsnixcache-sign-key.age".publicKeys = u ++ [ hosts.gigabuilder ];
 
   # sfiber tailnet membership for the garnix VM (tag:ci, forced by the

@@ -1,5 +1,4 @@
 {
-  pkgs,
   config,
   ...
 }:
@@ -9,6 +8,11 @@ in
 {
   age.secrets.krapage-env = {
     file = ../../secrets/krapage-env.age;
+    owner = config.services.krapage.user;
+  };
+
+  age.secrets.krapage-tskey = {
+    file = ../../secrets/krapage-tskey.age;
     owner = config.services.krapage.user;
   };
 
@@ -26,7 +30,7 @@ in
   services.krapage = {
     enable = true;
     verbose = false;
-    tailscaleKeyPath = config.age.secrets.tailscale-preauthkey.path;
+    tailscaleKeyPath = config.age.secrets.krapage-tskey.path;
     environmentFile = config.age.secrets.krapage-env.path;
   };
 
