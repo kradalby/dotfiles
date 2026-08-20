@@ -77,6 +77,12 @@ in
     owner = "grafana";
   };
 
+  age.secrets.grafana-secret-key = {
+    file = ../../secrets/grafana-secret-key.age;
+    mode = "0400";
+    owner = "grafana";
+  };
+
   # Use proxy-to-grafana instead of tailscale.services (Tailscale Serve)
   # because it injects X-WEBAUTH-USER and X-WEBAUTH-NAME headers that
   # Grafana's auth.proxy requires for Tailscale user authentication.
@@ -124,10 +130,10 @@ in
 
       security = {
         admin_password = "$__file{${config.age.secrets.grafana-admin.path}}";
-        # NixOS 26.05 requires an explicit secret_key; this is the old
-        # upstream default the existing DB is encrypted with. Nothing
-        # sensitive lives in it (single passwordless local datasource).
-        secret_key = "SW2YcwTIb9zpOOhoPsMm";
+        # Rotated off the published upstream default. Rotation is safe: the DB
+        # holds nothing encrypted worth keeping (single passwordless local
+        # datasource); new writes encrypt with this key.
+        secret_key = "$__file{${config.age.secrets.grafana-secret-key.path}}";
       };
 
       smtp = {
