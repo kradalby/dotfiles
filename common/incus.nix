@@ -37,6 +37,10 @@
 
   swapDevices = [ ];
 
+  # Small VMs (home.ldn runs its whole stack in 1.8 GiB) had no swap at all —
+  # one allocation spike away from the OOM killer. zram costs nothing when idle.
+  zramSwap.enable = lib.mkDefault true;
+
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
 
   # Common networking setup for Incus VMs

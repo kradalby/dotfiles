@@ -318,7 +318,9 @@
         pkgs = nixpkgs-stable;
         inherit inputs overlays;
         lib = nixpkgs-stable.lib;
-        rev = nixpkgs-stable.lib.mkIf (self ? rev) self.rev;
+        # Plain string, not mkIf: a dirty tree gets an explicit DIRTY marker in
+        # system.configurationRevision instead of silently reporting null.
+        rev = if self ? rev then self.rev else "DIRTY";
       };
     in
     {
@@ -522,36 +524,33 @@
         );
 
       # darwin-rebuild switch --flake .#kramacbook
-      darwinConfigurations = {
-        kratail2 =
-          let
-            machine = {
-              arch = "aarch64-darwin";
-              username = "kradalby";
-              hostname = "kratail2";
-              homeDir = /Users/kradalby;
-            };
-          in
-          box.macBox machine darwin home-manager [
+      darwinConfigurations =
+        let
+          kratail2Machine = {
+            arch = "aarch64-darwin";
+            username = "kradalby";
+            hostname = "kratail2";
+            homeDir = /Users/kradalby;
+          };
+          kratail2Modules = [
             inputs.ssh-agent-mux.darwinModules.default
-            inputs.nix-rosetta-builder.darwinModules.default
             inputs.tailscale.darwinModules.default
           ];
 
-        krair =
-          let
-            machine = {
-              arch = "aarch64-darwin";
-              username = "kradalby";
-              hostname = "krair";
-              homeDir = /Users/kradalby;
-            };
-          in
-          box.macBox machine darwin home-manager [
-            inputs.ssh-agent-mux.darwinModules.default
-            inputs.nix-rosetta-builder.darwinModules.default
-          ];
-      };
+          krairMachine = {
+            arch = "aarch64-darwin";
+            username = "kradalby";
+            hostname = "krair";
+            homeDir = /Users/kradalby;
+          };
+          krairModules = [ inputs.ssh-agent-mux.darwinModules.default ];
+
+          rosetta = inputs.nix-rosetta-builder.darwinModules.default;
+        in
+        {
+          kratail2 = box.macBox kratail2Machine darwin home-manager (kratail2Modules ++ [ rosetta ]);
+          krair = box.macBox krairMachine darwin home-manager (krairModules ++ [ rosetta ]);
+        };
 
       homeConfigurations = {
         "ubuntu@kradalby-llm" = home-manager.lib.homeManagerConfiguration {
@@ -636,41 +635,14 @@
           monitoring-coverage = import ./checks/monitoring-coverage { inherit pkgs self; };
         };
 
-        devShells.default =
-          let
-            hostNames = builtins.attrNames self.nixosConfigurations;
-          in
-          pkgs.mkShell {
-            buildInputs = [
-              treefmtEval.config.build.wrapper
-              pkgs.unstable.prek
-              pkgs.colmena
-              pkgs.webrepl_cli
-
-              (pkgs.writeShellScriptBin "ship" ''
-                #!/usr/bin/env bash
-                set -euo pipefail
-
-                # Host list from nixosConfigurations
-                hosts=(${builtins.concatStringsSep " " hostNames})
-                target_hosts=("''${hosts[@]}")
-
-                if [ $# -eq 1 ]; then
-                    if [[ " ''${hosts[*]} " =~ " $1 " ]]; then
-                        target_hosts=("$1")
-                    else
-                        echo "Error: '$1' is not a valid host. Choose from: ''${hosts[*]}"
-                        exit 1
-                    fi
-                fi
-
-                for host in "''${target_hosts[@]}"; do
-                    echo "Shipping to $host..."
-                    rsync -ah --delete --cvs-exclude --filter=':- .gitignore' . "root@$host:/etc/nixos/."
-                done
-              '')
-            ];
-          };
+        devShells.default = pkgs.mkShell {
+          buildInputs = [
+            treefmtEval.config.build.wrapper
+            pkgs.unstable.prek
+            pkgs.colmena
+            pkgs.webrepl_cli
+          ];
+        };
 
         # Warm tsnixcache with the arm hosts' closures (see pkgs/cache-arm.nix).
         apps.cache-arm = import ./pkgs/cache-arm.nix { inherit pkgs inputs system; };

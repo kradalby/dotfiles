@@ -1,4 +1,4 @@
-{ config, ... }: {
+{ config, lib, ... }: {
   imports = [
     ./incus.nix
   ];
@@ -22,5 +22,7 @@
     tags = [ "tag:server" ];
   };
 
-  system.stateVersion = "24.05";
+  # mkDefault so a NEW VM sets its own (current) stateVersion in its host
+  # manifest instead of silently inheriting this historical one.
+  system.stateVersion = lib.mkDefault "24.05";
 }

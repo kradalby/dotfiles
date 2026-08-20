@@ -3,7 +3,7 @@
   inputs,
   overlays,
   lib,
-  rev ? "DIRTY",
+  rev,
   ...
 }:
 let
