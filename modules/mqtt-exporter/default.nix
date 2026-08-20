@@ -95,19 +95,14 @@ in
       description = ''Define the Prometheus label for the topic, example temperature{topic="device1"}'';
     };
 
-    user = mkOption {
-      type = types.str;
-      default = "mosquitto";
-      description = "User account under which MQTT exporter runs.";
-    };
-
-    group = mkOption {
-      type = types.str;
-      default = "mosquitto";
-      description = "Group account under which MQTT exporter runs.";
-    };
-
     openFirewall = mkEnableOption "opening of the metric in the firewall";
+
+    brokerUnit = mkOption {
+      type = types.nullOr types.str;
+      default = null;
+      example = "z2m-homekit.service";
+      description = "systemd unit providing the MQTT broker, for start ordering (the exporter self-heals via Restart either way).";
+    };
   };
 
   config = mkIf cfg.enable (
@@ -128,14 +123,10 @@ in
           ${cfg.package}/bin/python ${mqttExporterSrc}/exporter.py
         '';
         wantedBy = [ "multi-user.target" ];
-        after = [
-          "network.target"
-          "zigbee2mqtt.service"
-          "mosquitto.service"
-        ];
+        after = [ "network.target" ] ++ lib.optional (cfg.brokerUnit != null) cfg.brokerUnit;
         serviceConfig = {
-          User = cfg.user;
-          Group = cfg.group;
+          # Stateless localhost subscriber — no reason for a real account.
+          DynamicUser = true;
           Restart = "always";
           RestartSec = "15";
         };
