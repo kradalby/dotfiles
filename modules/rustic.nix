@@ -374,13 +374,18 @@ let
       # the tailnet (scraped with honor_labels on core.oracldn) so backup
       # freshness is visible off-device, not just on this laptop's screen.
       # Best-effort: a short connect timeout means a travelling laptop off
-      # the tailnet simply skips the push, and any push failure is swallowed
-      # (|| true) so it never disturbs the watchdog. RusticBackupStale on
-      # core.oracldn consumes this (>3d). /usr/bin/curl avoids any nix curl.
+      # the tailnet simply skips the push, and a failure never disturbs the
+      # watchdog. But log the reason rather than swallowing it — a push that
+      # silently never lands (DNS, or a missing tag:backup-client ACL grant)
+      # leaves RusticBackupMetricsMissing firing with no way to tell why.
+      # RusticBackupStale on core.oracldn consumes this (>3d). /usr/bin/curl
+      # avoids any nix curl.
       host=$(hostname -s)
-      /usr/bin/curl -fsS --connect-timeout 5 --max-time 15 \
+      if ! push_err=$(/usr/bin/curl -fsS --connect-timeout 5 --max-time 15 \
         --data-binary "rustic_backup_last_snapshot_timestamp_seconds{host=\"$host\"} $snapshot_epoch" \
-        "http://pushgateway/metrics/job/rustic/instance/$host" >/dev/null 2>&1 || true
+        "http://pushgateway/metrics/job/rustic/instance/$host" 2>&1); then
+        echo "pushgateway push failed (best-effort, backup itself is fine): $push_err" >&2
+      fi
 
       if [ "$age_days" -ge 10 ]; then
         rnotify "Backup Critical" "rustic ${name}: last backup ''${age_days} days ago" Sosumi
