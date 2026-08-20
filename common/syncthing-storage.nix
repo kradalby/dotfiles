@@ -33,9 +33,12 @@ let
   storageDevices = cfg.storage ++ mirrorDevice;
 
   # kradalby-Sync shares with every known device; keep bassan out of the
-  # plaintext list and add it back encrypted.
+  # plaintext list and add it back encrypted. dev.oracfurt-cooklang only
+  # accepts krair/kratail2, so sharing to it just produced a permanent
+  # redial loop (SyncthingNoConnections noise).
   allDevices = builtins.attrNames config.services.syncthings.storage.settings.devices;
-  syncDevices = (lib.filter (d: d != "storage.bassan") allDevices) ++ mirrorDevice;
+  syncDevices =
+    (lib.filter (d: d != "storage.bassan" && d != "dev.oracfurt-cooklang") allDevices) ++ mirrorDevice;
 in
 {
   services = {
@@ -52,42 +55,13 @@ in
           insecureSkipHostcheck = true;
           insecureAdminAccess = true;
         };
-        folders = {
-          "/storage/software" = {
-            id = "vpgyn-cj2mg";
-            path = "/storage/software";
-            devices = storageDevices;
-            type = "sendreceive";
-          };
-
-          "/storage/pictures" = {
-            id = "orqnv-bg72d";
-            path = "/storage/pictures";
-            devices = storageDevices;
-            type = "sendreceive";
-          };
-
-          "/storage/backup" = {
-            id = "9bjac-k65uu";
-            path = "/storage/backup";
-            devices = storageDevices;
-            type = "sendreceive";
-          };
-
-          "/storage/books" = {
-            id = "ww4gn-xgy9i";
-            path = "/storage/books";
-            devices = storageDevices;
-            type = "sendreceive";
-          };
-
-          "kradalby - Sync" = {
-            id = "xTDuT-kZeuK";
-            path = "/storage/sync/kradalby";
-            devices = syncDevices;
-            type = "sendreceive";
-          };
-        };
+        # Folder set lives in metadata/syncthing.nix, shared with bassan's
+        # receiveencrypted overrides so the two can never drift.
+        folders = lib.mapAttrs (name: f: {
+          inherit (f) id path;
+          devices = if name == "kradalby - Sync" then syncDevices else storageDevices;
+          type = "sendreceive";
+        }) cfg.storageFolders;
       };
     };
 
