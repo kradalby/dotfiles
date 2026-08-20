@@ -22,20 +22,6 @@ let
     "garnix"
   ];
 
-  # Hosts running the postfix relay + its exporter (port 9154). These import
-  # profiles/server.nix; ts1p-ldn and garnix are base.nix-only (no postfix), so
-  # scraping them for postfix would be a permanent ExporterDown.
-  serverHosts = [
-    "core-oracldn"
-    "core-tjoda"
-    "dev-oracfurt"
-    "dev-ldn"
-    "home-ldn"
-    "storage-ldn"
-    "storage-bassan"
-    "gigabuilder"
-  ];
-
   # Hosts with ZFS pools (have zfs_exporter enabled)
   zfsHosts = [
     # "core-terra"
@@ -45,24 +31,35 @@ let
     "gigabuilder"
   ];
 
-  # Hosts with smartctl monitoring enabled
-  smartctlHosts = [
-    "core-tjoda"
-    "storage-bassan"
-    "gigabuilder"
-  ];
+  # SMART-monitored disks per host — the same source the exporters read, so the
+  # expected disk count below tracks the device list automatically.
+  smartctlDisks = import ../../metadata/smartctl.nix;
+  smartctlHosts = lib.attrNames smartctlDisks;
+
+  # One SmartctlDiskMissing rule per host, expected count derived from the disk
+  # list. A disk vanishing from the exporter (dead disk/controller, or a stale
+  # list) drops the count below the expected N and pages; a fully-down exporter
+  # is caught by ExporterDown instead, so this stays quiet during a planned
+  # outage (e.g. storage-bassan mid-move) rather than false-paging critical.
+  smartctlMissingRules = lib.mapAttrsToList (host: disks: {
+    alert = "SmartctlDiskMissing";
+    # `count` over an empty vector yields no series (not 0), so `< N` alone
+    # goes silent when EVERY series vanishes while the exporter still answers
+    # (metric rename, device-enumeration break). The `unless` clause covers
+    # that: exporter up but zero SMART series → fire (ZFSPoolMissing pattern).
+    expr = ''count by (host) (smartctl_device_smart_status{host="${host}"}) < ${toString (lib.length disks)} or (up{job="smartctl",host="${host}"} == 1 unless on (host) smartctl_device_smart_status{host="${host}"})'';
+    for = "15m";
+    labels.severity = "critical";
+    annotations = {
+      summary = "${host}: fewer than ${toString (lib.length disks)} disks report SMART";
+      description = "A monitored disk (or the whole metric) disappeared from the smartctl exporter on ${host} — dead disk, dead controller, renamed metric, or metadata/smartctl.nix is stale.";
+    };
+  }) smartctlDisks;
 
   # Hosts with smokeping exporter
   smokepingHosts = [
     # "core-terra"
     "core-tjoda"
-  ];
-
-  # Hosts running CoreDNS (prometheus on :9153)
-  corednsHosts = [
-    "core-oracldn"
-    "core-tjoda"
-    "storage-ldn"
   ];
 
   # Hosts running Nginx with nginxlog exporter (port 9117)
@@ -125,15 +122,6 @@ let
           valid_status_codes: [200, 400, 404, 405]
           fail_if_ssl: false
           fail_if_not_ssl: false
-      # End-to-end DNS through each site's CoreDNS resolver.
-      dns:
-        prober: dns
-        timeout: 5s
-        dns:
-          query_name: "kradalby.no"
-          query_type: "A"
-          transport_protocol: "udp"
-          preferred_ip_protocol: ip4
       tcp_connect:
         prober: tcp
         timeout: 5s
@@ -195,10 +183,13 @@ let
         "repo"
         "instance"
       ];
-      # restic `instance` is the short host token (core|dev|home|storage), not
-      # the full hostname. jotta rides the core-tjoda proxy for all of them
-      # EXCEPT storage (which uploads to Jottacloud directly → leave unset).
-      regex = "jotta;(core|dev|home)";
+      # restic `instance` is the full dashed fleet name (core-oracldn, dev-ldn,
+      # home-ldn, …) since it switched to fqdnOrHostName. jotta rides the
+      # core-tjoda proxy for every host EXCEPT storage-ldn (which uploads to
+      # Jottacloud directly → leave unset); storage-bassan and gigabuilder use
+      # the proxy too and must be listed or their jotta alerts escape the
+      # core-tjoda inhibition.
+      regex = "jotta;((core|dev|home)-.*|storage-bassan|gigabuilder)";
       target_label = "target";
       replacement = "core-tjoda";
     }
@@ -237,12 +228,32 @@ let
     replacement = host;
   }) vipBacking;
 
+  # Guest VM → hypervisor host. A hypervisor going down takes every guest with
+  # it, so stamp guest metrics with `hypervisor`; one IncusDaemonDown then
+  # inhibits the whole guest cascade (see inhibit_rules) instead of ~20 pages.
+  # Only guests are listed — the hypervisors' own metrics stay unlabelled so
+  # their real alerts are never inhibited (the incus job self-tags below).
+  hypervisorBacking = {
+    "dev-ldn" = "core-ldn";
+    "home-ldn" = "core-ldn";
+    "storage-ldn" = "core-ldn";
+    "ts1p-ldn" = "core-ldn";
+    "garnix" = "gigabuilder";
+  };
+  hypervisorRelabels = lib.mapAttrsToList (guest: hv: {
+    source_labels = [ "host" ];
+    regex = guest;
+    target_label = "hypervisor";
+    replacement = hv;
+  }) hypervisorBacking;
+
   # The full host/target relabel chain used by every simple exporter job.
   hostTargetRelabels = [
     hostRelabel
     targetRelabel
   ]
-  ++ vipTargetRelabels;
+  ++ vipTargetRelabels
+  ++ hypervisorRelabels;
 
   # Helper for blackbox probe jobs: probe each target through the local
   # blackbox exporter with the given module.
@@ -338,6 +349,9 @@ in
     enable = true;
 
     retentionTime = "365d";
+    # Whichever limit hits first wins: without a size cap, a year of TSDB
+    # growth would eat this VM's disk before the time limit ever applied.
+    extraFlags = [ "--storage.tsdb.retention.size=30GB" ];
     webExternalUrl = "http://prom/";
 
     globalConfig = {
@@ -362,7 +376,24 @@ in
       (exporterJob "nodes" allHosts 9100)
 
       # Systemd exporter on all hosts (port 9558)
-      (exporterJob "systemd" allHosts 9558)
+      # systemd_exporter emits dozens of per-unit families; the alerts consume
+      # exactly three. Keep only those (plus scrape meta) — the rest was ~37%
+      # of all TSDB series with zero consumers.
+      (
+        (exporterJob "systemd" allHosts 9558)
+        // {
+          metric_relabel_configs = [
+            {
+              source_labels = [ "__name__" ];
+              # up/scrape_* are synthetic report-path series appended after
+              # metric_relabel_configs run — they survive regardless, so the
+              # keep-list is exactly the three consumed families.
+              regex = "systemd_unit_state|systemd_service_restart_total|systemd_timer_last_trigger_seconds";
+              action = "keep";
+            }
+          ];
+        }
+      )
 
       # ZFS exporter on hosts with ZFS pools (port 9134)
       (exporterJob "zfs" zfsHosts 9134)
@@ -372,9 +403,6 @@ in
 
       # Smokeping exporter (port 9374)
       (exporterJob "smokeping" smokepingHosts 9374)
-
-      # CoreDNS metrics (port 9153)
-      (exporterJob "coredns" corednsHosts 9153)
 
       # Nginx log exporter (port 9117)
       (exporterJob "nginxlog" nginxlogHosts 9117)
@@ -463,7 +491,14 @@ in
             labels.role = "incus";
           }
         ];
-        relabel_configs = hostTargetRelabels;
+        # Self-tag hypervisor = host so IncusDaemonDown shares the `hypervisor`
+        # label with the guests it backs, letting the inhibit rule match.
+        relabel_configs = hostTargetRelabels ++ [
+          {
+            source_labels = [ "host" ];
+            target_label = "hypervisor";
+          }
+        ];
       }
 
       # tsnixcache: fleet nix cache AND the only GC on gigabuilder's store.
@@ -628,25 +663,6 @@ in
         }
       ])
 
-      # Per-site labels so a resolver-down alert can inhibit that site's
-      # downstream name-resolution-dependent probes (see inhibit_rules).
-      (probeJobT "dns-probes" "dns" [
-        {
-          target = "core-oracldn";
-          targets = [ "10.66.0.1" ];
-          labels.site = "oracldn";
-        }
-        {
-          target = "core-tjoda";
-          targets = [ "10.62.0.2" ];
-          labels.site = "tjoda";
-        }
-        {
-          target = "storage-ldn";
-          targets = [ "10.65.0.28" ];
-          labels.site = "ldn";
-        }
-      ])
       # proton-bridge (:143 IMAP) is NOT tcp-probed here: it is a tailnet VIP
       # that doesn't resolve from this host, and a signed-out bridge passes a
       # bare TCP connect anyway. dev.oracfurt's proton-login-check does a real
@@ -726,43 +742,27 @@ in
         };
         static_configs = [
           {
-            # site label lets a tjoda-resolver DnsProbeDown inhibit this whole
-            # job — the targets are *.tjoda.fap.no and can't resolve when the
-            # resolver is unreachable, so the pings fail as a downstream effect.
             labels.site = "tjoda";
             targets = [
               # Unifi
-              "hus-kontor-printer.tjoda.fap.no"
-              "love-kontor-printer.tjoda.fap.no"
-              "hus-kontor-switch.tjoda.fap.no"
               "love-loft-switch.tjoda.fap.no"
               "love-kontor-switch.tjoda.fap.no"
               "love-scene-switch.tjoda.fap.no"
-              "bryggerhus-switch.tjoda.fap.no"
               "hus-kontor-ap.tjoda.fap.no"
               "hus-spisestue-ap.tjoda.fap.no"
               "love-scene-ap.tjoda.fap.no"
-              "love-selskap-ap.tjoda.fap.no"
-              "love-lager-ap.tjoda.fap.no"
-              "bryggerhus-ap.tjoda.fap.no"
 
-              # Sonos hus
-              # "hus-kjokken-sonos.tjoda.fap.no"
-              # "hus-salong-sonos.tjoda.fap.no"
-              # "hus-spisestue-sonos.tjoda.fap.no"
-              # "hus-kontor-sonos.tjoda.fap.no"
-              # "hus-gang-sonos.tjoda.fap.no"
-              # "hus-hage-sonos.tjoda.fap.no"
-
-              # Sonos låve
-              # "love-kontor-bridge-sonos.tjoda.fap.no"
-              # "love-salong-sonos.tjoda.fap.no"
-              # "love-spisestue-sonos.tjoda.fap.no"
-              # "love-dansegulv-sonos.tjoda.fap.no"
-              # "love-loft-sonos.tjoda.fap.no"
-
-              # Atlas probe
-              "atlas-probe.tjoda.fap.no"
+              # TODO(kradalby): no successful probe in 7+ days as of 2026-08-11
+              # (decommissioned or renamed). Reconcile against the Unifi
+              # controller: re-add the live ones, delete the rest.
+              # "hus-kontor-printer.tjoda.fap.no"
+              # "love-kontor-printer.tjoda.fap.no"
+              # "hus-kontor-switch.tjoda.fap.no"
+              # "bryggerhus-switch.tjoda.fap.no"
+              # "love-selskap-ap.tjoda.fap.no"
+              # "love-lager-ap.tjoda.fap.no"
+              # "bryggerhus-ap.tjoda.fap.no"
+              # "atlas-probe.tjoda.fap.no"
             ];
           }
         ];
@@ -782,25 +782,30 @@ in
         ];
       }
 
-      # Tasmota smart plugs
+      # Tasmota smart plugs. 60s: each scrape is a real HTTP round-trip to
+      # every plug, cross-WAN from Oracle London — 10s was ~95k probes/day
+      # for energy data nothing reads at that resolution.
       {
         job_name = "tasmota";
         metrics_path = "/probe";
-        scrape_interval = "10s";
+        scrape_interval = "60s";
         static_configs = [
           {
             targets = [
-              "living-room-corner.ldn"
-              "living-room-shelf.ldn"
-              "living-room-drawer.ldn"
-              "living-room-sofa.ldn"
-              "office-light.ldn"
-              "office-air.ldn"
-              "living-room-tv.ldn"
-              "office-fridge.ldn"
-              "office-workstation.ldn"
-              "office-fan-heater.ldn"
-              "staircase-servers.ldn"
+              # Fully-qualified: bare .ldn resolves nothing (no producer). The
+              # <name>.ldn.fap.no A records are public (terraform, from UniFi
+              # fixed IPs) and reachable via dev.ldn's 192.168.156.0/24 route.
+              "living-room-corner.ldn.fap.no"
+              "living-room-shelf.ldn.fap.no"
+              "living-room-drawer.ldn.fap.no"
+              "living-room-sofa.ldn.fap.no"
+              "office-light.ldn.fap.no"
+              "office-air.ldn.fap.no"
+              "living-room-tv.ldn.fap.no"
+              "office-fridge.ldn.fap.no"
+              "office-workstation.ldn.fap.no"
+              "office-fan-heater.ldn.fap.no"
+              "staircase-servers.ldn.fap.no"
             ];
           }
         ];
@@ -820,14 +825,14 @@ in
         ];
       }
 
-      # HomeWizard P1 smart meter
+      # HomeWizard P1 smart meter — same cross-WAN round-trip as tasmota.
       {
         job_name = "homewizard";
         metrics_path = "/probe";
-        scrape_interval = "10s";
+        scrape_interval = "60s";
         static_configs = [
           {
-            targets = [ "power-p1-meter.ldn" ];
+            targets = [ "power-p1-meter.ldn.fap.no" ];
           }
         ];
         relabel_configs = [
@@ -884,6 +889,20 @@ in
                 annotations = {
                   summary = "{{ $labels.host }} answers ping but its node exporter is unreachable";
                   description = "The host is alive but the scrape fails — exporter crashed or a firewall change closed the port (check interfaces.tailscale0.allowedTCPPorts).";
+                };
+              }
+              {
+                alert = "NodeTextfileCollectorErrors";
+                # A silent 1 here means node_exporter could not read the
+                # textfile dir or a .prom in it, so every textfile-backed metric
+                # (ZFS snapshot/pool freshness, litestream restore) is dark —
+                # the exact gap that hid the sanoid 0600 bug fleet-wide.
+                expr = "node_textfile_scrape_error == 1";
+                for = "15m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "{{ $labels.instance }}: node_exporter textfile collector scrape error";
+                  description = "node_exporter failed to read the textfile collector directory or a .prom file; textfile-backed metrics (ZFS snapshot/pool, litestream restore) are missing until fixed.";
                 };
               }
               {
@@ -970,7 +989,11 @@ in
             rules = [
               {
                 alert = "ServiceFailed";
-                expr = ''systemd_unit_state{state="failed"} > 0'';
+                # Exclude transient scopes (`session-*.scope`, `user@*` slices):
+                # an SSH login that exits uncleanly is benign and self-inflicted
+                # by the very sessions used to administer the box, but pages
+                # critical (Discord + email) here.
+                expr = ''systemd_unit_state{state="failed",type!="scope"} > 0'';
                 for = "2m";
                 labels.severity = "critical";
                 annotations = {
@@ -1004,10 +1027,12 @@ in
               }
               {
                 alert = "SystemdUnitActivatingTooLong";
-                # Oneshot backup jobs report "activating" for their entire
-                # runtime; hourly restic uploads routinely exceed 5m. They get
-                # their own long fuse below instead of training alert-blindness.
-                expr = ''systemd_unit_state{state="activating",name!~"restic-backups-.*\\.service|postgresqlBackup-.*\\.service"} == 1'';
+                # Oneshot backup and check jobs report "activating" for their
+                # entire runtime; hourly restic uploads and the weekly repo
+                # check (TimeoutStartSec=6h, --retry-lock waits) routinely exceed
+                # 5m. They get their own long fuse (or their own timeout) instead
+                # of training alert-blindness.
+                expr = ''systemd_unit_state{state="activating",name!~"restic-backups-.*\\.service|restic-check-.*\\.service|restic-prune-.*\\.service|postgresqlBackup-.*\\.service"} == 1'';
                 for = "5m";
                 labels.severity = "warning";
                 annotations = {
@@ -1017,7 +1042,7 @@ in
               }
               {
                 alert = "BackupJobRunningTooLong";
-                expr = ''systemd_unit_state{state="activating",name=~"restic-backups-.*\\.service|postgresqlBackup-.*\\.service"} == 1'';
+                expr = ''systemd_unit_state{state="activating",name=~"restic-backups-.*\\.service|restic-prune-.*\\.service|postgresqlBackup-.*\\.service"} == 1'';
                 for = "6h";
                 labels.severity = "warning";
                 annotations = {
@@ -1137,19 +1162,6 @@ in
                 };
               }
               {
-                alert = "SmartctlDiskMissing";
-                # core.tjoda monitors 5 disks by ID (machines/core.tjoda/
-                # default.nix); a disk vanishing from the exporter is itself a
-                # failure signal, not a reason for silence.
-                expr = ''count by (host) (smartctl_device_smart_status{host="core-tjoda"}) < 5'';
-                for = "15m";
-                labels.severity = "critical";
-                annotations = {
-                  summary = "{{ $labels.host }}: only {{ $value }}/5 disks report SMART";
-                  description = "A monitored disk disappeared from the smartctl exporter — dead disk, dead controller, or the by-id list is stale.";
-                };
-              }
-              {
                 alert = "SMARTDiskTemperature";
                 # NVMe runs hot by design and reports a composite temperature;
                 # 55C is a spinning-rust/SATA number and false-positives on it.
@@ -1168,7 +1180,8 @@ in
                   description = "Disk temperature on {{ $labels.device }} ({{ $labels.model_name }}) has been high for more than 15 minutes (limit 55C, or 70C for NVMe).";
                 };
               }
-            ];
+            ]
+            ++ smartctlMissingRules;
           }
 
           # Network and connectivity alerts
@@ -1182,7 +1195,7 @@ in
                 labels.severity = "warning";
                 annotations = {
                   summary = "Tjoda device {{ $labels.instance }} unreachable for 10m";
-                  description = "A device in Tjodalyng (typically Unifi networking or Sonos) has not responded for over 10 minutes.";
+                  description = "A device in Tjodalyng (Unifi networking) has not responded for over 10 minutes.";
                 };
               }
               {
@@ -1232,18 +1245,6 @@ in
                 };
               }
               {
-                alert = "CorednsUpstreamBroken";
-                # Single counter, no `to` label — earliest all-upstreams-down
-                # signal; the 1h cache masks outages for cached names.
-                expr = "increase(coredns_forward_healthcheck_broken_total[10m]) > 0";
-                for = "5m";
-                labels.severity = "critical";
-                annotations = {
-                  summary = "CoreDNS on {{ $labels.host }} lost all upstreams";
-                  description = "All DNS forward upstreams are failing health checks; resolution runs on cache fumes.";
-                };
-              }
-              {
                 alert = "ProtonBridgeLoginFailing";
                 expr = "proton_bridge_login_ok == 0";
                 for = "30m";
@@ -1264,25 +1265,20 @@ in
                 };
               }
               {
-                alert = "DnsProbeDown";
-                expr = ''probe_success{job="dns-probes"} == 0'';
-                for = "10m";
-                labels.severity = "critical";
-                annotations = {
-                  summary = "CoreDNS resolver {{ $labels.instance }} failing end-to-end queries";
-                  description = "LAN clients at this site cannot resolve; note the 1h cache can mask this for cached names.";
-                };
-              }
-              {
                 alert = "SmartPlugTelemetryDown";
-                # These exporters emit per-target probe_success; their up{}
-                # stays 1 when subnet-route forwarding breaks — that's the bug.
-                expr = ''probe_success{job=~"tasmota|homewizard"} == 0'';
+                # Only homewizard emits per-target probe_success. The tasmota
+                # exporter has none — it answers /probe with HTTP 200 and cached
+                # values for ANY target (even a bogus one), so a plug going
+                # offline is invisible in metrics. Detecting a dead tasmota plug
+                # needs the exporter to emit probe_success; until then this is
+                # scoped to homewizard so it actually fires instead of matching
+                # zero tasmota series.
+                expr = ''probe_success{job="homewizard"} == 0'';
                 for = "10m";
                 labels.severity = "warning";
                 annotations = {
                   summary = "No response from {{ $labels.instance }}";
-                  description = "Smart plug / P1 meter unreachable — device offline or the LDN subnet route is broken.";
+                  description = "P1 meter unreachable — device offline or the LDN subnet route is broken.";
                 };
               }
               {
@@ -1572,16 +1568,6 @@ in
                 };
               }
               {
-                alert = "SensorBatteryLow";
-                expr = "min by (sensor) (sensor_battery) < 15";
-                for = "6h";
-                labels.severity = "warning";
-                annotations = {
-                  summary = "Zigbee sensor {{ $labels.sensor }} battery at {{ $value }}%";
-                  description = "Replace the battery before the sensor goes dark.";
-                };
-              }
-              {
                 alert = "ResticBackupStaleJotta";
                 # See ResticBackupStale for why the `> 0` guard is needed.
                 expr = ''
@@ -1617,6 +1603,36 @@ in
                 annotations = {
                   summary = "Restic jotta on {{ $labels.instance }}: no successful offsite backup for 8h";
                   description = "The Jottacloud job is the only offsite copy of /storage; slow rclone uploads get 8h of slack, silence beyond that is real.";
+                };
+              }
+              {
+                alert = "ResticBackupPartial";
+                # Exit 3 counts as unit success (vanished files — routine on
+                # live homedirs) but means some paths were not read. A full day
+                # of nothing-but-3 is a PERSISTENTLY unreadable path (perms
+                # regression): the success stamp keeps everything green while
+                # that path is never backed up.
+                expr = "min_over_time(restic_backup_last_exit_status[24h]) == 3";
+                for = "1h";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "Restic {{ $labels.repo }} on {{ $labels.instance }}: every backup partial for 24h";
+                  description = "Every run in the last day exited 3 (some source files unreadable) — a path is persistently not being backed up. Check unit logs for the skipped files.";
+                };
+              }
+              {
+                alert = "ResticBackupMetricsMissing";
+                # Canary against the metric being renamed or the pushgateway
+                # wiped: without it the ResticBackupNotSucceeding* thresholds can
+                # never fire and every repo goes silently green (rustic/litestream
+                # /ghdl already guard themselves this way). Guard the offsite jotta
+                # class separately so a healthy local repo can't mask a wiped one.
+                expr = ''absent(restic_backup_last_success_timestamp_seconds{repo="jotta"}) or absent(restic_backup_last_success_timestamp_seconds{repo!="jotta"})'';
+                for = "6h";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "restic backup success metric is missing";
+                  description = "No restic_backup_last_success_timestamp_seconds series for one or more repo classes — metric renamed or pushgateway wiped, so ResticBackupNotSucceeding cannot fire.";
                 };
               }
               {
@@ -1780,16 +1796,6 @@ in
                 annotations = {
                   summary = "Headscale reports zero nodes";
                   description = "The node table is empty while headscale runs — wiped or corrupt database, or a bad litestream restore.";
-                };
-              }
-              {
-                alert = "HeadscaleMapResponseErrors";
-                expr = ''sum(rate(headscale_mapresponse_sent_total{status="error"}[10m])) > 0'';
-                for = "10m";
-                labels.severity = "critical";
-                annotations = {
-                  summary = "Headscale is failing to send map responses";
-                  description = "Clients are not receiving netmap updates; the tailnet is degrading.";
                 };
               }
               {
@@ -1977,12 +1983,17 @@ in
               }
               {
                 alert = "IncusDaemonWarnings";
-                expr = "incus_warnings_total > 0";
+                # Fire on NEW warnings, not on the standing count: an unacked
+                # warning persists in incus's table until `incus warning delete`,
+                # so `> 0` pins this on forever and re-notifies every 12h. delta
+                # over 30m trips when the count rises and clears once it stops,
+                # so a one-off warning pages once instead of nagging.
+                expr = "delta(incus_warnings_total[30m]) > 0";
                 for = "10m";
                 labels.severity = "warning";
                 annotations = {
-                  summary = "Incus daemon has {{ $value }} active warnings on {{ $labels.instance }}";
-                  description = "The Incus daemon on {{ $labels.instance }} is reporting active warnings. Check 'incus warning list'.";
+                  summary = "New Incus warning(s) on {{ $labels.instance }}";
+                  description = "The Incus daemon on {{ $labels.instance }} raised a new warning. Check 'incus warning list' (clear stale ones with 'incus warning delete').";
                 };
               }
               {
@@ -2194,6 +2205,16 @@ in
             equal = [ "target" ];
           }
           {
+            # A hypervisor outage takes every guest VM down at once. IncusDaemonDown
+            # is the only signal for core-ldn (no node exporter of its own), and it
+            # carries hypervisor=<self>; guest alerts carry hypervisor=<backing
+            # host>, so this collapses the ~20-alert guest storm to one page. The
+            # hypervisors' own node alerts lack the label and still page.
+            source_matchers = [ "alertname=\"IncusDaemonDown\"" ];
+            target_matchers = [ "alertname!=\"IncusDaemonDown\"" ];
+            equal = [ "hypervisor" ];
+          }
+          {
             # If an exporter is down, suppress downstream alerts from that host
             source_matchers = [ "alertname=\"ExporterDown\"" ];
             target_matchers = [ "alertname!~\"ExporterDown|NodeExporterDown\"" ];
@@ -2210,15 +2231,6 @@ in
               "alertname"
               "host"
             ];
-          }
-          {
-            # A resolver being unreachable (DnsProbeDown) makes every ICMP probe
-            # for names in that site fail too — they can't resolve. Suppress the
-            # per-device flood (e.g. 13× TjodaPingDown) and page once on the
-            # resolver. Matches on the shared "site" label set on both jobs.
-            source_matchers = [ "alertname=\"DnsProbeDown\"" ];
-            target_matchers = [ "alertname=\"TjodaPingDown\"" ];
-            equal = [ "site" ];
           }
           {
             # A scrape-SLO burn is redundant with the exporter/node being down
