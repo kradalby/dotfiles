@@ -8,6 +8,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/require"
 )
 
 // validateBranch is the exec trust boundary; empty is allowed (main repo),
@@ -16,50 +18,34 @@ func TestValidateBranch(t *testing.T) {
 	ok := []string{"", "foo", "kradalby/3049", "feature/bar-baz", "v1.2.3"}
 	bad := []string{"-rf", "../etc", "a b", "foo;bar", "a..b", "foo$(x)", "back`tick`"}
 	for _, s := range ok {
-		if err := validateBranch(s); err != nil {
-			t.Errorf("validateBranch(%q) = %v, want nil", s, err)
-		}
+		require.NoError(t, validateBranch(s), "validateBranch(%q)", s)
 	}
 	for _, s := range bad {
-		if err := validateBranch(s); err == nil {
-			t.Errorf("validateBranch(%q) = nil, want error", s)
-		}
+		require.Error(t, validateBranch(s), "validateBranch(%q)", s)
 	}
 }
 
 func TestValidateRepo(t *testing.T) {
 	dir := t.TempDir()
-	if err := os.MkdirAll(filepath.Join(dir, "good", ".git"), 0o755); err != nil {
-		t.Fatal(err)
-	}
-	if err := os.MkdirAll(filepath.Join(dir, "notrepo"), 0o755); err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(t, os.MkdirAll(filepath.Join(dir, "good", ".git"), 0o755))
+	require.NoError(t, os.MkdirAll(filepath.Join(dir, "notrepo"), 0o755))
 	orig := gitRoot
 	t.Cleanup(func() { gitRoot = orig })
 	gitRoot = dir
 
-	if err := validateRepo("good"); err != nil {
-		t.Errorf("validateRepo(good) = %v, want nil", err)
-	}
+	require.NoError(t, validateRepo("good"))
 	for _, s := range []string{"", "notrepo", "missing", "../good", "a/b", "a..b"} {
-		if err := validateRepo(s); err == nil {
-			t.Errorf("validateRepo(%q) = nil, want error", s)
-		}
+		require.Error(t, validateRepo(s), "validateRepo(%q)", s)
 	}
 }
 
 func TestServerRe(t *testing.T) {
 	// Opaque herdr workspace handles: any bare token (letters, digits, . _ -).
 	for _, s := range []string{"ac-dotfiles", "dotfiles", "ws_1", "01H9-abc.def"} {
-		if !serverRe.MatchString(s) {
-			t.Errorf("serverRe rejected valid %q", s)
-		}
+		require.True(t, serverRe.MatchString(s), "serverRe rejected valid %q", s)
 	}
 	for _, s := range []string{"", "a/b", "x;rm", "a b", "../x"} {
-		if serverRe.MatchString(s) {
-			t.Errorf("serverRe accepted invalid %q", s)
-		}
+		require.False(t, serverRe.MatchString(s), "serverRe accepted invalid %q", s)
 	}
 }
 
@@ -76,9 +62,7 @@ func TestAgo(t *testing.T) {
 		{now.Add(-2 * 24 * time.Hour), "2d"},
 	}
 	for _, c := range cases {
-		if got := ago(c.in); got != c.want {
-			t.Errorf("ago(%v) = %q, want %q", c.in, got, c.want)
-		}
+		require.Equal(t, c.want, ago(c.in), "ago(%v)", c.in)
 	}
 }
 
@@ -112,14 +96,7 @@ branch refs/heads/sibling
 		{Branch: "actual-branch", Rel: "renamed-dir", path: "/home/k/worktrees/headscale/renamed-dir"},
 		{Branch: "detached", Rel: "detached", path: "/home/k/worktrees/headscale/detached"},
 	}
-	if len(got) != len(want) {
-		t.Fatalf("parseWorktrees returned %d, want %d: %+v", len(got), len(want), got)
-	}
-	for i := range want {
-		if got[i].Branch != want[i].Branch || got[i].Rel != want[i].Rel || got[i].path != want[i].path {
-			t.Errorf("worktree %d = %+v, want %+v", i, got[i], want[i])
-		}
-	}
+	require.Equal(t, want, got)
 }
 
 // parseSessions decodes the ac↔ac-web porcelain contract; a drift here silently
@@ -136,14 +113,7 @@ func TestParseSessions(t *testing.T) {
 		{Server: "ac-hs-x", Repo: "headscale", Branch: "x", Agent: "opencode", Attached: false, Workdir: "/home/k/worktrees/headscale/x"},
 		{Server: "ac-old", Repo: "olddotfiles", Branch: "b", Agent: "claude", Attached: false, Workdir: ""},
 	}
-	if len(got) != len(want) {
-		t.Fatalf("parseSessions returned %d, want %d: %+v", len(got), len(want), got)
-	}
-	for i := range want {
-		if got[i] != want[i] {
-			t.Errorf("session %d = %+v, want %+v", i, got[i], want[i])
-		}
-	}
+	require.Equal(t, want, got)
 }
 
 // TestRoutes pins the security-relevant wiring: mutating endpoints reject GET
@@ -172,8 +142,6 @@ func TestRoutes(t *testing.T) {
 		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 		rec := httptest.NewRecorder()
 		h.ServeHTTP(rec, req)
-		if rec.Code != c.want {
-			t.Errorf("%s %s (%q) = %d, want %d", c.method, c.path, c.form, rec.Code, c.want)
-		}
+		require.Equal(t, c.want, rec.Code, "%s %s (%q)", c.method, c.path, c.form)
 	}
 }
