@@ -1,0 +1,25 @@
+# Shared lint config for every Go module in the repo (each has its own go.mod;
+# run golangci-lint from the module dir). Deliberately close to defaults:
+# the default linter set plus the cheap high-signal extras.
+version: "2"
+
+linters:
+  enable:
+    - misspell
+    - unconvert
+    - unparam
+    - nilerr
+  settings:
+    errcheck:
+      # The idiomatic safe-ignores: best-effort writes to stdout/stderr and
+      # deferred close/unlock where the error has nowhere useful to go.
+      exclude-functions:
+        - fmt.Fprint
+        - fmt.Fprintf
+        - fmt.Fprintln
+        - (*os.File).WriteString
+        - syscall.Close
+        - syscall.Flock
+        - (*golang.org/x/net/websocket.Conn).Close
+        - (io.ReadCloser).Close
+        - (net/http.ResponseWriter).Write

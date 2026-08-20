@@ -1,5 +1,17 @@
 # Go
 
+**Legacy / embedded-tools carve-out.** The rules below are written for
+standalone apps and services. The small Go tools embedded in the dotfiles
+monorepo (`pkgs/ac-web`, `pkgs/p3-controller`, `pkgs/rustic-wrapper`,
+`pkgs/overlays/{authkey,rnb}`, `pkgs/oci-usage-exporter`) predate them and
+deliberately keep their shape: they live under `pkgs/` with their own
+`go.mod`, use `html/template`/embedded HTML instead of elem-go, and serve no
+tsnet listener. Bring one up to the rules when you next rewrite it — not as a
+drive-by. They DO follow: slog, backoff, testify, gofumpt, and the repo-root
+`.golangci.yaml` (a minimal defaults-plus config, the sanctioned exception to
+the copy-headscale's-config rule below — a monorepo of tiny tools doesn't
+need a service-grade lint battery).
+
 ## Version & syntax
 
 - Pin the **latest** Go in `go.mod` and the flake (`go 1.26`, `pkgs.go_1_26`). Match across build/lint/test.
