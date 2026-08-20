@@ -14,8 +14,8 @@
     enable = true;
   };
 
-  # Open firewall for ZFS exporter on LAN interface
-  networking.firewall.interfaces."${config.my.lan}".allowedTCPPorts = [
+  # Tailnet-only scrape: tailscale0-scoped, not the LAN (services.md).
+  networking.firewall.interfaces.tailscale0.allowedTCPPorts = [
     config.services.prometheus.exporters.zfs.port
   ];
 }
