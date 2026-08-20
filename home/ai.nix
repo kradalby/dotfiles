@@ -125,10 +125,6 @@
   opencode = {
     "$schema" = "https://opencode.ai/config.json";
 
-    # Auth plugin for personal use; corp-proxy hosts should strip
-    # this via builtins.removeAttrs and set provider directly.
-    plugin = [ "opencode-claude-auth@latest" ];
-
     # Remote ollama on kratail2, served over the kradalby.no tailnet
     # (svc:ollama -> tailscale serve -> caddy -> 127.0.0.1:11434). Speaks the
     # OpenAI-compatible API at /v1. Models + context sizes come from the shared
@@ -159,7 +155,7 @@
         };
       in
       {
-        npm = "@ai-sdk/openai-compatible";
+        npm = "@ai-sdk/openai-compatible@3.0.30"; # pinned, not floating; bump deliberately
         name = "Ollama (kratail2)";
         options = {
           baseURL = "http://ollama.dalby.ts.net/v1";
