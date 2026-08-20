@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 // devLDN mirrors the proven-working entry from the end-to-end validation.
@@ -49,12 +51,8 @@ func TestSpec(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.b.Spec(); got != tt.want {
-				t.Errorf("Spec()\n got: %q\nwant: %q", got, tt.want)
-			}
-			if n := len(strings.Fields(tt.b.Spec())); n != 8 {
-				t.Errorf("spec must have 8 fields, got %d: %q", n, tt.b.Spec())
-			}
+			require.Equal(t, tt.want, tt.b.Spec())
+			require.Len(t, strings.Fields(tt.b.Spec()), 8, "spec must have 8 fields: %q", tt.b.Spec())
 		})
 	}
 }
@@ -62,75 +60,51 @@ func TestSpec(t *testing.T) {
 func TestNixConfigDefault(t *testing.T) {
 	got := NixConfig([]Builder{devLDN}, false, "", "")
 	want := "builders = " + devLDN.Spec() + "\nmax-jobs = 0\nbuilders-use-substitutes = true"
-	if got != want {
-		t.Errorf("default NixConfig\n got: %q\nwant: %q", got, want)
-	}
+	require.Equal(t, want, got)
 }
 
 func TestNixConfigMultipleBuildersJoin(t *testing.T) {
 	b2 := Builder{Name: "b2", HostName: "h2", SSHUser: "root", Systems: []string{"x86_64-linux"}}
 	got := NixConfig([]Builder{devLDN, b2}, false, "", "")
 	wantBuilders := "builders = " + devLDN.Spec() + " ; " + b2.Spec()
-	if !strings.HasPrefix(got, wantBuilders) {
-		t.Errorf("builders should be ';'-joined\n got: %q\nwant prefix: %q", got, wantBuilders)
-	}
+	require.True(t, strings.HasPrefix(got, wantBuilders),
+		"builders should be ';'-joined\n got: %q\nwant prefix: %q", got, wantBuilders)
 }
 
 func TestNixConfigMerge(t *testing.T) {
 	got := NixConfig([]Builder{devLDN}, true, "@/etc/nix/machines", "")
-	if !strings.HasPrefix(got, "builders = @/etc/nix/machines ; "+devLDN.Spec()) {
-		t.Errorf("merge must prepend existing builders, got: %q", got)
-	}
-	if strings.Contains(got, "max-jobs = 0") {
-		t.Errorf("merge must NOT force max-jobs=0 (keeps local building), got: %q", got)
-	}
-	if !strings.Contains(got, "builders-use-substitutes = true") {
-		t.Errorf("merge should still set builders-use-substitutes, got: %q", got)
-	}
+	require.True(t, strings.HasPrefix(got, "builders = @/etc/nix/machines ; "+devLDN.Spec()),
+		"merge must prepend existing builders, got: %q", got)
+	require.NotContains(t, got, "max-jobs = 0", "merge must NOT force max-jobs=0 (keeps local building)")
+	require.Contains(t, got, "builders-use-substitutes = true")
 }
 
 func TestNixConfigExtendsBase(t *testing.T) {
 	got := NixConfig([]Builder{devLDN}, false, "", "experimental-features = nix-command flakes")
-	if !strings.HasPrefix(got, "experimental-features = nix-command flakes\nbuilders = ") {
-		t.Errorf("inherited NIX_CONFIG must be preserved as a prefix, got: %q", got)
-	}
+	require.True(t, strings.HasPrefix(got, "experimental-features = nix-command flakes\nbuilders = "),
+		"inherited NIX_CONFIG must be preserved as a prefix, got: %q", got)
 }
 
 func TestPrint(t *testing.T) {
 	val := "builders = x\nmax-jobs = 0"
-	if got, want := Print(val, true), "set -gx NIX_CONFIG '"+val+"'"; got != want {
-		t.Errorf("fish print\n got: %q\nwant: %q", got, want)
-	}
-	if got, want := Print(val, false), "export NIX_CONFIG='"+val+"'"; got != want {
-		t.Errorf("posix print\n got: %q\nwant: %q", got, want)
-	}
-	if got := PrintClear(true); got != "set -e NIX_CONFIG" {
-		t.Errorf("fish clear: %q", got)
-	}
-	if got := PrintClear(false); got != "unset NIX_CONFIG" {
-		t.Errorf("posix clear: %q", got)
-	}
+	require.Equal(t, "set -gx NIX_CONFIG '"+val+"'", Print(val, true))
+	require.Equal(t, "export NIX_CONFIG='"+val+"'", Print(val, false))
+	require.Equal(t, "set -e NIX_CONFIG", PrintClear(true))
+	require.Equal(t, "unset NIX_CONFIG", PrintClear(false))
 }
 
 func TestPrintQuotingEscapes(t *testing.T) {
 	// A value containing a single quote must stay a valid single-quoted literal.
-	if got, want := Print("a'b", false), `export NIX_CONFIG='a'\''b'`; got != want {
-		t.Errorf("posix escaping\n got: %q\nwant: %q", got, want)
-	}
-	if got, want := Print(`a'b\c`, true), `set -gx NIX_CONFIG 'a\'b\\c'`; got != want {
-		t.Errorf("fish escaping\n got: %q\nwant: %q", got, want)
-	}
+	require.Equal(t, `export NIX_CONFIG='a'\''b'`, Print("a'b", false))
+	require.Equal(t, `set -gx NIX_CONFIG 'a\'b\\c'`, Print(`a'b\c`, true))
 }
 
 func TestResolveUnknown(t *testing.T) {
 	r := Registry{devLDN}
-	if _, err := r.Resolve([]string{"dev.ldn"}); err != nil {
-		t.Fatalf("known name should resolve: %v", err)
-	}
-	_, err := r.Resolve([]string{"nope"})
-	if err == nil || !strings.Contains(err.Error(), "unknown builder") {
-		t.Errorf("unknown name should error, got: %v", err)
-	}
+	_, err := r.Resolve([]string{"dev.ldn"})
+	require.NoError(t, err, "known name should resolve")
+	_, err = r.Resolve([]string{"nope"})
+	require.ErrorContains(t, err, "unknown builder")
 }
 
 func TestSelectPrefersFastestReachablePerHost(t *testing.T) {
@@ -141,14 +115,25 @@ func TestSelectPrefersFastestReachablePerHost(t *testing.T) {
 
 	// Both dev.ldn endpoints reachable -> pick the faster LAN; kratail2 down -> dropped.
 	got := r.Select(func(h string) bool { return h != "k" })
-	if len(got) != 1 || got[0].Name != "dev.ldn" {
-		t.Fatalf("want only [dev.ldn], got %+v", names(got))
-	}
+	require.Equal(t, []string{"dev.ldn"}, names(got))
 
 	// LAN down -> fall back to tailnet endpoint of the same host.
 	got = r.Select(func(h string) bool { return h == "ts" })
-	if len(got) != 1 || got[0].Name != "dev-ldn" {
-		t.Fatalf("want [dev-ldn] fallback, got %+v", names(got))
+	require.Equal(t, []string{"dev-ldn"}, names(got))
+}
+
+// TestSSHAddr pins the Reachable dial-address derivation: an explicit port in
+// HostName wins, everything else defaults to 22.
+func TestSSHAddr(t *testing.T) {
+	cases := []struct{ in, want string }{
+		{"dev.ldn.fap.no", "dev.ldn.fap.no:22"},
+		{"dev.ldn.fap.no:2222", "dev.ldn.fap.no:2222"},
+		{"10.0.0.1", "10.0.0.1:22"},
+		{"fe80::1", "[fe80::1]:22"},
+		{"[::1]:2222", "[::1]:2222"},
+	}
+	for _, c := range cases {
+		require.Equal(t, c.want, sshAddr(c.in), "sshAddr(%q)", c.in)
 	}
 }
 
@@ -163,16 +148,10 @@ func TestJSONRoundTrip(t *testing.T) {
 	   "publicHostKey":"c3NoLWtleQ==","hasRosetta":false}
 	]`
 	var r Registry
-	if err := json.Unmarshal([]byte(raw), &r); err != nil {
-		t.Fatalf("decode: %v", err)
-	}
-	if len(r) != 1 {
-		t.Fatalf("want 1 builder, got %d", len(r))
-	}
+	require.NoError(t, json.Unmarshal([]byte(raw), &r))
+	require.Len(t, r, 1)
 	want := "ssh-ng://root@dev.ldn.fap.no x86_64-linux,aarch64-linux /Users/kradalby/.ssh/id_ed25519 4 4 big-parallel,kvm,nixos-test - c3NoLWtleQ=="
-	if got := r[0].Spec(); got != want {
-		t.Errorf("round-trip spec\n got: %q\nwant: %q", got, want)
-	}
+	require.Equal(t, want, r[0].Spec())
 }
 
 func names(bs []Builder) []string {

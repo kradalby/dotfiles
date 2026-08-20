@@ -131,15 +131,24 @@ func (r Registry) Resolve(names []string) ([]Builder, error) {
 	return out, nil
 }
 
-// Reachable reports whether host:22 accepts a TCP connection within a short
-// timeout. It is the default probe for Select.
+// Reachable reports whether the builder's SSH endpoint accepts a TCP
+// connection within a short timeout. It is the default probe for Select.
 func Reachable(hostName string) bool {
-	c, err := net.DialTimeout("tcp", net.JoinHostPort(hostName, "22"), 1500*time.Millisecond)
+	c, err := net.DialTimeout("tcp", sshAddr(hostName), 1500*time.Millisecond)
 	if err != nil {
 		return false
 	}
 	_ = c.Close()
 	return true
+}
+
+// sshAddr turns a HostName into a dialable address: an explicit host:port is
+// kept as-is, anything else (bare host, bare IPv6 literal) gets SSH port 22.
+func sshAddr(hostName string) string {
+	if _, _, err := net.SplitHostPort(hostName); err == nil {
+		return hostName
+	}
+	return net.JoinHostPort(hostName, "22")
 }
 
 // Select picks, per Host group, the reachable endpoint with the highest speed
