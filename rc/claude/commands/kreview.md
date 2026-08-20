@@ -13,6 +13,9 @@ Review the code changed on this branch for
 - test coverage
 - type setting
 - exhaustive branch coverage
+- documentation freshness: README.md, AGENTS.md, CLAUDE.md, docs/, and
+  inline comments must match the code — flag stale claims, dead
+  references, and new behavior left undocumented, in both directions
 
 Suggest improvements for readability and maintainability. We value simple and effective code.
 
