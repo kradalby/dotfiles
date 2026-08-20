@@ -20,9 +20,6 @@ let
 
     dev-oracfurt = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIE65s/hRn34v5UNhSIC8/JN/452hLdqn131gVqqBTPnl";
 
-    # Oracle London hosts
-    headscale-oracldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEktSTKX3EnWnU4oi/VaBenvd8DYM8tYFjZ6qm27JDU3";
-
     # Tjoda hosts
     core-tjoda = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBSqEhLLds8shw8HMOSpN8UMBFjLPTCyg1TjHKqXvm1W";
 
@@ -48,7 +45,6 @@ with builtins;
 
   # Restic
   "restic-home-ldn-token.age".publicKeys = u ++ [ hosts.home-ldn ];
-  "restic-headscale-oracldn-token.age".publicKeys = u ++ [ hosts.headscale-oracldn ];
   "restic-core-oracldn-token.age".publicKeys = u ++ [ hosts.core-oracldn ];
   "restic-dev-oracfurt-token.age".publicKeys = u ++ [ hosts.dev-oracfurt ];
   "restic-dev-ldn-token.age".publicKeys = u ++ [ hosts.dev-ldn ];
@@ -57,6 +53,7 @@ with builtins;
   "restic-kraairm2-token.age".publicKeys = u;
   "restic-kratail-token.age".publicKeys = u;
   "restic-storage-bassan-token.age".publicKeys = u ++ [ hosts.storage-bassan ];
+  "restic-gigabuilder-token.age".publicKeys = u ++ [ hosts.gigabuilder ];
 
   # Syncthing: shared encryption passphrase for the untrusted offsite mirror
   # (storage.bassan). Held only by the trusted senders; bassan is NOT a recipient.
