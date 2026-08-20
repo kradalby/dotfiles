@@ -12,7 +12,6 @@
     ../../common/nginx.nix
     ../../common/containers.nix
 
-    ../../common/coredns.nix
     ../../common/tailscale.nix
     ../../common/tsnixcache-client.nix
 
@@ -35,7 +34,6 @@
 
   my.wan = "enp0s3";
   my.lan = "enp1s0";
-  my.coredns.bind = [ "10.66.0.1" ];
 
   networking = {
     hostName = "core";

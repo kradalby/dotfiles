@@ -12,7 +12,6 @@
 
     ../../common/ddns.nix
     ../../common/smokeping-exporter.nix
-    ../../common/coredns.nix
     ../../common/syncthing-storage.nix
     ../../common/tailscale.nix
 
@@ -35,7 +34,6 @@
     users.storage = true;
     users.timemachine = true;
 
-    coredns.bind = [ "10.62.0.2" ];
     ddns = {
       enable = true;
       domains = [ "tjoda.fap.no" ];
@@ -61,7 +59,9 @@
       address = "10.62.0.1";
       interface = config.my.lan;
     };
-    nameservers = [ "10.62.0.1" ];
+    # No nameservers override: 10.62.0.1 is plain-53 and refuses DoT, so the
+    # forced strict DNSOverTLS made DNS work only via tailscaled. Fall back to
+    # the Cloudflare DoT default in common/resolved.nix.
 
     firewall.trustedInterfaces = [
       config.my.lan

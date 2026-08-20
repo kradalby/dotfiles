@@ -12,7 +12,6 @@ in
     ../../common/base.nix
     ../../profiles/server.nix
     ../../common/incus-vm-ldn.nix
-    ../../common/coredns.nix
     ../../common/ddns.nix
 
     ../../common/tailscale.nix
@@ -60,7 +59,6 @@ in
     storage = true;
     timemachine = true;
   };
-  my.coredns.bind = [ "10.65.0.28" ];
   my.ddns = {
     enable = true;
     domains = [ "ldn.fap.no" ];
