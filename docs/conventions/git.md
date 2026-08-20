@@ -9,7 +9,7 @@
 
 ## prek (pre-commit, Rust reimpl)
 
-- `prek run --all-files` before commit; CI runs the same with `fetch-depth: 0`. Config is `.pre-commit-config.yaml` (consumed by prek or pre-commit).
+- `prek run --all-files` before commit; CI enforces formatting via `checks.<sys>.formatting` (treefmt in check mode). Config is `.pre-commit-config.yaml` (consumed by prek or pre-commit).
 - Builtins: trailing-whitespace, end-of-file-fixer, check-{json,yaml,toml,merge-conflict}, check-added-large-files, detect-private-key, mixed-line-ending.
 - Local hooks (from the devShell), per tsnixcache:
   - `treefmt --fail-on-change`

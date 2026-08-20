@@ -2,7 +2,7 @@
 
 ## flake-checks (the rule)
 
-All checks route through [`kradalby/flake-checks`](https://github.com/kradalby/flake-checks). Extend it; don't hand-roll checks. CI just calls the resulting `checks.*`.
+App and library repos route all checks through [`kradalby/flake-checks`](https://github.com/kradalby/flake-checks). Extend it; don't hand-roll checks. CI just calls the resulting `checks.*`. The dotfiles monorepo is the exception: its checks (monitoring, secrets-sync, per-package Go builds, formatting) are bespoke `checks.*` outputs in-flake — same CI contract, no flake-checks input.
 
 ```nix
 inputs.flake-checks.url = "github:kradalby/flake-checks";

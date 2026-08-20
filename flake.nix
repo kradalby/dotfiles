@@ -629,10 +629,50 @@
         # (incl. the sloth-generated burn-rate rules) and a VM test of the
         # prometheus → alertmanager → webhook delivery pipeline.
         checks = pkgs.lib.optionalAttrs (system == "x86_64-linux") {
+          # treefmt in check mode: fails when any file is unformatted, making
+          # `nix fmt` enforceable in CI (git.md's claim, now true).
+          formatting = treefmtEval.config.build.check self;
           prometheus-rules = import ./checks/prometheus-rules { inherit pkgs self; };
           monitoring-pipeline = import ./checks/monitoring-pipeline.nix { inherit pkgs self; };
           # Fail if any host exposes an exporter/service that nothing scrapes.
           monitoring-coverage = import ./checks/monitoring-coverage { inherit pkgs self; };
+          # In-repo Go packages: buildGoModule runs each module's tests in its
+          # checkPhase, so exposing the builds as checks puts `go test` in CI.
+          go-ac-web = pkgs.ac-web;
+          go-p3-controller = pkgs.p3-controller;
+          go-oci-usage-exporter = pkgs.oci-usage-exporter;
+          go-authkey = pkgs.authkey;
+          go-rnb = pkgs.rnb;
+          go-rustic-wrapper = pkgs.rustic-wrapper;
+          # secrets/ and secrets/secrets.nix must stay 1:1 — an orphan file is
+          # unrotatable cruft, a missing file breaks decryption. ANY stray file
+          # (renamed .age.bak, editor droppings) counts, not just *.age.
+          secrets-sync =
+            let
+              allFiles = builtins.attrNames (builtins.readDir ./secrets);
+              # secrets.nix is the rules file; .gitattributes marks .age binary.
+              onDisk = pkgs.lib.filter (
+                n:
+                !(pkgs.lib.elem n [
+                  "secrets.nix"
+                  ".gitattributes"
+                ])
+              ) allFiles;
+              declared = builtins.attrNames (import ./secrets/secrets.nix);
+              orphans = pkgs.lib.subtractLists declared onDisk;
+              missing = pkgs.lib.subtractLists onDisk declared;
+            in
+            pkgs.runCommand "secrets-sync" { } (
+              if orphans == [ ] && missing == [ ] then
+                "touch $out"
+              else
+                ''
+                  echo 'secrets/*.age and secrets.nix out of sync:' >&2
+                  ${pkgs.lib.concatMapStrings (f: "echo '  on disk but not declared: ${f}' >&2\n") orphans}
+                  ${pkgs.lib.concatMapStrings (f: "echo '  declared but no file: ${f}' >&2\n") missing}
+                  exit 1
+                ''
+            );
         };
 
         devShells.default = pkgs.mkShell {

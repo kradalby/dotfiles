@@ -32,8 +32,7 @@ let
     if nodesJob == null then [ ] else map (t: lib.head (lib.splitString ":" t)) (targetsOf nodesJob);
 
   # --- what IS exposed: enabled standard prometheus exporters per host ---
-  # tryEval guards removed/renamed exporter options (e.g. `minio`) that throw on
-  # access. Custom exporters (services.<name>-exporter) are out of scope here —
+  # tryEval guards removed/renamed exporter options that throw on access. Custom exporters (services.<name>-exporter) are out of scope here —
   # they are hand-wired, so the "flip enable, forget the scrape" failure this
   # rule targets does not apply to them.
   enabledExporters =
@@ -104,7 +103,94 @@ let
       [ "${host}: NixOS host has no node_exporter scrape (add it to allHosts)" ]
   ) hostNames;
 
-  gaps = exporterGaps ++ hostGaps;
+  # --- VIP services: every services.tailscale.services.<name> must be watched
+  # (scraped or probed) or allowlisted. services.md makes the VIP the preferred
+  # reachability tier and promises "a service nothing watches fails CI". ---
+  vipNames = lib.unique (
+    lib.concatMap (
+      host: builtins.attrNames (cfgs.${host}.config.services.tailscale.services or { })
+    ) hostNames
+  );
+
+  # host-part of a scrape/probe target: strip scheme, path and port.
+  #   "http://pdf.dalby.ts.net" -> "pdf.dalby.ts.net"
+  #   "syncthing-ldn:80"        -> "syncthing-ldn"
+  targetHost =
+    t:
+    let
+      afterScheme = lib.last (lib.splitString "//" t);
+      beforePath = lib.head (lib.splitString "/" afterScheme);
+    in
+    lib.head (lib.splitString ":" beforePath);
+  targetHosts = map targetHost monitoredTargets;
+
+  # Watched if a target is the VIP by name (host:port) or by MagicDNS FQDN
+  # (<vip>.dalby.ts.net…). Exact, so a substring can't mask a real gap.
+  vipWatched = name: lib.any (h: h == name || lib.hasPrefix "${name}." h) targetHosts;
+
+  exemptVips = {
+    "prom" = "scraped locally on core-oracldn (localhost:9090), not by VIP name";
+    "alertmanager" = "scraped locally on core-oracldn (localhost:9093), not by VIP name";
+    "pushgateway" = "scraped locally on core-oracldn (localhost:9091), not by VIP name";
+    "atuin" = "scraped by backing host dev-oracfurt:8889, not by VIP name";
+    "proton-bridge" =
+      "login-probe pushes proton_bridge_* to the pushgateway; no direct scrape (see monitoring.nix)";
+    # TODO: give these a blackbox probe and drop the exemption.
+    "p3" = "TODO: no liveness probe yet — add a blackbox target for the p3-controller web UI";
+    "zigbee2mqtt-ldn" =
+      "TODO: no liveness probe yet — add a blackbox target for the zigbee2mqtt frontend";
+  };
+
+  vipGaps = lib.concatMap (
+    name:
+    if (exemptVips ? ${name}) || vipWatched name then
+      [ ]
+    else
+      [
+        "${name}: services.tailscale.services VIP has no scrape/probe (add one or allowlist with a reason)"
+      ]
+  ) vipNames;
+
+  # --- vipBacking sanity: every relabel that rewrites `target` to a literal
+  # host must name a real host, so a typo can't silently break inhibition. ---
+  # Some jobs carry relabel_configs = null (not absent), so `or []` isn't
+  # enough. Include metric_relabel_configs too: resticTargetRelabels — named
+  # in this check's own error message — live there on the pushgateway job.
+  relabelsOf =
+    sc:
+    let
+      norm = v: if v == null then [ ] else v;
+    in
+    norm (sc.relabel_configs or [ ]) ++ norm (sc.metric_relabel_configs or [ ]);
+  literalTargetReplacements = lib.unique (
+    lib.concatMap (
+      sc:
+      lib.concatMap (
+        rc:
+        let
+          rawRepl = rc.replacement or "";
+          repl = if rawRepl == null then "" else rawRepl;
+        in
+        if
+          (rc.target_label or "") == "target" && repl != "" && !(lib.hasInfix "$" repl) # skip regex back-references like $1
+        then
+          [ repl ]
+        else
+          [ ]
+      ) (relabelsOf sc)
+    ) scrapeConfigs
+  );
+  backingGaps = lib.concatMap (
+    repl:
+    if lib.elem repl hostNames then
+      [ ]
+    else
+      [
+        "target relabel rewrites to '${repl}', which is not a NixOS host (stale vipBacking/resticTargetRelabels entry?)"
+      ]
+  ) literalTargetReplacements;
+
+  gaps = exporterGaps ++ hostGaps ++ vipGaps ++ backingGaps;
   gapReport = lib.concatMapStrings (g: "echo '  - ${g}' >&2\n") gaps;
 in
 pkgs.runCommand "monitoring-coverage" { } (
