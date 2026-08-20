@@ -23,7 +23,6 @@ in
   };
 
   config = {
-    # age.secrets.r.file = ../secrets/r.age;
     programs.fish.enable = true;
     # TODO: re-enable once the fish module works with fish >= 4.8.
     # nixpkgs' fish 4.8 ships no python tooling, so the manpage completion

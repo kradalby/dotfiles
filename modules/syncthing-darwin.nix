@@ -464,16 +464,6 @@ in
         )
       );
 
-      copyKeys = pkgs.writers.writeBash "syncthing-copy-keys" ''
-        install -dm700 -o ${cfg.user} -g ${cfg.group} ${cfg.configDir}
-        ${optionalString (cfg.cert != null) ''
-          install -Dm400 -o ${cfg.user} -g ${cfg.group} ${toString cfg.cert} "${cfg.configDir}/cert.pem"
-        ''}
-        ${optionalString (cfg.key != null) ''
-          install -Dm400 -o ${cfg.user} -g ${cfg.group} ${toString cfg.key} "${cfg.configDir}/key.pem"
-        ''}
-      '';
-
       updateConfig = pkgs.writers.writeBash "merge-syncthing-config" ''
         set -efu
         # get the api key by parsing the config.xml

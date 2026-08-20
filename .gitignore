@@ -4,8 +4,6 @@ result
 .vscode/
 .claude/
 
-rc/nvim/plugin/packer_compiled.lua
-
 
 Brewfile.lock.json
 

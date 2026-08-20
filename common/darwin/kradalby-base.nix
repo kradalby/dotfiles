@@ -74,9 +74,6 @@ in
       trusted-users = [ machine.username ];
       # builders = "@/etc/nix/machines";
     };
-
-    # distributedBuilds = true;
-    # buildMachines = import ../buildmachines.nix;
   };
 
   users.users.kradalby = {
