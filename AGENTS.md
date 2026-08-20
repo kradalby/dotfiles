@@ -15,30 +15,33 @@ silently diverging.
 The flake root (`flake.nix` plus helpers in `lib/box.nix`) stitches together the major layouts:
 
 - `common/`: shared NixOS/darwin modules, reusable service fragments, or opinionated defaults that multiple hosts import.
-- `modules/`: bespoke modules packaged like upstream Nix modules (e.g., `restic.nix`, `tailscale-services.nix`) and consumed by hosts or shared configs.
+- `modules/`: bespoke modules packaged like upstream Nix modules (e.g., `restic-jobs.nix`, `tailscale-proxy.nix`) and consumed by hosts or shared configs.
 - `machines/<hostname>/`: full host manifests plus any host-only helper files (systemd units, launchd definitions, secret glue). Keep per-host docs in-line here to limit blast radius.
+- `profiles/`: opt-in host profiles (e.g. `server.nix`) layered on top of `common/base.nix`.
 - `pkgs/`: overlays, derivations, and helper scripts (`overlays/`, `home-packages.nix`, `scripts/`) that extend upstream nixpkgs.
 - `home/` and `rc/`: user-mode dotfiles and Home Manager modules; they feed into macOS and Linux hosts alike.
-- `bin/`: scripts that Home Manager links into `$PATH`.
+- `checks/`: `nix flake check` derivations (prometheus rule tests, monitoring coverage, VM tests).
 - `metadata/`: small, curated datasets (versions, pinning info).
+- `docs/`: binding conventions (`docs/conventions/`).
+- `misc/`: non-nix artifacts for physical devices (e.g. the esp8266 moisture sensor).
 - `secrets/`: agenix payloads plus `secrets/secrets.nix` for key distribution; never drop plaintext into the repo.
   Maintaining these boundaries keeps it obvious whether a change affects every host or just one machine.
 
 ## Build, Test, and Development Commands
 
-- `direnv allow` or `nix develop` loads the flake dev shell with the formatters and helper CLIs declared in `pkgs/home-packages.nix`.
-- `nix flake check` evaluates Linux (`nixosConfigurations`), macOS (`darwinConfigurations`), and packages; run it before pushing.
+- `direnv allow` or `nix develop` loads the flake dev shell (defined in `flake.nix`) with the formatters and helper CLIs it declares.
+- `nix flake check` evaluates `nixosConfigurations`, packages, and the bespoke checks (x86_64-linux); garnix runs the same checks + host builds in CI. Darwin is validated locally via `darwin-rebuild`. Run the check before pushing.
 - `nixos-rebuild test --flake .#<hostname>` applies changes to a NixOS target and `darwin-rebuild switch --flake .#<hostname>` does the same for macOS.
-- `nix build .#packages.${system}.<name>` exercises individual packages; scripts under `bin/` should remain runnable once Home Manager syncs.
+- `nix build .#packages.${system}.<name>` exercises individual packages; scripts under `pkgs/scripts/` should remain runnable once Home Manager syncs.
 - Prefer Nix-native helpers when fetching or deploying: `nix-prefetch-git` for pinning sources, `colmena apply` for multi-host rollouts, `nurl <url>` for fetcher snippets, and `nix-init` for scaffolding new derivations.
 
 ## Coding Style & Naming Conventions
 
-Install and run `prek` (fast Rust rewrite of pre-commit) so Alejandra enforces Nix formatting every time, alongside `shfmt -i 2 -ci`, `shellcheck`, and Prettier for Markdown. Additional formatters in the dev shell include `golines`/`gofumpt` for Go, `black`/`isort` for Python, `beautysh` for shell, `prettier` for JS/TS, and `yamllint` for YAML. Favor 2-space indentation, descriptive attribute names (`snake_case` in Nix, hyphen-case for scripts), and keep defaults in `common/` while recording host-specific tweaks inside the target `machines/<hostname>/` module. Run `statix` and `deadnix` before large refactors to catch style regressions and unused definitions.
+All formatting goes through `nix fmt` (treefmt: nixfmt-rfc-style for Nix, gofumpt for Go, prettier for Markdown, shfmt `-i 2 -ci` for shell — see `docs/conventions/nix.md`); `prek` runs it plus `shellcheck` and the pre-commit builtins, and CI enforces the same via `checks.x86_64-linux.formatting`. Go code lints with the repo-root `.golangci.yaml`. Favor 2-space indentation, descriptive attribute names (`snake_case` in Nix, hyphen-case for scripts), and keep defaults in `common/` while recording host-specific tweaks inside the target `machines/<hostname>/` module. Run `statix` and `deadnix` before large refactors to catch style regressions and unused definitions.
 
 ## Testing Guidelines
 
-`nix flake check` is the canonical smoke test; fail fast if a change breaks evaluation on any platform. Follow up with `prek run --all-files` to exercise the YAML/JSON linters, Markdown formatter, and shell analyzers. For service changes or new hosts, run the relevant deploy command (`nixos-rebuild test --flake .#<hostname>` or `darwin-rebuild switch`) and note the outcome in your PR description. Store fixtures, helper scripts, and ad-hoc agent notes beside the module they verify (`modules/restic.nix` <-> `machines/<hostname>/restic.nix`) to keep `name-tests-test` happy.
+`nix flake check` is the canonical smoke test; fail fast if a change breaks evaluation on any platform. Follow up with `prek run --all-files` to exercise the YAML/JSON linters, Markdown formatter, and shell analyzers. For service changes or new hosts, run the relevant deploy command (`nixos-rebuild test --flake .#<hostname>` or `darwin-rebuild switch`) and note the outcome in your PR description. Keep fixtures and helper scripts beside the module they verify (`modules/restic-jobs.nix` <-> `machines/<hostname>/restic.nix`).
 
 ## Commit & Pull Request Guidelines
 
@@ -46,4 +49,4 @@ Follow the existing log style of `component: imperative summary` (`meta: move ve
 
 ## Secrets & Configuration Safety
 
-Never commit plaintext credentials; instead edit `secrets/*.age` via `nix run .#ragenix -- -e secrets/<name>.age` so recipients from `secrets/secrets.nix` remain authoritative. Collect new host keys with `ssh-keyscan -t ed25519 <host>` before adding them to `secrets/secrets.nix` or ragenix’ recipients; this keeps age policies in sync with reality. New services must declare their secret inputs in the target host’s module (and document ownership inline), and any shared Tailscale/Restic keys should be rotated before expiry. Treat `.env` only for short-lived experiments—persistent values belong in agenix and must be referenced through the module system.
+Never commit plaintext credentials; instead edit `secrets/*.age` via `ragenix --rules secrets/secrets.nix -e secrets/<name>.age` (ragenix is on `PATH` via home-manager; the `--rules` flag lets you run it from the repo root) so recipients from `secrets/secrets.nix` remain authoritative. Collect new host keys with `ssh-keyscan -t ed25519 <host>` before adding them to `secrets/secrets.nix` or ragenix’ recipients; this keeps age policies in sync with reality. New services must declare their secret inputs in the target host’s module (and document ownership inline), and any shared Tailscale/Restic keys should be rotated before expiry. Treat `.env` only for short-lived experiments—persistent values belong in agenix and must be referenced through the module system.

@@ -8,18 +8,25 @@ Legacy services predate this; bring one up to it when you next touch it.
 
 ## Reachability — always Tailscale
 
-1. **Tailscale service (VIP)** — _preferred._ `services.tailscale.services.<name>.endpoints = { "tcp:443" = "http://localhost:<port>"; }`. A named VIP on the home tailnet, HA-capable, no per-host firewall rule. Declare the matching `tailscale_service` in `infrastructure/tailscale` (`services.tf`); `tag:svc` auto-approves the advertisement. (core.tjoda/rest-server.nix, common/minio.nix, monitoring.nix: prom/alertmanager/pushgateway)
+1. **Tailscale service (VIP)** — _preferred._ `services.tailscale.services.<name>.endpoints = { "tcp:443" = "http://localhost:<port>"; }`. A named VIP on the home tailnet, HA-capable, no per-host firewall rule. Declare the matching `tailscale_service` in `infrastructure/tailscale` (`services.tf`); `tag:svc` auto-approves the advertisement. (core.tjoda/rest-server.nix, common/garage.nix, monitoring.nix: prom/alertmanager/pushgateway)
 2. **Tailscale proxy** — _when the service must live on another tailnet_ (headscale / sandefjordfiber, or bridging tailnets). `services.tailscale-proxies.<name> = { hostname; loginServer; backendPort; tailscaleKeyPath; }` — a dedicated tailscaled that joins that control server and proxies one local port onto it. Heavier (a whole extra daemon); reach for it only cross-tailnet. (modules/tailscale-proxy.nix; core.tjoda/rest-server.nix `restic-sfiber`)
 3. **ACL-approved port** — _last resort,_ for raw `host:port` (exporters, backends with no VIP). `networking.firewall.interfaces.tailscale0.allowedTCPPorts = [<port>]` (per-interface — survives a `mkForce`d host firewall) **plus** a grant in `infrastructure/tailscale/policy.hujson`. Both halves are required: without the firewall rule the port silently rides tailscaled's implicit accept, one netfilter-mode change from dark. (garnix/default.nix, ts1p.ldn/default.nix)
 
 Never a public / Funnel surface unless the service is deliberately public.
+
+**Auth keys.** A service that joins the tailnet as its own tsnet node gets its
+**own** tagged pre-auth key — never the shared host key (golink, krapage, hvor,
+hugin, the homekit bridges, tsnixcache all do). One legacy exception remains:
+the grafana proxy still rides the host key via root LoadCredential — convert it
+at the next rotation. → [secrets.md](secrets.md#tailscale-keys).
 
 **Carve-out — LAN-discovery protocols (SMB, Time Machine).** Clients find these
 by mDNS and mount them by LAN address, so tailnet-only means avahi advertises a
 service whose port is dropped and Finder hangs instead of failing. These may live
 on the trusted LAN interface **and** `tailscale0`, never on WAN; keep avahi's
 `allowInterfaces` in step. Hosts that already set
-`networking.firewall.trustedInterfaces` (core.tjoda, gigabuilder, dev.oracfurt)
+`networking.firewall.trustedInterfaces` (core.tjoda, gigabuilder, home.ldn,
+and the OCI gateways via common/oci-gateway.nix)
 get this implicitly — at the cost of exposing every port on that host to those
 interfaces, so weigh it per host rather than reaching for it by default.
 Applies only to protocols whose discovery is link-local; everything else takes
@@ -48,11 +55,11 @@ Fleet rules: one Discord sink; the external dead-man (healthchecks.io) is the on
 
 **Dashboards are generated from Go** (Grafana Foundation SDK in a `cmd/dashboard`), never hand-edited JSON, and **every panel carries a legend** (→ [go.md](go.md)). Ship them with the ship-tool-and-output pattern so the dashboard tracks the metrics it charts (→ [nix.md](nix.md)); provision the built `grafanaDashboards` into Grafana's dashboard dir.
 
-**Physical disks get SMART.** Every bare-metal host runs `monitoring.smartctl` over all disks by stable `/dev/disk/by-id` (`SmartctlDiskMissing` pins the count). VMs have no real SMART. Immutable hosts that hide SMART behind a vendor API instead of an exporter get bridged to a textfile — e.g. IncusOS serves per-drive SMART as JSON at `GET :8443/os/1.0/system/storage`, not on `/metrics` (core.ldn bridge: TODO).
+**Physical disks get SMART.** Every bare-metal host runs `monitoring.smartctl` over all disks by stable `/dev/disk/by-id`. The disk list lives in `metadata/smartctl.nix`, read by both the exporter and the per-host `SmartctlDiskMissing` count, so the alert threshold can't drift from the device list. VMs have no real SMART. Immutable hosts that hide SMART behind a vendor API instead of an exporter get bridged to a textfile — e.g. IncusOS serves per-drive SMART as JSON at `GET :8443/os/1.0/system/storage`, not on `/metrics` (core.ldn bridge: TODO).
 
 ### Metrics transport — textfile first, pushgateway only when unavoidable
 
-- **textfile** (`node_exporter --collector.textfile`) — the default when a job runs _on_ a scraped host (sanoid snapshot age, the litestream restore-test, local timers). Rides the host's existing node scrape, no extra service or ACL. Write atomically (`.tmp` → `mv`). Caveat: the file persists if the writer dies, so alert on the metric's own timestamp, not the file's existence.
+- **textfile** (`node_exporter --collector.textfile`) — the default when a job runs _on_ a scraped host (sanoid snapshot age, the litestream restore-test, local timers). Rides the host's existing node scrape, no extra service or ACL. Write atomically (`.tmp` → `mv`) **and `chmod 0644` before the `mv`** — `mktemp` makes 0600 and node_exporter runs unprivileged, so a 0600 file scrapes as `node_textfile_scrape_error` and the metric silently never appears. The directory is owned by `common/node-exporter.nix`; `NodeTextfileCollectorErrors` alerts when a scrape fails. Caveat: the file persists if the writer dies, so alert on the metric's own timestamp, not the file's existence.
 - **pushgateway** — only for producers Prometheus can't reach: off-fleet laptops (rustic), foreign-tailnet proxies (sfiber), truly ephemeral jobs. Costs that keep it a last resort: pushed metrics persist forever until deleted (silent staleness → you _must_ alert on `push_time_seconds`), there is no per-target `up`, it needs `honor_labels`, and it's a shared SPOF. Don't reach for it just because it's easy.
 
 ## Backups
@@ -67,7 +74,7 @@ Every backup mechanism must prove the data _arrived_, not just that a timer ran.
 
 ## Copy from
 
-- Tailscale VIP service: `machines/core.tjoda/rest-server.nix`, `common/minio.nix`
+- Tailscale VIP service: `machines/core.tjoda/rest-server.nix`, `common/garage.nix`
 - Tailscale proxy (cross-tailnet): `modules/tailscale-proxy.nix`, `machines/core.tjoda/rest-server.nix` (`restic-sfiber`)
 - ACL port + firewall: `machines/garnix/default.nix` + `infrastructure/tailscale/policy.hujson`
 - Monitoring wiring: `machines/core.oracldn/monitoring.nix` (helpers + alerts), `…/slo-spec.nix` (SLOs), `checks/{prometheus-rules,monitoring-coverage}`
