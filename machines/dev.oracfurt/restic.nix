@@ -30,8 +30,11 @@ in
       StateDirectory = "atuin-backup";
     };
     path = [ pkgs.sqlite ];
+    # Dump to a temp name and mv: the dump dir is restic-swept hourly, and an
+    # in-place .backup could be snapshotted half-written.
     script = ''
-      sqlite3 /var/lib/atuin/atuin.db ".backup /var/lib/atuin-backup/atuin.db"
+      sqlite3 /var/lib/atuin/atuin.db ".backup /var/lib/atuin-backup/.atuin.db.tmp"
+      mv /var/lib/atuin-backup/.atuin.db.tmp /var/lib/atuin-backup/atuin.db
     '';
   };
   systemd.timers.atuin-db-dump = {

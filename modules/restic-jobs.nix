@@ -9,6 +9,10 @@ let
   cfg = config.services.restic.jobs;
 
   defaultPrune = [
+    # Backups run hourly; without --keep-hourly every intra-day restore point
+    # was pruned within the hour. Lock retry lives in the prune unit's
+    # ExecStart (restic-jobs-linux.nix), not here.
+    "--keep-hourly 24"
     "--keep-daily 7"
     "--keep-weekly 5"
     "--keep-monthly 12"
@@ -69,8 +73,13 @@ let
 
       initialize = mkOption {
         type = types.bool;
-        default = true;
-        description = "Whether to auto-create the repository.";
+        default = false;
+        description = ''
+          Auto-create the repository. Off by default: the init pre-start runs
+          `restic snapshots || restic init`, which has no lock retry and fails
+          the whole unit when it lands inside the weekly check. All repos
+          already exist; set true only to bootstrap a brand-new one.
+        '';
       };
 
       extraBackupArgs = mkOption {
@@ -89,18 +98,6 @@ let
         type = types.nullOr types.str;
         default = null;
         description = "Command invoked to generate a `--files-from` list.";
-      };
-
-      logPath = mkOption {
-        type = types.nullOr types.str;
-        default = null;
-        description = "Override the log directory on Darwin.";
-      };
-
-      calendarInterval = mkOption {
-        type = types.nullOr (types.attrsOf types.int);
-        default = null;
-        description = "Override the default launchd calendar interval on Darwin.";
       };
 
       timerConfig = mkOption {
@@ -124,8 +121,11 @@ let
 
         args = mkOption {
           type = types.listOf types.str;
-          default = [ "--read-data-subset=1/14" ];
-          description = "Arguments to `restic check`. The default reads ~7% of pack data per run; set to [] for a metadata-only check (e.g. paid-egress remotes).";
+          # A percentage picks a RANDOM subset per run, so all packs get
+          # verified over time; a fixed fraction (1/14) would re-read the same
+          # packs forever.
+          default = [ "--read-data-subset=7%" ];
+          description = "Arguments to `restic check`. The default reads a random ~7% of pack data per run; set to [] for a metadata-only check (e.g. paid-egress remotes).";
         };
 
         interval = mkOption {
@@ -137,18 +137,9 @@ let
     };
   };
 
-  defaultTargetHost =
-    let
-      fqdn = lib.attrByPath [ "networking" "fqdn" ] null config;
-      hostName = lib.attrByPath [ "networking" "hostName" ] null config;
-      domain = lib.attrByPath [ "networking" "domain" ] null config;
-    in
-    if fqdn != null && fqdn != "" then
-      fqdn
-    else if hostName != null && domain != null && domain != "" then
-      "${hostName}.${domain}"
-    else
-      hostName or "localhost";
+  # fqdn when a domain is set, else the bare hostname — unlike networking.fqdn,
+  # which throws on a domainless host. Same value restic-jobs-linux.nix uses.
+  defaultTargetHost = config.networking.fqdnOrHostName;
 
   buildJob =
     jobName: jobCfg:
@@ -171,43 +162,29 @@ let
         else
           null;
 
-      darwinExtras =
-        if pkgs.stdenv.isDarwin then
-          {
-            logPath = if jobCfg.logPath != null then jobCfg.logPath else "/Users/kradalby/Library/Logs";
-            calendarInterval =
-              if jobCfg.calendarInterval != null then
-                jobCfg.calendarInterval
-              else
-                {
-                  Minute = 30;
-                };
-          }
-        else
-          { };
-
-      linuxExtras =
-        if pkgs.stdenv.isLinux then
-          {
-            timerConfig =
-              if jobCfg.timerConfig != null then
-                jobCfg.timerConfig
-              else
-                {
-                  OnCalendar = "hourly";
-                };
-          }
-        else
-          { };
+      # Linux-only: the Macs back up via rustic.
+      linuxExtras = {
+        timerConfig =
+          if jobCfg.timerConfig != null then
+            jobCfg.timerConfig
+          else
+            {
+              OnCalendar = "hourly";
+            };
+      };
 
       backupConfig = {
         inherit repository;
         inherit (jobCfg)
           paths
-          pruneOpts
           initialize
           extraOptions
           ;
+        # No prune here: with pruneOpts set, the nixpkgs module runs
+        # forget --prune after EVERY backup — 24 repacks/day per repo,
+        # including paid Jottacloud egress. Pruning runs on its own weekly
+        # unit instead (restic-jobs-linux.nix) using jobCfg.pruneOpts.
+        pruneOpts = [ ];
         # `restic check` takes an exclusive lock, so once it stops failing
         # fast it will hold one for real. Backups have to wait it out too, or
         # the fix just moves the failure to the backup unit. 45m keeps a
@@ -218,7 +195,6 @@ let
       // optionalAttrs (jobCfg.dynamicFilesFrom != null) {
         dynamicFilesFrom = jobCfg.dynamicFilesFrom;
       }
-      // darwinExtras
       // linuxExtras
       // jobCfg.extraConfig;
     in
