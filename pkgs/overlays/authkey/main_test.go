@@ -1,32 +1,35 @@
 package main
 
 import (
-	"reflect"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestParseTags(t *testing.T) {
-	got := parseTags(" tag:server, tag:isolated ,")
-	want := []string{"tag:server", "tag:isolated"}
-	if !reflect.DeepEqual(got, want) {
-		t.Fatalf("parseTags = %v, want %v", got, want)
-	}
-	if parseTags(" , ") != nil {
-		t.Fatalf("parseTags of empties should be nil")
-	}
+	require.Equal(t, []string{"tag:server", "tag:isolated"}, parseTags(" tag:server, tag:isolated ,"))
+	require.Nil(t, parseTags(" , "), "parseTags of empties should be nil")
+}
+
+func TestKeyCapabilities(t *testing.T) {
+	require.False(t, keyCapabilities(nil, false).Devices.Create.Reusable,
+		"default key must be single-use (reusable=false)")
+	require.True(t, keyCapabilities(nil, true).Devices.Create.Reusable,
+		"-reusable must produce a reusable key")
+	c := keyCapabilities([]string{"tag:server"}, false)
+	require.True(t, c.Devices.Create.Preauthorized, "key must be preauthorized")
+	require.Equal(t, []string{"tag:server"}, c.Devices.Create.Tags)
 }
 
 func TestPlatformTable(t *testing.T) {
-	if len(order) != len(platforms) {
-		t.Fatalf("order has %d entries, platforms has %d", len(order), len(platforms))
-	}
+	require.Len(t, order, len(platforms), "order and platforms must name the same set")
 	for _, name := range order {
 		p, ok := platforms[name]
-		if !ok {
-			t.Fatalf("order names %q which is not in platforms", name)
-		}
-		if p.tokenURL == "" || p.tailnet == "" || p.secret == "" || p.credID == "" || p.credKey == "" {
-			t.Fatalf("platform %q has an empty required field: %+v", name, p)
-		}
+		require.True(t, ok, "order names %q which is not in platforms", name)
+		require.NotEmpty(t, p.tokenURL, "platform %q tokenURL", name)
+		require.NotEmpty(t, p.tailnet, "platform %q tailnet", name)
+		require.NotEmpty(t, p.secret, "platform %q secret", name)
+		require.NotEmpty(t, p.credID, "platform %q credID", name)
+		require.NotEmpty(t, p.credKey, "platform %q credKey", name)
 	}
 }
