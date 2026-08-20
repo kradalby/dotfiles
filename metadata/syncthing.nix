@@ -27,4 +27,31 @@
     # mirror, shared to encrypted (receiveencrypted) from common/syncthing-storage.nix,
     # not a plaintext peer.
   ];
+
+  # The storage folder set. Single source for both the senders
+  # (common/syncthing-storage.nix) and the encrypted mirror's per-folder
+  # receiveencrypted overrides (machines/storage.bassan/syncthing.nix), so a
+  # new folder can never reach the mirror unencrypted.
+  storageFolders = {
+    "/storage/software" = {
+      id = "vpgyn-cj2mg";
+      path = "/storage/software";
+    };
+    "/storage/pictures" = {
+      id = "orqnv-bg72d";
+      path = "/storage/pictures";
+    };
+    "/storage/backup" = {
+      id = "9bjac-k65uu";
+      path = "/storage/backup";
+    };
+    "/storage/books" = {
+      id = "ww4gn-xgy9i";
+      path = "/storage/books";
+    };
+    "kradalby - Sync" = {
+      id = "xTDuT-kZeuK";
+      path = "/storage/sync/kradalby";
+    };
+  };
 }

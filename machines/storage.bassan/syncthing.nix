@@ -6,14 +6,9 @@
   # ciphertext and never holds the key (the trusted senders set the passphrase;
   # see common/syncthing-storage.nix). receiveencrypted also implies the mirror
   # never propagates local changes back to the primaries.
-  # ponytail: enumerated per-folder — if a folder is added to
-  # common/syncthing-storage.nix, add its mkForce line here too, else it silently
-  # stays sendreceive (and unencrypted) on the mirror.
-  services.syncthings.storage.settings.folders = {
-    "/storage/software".type = lib.mkForce "receiveencrypted";
-    "/storage/pictures".type = lib.mkForce "receiveencrypted";
-    "/storage/backup".type = lib.mkForce "receiveencrypted";
-    "/storage/books".type = lib.mkForce "receiveencrypted";
-    "kradalby - Sync".type = lib.mkForce "receiveencrypted";
-  };
+  # Derived from the shared folder set in metadata/syncthing.nix, so a folder
+  # added there can never silently stay sendreceive (i.e. unencrypted) here.
+  services.syncthings.storage.settings.folders = lib.mapAttrs (_: _: {
+    type = lib.mkForce "receiveencrypted";
+  }) (import ../../metadata/syncthing.nix).storageFolders;
 }
