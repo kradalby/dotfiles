@@ -26,6 +26,12 @@
       name = "ghdl.db";
       path = "/var/lib/ghdl/ghdl.db";
     }
+    {
+      # Dashboards/settings; was only covered by restic reading the live file
+      # (hot sqlite copy — inconsistent by construction).
+      name = "grafana.db";
+      path = "/var/lib/grafana/data/grafana.db";
+    }
   ];
 
   users = {
@@ -36,6 +42,7 @@
           config.services.golink.group
           "headscale"
           "ghdl"
+          "grafana"
         ];
       };
     };
@@ -55,6 +62,13 @@
     StateDirectoryMode = lib.mkForce "2770";
     UMask = lib.mkForce "0007";
   };
+  # Same dance for grafana: litestream (in group grafana) needs group-write on
+  # the data dir and the db/wal/shm; setgid + UMask keep everything
+  # group-owned regardless of which side touches a file first.
+  systemd.services.grafana.serviceConfig = {
+    StateDirectoryMode = lib.mkForce "2770";
+    UMask = lib.mkForce "0007";
+  };
   # Correct any db/wal/shm left with the old owner/perms from before this fix,
   # on activation, without recreating the db.
   systemd.tmpfiles.rules = [
@@ -68,12 +82,23 @@
     "z /var/lib/ghdl/ghdl.db 0660 ghdl ghdl - -"
     "z /var/lib/ghdl/ghdl.db-wal 0660 ghdl ghdl - -"
     "z /var/lib/ghdl/ghdl.db-shm 0660 ghdl ghdl - -"
+    # grafana's data dir predates the setgid fix; heal existing files.
+    "z /var/lib/grafana/data 2770 grafana grafana - -"
+    "z /var/lib/grafana/data/grafana.db 0660 grafana grafana - -"
+    "z /var/lib/grafana/data/grafana.db-wal 0660 grafana grafana - -"
+    "z /var/lib/grafana/data/grafana.db-shm 0660 grafana grafana - -"
   ];
 
-  # Let ghdl open its db first so the -wal/-shm are born ghdl:ghdl group-writable;
-  # litestream (in group ghdl) then reads/writes them fine.
+  # Let the db owners open their dbs first so the -wal/-shm are born with the
+  # owning group; litestream (a member of each) then reads/writes them fine.
   systemd.services.litestream = {
-    after = [ "ghdl.service" ];
-    wants = [ "ghdl.service" ];
+    after = [
+      "ghdl.service"
+      "grafana.service"
+    ];
+    wants = [
+      "ghdl.service"
+      "grafana.service"
+    ];
   };
 }
