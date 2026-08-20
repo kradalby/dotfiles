@@ -140,4 +140,14 @@
   };
 
   system.stateVersion = "25.11";
+
+  # nixos-raspberrypi prebuilt kernel/firmware. Scoped here, not fleet-wide:
+  # trusting the key lets that cache substitute any path, so only hosts that
+  # actually build rpi closures carry it.
+  nix.settings = {
+    substituters = [ "https://nixos-raspberrypi.cachix.org" ];
+    trusted-public-keys = [
+      "nixos-raspberrypi.cachix.org-1:4iMO9LXa8BqhU+Rpg6LQKiGa2lsNh/j2oiYLNOQ5sPI="
+    ];
+  };
 }
