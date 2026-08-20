@@ -184,23 +184,10 @@ in
         speedFactor = 2;
         supportedFeatures = [ "big-parallel" ];
       }
-      {
-        # kratail2's rosetta-builder Lima VM: a fast native aarch64 builder on the
-        # tailnet, PREFERRED over dev.oracfurt (higher speedFactor) whenever the
-        # Mac is online. garnix does no scheduling — stock nix build-remote skips
-        # an unreachable machine to the next eligible one, so an offline Mac just
-        # falls back to dev.oracfurt (~5s, connect-timeout=5 from common/nix.nix +
-        # the ConnectTimeout pin below). The guest runs plain tailscale (no --ssh),
-        # so the nix-ssh forced-command build key works on :22 — no port pin.
-        # No kvm/nixos-test through the VM.
-        name = "rosetta-kratail2";
-        hostname = "rosetta-kratail2.dalby.ts.net";
-        user = "nix-ssh";
-        systems = [ "aarch64-linux" ];
-        maxJobs = 12; # VM cores
-        speedFactor = 5;
-        supportedFeatures = [ "big-parallel" ];
-      }
+      # No rosetta-kratail2 here: a roaming laptop's Lima VM is not an
+      # always-on CI builder — nix preferred it (highest speedFactor) and hung
+      # aarch64 dispatch whenever the Mac slept. It remains available for
+      # interactive rnb builds.
     ];
 
     # Outputs already land in gigabuilder's tsnixcache-served store.
@@ -263,14 +250,9 @@ in
   # dev-oracfurt's build sshd is on :2222 (tailnet :22 is Tailscale SSH). garnix
   # emits the Host alias without a Port, so pin it — ssh merges keywords across
   # matching Host blocks, taking the Port from here and the rest from garnix.
-  # rosetta-kratail2 uses plain :22 (no Tailscale SSH on the guest); pin a short
-  # ConnectTimeout so an offline Mac fails over to dev-oracfurt in ~5s regardless
-  # of whether nix's connect-timeout maps onto the builder ssh.
   programs.ssh.extraConfig = ''
     Host dev-oracfurt
       Port 2222
-    Host rosetta-kratail2
-      ConnectTimeout 5
   '';
   programs.ssh.knownHosts.dev-oracfurt = {
     hostNames = [ "[dev-oracfurt.dalby.ts.net]:2222" ];
@@ -278,14 +260,6 @@ in
   };
 
   # The guest sshd host key is generated when the Lima VM is (re)created, so it
-  # rotates on any config/image change to kratail2's rosetta-builder. Refresh it
-  # then (same caveat as dev-oracfurt) — read it on the Mac from
-  #   /var/lib/rosetta-builder/ssh_known_hosts   (alias `rosetta-builder-key`)
-  # or in the guest with `ssh-keygen -yf /etc/ssh/ssh_host_ed25519_key`.
-  programs.ssh.knownHosts.rosetta-kratail2 = {
-    hostNames = [ "rosetta-kratail2.dalby.ts.net" ];
-    publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPoOcoyzwFaNSP0YQtya9Btny/0PIPPXBt0yE+PyF+Uc";
-  };
 
   # Loopback-only datastores, so peer/trust auth and no TLS — the fork's own
   # database/opensearch modules target separate TLS-fronted hosts, overkill here.
