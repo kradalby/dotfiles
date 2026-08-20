@@ -32,8 +32,11 @@ lib.mkMerge [
       image = (import ../../metadata/versions.nix).stirling;
       user = config.users.users.stirling.uid;
       autoStart = true;
+      # Bind loopback only: reached via the `pdf` tailscale VIP -> localhost. A
+      # bare <port>:8080 binds 0.0.0.0 and docker's DNAT rule bypasses the host
+      # firewall, exposing it on this public Oracle VM's WAN leg.
       ports = [
-        "${toString port}:8080/tcp"
+        "127.0.0.1:${toString port}:8080/tcp"
       ];
       environment = { };
       volumes = [

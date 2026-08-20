@@ -24,8 +24,11 @@ in
     user = config.users.users.umami.uid;
     # workdir = "/home/podmanager";
     autoStart = true;
+    # Bind loopback only: reached via the nginx vhost on localhost. A bare
+    # <port>:3000 binds 0.0.0.0 and docker's DNAT rule bypasses the host
+    # firewall, exposing it on this public Oracle VM's WAN leg.
     ports = [
-      "${toString port}:3000/tcp"
+      "127.0.0.1:${toString port}:3000/tcp"
     ];
     environment = {
       DATABASE_URL = "postgresql://umami@172.17.0.1/umami";
