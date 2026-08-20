@@ -18,8 +18,6 @@ final: prev: {
 
   rnb = prev.callPackage ./rnb { };
 
-  rustic = prev.callPackage ./rustic.nix { };
-
   rustic-wrapper = prev.callPackage ../rustic-wrapper { };
 
   p3-controller = prev.callPackage ../p3-controller { };
