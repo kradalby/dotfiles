@@ -65,10 +65,8 @@
     allowedUDPPorts = [ 41641 ];
   };
 
-  monitoring.smartctl.devices = [
-    "/dev/nvme0n1"
-    "/dev/nvme1n1"
-  ];
+  # See metadata/smartctl.nix (shared with the SmartctlDiskMissing alert count).
+  monitoring.smartctl.devices = (import ../../metadata/smartctl.nix).gigabuilder;
 
   system.stateVersion = "25.11";
 }

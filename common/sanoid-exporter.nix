@@ -37,9 +37,7 @@ let
 in
 {
   config = lib.mkIf cfg.enable {
-    systemd.tmpfiles.rules = [
-      "d ${textfileDir} 0755 root root -"
-    ];
+    # The textfile directory itself is created by common/node-exporter.nix.
 
     # No official sanoid exporter exists; zfs_exporter covers pool health but
     # not snapshot age or `zpool status -x`, so we emit those via textfile.
@@ -48,8 +46,18 @@ in
       serviceConfig = {
         Type = "oneshot";
       };
+      # No `pipefail`: a missing dataset makes `zfs list` fail, but the piped
+      # `tail` still succeeds and the line reports the dataset as epoch-old,
+      # which is the intended "snapshot is stale" signal. `set -eu` still aborts
+      # on a real error (mktemp/mv) so we never mv a half-written file in place.
       script = ''
+        set -eu
         tmp=$(mktemp ${textfileDir}/sanoid.prom.XXXXXX)
+        # An abort between mktemp and mv would strand 0600 litter forever
+        # (node_exporter ignores non-*.prom names, so metrics are unaffected
+        # — this is pure hygiene). mv removes the source, so the trap is a
+        # no-op on success.
+        trap 'rm -f "$tmp"' EXIT
         {
           echo '# HELP zfs_snapshot_newest_creation_seconds Unix time of the newest snapshot of a sanoid-managed dataset.'
           echo '# TYPE zfs_snapshot_newest_creation_seconds gauge'
@@ -58,6 +66,9 @@ in
         } >"$tmp"
         ${snapshotLines}
         ${poolLines}
+        # node_exporter runs unprivileged and mktemp creates 0600, so the
+        # collector cannot read the file without this.
+        chmod 0644 "$tmp"
         mv -f "$tmp" ${outFile}
       '';
     };
@@ -65,9 +76,10 @@ in
     systemd.timers.sanoid-exporter = {
       wantedBy = [ "timers.target" ];
       timerConfig = {
+        # Monotonic-only timer: Persistent= applies solely to OnCalendar and
+        # was a documented no-op here.
         OnBootSec = "5m";
         OnUnitActiveSec = "15m";
-        Persistent = true;
       };
     };
   };

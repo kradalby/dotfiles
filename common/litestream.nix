@@ -51,9 +51,7 @@ in
     # in "failed" (ServiceFailed pages), and on full success we stamp a
     # timestamp into the node_exporter textfile dir so Prometheus can see the
     # last good restore and alert on staleness (LitestreamRestoreStale).
-    systemd.tmpfiles.rules = [
-      "d /var/lib/prometheus-node-exporter-textfile 0755 root root -"
-    ];
+    # The textfile directory itself is created by common/node-exporter.nix.
     systemd.services.litestream-restore-test = {
       description = "litestream restore verification";
       # bare mktemp/mv/rm/grep in the script; systemd's default PATH has none

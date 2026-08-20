@@ -38,10 +38,8 @@ in
   ];
 
   # SMART on the real disks; enables the smartctl exporter from profiles/server.
-  monitoring.smartctl.devices = [
-    "/dev/sda"
-    "/dev/nvme0n1"
-  ];
+  # See metadata/smartctl.nix (shared with the SmartctlDiskMissing alert count).
+  monitoring.smartctl.devices = (import ../../metadata/smartctl.nix).storage-bassan;
 
   # First-class tailnet node scraped by core.oracldn as storage-bassan:<port>.
   # node-exporter binds only my.lan and this box won't be on a routed LAN at
