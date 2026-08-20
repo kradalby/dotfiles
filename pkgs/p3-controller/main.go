@@ -10,7 +10,8 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"log"
+	"io"
+	"log/slog"
 	"net"
 	"net/http"
 	"os"
@@ -19,6 +20,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/cenkalti/backoff/v5"
 	"golang.org/x/sync/errgroup"
 
 	"p3-controller/owntone"
@@ -58,44 +60,56 @@ func main() {
 	configPath := flag.String("config", "config.json", "path to JSON config file")
 	flag.Parse()
 
-	data, err := os.ReadFile(*configPath)
+	if err := run(*configPath); err != nil {
+		slog.Error("p3-controller failed", "err", err)
+		os.Exit(1)
+	}
+}
+
+// routes wires the mux and wraps it in CrossOriginProtection, which
+// rejects cross-origin unsafe requests (Sec-Fetch-Site / Origin vs
+// Host); same-origin fetches pass. Mutating endpoints are POST/PUT
+// only (method patterns), so a forged GET (img/link/prefetch) 405s
+// instead of touching the player.
+func routes(client *owntone.Client, cfg *Config) http.Handler {
+	page := renderPage()
+
+	mux := http.NewServeMux()
+	// {$} pins the page to "/" alone; without it "GET /" is a subtree
+	// catch-all and a GET to /play or /stop would serve the page
+	// instead of 405ing.
+	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		fmt.Fprint(w, page)
+	})
+	mux.HandleFunc("POST /play", handlePlay(client, cfg))
+	mux.HandleFunc("POST /stop", handleStop(client))
+	mux.HandleFunc("GET /status", handleStatus(client))
+	mux.HandleFunc("GET /config", handleConfig(cfg))
+	mux.HandleFunc("PUT /output/{id}", handleSetOutput(client))
+	mux.HandleFunc("GET /shortcut/{name}", handleShortcut())
+
+	return http.NewCrossOriginProtection().Handler(mux)
+}
+
+// run owns the process lifecycle: config load, signal-driven root
+// context, an errgroup that supervises the HTTP server (and HomeKit
+// accessory if enabled), and bounded graceful shutdown. Returns when
+// every goroutine has unwound, or with the first non-nil error from a
+// supervised component.
+func run(configPath string) error {
+	data, err := os.ReadFile(configPath)
 	if err != nil {
-		log.Fatalf("reading config: %v", err)
+		return fmt.Errorf("reading config: %w", err)
 	}
 
 	var cfg Config
 	if err := json.Unmarshal(data, &cfg); err != nil {
-		log.Fatalf("parsing config: %v", err)
+		return fmt.Errorf("parsing config: %w", err)
 	}
 
 	client := owntone.NewClient(cfg.OwnToneURL)
 
-	page := renderPage()
-
-	mux := http.NewServeMux()
-	mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		fmt.Fprint(w, page)
-	})
-	mux.HandleFunc("GET /play", handlePlay(client, &cfg))
-	mux.HandleFunc("POST /play", handlePlayCustom(client, &cfg))
-	mux.HandleFunc("GET /stop", handleStop(client))
-	mux.HandleFunc("GET /status", handleStatus(client))
-	mux.HandleFunc("GET /config", handleConfig(&cfg))
-	mux.HandleFunc("PUT /output/{id}", handleSetOutput(client))
-	mux.HandleFunc("GET /shortcut/{name}", handleShortcut())
-
-	if err := run(&cfg, client, mux); err != nil {
-		log.Fatal(err)
-	}
-}
-
-// run owns the process lifecycle: signal-driven root context, an
-// errgroup that supervises the HTTP server (and HomeKit accessory if
-// enabled), and bounded graceful shutdown. Returns when every
-// goroutine has unwound, or with the first non-nil error from a
-// supervised component.
-func run(cfg *Config, client *owntone.Client, mux *http.ServeMux) error {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
@@ -103,14 +117,20 @@ func run(cfg *Config, client *owntone.Client, mux *http.ServeMux) error {
 
 	srv := &http.Server{
 		Addr:    cfg.Listen,
-		Handler: mux,
+		Handler: routes(client, &cfg),
 		BaseContext: func(net.Listener) context.Context {
 			return gctx
 		},
+		ReadHeaderTimeout: 5 * time.Second,
+		ReadTimeout:       30 * time.Second,
+		// Generous: /play retries playlist discovery with backoff and
+		// can legitimately take tens of seconds after an owntone restart.
+		WriteTimeout: 90 * time.Second,
+		IdleTimeout:  2 * time.Minute,
 	}
 
 	g.Go(func() error {
-		log.Printf("p3-controller listening on %s (owntone: %s)", cfg.Listen, cfg.OwnToneURL)
+		slog.Info("p3-controller listening", "addr", cfg.Listen, "owntone", cfg.OwnToneURL)
 		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			return fmt.Errorf("http server: %w", err)
 		}
@@ -119,7 +139,7 @@ func run(cfg *Config, client *owntone.Client, mux *http.ServeMux) error {
 
 	if cfg.HAP.Enabled {
 		g.Go(func() error {
-			return runHAP(gctx, client, cfg)
+			return runHAP(gctx, client, &cfg)
 		})
 	}
 
@@ -128,7 +148,7 @@ func run(cfg *Config, client *owntone.Client, mux *http.ServeMux) error {
 		shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 		if err := srv.Shutdown(shutdownCtx); err != nil {
-			log.Printf("http shutdown: %v", err)
+			slog.Warn("http shutdown", "err", err)
 		}
 		return nil
 	})
@@ -137,6 +157,10 @@ func run(cfg *Config, client *owntone.Client, mux *http.ServeMux) error {
 }
 
 // --- Play logic ---
+
+// errPlaylistNotFound marks a playlist lookup that succeeded but
+// matched nothing; retryable while OwnTone is still scanning.
+var errPlaylistNotFound = errors.New("playlist not found")
 
 type playResponse struct {
 	Status   string   `json:"status"`
@@ -167,7 +191,7 @@ func (cfg *Config) expandSpeakers(speakers []Speaker) []Speaker {
 	return expanded
 }
 
-func executePlay(client *owntone.Client, cfg *Config, speakers []Speaker, schedule string) (playResponse, int) {
+func executePlay(ctx context.Context, client *owntone.Client, cfg *Config, speakers []Speaker, schedule string) (playResponse, int) {
 	resp := playResponse{Status: "error", Schedule: schedule}
 
 	expanded := cfg.expandSpeakers(speakers)
@@ -181,7 +205,7 @@ func executePlay(client *owntone.Client, cfg *Config, speakers []Speaker, schedu
 	for _, o := range outputs {
 		if o.Selected {
 			if err := client.SetOutput(o.ID, false, -1); err != nil {
-				log.Printf("deselecting output %s (%s): %v", o.Name, o.ID, err)
+				slog.Warn("deselecting output", "name", o.Name, "id", o.ID, "err", err)
 			}
 		}
 	}
@@ -190,11 +214,11 @@ func executePlay(client *owntone.Client, cfg *Config, speakers []Speaker, schedu
 	for _, sp := range expanded {
 		out, ok := findOutput(outputs, sp.Name)
 		if !ok {
-			log.Printf("speaker %q not found in outputs", sp.Name)
+			slog.Warn("speaker not found in outputs", "name", sp.Name)
 			continue
 		}
 		if err := client.SetOutput(out.ID, true, sp.Volume); err != nil {
-			log.Printf("selecting output %s (%s): %v", out.Name, out.ID, err)
+			slog.Warn("selecting output", "name", out.Name, "id", out.ID, "err", err)
 			continue
 		}
 		resp.Speakers = append(resp.Speakers, out.Name)
@@ -202,25 +226,33 @@ func executePlay(client *owntone.Client, cfg *Config, speakers []Speaker, schedu
 
 	// Find playlist by name, retrying a few times in case OwnTone
 	// is still scanning the library after a restart.
-	var playlist *owntone.Playlist
 	const maxAttempts = 3
-	for attempt := 1; attempt <= maxAttempts; attempt++ {
-		playlist, err = client.FindPlaylist(cfg.PlaylistName)
-		if err != nil {
-			resp.Error = fmt.Sprintf("find playlist: %v", err)
-			return resp, http.StatusBadGateway
+	bo := backoff.NewExponentialBackOff()
+	bo.InitialInterval = 3 * time.Second
+	playlist, err := backoff.Retry(
+		ctx, func() (*owntone.Playlist, error) {
+			p, err := client.FindPlaylist(cfg.PlaylistName)
+			if err != nil {
+				return nil, backoff.Permanent(fmt.Errorf("find playlist: %w", err))
+			}
+			if p == nil {
+				return nil, errPlaylistNotFound
+			}
+			return p, nil
+		},
+		backoff.WithBackOff(bo),
+		backoff.WithMaxTries(maxAttempts),
+		backoff.WithNotify(func(err error, next time.Duration) {
+			slog.Info("playlist not found, retrying", "playlist", cfg.PlaylistName, "in", next)
+		}),
+	)
+	if err != nil {
+		if errors.Is(err, errPlaylistNotFound) {
+			resp.Error = fmt.Sprintf("playlist %q not found after %d attempts", cfg.PlaylistName, maxAttempts)
+			return resp, http.StatusNotFound
 		}
-		if playlist != nil {
-			break
-		}
-		if attempt < maxAttempts {
-			log.Printf("playlist %q not found (attempt %d/%d), retrying…", cfg.PlaylistName, attempt, maxAttempts)
-			time.Sleep(time.Duration(attempt) * 3 * time.Second)
-		}
-	}
-	if playlist == nil {
-		resp.Error = fmt.Sprintf("playlist %q not found after %d attempts", cfg.PlaylistName, maxAttempts)
-		return resp, http.StatusNotFound
+		resp.Error = err.Error()
+		return resp, http.StatusBadGateway
 	}
 
 	// Clear queue, add playlist, play.
@@ -263,39 +295,34 @@ func (cfg *Config) speakersForSchedule(schedule string) []Speaker {
 	return cfg.Weekday
 }
 
+// handlePlay serves /play. Without speakers — an empty body, `{}` or
+// `null` (Apple Shortcuts' "JSON body, no fields" sends `{}`) — it plays
+// today's schedule; a JSON body listing speakers plays those. Only
+// malformed JSON is an error: the UI never legitimately sends an empty
+// speaker list.
 func handlePlay(client *owntone.Client, cfg *Config) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-
-		schedule := scheduleForNow()
-		resp, status := executePlay(client, cfg, cfg.speakersForSchedule(schedule), schedule)
-		writeJSON(w, status, resp)
-	}
-}
-
-func handlePlayCustom(client *owntone.Client, cfg *Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 
 		var req struct {
 			Speakers []Speaker `json:"speakers"`
 		}
-		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		err := json.NewDecoder(r.Body).Decode(&req)
+		switch {
+		case err != nil && !errors.Is(err, io.EOF):
 			writeJSON(w, http.StatusBadRequest, playResponse{
 				Status: "error",
 				Error:  fmt.Sprintf("invalid request body: %v", err),
 			})
 			return
-		}
-		if len(req.Speakers) == 0 {
-			writeJSON(w, http.StatusBadRequest, playResponse{
-				Status: "error",
-				Error:  "no speakers specified",
-			})
+		case len(req.Speakers) == 0:
+			schedule := scheduleForNow()
+			resp, status := executePlay(r.Context(), client, cfg, cfg.speakersForSchedule(schedule), schedule)
+			writeJSON(w, status, resp)
 			return
 		}
 
-		resp, status := executePlay(client, cfg, req.Speakers, "custom")
+		resp, status := executePlay(r.Context(), client, cfg, req.Speakers, "custom")
 		writeJSON(w, status, resp)
 	}
 }
@@ -315,12 +342,12 @@ func handleStop(client *owntone.Client) http.HandlerFunc {
 		// Deselect all outputs.
 		outputs, err := client.GetOutputs()
 		if err != nil {
-			log.Printf("deselect after stop: get outputs: %v", err)
+			slog.Warn("deselect after stop: get outputs", "err", err)
 		} else {
 			for _, o := range outputs {
 				if o.Selected {
 					if err := client.SetOutput(o.ID, false, -1); err != nil {
-						log.Printf("deselecting output %s (%s): %v", o.Name, o.ID, err)
+						slog.Warn("deselecting output", "name", o.Name, "id", o.ID, "err", err)
 					}
 				}
 			}
@@ -434,6 +461,9 @@ func handleSetOutput(client *owntone.Client) http.HandlerFunc {
 //  1. Create unsigned plists with the target URL baked in.
 //  2. Sign on macOS:  shortcuts sign -m anyone -i unsigned.shortcut -o signed.shortcut
 //  3. Replace the files in shortcuts/.
+//
+// The embedded files predate the POST-only /play and /stop endpoints
+// and still issue GETs — see shortcuts/SHORTCUTS.md.
 
 var shortcutFiles = map[string]struct {
 	Name string
@@ -455,7 +485,9 @@ func handleShortcut() http.HandlerFunc {
 
 		w.Header().Set("Content-Type", "application/octet-stream")
 		w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s.shortcut"`, sc.Name))
-		w.Write(sc.Data)
+		if _, err := w.Write(sc.Data); err != nil {
+			slog.Warn("shortcut download aborted", "name", sc.Name, "err", err)
+		}
 	}
 }
 
@@ -475,7 +507,10 @@ func writeJSON(w http.ResponseWriter, status int, v any) {
 	w.WriteHeader(status)
 	enc := json.NewEncoder(w)
 	enc.SetIndent("", "  ")
-	enc.Encode(v)
+	if err := enc.Encode(v); err != nil {
+		// Headers are gone; all we can do is not pretend the body was fine.
+		slog.Warn("json response truncated", "err", err)
+	}
 }
 
 // --- Web UI ---
@@ -683,7 +718,8 @@ async function init() {
     renderSpeakers();
 
     // If currently playing, reflect actual state; otherwise apply today's profile.
-    if (statusResp.player && statusResp.player.state === 'playing') {
+    // OwnTone reports 'play'/'pause'/'stop', not 'playing'.
+    if (statusResp.player && statusResp.player.state === 'play') {
       reflectLiveState();
       updateStatus(statusResp);
     } else {
@@ -925,7 +961,7 @@ async function doStop() {
   stopBtn.innerHTML = '<span class="spinner"></span> Stopping\u2026';
 
   try {
-    const resp = await fetch('/stop');
+    const resp = await fetch('/stop', {method: 'POST'});
     const data = await resp.json();
     showActionResult(data);
   } catch (e) {
@@ -989,12 +1025,14 @@ function updateStatus(data) {
       }
     }
 
-    if (state === 'playing' || state === 'paused') {
-      el.innerHTML = '<span style="color:#4ade80">\u25CF</span> ' +
-        state.charAt(0).toUpperCase() + state.slice(1) +
+    // OwnTone reports 'play'/'pause'/'stop', not 'playing'/'paused'.
+    const label = {play: 'Playing', pause: 'Paused', stop: 'Stopped'}[state] ||
+      state.charAt(0).toUpperCase() + state.slice(1);
+    if (state === 'play' || state === 'pause') {
+      el.innerHTML = '<span style="color:#4ade80">\u25CF</span> ' + label +
         (display.length ? ': ' + display.join(', ') : '');
     } else {
-      el.textContent = state.charAt(0).toUpperCase() + state.slice(1);
+      el.textContent = label;
     }
   }
 }

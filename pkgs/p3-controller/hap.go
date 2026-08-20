@@ -20,7 +20,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
+	"log/slog"
 	"path/filepath"
 	"sync"
 
@@ -101,14 +101,14 @@ func runHAP(ctx context.Context, client *owntone.Client, cfg *Config) error {
 	a.Switch.On.OnValueRemoteUpdate(func(on bool) {
 		if on {
 			schedule := scheduleForNow()
-			resp, _ := executePlay(client, cfg, cfg.speakersForSchedule(schedule), schedule)
+			resp, _ := executePlay(ctx, client, cfg, cfg.speakersForSchedule(schedule), schedule)
 			if resp.Status != "playing" {
-				log.Printf("hap: play failed: %s", resp.Error)
+				slog.Error("hap play failed", "err", resp.Error)
 			}
 			return
 		}
 		if err := client.Stop(); err != nil {
-			log.Printf("hap: stop: %v", err)
+			slog.Error("hap stop", "err", err)
 		}
 	})
 
@@ -120,17 +120,17 @@ func runHAP(ctx context.Context, client *owntone.Client, cfg *Config) error {
 		err := client.SubscribePlayer(ctx, func() {
 			player, err := client.GetPlayer()
 			if err != nil {
-				log.Printf("hap: get player on event: %v", err)
+				slog.Warn("hap get player on event", "err", err)
 				return
 			}
 			setOn(player.State == "play")
 		})
 		if err != nil && ctx.Err() == nil {
-			log.Printf("hap: ws subscribe: %v", err)
+			slog.Error("hap ws subscribe", "err", err)
 		}
 	}()
 
-	log.Printf("hap: listening (name=%q addr=%q pin=%s state_dir=%s)", name, server.Addr, server.Pin, hcfg.StateDir)
+	slog.Info("hap listening", "name", name, "addr", server.Addr, "pin", server.Pin, "state_dir", hcfg.StateDir)
 
 	// ListenAndServe blocks until ctx is cancelled. It returns nil
 	// on a clean cancel.
