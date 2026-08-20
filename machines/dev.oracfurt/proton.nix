@@ -74,9 +74,12 @@
       EnvironmentFile = config.age.secrets.proton-imap-check.path;
     };
     script = ''
-      if ${pkgs.curl}/bin/curl -s --max-time 20 \
-        --user "$PROTON_IMAP_USER:$PROTON_IMAP_PASSWORD" \
-        "imap://127.0.0.1:1143/" >/dev/null; then
+      # Credentials via curl's config-on-stdin (-K -), not argv: --user puts
+      # them in the process list for the probe's lifetime.
+      if ${pkgs.curl}/bin/curl -s --max-time 20 -K - \
+        "imap://127.0.0.1:1143/" >/dev/null <<CFG; then
+      user = "$PROTON_IMAP_USER:$PROTON_IMAP_PASSWORD"
+      CFG
         ok=1
       else
         ok=0
@@ -92,9 +95,10 @@
   systemd.timers.proton-login-check = {
     wantedBy = [ "timers.target" ];
     timerConfig = {
+      # Monotonic-only timer: Persistent= applies solely to OnCalendar and
+      # was a no-op here.
       OnBootSec = "10m";
       OnUnitActiveSec = "30m";
-      Persistent = true;
     };
   };
 }
