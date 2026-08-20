@@ -50,7 +50,8 @@ type outputsResponse struct {
 type Player struct {
 	State        string `json:"state"`
 	RepeatMode   string `json:"repeat"`
-	ShuffleMode  bool   `json:"consume"`
+	Shuffle      bool   `json:"shuffle"`
+	Consume      bool   `json:"consume"`
 	Volume       int    `json:"volume"`
 	ItemID       int    `json:"item_id"`
 	ItemLength   int    `json:"item_length_ms"`
@@ -155,22 +156,26 @@ func (c *Client) FindPlaylist(query string) (*Playlist, error) {
 }
 
 // normaliseName lowercases, replaces hyphens with spaces, and strips
-// a leading Nix store hash prefix (32 hex chars followed by a dash).
+// a leading Nix store hash prefix (32 base-32 chars followed by a
+// dash).
 func normaliseName(s string) string {
 	s = strings.ToLower(s)
 	s = strings.ReplaceAll(s, "-", " ")
-	// Strip Nix store hash prefix: 32 hex chars + space (was dash).
-	if len(s) > 33 && s[32] == ' ' && isHex(s[:32]) {
+	// Strip Nix store hash prefix: 32 base-32 chars + space (was dash).
+	if len(s) > 33 && s[32] == ' ' && isNixHash(s[:32]) {
 		s = s[33:]
 	}
 	return s
 }
 
-// isHex reports whether every byte in s is a lowercase hex digit.
-func isHex(s string) bool {
+// isNixHash reports whether every byte in s is in the Nix base-32
+// alphabet (0-9 a-z minus e, o, u, t).
+func isNixHash(s string) bool {
 	for i := 0; i < len(s); i++ {
-		c := s[i]
-		if !((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f')) {
+		switch c := s[i]; {
+		case c >= '0' && c <= '9':
+		case c >= 'a' && c <= 'z' && c != 'e' && c != 'o' && c != 'u' && c != 't':
+		default:
 			return false
 		}
 	}

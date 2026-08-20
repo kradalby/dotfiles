@@ -10,13 +10,15 @@ package owntone
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"log"
+	"log/slog"
 	"net/url"
 	"slices"
 	"strings"
 	"time"
 
+	"github.com/cenkalti/backoff/v5"
 	"golang.org/x/net/websocket"
 )
 
@@ -43,6 +45,10 @@ type notifyEvent struct {
 	Notify []string `json:"notify"`
 }
 
+// errResubscribe signals a clean server-side close; the subscription
+// is reestablished with the backoff freshly reset.
+var errResubscribe = errors.New("owntone ws closed, resubscribing")
+
 // SubscribePlayer opens a WebSocket to owntone's notify endpoint,
 // subscribes to player events, and invokes onChange for each event
 // (including the initial subscribe). The connection is reestablished
@@ -54,15 +60,12 @@ type notifyEvent struct {
 // Returns when ctx is cancelled. Any read/dial errors are logged and
 // trigger reconnect; they are not returned.
 func (c *Client) SubscribePlayer(ctx context.Context, onChange func()) error {
-	backoff := time.Second
-	const maxBackoff = 30 * time.Second
+	bo := backoff.NewExponentialBackOff()
+	bo.InitialInterval = time.Second
+	bo.MaxInterval = 30 * time.Second
 
-	for {
-		if ctx.Err() != nil {
-			return nil
-		}
-
-		// Discover the websocket port on every iteration so a
+	op := func() (struct{}, error) {
+		// Discover the websocket port on every attempt so a
 		// transient owntone outage at startup (the http port not yet
 		// bound when p3-controller queries) recovers via the same
 		// reconnect loop as a mid-run drop.
@@ -79,24 +82,31 @@ func (c *Client) SubscribePlayer(ctx context.Context, onChange func()) error {
 		}
 
 		if ctx.Err() != nil {
-			return nil
+			return struct{}{}, backoff.Permanent(ctx.Err())
 		}
-		if err != nil {
-			log.Printf("owntone ws: %v (reconnect in %s)", err, backoff)
-			select {
-			case <-ctx.Done():
-				return nil
-			case <-time.After(backoff):
-			}
-			backoff *= 2
-			if backoff > maxBackoff {
-				backoff = maxBackoff
-			}
-			continue
+		if err == nil {
+			// Clean exit (server closed politely): reset backoff and
+			// resubscribe.
+			bo.Reset()
+			err = errResubscribe
 		}
-		// Clean exit (server closed politely): reset backoff and try again.
-		backoff = time.Second
+		return struct{}{}, err
 	}
+
+	// WithMaxElapsedTime(0) disables the 15-minute default so the
+	// subscription reconnects for the lifetime of the process.
+	_, err := backoff.Retry(
+		ctx, op,
+		backoff.WithBackOff(bo),
+		backoff.WithMaxElapsedTime(0),
+		backoff.WithNotify(func(err error, next time.Duration) {
+			slog.Warn("owntone ws reconnecting", "err", err, "in", next)
+		}),
+	)
+	if ctx.Err() != nil {
+		return nil //nolint:nilerr // context cancellation is a clean shutdown, not an error
+	}
+	return err
 }
 
 // runOnce dials, subscribes, and reads until ctx cancels or an error
