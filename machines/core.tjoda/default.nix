@@ -29,9 +29,6 @@
     ./sfiber-check.nix
   ];
 
-  # TODO: Figure a way to allowlist some URLs
-  services.blocklist-downloader.enable = lib.mkForce false;
-
   my = {
     lan = "lan0";
 
