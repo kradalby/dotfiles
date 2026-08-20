@@ -12,9 +12,8 @@ let
   # gauge to the fleet pushgateway; a proxy that is down still gets pushed as 0
   # (that 0 is the whole signal), and PushgatewayGroupStale catches the timer
   # itself dying.
-  # Enumerate the tailscale-proxy instances straight from config (currently
-  # restic-sfiber + minio-sfiber) so the check tracks whatever proxies exist
-  # rather than a hardcoded, drift-prone list.
+  # Enumerate the tailscale-proxy instances straight from config so the check
+  # tracks whatever proxies exist rather than a hardcoded, drift-prone list.
   proxyNames = lib.attrNames (lib.filterAttrs (_: p: p.enable) config.services.tailscale-proxies);
 
   pushgateway = "http://pushgateway/metrics/job/sfiber-proxy/instance/core-tjoda";

@@ -91,12 +91,6 @@ with builtins;
   # infrastructure garage/ tofu root)
   "garage.age".publicKeys = u ++ [ hosts.core-tjoda ];
 
-  # minio
-  "minio-oracldn.age".publicKeys = u ++ [
-    hosts.core-oracldn
-    hosts.core-tjoda
-  ];
-
   # litestream (per-host garage keys; also in setec under
   # infra/garage/tjoda/litestream-<host>/ for the tofu grants)
   "litestream-oracldn.age".publicKeys = u ++ [ hosts.core-oracldn ];
