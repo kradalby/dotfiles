@@ -102,6 +102,10 @@ in
     declarativePlugins = [ pkgs.grafanaPlugins.yesoreyeram-infinity-datasource ];
 
     settings = {
+      # WAL mode: litestream replicates this db (litestream.nix) and requires
+      # a WAL-journaled sqlite.
+      database.wal = true;
+
       server = {
         inherit domain;
         root_url = "https://${domain}";
