@@ -374,3 +374,181 @@ tests:
             exp_annotations:
               summary: "Litestream has not passed a restore test in over two weeks"
               description: "The weekly restore + integrity check has not succeeded recently; the sqlite replicas may not be restorable. Check litestream-restore-test.service."
+
+  # Textfile collector health: the one alert that would have caught the sanoid
+  # 0600 bug and the missing-directory case fleet-wide.
+  - interval: 1m
+    input_series:
+      - series: 'node_textfile_scrape_error{instance="h1:9100", host="h1"}'
+        values: "1x30"
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: NodeTextfileCollectorErrors
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: h1:9100
+              host: h1
+            exp_annotations:
+              summary: "h1:9100: node_exporter textfile collector scrape error"
+              description: "node_exporter failed to read the textfile collector directory or a .prom file; textfile-backed metrics (ZFS snapshot/pool, litestream restore) are missing until fixed."
+
+  # ZFS snapshot/pool alerts, unblocked now the sanoid textfile is readable. A
+  # large-negative epoch keeps `time() - ts` past the 25h threshold at a modest
+  # eval time (same trick as LitestreamRestoreStale above).
+  - interval: 1m
+    input_series:
+      - series: 'zfs_snapshot_newest_creation_seconds{dataset="tank/data", instance="h1:9100", host="h1"}'
+        values: "-100000x60"
+      - series: 'zfs_pool_status_errors{pool="tank", instance="h1:9100", host="h1"}'
+        values: "1x60"
+    alert_rule_test:
+      - eval_time: 40m
+        alertname: ZfsSnapshotStale
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              dataset: tank/data
+              instance: h1:9100
+              host: h1
+            exp_annotations:
+              summary: "Newest snapshot of tank/data on h1 is stale"
+              description: "sanoid has not produced a snapshot for over 25 hours; snapshotting has silently stalled."
+      - eval_time: 20m
+        alertname: ZpoolStatusErrors
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              pool: tank
+              instance: h1:9100
+              host: h1
+            exp_annotations:
+              summary: "zpool status reports errors on tank (h1)"
+              description: "The pool is accumulating checksum/scrub errors while staying ONLINE — zfs_pool_health alone does not catch this."
+
+  # SmartctlDiskMissing is generated per host from metadata/smartctl.nix. Four
+  # of core-tjoda's five disks reporting drops the count below 5 and pages.
+  - interval: 1m
+    input_series:
+      - series: 'smartctl_device_smart_status{device="d1", host="core-tjoda", instance="core-tjoda:9633"}'
+        values: "1x30"
+      - series: 'smartctl_device_smart_status{device="d2", host="core-tjoda", instance="core-tjoda:9633"}'
+        values: "1x30"
+      - series: 'smartctl_device_smart_status{device="d3", host="core-tjoda", instance="core-tjoda:9633"}'
+        values: "1x30"
+      - series: 'smartctl_device_smart_status{device="d4", host="core-tjoda", instance="core-tjoda:9633"}'
+        values: "1x30"
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: SmartctlDiskMissing
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              host: core-tjoda
+            exp_annotations:
+              summary: "core-tjoda: fewer than 5 disks report SMART"
+              description: "A monitored disk (or the whole metric) disappeared from the smartctl exporter on core-tjoda — dead disk, dead controller, renamed metric, or metadata/smartctl.nix is stale."
+
+  # ServiceFailed must ignore transient login scopes (the self-inflicted noise)
+  # but still page on a real failed service.
+  - interval: 1m
+    input_series:
+      - series: 'systemd_unit_state{state="failed", type="scope", name="session-c1.scope", instance="h1:9558", host="h1"}'
+        values: "1x30"
+      - series: 'systemd_unit_state{state="failed", type="service", name="real.service", instance="h1:9558", host="h1"}'
+        values: "1x30"
+    alert_rule_test:
+      - eval_time: 10m
+        alertname: ServiceFailed
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              state: failed
+              type: service
+              name: real.service
+              instance: h1:9558
+              host: h1
+            exp_annotations:
+              summary: "h1:9558: service real.service failed"
+              description: "The systemd unit real.service on h1:9558 has been in failed state for more than 2 minutes."
+
+  # restic dead-man canary: the whole success-metric family disappearing must
+  # page even though the per-repo staleness thresholds cannot. A present jotta
+  # series with no local-repo series fires the repo!="jotta" disjunct.
+  - interval: 1m
+    input_series:
+      - series: 'restic_backup_last_success_timestamp_seconds{repo="jotta", instance="h1", job="restic"}'
+        values: "0x400"
+    alert_rule_test:
+      - eval_time: 380m
+        alertname: ResticBackupMetricsMissing
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+            exp_annotations:
+              summary: "restic backup success metric is missing"
+              description: "No restic_backup_last_success_timestamp_seconds series for one or more repo classes — metric renamed or pushgateway wiped, so ResticBackupNotSucceeding cannot fire."
+
+  # IncusDaemonWarnings fires on NEW warnings (delta) and must clear once the
+  # count stops rising — the old `> 0` pinned forever on one unacked warning.
+  - interval: 1m
+    input_series:
+      - series: 'incus_warnings_total{instance="core-ldn:8443", host="core-ldn"}'
+        values: "0x30 1x150"
+    alert_rule_test:
+      - eval_time: 55m
+        alertname: IncusDaemonWarnings
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: core-ldn:8443
+              host: core-ldn
+            exp_annotations:
+              summary: "New Incus warning(s) on core-ldn:8443"
+              description: "The Incus daemon on core-ldn:8443 raised a new warning. Check 'incus warning list' (clear stale ones with 'incus warning delete')."
+      # The same warning still unacked two hours later: no new rise, no alert.
+      - eval_time: 170m
+        alertname: IncusDaemonWarnings
+        exp_alerts: []
+
+  # SmartPlugTelemetryDown is scoped to homewizard (the only job with a real
+  # probe_success); a dead tasmota-job series must not resurrect the old
+  # can't-fire matcher.
+  - interval: 1m
+    input_series:
+      - series: 'probe_success{job="homewizard", instance="power-p1-meter.ldn.fap.no"}'
+        values: "0x30"
+      - series: 'probe_success{job="tasmota", instance="office-light.ldn.fap.no"}'
+        values: "0x30"
+    alert_rule_test:
+      - eval_time: 15m
+        alertname: SmartPlugTelemetryDown
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              job: homewizard
+              instance: power-p1-meter.ldn.fap.no
+            exp_annotations:
+              summary: "No response from power-p1-meter.ldn.fap.no"
+              description: "P1 meter unreachable — device offline or the LDN subnet route is broken."
+
+  # ResticBackupPartial: a full day of exit-3 (persistently unreadable path)
+  # pages; interleaved clean runs (routine vanished-file churn) never do.
+  - interval: 1m
+    input_series:
+      - series: 'restic_backup_last_exit_status{repo="tjoda", instance="dev-ldn", job="restic"}'
+        values: "3x1560"
+      - series: 'restic_backup_last_exit_status{repo="ldn", instance="dev-ldn", job="restic"}'
+        values: "3x760 0 3x799"
+    alert_rule_test:
+      - eval_time: 1500m
+        alertname: ResticBackupPartial
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              repo: tjoda
+              instance: dev-ldn
+              job: restic
+            exp_annotations:
+              summary: "Restic tjoda on dev-ldn: every backup partial for 24h"
+              description: "Every run in the last day exited 3 (some source files unreadable) — a path is persistently not being backed up. Check unit logs for the skipped files."
