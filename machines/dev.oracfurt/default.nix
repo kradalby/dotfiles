@@ -12,6 +12,7 @@
     ../../common/containers.nix
 
     ../../common/tailscale.nix
+    ../../common/oci-gateway.nix
     ../../common/tsnixcache-client.nix
 
     ./garnix-builder.nix
@@ -62,49 +63,11 @@
       ];
     };
 
-    nat = {
-      enable = true;
-      externalInterface = config.my.wan;
-      internalIPs = [ "10.0.0.0/8" ];
-      internalInterfaces = [
-        config.my.lan
-        "iot"
-      ];
-      forwardPorts = [
-        {
-          sourcePort = 64322;
-          destination = "10.67.0.1:22";
-          proto = "tcp";
-        }
-      ];
-    };
-
-    firewall = {
-      enable = lib.mkForce true;
-      # This is a special override for gateway machines as we
-      # dont want to use "openFirewall" here since it makes
-      # everything world available.
-      allowedTCPPorts = lib.mkForce [
-        22 # SSH
-        80 # HTTP
-        443 # HTTPS
-      ];
-
-      allowedUDPPorts = lib.mkForce [
-        443 # HTTPS
-        config.services.tailscale.port
-      ];
-
-      trustedInterfaces = [ config.my.lan ];
-    };
   };
 
-  boot.kernel.sysctl = {
-    # IPv6 default route comes from OCI router advertisements; accept_ra=2
-    # keeps that working with forwarding enabled. No SLAAC (autoconf=0):
-    # OCI only routes addresses explicitly assigned to the VNIC.
-    "net.ipv6.conf.${config.my.wan}.accept_ra" = 2;
-    "net.ipv6.conf.${config.my.wan}.autoconf" = 0;
+  my.ociGateway = {
+    enable = true;
+    gatewayAddress = "10.67.0.1";
   };
 
   services.tailscale = {
