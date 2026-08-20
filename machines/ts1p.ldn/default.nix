@@ -1,7 +1,6 @@
 {
   config,
   pkgs,
-  lib,
   ...
 }:
 let
@@ -72,9 +71,4 @@ in
     config.services.prometheus.exporters.node.port
     config.services.prometheus.exporters.systemd.port
   ];
-
-  # ts1p lives only on the tailscale.com tailnet (as setec.dalby.ts.net).
-  # common/tailscale.nix also wires a secondary headscale.kradalby.no instance;
-  # ts1p has no business there, and its failing autoconnect breaks deploys.
-  services.tailscales.headscale.enable = lib.mkForce false;
 }

@@ -86,9 +86,11 @@ in
               (pick "--outbound-http-proxy-listen=")
             ]
           );
+        # Only ENABLED instances: a disabled plural instance runs no proxy, so
+        # counting it would assert on a phantom port collision.
         instances =
           lib.optional config.services.tailscale.enable config.services.tailscale
-          ++ lib.attrValues config.services.tailscales;
+          ++ lib.filter (i: i.enable) (lib.attrValues config.services.tailscales);
         ports = lib.concatMap proxyPorts instances;
       in
       [
@@ -132,22 +134,5 @@ in
           (builtins.length cfg.tags) > 0
         ) "--advertise-tags=${builtins.concatStringsSep "," cfg.tags}";
     };
-
-    # Secondary Tailscale instance: headscale.kradalby.no.
-    # Userspace networking (no TUN conflicts with the primary instance).
-    #
-    # DISABLED: headscale.kradalby.no is currently offline, so this instance would
-    # just churn retrying. Re-enable (and rekey headscale-client-preauthkey to add
-    # any new hosts) once it is back up.
-    # age.secrets.headscale-client-preauthkey = {
-    #   file = ../secrets/headscale-client-preauthkey.age;
-    # };
-    #
-    # services.tailscales.headscale = {
-    #   enable = true;
-    #   authKeyFile = config.age.secrets.headscale-client-preauthkey.path;
-    #   extraUpFlags = ["--login-server=https://headscale.kradalby.no"];
-    #   extraSetFlags = ["--hostname=${hostname}"];
-    # };
   };
 }
