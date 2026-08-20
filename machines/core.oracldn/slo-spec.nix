@@ -41,16 +41,6 @@ let
         alertName = "NginxVhostErrorBudgetBurn";
       })
 
-      # LAN DNS. SERVFAIL only — NXDOMAIN/REFUSED are usually correct answers.
-      (mkSLO {
-        name = "coredns-answers";
-        description = "CoreDNS SERVFAIL ratio per site resolver";
-        objective = 99.9;
-        errorQuery = ''sum by (instance) (rate(coredns_dns_responses_total{rcode="SERVFAIL"}[{{.window}}]))'';
-        totalQuery = "sum by (instance) (rate(coredns_dns_responses_total[{{.window}}]))";
-        alertName = "CorednsErrorBudgetBurn";
-      })
-
       # sqlite replication (headscale db, kuma.db, golink.db). Counter names
       # verified against litestream 0.5.11 source — no _total suffix there.
       (mkSLO {

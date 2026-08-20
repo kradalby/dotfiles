@@ -6,7 +6,9 @@
   # ldn-specific networking configuration
   networking = {
     domain = "ldn.fap.no";
-    nameservers = [ "10.65.0.1" ];
+    # No nameservers override: 10.65.0.1 is plain-53 and refuses DoT, so the
+    # forced strict DNSOverTLS made DNS work only via tailscaled. Fall back to
+    # the Cloudflare DoT default in common/resolved.nix.
     defaultGateway = {
       address = "10.65.0.1";
       interface = config.my.lan;
