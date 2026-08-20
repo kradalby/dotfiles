@@ -4,7 +4,7 @@ buildGoModule {
   version = "0.1.0";
 
   src = ./.;
-  vendorHash = null; # stdlib only, no external deps
+  vendorHash = "sha256-j+Lhx7tdV7l94E6qztZQhFUX8FImq1C4nsaD6IBWcgg=";
 
   env.CGO_ENABLED = 0;
 

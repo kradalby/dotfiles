@@ -6,6 +6,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"fmt"
 	"html/template"
@@ -19,6 +20,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/cenkalti/backoff/v5"
 )
 
 const port = "8846"
@@ -93,6 +96,10 @@ type repo struct {
 type pageData struct {
 	Sessions []session
 	Repos    []repo
+	// Err renders a banner when session enumeration failed, so a broken
+	// `ac` is distinguishable from an idle box (spawning duplicates was
+	// the failure mode).
+	Err string
 }
 
 // repos lists directories under gitRoot that are git repos, most-recently
@@ -127,7 +134,7 @@ func repos() []repo {
 // ponytail: HEAD commit date is the signal; a worktree freshly branched from an
 // old base sorts old. If that bites, switch to the worktree admin-dir mtime.
 func lastActive(dir string) time.Time {
-	out, err := output(readTimeout, "git", "-C", dir, "log", "-1", "--format=%ct", "HEAD")
+	out, err := output("git", "-C", dir, "log", "-1", "--format=%ct", "HEAD")
 	if err != nil {
 		return time.Time{}
 	}
@@ -140,7 +147,7 @@ func lastActive(dir string) time.Time {
 // parsing is in parseWorktrees; this wrapper does the git call and the per-path
 // activity lookup.
 func worktreesFor(name string) []worktree {
-	out, err := output(readTimeout, "git", "-C", filepath.Join(gitRoot, name), "worktree", "list", "--porcelain")
+	out, err := output("git", "-C", filepath.Join(gitRoot, name), "worktree", "list", "--porcelain")
 	if err != nil {
 		slog.Error("worktree list", "repo", name, "err", err)
 		return nil
@@ -187,14 +194,14 @@ func parseWorktrees(out []byte, prefix string) []worktree {
 	return res
 }
 
-// sessions parses `ac ls --porcelain`.
-func sessions() []session {
-	out, err := output(readTimeout, "ac", "ls", "--porcelain")
+// sessions parses `ac ls --porcelain`. An error means the session list is
+// unknown, not empty — callers that gate destructive actions on it must refuse.
+func sessions() ([]session, error) {
+	out, err := output("ac", "ls", "--porcelain")
 	if err != nil {
-		slog.Error("ac ls", "err", err)
-		return nil
+		return nil, fmt.Errorf("ac ls: %w", err)
 	}
-	return parseSessions(out)
+	return parseSessions(out), nil
 }
 
 // parseSessions decodes ac's porcelain contract, one live session per line:
@@ -222,7 +229,13 @@ func parseSessions(out []byte) []session {
 // --- handlers ---
 
 func handleIndex(w http.ResponseWriter, r *http.Request) {
-	if err := page.Execute(w, pageData{Sessions: sessions(), Repos: repos()}); err != nil {
+	sess, err := sessions()
+	data := pageData{Sessions: sess, Repos: repos()}
+	if err != nil {
+		slog.Error("list sessions", "err", err) // render anyway; repos are still useful
+		data.Err = "session list unavailable (ac ls failed) — running agents may not be shown"
+	}
+	if err := page.Execute(w, data); err != nil {
 		slog.Error("render", "err", err)
 	}
 }
@@ -275,7 +288,14 @@ func handleRmWorktree(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	target := filepath.Join(wtRoot, repoName, rel)
-	for _, s := range sessions() {
+	live, err := sessions()
+	if err != nil {
+		// Unknown is not empty: without the list we could yank a worktree out
+		// from under a running agent, so refuse rather than guess.
+		http.Error(w, fmt.Sprintf("cannot verify live sessions, refusing to remove: %v", err), http.StatusInternalServerError)
+		return
+	}
+	for _, s := range live {
 		if s.Workdir == target {
 			fail(w, fmt.Errorf("session %s is live in %s/%s; kill it first", s.Server, repoName, rel))
 			return
@@ -338,10 +358,11 @@ func validateBranch(name string) error {
 
 // --- helpers ---
 
-// output runs name+args under a deadline and returns stdout. WaitDelay keeps a
-// child that daemonizes (holding the pipe) from stalling us after the kill.
-func output(timeout time.Duration, name string, args ...string) ([]byte, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+// output runs name+args under the read deadline and returns stdout. WaitDelay
+// keeps a child that daemonizes (holding the pipe) from stalling us after the
+// kill.
+func output(name string, args ...string) ([]byte, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), readTimeout)
 	defer cancel()
 	cmd := exec.CommandContext(ctx, name, args...)
 	cmd.WaitDelay = time.Second
@@ -382,21 +403,27 @@ func envOr(k, def string) string {
 	return def
 }
 
-// tailnetAddr resolves the host's Tailscale IPv4, retrying because tailscaled
-// may lag behind network-online at boot.
+// tailnetAddr resolves the host's Tailscale IPv4, retrying (2s apart, up to a
+// minute) because tailscaled may lag behind network-online at boot.
 func tailnetAddr() string {
-	for range 30 {
-		out, err := output(readTimeout, "tailscale", "ip", "-4")
-		if err == nil {
-			if ip := strings.TrimSpace(strings.SplitN(string(out), "\n", 2)[0]); ip != "" {
-				return ip + ":" + port
-			}
+	ip, err := backoff.Retry(context.Background(), func() (string, error) {
+		out, err := output("tailscale", "ip", "-4")
+		if err != nil {
+			return "", err
 		}
-		time.Sleep(2 * time.Second)
+		ip := strings.TrimSpace(strings.SplitN(string(out), "\n", 2)[0])
+		if ip == "" {
+			return "", errors.New("empty tailscale ip output")
+		}
+		return ip, nil
+	},
+		backoff.WithBackOff(backoff.NewConstantBackOff(2*time.Second)),
+		backoff.WithMaxElapsedTime(5*time.Minute))
+	if err != nil {
+		slog.Error("could not determine tailscale IPv4 (pass -listen to override)", "err", err)
+		os.Exit(1)
 	}
-	slog.Error("could not determine tailscale IPv4 (pass -listen to override)")
-	os.Exit(1)
-	return ""
+	return ip + ":" + port
 }
 
 var page = template.Must(template.New("page").Funcs(template.FuncMap{"ago": ago}).Parse(`<!doctype html>
@@ -416,7 +443,7 @@ var page = template.Must(template.New("page").Funcs(template.FuncMap{"ago": ago}
  .att{color:#0a0}
 </style></head><body>
 <h1>ac-web</h1>
-
+{{if .Err}}<p style="color:#b00;border:1px solid #b00;padding:.5em">{{.Err}}</p>{{end}}
 <h2>Running sessions</h2>
 {{if .Sessions}}<ul>
 {{range .Sessions}}<li>
