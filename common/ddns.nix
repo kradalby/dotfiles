@@ -39,7 +39,9 @@ in
       domains = cfg.domains;
       provider = {
         ipv4 = "cloudflare.trace";
-        ipv6 = "cloudflare.trace";
+        # No global IPv6 on these sites — detection just failure-looped every
+        # 5 minutes forever.
+        ipv6 = "none";
       };
       proxied = "false";
     };
