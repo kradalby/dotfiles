@@ -58,3 +58,10 @@ tailscale_policy.hujson
 
 # Per-machine direnv overrides
 .envrc.local
+
+# Local `go build` outputs (module dirs share the binary's name)
+pkgs/rustic-wrapper/rustic-wrapper
+pkgs/oci-usage-exporter/oci-usage-exporter
+pkgs/overlays/authkey/authkey
+pkgs/ac-web/ac-web
+pkgs/p3-controller/p3-controller

@@ -82,7 +82,8 @@ func loadConfig() (*config, error) {
 		}
 		tenancy := field("tenancy_ocid")
 		provider := common.NewRawConfigurationProvider(
-			tenancy, field("user_ocid"), field("region"), field("fingerprint"), string(keyPEM), nil)
+			tenancy, field("user_ocid"), field("region"), field("fingerprint"), string(keyPEM), nil,
+		)
 		client, err := usageapi.NewUsageapiClientWithConfigurationProvider(provider)
 		if err != nil {
 			return nil, fmt.Errorf("account %s: creating usage client: %w", name, err)

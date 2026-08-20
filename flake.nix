@@ -599,6 +599,8 @@
           projectRootFile = "flake.nix";
           # nixfmt-rfc-style: the standard Nix formatter (RFC 166).
           programs.nixfmt.enable = true;
+          # Go: gofumpt fleet-wide per docs/conventions/nix.md.
+          programs.gofumpt.enable = true;
           settings.formatter = {
             prettier = {
               command = "${pkgs.prettier}/bin/prettier";
