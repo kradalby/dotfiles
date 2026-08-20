@@ -3,7 +3,7 @@
   pkgs,
   lib,
   ...
-}@args:
+}:
 with lib;
 let
   cfg = config.services.tailscale-proxies;
@@ -54,7 +54,7 @@ in
     '';
   };
 
-  config = mkIf (cfg != { }) {
+  config = mkIf (any (c: c.enable) (attrValues cfg)) {
     users.users.tailscale-proxy = {
       home = baseDataDir;
       createHome = true;
@@ -78,9 +78,15 @@ in
         after = [ "network.target" ];
         restartTriggers = [ svcConfig.package ];
         script = ''
+          set -euo pipefail
           mkdir -p ${dataDir}
-          export TS_AUTHKEY=`cat ${svcConfig.tailscaleKeyPath}`
-          ${svcConfig.package}/bin/proxy-to-grafana \
+          TS_AUTHKEY=$(cat "$CREDENTIALS_DIRECTORY/authkey")
+          if [ -z "$TS_AUTHKEY" ]; then
+            echo "tailscale-proxy ${subSvcName}: auth key is empty, refusing to start unauthenticated" >&2
+            exit 1
+          fi
+          export TS_AUTHKEY
+          exec ${svcConfig.package}/bin/proxy-to-grafana \
             --hostname=${svcConfig.hostname} \
             --backend-addr=localhost:${toString svcConfig.backendPort} \
             --state-dir=${dataDir} \
@@ -93,6 +99,10 @@ in
           Restart = "always";
           RestartSec = "15";
           WorkingDirectory = baseDataDir;
+          # Read the key as root at setup and hand it to the service via the
+          # credentials dir, so the .age file can be 0400 root (not world- or
+          # service-user-readable).
+          LoadCredential = [ "authkey:${svcConfig.tailscaleKeyPath}" ];
         };
       }
     );

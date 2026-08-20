@@ -100,7 +100,6 @@ let
 in
 {
   imports = [
-    ../../common/tskey.nix
   ];
 
   services.z2m-homekit = {
@@ -124,7 +123,7 @@ in
 
     tailscale = {
       hostname = "z2m-homekit";
-      authKeyFile = config.age.secrets.tailscale-preauthkey.path;
+      authKeyFile = config.age.secrets.homekit-tskey.path;
     };
 
     log.level = lib.mkForce "debug";

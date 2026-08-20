@@ -32,11 +32,15 @@
     owner = "tsnixcache";
     group = "tsnixcache";
   };
-  # tsnixcache's tsnet nodes reuse the host's join keys, so grant it access.
-  age.secrets.tailscale-preauthkey = {
+  # Own key for the kradalby-tailnet node (infra authkey_tsnixcache.tf) — the
+  # fleet host-join key is single-use and root-only now, never shared with
+  # services.
+  age.secrets.tsnixcache-tskey = {
+    file = ../../secrets/tsnixcache-tskey.age;
     owner = "tsnixcache";
     group = "tsnixcache";
   };
+  # The sfiber node still uses the (reusable) sfiber join key.
   age.secrets.headscale-sfiber-client-preauthkey = {
     owner = "tsnixcache";
     group = "tsnixcache";
@@ -55,7 +59,7 @@
     tsnet = [
       {
         hostname = "tsnixcache";
-        authKeyFile = config.age.secrets.tailscale-preauthkey.path;
+        authKeyFile = config.age.secrets.tsnixcache-tskey.path;
         dir = "/var/lib/tsnixcache/tsnet-kradalby";
       }
       {
