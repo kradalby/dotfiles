@@ -19,9 +19,10 @@ package main
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"fmt"
-	"log"
+	"log/slog"
 	"os"
 	"os/exec"
 	"path"
@@ -29,12 +30,7 @@ import (
 	"time"
 
 	"golang.org/x/oauth2/clientcredentials"
-	"tailscale.com/client/tailscale"
-)
-
-const (
-	secretRulesGitPath = "git/dotfiles/secrets/secrets.nix"
-	secretsDirGitPath  = "git/dotfiles/secrets"
+	"tailscale.com/client/tailscale" //nolint:staticcheck // v2 client migration pending; the v1 key API still works
 )
 
 type platform struct {
@@ -78,11 +74,12 @@ var platforms = map[string]platform{
 var order = []string{"kradalby", "headscale", "sfiber"}
 
 var (
-	tags   = flag.String("tags", "tag:server", "comma-separated tags to stamp on the key")
-	secret = flag.String("secret", "", "ragenix .age secret to rotate, overrides the platform default")
-	expiry = flag.Duration("expiry", 24*time.Hour, "key expiry")
-	rotate = flag.Bool("rotate", false, "write the key into the ragenix secret (default: print to stdout)")
-	commit = flag.Bool("commit", false, "git commit the rotated secret (implies -rotate)")
+	tags     = flag.String("tags", "tag:server", "comma-separated tags to stamp on the key")
+	secret   = flag.String("secret", "", "ragenix .age secret to rotate, overrides the platform default")
+	expiry   = flag.Duration("expiry", 24*time.Hour, "key expiry")
+	reusable = flag.Bool("reusable", false, "issue a reusable key (default: single-use)")
+	rotate   = flag.Bool("rotate", false, "write the key into the ragenix secret (default: print to stdout)")
+	commit   = flag.Bool("commit", false, "git commit the rotated secret (implies -rotate)")
 )
 
 func usage() {
@@ -98,7 +95,14 @@ func main() {
 		usage()
 		os.Exit(2)
 	}
-	target := flag.Arg(0)
+
+	if err := run(flag.Arg(0)); err != nil {
+		slog.Error("authkey", "err", err)
+		os.Exit(1)
+	}
+}
+
+func run(target string) error {
 	if *commit {
 		*rotate = true
 	}
@@ -107,19 +111,19 @@ func main() {
 
 	tagList := parseTags(*tags)
 	if len(tagList) == 0 {
-		log.Fatalf("at least one tag is required")
+		return errors.New("at least one tag is required")
 	}
 
 	var names []string
 	switch target {
 	case "all":
 		if *secret != "" {
-			log.Fatalf("-secret cannot be combined with 'all' (each platform has its own secret)")
+			return errors.New("-secret cannot be combined with 'all' (each platform has its own secret)")
 		}
 		names = order
 	default:
 		if _, ok := platforms[target]; !ok {
-			log.Fatalf("unknown platform %q (want: kradalby, headscale, sfiber, all)", target)
+			return fmt.Errorf("unknown platform %q (want: kradalby, headscale, sfiber, all)", target)
 		}
 		names = []string{target}
 	}
@@ -131,18 +135,18 @@ func main() {
 			secretFile = *secret
 		}
 
-		key, expires, err := issue(p, tagList, *expiry)
+		key, expires, err := issue(p, tagList, *expiry, *reusable)
 		if err != nil {
-			log.Fatalf("[%s] issuing key: %s", name, err)
+			return fmt.Errorf("[%s] issuing key: %w", name, err)
 		}
 
 		if *rotate {
 			if err := rotateSecret(secretFile, key, *commit); err != nil {
-				log.Fatalf("[%s] rotating %s: %s", name, secretFile, err)
+				return fmt.Errorf("[%s] rotating %s: %w", name, secretFile, err)
 			}
-			log.Printf("[%s] rotated %s, expiring %s", name, secretFile, expires.Format(time.RFC3339))
+			slog.Info("rotated secret", "platform", name, "secret", secretFile, "expires", expires.Format(time.RFC3339))
 		} else {
-			log.Printf("[%s] key expiring %s", name, expires.Format(time.RFC3339))
+			slog.Info("issued key", "platform", name, "expires", expires.Format(time.RFC3339))
 			if len(names) > 1 {
 				fmt.Printf("%s\t%s\n", name, key)
 			} else {
@@ -150,6 +154,7 @@ func main() {
 			}
 		}
 	}
+	return nil
 }
 
 func parseTags(s string) []string {
@@ -162,8 +167,10 @@ func parseTags(s string) []string {
 	return out
 }
 
-// issue mints a reusable, preauthorized key on the platform's control plane.
-func issue(p platform, tagList []string, expiry time.Duration) (string, time.Time, error) {
+// issue mints a preauthorized key on the platform's control plane. Keys are
+// single-use unless reusable is set; single-use is the safe default because a
+// spent key at rest cannot be replayed to join a node.
+func issue(p platform, tagList []string, expiry time.Duration, reusable bool) (string, time.Time, error) {
 	clientID, err := resolveSecret(p.credID)
 	if err != nil {
 		return "", time.Time{}, fmt.Errorf("resolving client id: %w", err)
@@ -178,7 +185,7 @@ func issue(p platform, tagList []string, expiry time.Duration) (string, time.Tim
 		ClientSecret: clientSecret,
 		TokenURL:     p.tokenURL,
 	}
-	c := tailscale.NewClient(p.tailnet, nil)
+	c := tailscale.NewClient(p.tailnet, nil) //nolint:staticcheck // see import note
 	if p.baseURL != "" {
 		c.BaseURL = p.baseURL
 	}
@@ -186,20 +193,26 @@ func issue(p platform, tagList []string, expiry time.Duration) (string, time.Tim
 	defer cancel()
 	c.HTTPClient = creds.Client(ctx)
 
-	key, meta, err := c.CreateKeyWithExpiry(ctx, tailscale.KeyCapabilities{
+	key, meta, err := c.CreateKeyWithExpiry(ctx, keyCapabilities(tagList, reusable), expiry)
+	if err != nil {
+		return "", time.Time{}, err
+	}
+	return key, meta.Expires, nil
+}
+
+// keyCapabilities builds the create-capabilities for a pre-auth key. Split out
+// so the single-use default is testable without a control-plane call.
+func keyCapabilities(tagList []string, reusable bool) tailscale.KeyCapabilities {
+	return tailscale.KeyCapabilities{
 		Devices: tailscale.KeyDeviceCapabilities{
 			Create: tailscale.KeyDeviceCreateCapabilities{
-				Reusable:      true,
+				Reusable:      reusable,
 				Ephemeral:     false,
 				Preauthorized: true,
 				Tags:          tagList,
 			},
 		},
-	}, expiry)
-	if err != nil {
-		return "", time.Time{}, err
 	}
-	return key, meta.Expires, nil
 }
 
 // resolveSecret reads a value from the ts1p vault via the `secret` CLI (on PATH,
@@ -218,22 +231,27 @@ func resolveSecret(name string) (string, error) {
 
 // rotateSecret writes key into the ragenix .age file and optionally commits it.
 func rotateSecret(secretFile, key string, commit bool) error {
-	home, err := os.UserHomeDir()
+	root, err := dotfilesRoot()
 	if err != nil {
-		return fmt.Errorf("getting home dir: %w", err)
+		return err
 	}
-	rulesPath := path.Join(home, secretRulesGitPath)
-	keyPath := path.Join(home, secretsDirGitPath, secretFile)
+	rulesPath := path.Join(root, "secrets", "secrets.nix")
+	keyPath := path.Join(root, "secrets", secretFile)
 
-	cmd := exec.Command("bash", "-c",
-		fmt.Sprintf(`echo "%s" | ragenix --editor=fake-editor --rules=%s --edit=%s`,
-			key, rulesPath, keyPath))
+	// Feed the key on ragenix's stdin (fake-editor is `cat >"$1"`) rather than
+	// interpolating it into a shell command, so the key never lands in the
+	// process table. The trailing newline matches the previous `echo` payload.
+	cmd := exec.Command("ragenix", "--editor=fake-editor",
+		"--rules="+rulesPath, "--edit="+keyPath)
+	cmd.Stdin = strings.NewReader(key + "\n")
 	if out, err := cmd.CombinedOutput(); err != nil {
 		return fmt.Errorf("ragenix: %s: %w", out, err)
 	}
 
 	if commit {
-		cmd := exec.Command("git", "commit", "--signoff",
+		// Run git against the repo the secret actually lives in, not the
+		// process cwd, so -commit works from a worktree.
+		cmd := exec.Command("git", "-C", root, "commit", "--signoff",
 			"--message", fmt.Sprintf("secret: rotate %s", strings.TrimSuffix(secretFile, ".age")),
 			keyPath)
 		if out, err := cmd.CombinedOutput(); err != nil {
@@ -241,4 +259,38 @@ func rotateSecret(secretFile, key string, commit bool) error {
 		}
 	}
 	return nil
+}
+
+// dotfilesRoot finds the dotfiles checkout to rotate secrets in: the nearest
+// ancestor of the cwd that looks like this repo — secrets/secrets.nix AND a
+// flake.nix AND a .git — so it works from any worktree without ever writing
+// a freshly minted key into some other repo that happens to have a
+// secrets/ dir. Falls back to ~/git/dotfiles when run from elsewhere.
+func dotfilesRoot() (string, error) {
+	if wd, err := os.Getwd(); err == nil {
+		for dir := wd; ; {
+			if fileExists(path.Join(dir, "secrets", "secrets.nix")) &&
+				fileExists(path.Join(dir, "flake.nix")) &&
+				fileExists(path.Join(dir, ".git")) {
+				return dir, nil
+			}
+			parent := path.Dir(dir)
+			if parent == dir {
+				break
+			}
+			dir = parent
+		}
+	}
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "", fmt.Errorf("getting home dir: %w", err)
+	}
+	return path.Join(home, "git", "dotfiles"), nil
+}
+
+// fileExists reports whether the path exists (file or dir — worktrees have a
+// .git file, checkouts a .git dir).
+func fileExists(p string) bool {
+	_, err := os.Stat(p)
+	return err == nil
 }
