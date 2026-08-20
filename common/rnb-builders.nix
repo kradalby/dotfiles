@@ -1,6 +1,7 @@
 # Builder registry for `rnb` (remote nix builder selector).
 #
-# Same fields as common/buildmachines.nix, plus:
+# Standard nix build-machine fields (hostName, systems, maxJobs, speedFactor,
+# supportedFeatures, publicHostKey), plus:
 #   name       - the short name you type: `rnb <name> -- nix build ...`
 #   host       - groups endpoints of one machine so `--auto` picks one
 #   hasRosetta - informational: the box has a local rosetta linux builder
@@ -11,7 +12,7 @@
 # publicHostKey (base64) with:
 #   ssh <host> base64 -w0 /etc/ssh/ssh_host_ed25519_key.pub
 #
-# speedFactor convention (mirrors buildmachines.nix): 4 = LAN, 2 = tailscale.
+# speedFactor convention: 4 = LAN, 2 = tailscale.
 [
   # dev.ldn via LAN (x86_64-linux; aarch64-linux via binfmt on dev.ldn)
   {
