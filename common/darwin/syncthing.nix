@@ -26,12 +26,12 @@ in
       user = "kradalby";
       dataDir = "/Users/kradalby";
       configDir = "/Users/kradalby/Library/Application Support/Syncthing";
-      guiAddress = "0.0.0.0:38443";
+      # Loopback only: these are roaming laptops — 0.0.0.0 with
+      # insecureAdminAccess exposed an unauthenticated admin UI (folder
+      # add/remove = arbitrary file read/write) to any network they joined.
+      guiAddress = "127.0.0.1:38443";
       overrideDevices = true;
       overrideFolders = true;
-      extraOptions = {
-        gui.insecureAdminAccess = true;
-      };
       inherit (cfg) devices;
       folders = {
         "Sync" = {
