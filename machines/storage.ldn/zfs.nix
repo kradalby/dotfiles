@@ -49,23 +49,50 @@ in
   services.sanoid = {
     enable = true;
     templates = {
+      # A wipe discovered days later must still be recoverable, so keep a
+      # week of dailies.
       "normal" = {
         frequently = 0;
         hourly = 1;
-        daily = 1;
+        daily = 7;
+        weekly = 4;
         monthly = 4;
         yearly = 0;
         autosnap = true;
         autoprune = true;
       };
+      # The parent dataset holds only the restic repo dir (children are their
+      # own datasets): lean retention so weekly prune repacks don't pin months
+      # of churned packs. Two weeks is ample wipe-recovery.
+      repo = {
+        frequently = 0;
+        hourly = 0;
+        daily = 7;
+        weekly = 2;
+        monthly = 0;
+        yearly = 0;
+        autosnap = true;
+        autoprune = true;
+      };
     };
-    datasets = builtins.listToAttrs (
-      map (item: {
-        name = "storage/${item}";
-        value = {
-          useTemplate = [ "normal" ];
+    datasets =
+      builtins.listToAttrs (
+        map (item: {
+          name = "storage/${item}";
+          value = {
+            useTemplate = [ "normal" ];
+          };
+        }) storageDatasets
+      )
+      // {
+        # The restic repo lives at /storage/restic, a directory on the parent
+        # `storage` dataset (not its own dataset), so snapshot the parent to make
+        # it recoverable after a client wipes it (rest-server is --no-auth).
+        # Lean template: the parent holds only the repo dir, whose weekly
+        # repacks would pin churn under longer retention.
+        "storage" = {
+          useTemplate = [ "repo" ];
         };
-      }) storageDatasets
-    );
+      };
   };
 }
