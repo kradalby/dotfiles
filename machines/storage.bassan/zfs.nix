@@ -45,10 +45,13 @@ in
   services.sanoid = {
     enable = true;
     templates = {
+      # Match the sender-side retention (daily=7/weekly=4) so the encrypted
+      # mirror carries the same recovery window.
       "normal" = {
         frequently = 0;
         hourly = 1;
-        daily = 1;
+        daily = 7;
+        weekly = 4;
         monthly = 4;
         yearly = 0;
         autosnap = true;
