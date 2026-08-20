@@ -67,7 +67,10 @@ in
 
       wireless = mkIf cfg.wifi {
         enable = true;
-        networks = {
+        # Only defined when the PSK was actually provided: an empty psk fails
+        # the wpa option's pattern type at eval, which would break pure-eval
+        # flake checks that never pass the env vars.
+        networks = mkIf (cfg.kadPsk != "") {
           "_kad".psk = cfg.kadPsk;
           "_kad24".psk = cfg.kadPsk;
         };
@@ -80,6 +83,16 @@ in
       networkConfig.DHCP = "yes";
       dhcpV4Config.RouteMetric = 2048;
     };
+
+    # Warn (not assert — pure-eval flake checks legitimately eval these images
+    # with no env) when a bootstrap secret wasn't provided; the built image
+    # would boot but join neither wifi nor the tailnet.
+    warnings =
+      optional (cfg.tsAuthKey == "")
+        "bootstrap: BOOTSTRAP_TS_AUTHKEY is unset — build with --impure and the env vars documented in flake.nix"
+      ++ optional (
+        cfg.wifi && cfg.kadPsk == ""
+      ) "bootstrap: BOOTSTRAP_WIFI_PSK is unset — the image will have no wifi credentials";
 
     services.tailscale = {
       authKeyFile = mkForce (pkgs.writeText "authkey" cfg.tsAuthKey);

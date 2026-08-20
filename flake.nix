@@ -689,13 +689,18 @@
           makeModulesClosure = x: super.makeModulesClosure (x // { allowMissing = true; });
         };
 
-        # !!! DO NOT COMMIT SECRETS BELOW !!!
-        # Fill locally, run `nix build .#rpi4` or `.#rpi5`, flash image,
-        # then `git checkout flake.nix` to revert. Both secrets land in
-        # the Nix store / image — treat accordingly.
+        # Bootstrap secrets come from the environment, never from a tracked
+        # file of a public repo. Build with:
+        #   BOOTSTRAP_WIFI_PSK=... BOOTSTRAP_TS_AUTHKEY=... \
+        #     nix build .#rpi5 --impure
+        # bootstrap-common.nix only WARNS when a variable is unset (pure-eval
+        # flake checks legitimately eval these images with no env), so watch
+        # the build output: a missed warning means an image that joins neither
+        # wifi nor the tailnet. Mint the key one-time (authkey kradalby) — it
+        # still lands in the image's store, which a spent key makes acceptable.
         bootstrapSecrets = {
-          kadPsk = "REPLACE_WIFI_PSK";
-          tsAuthKey = "REPLACE_TS_AUTHKEY";
+          kadPsk = builtins.getEnv "BOOTSTRAP_WIFI_PSK";
+          tsAuthKey = builtins.getEnv "BOOTSTRAP_TS_AUTHKEY";
         };
 
         # Shared module list for the rpi5 nixos-raspberrypi build.
