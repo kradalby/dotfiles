@@ -9,6 +9,14 @@ let
     enable = true;
     inherit site paths;
     secret = "restic-dev-ldn-token";
+    # A whole live homedir: skip the churn that made every run slow and
+    # vanished-file-noisy (exit 3 is also accepted module-wide now).
+    extraBackupArgs = [
+      "--exclude-caches"
+      "--exclude=/home/kradalby/.cache"
+      "--exclude=**/.direnv"
+      "--exclude=**/node_modules"
+    ];
   };
 in
 {

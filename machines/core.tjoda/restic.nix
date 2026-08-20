@@ -4,14 +4,14 @@ let
     "/root"
     "/etc/nixos"
     "/storage/backup"
+    # garage's own dataset (moved out of the syncthing folder /storage/backup);
+    # blocks are immutable/restic-safe, the meta snapshot rides along daily.
+    "/storage/garage"
     "/storage/libraries"
     "/storage/pictures"
     "/storage/software"
     "/storage/sync"
     # "/storage/restic"
-
-    # Covered by /storage/backup
-    # config.services.minio.configDir
   ];
 in
 {
@@ -32,10 +32,18 @@ in
     };
   };
 
-  # The backup dials the proxy on this host; order after it so the
-  # boot-time Persistent timer run doesn't fail and page ServiceFailed.
-  systemd.services.restic-backups-jotta = {
-    after = [ "rclone-jotta.service" ];
-    wants = [ "rclone-jotta.service" ];
-  };
+  # Backup, prune, and check all dial the proxy on this host; order after it
+  # so boot-time Persistent timer runs don't fail and page ServiceFailed.
+  systemd.services =
+    let
+      proxyOrder = {
+        after = [ "rclone-jotta.service" ];
+        wants = [ "rclone-jotta.service" ];
+      };
+    in
+    {
+      restic-backups-jotta = proxyOrder;
+      restic-prune-jotta = proxyOrder;
+      restic-check-jotta = proxyOrder;
+    };
 }
