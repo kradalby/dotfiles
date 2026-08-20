@@ -35,13 +35,16 @@ let
 in
 with builtins;
 {
-  # Global secrets. NOTE cloudflare-token is a zone-edit token that public-facing
-  # gigabuilder can now decrypt (for DNS-01 ACME) — accepted; scope it or move
-  # gigabuilder to HTTP-01 if the blast radius ever matters.
-  "cloudflare-token.age".publicKeys = global;
-  "cloudflare-ddns-token.age".publicKeys = global;
-  "r.age".publicKeys = global;
-  "ca.age".publicKeys = global;
+  # Cloudflare zone-edit token: only the DNS-01 ACME hosts (common/acme.nix).
+  "cloudflare-token.age".publicKeys = u ++ [
+    hosts.core-oracldn
+    hosts.gigabuilder
+  ];
+  # DDNS token: only the hosts running common/ddns.nix.
+  "cloudflare-ddns-token.age".publicKeys = u ++ [
+    hosts.storage-ldn
+    hosts.core-tjoda
+  ];
 
   # Restic
   "restic-home-ldn-token.age".publicKeys = u ++ [ hosts.home-ldn ];
@@ -61,9 +64,6 @@ with builtins;
     hosts.storage-ldn
     hosts.core-tjoda
   ];
-
-  # Unifi
-  "unifi-tjoda-read-only.age".publicKeys = u ++ [ hosts.core-tjoda ];
 
   # headscale
   "headscale-private-key.age".publicKeys = u ++ [ hosts.core-oracldn ];
@@ -112,10 +112,6 @@ with builtins;
   "ldn-wifi.age".publicKeys = u ++ [
     hosts.dev-ldn
     hosts.rpi5-ldn
-  ];
-  "kphone15-wifi.age".publicKeys = u ++ [
-    hosts.core-ldn
-    hosts.dev-ldn
   ];
 
   # nefit-homekit
