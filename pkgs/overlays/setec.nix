@@ -15,9 +15,9 @@ buildGoModule rec {
     owner = "tailscale";
     repo = "setec";
     rev = "${version}";
-    sha256 = "sha256-XjCdr7QhUk9gvfWLq7lXv/zaS4ANxs4tpwTU3lhqkj4=";
+    sha256 = "sha256-8V8NwtZE+Ud5jW+4YO6hMruElaBQmvjG/tp+UTuVQx8=";
   };
-  vendorHash = "sha256-7JaOvBCETiqXj33YSY5ESIhH3Kp+NSCAAVkre8Zg0RA=";
+  vendorHash = "sha256-VQ2fY3QyepDt0ymgFgEKB50zXezgu6Il6SL5lBJQjGA=";
   env = {
     CGO_ENABLED = 0;
   };

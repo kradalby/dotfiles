@@ -259,15 +259,15 @@
             # Use prebuilt binaries until nixpkgs ships bun 1.3.14+.
             opencode =
               let
-                version = "1.16.2";
+                version = "1.18.20";
                 srcs = {
                   x86_64-linux = {
                     url = "https://github.com/anomalyco/opencode/releases/download/v${version}/opencode-linux-x64-baseline.tar.gz";
-                    hash = "sha256-/jSwR+PU4vbYkfDS07T0SDfvUnHuz9m5iVHlOFfaaeY=";
+                    hash = "sha256-NUdE8uSUtBLl1FcH7eJUu5nxEmD4RNwmCW++1d8DL3w=";
                   };
                   aarch64-darwin = {
                     url = "https://github.com/anomalyco/opencode/releases/download/v${version}/opencode-darwin-arm64.zip";
-                    hash = "sha256-AVhf9NFYIL06h45Lx8rPsep14jbR/tjC9fNZXtyLerU=";
+                    hash = "sha256-tIPlR8AptPC6OB8NDFtCC+xIwkwrvsH7fyIlK66D2kY=";
                   };
                 };
                 src = prev.fetchurl srcs.${system};
