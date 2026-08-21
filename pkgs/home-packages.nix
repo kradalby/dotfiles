@@ -244,7 +244,6 @@ in
         ++ (with pkgs.master; [
           claude-code
           # codex
-          gemini-cli
         ])
         ++ lib.optionals cfg.ai.opencode [
           pkgs.master.opencode
