@@ -14,9 +14,9 @@ buildGoModule rec {
     owner = "bscott";
     repo = "pm-cli";
     tag = "v${version}";
-    hash = "sha256-eW8we4TCbGZjcQavXb0H7/4nSXwPw2M9LMJpoUWy03s=";
+    hash = "sha256-fYrhOOdXQqOHvidxMYE56/bwse9nFrDrOvf/HoDEwR4=";
   };
-  vendorHash = "sha256-E+2f1xF/t4c0Dl3kWRKn5F8CuEy8S9vawM/0VtX3m8Y=";
+  vendorHash = "sha256-aLadJA+AO86vN/bzk9KuglBfV8U6dMtenviOLQX8lUg=";
   env = {
     CGO_ENABLED = 0;
   };
