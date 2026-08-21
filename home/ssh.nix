@@ -4,7 +4,7 @@
   ...
 }:
 let
-  isWorkstation = pkgs.stdenv.isDarwin && pkgs.stdenv.isAarch64;
+  isWorkstation = pkgs.stdenv.hostPlatform.isDarwin && pkgs.stdenv.hostPlatform.isAarch64;
   kradalbyLogin = hostname: {
     HostName = hostname;
     User = "kradalby";

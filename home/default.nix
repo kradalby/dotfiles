@@ -64,7 +64,9 @@ in
       "/usr/local/bin"
 
       # On M Macs, homebrew is moved
-      (lib.mkIf (pkgs.stdenv.isDarwin && pkgs.stdenv.isAarch64) "/opt/homebrew/bin")
+      (lib.mkIf (
+        pkgs.stdenv.hostPlatform.isDarwin && pkgs.stdenv.hostPlatform.isAarch64
+      ) "/opt/homebrew/bin")
 
       # "/etc/profiles/per-user/$USER/bin"
       "$HOME/bin"
@@ -148,7 +150,7 @@ in
       # source of truth is common/rnb-builders.nix.
       ".config/rnb/builders.json".text = builtins.toJSON (import ../common/rnb-builders.nix);
 
-      ".finicky.js" = lib.mkIf pkgs.stdenv.isDarwin { source = ../rc/finicky.js; };
+      ".finicky.js" = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin { source = ../rc/finicky.js; };
 
       ".vale.ini".text = ''
         # This goes in a file named either `.vale.ini` or `_vale.ini`.

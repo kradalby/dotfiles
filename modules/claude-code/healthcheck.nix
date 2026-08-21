@@ -13,7 +13,7 @@ pkgs.writeShellApplication {
       gnugrep
       findutils
     ])
-    ++ lib.optional pkgs.stdenv.isLinux pkgs.systemd;
+    ++ lib.optional pkgs.stdenv.hostPlatform.isLinux pkgs.systemd;
 
   text = builtins.readFile ./healthcheck.sh;
 }

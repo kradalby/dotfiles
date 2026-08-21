@@ -33,7 +33,7 @@ let
   };
 in
 {
-  config = lib.mkIf (pkgs.stdenv.isDarwin && enabled != { }) {
+  config = lib.mkIf (pkgs.stdenv.hostPlatform.isDarwin && enabled != { }) {
     launchd.agents =
       (lib.mapAttrs' (n: ic: lib.nameValuePair "claude-code-${n}" (mkLaunchdAgent n ic)) enabled)
       // {

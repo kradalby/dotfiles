@@ -58,7 +58,7 @@ in
       );
     }
 
-    (lib.mkIf pkgs.stdenv.isLinux {
+    (lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
       systemd.user.services.herdr = {
         Unit.Description = "herdr — agent multiplexer server (session: ac)";
         Service = {
@@ -83,7 +83,7 @@ in
       };
     })
 
-    (lib.mkIf pkgs.stdenv.isDarwin {
+    (lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
       launchd.agents.herdr = {
         enable = true;
         config = {

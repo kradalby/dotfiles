@@ -9,7 +9,7 @@
 
   config = {
     environment = {
-      enableAllTerminfo = lib.mkIf pkgs.stdenv.isLinux true;
+      enableAllTerminfo = lib.mkIf pkgs.stdenv.hostPlatform.isLinux true;
 
       # Only lightweight aliases here; package-referencing ones (which pull
       # neovim/ripgrep/bat/... into a closure) live in home/fish.nix so they

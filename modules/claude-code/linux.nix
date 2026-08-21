@@ -52,7 +52,7 @@ let
   };
 in
 {
-  config = lib.mkIf (pkgs.stdenv.isLinux && enabled != { }) {
+  config = lib.mkIf (pkgs.stdenv.hostPlatform.isLinux && enabled != { }) {
     systemd.user.services =
       (lib.mapAttrs' (n: ic: lib.nameValuePair "claude-code-${n}" (mkSystemdUnit n ic)) enabled)
       // {
