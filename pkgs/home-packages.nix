@@ -252,7 +252,7 @@ in
     })
 
     # Darwin-specific packages (not togglable)
-    (lib.mkIf pkgs.stdenv.isDarwin {
+    (lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
       home.packages =
         let
           pamtouchfix = import ./scripts/pamtouchfix.nix { inherit pkgs; };
@@ -282,7 +282,7 @@ in
     })
 
     # Linux-specific packages (not togglable)
-    (lib.mkIf pkgs.stdenv.isLinux {
+    (lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
       home.packages = with pkgs; [
         incus
       ];

@@ -16,7 +16,7 @@
     };
   };
 
-  config = lib.mkIf pkgs.stdenv.isLinux {
+  config = lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
     networking.useDHCP = false;
     networking.useNetworkd = lib.mkDefault true;
     networking.dhcpcd.enable = lib.mkDefault false;

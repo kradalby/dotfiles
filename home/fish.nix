@@ -54,7 +54,7 @@ in
           (fishReorderPath "/etc/profiles/per-user/$USER/bin")
           (fishReorderPath "/run/current-system/sw/bin")
         ]
-        ++ lib.optionals pkgs.stdenv.isLinux [
+        ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
           # Where sudo lives, needed for linux.
           (fishReorderPath "/run/wrappers/bin")
         ];
@@ -85,7 +85,7 @@ in
         ''${pkgs.jq}/bin/jq ".[] | select((.path == null)and .path_edited == null)"''
       ];
       tailscale =
-        if pkgs.stdenv.isDarwin then
+        if pkgs.stdenv.hostPlatform.isDarwin then
           "/Applications/Tailscale.app/Contents/MacOS/Tailscale"
         else
           "tailscale";
@@ -184,7 +184,7 @@ in
       '';
 
     }
-    // lib.optionalAttrs pkgs.stdenv.isLinux {
+    // lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
       tmux-recreate-socket = ''
         # Recreate tmux socket by sending SIGUSR1 to the server
         # https://github.com/tmux/tmux/wiki/FAQ#tmux-says-no-sessions-when-i-try-to-attach-but-i-definitely-had-sessions

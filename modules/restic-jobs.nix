@@ -115,7 +115,7 @@ let
       check = {
         enable = mkOption {
           type = types.bool;
-          default = pkgs.stdenv.isLinux;
+          default = pkgs.stdenv.hostPlatform.isLinux;
           description = "Periodically verify the repository with `restic check`. Failures land the unit in `failed`, which the fleet-wide ServiceFailed alert pages on.";
         };
 

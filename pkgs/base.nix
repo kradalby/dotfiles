@@ -27,9 +27,9 @@
       lsof
 
       # jemalloc, which bind depends on, is broken on darwin aarch64
-      (lib.mkIf (!(pkgs.stdenv.isDarwin && pkgs.stdenv.isAarch64)) dig)
+      (lib.mkIf (!(pkgs.stdenv.hostPlatform.isDarwin && pkgs.stdenv.hostPlatform.isAarch64)) dig)
     ]
-    ++ lib.optionals stdenv.isLinux [
+    ++ lib.optionals stdenv.hostPlatform.isLinux [
       ncdu
       nftables
     ];

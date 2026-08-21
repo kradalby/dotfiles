@@ -19,7 +19,7 @@
       rclone
       smartmontools
     ]
-    ++ lib.optionals stdenv.isLinux [
+    ++ lib.optionals stdenv.hostPlatform.isLinux [
       usbutils
       (import ../pkgs/scripts/emergency-full-disk.nix { inherit pkgs; })
     ];

@@ -5,7 +5,7 @@
   ...
 }:
 let
-  isDarwin = pkgs.stdenv.isDarwin;
+  isDarwin = pkgs.stdenv.hostPlatform.isDarwin;
 in
 {
   programs.gh = {
@@ -44,7 +44,7 @@ in
         # On macOS, use the system ssh so it can read macOS-specific
         # SSH agent and keychain configuration.
         # https://github.com/NixOS/nixpkgs/issues/15686#issuecomment-865928923
-        sshCommand = lib.mkIf pkgs.stdenv.isDarwin "/usr/bin/ssh";
+        sshCommand = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin "/usr/bin/ssh";
       };
       color = {
         ui = true;

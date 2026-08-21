@@ -4,7 +4,7 @@
   ...
 }:
 let
-  isLinux = pkgs.stdenv.isLinux;
+  isLinux = pkgs.stdenv.hostPlatform.isLinux;
 
   cloudflareServers = [
     "1.1.1.1#one.one.one.one"

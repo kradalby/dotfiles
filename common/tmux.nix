@@ -136,7 +136,7 @@
     # Pass focus events to applications
     set-option -g focus-events on
 
-    ${lib.optionalString pkgs.stdenv.isDarwin ''
+    ${lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
       set-option -g default-command "${pkgs.reattach-to-user-namespace}/bin/reattach-to-user-namespace -l ${pkgs.fish}/bin/fish"
     ''}
   '';
