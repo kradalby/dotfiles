@@ -168,7 +168,7 @@
     # Agent multiplexer (tmux replacement for `ac`). Do NOT `follows` its
     # rust-overlay — the package is built against the toolchain herdr pins.
     herdr = {
-      url = "github:ogulcancelik/herdr/v0.7.3";
+      url = "github:herdrdev/herdr/v0.8.2";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
@@ -237,7 +237,7 @@
         ghdl.overlays.default
         (import ./pkgs/overlays { })
         (
-          _final: prev:
+          final: prev:
           let
             system = prev.stdenv.hostPlatform.system;
           in
@@ -248,10 +248,10 @@
             # Direct package (not herdr.overlays.default — that composes
             # rust-overlay and drags rust-bin into pkgs).
             herdr = inputs.herdr.packages."${system}".default;
-            # The agent skill (teaches an agent to drive herdr) ships in herdr's
-            # source, so pin it straight from the input — updates with `nix flake
-            # update herdr`, nothing to vendor or maintain.
-            herdr-skill = inputs.herdr + "/SKILL.md";
+            # The agent skill (teaches an agent to drive herdr) is bundled in the
+            # binary and printed by `herdr --skill`, so it tracks the package
+            # version — nothing to vendor or maintain.
+            herdr-skill = final.runCommand "herdr-skill.md" { } "${final.herdr}/bin/herdr --skill > $out";
             nefit-homekit = inputs.nefit-homekit.packages."${system}".default;
             tasmota-homekit = inputs.tasmota-homekit.packages."${system}".default;
             z2m-homekit = inputs.z2m-homekit.packages."${system}".default;
