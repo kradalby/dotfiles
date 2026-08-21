@@ -61,7 +61,7 @@
     editor.enable = true;
     infra.enable = true; # ansible/headscale/docker/rnb
     media.enable = false; # ffmpeg/cook-cli/sql-studio/squibble
-    ai.enable = true; # claude-code/gemini-cli/opencode/nodejs/python3
+    ai.enable = true; # claude-code/opencode/nodejs/python3
   };
 
   # nixos-raspberrypi is migrating the default from "kernelboot" to
