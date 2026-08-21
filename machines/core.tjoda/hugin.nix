@@ -17,10 +17,17 @@ in
     owner = config.services.hugin.user;
   };
 
+  age.secrets.hugin-env = {
+    file = ../../secrets/hugin-env.age;
+    owner = config.services.hugin.user;
+  };
+
   services.hugin = {
     enable = true;
     inherit contentDir;
     tailscaleKeyPath = config.age.secrets.hugin-tskey.path;
+    # HUGIN_TOKEN_MAPBOX, exposed to the frontend via /tokens.
+    environmentFile = config.age.secrets.hugin-env.path;
   };
 
   # Munin is installed by hand at ~/bin/munin and run manually. Not because it
