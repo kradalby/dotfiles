@@ -4,6 +4,6 @@ buildGoModule {
   version = "unstable";
 
   src = ./.;
-  vendorHash = "sha256-RKmc35/Rijtz8ZgPlVKoqSUSt7uqH784fuY0Ic2qnVA=";
+  vendorHash = "sha256-iDBYS7LR3eYKD3N5DQ+FWZN80I4Fik0sk4F7y09YEzo=";
   env.CGO_ENABLED = 0;
 }
