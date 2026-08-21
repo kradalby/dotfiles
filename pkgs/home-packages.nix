@@ -98,9 +98,10 @@ in
       programs.go = {
         enable = true;
         package = pkgs.go;
-        env.GOPATH = "go";
+        # Absolute: go rejects a relative GOPATH outright, and ~/.config/go/env
+        # is read by every invocation, including ones with no session vars.
+        env.GOPATH = "${config.home.homeDirectory}/go";
       };
-      home.sessionVariables.GOPATH = "$HOME/go";
       home.packages = with pkgs.unstable; [
         gopls
         delve
