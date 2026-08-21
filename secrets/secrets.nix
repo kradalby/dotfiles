@@ -99,6 +99,9 @@ with builtins;
 
   # hugin
   "hugin-tskey.age".publicKeys = u ++ [ hosts.core-tjoda ];
+  # HUGIN_TOKEN_MAPBOX; hugin serves it to the frontend via /tokens, which
+  # returns {} without it and leaves the photo maps blank.
+  "hugin-env.age".publicKeys = u ++ [ hosts.core-tjoda ];
 
   # hvor
   "hvor-tskey.age".publicKeys = u ++ [ hosts.core-oracldn ];
