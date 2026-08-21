@@ -97,7 +97,10 @@
     };
 
     golink = {
-      url = "github:tailscale/golink";
+      # Pinned to the last pre-go-1.26.6 commit: 3f9300f bumps go.mod to
+      # require >= 1.26.6 while nixpkgs-unstable still ships 1.26.5. Unpin
+      # once unstable catches up.
+      url = "github:tailscale/golink/52e1fd108b6362c7269fc834f854146b21a3bfc7";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
       inputs.systems.follows = "flake-utils/systems";
     };
