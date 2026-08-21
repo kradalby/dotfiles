@@ -87,21 +87,18 @@
     garnix-ci.url = "github:kradalby/garnix/integration";
 
     headscale = {
-      # url = "github:juanfont/headscale/v0.26.0-beta.1";
       url = "github:juanfont/headscale/main";
       inputs."flake-utils".follows = "flake-utils";
-      # Do NOT follow nixpkgs: headscale pins staging-next-26.05 for go_1_26
-      # >= 1.26.4 (GO-2026-5037/5039). nixpkgs-unstable still ships 1.26.3,
-      # which fails the go.mod toolchain check. Restore the follows once
-      # unstable catches up.
+      # Follows stable: headscale needs go_1_26 >= 1.26.5 (upstream pins
+      # staging-next-26.05 for it); the 26.05 line ships 1.26.6.
+      inputs.nixpkgs.follows = "nixpkgs-stable";
     };
 
     golink = {
-      # Pinned to the last pre-go-1.26.6 commit: 3f9300f bumps go.mod to
-      # require >= 1.26.6 while nixpkgs-unstable still ships 1.26.5. Unpin
-      # once unstable catches up.
-      url = "github:tailscale/golink/52e1fd108b6362c7269fc834f854146b21a3bfc7";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
+      # Follows stable: golink's go.mod needs go >= 1.26.6, which the 26.05
+      # line ships and nixpkgs-unstable does not.
+      url = "github:tailscale/golink";
+      inputs.nixpkgs.follows = "nixpkgs-stable";
       inputs.systems.follows = "flake-utils/systems";
     };
 
@@ -120,10 +117,7 @@
     };
 
     tsidp = {
-      # Pinned to pre-go-1.26.4 commit. Commit 6359a18 bumped go.mod to
-      # require >= 1.26.4 but left flake goVersion = "1.26.0", breaking
-      # the build. Unpin once the tsidp flake fixes the goVersion mismatch.
-      url = "github:tailscale/tsidp/a9340f0d39e46ca47a61f9998d6989e43f0574b0";
+      url = "github:tailscale/tsidp";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
       inputs.systems.follows = "flake-utils/systems";
     };
