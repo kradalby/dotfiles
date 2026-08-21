@@ -17,16 +17,11 @@ in
       description = ''
         MQTT exporter package to use
       '';
-      default =
-        let
-          packageOverrides = pkgs.callPackage ./python-packages.nix { };
-          python = pkgs.python3.override { inherit packageOverrides; };
-        in
-        python.withPackages (ps: [
-          ps."paho-mqtt"
-          ps."prometheus-client"
-        ]);
-      defaultText = literalExpression "python with overridden dependencies";
+      default = pkgs.python3.withPackages (ps: [
+        ps.paho-mqtt
+        ps.prometheus-client
+      ]);
+      defaultText = literalExpression "python3 with the exporter's dependencies";
     };
 
     mqtt.ignoredTopics = mkOption {
@@ -110,8 +105,8 @@ in
       mqttExporterSrc = pkgs.fetchFromGitHub {
         owner = "kpetremann";
         repo = "mqtt-exporter";
-        rev = "774617eead7b2be3c0ba3b020585b9e7ad06c93d";
-        hash = "sha256-oPLVMHWizcA35eGQPfYJZzEM2Nd+Dbpv4W+mHCp2UeQ=";
+        rev = "v1.11.2";
+        hash = "sha256-pWXdd82K1BhUKHGVGpTRW4f/Xa9nf0Ww/l2pxdw/Jw8=";
       };
     in
     {
@@ -131,10 +126,11 @@ in
           RestartSec = "15";
         };
         environment = {
-          IGNORED_TOPICS = builtins.concatStringsSep "," cfg.mqtt.ignoredTopics;
+          MQTT_IGNORED_TOPICS = builtins.concatStringsSep "," cfg.mqtt.ignoredTopics;
           LOG_LEVEL = cfg.logLevel;
           MQTT_ADDRESS = cfg.mqtt.address;
           MQTT_PORT = toString cfg.mqtt.port;
+          MQTT_TOPIC = cfg.mqtt.topic;
           MQTT_KEEPALIVE = toString cfg.mqtt.keepalive;
           MQTT_USERNAME = cfg.mqtt.username;
           MQTT_PASSWORD = cfg.mqtt.password;
