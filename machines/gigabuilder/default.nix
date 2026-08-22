@@ -52,6 +52,9 @@
   services.tailscale = {
     advertiseRoutes = [ "10.68.0.0/16" ]; # the VM subnet
     tags = [
+      # services.restic.jobs.jotta needs svc:restic-jotta, which tag:server is
+      # explicitly denied; only tag:backup-client is granted it.
+      "tag:backup-client"
       "tag:builder"
       "tag:incus"
       "tag:server"
