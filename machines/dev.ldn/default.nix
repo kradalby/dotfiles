@@ -187,4 +187,7 @@ in
       "nixos-raspberrypi.cachix.org-1:4iMO9LXa8BqhU+Rpg6LQKiGa2lsNh/j2oiYLNOQ5sPI="
     ];
   };
+
+  # Builders inherit this, so they get OOM-killed before the herd's panes (100).
+  systemd.services.nix-daemon.serviceConfig.OOMScoreAdjust = 500;
 }

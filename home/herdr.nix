@@ -71,6 +71,9 @@ in
           RestartSec = 5;
           KillSignal = "SIGTERM";
           TimeoutStopSec = 15;
+          # Panes inherit this. 100 is the floor — lower is silently clamped,
+          # since dropping below the user manager needs CAP_SYS_RESOURCE.
+          OOMScoreAdjust = 100;
           # default_shell is unset (herdr falls back to $SHELL), so pin fish
           # here rather than managing a config.toml herdr also writes to.
           Environment = [
