@@ -132,6 +132,8 @@ in
       };
       ".claude/CLAUDE.md".text = agentsContent;
 
+      ".claude/output-styles/ELI5.md".source = ../rc/claude/output-styles/ELI5.md;
+
       # Stable path for the per-directory dev-env hook. A symlink (not a
       # store path inlined into the seeded-once settings.json) so it tracks
       # the current build on every switch. Hooks registered in home/ai.nix.
