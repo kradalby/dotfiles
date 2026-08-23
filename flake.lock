@@ -742,7 +742,7 @@
     "headscale_2": {
       "inputs": {
         "flake-utils": "flake-utils_7",
-        "nixpkgs": "nixpkgs_2"
+        "nixpkgs": "nixpkgs_3"
       },
       "locked": {
         "lastModified": 1782917259,
@@ -762,7 +762,7 @@
     "headscale_3": {
       "inputs": {
         "flake-utils": "flake-utils_10",
-        "nixpkgs": "nixpkgs_3"
+        "nixpkgs": "nixpkgs_4"
       },
       "locked": {
         "lastModified": 1782917259,
@@ -956,6 +956,24 @@
       "original": {
         "owner": "containers",
         "repo": "libkrun",
+        "type": "github"
+      }
+    },
+    "munin": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_2"
+      },
+      "locked": {
+        "lastModified": 1787472469,
+        "narHash": "sha256-LxviWu0g4cLUFdYUWDJDWJvelUw8OMyNnxhM/KUkBAA=",
+        "owner": "kradalby",
+        "repo": "munin",
+        "rev": "33f0714b1b84034dddc22c15ba3b95ca971677fb",
+        "type": "github"
+      },
+      "original": {
+        "owner": "kradalby",
+        "repo": "munin",
         "type": "github"
       }
     },
@@ -1270,6 +1288,20 @@
     },
     "nixpkgs_2": {
       "locked": {
+        "lastModified": 1785301185,
+        "narHash": "sha256-PlAXr9kpfXhMFU0OQ7qtE8FhLQo21WXFVGqIC85UFyc=",
+        "rev": "9bc02893134c733dd85de46ee4fb2fac696b5529",
+        "type": "tarball",
+        "url": "https://releases.nixos.org/nixpkgs/nixpkgs-26.11pre1043539.9bc02893134c/nixexprs.tar.xz"
+      },
+      "original": {
+        "id": "nixpkgs",
+        "ref": "nixpkgs-unstable",
+        "type": "indirect"
+      }
+    },
+    "nixpkgs_3": {
+      "locked": {
         "lastModified": 1781153106,
         "narHash": "sha256-yzsroLCcuRG4KdGMxWt0eXKOrRSgQT8/xjYngeq9ujU=",
         "owner": "NixOS",
@@ -1284,7 +1316,7 @@
         "type": "github"
       }
     },
-    "nixpkgs_3": {
+    "nixpkgs_4": {
       "locked": {
         "lastModified": 1781153106,
         "narHash": "sha256-yzsroLCcuRG4KdGMxWt0eXKOrRSgQT8/xjYngeq9ujU=",
@@ -1360,6 +1392,7 @@
         "hugin": "hugin",
         "hvor": "hvor",
         "krapage": "krapage",
+        "munin": "munin",
         "nefit-homekit": "nefit-homekit",
         "neovim-kradalby": "neovim-kradalby",
         "nix-index-database": "nix-index-database",
