@@ -135,7 +135,8 @@
       inputs."flake-utils".follows = "flake-utils";
     };
 
-    # munin.url = "github:kradalby/munin";
+    munin.url = "github:kradalby/munin";
+
     neovim-kradalby = {
       url = "github:kradalby/neovim";
       inputs."flake-utils".follows = "flake-utils";
@@ -235,6 +236,8 @@
         tasmota-exporter.overlays.default
         homewizard-p1-exporter.overlays.default
         ghdl.overlays.default
+        # Adds `munin-gallery` (binary `munin`), x86_64-linux only.
+        munin.overlays.default
         (import ./pkgs/overlays { })
         (
           final: prev:
