@@ -83,6 +83,10 @@
     "z /var/lib/ghdl/ghdl.db-wal 0660 ghdl ghdl - -"
     "z /var/lib/ghdl/ghdl.db-shm 0660 ghdl ghdl - -"
     # grafana's data dir predates the setgid fix; heal existing files.
+    # The parent needs it too: grafana's module sets no StateDirectory, so the
+    # StateDirectoryMode force above is inert and /var/lib/grafana comes back
+    # 0700 on reboot — litestream then can't traverse it to reach the db.
+    "z /var/lib/grafana 2770 grafana grafana - -"
     "z /var/lib/grafana/data 2770 grafana grafana - -"
     "z /var/lib/grafana/data/grafana.db 0660 grafana grafana - -"
     "z /var/lib/grafana/data/grafana.db-wal 0660 grafana grafana - -"
