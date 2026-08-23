@@ -26,8 +26,13 @@ rustPlatform.buildRustPackage (finalAttrs: {
 
   cargoHash = "sha256-xeIwdU1JU8ByYUKpSPW1GKGEX8mqfg+4TgsLS3xVc5U=";
 
-  # Build without the self-updating feature
+  # Build without the self-updating feature. Dropping the defaults wholesale
+  # also drops `server`, which upstream feature-gated after 0.22.0 — that
+  # silently removed `cook server` in the 0.33.1 bump. Re-list the rest.
   buildNoDefaultFeatures = true;
+  # modules/cook-server.nix is the only consumer and only runs `cook server`,
+  # so sync/import/lsp stay off.
+  buildFeatures = [ "server" ];
 
   nativeBuildInputs = [
     pkg-config
