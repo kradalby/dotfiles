@@ -71,6 +71,8 @@
       };
     };
 
+    outputStyle = "ELI5";
+
     alwaysThinkingEnabled = true;
     effortLevel = "high";
     skipDangerousModePermissionPrompt = true;
