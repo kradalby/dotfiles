@@ -16,7 +16,9 @@ let
   fish = "${pkgs.fish}/bin/fish";
   # Panes are spawned by the server, so its env is theirs: profile bin for
   # claude/opencode/ac, plus the usual system paths.
-  linuxPath = "${config.home.profileDirectory}/bin:/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin:/usr/bin:/bin";
+  # /run/wrappers/bin first, per NixOS: without it `sudo` resolves to the
+  # non-setuid store symlink in /run/current-system/sw/bin and refuses to run.
+  linuxPath = "/run/wrappers/bin:${config.home.profileDirectory}/bin:/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin:/usr/bin:/bin";
   darwinPath = "${config.home.profileDirectory}/bin:/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin";
 in
 {
