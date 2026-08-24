@@ -460,7 +460,7 @@ cmd_remove() {
     fi
   fi
 
-  h workspace close "$wid" 2>/dev/null || true
+  h workspace close "$wid" >/dev/null 2>&1 || true
   echo "killed: $wid"
 }
 
