@@ -30,6 +30,12 @@ in
     environmentFile = config.age.secrets.hugin-env.path;
   };
 
+  # Munin symlinks originals out of contentDir into sourceFolder, so hugin has
+  # to read /pictures/album too. Samba already forces storage:storage there.
+  # Without this every page serves fine while each original download 403s —
+  # plain filesystem permissions, not the sandbox.
+  systemd.services.hugin.serviceConfig.SupplementaryGroups = [ "storage" ];
+
   # Run by hand when photos are added. sourceFolder/targetFolder are relative
   # to the working directory, hence the cd:
   #   cd /pictures && munin --config /etc/munin/munin.json --json
