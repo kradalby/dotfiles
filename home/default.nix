@@ -51,6 +51,28 @@ in
     };
   };
 
+  # XDG-compliant configs. Anything the program insists on reading from $HOME
+  # directly stays in home.file below.
+  config.xdg.configFile = {
+    "ghostty/config".source = ../rc/ghostty;
+
+    "opencode/AGENTS.md".text = agentsContent;
+    "opencode/commands".source = ../rc/claude/commands;
+
+    # opencode equivalent of the Claude dev-env hook: a shell.env plugin that
+    # injects the per-directory Nix dev env into every shell command. Auto-
+    # discovered from the plugin dir; no opencode.json entry needed.
+    "opencode/plugin/nix-dev-env.js".source = ../pkgs/scripts/opencode-nix-dev-env.js;
+
+    "nix/nix.conf".text = ''
+      experimental-features = nix-command flakes
+    '';
+
+    # rnb (remote nix builder) reads its registry from here; single
+    # source of truth is common/rnb-builders.nix.
+    "rnb/builders.json".text = builtins.toJSON (import ../common/rnb-builders.nix);
+  };
+
   config.home = {
     stateVersion = "22.05";
 
@@ -118,13 +140,10 @@ in
         kristoffer@dalby.cc ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJmukT03vff7EvEQb57NYPvM4TgCVLYcRq4SxE+YOSGx kradalby@dev
       '';
 
-      ".config/ghostty/config".source = ../rc/ghostty;
       # Global agent instructions — agents walk up from cwd, so
       # placing this in $HOME acts as a catch-all for repos that
       # don't ship their own AGENTS.md.
       "AGENTS.md".text = agentsContent;
-      ".config/opencode/AGENTS.md".text = agentsContent;
-      ".config/opencode/commands".source = ../rc/claude/commands;
 
       ".claude/commands" = {
         source = ../rc/claude/commands;
@@ -138,19 +157,6 @@ in
       # store path inlined into the seeded-once settings.json) so it tracks
       # the current build on every switch. Hooks registered in home/ai.nix.
       ".claude/hooks/nix-dev-env.sh".source = "${nixDevEnvHook}/bin/nix-dev-env";
-
-      # opencode equivalent of the Claude dev-env hook: a shell.env plugin that
-      # injects the per-directory Nix dev env into every shell command. Auto-
-      # discovered from the plugin dir; no opencode.json entry needed.
-      ".config/opencode/plugin/nix-dev-env.js".source = ../pkgs/scripts/opencode-nix-dev-env.js;
-
-      ".config/nix/nix.conf".text = ''
-        experimental-features = nix-command flakes
-      '';
-
-      # rnb (remote nix builder) reads its registry from here; single
-      # source of truth is common/rnb-builders.nix.
-      ".config/rnb/builders.json".text = builtins.toJSON (import ../common/rnb-builders.nix);
 
       ".finicky.js" = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin { source = ../rc/finicky.js; };
 
