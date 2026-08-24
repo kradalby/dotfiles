@@ -138,7 +138,16 @@ in
     ai.opencode = true;
   };
 
-  home.packages = [ pkgs.master.codex ];
+  # userland.enable is off here, which drops neovim and tmux (both live in
+  # bundles this host disables). $EDITOR and the vim→nvim abbrevs need nvim.
+  home.packages = [
+    pkgs.master.codex
+    pkgs.neovim
+    pkgs.tmux
+  ];
+
+  # No NixOS module here to write /etc/tmux.conf, so use the XDG path.
+  xdg.configFile."tmux/tmux.conf".text = import ../../common/tmux-conf.nix { inherit pkgs lib; };
 
   # codex persists trust (project trust, hook trust) back into config.toml, so
   # it must be writable — a read-only store symlink makes codex fail with
