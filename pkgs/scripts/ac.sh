@@ -30,6 +30,19 @@ sanitize() {
   echo "$1" | tr '/' '-'
 }
 
+# agent_name maps a display name to a legal herdr agent handle:
+# ^[a-z][a-z0-9_-]{0,31}$ — lowercase, 32 chars max. Repos like
+# "TubeLogger2000" and branches with '/' or '.' are rejected verbatim.
+# printf (not echo): `tr -c` would fold echo's trailing newline into a '-'.
+agent_name() {
+  local n
+  n=$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]' | tr -c 'a-z0-9_-' '-')
+  # Must start with a letter. Prefix rather than strip, so a numeric-leading
+  # name ("2000only") keeps its digits instead of losing them or going empty.
+  [[ "$n" == [a-z]* ]] || n="a-$n"
+  printf '%s\n' "${n:0:32}"
+}
+
 # display: human name for a session — "repo/branch" or just "repo".
 display() {
   local repo="$1" branch="$2"
@@ -210,22 +223,36 @@ find_workspace() {
 			| .workspace_id' | head -1
 }
 
+# agent_pane_of echoes the pane id hosting a workspace's agent, or nothing.
+agent_pane_of() {
+  h agent list 2>/dev/null |
+    jq -r --arg w "$1" '.result.agents[] | select(.workspace_id==$w) | .pane_id' | head -1
+}
+
 # --- commands ---
 
 create_session() {
-  # Create the workspace + agent pane for a repo/branch. Echoes agent name.
+  # Create the workspace + agent pane for a repo/branch. Echoes the agent pane
+  # id (the stable focus target; see attach_workspace).
   local dir="$1" agent="$2" repo="$3" branch="$4"
 
-  local label name wid
+  local label name resp wid root pane
   label="$(make_label "$repo" "$branch" "$agent")"
-  name="$(sanitize "$(display "$repo" "$branch")")" # unique agent handle
+  name="$(agent_name "$(display "$repo" "$branch")")" # unique agent handle
 
   # Workspace holds two panes in one tab: the root shell (the old `term`
-  # window) and the agent pane started next. --no-focus so a headless spawn
+  # window) and the agent pane split off it. --no-focus so a headless spawn
   # doesn't steal the attached client's view.
-  wid=$(h workspace create --cwd "$dir" --label "$label" --no-focus |
-    jq -r '.result.workspace.workspace_id')
-  [[ -n "$wid" && "$wid" != "null" ]] || die "workspace create failed"
+  resp=$(h workspace create --cwd "$dir" --label "$label" --no-focus)
+  wid=$(jq -r '.result.workspace.workspace_id // empty' <<<"$resp")
+  root=$(jq -r '.result.root_pane.pane_id // empty' <<<"$resp")
+  [[ -n "$wid" && -n "$root" ]] || die "workspace create failed"
+
+  # `agent start` only adopts an existing shell pane — it never creates layout.
+  # So split the root shell first and start the agent in the new pane.
+  pane=$(h pane split "$root" --direction right --cwd "$dir" --no-focus |
+    jq -r '.result.pane.pane_id // empty')
+  [[ -n "$pane" ]] || die "pane split failed"
 
   # Launch the agent. For claude: --dangerously-skip-permissions (no tool
   # prompts), pre-trust the dir (a separate gate, pinned explicitly so it
@@ -233,10 +260,10 @@ create_session() {
   # <host>-<repo>-<branch> so the session is also reachable from claude.ai /
   # the phone. AC_TRUST=0 / AC_REMOTE_CONTROL=0 opt out respectively. argv goes
   # straight to herdr after `--`, no shell in between.
-  local argv=("$agent")
+  local argv=()
   if [[ "$agent" == "claude" ]]; then
     ensure_trusted "$dir"
-    argv=("$agent" --dangerously-skip-permissions)
+    argv=(--dangerously-skip-permissions)
     if [[ "${AC_REMOTE_CONTROL:-1}" == "1" ]]; then
       local rc_name
       rc_name="$(hostname -s)-${repo}"
@@ -244,9 +271,14 @@ create_session() {
       argv+=(--remote-control "$rc_name")
     fi
   fi
-  h agent start "$name" --workspace "$wid" --cwd "$dir" --no-focus -- "${argv[@]}" >/dev/null
+  # `agent start` blocks until the agent is interactive and exits non-zero if it
+  # isn't (e.g. stuck on a prompt ensure_trusted didn't cover). The pane exists
+  # either way, so report and keep going rather than tearing the workspace down.
+  if ! h agent start "$name" --kind "$agent" --pane "$pane" -- "${argv[@]}" >/dev/null; then
+    echo "warning: $agent in $pane did not report ready — check the pane" >&2
+  fi
 
-  echo "$name"
+  echo "$pane"
 }
 
 # attach_herd hands off to the herdr TUI so `ac`/`ac ls` land you in the one
@@ -267,9 +299,11 @@ attach_herd() {
 # target, so we skip the exec (which would nest herdr in the current pane) and
 # just hand the prompt back — the view has already switched.
 attach_workspace() {
-  local wid="$1" name="$2" repo="${3:-}" branch="${4:-}"
+  local wid="$1" pane="$2" repo="${3:-}" branch="${4:-}"
   h workspace focus "$wid" >/dev/null 2>&1 || true
-  h agent focus "$name" >/dev/null 2>&1 || true
+  # Focus by pane id, not agent name: the name is cleared when the agent exits
+  # or is replaced, while the pane id is stable for the workspace's lifetime.
+  [[ -n "$pane" ]] && h agent focus "$pane" >/dev/null 2>&1 || true
   if [[ "${HERDR_ENV:-}" == "1" ]]; then
     echo "switched to $(display "$repo" "$branch")"
     return 0
@@ -290,15 +324,15 @@ cmd_create_or_attach() {
 
   ensure_server
 
-  local wid name
+  local wid pane
   wid=$(find_workspace "$repo" "$branch")
   if [[ -n "$wid" ]]; then
-    name="$(sanitize "$(display "$repo" "$branch")")"
+    pane=$(agent_pane_of "$wid")
   else
-    name=$(create_session "$dir" "$agent" "$repo" "$branch")
+    pane=$(create_session "$dir" "$agent" "$repo" "$branch")
     wid=$(find_workspace "$repo" "$branch")
   fi
-  attach_workspace "$wid" "$name" "$repo" "$branch"
+  attach_workspace "$wid" "$pane" "$repo" "$branch"
 }
 
 cmd_spawn() {
@@ -412,9 +446,8 @@ cmd_remove() {
   # the term pane). `|| true`: goal state is a closed workspace; if the agent
   # already exited, the missing pid/pane must not abort us before close.
   local pane pid
-  pane=$(h agent list 2>/dev/null |
-    jq -r --arg w "$wid" '.result.agents[] | select(.workspace_id==$w) | .pane_id' | head -1)
-  if [[ -n "$pane" && "$pane" != "null" ]]; then
+  pane=$(agent_pane_of "$wid")
+  if [[ -n "$pane" ]]; then
     pid=$(h pane process-info --pane "$pane" 2>/dev/null |
       jq -r '.result.process_info.shell_pid // empty')
     if [[ -n "$pid" ]]; then
@@ -431,6 +464,25 @@ cmd_remove() {
   echo "killed: $wid"
 }
 
+# cmd_selftest checks agent_name against herdr's documented handle grammar
+# (^[a-z][a-z0-9_-]{0,31}$). It is the one bit of string munging here that fails
+# silently — a bad handle makes `agent start` error and the pane sit at a shell.
+cmd_selftest() {
+  local s n fails=0
+  for s in "headscale/kradalby/go127" "TubeLogger2000" "dotfiles" \
+    "2000only" "1234" "sfiber/planet-olt" "a.b" "x/$(printf 'y%.0s' {1..60})"; do
+    n=$(agent_name "$s")
+    if [[ "$n" =~ ^[a-z][a-z0-9_-]{0,31}$ ]]; then
+      echo "ok   $s -> $n"
+    else
+      echo "FAIL $s -> '$n'" >&2
+      fails=$((fails + 1))
+    fi
+  done
+  [[ "$fails" -eq 0 ]] || die "$fails agent_name case(s) failed"
+  echo "selftest passed"
+}
+
 cmd_help() {
   cat <<'EOF'
 Usage: ac [flags] [command|repo] [branch]
@@ -444,6 +496,7 @@ Commands:
   ls --porcelain         Tab-separated listing (for ac-web)
   spawn <repo> [branch]  Create a detached workspace without attaching (for ac-web)
   rm <workspace|name>    Gracefully stop the agent and close the workspace
+  selftest               Check agent-name mangling against herdr's grammar
   help                   Show this help
 
 Flags:
@@ -561,6 +614,9 @@ main() {
       [[ ${#args[@]} -ge 2 ]] || die "usage: ac rm <workspace|name>"
       ensure_server
       cmd_remove "${args[1]}"
+      ;;
+    selftest)
+      cmd_selftest
       ;;
     help)
       cmd_help
