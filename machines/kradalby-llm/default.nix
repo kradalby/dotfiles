@@ -144,6 +144,9 @@ in
     pkgs.master.codex
     pkgs.neovim
     pkgs.tmux
+
+    # no setec here; stub keeps direnv's secret_env quiet
+    (pkgs.writeShellScriptBin "secret-env" "")
   ];
 
   # No NixOS module here to write /etc/tmux.conf, so use the XDG path.
