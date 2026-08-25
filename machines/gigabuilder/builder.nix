@@ -10,4 +10,12 @@
   # (pinned there in ~/git/infrastructure). Without this, offloaded builds starve
   # the VM's vcpus and incus resets it (~80-min crash-loop under load).
   systemd.services.nix-daemon.serviceConfig.CPUAffinity = "4-31";
+
+  # proxy.golang.org 403s the signed storage.googleapis.com redirect from this
+  # host, so every buildGoModule vendor fetch fails here while succeeding
+  # elsewhere. Fetch from the source repos instead. GOPROXY is an impure env var
+  # for those fixed-output derivations (pkgs/build-support/go/module.nix), so
+  # this changes no vendorHash — only where the bytes come from. go.sum and the
+  # checksum database still verify them.
+  systemd.services.nix-daemon.environment.GOPROXY = "direct";
 }
