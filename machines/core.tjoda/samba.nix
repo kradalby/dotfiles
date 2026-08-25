@@ -9,7 +9,10 @@ let
     "valid users" = "kradalby";
     "force user" = "storage";
     "force group" = "storage";
+    # create mask only caps what the client asks for, and macOS asks for 0600.
+    # Without the force mode, hugin cannot read the originals it symlinks to.
     "create mask" = "0755";
+    "force create mode" = "0644";
     "directory mask" = "0775";
   };
 in
