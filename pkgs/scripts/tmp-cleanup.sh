@@ -169,7 +169,9 @@ is_busy() {
 get_size() {
   # Sets size_b (integer bytes) and size_h (human readable) for $1
   # via a single du call rather than separate -sh/-sb passes.
-  size_b=$(du -sb "$1" 2>/dev/null | awk '{print $1}')
+  # Disk usage, not apparent size: sparse test fixtures make -sb report tens of
+  # gigabytes for a tree that frees a few, and freed space is the whole point.
+  size_b=$(du -s --block-size=1 "$1" 2>/dev/null | awk '{print $1}')
   case "$size_b" in '' | *[!0-9]*) size_b=0 ;; esac
   size_h=$(numfmt --to=iec "$size_b" 2>/dev/null) || size_h="?"
 }
