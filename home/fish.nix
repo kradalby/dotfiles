@@ -119,7 +119,7 @@ in
 
         ${pkgs.gnused}/bin/sed -i $sedString secrets.nix
 
-        ${pkgs.alejandra}/bin/alejandra secrets.nix
+        ${pkgs.nixfmt-rfc-style}/bin/nixfmt secrets.nix
         ${pkgs.ragenix}/bin/ragenix --rekey
       '';
 

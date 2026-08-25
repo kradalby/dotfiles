@@ -118,7 +118,7 @@ in
     (lib.mkIf cfg.nix.enable {
       home.packages = with pkgs.unstable; [
         nixd
-        alejandra
+        nixfmt-rfc-style
         deadnix
         statix
         colmena
