@@ -12,7 +12,7 @@
       allow = [ ];
       deny = [ ];
       ask = [ ];
-      defaultMode = "bypassPermissions";
+      defaultMode = "auto";
     };
 
     # PATH covers NixOS, nix-darwin, and Homebrew locations.
