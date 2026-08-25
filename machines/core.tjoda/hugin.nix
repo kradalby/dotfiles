@@ -36,6 +36,10 @@ in
   # plain filesystem permissions, not the sandbox.
   systemd.services.hugin.serviceConfig.SupplementaryGroups = [ "storage" ];
 
+  # The module only waits for contentDir; the originals it symlinks to live on
+  # the other nofail disk, so without this they 404 whenever it is not mounted.
+  systemd.services.hugin.unitConfig.RequiresMountsFor = [ "${picturesDir}/${sourceFolder}" ];
+
   # Run by hand when photos are added. sourceFolder/targetFolder are relative
   # to the working directory, hence the cd:
   #   cd /pictures && munin --config /etc/munin/munin.json --json
