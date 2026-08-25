@@ -35,12 +35,6 @@
           prefixLength = 24;
         }
       ];
-      ipv6.addresses = [
-        {
-          address = "2a03:94e0:ffff:194:32:107::146";
-          prefixLength = 118;
-        }
-      ];
     };
 
     defaultGateway = {
@@ -59,4 +53,14 @@
       "2606:4700:4700::1111"
     ];
   };
+
+  # 27ee:: is our assigned prefix and the primary source address; the shared
+  # ffff:: one is deprecated, so it only takes inbound.
+  systemd.network.networks."40-${config.my.wan}".addresses = [
+    { Address = "2a03:94e0:27ee::146/128"; }
+    {
+      Address = "2a03:94e0:ffff:194:32:107::146/118";
+      PreferredLifetime = "0";
+    }
+  ];
 }
