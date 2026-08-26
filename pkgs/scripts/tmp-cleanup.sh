@@ -59,6 +59,7 @@ SKIP_PATTERNS=(
 EXECUTE=0
 AGE_MIN=20
 SESSION_AGE_MIN=480
+FULL_PCT=90
 VERBOSE=0
 USE_LSOF=1
 
@@ -67,13 +68,14 @@ usage() {
 tmp-cleanup — prune stale entries from /tmp.
 
 USAGE
-  tmp-cleanup [-y|--execute] [-d MINUTES] [-s MINUTES] [-v] [--no-lsof]
-              [-h|--help]
+  tmp-cleanup [-y|--execute] [-d MINUTES] [-s MINUTES] [-f PERCENT] [-v]
+              [--no-lsof] [-h|--help]
 
 OPTIONS
   -y, --execute    actually delete (default: dry-run)
   -d MINUTES       age threshold in minutes (default: 20)
   -s MINUTES       claude session-scratch threshold (default: 480)
+  -f PERCENT       exit 3 if /tmp is still this full afterwards (default: 90)
   -v               verbose: also list KEEP entries
   --no-lsof        skip lsof guard (NOT recommended)
   -h, --help       this help
@@ -94,6 +96,11 @@ SAFETY
   Default mode is dry-run; pass -y to actually delete.
   lsof guard skips any path with an open file descriptor — it is the
   real safety net, not the age threshold. Use --no-lsof at your peril.
+
+EXIT CODES
+  0  clean, /tmp below -f
+  1  one or more removals failed
+  3  /tmp still at or above -f percent — the caller is still blocked
 
 EXAMPLES
   tmp-cleanup                  # preview what would go
@@ -122,6 +129,14 @@ while [ $# -gt 0 ]; do
       }
       SESSION_AGE_MIN="$1"
       ;;
+    -f)
+      shift
+      [ $# -gt 0 ] || {
+        echo "tmp-cleanup: -f needs a value" >&2
+        exit 2
+      }
+      FULL_PCT="$1"
+      ;;
     -v) VERBOSE=1 ;;
     --no-lsof) USE_LSOF=0 ;;
     -h | --help)
@@ -147,6 +162,13 @@ esac
 case "$SESSION_AGE_MIN" in
   '' | *[!0-9]*)
     echo "tmp-cleanup: -s needs a non-negative integer (minutes), got: $SESSION_AGE_MIN" >&2
+    exit 2
+    ;;
+esac
+
+case "$FULL_PCT" in
+  '' | *[!0-9]*)
+    echo "tmp-cleanup: -f needs a non-negative integer (percent), got: $FULL_PCT" >&2
     exit 2
     ;;
 esac
@@ -332,6 +354,8 @@ done
 
 freed_h=$(numfmt --to=iec --suffix=B "$freed" 2>/dev/null || echo "${freed}B")
 remaining=$(du -sh /tmp 2>/dev/null | awk '{print $1}')
+used_pct=$(df --output=pcent /tmp 2>/dev/null | tail -1 | tr -dc '0-9')
+case "$used_pct" in '' | *[!0-9]*) used_pct=0 ;; esac
 
 mode="DRY-RUN"
 verb="would remove"
@@ -345,7 +369,12 @@ printf '%-13s %d (%s)\n' "$verb:" "$removed" "$freed_h"
 printf '%-13s %d\n' "busy:" "$busy"
 printf '%-13s %d\n' "kept:" "$kept"
 [ "$errors" -gt 0 ] && printf '%-13s %d\n' "errors:" "$errors"
-printf '%-13s %s\n' "/tmp size:" "$remaining"
+printf '%-13s %s (%s%% full)\n' "/tmp size:" "$remaining" "$used_pct"
 
 [ "$errors" -gt 0 ] && exit 1
+# A caller cleaning to unblock a build must not read "kept: 59" as success.
+if [ "$used_pct" -ge "$FULL_PCT" ]; then
+  printf 'tmp-cleanup: /tmp still %s%% full (threshold %s%%)\n' "$used_pct" "$FULL_PCT" >&2
+  exit 3
+fi
 exit 0
