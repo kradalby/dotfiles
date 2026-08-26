@@ -224,6 +224,16 @@
         };
       };
 
+      # Fallout from building all of nixpkgs' Go with our toolchain rather than
+      # the one each package pinned. Must sit after goOverlay so `prev` is
+      # already the 1.27 build.
+      goFixupsOverlay = _final: prev: {
+        # generate-database's parser tests panic under 1.27 (parse_test.go:40,
+        # index out of range). They cover a build-time code generator, not the
+        # daemon we run. Drop once upstream incus supports 1.27.
+        incus-lts = prev.incus-lts.overrideAttrs { doCheck = false; };
+      };
+
       overlay-pkgs = final: _: {
         unstable = import inputs.nixpkgs-unstable {
           system = final.stdenv.hostPlatform.system;
@@ -247,6 +257,7 @@
       overlays = with inputs; [
         overlay-pkgs
         goOverlay
+        goFixupsOverlay
         headscale.overlays.default
         golink.overlays.default
         krapage.overlays.default
