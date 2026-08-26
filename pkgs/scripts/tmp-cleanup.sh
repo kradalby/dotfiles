@@ -224,11 +224,18 @@ get_size() {
   size_h=$(numfmt --to=iec "$size_b" 2>/dev/null) || size_h="?"
 }
 
+emit() {
+  # Buffer one report line keyed by size. When /tmp is full the useful question
+  # is what is big, so the whole report is sorted by size at the end rather
+  # than streamed in filesystem order.
+  REPORT+=("$1"$'\t'"$(printf '%-9s%-55s (%s)' "[$2]" "$3" "$4")")
+}
+
 prune() {
   # Remove (or, in dry-run, account for) $1. Expects get_size already called.
   if [ "$EXECUTE" -eq 1 ]; then
     if rm -rf -- "$1" 2>/dev/null; then
-      printf '[RM]     %-55s (%s)\n' "$1" "$size_h"
+      emit "$size_b" RM "$1" "$size_h"
       removed=$((removed + 1))
       freed=$((freed + size_b))
     else
@@ -236,7 +243,7 @@ prune() {
       errors=$((errors + 1))
     fi
   else
-    printf '[DRY]    %-55s (%s)\n' "$1" "$size_h"
+    emit "$size_b" DRY "$1" "$size_h"
     removed=$((removed + 1))
     freed=$((freed + size_b))
   fi
@@ -247,6 +254,7 @@ freed=0
 busy=0
 kept=0
 errors=0
+REPORT=()
 
 shopt -s nullglob dotglob
 
@@ -255,7 +263,7 @@ for path in /tmp/*; do
   name=${path##*/}
 
   if match_any "$name" "${SKIP_PATTERNS[@]}"; then
-    [ "$VERBOSE" -eq 1 ] && printf '[KEEP]   %-55s (skip-list)\n' "$path"
+    [ "$VERBOSE" -eq 1 ] && emit 0 KEEP "$path" "skip-list"
     kept=$((kept + 1))
     continue
   fi
@@ -265,19 +273,20 @@ for path in /tmp/*; do
   if [ -f "$path" ] && match_any "$name" "${FILE_PATTERNS[@]}"; then hit=1; fi
 
   if [ "$hit" -eq 0 ]; then
-    [ "$VERBOSE" -eq 1 ] && printf '[KEEP]   %-55s (no pattern)\n' "$path"
+    [ "$VERBOSE" -eq 1 ] && emit 0 KEEP "$path" "no pattern"
     kept=$((kept + 1))
     continue
   fi
 
   if ! is_old "$path"; then
-    [ "$VERBOSE" -eq 1 ] && printf '[KEEP]   %-55s (younger than %sm)\n' "$path" "$AGE_MIN"
+    [ "$VERBOSE" -eq 1 ] && emit 0 KEEP "$path" "younger than ${AGE_MIN}m"
     kept=$((kept + 1))
     continue
   fi
 
   if is_busy "$path"; then
-    printf '[BUSY]   %-55s (open fd)\n' "$path"
+    get_size "$path"
+    emit "$size_b" BUSY "$path" "open fd, $size_h"
     busy=$((busy + 1))
     continue
   fi
@@ -303,14 +312,14 @@ for sess in /tmp/claude-[0-9]*/*/*; do
   [ -d "$sess" ] || continue
 
   if busy_under "$sess"; then
-    printf '[BUSY]   %-55s (open fd)\n' "$sess"
+    get_size "$sess"
+    emit "$size_b" BUSY "$sess" "open fd, $size_h"
     busy=$((busy + 1))
     continue
   fi
 
   if has_recent_write "$sess"; then
-    [ "$VERBOSE" -eq 1 ] &&
-      printf '[KEEP]   %-55s (written within %sm)\n' "$sess" "$SESSION_AGE_MIN"
+    [ "$VERBOSE" -eq 1 ] && emit 0 KEEP "$sess" "written within ${SESSION_AGE_MIN}m"
     kept=$((kept + 1))
     continue
   fi
@@ -318,6 +327,8 @@ for sess in /tmp/claude-[0-9]*/*/*; do
   get_size "$sess"
   prune "$sess"
 done
+
+[ "${#REPORT[@]}" -gt 0 ] && printf '%s\n' "${REPORT[@]}" | sort -t$'\t' -k1,1rn | cut -f2-
 
 freed_h=$(numfmt --to=iec --suffix=B "$freed" 2>/dev/null || echo "${freed}B")
 remaining=$(du -sh /tmp 2>/dev/null | awk '{print $1}')
