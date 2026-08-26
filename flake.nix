@@ -77,7 +77,8 @@
     # WIP Nix binary cache served over tailscale; pinned to the `initial` branch.
     tsnixcache = {
       url = "github:kradalby/tsnixcache/initial";
-      inputs.nixpkgs.follows = "nixpkgs-stable";
+      # Follows unstable: its go.mod needs go >= 1.27.0.
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
     # Self-hosted garnix CI (our fork's integration branch). Update independently
@@ -89,24 +90,28 @@
     headscale = {
       url = "github:juanfont/headscale/main";
       inputs."flake-utils".follows = "flake-utils";
-      # Follows stable: headscale needs go_1_26 >= 1.26.5 (upstream pins
-      # staging-next-26.05 for it); the 26.05 line ships 1.26.6.
-      inputs.nixpkgs.follows = "nixpkgs-stable";
+      # Follows unstable: headscale go.mod now needs go >= 1.27.0, and only
+      # unstable ships a final 1.27 (stable has 1.26.6 and a 1.27 rc).
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
     golink = {
-      # Follows stable: golink's go.mod needs go >= 1.26.6, which the 26.05
-      # line ships and nixpkgs-unstable does not.
+      # Follows unstable for the fleet-wide go_latest (1.27); its go.mod floor
+      # of 1.26.6 is satisfied there too.
       url = "github:tailscale/golink";
-      inputs.nixpkgs.follows = "nixpkgs-stable";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
       inputs.systems.follows = "flake-utils/systems";
     };
 
     hugin = {
       url = "github:kradalby/hugin";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
+      # Pinned, not following nixpkgs-unstable: unstable moved elm 0.19.1 ->
+      # 0.19.2, and hugin's fetchElmDeps seeds ELM_HOME/0.19.1, so the 0.19.2
+      # compiler finds an empty cache and reaches for the network the sandbox
+      # denies. This rev is the last with elm 0.19.1; it still carries
+      # go_latest 1.27.0. Drop the pin once hugin regenerates elm-srcs.nix.
+      inputs.nixpkgs.url = "github:NixOS/nixpkgs/174eb786fb68e3a13e4e535a3deea479a0c07a6a";
       inputs."flake-utils".follows = "flake-utils";
-      inputs.treefmt-nix.follows = "treefmt-nix";
     };
 
     # setec-compatible secrets server, pinned to the `initial` branch. Follows
@@ -201,16 +206,23 @@
       ...
     }@inputs:
     let
-      # Single go version for the whole fleet (stable, unstable, master).
-      # Bump here to move every in-repo go build at once.
-      goOverlay =
-        let
-          version = "1_26";
-        in
-        final: _prev: {
-          go = final."go_${version}";
-          buildGoModule = final."buildGo${builtins.replaceStrings [ "_" ] [ "" ] version}Module";
+      # Single Go for the whole fleet: go_latest from nixpkgs-unstable, which
+      # is 1.27. Stable cannot serve this — its newest is 1.26.6 and its
+      # go_1_27 is an rc, and an rc sorts below the `go 1.27.0` that headscale,
+      # tsnixcache and hugin now require. Bump by moving nixpkgs-unstable.
+      goLatest =
+        system:
+        (import inputs.nixpkgs-unstable {
+          inherit system;
+          config.allowUnfree = true;
+        }).go_latest;
+
+      goOverlay = _final: prev: {
+        go = goLatest prev.stdenv.hostPlatform.system;
+        buildGoModule = prev.buildGoModule.override {
+          go = goLatest prev.stdenv.hostPlatform.system;
         };
+      };
 
       overlay-pkgs = final: _: {
         unstable = import inputs.nixpkgs-unstable {
