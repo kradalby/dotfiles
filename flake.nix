@@ -228,9 +228,34 @@
       # the one each package pinned. Must sit after goOverlay so `prev` is
       # already the 1.27 build.
       goFixupsOverlay = _final: prev: {
+        # golink hardcodes pkgs.buildGo126Module, and unstable's go_1_26 is
+        # 1.26.5 — below golink's own go.mod floor of 1.26.6, so its flake
+        # package cannot build here at all. Rebuild it on the fleet toolchain.
+        golink = prev.buildGoModule {
+          pname = "golink";
+          version = inputs.golink.shortRev or "dev";
+          src = inputs.golink;
+          vendorHash = prev.lib.fileContents "${inputs.golink}/go.mod.sri";
+          ldflags =
+            let
+              tsVersion = builtins.head (
+                builtins.match ".*tailscale.com v([0-9]+\\.[0-9]+\\.[0-9]+-?[a-zA-Z]?).*" (
+                  builtins.readFile "${inputs.golink}/go.mod"
+                )
+              );
+            in
+            [
+              "-w"
+              "-s"
+              "-X tailscale.com/version.longStamp=${tsVersion}"
+              "-X tailscale.com/version.shortStamp=${tsVersion}"
+            ];
+        };
+
         # generate-database's parser tests panic under 1.27 (parse_test.go:40,
         # index out of range). They cover a build-time code generator, not the
         # daemon we run. Drop once upstream incus supports 1.27.
+        incus = prev.incus.overrideAttrs { doCheck = false; };
         incus-lts = prev.incus-lts.overrideAttrs { doCheck = false; };
       };
 
@@ -257,7 +282,6 @@
       overlays = with inputs; [
         overlay-pkgs
         goOverlay
-        goFixupsOverlay
         headscale.overlays.default
         golink.overlays.default
         krapage.overlays.default
@@ -267,6 +291,8 @@
         ghdl.overlays.default
         # Adds `munin-gallery` (binary `munin`), x86_64-linux only.
         munin.overlays.default
+        # After the input overlays: it replaces packages they define.
+        goFixupsOverlay
         (import ./pkgs/overlays { })
         (
           final: prev:
