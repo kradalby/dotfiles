@@ -105,12 +105,7 @@
 
     hugin = {
       url = "github:kradalby/hugin";
-      # Pinned, not following nixpkgs-unstable: unstable moved elm 0.19.1 ->
-      # 0.19.2, and hugin's fetchElmDeps seeds ELM_HOME/0.19.1, so the 0.19.2
-      # compiler finds an empty cache and reaches for the network the sandbox
-      # denies. This rev is the last with elm 0.19.1; it still carries
-      # go_latest 1.27.0. Drop the pin once hugin regenerates elm-srcs.nix.
-      inputs.nixpkgs.url = "github:NixOS/nixpkgs/174eb786fb68e3a13e4e535a3deea479a0c07a6a";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
       inputs."flake-utils".follows = "flake-utils";
     };
 
