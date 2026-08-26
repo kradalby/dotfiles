@@ -48,7 +48,7 @@ in
     };
   };
 
-  boot.tmp.tmpfsSize = "4G";
+  boot.tmp.tmpfsSize = "7G";
 
   # Build aarch64-linux here (qemu emulation) so `rnb dev.ldn` can serve arm
   # builds; binfmt auto-advertises it via extra-platforms. Slow but handy.
