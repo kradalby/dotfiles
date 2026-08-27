@@ -29,6 +29,7 @@ in
     ./fish.nix
     ./starship.nix
     ./ssh.nix
+    ./ai-commands.nix
 
     ../modules/claude-code
 
@@ -57,8 +58,6 @@ in
     "ghostty/config".source = ../rc/ghostty;
 
     "opencode/AGENTS.md".text = agentsContent;
-    "opencode/commands".source = ../rc/claude/commands;
-
     # opencode equivalent of the Claude dev-env hook: a shell.env plugin that
     # injects the per-directory Nix dev env into every shell command. Auto-
     # discovered from the plugin dir; no opencode.json entry needed.
@@ -145,10 +144,6 @@ in
       # don't ship their own AGENTS.md.
       "AGENTS.md".text = agentsContent;
 
-      ".claude/commands" = {
-        source = ../rc/claude/commands;
-        recursive = true;
-      };
       ".claude/CLAUDE.md".text = agentsContent;
 
       ".claude/output-styles/ELI5.md".source = ../rc/claude/output-styles/ELI5.md;
