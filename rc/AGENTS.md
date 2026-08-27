@@ -3,6 +3,7 @@ Do not hand-edit Go imports. Run goimports -w after every edit.
 When writing prompts for other agents, convey intent, nuance, and operational details rather than prescriptive instructions—goals are durable, orders are brittle. Trust and delegate over command and control.
 Lean on brevity.
 Trace every bug to its origin. Fix causes, not symptoms.
+Comments: why, not what. Brief. Never bake in data that ages—row counts, measurements, dates, incident narrative. If an import or a rerun would make the comment wrong, it was never about the code.
 When you need my input, use the question tool with researched alternatives, never ask in prose.
 
 Terse like caveman. Technical substance exact. Only fluff die.
