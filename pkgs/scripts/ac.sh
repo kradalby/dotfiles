@@ -412,6 +412,29 @@ cmd_list_porcelain() {
     jq -r '.result.workspaces[] | [.workspace_id, .label, .focused] | @tsv')
 }
 
+cmd_list_human() {
+  # `ac ls` prints a table. It used to hand off to the herdr TUI, which is a
+  # no-op when you are already inside herdr — so the one place you most want a
+  # listing printed you got "already attached" instead. Same data as the
+  # porcelain listing, columns aligned.
+  local out
+  out=$(cmd_list_porcelain)
+  if [[ -z "$out" ]]; then
+    echo "no agent sessions"
+    return 0
+  fi
+  # awk, not a read loop: tab is IFS whitespace, so `read` collapses the empty
+  # branch field and shifts every column after it.
+  {
+    printf 'SESSION\tAGENT\tDIR\n'
+    awk -F'\t' '{
+      s = ($3 == "") ? $2 : $2 "/" $3
+      if ($5 == 1) s = s " *"
+      print s "\t" ($4 == "" ? "-" : $4) "\t" $6
+    }' <<<"$out"
+  } | column -t -s $'\t'
+}
+
 # Resolve a target (workspace_id or repo[/branch] display name) to a workspace_id.
 resolve_target() {
   local target="$1"
@@ -500,6 +523,7 @@ session as a workspace, so they share a single overview and a single attach.
 Commands:
   <repo> [branch]        Create the workspace if needed, then attach the herdr
                          session focused on that repo/branch's agent pane
+  ls                     List live sessions ('*' = the one herdr is showing)
   ls --porcelain         Tab-separated listing (for ac-web)
   spawn <repo> [branch]  Create a detached workspace without attaching (for ac-web)
   rm <workspace|name>    Gracefully stop the agent and close the workspace
@@ -511,8 +535,8 @@ Flags:
   -c, --claude           Use claude (default)
   -x, --codex            Use codex
 
-To list, switch, or split sessions interactively, attach the herd with `herdr`
-(or `herdr --session ac`) and use its TUI — that's the single overview.
+To switch or split sessions interactively, attach the herd with `herdr` (or
+`herdr --session ac`) and use its TUI — that's the single overview.
 
 If the branch worktree does not exist, you will be prompted to create it. An
 existing branch is checked out as-is; a new branch is based on the appropriate
@@ -605,12 +629,7 @@ main() {
       if [[ "$porcelain" == 1 ]]; then
         cmd_list_porcelain
       else
-        # Human listing is the herdr TUI; a bare `ac ls` just attaches it.
-        if server_running; then
-          attach_herd
-        else
-          echo "no agent sessions (herdr server not running)"
-        fi
+        cmd_list_human
       fi
       ;;
     spawn)
