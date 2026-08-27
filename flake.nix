@@ -166,6 +166,12 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
+    hermes-agent = {
+      url = "github:NousResearch/hermes-agent";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+      inputs.home-manager.follows = "home-manager";
+    };
+
     # Agent multiplexer (tmux replacement for `ac`). Do NOT `follows` its
     # rust-overlay — the package is built against the toolchain herdr pins.
     herdr = {
@@ -627,6 +633,14 @@
           # treefmt in check mode: fails when any file is unformatted, making
           # `nix fmt` enforceable in CI (git.md's claim, now true).
           formatting = treefmtEval.config.build.check self;
+          aperture-agent-config-sync =
+            let
+              packages = self.homeConfigurations."ubuntu@kradalby-llm".config.home.packages;
+              sync = builtins.head (
+                builtins.filter (package: package.name == "aperture-agent-config-sync") packages
+              );
+            in
+            sync.tests;
           prometheus-rules = import ./checks/prometheus-rules { inherit pkgs self; };
           monitoring-pipeline = import ./checks/monitoring-pipeline.nix { inherit pkgs self; };
           # Fail if any host exposes an exporter/service that nothing scrapes.
