@@ -36,7 +36,7 @@ let
         hooks = [
           {
             type = "command";
-            command = "${codexDevEnvHook}/bin/codex-nix-dev-env-hook";
+            command = ''"$HOME/.codex/hooks/nix-dev-env.sh"'';
             timeout = 30;
           }
         ];
@@ -161,4 +161,8 @@ in
     format = "toml";
     value = codexConfig;
   };
+
+  # Keep the mutable config path stable across rebuilds and GC while the
+  # symlink target follows the current Home Manager generation.
+  home.file.".codex/hooks/nix-dev-env.sh".source = "${codexDevEnvHook}/bin/codex-nix-dev-env-hook";
 }

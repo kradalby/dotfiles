@@ -83,11 +83,10 @@
     # via CLAUDE_ENV_FILE: direnv (.envrc) primary, `nix print-dev-env` for a
     # flake.nix as fallback.
     #
-    # NB: a CwdChanged hook (reload on `cd`) is documented but not yet shipped
-    # in released Claude Code (>=2.1.207 rejects it as an "Invalid key", which
-    # makes Claude discard the whole settings.json). Re-add it once a release
-    # lands the event, otherwise the entire file is silently dropped.
-    hooks = {
+    # Re-run on directory changes so Bash follows the active project's dev env.
+    # CwdChanged is supported by Claude Code >=2.1.246 and exposes both
+    # new_cwd and CLAUDE_ENV_FILE to command hooks.
+    hooks = rec {
       SessionStart = [
         {
           hooks = [
@@ -98,6 +97,7 @@
           ];
         }
       ];
+      CwdChanged = SessionStart;
     };
 
     # Status bar: renders a unicode progress bar showing context
