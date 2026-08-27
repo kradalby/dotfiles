@@ -378,10 +378,17 @@ cmd_list_porcelain() {
     [[ -n "$wid" ]] || continue
 
     local agent_l disp repo branch agent workdir attached
-    # label = "DISPLAY [al]" — split off the trailing agent tag.
-    agent_l="${label##*\[}"
-    agent_l="${agent_l%\]}"
-    disp="${label% \[*\]}"
+    # label = "DISPLAY [al]" — split off the trailing agent tag. Workspaces not
+    # created by ac (herdr's own, e.g. "~") carry no tag; without the guard the
+    # unstripped label became both the display name AND the agent.
+    if [[ "$label" == *" ["*"]" ]]; then
+      agent_l="${label##*\[}"
+      agent_l="${agent_l%\]}"
+      disp="${label% \[*\]}"
+    else
+      agent_l=""
+      disp="$label"
+    fi
     case "$agent_l" in
       cl) agent="claude" ;;
       oc) agent="opencode" ;;
