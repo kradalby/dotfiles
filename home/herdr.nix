@@ -14,6 +14,7 @@
 let
   herdr = "${pkgs.herdr}/bin/herdr";
   fish = "${pkgs.fish}/bin/fish";
+  ac = "${import ../pkgs/scripts/ac.nix { inherit pkgs; }}/bin/ac";
   # Panes are spawned by the server, so its env is theirs: profile bin for
   # claude/opencode/ac, plus the usual system paths.
   # /run/wrappers/bin first, per NixOS: without it `sudo` resolves to the
@@ -22,6 +23,32 @@ let
   darwinPath = "${config.home.profileDirectory}/bin:/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin";
 in
 {
+  options.my.herdr.permagents = lib.mkOption {
+    type = lib.types.listOf (
+      lib.types.submodule {
+        options = {
+          repo = lib.mkOption {
+            type = lib.types.str;
+            description = "Repository name under $GIT_ROOT (e.g. \"dotfiles\").";
+          };
+          role = lib.mkOption {
+            type = lib.types.str;
+            description = ''
+              Role to run, matching `<repo>/.agents/skills/<role>/SKILL.md`.
+            '';
+          };
+        };
+      }
+    );
+    default = [ ];
+    description = ''
+      Long-lived role sessions that should always exist in the herdr session.
+      Each becomes one workspace named "<repo>:<role>", reconciled once after
+      the server starts. Empty by default: only the machine you actually deploy
+      from wants these, and a host that merely runs herdr must not spawn them.
+    '';
+  };
+
   options.my.herdr.integrations = lib.mkOption {
     type = lib.types.listOf lib.types.str;
     default = [
@@ -60,6 +87,17 @@ in
       );
     }
 
+    (lib.mkIf (config.my.herdr.permagents != [ ]) {
+      # The reconcile below is a systemd user unit, so a darwin host would
+      # accept the option and silently spawn nothing.
+      assertions = [
+        {
+          assertion = pkgs.stdenv.hostPlatform.isLinux;
+          message = "my.herdr.permagents is Linux-only (systemd user unit)";
+        }
+      ];
+    })
+
     (lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
       systemd.user.services.herdr = {
         Unit.Description = "herdr — agent multiplexer server (session: ac)";
@@ -78,6 +116,34 @@ in
           OOMScoreAdjust = 100;
           # default_shell is unset (herdr falls back to $SHELL), so pin fish
           # here rather than managing a config.toml herdr also writes to.
+          Environment = [
+            "PATH=${linuxPath}"
+            "HOME=${config.home.homeDirectory}"
+            "SHELL=${fish}"
+          ];
+        };
+        Install.WantedBy = [ "default.target" ];
+      };
+
+      # Reconcile the declared role sessions once the server is up. A oneshot,
+      # not a supervised service: herdr owns the agent processes, so all this
+      # has to do is notice a missing workspace and create it. `ac permagent
+      # ensure` is idempotent, so re-running it on every login is a no-op.
+      # `|| true` per entry: one repo missing from disk must not stop the rest.
+      systemd.user.services.herdr-permagents = lib.mkIf (config.my.herdr.permagents != [ ]) {
+        Unit = {
+          Description = "herdr — ensure declared role sessions exist";
+          After = [ "herdr.service" ];
+          Requires = [ "herdr.service" ];
+        };
+        Service = {
+          Type = "oneshot";
+          RemainAfterExit = true;
+          ExecStart = pkgs.writeShellScript "herdr-permagents" (
+            lib.concatMapStringsSep "\n" (
+              a: "${ac} permagent ensure ${lib.escapeShellArg a.repo} ${lib.escapeShellArg a.role} || true"
+            ) config.my.herdr.permagents
+          );
           Environment = [
             "PATH=${linuxPath}"
             "HOME=${config.home.homeDirectory}"
