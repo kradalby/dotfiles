@@ -12,6 +12,13 @@ DEFAULT_AGENT="claude"
 # Everything below drives that session over herdr's socket API.
 HERDR_SESSION="${HERDR_SESSION:-ac}"
 
+# A role session pins one long-lived agent to one repo for one job (deploy
+# today, others later). It always opens the repo's main worktree -- never a
+# branch worktree -- and its display name is "<repo>:<role>". A colon, not a
+# slash, because the label parser below splits repo from branch on the first
+# '/' and would read the role as a branch.
+ROLE=""
+
 # --- helpers ---
 
 die() {
@@ -26,8 +33,9 @@ h() {
 }
 
 sanitize() {
-  # Slashes are illegal in herdr agent names; branch names contain them.
-  echo "$1" | tr '/' '-'
+  # Slashes and colons are illegal in herdr agent names; branch names carry
+  # the first, role sessions the second.
+  echo "$1" | tr '/:' '--'
 }
 
 # agent_name maps a display name to a legal herdr agent handle:
@@ -43,10 +51,16 @@ agent_name() {
   printf '%s\n' "${n:0:32}"
 }
 
-# display: human name for a session — "repo/branch" or just "repo".
+# display: human name for a session — "repo:role", "repo/branch", or "repo".
 display() {
   local repo="$1" branch="$2"
-  if [[ -n "$branch" ]]; then echo "$repo/$branch"; else echo "$repo"; fi
+  if [[ -n "$ROLE" ]]; then
+    echo "$repo:$ROLE"
+  elif [[ -n "$branch" ]]; then
+    echo "$repo/$branch"
+  else
+    echo "$repo"
+  fi
 }
 
 agent_label() {
@@ -266,8 +280,7 @@ create_session() {
     argv=(--dangerously-skip-permissions)
     if [[ "${AC_REMOTE_CONTROL:-1}" == "1" ]]; then
       local rc_name
-      rc_name="$(hostname -s)-${repo}"
-      [[ -n "$branch" ]] && rc_name="${rc_name}-$(sanitize "$branch")"
+      rc_name="$(hostname -s)-$(sanitize "$(display "$repo" "$branch")")"
       argv+=(--remote-control "$rc_name")
     fi
   fi
@@ -278,7 +291,37 @@ create_session() {
     echo "warning: $agent in $pane did not report ready — check the pane" >&2
   fi
 
+  [[ -z "$ROLE" ]] || bootstrap_role "$pane" "$repo" "$dir"
+
   echo "$pane"
+}
+
+# bootstrap_role hands the agent its job the moment it is interactive. Sent as
+# a prompt rather than a per-agent launch flag because `agent prompt` is the one
+# injection point every agent kind shares — claude, codex and opencode alike —
+# and because it names the skill file explicitly, so the load is deterministic
+# instead of depending on a description matching.
+bootstrap_role() {
+  local pane="$1" repo="$2" dir="$3"
+  local skill=".agents/skills/$ROLE/SKILL.md" ready
+
+  if [[ ! -f "$dir/$skill" ]]; then
+    echo "warning: $repo has no $skill — starting the session unbriefed" >&2
+    return 0
+  fi
+
+  # The gate's verdict travels in the prompt rather than blocking creation: a
+  # session that says "main is 65 behind, fix me" beats a missing session.
+  if ! ready=$(git-ready "$dir" 2>&1); then
+    ready="FAILED — $ready"
+  fi
+
+  h agent prompt "$pane" "You are the $ROLE agent for $repo on $(hostname -s).
+Read $skill in this repo now and follow it.
+git-ready: $ready
+Change nothing until I say so. First report what a run would do, and anything
+already broken." >/dev/null ||
+    echo "warning: bootstrap prompt not delivered to $pane" >&2
 }
 
 # attach_herd hands off to the herdr TUI so `ac`/`ac ls` land you in the one
@@ -313,6 +356,9 @@ attach_workspace() {
 
 cmd_create_or_attach() {
   local repo="$1" branch="${2:-}" agent="${3:-$DEFAULT_AGENT}"
+
+  # A role plus a branch would be two different jobs sharing one name.
+  [[ -z "$ROLE" || -z "$branch" ]] || die "--role takes no branch"
 
   local dir
   if [[ -n "$branch" ]]; then
@@ -357,6 +403,25 @@ cmd_spawn() {
 
   create_session "$dir" "$agent" "$repo" "$branch" >/dev/null
   echo "spawned: $(display "$repo" "$branch")"
+}
+
+cmd_permagent() {
+  # `ensure <repo> <role>`: create the role session if missing, touch nothing
+  # if it is already there, never attach. Idempotent, so the boot-time unit can
+  # just run it once per declared permagent.
+  local action="$1" repo="$2" role="$3"
+  [[ "$action" == "ensure" ]] || die "usage: ac permagent ensure <repo> <role>"
+  ROLE="$role"
+
+  ensure_server
+
+  if [[ -n "$(find_workspace "$repo" "")" ]]; then
+    echo "present: $(display "$repo" "")"
+    return 0
+  fi
+
+  create_session "$(find_main_worktree "$repo")" "$DEFAULT_AGENT" "$repo" "" >/dev/null
+  echo "created: $(display "$repo" "")"
 }
 
 # workdir_of echoes the real cwd of a workspace (its root pane), so ac-web can
@@ -500,7 +565,8 @@ cmd_remove() {
 cmd_selftest() {
   local s n fails=0
   for s in "headscale/kradalby/go127" "TubeLogger2000" "dotfiles" \
-    "2000only" "1234" "sfiber/planet-olt" "a.b" "x/$(printf 'y%.0s' {1..60})"; do
+    "2000only" "1234" "sfiber/planet-olt" "a.b" "x/$(printf 'y%.0s' {1..60})" \
+    "dotfiles:deploy" "sfiber:deploy" "TubeLogger2000:deploy"; do
     n=$(agent_name "$s")
     if [[ "$n" =~ ^[a-z][a-z0-9_-]{0,31}$ ]]; then
       echo "ok   $s -> $n"
@@ -527,6 +593,8 @@ Commands:
   ls --porcelain         Tab-separated listing (for ac-web)
   spawn <repo> [branch]  Create a detached workspace without attaching (for ac-web)
   rm <workspace|name>    Gracefully stop the agent and close the workspace
+  permagent ensure <repo> <role>
+                         Create the role session if missing; no-op if present
   selftest               Check agent-name mangling against herdr's grammar
   help                   Show this help
 
@@ -534,6 +602,18 @@ Flags:
   -o, --opencode         Use opencode instead of claude
   -c, --claude           Use claude (default)
   -x, --codex            Use codex
+  -r, --role <name>      Open the repo's long-lived <name> session instead of a
+                         coding session (see "Role sessions" below)
+
+Role sessions:
+  `ac -r deploy dotfiles` opens one durable agent pinned to a repo and a job.
+  It always uses the repo's main worktree, is named "<repo>:<role>", and is
+  briefed on start from <repo>/.agents/skills/<role>/SKILL.md — the Agent
+  Skills path Codex and OpenCode already discover. The briefing carries the
+  `git-ready` verdict (default branch, clean, in sync, nothing unpushed), so
+  the agent knows the repo's state before it does anything. A failing verdict
+  does not block the session: the deploy commands are gated themselves, and a
+  session that can tell you what is wrong beats a missing one.
 
 To switch or split sessions interactively, attach the herd with `herdr` (or
 `herdr --session ac`) and use its TUI — that's the single overview.
@@ -553,7 +633,8 @@ Examples:
   ac headscale kradalby/3049     claude on ~/worktrees/headscale/kradalby/3049
   ac headscale kradalby/new      prompts to create branch from upstream/main
   ac sfiber planet-olt -o        opencode on ~/worktrees/sfiber/planet-olt
-  ac rm headscale/kradalby/3049  Gracefully close that workspace
+  ac -r deploy dotfiles          the durable "dotfiles:deploy" session
+  ac rm dotfiles:deploy          Gracefully close that workspace
 
 Each workspace opens two herdr panes in one tab:
   agent   Coding agent (claude/opencode/codex), launched directly (argv, no shell)
@@ -587,6 +668,11 @@ main() {
       -x | --codex)
         agent="codex"
         shift
+        ;;
+      -r | --role)
+        [[ $# -ge 2 ]] || die "--role needs a name"
+        ROLE="$2"
+        shift 2
         ;;
       -p | --porcelain)
         porcelain=1
@@ -635,6 +721,10 @@ main() {
     spawn)
       [[ ${#args[@]} -ge 2 ]] || die "usage: ac spawn <repo> [branch]"
       cmd_spawn "${args[1]}" "${args[2]:-}" "$agent"
+      ;;
+    permagent)
+      [[ ${#args[@]} -ge 4 ]] || die "usage: ac permagent ensure <repo> <role>"
+      cmd_permagent "${args[1]}" "${args[2]}" "${args[3]}"
       ;;
     rm | remove | kill)
       [[ ${#args[@]} -ge 2 ]] || die "usage: ac rm <workspace|name>"
