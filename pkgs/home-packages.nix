@@ -121,7 +121,6 @@ in
         nixfmt-rfc-style
         deadnix
         statix
-        colmena
         nix-init
         nurl
         ragenix
