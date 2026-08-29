@@ -216,8 +216,11 @@ Ask before these, and only these. Everything else proceeds.
 - **Every reboot.** Execute step 3 does not run until the human says so.
 - Any finding from the Execute step-2 closure-diff list.
 - Deploying `dev.ldn` at all — it is the builder the rest of the fleet needs.
-- Deploying `core.tjoda` at all — no hands, no console, and it is the LAN
-  router. State the closure diff and wait.
+- Deploying `core.tjoda` at all — no hands, no console, and it is the only
+  host at that site, so every reboot is one-way. It also advertises
+  `10.62.0.0/16` into the tailnet, so while it is down nothing at Tjodalyng is
+  reachable, itself included. It is not the LAN gateway; that is a separate
+  device at `10.62.0.1`. State the closure diff and wait.
 - Deploying `gigabuilder` — it bounces five guests, including CI.
 - A rollback that Rollback says cannot be rolled back.
 - garnix red on HEAD, or the x86 checks amber for over an hour.
