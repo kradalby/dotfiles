@@ -6,18 +6,20 @@ Triage the fleet. Report only what needs a human. Be brief.
 
 ## Access
 
-Prometheus/Alertmanager live on `core-oracldn` and are **not** reachable
-from laptops or dev boxes — the tailnet ACL denies `tag:monitoring` ports
-and the VIP names (`prom`, `alertmanager`) do not resolve off-host. Go via
-SSH:
+Prometheus/Alertmanager are tailnet VIP services on **tcp:80/443** — reach
+them by short name, no ssh hop:
 
 ```sh
-ssh core-oracldn 'curl -s "localhost:9093/api/v2/alerts?silenced=false&inhibited=false&active=true"'
-ssh core-oracldn 'curl -s -G localhost:9090/api/v1/query --data-urlencode query@-' <<< 'up == 0'
+curl -s 'http://alertmanager/api/v2/alerts?silenced=false&inhibited=false&active=true'
+curl -s -G http://prom/api/v1/query --data-urlencode query@- <<< 'up == 0'
 ```
 
 Feed PromQL on stdin (`query@-`). Inline `--data-urlencode "query=..."`
-gets mangled by nested shell quoting over SSH.
+gets mangled by nested shell quoting.
+
+If a name does not resolve, that is the ACL, not DNS: an ungranted VIP is
+absent from MagicDNS entirely. The grant is in
+`~/git/infrastructure/tailscale/policy.hujson`.
 
 ## Steps
 
