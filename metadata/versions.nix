@@ -44,7 +44,7 @@
       # https://github.com/tailscale/squibble
       squibble = "141f5d618bc46223a6fc0eb1c4df4357e2f45e86";
       # https://github.com/tailscale/setec
-      setec = "58bd74dcaa1a4e50589f5a3d0961cd30769246bd";
+      setec = "f8d7a936837c8bdb8e1af9fd99158f9b5551dbad";
       # https://github.com/seruman/boo (installed as `ghostty-tab`)
       ghostty-tab = "3bc3b2ec1f1dfc75bd9f8e919f1150ae5d42cf6b";
       # https://github.com/bscott/pm-cli/releases
