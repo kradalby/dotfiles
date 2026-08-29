@@ -89,16 +89,17 @@ in
     DNSOverTLS = lib.mkForce "false";
   };
 
-  # Remote builds copy every output closure back to this store, so it fills fast;
-  # a burst once overran the hourly GC and crashed postgres. The VM is disposable
-  # (durable copies live on gigabuilder), so GC keeps the disk clear: min/max-free
-  # keeps the daemon collecting continuously.
+  # Remote builds copy every output closure back to this store, so it fills fast.
+  # The VM is disposable (durable copies live on gigabuilder), so both collectors
+  # below are free to be aggressive about reclaiming it.
   #
-  # But 60% was too tight — a full-fleet build (every drv new, e.g. a flake bump)
-  # crossed the target mid-build and custom-gc collected the queued derivations
-  # out from under their own builds ("failed to obtain derivation"), failing CI
-  # across all repos. Disk bumped to 200GiB (infrastructure/incus) and target to
-  # 90% so a build's queued drvs survive; min/max-free stays as a runaway floor.
+  # Neither collector knows about queued-but-unstarted derivations: whichever one
+  # fires mid-build collects them out from under their own builds ("failed to
+  # obtain derivation"), failing CI across every repo at once. So both thresholds
+  # must sit far enough above the settled store that a full-fleet rebuild (every
+  # drv new, e.g. a flake bump — roughly 50GiB) never reaches them. That headroom
+  # comes from the root disk size in infrastructure/incus, which is sized against
+  # these two numbers; raise it there before raising either of these.
   nix.settings = {
     min-free = 10 * 1024 * 1024 * 1024;
     max-free = 30 * 1024 * 1024 * 1024;
