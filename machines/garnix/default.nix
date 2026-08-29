@@ -162,8 +162,12 @@ in
         systems = [ "x86_64-linux" ];
         # Kept in step with GARNIX_NIX_BUILD_POOL_SIZE above: no point letting the
         # nix-daemon dispatch more concurrent builds than the coordinator pool
-        # admits. 8 × 4 cores/job ≈ the 28 build cores (4-31) on gigabuilder.
-        maxJobs = 8;
+        # admits. Cores are not the binding limit — memory is. This VM runs on
+        # gigabuilder, and incus.service has no memory reservation, so enough
+        # concurrent heavy links (nodejs/V8, qemu) exhaust the host and the OOM
+        # killer takes the largest cgroup, which is the qemu process running
+        # this VM: the builder kills its own coordinator. 6 leaves headroom.
+        maxJobs = 6;
         speedFactor = 4;
         supportedFeatures = [
           "big-parallel"
@@ -223,7 +227,7 @@ in
     # backlogged builds spuriously time out. 8 ≈ gigabuilder's 28 build cores /
     # 4 cores-per-job; the maxJobs below is kept in step. Builds beyond 8 queue
     # untimed rather than starving.
-    GARNIX_NIX_BUILD_POOL_SIZE = "8";
+    GARNIX_NIX_BUILD_POOL_SIZE = "6";
     # Owner allowlist (fork feature): upstream gates only by denylist, so an
     # internet-facing App builds for anyone who installs it. Unset ⇒ allow all.
     GARNIX_ALLOWED_OWNERS = "kradalby,juanfont";
