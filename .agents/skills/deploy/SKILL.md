@@ -64,6 +64,13 @@ Capture the baseline first — Verify depends on it:
 1.  `colmena apply boot --on <node>` — idempotent: yes; self-severing: no.
     Pushes the closure and arms the next boot. Touches no running unit.
 
+    A nixpkgs bump replaces nearly every path, so the target briefly holds two
+    full closures. `No space left on device` here is the disk being too small
+    for that, and it can mean **inodes**, not blocks: check `df -i` as well as
+    `df -h` before concluding there is room. The disk sizes live in
+    `infrastructure/incus`; growing one is `tofu apply`, then `growpart` and
+    `resize2fs` inside the guest (ext4 grows its inode tables as it grows).
+
 2.  Read the diff. After step 1 `/run/current-system` is still the old
     generation while `/nix/var/nix/profiles/system` is the new one:
 
@@ -100,12 +107,17 @@ it is not the safe option.
 ### Order
 
 1. **x86** — `home.ldn`, `storage.ldn`, `ts1p.ldn`, `core.tjoda`,
-   `storage.bassan`, `gigabuilder`, `garnix`.
+   `storage.bassan`, `gigabuilder`, `garnix`. A host can be in this list and
+   still be unreachable; `tailscale status` reports how long one has been
+   offline, and a host that has not been seen for weeks is not a deploy
+   target. Check before queueing it, not after the push hangs.
 2. **arm64** — `core.oracldn`, `dev.oracfurt`, `rpi5.ldn`. Check the cache is
    populated first: `nix run .#cache-arm`. Without it they build under
    emulation, which is slow enough to look hung.
-3. **dev.ldn** — after approval. Last, because it is the sole builder: every
-   other host has `max-jobs = 0` and needs it up.
+3. **dev.ldn** — after approval. Last, because it is the sole builder: hosts
+   get `max-jobs = 0` from `lib/box.nix` unless they set `buildOnTarget`, so
+   they need it up. `dev.oracfurt` is the exception — it forces
+   `max-jobs = "auto"` to serve as garnix's aarch64 builder.
 
 ### Per-host
 
@@ -113,9 +125,15 @@ it is not the safe option.
   refused; that is correct, not drift. Deploy it locally:
   `PATH=/run/wrappers/bin:$PATH colmena apply-local --sudo --node dev.ldn`
   (the real sudo lives in `/run/wrappers/bin`).
-- **gigabuilder** hosts the Incus guests `garnix`, `ts1p.ldn`, `dev.ldn`,
-  `home.ldn`, `storage.ldn`. Deploying it restarts incus and bounces all of
-  them. Deploy it alone and let it settle.
+- **gigabuilder** hosts one Incus guest: `garnix`. Deploying it restarts incus
+  and bounces CI with it, so deploy it alone and let it settle. Its root is on
+  ZFS (`rpool/root`), the only host where that is true, so a zfs bump decides
+  whether it boots at all. It also serves tsnixcache, which the rest of the
+  fleet substitutes from.
+- **`dev.ldn`, `home.ldn`, `storage.ldn`, `ts1p.ldn`** are guests of a
+  different Incus server, `ldn` (10.65.0.15), which is not a colmena node in
+  this repo. Deploying gigabuilder does not touch them. Confirm with
+  `incus list ldn:` and `incus list gigabuilder:` rather than assuming.
 - **darwin** (`kratail2`, `krair`) are not colmena nodes; deploy on the
   machine itself with `darwin-rebuild switch --flake .#<host>`.
   `kradalby-llm` is standalone home-manager:
@@ -138,7 +156,11 @@ fleet-wide signals this list does not.
 1.  `ssh root@<node> systemctl is-system-running` — `running` = pass,
     `degraded` = fail, no answer inside the reboot window = inconclusive.
 2.  Running-unit count against the Execute baseline. **Fewer units than before
-    = fail**, even with zero failed units.
+    = fail**, even with zero failed units — but identify which units before
+    calling it. The count includes transients that say nothing about health:
+    each SSH session adds a `session-*.scope`, and `nix-daemon.service` is
+    socket-activated, so it shows active only while a build is running. Check
+    #7 below, which counts only enabled services, before trusting a delta.
 3.  `ssh root@<node> nixos-version --json | jq -r .configurationRevision` must
     equal `git rev-parse HEAD`. `DIRTY` means it was built from an unclean tree.
 4.  Prometheus, by short name. PromQL on stdin — inline `query=` gets
@@ -184,8 +206,10 @@ Trigger: any Verify check fails, or two consecutive inconclusive results.
     ssh root@<node> 'nixos-rebuild --rollback switch'
     ssh root@<node> systemctl reboot     # if the rollback is itself self-severing
 
-Only 5 generations are kept (`boot.loader.*.configurationLimit` in
-`common/nix.nix`) and GC deletes older than 10 days — rollback goes no deeper.
+`common/nix.nix` sets `boot.loader.*.configurationLimit` to `mkDefault 5` and
+GC deletes older than 10 days, so rollback goes no deeper. gigabuilder
+overrides the limit to 10. Read the host's own generation list before relying
+on a depth: `nix-env -p /nix/var/nix/profiles/system --list-generations`.
 
 If a host is out of disk, `emergency-full-disk` is on every server
 (`profiles/server.nix`). It frees a 2 GB ballast file, vacuums the journal and
