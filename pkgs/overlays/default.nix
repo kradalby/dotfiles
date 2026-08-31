@@ -4,7 +4,12 @@ in
 final: prev: {
   tailscale-tools = prev.callPackage ./tailscale-tools.nix { };
 
-  setec = prev.callPackage ./setec.nix { };
+  # Pinned to Go 1.26: setec vendors a go-json-experiment that predates the
+  # encoding/json/v2 landing in 1.27, so the fleet toolchain fails it with
+  # `undefined: json.SkipFunc`. Upstream setec is already at HEAD, so the
+  # toolchain is the thing to pin, not the source. Drop once setec's vendored
+  # go-json-experiment catches up. go_1_26 is 1.26.7, above setec's 1.26.6 floor.
+  setec = prev.callPackage ./setec.nix { buildGoModule = prev.buildGo126Module; };
 
   squibble = prev.callPackage ./squibble.nix { };
 
