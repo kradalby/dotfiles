@@ -749,11 +749,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1788167259,
-        "narHash": "sha256-R81XB1M6lBXQSByJz+lonXSofd7Kbkhu6tGRNsCQpn8=",
+        "lastModified": 1788180102,
+        "narHash": "sha256-S1XGiRpeqcKEcYXjcsVmISz/QZMyEOderGZLExYntG8=",
         "owner": "kradalby",
         "repo": "garnixlogs",
-        "rev": "197469fa63eb259ebad3e81d519d9ef5823e3e88",
+        "rev": "4f61aa2d8f72c1853c41e23dfe00eb6d80948901",
         "type": "github"
       },
       "original": {
