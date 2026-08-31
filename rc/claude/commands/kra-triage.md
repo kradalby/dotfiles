@@ -51,28 +51,29 @@ Run these; stop early only if the alert pipeline itself is dead.
    on each host against `git rev-parse HEAD` in `~/git/dotfiles`. All hosts
    should share one revision. Divergence _between hosts_ is the real
    signal; lagging master by a few commits is normal.
-10. **CI** — garnix, creds from `.envrc` via setec. `$GARNIX_TOKEN` is an
-    access token, not a JWT: trade it for a 1h JWT over Basic auth, then
-    Bearer that.
+10. **CI** — garnix, via `garnixlogs`: plain text, no auth, no setec, private
+    repos included. Reach for this first; it is the whole point of it.
+
+    ```sh
+    curl -s http://garnixlogs/dotfiles                 # recent commits
+    curl -s "http://garnixlogs/$(git rev-parse HEAD)"  # summary + each failed build's log
+    curl -s "http://garnixlogs/<build-id>?follow"      # stream one still running
+    ```
+
+    Commit hashes must be the full 40 characters. Check the last 3-4 commits,
+    not just HEAD — that separates a chronic failure from a flake.
+
+    Only if garnixlogs itself is down, go to the API. `$GARNIX_TOKEN` is not a
+    JWT, it is the Basic-auth password that mints one; sent as a Bearer token
+    it reads as anonymous, which answers on public repos and returns a
+    misleading "not found" on private ones. Check `/api/whoami` before
+    believing a 404.
 
     ```sh
     direnv exec . sh -c '
       jwt=$(curl -s -u "kradalby:$GARNIX_TOKEN" -X POST "$GARNIX_SERVER/api/auth/jwt" | jq -r .token)
       curl -s -H "Authorization: Bearer $jwt" "$GARNIX_SERVER/api/commits/$(git rev-parse HEAD)"'
     ```
-
-    Sending the access token as a Bearer token does not fail — it reads as
-    anonymous. That works on public repos and returns a misleading "not
-    found" on private ones, so verify with `/api/whoami` before believing a 404. Public repos need no auth at all.
-
-    Logs for one build (plain text, `<id>` from the `builds` array above):
-
-    ```sh
-    curl -s -H "Authorization: Bearer $jwt" "$GARNIX_SERVER/api/build/<id>/logs/raw"
-    ```
-
-    Check the last 3-4 commits, not just HEAD — that separates a chronic
-    failure from a flake. Builds with no `status` key are still pending.
 
 ## Judging
 
