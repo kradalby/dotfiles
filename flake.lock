@@ -171,14 +171,37 @@
     "flake-checks": {
       "inputs": {
         "flake-utils": [
-          "ghdl",
+          "garnixlogs",
           "flake-utils"
         ],
         "nixpkgs": [
-          "ghdl",
+          "garnixlogs",
           "nixpkgs"
         ],
         "treefmt-nix": "treefmt-nix_2"
+      },
+      "locked": {
+        "lastModified": 1788072657,
+        "narHash": "sha256-KJ62kJIcGVq3bxaXrKLdHpxyzsb2HYnx99/jqlxMYIw=",
+        "owner": "kradalby",
+        "repo": "flake-checks",
+        "rev": "13e811640f0cdec4974062d0d43208cec5bdad6c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "kradalby",
+        "repo": "flake-checks",
+        "type": "github"
+      }
+    },
+    "flake-checks_10": {
+      "inputs": {
+        "flake-utils": "flake-utils_5",
+        "nixpkgs": [
+          "tasmota-homekit",
+          "nixpkgs"
+        ],
+        "treefmt-nix": "treefmt-nix_13"
       },
       "locked": {
         "lastModified": 1787683770,
@@ -194,7 +217,7 @@
         "type": "github"
       }
     },
-    "flake-checks_10": {
+    "flake-checks_11": {
       "inputs": {
         "flake-utils": [
           "ts1p",
@@ -204,7 +227,7 @@
           "ts1p",
           "nixpkgs"
         ],
-        "treefmt-nix": "treefmt-nix_14"
+        "treefmt-nix": "treefmt-nix_15"
       },
       "locked": {
         "lastModified": 1782156198,
@@ -220,37 +243,11 @@
         "type": "github"
       }
     },
-    "flake-checks_11": {
+    "flake-checks_12": {
       "inputs": {
         "flake-utils": "flake-utils_8",
         "nixpkgs": [
           "tsnixcache",
-          "nixpkgs"
-        ],
-        "treefmt-nix": "treefmt-nix_15"
-      },
-      "locked": {
-        "lastModified": 1787683770,
-        "narHash": "sha256-WwI0OlV4HNYQeueDlG3e5+9oVhCbBMIo9z5jxV+h/Gk=",
-        "owner": "kradalby",
-        "repo": "flake-checks",
-        "rev": "dfdfa98cf72002576c91c7cbb75ed43c1061237a",
-        "type": "github"
-      },
-      "original": {
-        "owner": "kradalby",
-        "repo": "flake-checks",
-        "type": "github"
-      }
-    },
-    "flake-checks_12": {
-      "inputs": {
-        "flake-utils": [
-          "z2m-homekit",
-          "flake-utils"
-        ],
-        "nixpkgs": [
-          "z2m-homekit",
           "nixpkgs"
         ],
         "treefmt-nix": "treefmt-nix_16"
@@ -269,40 +266,17 @@
         "type": "github"
       }
     },
-    "flake-checks_2": {
-      "inputs": {
-        "flake-utils": "flake-utils_3",
-        "nixpkgs": [
-          "headscale",
-          "nixpkgs"
-        ],
-        "treefmt-nix": "treefmt-nix_3"
-      },
-      "locked": {
-        "lastModified": 1783015821,
-        "narHash": "sha256-vmzYTZxIAy3OYXwkRL5GQYk8fNnh8TLWcxQRIO3ywOU=",
-        "owner": "kradalby",
-        "repo": "flake-checks",
-        "rev": "3c821706eb0bd07f515f9a7726b650ccae927433",
-        "type": "github"
-      },
-      "original": {
-        "owner": "kradalby",
-        "repo": "flake-checks",
-        "type": "github"
-      }
-    },
-    "flake-checks_3": {
+    "flake-checks_13": {
       "inputs": {
         "flake-utils": [
-          "homewizard-p1-exporter",
+          "z2m-homekit",
           "flake-utils"
         ],
         "nixpkgs": [
-          "homewizard-p1-exporter",
+          "z2m-homekit",
           "nixpkgs"
         ],
-        "treefmt-nix": "treefmt-nix_4"
+        "treefmt-nix": "treefmt-nix_17"
       },
       "locked": {
         "lastModified": 1787683770,
@@ -318,14 +292,63 @@
         "type": "github"
       }
     },
-    "flake-checks_4": {
+    "flake-checks_2": {
       "inputs": {
         "flake-utils": [
-          "hugin",
+          "ghdl",
           "flake-utils"
         ],
         "nixpkgs": [
-          "hugin",
+          "ghdl",
+          "nixpkgs"
+        ],
+        "treefmt-nix": "treefmt-nix_3"
+      },
+      "locked": {
+        "lastModified": 1787683770,
+        "narHash": "sha256-WwI0OlV4HNYQeueDlG3e5+9oVhCbBMIo9z5jxV+h/Gk=",
+        "owner": "kradalby",
+        "repo": "flake-checks",
+        "rev": "dfdfa98cf72002576c91c7cbb75ed43c1061237a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "kradalby",
+        "repo": "flake-checks",
+        "type": "github"
+      }
+    },
+    "flake-checks_3": {
+      "inputs": {
+        "flake-utils": "flake-utils_3",
+        "nixpkgs": [
+          "headscale",
+          "nixpkgs"
+        ],
+        "treefmt-nix": "treefmt-nix_4"
+      },
+      "locked": {
+        "lastModified": 1783015821,
+        "narHash": "sha256-vmzYTZxIAy3OYXwkRL5GQYk8fNnh8TLWcxQRIO3ywOU=",
+        "owner": "kradalby",
+        "repo": "flake-checks",
+        "rev": "3c821706eb0bd07f515f9a7726b650ccae927433",
+        "type": "github"
+      },
+      "original": {
+        "owner": "kradalby",
+        "repo": "flake-checks",
+        "type": "github"
+      }
+    },
+    "flake-checks_4": {
+      "inputs": {
+        "flake-utils": [
+          "homewizard-p1-exporter",
+          "flake-utils"
+        ],
+        "nixpkgs": [
+          "homewizard-p1-exporter",
           "nixpkgs"
         ],
         "treefmt-nix": "treefmt-nix_5"
@@ -347,11 +370,11 @@
     "flake-checks_5": {
       "inputs": {
         "flake-utils": [
-          "hvor",
+          "hugin",
           "flake-utils"
         ],
         "nixpkgs": [
-          "hvor",
+          "hugin",
           "nixpkgs"
         ],
         "treefmt-nix": "treefmt-nix_6"
@@ -373,11 +396,11 @@
     "flake-checks_6": {
       "inputs": {
         "flake-utils": [
-          "krapage",
+          "hvor",
           "flake-utils"
         ],
         "nixpkgs": [
-          "krapage",
+          "hvor",
           "nixpkgs"
         ],
         "treefmt-nix": "treefmt-nix_7"
@@ -398,9 +421,12 @@
     },
     "flake-checks_7": {
       "inputs": {
-        "flake-utils": "flake-utils_4",
+        "flake-utils": [
+          "krapage",
+          "flake-utils"
+        ],
         "nixpkgs": [
-          "nefit-homekit",
+          "krapage",
           "nixpkgs"
         ],
         "treefmt-nix": "treefmt-nix_8"
@@ -421,15 +447,12 @@
     },
     "flake-checks_8": {
       "inputs": {
-        "flake-utils": [
-          "tasmota-exporter",
-          "flake-utils"
-        ],
+        "flake-utils": "flake-utils_4",
         "nixpkgs": [
-          "tasmota-exporter",
+          "nefit-homekit",
           "nixpkgs"
         ],
-        "treefmt-nix": "treefmt-nix_11"
+        "treefmt-nix": "treefmt-nix_9"
       },
       "locked": {
         "lastModified": 1787683770,
@@ -447,9 +470,12 @@
     },
     "flake-checks_9": {
       "inputs": {
-        "flake-utils": "flake-utils_5",
+        "flake-utils": [
+          "tasmota-exporter",
+          "flake-utils"
+        ],
         "nixpkgs": [
-          "tasmota-homekit",
+          "tasmota-exporter",
           "nixpkgs"
         ],
         "treefmt-nix": "treefmt-nix_12"
@@ -712,9 +738,33 @@
         "type": "github"
       }
     },
-    "ghdl": {
+    "garnixlogs": {
       "inputs": {
         "flake-checks": "flake-checks",
+        "flake-utils": [
+          "flake-utils"
+        ],
+        "nixpkgs": [
+          "nixpkgs-unstable"
+        ]
+      },
+      "locked": {
+        "lastModified": 1788167259,
+        "narHash": "sha256-R81XB1M6lBXQSByJz+lonXSofd7Kbkhu6tGRNsCQpn8=",
+        "owner": "kradalby",
+        "repo": "garnixlogs",
+        "rev": "197469fa63eb259ebad3e81d519d9ef5823e3e88",
+        "type": "github"
+      },
+      "original": {
+        "owner": "kradalby",
+        "repo": "garnixlogs",
+        "type": "github"
+      }
+    },
+    "ghdl": {
+      "inputs": {
+        "flake-checks": "flake-checks_2",
         "flake-utils": [
           "flake-utils"
         ],
@@ -763,7 +813,7 @@
     },
     "headscale": {
       "inputs": {
-        "flake-checks": "flake-checks_2",
+        "flake-checks": "flake-checks_3",
         "flake-utils": [
           "flake-utils"
         ],
@@ -921,7 +971,7 @@
     },
     "homewizard-p1-exporter": {
       "inputs": {
-        "flake-checks": "flake-checks_3",
+        "flake-checks": "flake-checks_4",
         "flake-utils": [
           "flake-utils"
         ],
@@ -945,7 +995,7 @@
     },
     "hugin": {
       "inputs": {
-        "flake-checks": "flake-checks_4",
+        "flake-checks": "flake-checks_5",
         "flake-utils": [
           "flake-utils"
         ],
@@ -969,7 +1019,7 @@
     },
     "hvor": {
       "inputs": {
-        "flake-checks": "flake-checks_5",
+        "flake-checks": "flake-checks_6",
         "flake-utils": [
           "flake-utils"
         ],
@@ -993,7 +1043,7 @@
     },
     "krapage": {
       "inputs": {
-        "flake-checks": "flake-checks_6",
+        "flake-checks": "flake-checks_7",
         "flake-utils": [
           "flake-utils"
         ],
@@ -1051,7 +1101,7 @@
     },
     "nefit-homekit": {
       "inputs": {
-        "flake-checks": "flake-checks_7",
+        "flake-checks": "flake-checks_8",
         "flake-utils": [
           "flake-utils"
         ],
@@ -1081,7 +1131,7 @@
         "nixpkgs": [
           "nixpkgs-unstable"
         ],
-        "treefmt-nix": "treefmt-nix_9",
+        "treefmt-nix": "treefmt-nix_10",
         "vim:github-coauthors.nvim": "vim:github-coauthors.nvim",
         "vim:vim-plist": "vim:vim-plist"
       },
@@ -1526,6 +1576,7 @@
         "darwin": "darwin",
         "flake-utils": "flake-utils",
         "garnix-ci": "garnix-ci",
+        "garnixlogs": "garnixlogs",
         "ghdl": "ghdl",
         "golink": "golink",
         "headscale": "headscale",
@@ -1553,7 +1604,7 @@
         "tailscale": "tailscale",
         "tasmota-exporter": "tasmota-exporter",
         "tasmota-homekit": "tasmota-homekit",
-        "treefmt-nix": "treefmt-nix_13",
+        "treefmt-nix": "treefmt-nix_14",
         "ts1p": "ts1p",
         "tsidp": "tsidp",
         "tsnixcache": "tsnixcache",
@@ -1654,7 +1705,7 @@
           "nixpkgs-unstable"
         ],
         "rust-overlay": "rust-overlay_3",
-        "treefmt-nix": "treefmt-nix_10"
+        "treefmt-nix": "treefmt-nix_11"
       },
       "locked": {
         "lastModified": 1781602948,
@@ -1863,7 +1914,7 @@
     },
     "tasmota-exporter": {
       "inputs": {
-        "flake-checks": "flake-checks_8",
+        "flake-checks": "flake-checks_9",
         "flake-utils": [
           "flake-utils"
         ],
@@ -1887,7 +1938,7 @@
     },
     "tasmota-homekit": {
       "inputs": {
-        "flake-checks": "flake-checks_9",
+        "flake-checks": "flake-checks_10",
         "flake-utils": [
           "flake-utils"
         ],
@@ -1933,7 +1984,7 @@
     "treefmt-nix_10": {
       "inputs": {
         "nixpkgs": [
-          "ssh-agent-mux",
+          "neovim-kradalby",
           "nixpkgs"
         ]
       },
@@ -1952,6 +2003,27 @@
       }
     },
     "treefmt-nix_11": {
+      "inputs": {
+        "nixpkgs": [
+          "ssh-agent-mux",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1780220602,
+        "narHash": "sha256-eynAfOmbmxJnkp7YewvCEbShNnnYJ9gLLqkzsYtBPeM=",
+        "owner": "numtide",
+        "repo": "treefmt-nix",
+        "rev": "db947814a175b7ca6ded66e21383d938df01c227",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "treefmt-nix",
+        "type": "github"
+      }
+    },
+    "treefmt-nix_12": {
       "inputs": {
         "nixpkgs": [
           "tasmota-exporter",
@@ -1973,7 +2045,7 @@
         "type": "github"
       }
     },
-    "treefmt-nix_12": {
+    "treefmt-nix_13": {
       "inputs": {
         "nixpkgs": [
           "tasmota-homekit",
@@ -1995,7 +2067,7 @@
         "type": "github"
       }
     },
-    "treefmt-nix_13": {
+    "treefmt-nix_14": {
       "inputs": {
         "nixpkgs": [
           "nixpkgs-stable"
@@ -2015,7 +2087,7 @@
         "type": "github"
       }
     },
-    "treefmt-nix_14": {
+    "treefmt-nix_15": {
       "inputs": {
         "nixpkgs": [
           "ts1p",
@@ -2037,7 +2109,7 @@
         "type": "github"
       }
     },
-    "treefmt-nix_15": {
+    "treefmt-nix_16": {
       "inputs": {
         "nixpkgs": [
           "tsnixcache",
@@ -2059,7 +2131,7 @@
         "type": "github"
       }
     },
-    "treefmt-nix_16": {
+    "treefmt-nix_17": {
       "inputs": {
         "nixpkgs": [
           "z2m-homekit",
@@ -2084,7 +2156,7 @@
     "treefmt-nix_2": {
       "inputs": {
         "nixpkgs": [
-          "ghdl",
+          "garnixlogs",
           "flake-checks",
           "nixpkgs"
         ]
@@ -2106,7 +2178,7 @@
     "treefmt-nix_3": {
       "inputs": {
         "nixpkgs": [
-          "headscale",
+          "ghdl",
           "flake-checks",
           "nixpkgs"
         ]
@@ -2128,7 +2200,7 @@
     "treefmt-nix_4": {
       "inputs": {
         "nixpkgs": [
-          "homewizard-p1-exporter",
+          "headscale",
           "flake-checks",
           "nixpkgs"
         ]
@@ -2150,7 +2222,7 @@
     "treefmt-nix_5": {
       "inputs": {
         "nixpkgs": [
-          "hugin",
+          "homewizard-p1-exporter",
           "flake-checks",
           "nixpkgs"
         ]
@@ -2172,7 +2244,7 @@
     "treefmt-nix_6": {
       "inputs": {
         "nixpkgs": [
-          "hvor",
+          "hugin",
           "flake-checks",
           "nixpkgs"
         ]
@@ -2194,7 +2266,7 @@
     "treefmt-nix_7": {
       "inputs": {
         "nixpkgs": [
-          "krapage",
+          "hvor",
           "flake-checks",
           "nixpkgs"
         ]
@@ -2216,7 +2288,7 @@
     "treefmt-nix_8": {
       "inputs": {
         "nixpkgs": [
-          "nefit-homekit",
+          "krapage",
           "flake-checks",
           "nixpkgs"
         ]
@@ -2238,7 +2310,8 @@
     "treefmt-nix_9": {
       "inputs": {
         "nixpkgs": [
-          "neovim-kradalby",
+          "nefit-homekit",
+          "flake-checks",
           "nixpkgs"
         ]
       },
@@ -2287,7 +2360,7 @@
     },
     "ts1p": {
       "inputs": {
-        "flake-checks": "flake-checks_10",
+        "flake-checks": "flake-checks_11",
         "flake-utils": "flake-utils_6",
         "headscale": "headscale_2",
         "nixpkgs": [
@@ -2335,7 +2408,7 @@
     },
     "tsnixcache": {
       "inputs": {
-        "flake-checks": "flake-checks_11",
+        "flake-checks": "flake-checks_12",
         "flake-utils": "flake-utils_9",
         "headscale": "headscale_3",
         "nix-darwin": "nix-darwin",
@@ -2417,7 +2490,7 @@
     },
     "z2m-homekit": {
       "inputs": {
-        "flake-checks": "flake-checks_12",
+        "flake-checks": "flake-checks_13",
         "flake-utils": [
           "flake-utils"
         ],

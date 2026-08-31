@@ -74,6 +74,14 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
+    # garnix CI build logs as plain text; runs on the garnix VM as its own
+    # tsnet node. Follows unstable: its go.mod needs go >= 1.27.0.
+    garnixlogs = {
+      url = "github:kradalby/garnixlogs";
+      inputs."flake-utils".follows = "flake-utils";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+
     # WIP Nix binary cache served over tailscale; pinned to the `initial` branch.
     tsnixcache = {
       url = "github:kradalby/tsnixcache/initial";
@@ -548,6 +556,9 @@
                 "x86"
                 "ci"
                 "builder"
+              ];
+              modules = with inputs; [
+                garnixlogs.nixosModules.default
               ];
               # Deploys reach it by tailnet name; uncomment to bootstrap by IP.
               # targetHost = "10.68.10.10";
