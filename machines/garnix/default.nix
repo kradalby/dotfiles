@@ -32,6 +32,7 @@ in
     ../../common/systemd-exporter.nix
     # Postgres + OpenSearch are separate fork modules; co-located below instead.
     inputs.garnix-ci.nixosModules.garnix
+    ./logs.nix
   ];
 
   # A consumed flake exposes `.inputs` but not `self`; graft it back on for the
@@ -355,6 +356,7 @@ in
       s = name: { file = ../../secrets/${name}.age; };
     in
     {
+      garnixlogs = s "garnixlogs";
       garnix-database-password = s "garnix-database-password";
       garnix-github-webhook-secret = s "garnix-github-webhook-secret";
       garnix-github-client-secret = s "garnix-github-client-secret";

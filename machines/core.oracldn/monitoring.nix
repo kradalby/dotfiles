@@ -508,6 +508,9 @@ in
       # ghdl download-metrics scraper: tsnet node, /metrics on :80.
       (scrapeJob "ghdl" [ "ghdl:80" ])
 
+      # garnixlogs: garnix CI logs as plain text. tsnet node, /metrics on :80.
+      (scrapeJob "garnixlogs" [ "garnixlogs:80" ])
+
       # Application-specific exporters
       # OCI usage exporter binds localhost on this host, no ACL needed
       (scrapeJob "oci-usage" [ "localhost:63461" ])

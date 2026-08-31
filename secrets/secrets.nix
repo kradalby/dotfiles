@@ -157,6 +157,7 @@ with builtins;
   # garnix CI (decrypted on the garnix VM)
   "garnix-database-password.age".publicKeys = u ++ [ hosts.garnix ];
   "garnix-jwt-key.age".publicKeys = u ++ [ hosts.garnix ];
+  "garnixlogs.age".publicKeys = u ++ [ hosts.garnix ];
   "garnix-opensearch-credential.age".publicKeys = u ++ [ hosts.garnix ];
   "garnix-repo-secrets-key.age".publicKeys = u ++ [ hosts.garnix ];
   "garnix-repo-secrets-key-pub.age".publicKeys = u ++ [ hosts.garnix ];
