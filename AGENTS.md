@@ -35,6 +35,21 @@ The flake root (`flake.nix` plus helpers in `lib/box.nix`) stitches together the
 - `nix build .#packages.${system}.<name>` exercises individual packages; scripts under `pkgs/scripts/` should remain runnable once Home Manager syncs.
 - Prefer Nix-native helpers when fetching or deploying: `nix-prefetch-git` for pinning sources, `colmena apply` for multi-host rollouts, `nurl <url>` for fetcher snippets, and `nix-init` for scaffolding new derivations.
 
+## Reading CI Logs
+
+`garnixlogs` serves garnix CI output as plain text on the tailnet. No auth, no token, no `direnv`, no setec — reach for it before the garnix API.
+
+```sh
+curl -s http://garnixlogs/<repo>                 # recent commits, newest first
+curl -s "http://garnixlogs/$(git rev-parse HEAD)" # summary + every failed build's log
+curl -s http://garnixlogs/<build-id>              # one build's log
+curl -sN "http://garnixlogs/<build-id>?follow"    # stream until it finishes
+```
+
+Query flags: `?follow` stream · `?all` list successes too · `?ansi` keep colour escapes · `?ts` prefix timestamps. A bare repo name assumes owner `kradalby`; `owner/repo` is explicit. Commit hashes must be the **full 40 characters** — garnix rejects abbreviated ones, which is why the repo listing prints them in full. Private repos work: the service holds the token, so the tailnet ACL is the only access control.
+
+Only if garnixlogs itself is down, go to the API directly — and note that `$GARNIX_TOKEN` is **not** a Bearer token. It is the Basic-auth password for `POST /api/auth/jwt`, which mints the 1h JWT every other endpoint wants. Sent as a Bearer token it does not fail; it reads as anonymous, which answers on public repos and returns a misleading "not found" on private ones. Check `/api/whoami` before believing a 404.
+
 ## Coding Style & Naming Conventions
 
 All formatting goes through `nix fmt` (treefmt: nixfmt-rfc-style for Nix, gofumpt for Go, prettier for Markdown, shfmt `-i 2 -ci` for shell — see `docs/conventions/nix.md`); `prek` runs it plus `shellcheck` and the pre-commit builtins, and CI enforces the same via `checks.x86_64-linux.formatting`. Go code lints with the repo-root `.golangci.yaml`. Favor 2-space indentation, descriptive attribute names (`snake_case` in Nix, hyphen-case for scripts), and keep defaults in `common/` while recording host-specific tweaks inside the target `machines/<hostname>/` module. Run `statix` and `deadnix` before large refactors to catch style regressions and unused definitions.
