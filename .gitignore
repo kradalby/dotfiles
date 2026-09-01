@@ -1,5 +1,9 @@
 result/
 result
+
+# colmena build --keep-result; untracked here makes the wrapped colmena
+# refuse apply, so Preview would block Execute
+.gcroots/
 *.log
 .vscode/
 .claude/
