@@ -1,4 +1,4 @@
-{ ... }:
+{ pkgs, ... }:
 {
   # gigabuilder as the garnix VM's remote x86_64 nix builder: it offloads
   # realisation here over SSH (incusbr0 is trusted, so no extra firewall rule),
@@ -33,5 +33,51 @@
   nix.settings = {
     cores = 4;
     max-jobs = 6;
+  };
+
+  # Raise the side we are willing to lose. The kernel picks its OOM victim on
+  # badness(RSS) + oom_score_adj, so making builders unattractive is the other
+  # half of making the VM unattractive. nix never rewrites oom_score_adj, so
+  # build processes inherit this from the daemon at fork.
+  systemd.services.nix-daemon.serviceConfig.OOMScoreAdjust = 500;
+
+  # And lower the side we are not. OOMScoreAdjust on incus.service reaches
+  # incusd only: incus resets oom_score_adj on the qemu processes it spawns, so
+  # the guest lands back at 0 and near the top of the victim list. Nothing
+  # declarative reaches those processes, hence this.
+  #
+  # It exits non-zero when it finds no guest to protect. A protection that
+  # quietly does nothing is worse than one that is visibly absent — that is the
+  # exact trap that let the VM sit unprotected after a reboot.
+  systemd.services.incus-guest-oom-shield = {
+    description = "Keep incus guests off the OOM killer's shortlist";
+    after = [ "incus.service" ];
+    wants = [ "incus.service" ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+    };
+    script = ''
+      shielded=0
+      for pid in $(${pkgs.procps}/bin/pgrep -f qemu-system-x86_64 || true); do
+        echo -500 > "/proc/$pid/oom_score_adj" && shielded=$((shielded + 1))
+      done
+      if [ "$shielded" -eq 0 ]; then
+        echo "no incus guest qemu process found; guests are unprotected" >&2
+        exit 1
+      fi
+      echo "shielded $shielded incus guest process(es)"
+    '';
+  };
+
+  # The shield only holds until a guest restarts, which incus does on its own.
+  # Re-assert it rather than trusting a single pass at boot.
+  systemd.timers.incus-guest-oom-shield = {
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      OnBootSec = "2min";
+      OnUnitActiveSec = "5min";
+    };
   };
 }
