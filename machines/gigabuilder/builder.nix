@@ -35,10 +35,13 @@
     max-jobs = 6;
   };
 
-  # Raise the side we are willing to lose. The kernel picks its OOM victim on
-  # badness(RSS) + oom_score_adj, so making builders unattractive is the other
-  # half of making the VM unattractive. nix never rewrites oom_score_adj, so
-  # build processes inherit this from the daemon at fork.
+  # Margin, not mechanism. The shield below is what moves the guest down the
+  # list; this only widens the gap, so do not delete the shield believing this
+  # covers it. Measured on the box: a 78MB Go builder at adj=0 scored 667 while
+  # the 16GiB guest at adj=-500 scored 506 — oom_score is not the size ranking
+  # badness(RSS) suggests, so rank by reading the actual scores, never by
+  # reasoning from RSS. nix never rewrites oom_score_adj, so builds inherit this
+  # from the daemon at fork.
   systemd.services.nix-daemon.serviceConfig.OOMScoreAdjust = 500;
 
   # And lower the side we are not. OOMScoreAdjust on incus.service reaches
