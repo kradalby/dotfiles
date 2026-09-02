@@ -195,4 +195,26 @@
       };
     };
   };
+
+  # Codex has no model/provider block here on purpose: signed-in codex picks
+  # its own default, and pinning one would drift. Only the dev-env hook is
+  # shared, which is the codex counterpart of the claude PreToolUse hook and
+  # the opencode shell.env plugin.
+  codex = {
+    # features.hooks pins the hook system on; the path still needs a one-time
+    # `/hooks` trust in codex, which it persists into the mutable config.toml.
+    features.hooks = true;
+    hooks.PreToolUse = [
+      {
+        matcher = "^Bash$";
+        hooks = [
+          {
+            type = "command";
+            command = ''"$HOME/.codex/hooks/nix-dev-env.sh"'';
+            timeout = 30;
+          }
+        ];
+      }
+    ];
+  };
 }

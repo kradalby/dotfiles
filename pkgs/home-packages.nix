@@ -46,6 +46,10 @@ in
     ai.opencode = (lib.mkEnableOption "opencode AI assistant") // {
       default = true;
     };
+    # Opt-in, unlike opencode: a second interactive agent only earns its keep
+    # on the boxes someone types at, and every ai.enable host would otherwise
+    # rebuild on a codex bump.
+    ai.codex = lib.mkEnableOption "codex AI assistant";
   };
 
   config = lib.mkMerge [
@@ -242,10 +246,12 @@ in
         ])
         ++ (with pkgs.master; [
           claude-code
-          # codex
         ])
         ++ lib.optionals cfg.ai.opencode [
           pkgs.master.opencode
+        ]
+        ++ lib.optionals cfg.ai.codex [
+          pkgs.master.codex
         ];
     })
 

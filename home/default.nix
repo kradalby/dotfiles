@@ -13,6 +13,10 @@ let
   # per-directory dev envs (direnv primary, `nix print-dev-env` fallback).
   # Wired into settings.json hooks via home/ai.nix.
   nixDevEnvHook = import ../pkgs/scripts/nix-dev-env.nix { inherit pkgs; };
+
+  # Codex counterpart: a PreToolUse hook that wraps every Bash command so it
+  # runs inside the per-directory Nix dev env. Wired into config.toml above.
+  codexDevEnvHook = import ../pkgs/scripts/codex-nix-dev-env-hook.nix { inherit pkgs; };
 in
 {
   # Available options
@@ -49,6 +53,15 @@ in
     opencode = {
       target = ".config/opencode/opencode.json";
       value = (import ./ai.nix).opencode;
+    };
+  }
+  // lib.optionalAttrs config.my.packages.ai.codex {
+    # Mutable like claude's: codex persists hook trust and other runtime
+    # state into this file.
+    codex = {
+      target = ".codex/config.toml";
+      format = "toml";
+      value = (import ./ai.nix).codex;
     };
   };
 
@@ -152,6 +165,12 @@ in
       # store path inlined into the seeded-once settings.json) so it tracks
       # the current build on every switch. Hooks registered in home/ai.nix.
       ".claude/hooks/nix-dev-env.sh".source = "${nixDevEnvHook}/bin/nix-dev-env";
+
+      # Same deal for codex. The stable path is what keeps the `/hooks` trust
+      # recorded in the mutable config.toml valid across rebuilds and GC.
+      ".codex/hooks/nix-dev-env.sh" = lib.mkIf config.my.packages.ai.codex {
+        source = "${codexDevEnvHook}/bin/codex-nix-dev-env-hook";
+      };
 
       ".finicky.js" = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin { source = ../rc/finicky.js; };
 
