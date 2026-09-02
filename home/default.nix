@@ -56,12 +56,16 @@ in
     };
   }
   // lib.optionalAttrs config.my.packages.ai.codex {
-    # Mutable like claude's: codex persists hook trust and other runtime
-    # state into this file.
+    # Both mutable: codex records hook trust and project trust into
+    # config.toml, and herdr merges its state hook into hooks.json.
     codex = {
       target = ".codex/config.toml";
       format = "toml";
       value = (import ./ai.nix).codex;
+    };
+    codex-hooks = {
+      target = ".codex/hooks.json";
+      value = (import ./ai.nix).codexHooks;
     };
   };
 

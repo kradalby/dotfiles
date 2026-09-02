@@ -197,13 +197,25 @@
   };
 
   # Codex has no model/provider block here on purpose: signed-in codex picks
-  # its own default, and pinning one would drift. Only the dev-env hook is
-  # shared, which is the codex counterpart of the claude PreToolUse hook and
-  # the opencode shell.env plugin.
+  # its own default, and pinning one would drift.
+  #
+  # Only the feature flag lives in config.toml. Codex reads hooks from both
+  # config.toml and hooks.json and warns when definitions are split across the
+  # two, and herdr's codex integration owns hooks.json, so hook definitions go
+  # there instead (see codexHooks). herdr sets this flag as well; declaring it
+  # keeps codex hooks working on a host that runs codex without herdr.
   codex = {
-    # features.hooks pins the hook system on; the path still needs a one-time
-    # `/hooks` trust in codex, which it persists into the mutable config.toml.
     features.hooks = true;
+  };
+
+  # ~/.codex/hooks.json — the single hook layer. herdr merges its own
+  # SessionStart entry into this file rather than replacing it, so the two
+  # coexist. Codex still needs a one-time `/hooks` trust per entry, which it
+  # records in config.toml.
+  #
+  # This is the codex counterpart of the claude PreToolUse hook and the
+  # opencode shell.env plugin: run Bash inside the per-directory Nix dev env.
+  codexHooks = {
     hooks.PreToolUse = [
       {
         matcher = "^Bash$";
