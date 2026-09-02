@@ -12,8 +12,13 @@ pkgs.symlinkJoin {
   name = "colmena-gated";
   paths = [ pkgs.colmena ];
   nativeBuildInputs = [ pkgs.makeWrapper ];
+  # `--sudo` resolves sudo from PATH, and the sudo in `environment.systemPackages`
+  # is a plain store binary — only the /run/wrappers copy carries the setuid bit.
+  # A devShell that lands sw/bin first makes activation die on "must be owned by
+  # uid 0"; pin the wrappers dir ahead so the lookup cannot go wrong.
   postBuild = ''
     wrapProgram $out/bin/colmena \
+      --prefix PATH : /run/wrappers/bin \
       --run '${gate}/bin/colmena-gate "$@" || exit 1'
   '';
 }
