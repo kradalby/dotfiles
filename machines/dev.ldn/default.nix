@@ -149,6 +149,15 @@ in
     ];
     my.atuin.enable = true; # personal account (shared with krair)
 
+    my.packages.ai.codex = true;
+    # Default is claude+opencode; codex needs its own state hook or herdr
+    # cannot tell idle from working in a codex pane.
+    my.herdr.integrations = [
+      "claude"
+      "codex"
+      "opencode"
+    ];
+
     # This is the box the fleet is deployed from, so it is the one that wants
     # a standing deploy agent per repo. Each is briefed from that repo's own
     # .agents/skills/deploy/SKILL.md, so the rules live with the thing they
