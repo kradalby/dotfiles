@@ -93,8 +93,12 @@ in
             # of the hourly backups (that would mean 24 repacks/day, paid
             # egress on jotta).
             # Prune runs Wednesday, the check Monday, so the two exclusive-lock
-            # holders never share a window by construction; --retry-lock=3h
-            # still outlasts any hourly backup that holds the lock.
+            # holders never share a window by construction. The hourly backup
+            # is the contended one: on a large repo a run approaches its own
+            # interval, so the lock is re-taken almost immediately and the free
+            # window is a few minutes somewhere in the day. --retry-lock must
+            # span many such windows, and TimeoutStartSec must outlast the
+            # wait plus the repack that follows it.
             after = [ "network-online.target" ];
             wants = [ "network-online.target" ];
             environment.TMPDIR = "/var/cache/restic-backups-${jobName}";
@@ -102,10 +106,10 @@ in
               Type = "oneshot";
               CacheDirectory = "restic-backups-${jobName}";
               User = config.services.restic.backups.${jobName}.user;
-              TimeoutStartSec = "6h";
+              TimeoutStartSec = "24h";
               # pruneOpts entries are pre-split shell words ("--keep-daily 7");
               # systemd word-splits ExecStart the same way.
-              ExecStart = "/run/current-system/sw/bin/restic-${jobName} forget --prune --retry-lock=3h ${concatStringsSep " " jobCfg.pruneOpts}";
+              ExecStart = "/run/current-system/sw/bin/restic-${jobName} forget --prune --retry-lock=12h ${concatStringsSep " " jobCfg.pruneOpts}";
             };
           }
         )
