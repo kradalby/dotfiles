@@ -50,6 +50,19 @@ tests:
         values: "1x400"
       - series: 'systemd_unit_state{state="activating", name="wedged.service", instance="h1:9558", host="h1"}'
         values: "1x400"
+      # BackupJobRunningTooLong ages the run from its timer, not from how long
+      # the unit has been activating. tjoda's timer fired at t=0, so at 370m the
+      # run really is 6h old and must alert.
+      - series: 'systemd_timer_last_trigger_seconds{name="restic-backups-tjoda.timer", instance="h1:9558", host="h1"}'
+        values: "0x400"
+      # The back-to-back case the `for` clock got wrong: activating unbroken for
+      # the whole window, but the timer re-fired at 350m, so no single run is
+      # anywhere near 6h. It must stay silent — the 370m exp_alerts below lists
+      # every alert expected, so this firing would fail the test.
+      - series: 'systemd_unit_state{state="activating", name="restic-backups-hourly.service", instance="h1:9558", host="h1"}'
+        values: "1x400"
+      - series: 'systemd_timer_last_trigger_seconds{name="restic-backups-hourly.timer", instance="h1:9558", host="h1"}'
+        values: "21000x400"
     alert_rule_test:
       - eval_time: 10m
         alertname: SystemdUnitActivatingTooLong
