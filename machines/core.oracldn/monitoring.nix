@@ -1045,8 +1045,20 @@ in
               }
               {
                 alert = "BackupJobRunningTooLong";
-                expr = ''systemd_unit_state{state="activating",name=~"restic-backups-.*\\.service|restic-prune-.*\\.service|postgresqlBackup-.*\\.service"} == 1'';
-                for = "6h";
+                # `for` cannot express this: a unit whose run approaches its own
+                # timer interval restarts back-to-back, so state="activating"
+                # never clears between runs and a `for` clock measures the
+                # streak of runs, not any single one. Join the timer's last
+                # trigger instead — it advances every invocation, so the age
+                # here is always the age of the run that is on the clock now.
+                # The join also keeps a weekly timer's idle gap out of it: the
+                # left side requires the unit to actually be running.
+                expr = ''
+                  systemd_unit_state{state="activating",name=~"restic-backups-.*\\.service|restic-prune-.*\\.service|postgresqlBackup-.*\\.service"} == 1
+                    and on (host, name)
+                  label_replace(systemd_timer_last_trigger_seconds, "name", "$1.service", "name", "(.+)\\.timer") < time() - 6 * 3600
+                '';
+                for = "5m";
                 labels.severity = "warning";
                 annotations = {
                   summary = "{{ $labels.host }}: backup job {{ $labels.name }} running for over 6h";
