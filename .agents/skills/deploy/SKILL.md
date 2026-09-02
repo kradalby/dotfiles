@@ -123,8 +123,12 @@ it is not the safe option.
 
 - **dev.ldn** is this workstation. `ssh root@dev-ldn` is SSH-to-self and is
   refused; that is correct, not drift. Deploy it locally:
-  `PATH=/run/wrappers/bin:$PATH colmena apply-local --sudo --node dev.ldn`
-  (the real sudo lives in `/run/wrappers/bin`).
+  `colmena apply-local --sudo --node dev.ldn`. The gated colmena puts
+  `/run/wrappers/bin` first, so `--sudo` finds the setuid sudo rather than the
+  plain one in `sw/bin`; no PATH prefix is needed. If activation ever dies on
+  `must be owned by uid 0`, the devShell is serving a stale colmena — `rm -rf
+.direnv`, because nix-direnv watches `flake.nix`/`flake.lock` and not the files
+  they import.
 - **gigabuilder** hosts one Incus guest: `garnix`. Deploying it restarts incus
   and bounces CI with it, so deploy it alone and let it settle. Its root is on
   ZFS (`rpool/root`), the only host where that is true, so a zfs bump decides
