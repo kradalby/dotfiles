@@ -13,11 +13,14 @@ in
   # Cap boot entries so /boot can't fill. GC's --delete-older-than is by age;
   # a dev box that rebuilds many times within the window still piles up kernels
   # (dev.ldn hit 32 generations on a 249 MB /boot). configurationLimit bounds it
-  # by count regardless of age. 5 is plenty — rollbacks never go deeper.
+  # by count regardless of age. The binding constraint is the 260 MB ESP on the
+  # ldn VMs: a kernel+initrd pair is ~50 MB there, so only three fit with room
+  # for the next one to be written before the old are pruned. Rollbacks never
+  # go deeper than three anyway.
   # mkDefault so a host can override. Both loaders set — the option is inert on
   # whichever isn't enabled.
-  boot.loader.systemd-boot.configurationLimit = lib.mkDefault 5;
-  boot.loader.grub.configurationLimit = lib.mkDefault 5;
+  boot.loader.systemd-boot.configurationLimit = lib.mkDefault 3;
+  boot.loader.grub.configurationLimit = lib.mkDefault 3;
 
   systemd.settings.Manager.DefaultLimitNOFILE = 1048576;
   security.pam.loginLimits = [
