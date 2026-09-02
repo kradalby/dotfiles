@@ -73,6 +73,8 @@ in
       # Jottacloud bucket ID for this host's restic repository.
       repository = "rclone:Jotta:4e8bb5107054b95e58d809060cb72911";
 
+      reachabilityHost = "api.jottacloud.com";
+
       # 1Password item "kratail2" in the dedicated Rustic vault.
       # Accessed via a read-only service account (see module docs).
       passwordCommand = ''op read "op://Rustic/kratail2/password"'';

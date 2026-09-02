@@ -98,6 +98,9 @@ in
       # Found via: rclone lsd Jotta: (or from the old tmuxinator config).
       repository = "rclone:Jotta:5ac5edab2737c974f87e0146690b74b0";
 
+      # Offline means skip the run rather than notify a failure.
+      reachabilityHost = "api.jottacloud.com";
+
       # 1Password item "krair" in the dedicated Rustic vault.
       # Accessed via a read-only service account (see module docs).
       passwordCommand = ''op read "op://Rustic/krair/password"'';

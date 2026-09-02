@@ -253,6 +253,18 @@ let
     fi
   '';
 
+  # No network — skip, don't fail. Same contract as mkACGuard.
+  # `nc -z` because it resolves AND connects; scutil -r says "Reachable"
+  # for a nonexistent host and always exits 0.
+  mkNetGuard = host: label: ''
+    if ! /usr/bin/nc -z -G 5 -w 5 ${host} 443 >/dev/null 2>&1; then
+      echo "${host} unreachable, skipping ${toLower label}"
+      exit 0
+    fi
+  '';
+
+  rusticBin = "${pkgs.rustic}/bin/rustic";
+
   # Generate the per-job backup script as a standalone writeBash
   # derivation in the Nix store. Referenced directly by launchd via
   # ProgramArguments (FDA path) or wrapped in a flock runner (non-FDA
@@ -266,14 +278,12 @@ let
   # bash/rustic/rclone processes regardless of where the script lives
   # on disk.
   mkJobScript =
-    name: _backup:
-    let
-      rusticBin = "${pkgs.rustic}/bin/rustic";
-    in
+    name: backup:
     pkgs.writers.writeBash "rustic-backup-${name}" ''
       ${mkScriptPreamble name "Backup"}
 
       echo "=== rustic backup ${name} started at $(date) ==="
+      ${optionalString (backup.reachabilityHost != null) (mkNetGuard backup.reachabilityHost "backup")}
       ${rusticBin} -P ${name} backup
       echo "=== rustic backup ${name} finished at $(date) ==="
     '';
@@ -282,14 +292,14 @@ let
   # Runs on its own schedule, separate from the backup agent.
   mkMaintenanceScript =
     name: backup:
-    let
-      rusticBin = "${pkgs.rustic}/bin/rustic";
-    in
     pkgs.writers.writeBash "rustic-maint-${name}" ''
       ${mkScriptPreamble name "Maintenance"}
 
       echo "=== rustic maintenance ${name} started at $(date) ==="
       ${optionalString backup.maintenanceOnACOnly (mkACGuard "maintenance")}
+      ${optionalString (backup.reachabilityHost != null) (
+        mkNetGuard backup.reachabilityHost "maintenance"
+      )}
 
       ${rusticBin} -P ${name} forget
       ${rusticBin} -P ${name} check
@@ -301,14 +311,12 @@ let
   # Verifies actual data integrity over time.
   mkVerifyScript =
     name: backup:
-    let
-      rusticBin = "${pkgs.rustic}/bin/rustic";
-    in
     pkgs.writers.writeBash "rustic-verify-${name}" ''
       ${mkScriptPreamble name "Verify"}
 
       echo "=== rustic verify ${name} started at $(date) ==="
       ${optionalString backup.maintenanceOnACOnly (mkACGuard "verify")}
+      ${optionalString (backup.reachabilityHost != null) (mkNetGuard backup.reachabilityHost "verify")}
 
       ${rusticBin} -P ${name} check --read-data-subset ${backup.deepCheckSubset}
 
@@ -687,6 +695,16 @@ in
                 description = ''
                   Directory for backup log files.
                 '';
+              };
+
+              reachabilityHost = mkOption {
+                type = types.nullOr types.str;
+                default = null;
+                description = ''
+                  Backend host to TCP-probe on 443 before backup, maintenance
+                  and verify. Unreachable means skip, not fail. Null disables.
+                '';
+                example = "api.jottacloud.com";
               };
 
               maintenanceOnACOnly = mkOption {
