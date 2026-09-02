@@ -381,9 +381,13 @@ let
       # RusticBackupStale on core.oracldn consumes this (>3d). /usr/bin/curl
       # avoids any nix curl.
       host=$(hostname -s)
-      if ! push_err=$(/usr/bin/curl -fsS --connect-timeout 5 --max-time 15 \
-        --data-binary "rustic_backup_last_snapshot_timestamp_seconds{host=\"$host\"} $snapshot_epoch" \
-        "http://pushgateway/metrics/job/rustic/instance/$host" 2>&1); then
+      # The trailing newline is required: the pushgateway rejects a body that
+      # does not end in one with HTTP 400, so printf builds it rather than
+      # passing a bare --data-binary string.
+      if ! push_err=$(printf 'rustic_backup_last_snapshot_timestamp_seconds{host="%s"} %s\n' \
+        "$host" "$snapshot_epoch" \
+        | /usr/bin/curl -fsS --connect-timeout 5 --max-time 15 --data-binary @- \
+          "http://pushgateway/metrics/job/rustic/instance/$host" 2>&1); then
         echo "pushgateway push failed (best-effort, backup itself is fine): $push_err" >&2
       fi
 
