@@ -71,6 +71,26 @@ in
       # default. ac.sh already defaults to "ac", and the server unit pins it.
       home.sessionVariables.HERDR_SESSION = "ac";
 
+      # herdr rewrites this file itself (onboarding, `config reset-keys`), so
+      # it is seeded and diffable rather than a read-only store symlink.
+      # `herdr server reload-config` picks up edits without dropping panes.
+      my.mutableJson.herdr = {
+        target = ".config/herdr/config.toml";
+        format = "toml";
+        value = {
+          onboarding = false;
+          ui = {
+            agent_panel_sort = "priority";
+            # Blink on an iPhone reports ~65 columns, just over herdr's default
+            # of 64, so the single-column layout never engaged over mosh.
+            mobile_width_threshold = 80;
+            # Reclaims the scrollbar column, and keeps it out of the terminal's
+            # own selection when copying on a phone.
+            pane_scrollbars = false;
+          };
+        };
+      };
+
       # The herdr agent skill, pinned from the flake input (no vendoring). It
       # gates on HERDR_ENV=1, so it only activates for an agent running inside
       # a herdr pane — teaching it to drive herdr's socket API.
@@ -114,8 +134,9 @@ in
           # Panes inherit this. 100 is the floor — lower is silently clamped,
           # since dropping below the user manager needs CAP_SYS_RESOURCE.
           OOMScoreAdjust = 100;
-          # default_shell is unset (herdr falls back to $SHELL), so pin fish
-          # here rather than managing a config.toml herdr also writes to.
+          # default_shell is unset (herdr falls back to $SHELL), so pin fish in
+          # the unit env — panes inherit it, and it holds even if the seeded
+          # config.toml has been edited by hand.
           Environment = [
             "PATH=${linuxPath}"
             "HOME=${config.home.homeDirectory}"
