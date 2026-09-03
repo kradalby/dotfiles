@@ -81,9 +81,11 @@ in
           onboarding = false;
           ui = {
             agent_panel_sort = "priority";
-            # Blink on an iPhone reports ~65 columns, just over herdr's default
-            # of 64, so the single-column layout never engaged over mosh.
-            mobile_width_threshold = 80;
+            # Blink on an iPhone in portrait reports 88 columns (measured from
+            # the server's own layout: 36-wide sidebar + 52 content), well over
+            # herdr's default of 64. 100 clears that with headroom for a font
+            # size change, and still leaves a desktop terminal on two columns.
+            mobile_width_threshold = 100;
             # Reclaims the scrollbar column, and keeps it out of the terminal's
             # own selection when copying on a phone.
             pane_scrollbars = false;
