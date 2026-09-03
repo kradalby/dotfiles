@@ -1,4 +1,9 @@
-{ config, lib, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   commandDirectory = ../rc/claude/commands;
 
@@ -67,11 +72,17 @@ let
         )
       );
   # Codex discovers skills under its own CODEX_HOME, not ~/.agents/skills, so
-  # publish the same generated files a second time. Same content, so the store
-  # entry is shared rather than duplicated.
+  # publish the same generated content a second time.
+  #
+  # The whole skill directory is linked, not SKILL.md inside it: codex walks
+  # the skills root and skips a symlinked SKILL.md, which is exactly what
+  # home-manager writes for a `text` entry. A symlinked directory it follows,
+  # so writeTextDir puts a real file behind the link.
   codexSkills = lib.mapAttrs' (
     path: value:
-    lib.nameValuePair (lib.replaceStrings [ ".agents/skills/" ] [ ".codex/skills/" ] path) value
+    lib.nameValuePair (lib.removeSuffix "/SKILL.md" (
+      lib.replaceStrings [ ".agents/skills/" ] [ ".codex/skills/" ] path
+    )) { source = pkgs.writeTextDir "SKILL.md" value.text; }
   ) commandSkills;
 in
 {
