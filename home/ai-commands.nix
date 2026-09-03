@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ config, lib, ... }:
 let
   commandDirectory = ../rc/claude/commands;
 
@@ -66,14 +66,24 @@ let
           builtins.readDir commandDirectory
         )
       );
+  # Codex discovers skills under its own CODEX_HOME, not ~/.agents/skills, so
+  # publish the same generated files a second time. Same content, so the store
+  # entry is shared rather than duplicated.
+  codexSkills = lib.mapAttrs' (
+    path: value:
+    lib.nameValuePair (lib.replaceStrings [ ".agents/skills/" ] [ ".codex/skills/" ] path) value
+  ) commandSkills;
 in
 {
-  home.file = commandSkills // {
-    ".claude/commands" = {
-      source = commandDirectory;
-      recursive = true;
+  home.file =
+    commandSkills
+    // lib.optionalAttrs config.my.packages.ai.codex codexSkills
+    // {
+      ".claude/commands" = {
+        source = commandDirectory;
+        recursive = true;
+      };
     };
-  };
 
   xdg.configFile."opencode/commands".source = commandDirectory;
 }
