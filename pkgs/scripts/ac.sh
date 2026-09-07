@@ -362,18 +362,18 @@ create_session() {
       pane="$root"
     else
       pane=$(h tab create --workspace "$wid" --cwd "$dir" \
-        --label "$(agent_label "$agent")" --no-focus |
+        --label "$agent" --no-focus |
         jq -r '.result.root_pane.pane_id // empty')
       [[ -n "$pane" ]] || die "tab create failed for $agent"
     fi
-    h tab rename "$(pane_tab "$pane")" "$(agent_label "$agent")" >/dev/null 2>&1 || true
+    h tab rename "$(pane_tab "$pane")" "$agent" >/dev/null 2>&1 || true
     start_agent "$agent" "$pane" \
       "$(agent_handle "$disp" "$agent" "${#agents[@]}")" "$dir" "$repo" "$branch"
     [[ -n "$first" ]] || first="$pane"
   done
 
   # Plain shell, last so the agents keep the low tab numbers.
-  h tab create --workspace "$wid" --cwd "$dir" --label term --no-focus >/dev/null ||
+  h tab create --workspace "$wid" --cwd "$dir" --label terminal --no-focus >/dev/null ||
     echo "warning: term tab not created" >&2
 
   [[ -z "$ROLE" ]] || bootstrap_role "$first" "$repo" "$dir"
@@ -775,12 +775,12 @@ Examples:
 
 Layout — one tab per thing, never a split. A phone terminal is about 88
 columns, and side-by-side panes leave ~44 each, which is unreadable. By
-default `ac <repo>` opens:
-  cl      claude
-  cx      codex
-  term    Plain terminal in the same directory
+default `ac <repo>` opens one tab each, named for what is in it:
+  claude
+  codex
+  terminal   Plain shell in the same directory
 
-An explicit -c/-o/-x narrows that to one agent tab plus the term tab. Role
+An explicit -c/-o/-x narrows that to one agent tab plus the terminal tab. Role
 sessions are always one agent plus term: they brief a single agent for a
 single job. Agents are launched directly (argv, no shell in between).
 
