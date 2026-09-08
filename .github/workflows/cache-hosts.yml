@@ -1,0 +1,125 @@
+# Rented build hardware, nothing more. garnix is the CI; this only covers the
+# targets it has no machine for, because arm and mac boxes cost money:
+#
+#   aarch64 linux — one borrowed builder at maxJobs 1, so the three hosts built
+#     strictly one after another and added 30-60 min per commit.
+#   darwin — no macOS builder at all, so these had no CI whatsoever.
+#
+# Each job builds one target and pushes the closure to tsnixcache, so garnix
+# and deploys substitute instead of rebuild. Standard GitHub runners are free
+# and unmetered on public repos, macOS included; only "larger" runners are
+# billed there. Mirrors `nix run .#cache-arm` (pkgs/cache-arm.nix), the same
+# build-and-push path used by hand.
+#
+# Buy an aarch64 builder or a mac and this goes away: drop the matching entry
+# here and the matching exclude in garnix.yaml, and garnix takes it back.
+name: cache hosts
+
+on:
+  push:
+  workflow_dispatch:
+
+# Per-ref, so a new push cancels the previous run's stragglers. Within a run
+# nothing is serialised: the matrix is one job per target and fail-fast is off,
+# so all five runners start together and a failure never cancels its siblings.
+concurrency:
+  group: cache-hosts-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  TSNIXCACHE_URL: http://tsnixcache
+
+jobs:
+  build:
+    name: ${{ matrix.host }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - host: core.oracldn
+            runner: ubuntu-24.04-arm
+            attr: 'nixosConfigurations."core.oracldn".config.system.build.toplevel'
+          - host: dev.oracfurt
+            runner: ubuntu-24.04-arm
+            attr: 'nixosConfigurations."dev.oracfurt".config.system.build.toplevel'
+          - host: rpi5.ldn
+            runner: ubuntu-24.04-arm
+            attr: 'nixosConfigurations."rpi5.ldn".config.system.build.toplevel'
+          - host: krair
+            runner: macos-15
+            attr: darwinConfigurations.krair.system
+          - host: kratail2
+            runner: macos-15
+            attr: darwinConfigurations.kratail2.system
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # Before nix: tsnixcache is a tailnet-only substituter, so the node must
+      # be on the tailnet before nix.conf names it. tag:github-builder carries
+      # the push grant (infrastructure/tailscale/policy.hujson). On macOS the
+      # action builds tailscale from source and sets system DNS via
+      # networksetup, so MagicDNS reaches the nix daemon too.
+      - name: Join tailnet
+        uses: tailscale/github-action@780049a30b6ff5c378a9e7b389d15ece7a204888 # v4.1.3
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:github-builder
+
+      - name: Install Nix
+        uses: NixOS/nix-installer-action@62c1943b776c509394b550f3f983adc14e9212d6 # main
+        with:
+          extra-conf: |
+            extra-substituters = ${{ env.TSNIXCACHE_URL }}?priority=30 https://nixos-raspberrypi.cachix.org
+            extra-trusted-public-keys = tsnixcache:Chid5Mll6U8ZUCio/j4KqxgtIeqPxH8Duqpz96TU4Es= nixos-raspberrypi.cachix.org-1:4iMO9LXa8BqhU+Rpg6LQKiGa2lsNh/j2oiYLNOQ5sPI=
+            connect-timeout = 5
+            fallback = true
+
+      # Two pins because hestia is one program in two artifacts: the SHA-pinned
+      # action passes CLI flags to a binary it downloads separately, so a
+      # floating `version` can hand it a binary that renamed them. Bump both
+      # together.
+      # upstream-cache-filter keeps cache.nixos.org paths out of the 10 GB
+      # repo-wide GHA cache quota; only our own outputs land there.
+      - name: Setup Nix cache
+        uses: Mic92/hestia@f1f4df2801140a36398ed423533c8460618539df # v3.0.1
+        with:
+          version: v3.0.1
+          upstream-cache-filter: "true"
+
+      # Uploads each new store path as it lands, so a build that dies at 90%
+      # still leaves everything it got through on the cache. --idle-exit stops
+      # it once the store goes quiet. Both watch and push read TSNIXCACHE_URL.
+      - name: Start cache watcher
+        run: |
+          nix run github:kradalby/tsnixcache/initial -- watch \
+            --idle-exit 120s --pid-file "$RUNNER_TEMP/cache.pid" &
+
+      # Same two steps as `nix run .#cache-arm` (pkgs/cache-arm.nix), inlined:
+      # the flake exposes no aarch64-linux apps, and adding them would hand
+      # garnix a set of new jobs on the one slow aarch64 builder this bypasses.
+      # The push is belt to the watcher's braces: it names the whole closure, so
+      # nothing is left behind if the watcher missed a path or started late.
+      - name: Build and push ${{ matrix.host }}
+        run: |
+          out=$(nix build --no-link --print-out-paths -L '.#${{ matrix.attr }}')
+          nix run github:kradalby/tsnixcache/initial -- push "$out"
+
+      # Blocks until the watcher's queue drains. always(), so a failed build
+      # still ships what it did manage to build.
+      - name: Drain cache uploads
+        if: always()
+        run: |
+          nix run github:kradalby/tsnixcache/initial -- wait-for \
+            --pid-file "$RUNNER_TEMP/cache.pid"
+
+      # 14 GB runner disk is the tight resource here; report it either way.
+      - name: Disk
+        if: always()
+        run: df -h /

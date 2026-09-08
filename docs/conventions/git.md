@@ -25,6 +25,15 @@
 - Concurrency group cancels superseded runs.
 - Each job calls one check: `nix build -L .#checks.<sys>.<name>` (build, gotest, golangci-lint, formatting) + a `nixos-module` eval job for services. No `nix develop` needed in gate jobs.
 - Deps: dependabot (gomod + github-actions, grouped) and/or scheduled flake-lock update PRs.
+- **garnix is CI.** GitHub Actions covers only what garnix has no build machine
+  for — a hardware stopgap, reverted as soon as the machine exists, never a
+  second opinion on the same target. Its standard runners are free and unmetered
+  on public repos — macOS included; only "larger" runners are billed there. `ubuntu-24.04-arm` (4 CPU / 16 GB) for aarch64
+  linux, `macos-15` (3 CPU / 7 GB, M1) for darwin; both only 14 GB of disk,
+  which is the binding limit. Join the tailnet with `tailscale/github-action`
+  _before_ installing nix, so `http://tsnixcache` is both substituter and push
+  target; the runner node's tag needs the `kradalby.no/cap/tsnixcache` push
+  grant. One host per job. (dotfiles `.github/workflows/cache-hosts.yml`)
 
 ## Testing workflow
 
