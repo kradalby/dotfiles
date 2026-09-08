@@ -1,0 +1,93 @@
+name: build into tsnixcache
+description: Join the tailnet, install nix, build store paths and push their closures.
+
+inputs:
+  paths-command:
+    description: Shell printing the store paths to push on stdout. Build logs go to stderr.
+    required: true
+  ts-oauth-client-id:
+    description: Tailscale OAuth client id. Composite actions cannot read secrets themselves.
+    required: true
+  ts-oauth-secret:
+    description: Tailscale OAuth client secret.
+    required: true
+  cache-url:
+    description: tsnixcache base URL, read by both watch and push.
+    default: http://tsnixcache
+  extra-nix-conf:
+    description: Extra nix.conf lines for this job only.
+    default: ""
+
+runs:
+  using: composite
+  steps:
+    # Must precede nix: tsnixcache is tailnet-only, so the node has to be on the
+    # tailnet before nix.conf names it. tag:github-builder carries the push grant.
+    - name: Join tailnet
+      uses: tailscale/github-action@780049a30b6ff5c378a9e7b389d15ece7a204888 # v4.1.3
+      with:
+        oauth-client-id: ${{ inputs.ts-oauth-client-id }}
+        oauth-secret: ${{ inputs.ts-oauth-secret }}
+        tags: tag:github-builder
+
+    - name: Install Nix
+      uses: NixOS/nix-installer-action@62c1943b776c509394b550f3f983adc14e9212d6 # main
+      with:
+        extra-conf: |
+          extra-substituters = ${{ inputs.cache-url }}?priority=30 https://nixos-raspberrypi.cachix.org
+          extra-trusted-public-keys = tsnixcache:Chid5Mll6U8ZUCio/j4KqxgtIeqPxH8Duqpz96TU4Es= nixos-raspberrypi.cachix.org-1:4iMO9LXa8BqhU+Rpg6LQKiGa2lsNh/j2oiYLNOQ5sPI=
+          connect-timeout = 5
+          fallback = true
+          ${{ inputs.extra-nix-conf }}
+
+    # Two pins: the SHA-pinned action passes CLI flags to a binary it downloads
+    # separately, so `version` must move with it. Filter keeps cache.nixos.org
+    # paths out of the 10 GB repo-wide quota.
+    - name: Setup Nix cache
+      uses: Mic92/hestia@f1f4df2801140a36398ed423533c8460618539df # v3.0.1
+      with:
+        version: v3.0.1
+        upstream-cache-filter: "true"
+
+    # Streams paths as they land, so a build that dies late still leaves its
+    # dependencies cached. No --idle-exit: a slow build goes quiet for longer
+    # than any sane window, and an exited watcher stops streaming silently.
+    # Redirected and disowned, not a bare `&`: the step's shell exits at once
+    # and a watcher still writing to its log pipe takes SIGPIPE.
+    - name: Start cache watcher
+      shell: bash
+      env:
+        TSNIXCACHE_URL: ${{ inputs.cache-url }}
+      run: |
+        nix run github:kradalby/tsnixcache/initial -- watch \
+          --pid-file "$RUNNER_TEMP/cache.pid" \
+          > "$RUNNER_TEMP/watch.log" 2>&1 &
+        disown
+
+    # Braced: a multi-line paths-command ends in a newline, which would strand
+    # the redirect on its own line. The push backstops the watcher.
+    - name: Build and push
+      shell: bash
+      env:
+        TSNIXCACHE_URL: ${{ inputs.cache-url }}
+      run: |
+        {
+          ${{ inputs.paths-command }}
+        } > "$RUNNER_TEMP/paths"
+        nix run github:kradalby/tsnixcache/initial -- push - < "$RUNNER_TEMP/paths"
+
+    # SIGTERM makes the watcher drain what is queued and exit, so a failed build
+    # still ships what it did manage to build. No PID file means it died; the
+    # log says why.
+    - name: Drain cache uploads
+      if: always()
+      shell: bash
+      env:
+        TSNIXCACHE_URL: ${{ inputs.cache-url }}
+      run: |
+        if [ -f "$RUNNER_TEMP/cache.pid" ]; then
+          kill -TERM "$(cat "$RUNNER_TEMP/cache.pid")" 2>/dev/null || true
+          nix run github:kradalby/tsnixcache/initial -- wait-for \
+            --pid-file "$RUNNER_TEMP/cache.pid"
+        fi
+        cat "$RUNNER_TEMP/watch.log" 2>/dev/null || echo "watcher wrote no log"
