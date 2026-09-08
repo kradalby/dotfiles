@@ -22,20 +22,26 @@ jobs:
   hosts:
     name: ${{ matrix.host }}
     runs-on: ubuntu-24.04-arm
-    timeout-minutes: 120
+    timeout-minutes: ${{ matrix.timeout || 120 }}
     strategy:
       fail-fast: false
       matrix:
         include:
           - host: core.oracldn
           - host: dev.oracfurt
+          # nixos-raspberrypi's overlays give rpi5 its own python, so it builds
+          # what the others substitute, and those tests lose races under
+          # contention. Slower, but it only has to succeed once to be cached.
           - host: rpi5.ldn
+            nix-conf: max-jobs = 1
+            timeout: 330
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/tsnixcache-build
         with:
           ts-oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
           ts-oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          extra-nix-conf: ${{ matrix.nix-conf }}
           paths-command: >-
             nix build --no-link --print-out-paths -L
             '.#nixosConfigurations."${{ matrix.host }}".config.system.build.toplevel'
