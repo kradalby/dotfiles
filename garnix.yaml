@@ -1,0 +1,23 @@
+# Trims what garnix builds, relative to its built-in default include set.
+#
+# A repo-level garnix.yaml replaces the instance default (GARNIX_DEFAULT_CONFIG
+# in machines/garnix/default.nix) rather than merging with it, and an omitted
+# `include` falls back to garnix's own default — which lists
+# darwinConfigurations. garnix has no macOS builder, so drop it here.
+#
+# The three aarch64 hosts go too: dev-oracfurt is the only aarch64 builder and
+# runs maxJobs 1, so they built one after another and added 30-60 min to every
+# commit.
+#
+# Every exclude here is a missing machine, not a decision: garnix is the CI, it
+# just has no arm or mac hardware to build these on. Rented GitHub runners
+# stand in and push the closures to tsnixcache
+# (.github/workflows/cache-hosts.yml). Buy the hardware and the exclude comes
+# straight back out. Matchers split on ".", so the nixos entries name the
+# dot-free duplicate keys, not `core.oracldn`.
+builds:
+  exclude:
+    - "darwinConfigurations.*"
+    - "nixosConfigurations.core-oracldn"
+    - "nixosConfigurations.dev-oracfurt"
+    - "nixosConfigurations.rpi5-ldn"
