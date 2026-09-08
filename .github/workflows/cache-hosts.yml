@@ -31,12 +31,26 @@ jobs:
           - host: dev.oracfurt
           # nixos-raspberrypi's overlays give rpi5 its own python, so it builds
           # what the others substitute, and those tests lose races under
-          # contention. Slower, but it only has to succeed once to be cached.
+          # contention. rustc compiling polars-ops then takes SIGKILL on 16 GB —
+          # unchanged at cores 4, 2 and 1, and the runtime barely moved, so the
+          # cores setting is not reaching cargo. Swap is the lever that does
+          # work; the runner has ~93 GB of disk spare.
           - host: rpi5.ldn
             nix-conf: max-jobs = 1
             timeout: 330
+            swap: 32G
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # Second file, not /swapfile: the runner's own is already swapped on, so
+      # writing to it fails with "Text file busy".
+      - name: Add swap
+        if: matrix.swap != ''
+        run: |
+          sudo fallocate -l ${{ matrix.swap }} /swapfile-ci
+          sudo chmod 600 /swapfile-ci
+          sudo mkswap /swapfile-ci
+          sudo swapon /swapfile-ci
+          free -h
       - uses: ./.github/actions/tsnixcache-build
         with:
           ts-oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
