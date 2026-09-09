@@ -324,6 +324,7 @@ start_agent() {
     fi
   elif [[ "$agent" == "codex" ]]; then
     ensure_trusted_codex "$dir"
+    argv=(--sandbox danger-full-access)
   fi
   # `agent start` blocks until the agent is interactive and exits non-zero if it
   # isn't (e.g. stuck on a prompt ensure_trusted didn't cover). The pane exists
