@@ -59,4 +59,9 @@
   swapDevices = [ { device = "/dev/disk/by-uuid/d471b41a-e5cd-42ef-b818-198bcf636787"; } ];
 
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+
+  # The RTL8168f needs rtl_nic/rtl8168f-1.fw; without it the driver logs
+  # "Unable to load firmware" and runs the PHY unpatched. Also gates the Intel
+  # microcode line above, which is otherwise stuck on whatever the 2012 BIOS ships.
+  hardware.enableRedistributableFirmware = true;
 }
