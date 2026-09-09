@@ -30,6 +30,9 @@ runs:
         oauth-secret: ${{ inputs.ts-oauth-secret }}
         tags: tag:github-builder
 
+    # access-tokens: resolving github: flake refs goes through the GitHub API,
+    # which is 60/hour per IP unauthenticated — seven jobs exhaust that and get
+    # a 403 mid-run.
     - name: Install Nix
       uses: NixOS/nix-installer-action@62c1943b776c509394b550f3f983adc14e9212d6 # main
       with:
@@ -38,6 +41,7 @@ runs:
           extra-trusted-public-keys = tsnixcache:Chid5Mll6U8ZUCio/j4KqxgtIeqPxH8Duqpz96TU4Es= nixos-raspberrypi.cachix.org-1:4iMO9LXa8BqhU+Rpg6LQKiGa2lsNh/j2oiYLNOQ5sPI=
           connect-timeout = 5
           fallback = true
+          access-tokens = github.com=${{ github.token }}
           ${{ inputs.extra-nix-conf }}
 
     # Two pins: the SHA-pinned action passes CLI flags to a binary it downloads
