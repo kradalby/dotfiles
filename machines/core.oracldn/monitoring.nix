@@ -1136,6 +1136,52 @@ in
                   description = "The pool is accumulating checksum/scrub errors while staying ONLINE — zfs_pool_health alone does not catch this.";
                 };
               }
+              # core.tjoda's link watchdog (machines/core.tjoda/link-watchdog.nix).
+              # It resets the NIC when carrier dies, so the failure it handles is
+              # invisible by design — these make each intervention visible after
+              # the host is reachable again. Nothing can be scraped while the
+              # link is down, so all of these read counters, never live state.
+              {
+                alert = "LinkWatchdogBounced";
+                expr = "increase(link_watchdog_bounce_total[1h]) > 0";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "{{ $labels.host }}: {{ $labels.interface }} carrier died and the watchdog bounced it";
+                  description = "The link dropped and did not come back on its own. The interface bounce recovered it. One is a blip; a pattern means the NIC or the cable is failing.";
+                };
+              }
+              {
+                alert = "LinkWatchdogRebound";
+                # Escalation: the cheap bounce did not work and the card needed a
+                # bus-level reset — the same thing a reboot does.
+                expr = "increase(link_watchdog_rebind_total[6h]) > 0";
+                labels.severity = "critical";
+                annotations = {
+                  summary = "{{ $labels.host }}: {{ $labels.interface }} needed a PCI reset to come back";
+                  description = "Bouncing the interface was not enough; the driver had to be unbound and rebound. Without the watchdog this host would have been unreachable until someone rebooted it. Plan to replace the NIC.";
+                };
+              }
+              {
+                alert = "LinkWatchdogFlapping";
+                expr = "increase(link_watchdog_carrier_lost_total[24h]) > 3";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "{{ $labels.host }}: {{ $labels.interface }} lost carrier repeatedly in 24h";
+                  description = "The link is unstable rather than failing once. The watchdog is papering over hardware that needs attention.";
+                };
+              }
+              {
+                alert = "LinkWatchdogMetricsMissing";
+                # Canary: the watchdog is the only thing that recovers this host
+                # unattended, so it going quiet must page rather than pass green.
+                expr = ''absent(link_watchdog_carrier) and on() up{job="nodes", instance=~"core-tjoda.*"} == 1'';
+                for = "30m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "core.tjoda is up but link_watchdog_carrier is absent";
+                  description = "The link watchdog timer is not running or its textfile is gone. core.tjoda no longer recovers itself from a dead NIC, and Tjodalyng has no hands.";
+                };
+              }
               {
                 alert = "TimeMachineFlatline";
                 # written_bytes rather than delta(used): TM thinning makes

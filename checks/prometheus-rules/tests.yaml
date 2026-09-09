@@ -565,3 +565,75 @@ tests:
             exp_annotations:
               summary: "Restic tjoda on dev-ldn: every backup partial for 24h"
               description: "Every run in the last day exited 3 (some source files unreadable) — a path is persistently not being backed up. Check unit logs for the skipped files."
+
+  # The link watchdog only acts while nobody can scrape the host, so every alert
+  # here reads a counter after recovery. Bounce and rebind are the same episode
+  # escalating, so one series drives both.
+  - interval: 1m
+    input_series:
+      - series: 'link_watchdog_bounce_total{interface="lan0", instance="core-tjoda:9100", host="core-tjoda"}'
+        values: "0x60 1x60"
+      - series: 'link_watchdog_rebind_total{interface="lan0", instance="core-tjoda:9100", host="core-tjoda"}'
+        values: "0x60 1x60"
+      - series: 'link_watchdog_carrier_lost_total{interface="lan0", instance="core-tjoda:9100", host="core-tjoda"}'
+        values: "0x60 1 2 3 4 5x55"
+    alert_rule_test:
+      - eval_time: 90m
+        alertname: LinkWatchdogBounced
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              interface: lan0
+              instance: core-tjoda:9100
+              host: core-tjoda
+            exp_annotations:
+              summary: "core-tjoda: lan0 carrier died and the watchdog bounced it"
+              description: "The link dropped and did not come back on its own. The interface bounce recovered it. One is a blip; a pattern means the NIC or the cable is failing."
+      - eval_time: 90m
+        alertname: LinkWatchdogRebound
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              interface: lan0
+              instance: core-tjoda:9100
+              host: core-tjoda
+            exp_annotations:
+              summary: "core-tjoda: lan0 needed a PCI reset to come back"
+              description: "Bouncing the interface was not enough; the driver had to be unbound and rebound. Without the watchdog this host would have been unreachable until someone rebooted it. Plan to replace the NIC."
+      - eval_time: 90m
+        alertname: LinkWatchdogFlapping
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              interface: lan0
+              instance: core-tjoda:9100
+              host: core-tjoda
+            exp_annotations:
+              summary: "core-tjoda: lan0 lost carrier repeatedly in 24h"
+              description: "The link is unstable rather than failing once. The watchdog is papering over hardware that needs attention."
+
+  # A single bounce must not trip the flapping threshold.
+  - interval: 1m
+    input_series:
+      - series: 'link_watchdog_carrier_lost_total{interface="lan0", instance="core-tjoda:9100", host="core-tjoda"}'
+        values: "0x60 1x60"
+    alert_rule_test:
+      - eval_time: 90m
+        alertname: LinkWatchdogFlapping
+        exp_alerts: []
+
+  # core.tjoda answering while its watchdog metric is gone: the one thing that
+  # recovers this host unattended has stopped, and that must page.
+  - interval: 1m
+    input_series:
+      - series: 'up{job="nodes", instance="core-tjoda:9100", host="core-tjoda"}'
+        values: "1x60"
+    alert_rule_test:
+      - eval_time: 45m
+        alertname: LinkWatchdogMetricsMissing
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+            exp_annotations:
+              summary: "core.tjoda is up but link_watchdog_carrier is absent"
+              description: "The link watchdog timer is not running or its textfile is gone. core.tjoda no longer recovers itself from a dead NIC, and Tjodalyng has no hands."
