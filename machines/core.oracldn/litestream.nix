@@ -65,7 +65,13 @@
   # Same dance for grafana: litestream (in group grafana) needs group-write on
   # the data dir and the db/wal/shm; setgid + UMask keep everything
   # group-owned regardless of which side touches a file first.
+  # StateDirectory too: grafana's module leaves it unset, so StateDirectoryMode
+  # alone is inert and only systemd re-applies the mode on every start. Without
+  # it the tmpfiles rule below sets 2770 during activation and grafana resets
+  # /var/lib/grafana to 0700 seconds later, locking litestream out of the ltx
+  # dir nested inside it — replication then stops with no other symptom.
   systemd.services.grafana.serviceConfig = {
+    StateDirectory = lib.mkForce "grafana";
     StateDirectoryMode = lib.mkForce "2770";
     UMask = lib.mkForce "0007";
   };
@@ -82,10 +88,9 @@
     "z /var/lib/ghdl/ghdl.db 0660 ghdl ghdl - -"
     "z /var/lib/ghdl/ghdl.db-wal 0660 ghdl ghdl - -"
     "z /var/lib/ghdl/ghdl.db-shm 0660 ghdl ghdl - -"
-    # grafana's data dir predates the setgid fix; heal existing files.
-    # The parent needs it too: grafana's module sets no StateDirectory, so the
-    # StateDirectoryMode force above is inert and /var/lib/grafana comes back
-    # 0700 on reboot — litestream then can't traverse it to reach the db.
+    # grafana's data dir predates the setgid fix; heal existing files. The
+    # parent is kept at 2770 by StateDirectory above; this only covers the
+    # window before grafana's first start under it.
     "z /var/lib/grafana 2770 grafana grafana - -"
     "z /var/lib/grafana/data 2770 grafana grafana - -"
     "z /var/lib/grafana/data/grafana.db 0660 grafana grafana - -"
