@@ -700,6 +700,9 @@
           monitoring-pipeline = import ./checks/monitoring-pipeline.nix { inherit pkgs self; };
           # Fail if any host exposes an exporter/service that nothing scrapes.
           monitoring-coverage = import ./checks/monitoring-coverage { inherit pkgs self; };
+          # core.tjoda's NIC recovery ladder: it only runs unattended, so its
+          # thresholds are exercised here rather than discovered during an outage.
+          link-watchdog = import ./checks/link-watchdog { inherit pkgs self; };
           # In-repo Go packages: buildGoModule runs each module's tests in its
           # checkPhase, so exposing the builds as checks puts `go test` in CI.
           go-ac-web = pkgs.ac-web;

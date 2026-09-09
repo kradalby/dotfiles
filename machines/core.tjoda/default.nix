@@ -25,6 +25,7 @@
     ./restic-jotta.nix
     ./garage.nix
     ./sfiber-check.nix
+    ./link-watchdog.nix
   ];
 
   my = {
