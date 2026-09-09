@@ -74,6 +74,8 @@ Specifics:
 - Table-driven; `testify/require` (fail-fast), `google/go-cmp` for diffs.
 - Async: `require.EventuallyWithT`, never `time.Sleep`. Helpers take `testing.TB`, call `t.Helper()`.
 - Test override hooks: `SetXForTesting`. Race detector on by default.
+- One test file per source file: `map_request.go` → `map_request_test.go`. No `map_request_helpers_test.go`,
+  no `map_request_edge_cases_test.go` — a reader looks in exactly one place.
 - Benchmarks in `bench_test.go` per package. (tsnixcache)
 - Run via flake apps (→ [git.md](git.md)), not bespoke scripts.
 
