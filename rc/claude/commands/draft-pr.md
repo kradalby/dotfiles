@@ -24,10 +24,12 @@ Create a draft pull request for the current branch.
 
     Fixes #1234
     ```
+
   - When working on a GitHub issue, reference it:
     - Fixes #1234 if it resolves the issue
     - Updates #1234 if related but not a full fix
     - Look in your context or branch name for relevant issues. You can have more than one.
+
 - For the headscale repo (kradalby/headscale):
   - Create the PR from `origin` (kradalby/headscale) to `upstream` (juanfont/headscale)
   - Use `gh pr create --repo juanfont/headscale --head kradalby:<branch>`
