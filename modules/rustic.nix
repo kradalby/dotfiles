@@ -356,6 +356,12 @@ let
       echo "=== rustic maintenance ${name} finished at $(date) ==="
     '';
 
+  # Timestamp of the last verify that actually read data back. The
+  # watchdog alerts on its age, so a verify that never runs — because
+  # it is wedged on battery, or because the command line is wrong —
+  # surfaces instead of failing quietly every week.
+  verifyStamp = name: "$HOME/.local/state/rustic/${name}-verified";
+
   # Weekly deep verification script: check --read-data-subset.
   # Verifies actual data integrity over time.
   mkVerifyScript =
@@ -367,7 +373,12 @@ let
       ${optionalString backup.maintenanceOnACOnly (mkACGuard "verify")}
       ${optionalString (backup.reachabilityHost != null) (mkNetGuard backup.reachabilityHost "verify")}
 
-      ${rusticBin} -P ${name} check --read-data-subset ${backup.deepCheckSubset}
+      # --read-data-subset only narrows what --read-data reads; without
+      # it rustic rejects the invocation outright.
+      retry 3 ${rusticBin} -P ${name} check --read-data --read-data-subset ${backup.deepCheckSubset}
+
+      mkdir -p "$(dirname "${verifyStamp name}")"
+      /usr/bin/touch "${verifyStamp name}"
 
       echo "=== rustic verify ${name} finished at $(date) ==="
     '';
@@ -441,12 +452,27 @@ let
       # leaves RusticBackupMetricsMissing firing with no way to tell why.
       # RusticBackupStale on core.oracldn consumes this (>3d). /usr/bin/curl
       # avoids any nix curl.
+      # Age of the last verify that read data back, from the stamp the
+      # verify job touches on success. A missing stamp means verify has
+      # never completed, which is reported as infinitely stale rather
+      # than skipped — that silence is the failure mode being closed.
+      verify_stamp="${verifyStamp name}"
+      if [ -f "$verify_stamp" ]; then
+        verify_epoch=$(/bin/date -r "$verify_stamp" +%s)
+        verify_age_days=$(( (now_epoch - verify_epoch) / 86400 ))
+        echo "Last verify: $(/bin/date -r "$verify_stamp") (''${verify_age_days}d ago)"
+      else
+        verify_epoch=0
+        verify_age_days=99999
+        echo "Last verify: never"
+      fi
+
       host=$(hostname -s)
       # The trailing newline is required: the pushgateway rejects a body that
       # does not end in one with HTTP 400, so printf builds it rather than
       # passing a bare --data-binary string.
-      if ! push_err=$(printf 'rustic_backup_last_snapshot_timestamp_seconds{host="%s"} %s\n' \
-        "$host" "$snapshot_epoch" \
+      if ! push_err=$(printf 'rustic_backup_last_snapshot_timestamp_seconds{host="%s"} %s\nrustic_backup_last_verify_timestamp_seconds{host="%s"} %s\n' \
+        "$host" "$snapshot_epoch" "$host" "$verify_epoch" \
         | /usr/bin/curl -fsS --connect-timeout 5 --max-time 15 --data-binary @- \
           "http://pushgateway/metrics/job/rustic/instance/$host" 2>&1); then
         echo "pushgateway push failed (best-effort, backup itself is fine): $push_err" >&2
@@ -460,6 +486,16 @@ let
         rnotify "Backup Stale" "rustic ${name}: last backup ''${age_days} days ago"
       else
         echo "Backup is fresh (''${age_days}d old), no notification needed"
+      fi
+
+      if [ "$verify_age_days" -ge ${toString backup.verifyStaleDays} ]; then
+        if [ "$verify_epoch" -eq 0 ]; then
+          rnotify "Verify Missing" "rustic ${name}: data has never been verified" Basso
+        else
+          rnotify "Verify Stale" "rustic ${name}: last verified ''${verify_age_days} days ago" Basso
+        fi
+      else
+        echo "Verify is fresh (''${verify_age_days}d old), no notification needed"
       fi
 
       echo "=== rustic-check ${name} finished at $(date) ==="
@@ -794,13 +830,30 @@ in
                 '';
               };
 
+              verifyStaleDays = mkOption {
+                type = types.int;
+                default = 14;
+                description = ''
+                  Days without a successful deep verification before the
+                  watchdog notifies. Default 14 tolerates one skipped
+                  weekly run (on battery, off network) but not a verify
+                  that has silently stopped working.
+                '';
+              };
+
               deepCheckSubset = mkOption {
                 type = types.str;
-                default = "1/7";
+                default = "50GiB";
                 description = ''
                   Subset specification for `rustic check --read-data-subset`.
-                  Format: N/M means check 1/M-th of data each run. With
-                  weekly runs and "1/7", full coverage every 7 weeks.
+                  A size or percentage picks a random subset, so coverage
+                  accumulates across runs on its own. "N/M" instead names
+                  one fixed partition, which a weekly job would re-read
+                  forever while never touching the rest of the repo.
+
+                  Every byte is pulled back from the remote, so this is
+                  a bandwidth and wall-clock knob: budget roughly an hour
+                  per 50GiB against a cloud backend.
                 '';
               };
 
