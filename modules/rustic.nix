@@ -147,6 +147,29 @@ with lib;
 let
   cfg = config.services.rustic;
 
+  # Wrap a job's passwordCommand in retries and put it in the store.
+  # rustic execs password-command as bare argv rather than through a
+  # shell, so a retry loop cannot be inlined into the TOML string — it
+  # needs a script of its own. The secret reaches rustic on stdout and
+  # is never echoed; only the command name appears in the retry log.
+  #
+  # PATH and the service account token are set here as well as in the
+  # job preamble, so an interactive `rustic -P <name> snapshots` gets
+  # the same retries without a wrapper .app around it.
+  mkPasswordScript =
+    name: backup:
+    pkgs.writers.writeBash "rustic-password-${name}" ''
+      set -euo pipefail
+      ${retryHelper}
+
+      ${optionalString (cfg.opServiceAccountTokenFile != null) ''
+        export OP_SERVICE_ACCOUNT_TOKEN="$(cat ${cfg.opServiceAccountTokenFile})"
+      ''}
+      export PATH="${lib.makeBinPath [ pkgs._1password-cli ]}:$PATH"
+
+      retry 3 ${backup.passwordCommand}
+    '';
+
   # Generate a rustic TOML profile for a backup job.
   # Placed in /etc/rustic/<name>.toml via environment.etc and loaded
   # by rustic with `-P <name>`.
@@ -158,7 +181,7 @@ let
         repository = backup.repository;
       }
       // optionalAttrs (backup.passwordCommand != null) {
-        password-command = backup.passwordCommand;
+        password-command = "${mkPasswordScript name backup}";
       }
       // optionalAttrs (backup.passwordFile != null) {
         password-file = backup.passwordFile;
@@ -226,12 +249,31 @@ let
       trap 'rnotify "${label} Failed" "rustic ${toLower label} ${name} failed at $(date)" Basso' ERR
     '';
 
+  # Retry a command with linear backoff. Jottacloud and the 1Password
+  # API both drop connections often enough that a single attempt turns
+  # a flaky minute into a failed backup: resets, 504s, DNS misses and
+  # dead IPv6 routes all clear on their own within a minute or two.
+  # Deterministic failures (bad flag, wrong credentials) still fail,
+  # just n times slower, and the ERR trap reports them as before.
+  retryHelper = ''
+    retry() {
+      local n=$1; shift
+      for i in $(seq "$n"); do
+        "$@" && return 0
+        echo "attempt $i/$n failed: $*" >&2
+        sleep $((i * 30))
+      done
+      return 1
+    }
+  '';
+
   # Common preamble shared by backup, maintenance, and verify scripts.
   # Sets strict mode, ERR trap, 1Password token, and PATH.
   mkScriptPreamble = name: label: ''
     set -euo pipefail
     ${notifyHelper}
     ${mkErrTrap name label}
+    ${retryHelper}
 
     ${optionalString (cfg.opServiceAccountTokenFile != null) ''
       export OP_SERVICE_ACCOUNT_TOKEN="$(cat ${cfg.opServiceAccountTokenFile})"
@@ -242,6 +284,13 @@ let
         pkgs._1password-cli
       ]
     }:$PATH"
+
+    # Bind rclone's outbound sockets to IPv4. Jottacloud publishes AAAA
+    # records, and on a network where the v6 path is black-holed every
+    # request dies with "no route to host" until the backoff gives up.
+    # Neither Mac is ever on an IPv6-only network, so there is nothing
+    # to lose by never dialling v6.
+    export RCLONE_BIND=0.0.0.0
   '';
 
   # AC power guard — exits 0 (not an error) when on battery so the
@@ -284,7 +333,7 @@ let
 
       echo "=== rustic backup ${name} started at $(date) ==="
       ${optionalString (backup.reachabilityHost != null) (mkNetGuard backup.reachabilityHost "backup")}
-      ${rusticBin} -P ${name} backup
+      retry 3 ${rusticBin} -P ${name} backup
       echo "=== rustic backup ${name} finished at $(date) ==="
     '';
 
@@ -301,8 +350,8 @@ let
         mkNetGuard backup.reachabilityHost "maintenance"
       )}
 
-      ${rusticBin} -P ${name} forget
-      ${rusticBin} -P ${name} check
+      retry 3 ${rusticBin} -P ${name} forget
+      retry 3 ${rusticBin} -P ${name} check
 
       echo "=== rustic maintenance ${name} finished at $(date) ==="
     '';
@@ -333,7 +382,7 @@ let
   # over the tailnet (best-effort) so backup freshness is observable
   # off-device — the on-screen notifications are the only signal otherwise.
   mkWatchdogScript =
-    name: _backup:
+    name: backup:
     let
       rusticBin = "${pkgs.rustic}/bin/rustic";
       jq = "${pkgs.jq}/bin/jq";
@@ -341,6 +390,7 @@ let
     pkgs.writers.writeBash "rustic-check-${name}" ''
       set -euo pipefail
       ${notifyHelper}
+      ${retryHelper}
 
       ${optionalString (cfg.opServiceAccountTokenFile != null) ''
         export OP_SERVICE_ACCOUNT_TOKEN="$(cat ${cfg.opServiceAccountTokenFile})"
@@ -351,6 +401,7 @@ let
           pkgs._1password-cli
         ]
       }:$PATH"
+      export RCLONE_BIND=0.0.0.0
 
       echo "=== rustic-check ${name} started at $(date) ==="
 
@@ -359,7 +410,9 @@ let
       # contains objects with {group_key, snapshots: [...]}, and each
       # nested snapshot has a "time" field in RFC3339 format. Flatten
       # across all groups and take the most recent.
-      latest=$(${rusticBin} -P ${name} snapshots --json \
+      # Retried: a dropped connection here would otherwise read as
+      # "no snapshots found" and fire the missing-backup alarm.
+      latest=$(retry 3 ${rusticBin} -P ${name} snapshots --json \
         | ${jq} -r '[.[].snapshots[].time] | sort | last // empty')
 
       if [ -z "$latest" ]; then
