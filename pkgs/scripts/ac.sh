@@ -252,12 +252,40 @@ server_running() {
   h status server 2>/dev/null | grep -q '^status: running'
 }
 
+sort_workspaces() {
+  # v0.8.2 exposes reordering only over the socket API. Moving one block keeps
+  # the focused pane intact and avoids applying a partially sorted order.
+  local request socket
+  if ! request=$(h workspace list | jq -c '
+    .result.workspaces
+    | map(.workspace_id) as $current
+    | sort_by(.label | ascii_downcase)
+    | map(.workspace_id)
+    | select(. != $current)
+    | {id: "ac-sort", method: "workspace.move_block", params: {workspace_ids: .}}'); then
+    echo "warning: could not list spaces for sorting" >&2
+    return 0
+  fi
+  [[ -n "$request" ]] || return 0
+
+  # Let herdr resolve the named session's socket, including custom config paths.
+  if socket=$(h status server --json | jq -er '.socket') &&
+    printf '%s\n' "$request" | socat -T 5 -t 5 - "UNIX-CONNECT:$socket" |
+    jq -e 'if .error then error(.error.message) else .result.workspaces | type == "array" end' >/dev/null; then
+    return 0
+  fi
+  echo "warning: could not sort herdr spaces" >&2
+}
+
 ensure_server() {
   # Control commands do not auto-start the server (attaching to a dead socket
   # errors), so make sure it's up. On the deployed box a systemd user unit owns
   # it; fall back to spawning a detached server for anywhere that unit isn't
   # running (first boot, a mac, a throwaway shell).
-  server_running && return 0
+  if server_running; then
+    sort_workspaces
+    return 0
+  fi
   systemctl --user start herdr 2>/dev/null || true
   if ! server_running; then
     nohup herdr --session "$HERDR_SESSION" server >/dev/null 2>&1 &
@@ -355,6 +383,7 @@ create_session() {
   wid=$(jq -r '.result.workspace.workspace_id // empty' <<<"$resp")
   root=$(jq -r '.result.root_pane.pane_id // empty' <<<"$resp")
   [[ -n "$wid" && -n "$root" ]] || die "workspace create failed"
+  sort_workspaces
 
   local i agent pane
   for i in "${!agents[@]}"; do
@@ -421,6 +450,7 @@ already broken." >/dev/null ||
 # attached to this very session, so exec'ing the TUI would nest herdr inside the
 # current pane — just say so and return instead.
 attach_herd() {
+  sort_workspaces
   if [[ "${HERDR_ENV:-}" == "1" ]]; then
     echo "already attached to herd (session: $HERDR_SESSION)"
     return 0
@@ -722,6 +752,7 @@ Usage: ac [flags] [command|repo] [branch]
 
 Agent code session manager — one herdr session ("ac") holds every coding-agent
 session as a workspace, so they share a single overview and a single attach.
+Spaces are sorted alphabetically by label when creating or opening one.
 
 Commands:
   <repo> [branch]        Create the workspace if needed, then attach the herdr
@@ -789,6 +820,7 @@ claude sessions launch with --dangerously-skip-permissions (no tool prompts)
 and Remote Control named <host>-<repo>-<branch>, so they are reachable from
 claude.ai / the phone (AC_REMOTE_CONTROL=0 disables). The working dir is
 pre-trusted so no trust prompt blocks the agent (AC_TRUST=0 disables).
+Codex sessions launch with --sandbox danger-full-access.
 EOF
 }
 
