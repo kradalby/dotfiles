@@ -17,7 +17,7 @@ let
   # proxy serves openrouter-backed models (glm/deepseek/qwen/…) over chat
   # completions ONLY, so codex cannot reach them — use opencode for those.
   # Codex is therefore limited to the responses-API models (gpt-5.x).
-  codexConfig = {
+  codexConfig = aiConfig.codex // {
     model = "gpt-5.5";
     model_provider = "aperture";
     model_providers.aperture = {

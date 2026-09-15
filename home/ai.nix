@@ -199,12 +199,13 @@
   # Codex has no model/provider block here on purpose: signed-in codex picks
   # its own default, and pinning one would drift.
   #
-  # Only the feature flag lives in config.toml. Codex reads hooks from both
+  # Only the hooks feature flag lives in config.toml. Codex reads hooks from both
   # config.toml and hooks.json and warns when definitions are split across the
   # two, and herdr's codex integration owns hooks.json, so hook definitions go
   # there instead (see codexHooks). herdr sets this flag as well; declaring it
   # keeps codex hooks working on a host that runs codex without herdr.
   codex = {
+    sandbox_mode = "danger-full-access";
     features.hooks = true;
   };
 
