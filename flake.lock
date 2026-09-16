@@ -2404,16 +2404,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1789048157,
-        "narHash": "sha256-9LNOynLExGLtKM2CMTuUQNrYPx7pF6+ICocR/V3NemY=",
+        "lastModified": 1789308533,
+        "narHash": "sha256-WAptLwk/AW5N1d4NSC2B0IJz3at0nSHXOJZy2TVpEAY=",
         "owner": "kradalby",
         "repo": "tsnixcache",
-        "rev": "a74a6f7dd4aedae1f0287d64b8245a6b6d6ca6b9",
+        "rev": "09f0bdecefee7bec530cf5874a652a9dd19799b6",
         "type": "github"
       },
       "original": {
         "owner": "kradalby",
-        "ref": "initial",
+        "ref": "main",
         "repo": "tsnixcache",
         "type": "github"
       }

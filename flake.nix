@@ -82,9 +82,9 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
-    # WIP Nix binary cache served over tailscale; pinned to the `initial` branch.
+    # Nix binary cache served over tailscale.
     tsnixcache = {
-      url = "github:kradalby/tsnixcache/initial";
+      url = "github:kradalby/tsnixcache/main";
       # Follows unstable: its go.mod needs go >= 1.27.0.
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
