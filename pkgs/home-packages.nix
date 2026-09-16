@@ -133,11 +133,9 @@ in
 
     # Web/JS/TS ecosystem
     (lib.mkIf cfg.web.enable {
-      home.packages =
-        (with pkgs; [
-          # nodejs_25
-        ])
-        ++ (with pkgs.unstable; [
+      home.packages = (
+        with pkgs.unstable;
+        [
           typescript
           vtsls
           eslint_d
@@ -145,7 +143,8 @@ in
           stylelint
           html-tidy
           commitlint
-        ]);
+        ]
+      );
     })
 
     # Python ecosystem
