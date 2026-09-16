@@ -105,8 +105,8 @@ in
       mqttExporterSrc = pkgs.fetchFromGitHub {
         owner = "kpetremann";
         repo = "mqtt-exporter";
-        rev = "v1.11.2";
-        hash = "sha256-pWXdd82K1BhUKHGVGpTRW4f/Xa9nf0Ww/l2pxdw/Jw8=";
+        rev = (import ../../metadata/versions.nix).mqttExporter;
+        hash = "sha256-cCVbvO1+69zIxbGGW7p3YTbDQgSU41uVR7M3jOHaqO8=";
       };
     in
     {

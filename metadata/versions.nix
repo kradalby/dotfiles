@@ -24,6 +24,10 @@
     };
   };
 
+  ## modules
+  # https://github.com/kpetremann/mqtt-exporter/releases
+  mqttExporter = "v1.12.1";
+
   # https://github.com/umami-software/umami/pkgs/container/umami
   umami = "ghcr.io/umami-software/umami:3.3.1";
   # https://hub.docker.com/r/frooodle/s-pdf/tags
