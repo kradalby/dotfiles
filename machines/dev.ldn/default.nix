@@ -104,7 +104,11 @@ in
     enable = true;
     authKeyFile = config.age.secrets.headscale-sfiber-client-preauthkey.path;
     extraUpFlags = [ "--login-server=https://headscale.sandefjordfiber.no" ];
-    extraSetFlags = [ "--hostname=dev-ldn" ];
+    extraSetFlags = [
+      "--hostname=dev-ldn"
+      # Routes advertised on the sfiber tailnet are unreachable without this.
+      "--accept-routes=true"
+    ];
   };
 
   services.ssh-agent-mux = {
