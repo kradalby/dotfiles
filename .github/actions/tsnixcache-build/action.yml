@@ -53,6 +53,10 @@ runs:
         version: v3.0.1
         upstream-cache-filter: "true"
 
+    # Resolved from this repo's flake lock, so CI and the fleet run one build and
+    # a `nix flake update` moves both together. Private session dir: the watcher
+    # refuses a pid file whose directory is group- or world-readable.
+    #
     # Streams paths as they land, so a build that dies late still leaves its
     # dependencies cached. No --idle-exit: a slow build goes quiet for longer
     # than any sane window, and an exited watcher stops streaming silently.
@@ -63,35 +67,52 @@ runs:
       env:
         TSNIXCACHE_URL: ${{ inputs.cache-url }}
       run: |
-        nix run github:kradalby/tsnixcache/initial -- watch \
-          --pid-file "$RUNNER_TEMP/cache.pid" \
-          > "$RUNNER_TEMP/watch.log" 2>&1 &
+        set -euo pipefail
+        session=$(mktemp -d "${RUNNER_TEMP:-/tmp}/tsnixcache.XXXXXX")
+        chmod 700 "$session"
+        cache=$(nix build --no-link --print-out-paths --inputs-from . 'tsnixcache#default')/bin/tsnixcache
+        echo "TSNIXCACHE_SESSION_DIR=$session" >> "$GITHUB_ENV"
+        echo "TSNIXCACHE_BIN=$cache" >> "$GITHUB_ENV"
+        "$cache" watch --to "$TSNIXCACHE_URL" \
+          --state-dir "$session/state" \
+          --pid-file "$session/watch.pid" \
+          --drain-timeout 0 \
+          > "$session/watch.log" 2>&1 &
         disown
+        token=$("$cache" wait-for --ready --timeout 60s --pid-file "$session/watch.pid")
+        echo "TSNIXCACHE_SESSION=$token" >> "$GITHUB_ENV"
 
     # Braced: a multi-line paths-command ends in a newline, which would strand
-    # the redirect on its own line. The push backstops the watcher.
+    # the redirect on its own line. The push backstops the watcher, which only
+    # sees paths this job built — a substituted dependency never reaches it.
+    # `-- -` reads stdin; ff drops a bare `-` ahead of other operands.
     - name: Build and push
       shell: bash
       env:
         TSNIXCACHE_URL: ${{ inputs.cache-url }}
       run: |
+        set -euo pipefail
         {
           ${{ inputs.paths-command }}
-        } > "$RUNNER_TEMP/paths"
-        nix run github:kradalby/tsnixcache/initial -- push - < "$RUNNER_TEMP/paths"
+        } > "$TSNIXCACHE_SESSION_DIR/paths"
+        "$TSNIXCACHE_BIN" push --to "$TSNIXCACHE_URL" -- - < "$TSNIXCACHE_SESSION_DIR/paths"
 
-    # SIGTERM makes the watcher drain what is queued and exit, so a failed build
-    # still ships what it did manage to build. No PID file means it died; the
-    # log says why.
+    # --stop asks the watcher to drain what is queued and exit, so a failed build
+    # still ships what it did manage to build. --timeout 0 because the timeout
+    # bounds the whole final upload, and a real closure does not drain inside any
+    # fixed window; the job timeout is the outer bound. No PID file means the
+    # watcher died; the log says why.
     - name: Drain cache uploads
       if: always()
       shell: bash
       env:
         TSNIXCACHE_URL: ${{ inputs.cache-url }}
       run: |
-        if [ -f "$RUNNER_TEMP/cache.pid" ]; then
-          kill -TERM "$(cat "$RUNNER_TEMP/cache.pid")" 2>/dev/null || true
-          nix run github:kradalby/tsnixcache/initial -- wait-for \
-            --pid-file "$RUNNER_TEMP/cache.pid"
+        if [ -n "${TSNIXCACHE_SESSION_DIR:-}" ] && [ -f "$TSNIXCACHE_SESSION_DIR/watch.pid" ]; then
+          "$TSNIXCACHE_BIN" wait-for --stop \
+            --pid-file "$TSNIXCACHE_SESSION_DIR/watch.pid" \
+            --pid-file-timeout 10s \
+            --timeout 0 \
+            ${TSNIXCACHE_SESSION:+--session "$TSNIXCACHE_SESSION"}
         fi
-        cat "$RUNNER_TEMP/watch.log" 2>/dev/null || echo "watcher wrote no log"
+        cat "${TSNIXCACHE_SESSION_DIR:-}/watch.log" 2>/dev/null || echo "watcher wrote no log"
