@@ -183,7 +183,7 @@
     # Agent multiplexer (tmux replacement for `ac`). Do NOT `follows` its
     # rust-overlay — the package is built against the toolchain herdr pins.
     herdr = {
-      url = "github:herdrdev/herdr/v0.8.2";
+      url = "github:herdrdev/herdr/v0.9.0";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 

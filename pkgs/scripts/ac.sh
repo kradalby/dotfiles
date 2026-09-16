@@ -253,7 +253,7 @@ server_running() {
 }
 
 sort_workspaces() {
-  # v0.8.2 exposes reordering only over the socket API. Moving one block keeps
+  # herdr exposes reordering over the socket API only, never the CLI. Moving one block keeps
   # the focused pane intact and avoids applying a partially sorted order.
   local request socket
   if ! request=$(h workspace list | jq -c '
