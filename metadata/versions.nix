@@ -8,7 +8,7 @@
 
   ## home.ldn
   # https://github.com/dmunozv04/iSponsorBlockTV/pkgs/container/isponsorblocktv
-  isponsor = "ghcr.io/dmunozv04/isponsorblocktv:v2.10.0";
+  isponsor = "ghcr.io/dmunozv04/isponsorblocktv:v2.11.0";
 
   ## core.oracldn
   grafanaDashboards = {
@@ -36,19 +36,17 @@
       # https://github.com/micropython/webrepl
       webreplCli = "1e09d9a1d90fe52aba11d1e659afbc95a50cf088";
       # https://github.com/cooklang/cookcli/releases
-      cook = "0.33.1";
+      cook = "0.35.0";
       # https://github.com/tailscale/tailscale
-      # Ceiling is the newest tag whose go.mod stays at go 1.26.5: this is
-      # built from pkgs.unstable, and 1.102.3 requires 1.26.6.
-      tailscaleTools = "v1.102.2";
+      tailscaleTools = "v1.102.4";
       # https://github.com/tailscale/squibble
-      squibble = "141f5d618bc46223a6fc0eb1c4df4357e2f45e86";
+      squibble = "9a4c8961e6f5a4ec322b06129567b086c24540e6";
       # https://github.com/tailscale/setec
       setec = "f8d7a936837c8bdb8e1af9fd99158f9b5551dbad";
       # https://github.com/seruman/boo (installed as `ghostty-tab`)
       ghostty-tab = "3bc3b2ec1f1dfc75bd9f8e919f1150ae5d42cf6b";
       # https://github.com/bscott/pm-cli/releases
-      pmCli = "0.2.6";
+      pmCli = "0.2.7";
     };
   };
 }

@@ -15,9 +15,9 @@ buildGoModule rec {
     owner = "tailscale";
     repo = "squibble";
     rev = "${version}";
-    hash = "sha256-4bTpCbwGZ5prixuglkMdGTb82Df07reTX5G++ZJ4y50=";
+    hash = "sha256-jUD1aN4kFhM39HAkdKJPUZusOkZtYNWJfU9c43zmzv0=";
   };
-  vendorHash = "sha256-vXWbETcpXLLB4aIOO5F6cwp1GGfE5NeQKJ22iNmtUDg=";
+  vendorHash = "sha256-clJBCC4vgPn03KTTMERRcFosD2zNSYOaM3p6Eou/0VI=";
   env = {
     CGO_ENABLED = 0;
   };
