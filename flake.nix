@@ -316,19 +316,19 @@
             nefit-homekit = inputs.nefit-homekit.packages."${system}".default;
             tasmota-homekit = inputs.tasmota-homekit.packages."${system}".default;
             z2m-homekit = inputs.z2m-homekit.packages."${system}".default;
-            # Upstream Nix build requires bun >= 1.3.14; nixpkgs-unstable has 1.3.13.
-            # Use prebuilt binaries until nixpkgs ships bun 1.3.14+.
+            # Upstream's own Nix build ships a stale node_modules hash, so it
+            # cannot build here. Use the release binaries instead.
             opencode =
               let
-                version = "1.18.20";
+                version = "1.18.31";
                 srcs = {
                   x86_64-linux = {
                     url = "https://github.com/anomalyco/opencode/releases/download/v${version}/opencode-linux-x64-baseline.tar.gz";
-                    hash = "sha256-NUdE8uSUtBLl1FcH7eJUu5nxEmD4RNwmCW++1d8DL3w=";
+                    hash = "sha256-soPo2+nm/CJLtLeZks470hdLi3sMPn0bTmAkodEe3IQ=";
                   };
                   aarch64-darwin = {
                     url = "https://github.com/anomalyco/opencode/releases/download/v${version}/opencode-darwin-arm64.zip";
-                    hash = "sha256-tIPlR8AptPC6OB8NDFtCC+xIwkwrvsH7fyIlK66D2kY=";
+                    hash = "sha256-yvfzH6GuwjU+qFnU75q4JMYnPZQbAW6I1RGT+jAo004=";
                   };
                 };
                 src = prev.fetchurl srcs.${system};
