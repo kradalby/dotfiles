@@ -32,5 +32,23 @@ final: prev: {
 
   pm-cli = prev.callPackage ./pm-cli.nix { };
 
+  # rich 14.x fails test_brokenpipeerror on aarch64, and the stable channel
+  # does not take the major bump that builds. Warns once rich moves on.
+  pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
+    (pyfinal: pyprev: {
+      rich =
+        if prev.stdenv.hostPlatform.isAarch64 then
+          prev.lib.warnIf (prev.lib.versionAtLeast pyprev.rich.version "15")
+            "pkgs/overlays: rich is ${pyprev.rich.version}; drop the aarch64 test override"
+            (
+              pyprev.rich.overridePythonAttrs (old: {
+                disabledTests = (old.disabledTests or [ ]) ++ [ "test_brokenpipeerror" ];
+              })
+            )
+        else
+          pyprev.rich;
+    })
+  ];
+
   # osxphotos = prev.callPackage ./osxphotos.nix {};
 }
