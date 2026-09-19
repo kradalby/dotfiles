@@ -1031,11 +1031,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1788367474,
-        "narHash": "sha256-fu4NDgV8U+2SNIV68XwISLmhYVALELKa6zTbTtFh2tQ=",
+        "lastModified": 1789805919,
+        "narHash": "sha256-C3AFPaUY0bnReythEI1s53pgfHvW9ol5kUG0bX1N0MU=",
         "owner": "kradalby",
         "repo": "hvor",
-        "rev": "3abc6946f41df35bcc0ef739bedce8e28e1b7a14",
+        "rev": "e9f2383905d44e00d93cdcd7cf3d109b01ba05d3",
         "type": "github"
       },
       "original": {
