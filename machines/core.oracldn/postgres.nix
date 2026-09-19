@@ -1,10 +1,7 @@
 { lib, ... }: {
   imports = [ ../../common/postgres.nix ];
 
-  my.postgres.databases = [
-    "umami"
-    "keycloak"
-  ];
+  my.postgres.databases = [ "umami" ];
 
   my.postgres.extraBackups = [ ];
 
