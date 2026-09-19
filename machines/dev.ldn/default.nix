@@ -25,7 +25,6 @@ in
 
     ./restic.nix
     ./syncthing.nix
-    ./claude-code.nix
     ./ac-web.nix
   ];
 
