@@ -110,20 +110,11 @@ in
     let
       base = {
         meta = {
-          # Reuse an existing NixOS host's pkgs to avoid a
-          # redundant nixpkgs instantiation. Most hosts have
-          # buildOnTarget = false, so the deployer builds with this.
-          nixpkgs =
-            if nixosConfigurations ? "dev.ldn" then
-              nixosConfigurations."dev.ldn".pkgs
-            else
-              import pkgs {
-                system = "x86_64-linux";
-                inherit overlays;
-                config = {
-                  allowUnfree = true;
-                };
-              };
+          # Overlay-free on purpose: colmena prepends these overlays to every
+          # node's own nixpkgs.overlays, so a set that already carries ours
+          # applies them twice. Non-idempotent ones (list appends) then give
+          # deploys different derivations than the nixosConfigurations CI builds.
+          nixpkgs = import pkgs { system = "x86_64-linux"; };
 
           specialArgs = {
             inherit inputs;
