@@ -1,9 +1,4 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}:
+{ lib, ... }:
 {
   imports = [ ../../common/postgres.nix ];
 
@@ -30,38 +25,4 @@
     wants = [ "docker.service" ];
   };
 
-  # Major upgrade per the nixpkgs manual (postgresql.md, "Upgrading"): run this,
-  # then switch services.postgresql.package. Switching first starts postgres on
-  # an empty data dir and umami migrates a fresh schema.
-  environment.systemPackages = [
-    (
-      let
-        newPostgres = pkgs.postgresql_17;
-        cfg = config.services.postgresql;
-      in
-      pkgs.writeScriptBin "upgrade-pg-cluster" ''
-        set -eux
-        systemctl stop docker-umami.service postgresqlBackup-umami.timer postgresql.service
-
-        export NEWDATA="/var/lib/postgresql/${newPostgres.psqlSchema}"
-        export NEWBIN="${newPostgres}/bin"
-        export OLDDATA="${cfg.dataDir}"
-        export OLDBIN="${cfg.finalPackage}/bin"
-
-        install -d -m 0700 -o postgres -g postgres "$NEWDATA"
-        cd "$NEWDATA"
-        # Idempotent, so a --check run can precede the real one. Encoding and
-        # locale must match the old cluster or pg_upgrade refuses; pinned rather
-        # than inherited from whichever shell runs this.
-        [ -e "$NEWDATA/PG_VERSION" ] || \
-          sudo -u postgres "$NEWBIN/initdb" -D "$NEWDATA" \
-            --encoding=UTF8 --locale=en_US.UTF-8 ${lib.escapeShellArgs cfg.initdbArgs}
-
-        sudo -u postgres "$NEWBIN/pg_upgrade" \
-          --old-datadir "$OLDDATA" --new-datadir "$NEWDATA" \
-          --old-bindir "$OLDBIN" --new-bindir "$NEWBIN" \
-          "$@"
-      ''
-    )
-  ];
 }
