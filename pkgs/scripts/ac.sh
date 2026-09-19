@@ -55,7 +55,9 @@ agent_name() {
   printf '%s\n' "${n:0:32}"
 }
 
-# display: human name for a session — "repo:role", "repo/branch", or "repo".
+# display: human name for a session — "repo:role", "repo/branch", or
+# "repo:main" for the main checkout, which reads like a role beside
+# "repo:deploy" and so can never collide with a branch name.
 display() {
   local repo="$1" branch="$2"
   if [[ -n "$ROLE" ]]; then
@@ -63,7 +65,7 @@ display() {
   elif [[ -n "$branch" ]]; then
     echo "$repo/$branch"
   else
-    echo "$repo"
+    echo "$repo:main"
   fi
 }
 
@@ -77,7 +79,8 @@ agent_label() {
 }
 
 # The workspace label is the single source of truth for repo/branch/agent:
-#   "<repo>[/<branch>] [<al>]"   e.g. "headscale/kradalby/3049 [cl]"
+#   "<repo>/<branch> [<al>]"     e.g. "headscale/kradalby/3049 [cl]"
+#   "<repo>:<main|role> [<al>]"  e.g. "headscale:main [cl+cx]"
 # It stays human-readable in herdr's sidebar and parses back unambiguously
 # (repo has no '/', so the first '/' splits repo from branch; the trailing
 # "[al]" is the agent). Workdir is read separately from the pane's real cwd, so
@@ -411,6 +414,17 @@ create_session() {
   echo "$first"
 }
 
+# ensure_main keeps a "<repo>:main" session beside every branch session, so
+# the default branch always has an agent. Subshell: create_session dies on
+# failure, and that must not cost the branch session actually asked for.
+ensure_main() {
+  local repo="$1"
+  shift
+  [[ -z "$(find_workspace "$repo" "")" ]] || return 0
+  (create_session "$(find_main_worktree "$repo")" "$repo" "" "$@" >/dev/null) ||
+    echo "warning: $(display "$repo" "") not created" >&2
+}
+
 # pane_tab echoes the tab id owning a pane; herdr names tab 1 from the
 # workspace, so the first agent's tab needs renaming after the fact.
 pane_tab() {
@@ -493,6 +507,7 @@ cmd_create_or_attach() {
   fi
 
   ensure_server
+  [[ -z "$branch" ]] || ensure_main "$repo" "${agents[@]}"
 
   local wid pane
   wid=$(find_workspace "$repo" "$branch")
@@ -521,6 +536,7 @@ cmd_spawn() {
   fi
 
   ensure_server
+  [[ -z "$branch" ]] || ensure_main "$repo" "${agents[@]}"
 
   if [[ -n "$(find_workspace "$repo" "$branch")" ]]; then
     echo "already running: $(display "$repo" "$branch")"
@@ -705,7 +721,7 @@ cmd_selftest() {
   local s n fails=0
   for s in "headscale/kradalby/go127" "TubeLogger2000" "dotfiles" \
     "2000only" "1234" "sfiber/planet-olt" "a.b" "x/$(printf 'y%.0s' {1..60})" \
-    "dotfiles:deploy" "sfiber:deploy" "TubeLogger2000:deploy"; do
+    "dotfiles:deploy" "sfiber:deploy" "TubeLogger2000:deploy" "sfiber:main"; do
     n=$(agent_name "$s")
     if [[ "$n" =~ ^[a-z][a-z0-9_-]{0,31}$ ]]; then
       echo "ok   $s -> $n"
@@ -756,7 +772,8 @@ Spaces are sorted alphabetically by label when creating or opening one.
 
 Commands:
   <repo> [branch]        Create the workspace if needed, then attach the herdr
-                         session focused on that repo/branch's agent pane
+                         session focused on that repo/branch's agent pane.
+                         A branch also brings up "<repo>:main" if it is missing
   ls                     List live sessions ('*' = the one herdr is showing)
   ls --porcelain         Tab-separated listing (for ac-web)
   spawn <repo> [branch]  Create a detached workspace without attaching (for ac-web)
@@ -797,8 +814,9 @@ The main repo lives at ~/git/<repo>; branch worktrees are created under
 $WT_ROOT/<repo>/<branch> (default WT_ROOT: ~/worktrees).
 
 Examples:
-  ac headscale                   claude+codex+term on ~/git/headscale (main repo)
-  ac headscale kradalby/3049     same, on ~/worktrees/headscale/kradalby/3049
+  ac headscale                   "headscale:main": claude+codex+term on ~/git/headscale
+  ac headscale kradalby/3049     same, on ~/worktrees/headscale/kradalby/3049,
+                                 plus "headscale:main" if not already up
   ac headscale kradalby/new      prompts to create branch from upstream/main
   ac sfiber planet-olt -o        opencode only, on ~/worktrees/sfiber/planet-olt
   ac sfiber -x                   codex only, no claude tab
