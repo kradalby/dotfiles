@@ -9,13 +9,33 @@ Use `pm-cli --help-json` to discover available commands and flags.
 
 1. **Learn the label taxonomy**: `pm-cli mail label list --json` to get the current set of labels from the server. Always use these as the canonical label names when applying labels -- never invent labels that don't exist on the server. The taxonomy reference below documents what each label is for, but the server is the source of truth for what labels are available.
 2. **Learn deletion patterns**: scan the last 100 messages in Trash (`pm-cli mail list -m Trash -n 100 --json`) to understand what gets discarded
-3. **Scan inbox**: `pm-cli mail list -m INBOX -n 200 --json`
-4. **Read ambiguous emails**: for any email where the action isn't clear from sender+subject alone, read it with `pm-cli mail read uid:X --json --unread` before classifying
-5. **Ask about uncertain emails**: use the interactive question/ask feature to ask the user about emails that don't clearly match any rule. Always ask rather than guess. Group related questions into a single prompt when possible.
-6. **Present a full plan** with sender + subject for every email (not just UIDs) grouped by action
-7. **STOP and wait for explicit user approval**. After presenting the plan, end your turn and wait. Do NOT self-approve with phrases like "Approving and executing" or "Looks good, executing now". Do NOT proceed until the user types an unambiguous approval ("yes", "go", "approve", "looks good", etc.). This applies to **every round** in a conversation -- prior approval does not carry forward to follow-up rounds. Read-only commands (`mail list`, `mail read`, `mail label list`) are fine without approval since they build the plan; only mutating commands (`mail move`, `mail label add/remove`, `mail flag`, `mail archive`) require approval.
-8. **Execute** (only after approval): move deletions to Trash, apply labels, mark read, then for each kept email either archive (records) or leave in inbox (action items requiring user attention)
-9. **Verify**: confirm inbox state matches the plan
+3. **Scan inbox**: `pm-cli mail list -m INBOX -n 1000 --json`. `-n` truncates silently -- if the returned count equals `-n`, raise it and re-run. Bucket by sender before reading; one automated sender can be most of the inbox and hide everything else.
+4. **Scan Spam**: `pm-cli mail list -m Spam -n 200 --json`. Judge by sender domain, never by the display name -- impersonating a brand in the From name is the most common pattern. Expect few false positives; a rescued message still follows the normal delete rules.
+5. **Check Sent before calling anything an action item**: `pm-cli mail list -m Sent -n 60 --json`. A thread that looks unanswered often isn't. A Sent message newer than the inbox message means the ball is with the other party -- that's Archive, not INBOX.
+6. **Read ambiguous emails**: for any email where the action isn't clear from sender+subject alone, read it with `pm-cli mail read uid:X --json` before classifying. `body` is often empty; fall back to `html_body` and strip tags.
+7. **Ask about uncertain emails**: use the interactive question/ask feature to ask the user about emails that don't clearly match any rule. Always ask rather than guess. Group related questions into a single prompt when possible.
+8. **Present a full plan** with sender + subject for every email (not just UIDs) grouped by action
+9. **STOP and wait for explicit user approval**. After presenting the plan, end your turn and wait. Do NOT self-approve with phrases like "Approving and executing" or "Looks good, executing now". Do NOT proceed until the user types an unambiguous approval ("yes", "go", "approve", "looks good", etc.). This applies to **every round** in a conversation -- prior approval does not carry forward to follow-up rounds. Read-only commands (`mail list`, `mail read`, `mail label list`) are fine without approval since they build the plan; only mutating commands (`mail move`, `mail label add/remove`, `mail flag`, `mail archive`) require approval.
+10. **Execute** (only after approval): move deletions to Trash, apply labels, mark read, then for each kept email either archive (records) or leave in inbox (action items requiring user attention)
+11. **Verify**: confirm inbox state matches the plan
+
+## Classification principles
+
+Apply these first; the named lists below are illustrations, not the rule.
+
+- **Does it carry the thing, or a link to it?** A receipt, ticket, invoice or
+  contract with the content in the mail is worth keeping. A notification that
+  the content exists in a portal is not.
+- **Did a human write it to this person?** Human-to-human correspondence is
+  kept. Machine-generated mail is kept only when it is the record itself.
+- **What breaks if it's gone?** Money, legal standing, or a booking you can't
+  reconstruct means keep. Nothing means delete.
+- **Is it a nag about state that lives elsewhere?** Calendars, portals, issue
+  trackers, delivery tracking -- the email is a pointer, delete it.
+- **Does it recur on a schedule?** Anything that will arrive again next week
+  carries no unique information.
+- **Is it the latest in a thread?** Keep the newest; earlier messages in a
+  settled thread archive; auto-replies and out-of-office delete.
 
 ## Delete rules
 
@@ -42,6 +62,21 @@ These categories are always deleted:
 - **Apple invoices**, **American Express monthly**, **eFaktura notifications**: just links, not useful
 - **Fiken marketing**: feature announcements, tips newsletters. Exception: actionable tax deadline reminders -> keep in inbox as action item
 
+## High-volume automated senders
+
+Monitoring and alerting re-fire on an interval, so one unresolved condition
+becomes dozens of identical emails. Before bulk-deleting more than ~50 from one
+automated sender:
+
+1. Fetch the bodies in parallel and extract the distinguishing field
+2. Collapse to distinct conditions with count and first/last seen -- the signal
+   is the set of conditions, not the message count
+3. Write a dated brief to `~/notes/`, matching the format of previous briefs in
+   that directory
+4. Correlate before reporting: simultaneous failures across hosts are usually
+   one fault cascading, not many independent ones
+5. Then delete; the brief is the record
+
 ## Keep + label rules
 
 Emails worth keeping have concrete content: real human correspondence, legal/financial records, booking confirmations, support cases with substance.
@@ -55,6 +90,19 @@ Emails worth keeping have concrete content: real human correspondence, legal/fin
 - **Family**: personal correspondence from family members -> **Mamma** label; Aspargesgaarden-related also get **Aspargesgaarden**
 - **headscale**: only security vulnerabilities, directed personal messages, and program acceptances (e.g. Claude for Open Source)
 - **Property**: Margaret Yau emails -> **Oude Singel 144B**; Dunea water -> same; KPN bills -> both **Services** and **Oude Singel 144B**
+
+## Downstream workflows
+
+Some kept mail is an input to a process outside the inbox -- expense claims,
+filings, reimbursements. Archiving before that step happens buries it.
+
+When an email is an input to such a process, confirm the step happened (usually
+by finding the forward or reply in Sent) before archiving. If it hasn't, keep it
+in INBOX with full labels and say why in the plan. If you cannot tell from Sent
+whether it was handled, ask.
+
+Note that the artifact and the process differ: a booking confirmation carrying a
+price may be the only receipt that ever arrives.
 
 ## Multi-labeling
 
@@ -193,10 +241,27 @@ Always apply all relevant labels. Common combos:
 - Archive: `pm-cli mail archive uid:X uid:Y`
 - Execute in order: delete -> label -> mark read -> archive
 - Batch operations: all commands accept multiple UIDs
+- Chunk mutations at ~40 UIDs per command. Generate the command list from the
+  plan programmatically, and assert classified count == scanned count before
+  running anything
+- After archiving, an immediate `mail list -m INBOX` may still show the archived
+  messages with new UIDs -- sync lag, not failure. Re-list and check against
+  `mail list -m Archive` before "fixing" it
+- Acting on another mailbox takes `-m <mailbox>` on label/flag/move; apply labels
+  and flags before moving the message out
+- Mail that arrives mid-session is not covered by the approval already given.
+  Report it separately and ask, even when it clearly matches a delete category.
 
 ## Presentation rules
 
 - When proposing a plan, show **every email** with UID, sender, and subject
+- Exception: when one sender produces dozens of near-identical messages, present
+  them grouped (what it is, count, UID range). Everything else stays itemised.
+- Surface deadlines from kept mail as one dated list -- due dates, expiring
+  links, appointments. That list is the point of the triage.
+- Ask, don't assume, when the right action depends on state you cannot see:
+  whether an appointment is in the calendar, whether a bill was paid, whether a
+  task was done outside email.
 - Group by action: DELETE first (by category), then KEEP+LABEL (by label group)
 - For KEEP emails, mark each as **ARCHIVE** (record/reference) or **INBOX** (action needed by user)
 - Never present UIDs without sender+subject context
