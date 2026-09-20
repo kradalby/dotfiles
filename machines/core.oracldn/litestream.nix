@@ -66,15 +66,18 @@
   # the data dir and the db/wal/shm; setgid + UMask keep everything
   # group-owned regardless of which side touches a file first.
   # StateDirectory too: grafana's module leaves it unset, so StateDirectoryMode
-  # alone is inert and only systemd re-applies the mode on every start. Without
-  # it the tmpfiles rule below sets 2770 during activation and grafana resets
-  # /var/lib/grafana to 0700 seconds later, locking litestream out of the ltx
-  # dir nested inside it — replication then stops with no other symptom.
+  # alone is inert and only systemd re-applies the mode on every start.
   systemd.services.grafana.serviceConfig = {
     StateDirectory = lib.mkForce "grafana";
     StateDirectoryMode = lib.mkForce "2770";
     UMask = lib.mkForce "0007";
   };
+  # /var/lib/grafana is also grafana's home, and the module sets createHome, so
+  # update-users-groups chmods it to homeMode on *every* activation — before
+  # systemd-tmpfiles, and whether or not grafana restarts. At the default 700
+  # litestream loses the traverse it needs for its ltx dir nested inside, and
+  # replication stops with no symptom beyond the sync errors.
+  users.users.grafana.homeMode = "2770";
   # Correct any db/wal/shm left with the old owner/perms from before this fix,
   # on activation, without recreating the db.
   systemd.tmpfiles.rules = [
