@@ -29,7 +29,7 @@
   mqttExporter = "v1.12.1";
 
   # https://github.com/umami-software/umami/pkgs/container/umami
-  umami = "ghcr.io/umami-software/umami:3.3.1";
+  umami = "ghcr.io/umami-software/umami:3.4.0";
   # https://hub.docker.com/r/frooodle/s-pdf/tags
   stirling = "frooodle/s-pdf:2.14.3";
   ## pkgs
@@ -40,7 +40,7 @@
       # https://github.com/micropython/webrepl
       webreplCli = "1e09d9a1d90fe52aba11d1e659afbc95a50cf088";
       # https://github.com/cooklang/cookcli/releases
-      cook = "0.35.0";
+      cook = "0.36.0";
       # https://github.com/tailscale/tailscale
       tailscaleTools = "v1.102.4";
       # https://github.com/tailscale/squibble

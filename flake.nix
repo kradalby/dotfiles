@@ -320,15 +320,15 @@
             # cannot build here. Use the release binaries instead.
             opencode =
               let
-                version = "1.18.31";
+                version = "1.18.32";
                 srcs = {
                   x86_64-linux = {
                     url = "https://github.com/anomalyco/opencode/releases/download/v${version}/opencode-linux-x64-baseline.tar.gz";
-                    hash = "sha256-soPo2+nm/CJLtLeZks470hdLi3sMPn0bTmAkodEe3IQ=";
+                    hash = "sha256-djrzhu+IqMqxjfAPzwVWkOWlXjGnCIvqvgIwcUKmrc4=";
                   };
                   aarch64-darwin = {
                     url = "https://github.com/anomalyco/opencode/releases/download/v${version}/opencode-darwin-arm64.zip";
-                    hash = "sha256-yvfzH6GuwjU+qFnU75q4JMYnPZQbAW6I1RGT+jAo004=";
+                    hash = "sha256-+mQ/k0AcE1CNjVE3gOVM6cwBID1QERS+m4jWJAi4EB8=";
                   };
                 };
                 src = prev.fetchurl srcs.${system};
@@ -652,7 +652,7 @@
         # switching to treefmt reformats nothing.
         treefmtEval = inputs.treefmt-nix.lib.evalModule pkgs {
           projectRootFile = "flake.nix";
-          # nixfmt-rfc-style: the standard Nix formatter (RFC 166).
+          # nixfmt: the standard Nix formatter (RFC 166).
           programs.nixfmt.enable = true;
           # Go: gofumpt fleet-wide per docs/conventions/nix.md.
           programs.gofumpt.enable = true;
