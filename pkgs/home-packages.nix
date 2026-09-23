@@ -122,7 +122,7 @@ in
     (lib.mkIf cfg.nix.enable {
       home.packages = with pkgs.unstable; [
         nixd
-        nixfmt-rfc-style
+        nixfmt
         deadnix
         statix
         nix-init
