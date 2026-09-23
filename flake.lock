@@ -1462,26 +1462,6 @@
         "type": "github"
       }
     },
-    "opencode": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs-unstable"
-        ]
-      },
-      "locked": {
-        "lastModified": 1790138302,
-        "narHash": "sha256-bv/GySCrn/ehZWHA09+CMvn7TmHPcUnANRVYJYukNYs=",
-        "owner": "anomalyco",
-        "repo": "opencode",
-        "rev": "18ef3cc7c5a25b82114c953a80ccc09f4988f74e",
-        "type": "github"
-      },
-      "original": {
-        "owner": "anomalyco",
-        "repo": "opencode",
-        "type": "github"
-      }
-    },
     "pyproject-build-systems": {
       "inputs": {
         "nixpkgs": [
@@ -1585,7 +1565,6 @@
         "nixpkgs-master": "nixpkgs-master",
         "nixpkgs-stable": "nixpkgs-stable_2",
         "nixpkgs-unstable": "nixpkgs-unstable",
-        "opencode": "opencode",
         "ragenix": "ragenix",
         "ssh-agent-mux": "ssh-agent-mux",
         "tailscale": "tailscale",

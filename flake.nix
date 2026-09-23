@@ -169,11 +169,6 @@
       inputs."flake-utils".follows = "flake-utils";
     };
 
-    opencode = {
-      url = "github:anomalyco/opencode";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-    };
-
     hermes-agent = {
       url = "github:NousResearch/hermes-agent";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
@@ -316,39 +311,6 @@
             nefit-homekit = inputs.nefit-homekit.packages."${system}".default;
             tasmota-homekit = inputs.tasmota-homekit.packages."${system}".default;
             z2m-homekit = inputs.z2m-homekit.packages."${system}".default;
-            # Upstream's own Nix build ships a stale node_modules hash, so it
-            # cannot build here. Use the release binaries instead.
-            opencode =
-              let
-                version = "1.18.32";
-                srcs = {
-                  x86_64-linux = {
-                    url = "https://github.com/anomalyco/opencode/releases/download/v${version}/opencode-linux-x64-baseline.tar.gz";
-                    hash = "sha256-djrzhu+IqMqxjfAPzwVWkOWlXjGnCIvqvgIwcUKmrc4=";
-                  };
-                  aarch64-darwin = {
-                    url = "https://github.com/anomalyco/opencode/releases/download/v${version}/opencode-darwin-arm64.zip";
-                    hash = "sha256-+mQ/k0AcE1CNjVE3gOVM6cwBID1QERS+m4jWJAi4EB8=";
-                  };
-                };
-                src = prev.fetchurl srcs.${system};
-              in
-              prev.stdenv.mkDerivation {
-                pname = "opencode";
-                inherit version src;
-                nativeBuildInputs =
-                  prev.lib.optionals prev.stdenv.hostPlatform.isLinux [ prev.autoPatchelfHook ]
-                  ++ prev.lib.optionals (prev.lib.hasSuffix ".zip" srcs.${system}.url) [ prev.unzip ];
-                sourceRoot = ".";
-                unpackPhase =
-                  if prev.lib.hasSuffix ".tar.gz" srcs.${system}.url then "tar xzf $src" else "unzip $src";
-                dontStrip = true; # bun standalone binaries append JS payload to ELF
-                installPhase = ''
-                  install -Dm755 opencode $out/bin/opencode
-                '';
-                meta.mainProgram = "opencode";
-              };
-
             # fish 4.2.1 in darwin-25.11 hangs on startup (aarch64).
             # Use the unstable version until the fix lands in stable.
             inherit (prev.unstable) fish;
