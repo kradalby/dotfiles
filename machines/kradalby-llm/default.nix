@@ -123,7 +123,7 @@ let
 
   hermesOverlay = {
     # Keep in sync with hermes_cli/config_defaults.py in the locked input.
-    _config_version = 39;
+    _config_version = 46;
     # Herdr installs the plugin files; keep enablement across manual refreshes.
     plugins.enabled = [ "herdr-agent-state" ];
     skills.external_dirs = [ "~/.agents/skills" ];

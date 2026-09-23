@@ -137,7 +137,7 @@ let
           yq -o=json '.' "$hermes_target" 2>/dev/null |
             jq -e --arg mcp "$opencode_mcp" '
             (.mcp_servers.aperture.url == $mcp) and
-            (._config_version == 39) and
+            (._config_version == 46) and
             (.plugins.enabled | index("herdr-agent-state") != null) and
             (.skills.external_dirs | index("~/.agents/skills") != null) and
             (.model == { default: "frontier", provider: "moa" }) and
@@ -208,7 +208,7 @@ let
         ' "$stage/opencode.json" >/dev/null || return 1
         jq -e --arg mcp "$mcp_endpoint" '
         (.mcp_servers.aperture.url == $mcp) and
-        (._config_version == 39) and
+        (._config_version == 46) and
         (.plugins.enabled | index("herdr-agent-state") != null) and
         (.skills.external_dirs | index("~/.agents/skills") != null) and
         (.model == { default: "frontier", provider: "moa" }) and
@@ -305,7 +305,7 @@ let
             (.agent | keys) == ["claude-opus", "deepseek", "frontier", "gemini", "glm", "kimi"]
           ' "$APERTURE_OPENCODE_CONFIG" >/dev/null
           yq -o=json '.' "$APERTURE_HERMES_CONFIG" | jq -e '
-        ._config_version == 39 and
+        ._config_version == 46 and
         (.plugins.enabled | index("herdr-agent-state") != null) and
         (.skills.external_dirs | index("~/.agents/skills") != null) and
         .model == { default: "frontier", provider: "moa" } and
