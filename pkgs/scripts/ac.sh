@@ -255,17 +255,43 @@ server_running() {
   h status server 2>/dev/null | grep -q '^status: running'
 }
 
+workspace_sort_request() {
+  jq -c '
+    def sort_key:
+      (.label | sub(" \\[[^]]*\\]$"; "")) as $display
+      | ($display
+        | capture("^(?<repo>[^:/]+)(?<separator>[:/])(?<suffix>.*)$")? //
+          {repo: $display, separator: "", suffix: ""}) as $workspace
+      | ($workspace.repo | ascii_downcase) as $repo
+      | ($workspace.suffix | ascii_downcase) as $suffix
+      | [
+          (if $repo == "dotfiles" then 0 else 1 end),
+          $repo,
+          (if $workspace.separator == ":" and $suffix == "deploy" then 0
+           elif $workspace.separator == ":" and $suffix == "main" then 1
+           elif $workspace.separator == ":" then 2
+           elif $workspace.separator == "/" then 3
+           else 4
+           end),
+          $suffix,
+          ($display | ascii_downcase),
+          .workspace_id
+        ];
+
+    .result.workspaces
+    | map(.workspace_id) as $current
+    | sort_by(sort_key)
+    | map(.workspace_id)
+    | select(. != $current)
+    | {id: "ac-sort", method: "workspace.move_block", params: {workspace_ids: .}}
+  '
+}
+
 sort_workspaces() {
   # herdr exposes reordering over the socket API only, never the CLI. Moving one block keeps
   # the focused pane intact and avoids applying a partially sorted order.
   local request socket
-  if ! request=$(h workspace list | jq -c '
-    .result.workspaces
-    | map(.workspace_id) as $current
-    | sort_by(.label | ascii_downcase)
-    | map(.workspace_id)
-    | select(. != $current)
-    | {id: "ac-sort", method: "workspace.move_block", params: {workspace_ids: .}}'); then
+  if ! request=$(h workspace list | workspace_sort_request); then
     echo "warning: could not list spaces for sorting" >&2
     return 0
   fi
@@ -278,6 +304,11 @@ sort_workspaces() {
     return 0
   fi
   echo "warning: could not sort herdr spaces" >&2
+}
+
+claude_remote_control_enabled() {
+  local host="$1"
+  [[ "${AC_REMOTE_CONTROL:-1}" == "1" && "$host" != "kradalby-llm" ]]
 }
 
 ensure_server() {
@@ -341,14 +372,15 @@ start_agent() {
   # For claude: --dangerously-skip-permissions (no tool prompts), pre-trust the
   # dir (a separate gate, pinned explicitly so it survives claude behaviour
   # drift), and Remote Control named <host>-<repo>-<branch> so the session is
-  # also reachable from claude.ai / the phone. AC_TRUST=0 / AC_REMOTE_CONTROL=0
-  # opt out respectively. argv goes straight to herdr after `--`, no shell in
-  # between.
+  # also reachable from claude.ai / the phone. kradalby-llm cannot reach the
+  # Remote Control service, so omit that flag there. AC_TRUST=0 /
+  # AC_REMOTE_CONTROL=0 opt out respectively. argv goes straight to herdr
+  # after `--`, no shell in between.
   local argv=()
   if [[ "$agent" == "claude" ]]; then
     ensure_trusted "$dir"
     argv=(--dangerously-skip-permissions)
-    if [[ "${AC_REMOTE_CONTROL:-1}" == "1" ]]; then
+    if claude_remote_control_enabled "$(hostname -s)"; then
       local rc_name
       rc_name="$(hostname -s)-$(sanitize "$(display "$repo" "$branch")")"
       argv+=(--remote-control "$rc_name")
@@ -758,6 +790,40 @@ cmd_selftest() {
     echo "ok   single-agent handle stable -> $h1"
   fi
 
+  local sorted expected
+  sorted=$(jq -nc '{result: {workspaces: [
+      {workspace_id: "beta-branch", label: "beta/z-last [cl]"},
+      {workspace_id: "dotfiles-branch", label: "dotfiles/a-first [cl]"},
+      {workspace_id: "alpha-main", label: "alpha:main [cl+cx]"},
+      {workspace_id: "dotfiles-main", label: "dotfiles:main [cl+cx]"},
+      {workspace_id: "beta-deploy", label: "beta:deploy [cl]"},
+      {workspace_id: "alpha-branch", label: "alpha/a-first [cx]"},
+      {workspace_id: "dotfiles-deploy", label: "dotfiles:deploy [cl]"},
+      {workspace_id: "alpha-deploy", label: "alpha:deploy [cl]"},
+      {workspace_id: "alpha-review", label: "alpha:review [cl]"},
+      {workspace_id: "beta-main", label: "beta:main [cl+cx]"}
+    ]}}' | workspace_sort_request | jq -r '.params.workspace_ids | join(" ")')
+  expected="dotfiles-deploy dotfiles-main dotfiles-branch alpha-deploy alpha-main alpha-review alpha-branch beta-deploy beta-main beta-branch"
+  if [[ "$sorted" != "$expected" ]]; then
+    echo "FAIL workspace sort: '$sorted'" >&2
+    fails=$((fails + 1))
+  else
+    echo "ok   workspace sort -> $sorted"
+  fi
+
+  if AC_REMOTE_CONTROL=1 claude_remote_control_enabled kradalby-llm; then
+    echo "FAIL remote control enabled on kradalby-llm" >&2
+    fails=$((fails + 1))
+  elif ! AC_REMOTE_CONTROL=1 claude_remote_control_enabled workstation; then
+    echo "FAIL remote control disabled on another host" >&2
+    fails=$((fails + 1))
+  elif AC_REMOTE_CONTROL=0 claude_remote_control_enabled workstation; then
+    echo "FAIL AC_REMOTE_CONTROL=0 ignored" >&2
+    fails=$((fails + 1))
+  else
+    echo "ok   remote control host policy"
+  fi
+
   [[ "$fails" -eq 0 ]] || die "$fails case(s) failed"
   echo "selftest passed"
 }
@@ -768,7 +834,8 @@ Usage: ac [flags] [command|repo] [branch]
 
 Agent code session manager — one herdr session ("ac") holds every coding-agent
 session as a workspace, so they share a single overview and a single attach.
-Spaces are sorted alphabetically by label when creating or opening one.
+Spaces are grouped by repository, with dotfiles first and each repository's
+:deploy and :main spaces ahead of its other roles and branches.
 
 Commands:
   <repo> [branch]        Create the workspace if needed, then attach the herdr
@@ -835,9 +902,10 @@ sessions are always one agent plus term: they brief a single agent for a
 single job. Agents are launched directly (argv, no shell in between).
 
 claude sessions launch with --dangerously-skip-permissions (no tool prompts)
-and Remote Control named <host>-<repo>-<branch>, so they are reachable from
-claude.ai / the phone (AC_REMOTE_CONTROL=0 disables). The working dir is
-pre-trusted so no trust prompt blocks the agent (AC_TRUST=0 disables).
+and, except on kradalby-llm, Remote Control named <host>-<repo>-<branch>, so
+they are reachable from claude.ai / the phone (AC_REMOTE_CONTROL=0 disables).
+The working dir is pre-trusted so no trust prompt blocks the agent
+(AC_TRUST=0 disables).
 Codex sessions launch with --sandbox danger-full-access.
 EOF
 }
