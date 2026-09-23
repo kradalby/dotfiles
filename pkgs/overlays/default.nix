@@ -4,9 +4,7 @@ in
 final: prev: {
   tailscale-tools = prev.callPackage ./tailscale-tools.nix { };
 
-  # setec vendors a go-json-experiment predating encoding/json/v2, so the fleet's
-  # 1.27 toolchain fails it. Upstream is at HEAD; pin the toolchain, not the source.
-  setec = prev.callPackage ./setec.nix { buildGoModule = prev.buildGo126Module; };
+  setec = prev.callPackage ./setec.nix { };
 
   squibble = prev.callPackage ./squibble.nix { };
 
