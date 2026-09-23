@@ -141,7 +141,7 @@ in
     # Not needed when virtualisation.docker.enable = true;
     (pkgs.docker_29.override { clientOnly = true; })
     pkgs.unstable.lima-full
-    pkgs.unstable.nodejs_26
+    pkgs.nodejs_26
     pkgs.incus
   ];
 

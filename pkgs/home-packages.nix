@@ -240,7 +240,7 @@ in
         in
         [ ac ]
         ++ (with pkgs; [
-          nodejs_24
+          nodejs_26
           python3
         ])
         ++ (with pkgs.master; [
