@@ -11,13 +11,17 @@ Use `pm-cli --help-json` to discover available commands and flags.
 2. **Learn deletion patterns**: scan the last 100 messages in Trash (`pm-cli mail list -m Trash -n 100 --json`) to understand what gets discarded
 3. **Scan inbox**: `pm-cli mail list -m INBOX -n 1000 --json`. `-n` truncates silently -- if the returned count equals `-n`, raise it and re-run. Bucket by sender before reading; one automated sender can be most of the inbox and hide everything else.
 4. **Scan Spam**: `pm-cli mail list -m Spam -n 200 --json`. Judge by sender domain, never by the display name -- impersonating a brand in the From name is the most common pattern. Expect few false positives; a rescued message still follows the normal delete rules.
-5. **Check Sent before calling anything an action item**: `pm-cli mail list -m Sent -n 60 --json`. A thread that looks unanswered often isn't. A Sent message newer than the inbox message means the ball is with the other party -- that's Archive, not INBOX.
+5. **Sent is a two-level check.** The bulk scan (`pm-cli mail list -m Sent -n 60 --json`) is for classification: it tells you which threads are live. It is NOT sufficient to call something an action item -- per-item verification happens in step 12.
 6. **Read ambiguous emails**: for any email where the action isn't clear from sender+subject alone, read it with `pm-cli mail read uid:X --json` before classifying. `body` is often empty; fall back to `html_body` and strip tags.
 7. **Ask about uncertain emails**: use the interactive question/ask feature to ask the user about emails that don't clearly match any rule. Always ask rather than guess. Group related questions into a single prompt when possible.
 8. **Present a full plan** with sender + subject for every email (not just UIDs) grouped by action
 9. **STOP and wait for explicit user approval**. After presenting the plan, end your turn and wait. Do NOT self-approve with phrases like "Approving and executing" or "Looks good, executing now". Do NOT proceed until the user types an unambiguous approval ("yes", "go", "approve", "looks good", etc.). This applies to **every round** in a conversation -- prior approval does not carry forward to follow-up rounds. Read-only commands (`mail list`, `mail read`, `mail label list`) are fine without approval since they build the plan; only mutating commands (`mail move`, `mail label add/remove`, `mail flag`, `mail archive`) require approval.
 10. **Execute** (only after approval): move deletions to Trash, apply labels, mark read, then for each kept email either archive (records) or leave in inbox (action items requiring user attention)
 11. **Verify**: confirm inbox state matches the plan
+12. **Build the action list**: this is the deliverable, not a side effect of the
+    plan. Every message left in INBOX gets one line and one done-check (see
+    Verifying action items). Messages that verify as already handled leave INBOX
+    in this phase -- archive them with their labels and say so.
 
 ## Classification principles
 
@@ -103,6 +107,29 @@ whether it was handled, ask.
 
 Note that the artifact and the process differ: a booking confirmation carrying a
 price may be the only receipt that ever arrives.
+
+## Verifying action items
+
+An action item is a claim that the user still has to do something. Never make
+that claim from the inbox message alone -- it says what was asked, never whether
+it was answered. Check each one, cheapest signal first:
+
+1. **Sent, per thread** -- not the bulk scan. `pm-cli mail search '<counterparty
+   or subject term>' -m Sent --since <date of inbox message>`. A Sent message
+   newer than the inbox message means the ball is with the other party: archive.
+   Read the reply: a partial answer ("I'll send the rest in January") is still
+   the other party's move.
+2. **Supersession** -- search INBOX and Archive for what completion would have
+   produced: a payment confirmation, receipt, signed copy, "welcome" mail. A
+   reminder repeated after the one in hand is evidence it is NOT done.
+3. **Staleness** -- a due date long past with no follow-up or dunning usually
+   means paid. Say so as an inference, do not assert it.
+4. **Ask** -- for anything settled outside email (bank transfer, portal login,
+   security key enrolment, calendar entry). Cheaper than a wrong claim.
+
+Report the evidence, not just the verdict: "no reply in Sent since 21.09" beats
+"still open". When nothing is checkable, say "unverified" -- never silently
+promote an unchecked item to the list.
 
 ## Multi-labeling
 
@@ -257,8 +284,11 @@ Always apply all relevant labels. Common combos:
 - When proposing a plan, show **every email** with UID, sender, and subject
 - Exception: when one sender produces dozens of near-identical messages, present
   them grouped (what it is, count, UID range). Everything else stays itemised.
-- Surface deadlines from kept mail as one dated list -- due dates, expiring
-  links, appointments. That list is the point of the triage.
+- The action list is a table: deadline, sender, what must be done, and how it
+  was verified as still open. Sort by deadline, overdue first. An item with no
+  verification column is not finished work.
+- Items that verified as done get one closing line each ("already answered
+  23.09, archived") so the check is visible and not repeated next round.
 - Ask, don't assume, when the right action depends on state you cannot see:
   whether an appointment is in the calendar, whether a bill was paid, whether a
   task was done outside email.
