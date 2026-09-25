@@ -176,6 +176,10 @@ in
       }
     ];
 
+    # infrastructure has no deploy role — tofu is applied by hand, per module —
+    # but it is worked on continuously, so keep its main session standing.
+    my.herdr.mainSessions = [ "infrastructure" ];
+
     programs.git.settings = {
       commit.gpgsign = true;
       gpg.format = "ssh";

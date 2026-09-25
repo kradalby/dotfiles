@@ -21,6 +21,7 @@ let
   # non-setuid store symlink in /run/current-system/sw/bin and refuses to run.
   linuxPath = "/run/wrappers/bin:${config.home.profileDirectory}/bin:/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin:/usr/bin:/bin";
   darwinPath = "${config.home.profileDirectory}/bin:/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin";
+  declaredSessions = config.my.herdr.permagents != [ ] || config.my.herdr.mainSessions != [ ];
 in
 {
   options.my.herdr.permagents = lib.mkOption {
@@ -46,6 +47,18 @@ in
       Each becomes one workspace named "<repo>:<role>", reconciled once after
       the server starts. Empty by default: only the machine you actually deploy
       from wants these, and a host that merely runs herdr must not spawn them.
+    '';
+  };
+
+  options.my.herdr.mainSessions = lib.mkOption {
+    type = lib.types.listOf lib.types.str;
+    default = [ ];
+    description = ''
+      Repositories that should always have a "<repo>:main" coding session,
+      reconciled beside the permagents. Unlike a permagent this is an ordinary
+      session on the main worktree with the default agent set — no role, no
+      briefing — so a repo worked on continuously is there after a restart
+      without anyone opening it.
     '';
   };
 
@@ -109,13 +122,13 @@ in
       );
     }
 
-    (lib.mkIf (config.my.herdr.permagents != [ ]) {
+    (lib.mkIf declaredSessions {
       # The reconcile below is a systemd user unit, so a darwin host would
-      # accept the option and silently spawn nothing.
+      # accept the options and silently spawn nothing.
       assertions = [
         {
           assertion = pkgs.stdenv.hostPlatform.isLinux;
-          message = "my.herdr.permagents is Linux-only (systemd user unit)";
+          message = "my.herdr.permagents/mainSessions are Linux-only (systemd user unit)";
         }
       ];
     })
@@ -153,9 +166,9 @@ in
       # has to do is notice a missing workspace and create it. `ac permagent
       # ensure` is idempotent, so re-running it on every login is a no-op.
       # `|| true` per entry: one repo missing from disk must not stop the rest.
-      systemd.user.services.herdr-permagents = lib.mkIf (config.my.herdr.permagents != [ ]) {
+      systemd.user.services.herdr-permagents = lib.mkIf declaredSessions {
         Unit = {
-          Description = "herdr — ensure declared role sessions exist";
+          Description = "herdr — ensure declared sessions exist";
           After = [ "herdr.service" ];
           Requires = [ "herdr.service" ];
         };
@@ -163,9 +176,14 @@ in
           Type = "oneshot";
           RemainAfterExit = true;
           ExecStart = pkgs.writeShellScript "herdr-permagents" (
-            lib.concatMapStringsSep "\n" (
-              a: "${ac} permagent ensure ${lib.escapeShellArg a.repo} ${lib.escapeShellArg a.role} || true"
-            ) config.my.herdr.permagents
+            lib.concatStringsSep "\n" (
+              map (
+                a: "${ac} permagent ensure ${lib.escapeShellArg a.repo} ${lib.escapeShellArg a.role} || true"
+              ) config.my.herdr.permagents
+              # `ac spawn` is the headless, idempotent path: it prints
+              # "already running" and exits 0 when the session is there.
+              ++ map (r: "${ac} spawn ${lib.escapeShellArg r} || true") config.my.herdr.mainSessions
+            )
           );
           Environment = [
             "PATH=${linuxPath}"
