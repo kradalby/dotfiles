@@ -36,6 +36,13 @@ in
     settings = {
       connect-timeout = 5;
       fallback = true;
+      # Disk-pressure GC. The weekly nix.gc timer below cannot hold a box that
+      # builds between runs; the daemon collecting the moment free space drops
+      # is what actually keeps a disk off zero. mkDefault because a host whose
+      # store is a cache (gigabuilder) must never self-collect, and hosts that
+      # build a full closure need thresholds above that closure's size.
+      min-free = lib.mkDefault (5 * 1024 * 1024 * 1024);
+      max-free = lib.mkDefault (20 * 1024 * 1024 * 1024);
       # accept-flake-config deliberately unset (defaults false): with it on,
       # any `nix build/run` of a third-party flake auto-applies that flake's
       # nixConfig — extra-substituters + post-build-hook — i.e. arbitrary code

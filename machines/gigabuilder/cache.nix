@@ -10,6 +10,10 @@
   # gcroots — the fleet's time-based nix-collect-garbage would wipe them. Let
   # tsnixcache's disk-pressure GC (below) be the sole collector instead.
   nix.gc.automatic = lib.mkForce false;
+  # Same reason: the fleet's disk-pressure GC would evict cache contents the
+  # moment a big build tightens the disk. 0 disables it.
+  nix.settings.min-free = 0;
+  nix.settings.max-free = 0;
 
   # Without the fleet GC, old system generations stay pinned as gcroots forever.
   # Unroot ones older than 30d (no store collection — tsnixcache reclaims later).
