@@ -217,6 +217,21 @@ in
     trusted-public-keys = [
       "nixos-raspberrypi.cachix.org-1:4iMO9LXa8BqhU+Rpg6LQKiGa2lsNh/j2oiYLNOQ5sPI="
     ];
+
+    # Above the fleet default: many concurrent agent builds can consume the
+    # gap between the two thresholds faster than the daemon collects, and a
+    # collection that fires mid-build fails it ("failed to obtain
+    # derivation"), so both must clear a full closure rebuild.
+    min-free = 30 * 1024 * 1024 * 1024;
+    max-free = 100 * 1024 * 1024 * 1024;
+
+    # Defaults are cores = 0 and max-jobs = auto: one derivation may claim all
+    # 16 cores and 16 may run at once. That is memory demand nothing on the
+    # dispatch side can restrain, and it lands on the one box that is also an
+    # interactive workstation running the agent herd. 4 x 4 fits the core count
+    # with the herd's panes still schedulable.
+    cores = 4;
+    max-jobs = 4;
   };
 
   # Builders inherit this, so they get OOM-killed before the herd's panes (100).
