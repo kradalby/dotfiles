@@ -178,7 +178,7 @@
     # Agent multiplexer (tmux replacement for `ac`). Do NOT `follows` its
     # rust-overlay — the package is built against the toolchain herdr pins.
     herdr = {
-      url = "github:herdrdev/herdr/v0.9.0";
+      url = "github:herdrdev/herdr/v0.9.1";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
@@ -204,10 +204,10 @@
       ...
     }@inputs:
     let
-      # Single Go for the whole fleet: go_latest from nixpkgs-unstable, which
-      # is 1.27. Stable cannot serve this — its newest is 1.26.6 and its
-      # go_1_27 is an rc, and an rc sorts below the `go 1.27.0` that headscale,
-      # tsnixcache and hugin now require. Bump by moving nixpkgs-unstable.
+      # Single Go for the whole fleet: `go_latest` from nixpkgs-unstable, the
+      # only channel whose default Go tracks the newest release — stable holds
+      # its `go_latest` back a major, below what headscale, tsnixcache and hugin
+      # require in go.mod. Bump by moving nixpkgs-unstable.
       goLatest =
         system:
         (import inputs.nixpkgs-unstable {
@@ -224,11 +224,11 @@
 
       # Fallout from building all of nixpkgs' Go with our toolchain rather than
       # the one each package pinned. Must sit after goOverlay so `prev` is
-      # already the 1.27 build.
+      # already the fleet toolchain.
       goFixupsOverlay = _final: prev: {
-        # golink hardcodes pkgs.buildGo126Module, and unstable's go_1_26 is
-        # 1.26.5 — below golink's own go.mod floor of 1.26.6, so its flake
-        # package cannot build here at all. Rebuild it on the fleet toolchain.
+        # golink's own flake pins an older buildGoNNNModule and imports nixpkgs
+        # without overlays, so goOverlay cannot reach it. Rebuild it here to keep
+        # it on the fleet toolchain.
         golink = prev.buildGoModule {
           pname = "golink";
           version = inputs.golink.shortRev or "dev";
