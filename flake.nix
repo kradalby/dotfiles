@@ -117,10 +117,10 @@
       inputs."flake-utils".follows = "flake-utils";
     };
 
-    # setec-compatible secrets server, pinned to the `initial` branch. Follows
-    # nixpkgs-unstable so its go build tracks our toolchain.
+    # setec-compatible secrets server. Follows nixpkgs-unstable so its go build
+    # tracks our toolchain.
     ts1p = {
-      url = "github:kradalby/ts1p/initial";
+      url = "github:kradalby/ts1p/main";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 

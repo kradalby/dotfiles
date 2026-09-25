@@ -230,11 +230,11 @@
         "treefmt-nix": "treefmt-nix_15"
       },
       "locked": {
-        "lastModified": 1782156198,
-        "narHash": "sha256-5kjDR1ERT4iG/Jxe7sAM5HUyHBcsTooOzbi30StR2A8=",
+        "lastModified": 1787683770,
+        "narHash": "sha256-WwI0OlV4HNYQeueDlG3e5+9oVhCbBMIo9z5jxV+h/Gk=",
         "owner": "kradalby",
         "repo": "flake-checks",
-        "rev": "7e9a726c1e7557f58190997b1ebb97911c3c7d6d",
+        "rev": "dfdfa98cf72002576c91c7cbb75ed43c1061237a",
         "type": "github"
       },
       "original": {
@@ -2334,16 +2334,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1784230996,
-        "narHash": "sha256-/MctTdwFGSso9Sf9LLyrBLpLuGwjHtWI14Pp8XHXEmo=",
+        "lastModified": 1787720734,
+        "narHash": "sha256-yZ+j2lVIdMNwgCJP4XZHISYv9ke3nMrq56iGGt3JBbo=",
         "owner": "kradalby",
         "repo": "ts1p",
-        "rev": "8a5b5c23de58c1bdffca561598d6eeabbc04e194",
+        "rev": "ead375ac662fe6aa32ba502e87e1193ab49803ee",
         "type": "github"
       },
       "original": {
         "owner": "kradalby",
-        "ref": "initial",
+        "ref": "main",
         "repo": "ts1p",
         "type": "github"
       }
