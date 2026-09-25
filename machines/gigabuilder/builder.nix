@@ -27,12 +27,15 @@
   # Bound what the builds themselves can take. Defaults are cores = 0 and
   # max-jobs = auto, which on this box means each derivation gets all 32 CPUs
   # and up to 32 run at once — memory demand no dispatch-side limit can restrain,
-  # which is why capping garnix's build pool did not stop the OOM. 6 x 4 fits the
-  # 28 cores CPUAffinity actually permits and matches the pool size garnix
-  # dispatches with (machines/garnix/default.nix); change them together.
+  # which is why capping garnix's build pool did not stop the OOM. The product
+  # must fit the 28 cores CPUAffinity permits, and max-jobs must match the pool
+  # size garnix dispatches with (machines/garnix/default.nix) or the extra
+  # dispatch just queues here; change them together. Concurrency is worth more
+  # than per-build parallelism because most derivations stall on fetches and
+  # single-threaded phases long before they saturate 4 cores.
   nix.settings = {
-    cores = 4;
-    max-jobs = 6;
+    cores = 3;
+    max-jobs = 9;
   };
 
   # Margin, not mechanism. The shield below is what moves the guest down the

@@ -167,8 +167,9 @@ in
         # gigabuilder, and incus.service has no memory reservation, so enough
         # concurrent heavy links (nodejs/V8, qemu) exhaust the host and the OOM
         # killer takes the largest cgroup, which is the qemu process running
-        # this VM: the builder kills its own coordinator. 6 leaves headroom.
-        maxJobs = 6;
+        # this VM: the builder kills its own coordinator. Raise only while
+        # gigabuilder's oom_kill counter stays flat.
+        maxJobs = 9;
         speedFactor = 4;
         supportedFeatures = [
           "big-parallel"
@@ -225,10 +226,10 @@ in
     # Cap concurrent `nix build` dispatch (fork feature). Previously unbounded —
     # every attribute of a flake fired `nix build` at once, oversubscribing the
     # builder and (because the build timeout wrapped the queue wait) making
-    # backlogged builds spuriously time out. 8 ≈ gigabuilder's 28 build cores /
-    # 4 cores-per-job; the maxJobs below is kept in step. Builds beyond 8 queue
-    # untimed rather than starving.
-    GARNIX_NIX_BUILD_POOL_SIZE = "6";
+    # backlogged builds spuriously time out. Bounded by gigabuilder's 28 build
+    # cores at 4 cores-per-job; the maxJobs below is kept in step. Builds beyond
+    # the pool queue untimed rather than starving.
+    GARNIX_NIX_BUILD_POOL_SIZE = "9";
     # Owner allowlist (fork feature): upstream gates only by denylist, so an
     # internet-facing App builds for anyone who installs it. Unset ⇒ allow all.
     GARNIX_ALLOWED_OWNERS = "kradalby,juanfont";
