@@ -24,7 +24,7 @@ runs:
     # Must precede nix: tsnixcache is tailnet-only, so the node has to be on the
     # tailnet before nix.conf names it. tag:github-builder carries the push grant.
     - name: Join tailnet
-      uses: tailscale/github-action@780049a30b6ff5c378a9e7b389d15ece7a204888 # v4.1.3
+      uses: tailscale/github-action@d1b6cd204f8dceda5b3eaad7f1f767be390056cd # v4.2.0
       with:
         oauth-client-id: ${{ inputs.ts-oauth-client-id }}
         oauth-secret: ${{ inputs.ts-oauth-secret }}
@@ -48,7 +48,7 @@ runs:
     # separately, so `version` must move with it. Filter keeps cache.nixos.org
     # paths out of the 10 GB repo-wide quota.
     - name: Setup Nix cache
-      uses: Mic92/hestia@f1f4df2801140a36398ed423533c8460618539df # v3.0.1
+      uses: Mic92/hestia@69707ea4f233a235c599e3ffedd98955b9d1d6ff # v3.1.0
       with:
         version: v3.0.1
         upstream-cache-filter: "true"
