@@ -23,10 +23,18 @@
     ];
   };
 
+  # Raising a guest's incus disk size does nothing on its own: sda2 is the last
+  # partition and stays where it is. These two make the guest claim the new
+  # space itself at boot, so growing a VM is one number in infrastructure/incus
+  # plus a reboot, with no partition surgery on a live root. No-op when the
+  # partition already fills the disk.
+  boot.growPartition = true;
+
   fileSystems = {
     "/" = {
       device = "/dev/sda2";
       fsType = "ext4";
+      autoResize = true;
     };
 
     "/boot" = {
