@@ -115,7 +115,7 @@ that claim from the inbox message alone -- it says what was asked, never whether
 it was answered. Check each one, cheapest signal first:
 
 1. **Sent, per thread** -- not the bulk scan. `pm-cli mail search '<counterparty
-   or subject term>' -m Sent --since <date of inbox message>`. A Sent message
+or subject term>' -m Sent --since <date of inbox message>`. A Sent message
    newer than the inbox message means the ball is with the other party: archive.
    Read the reply: a partial answer ("I'll send the rest in January") is still
    the other party's move.
