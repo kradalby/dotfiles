@@ -315,9 +315,11 @@ in
 
   # postgres_exporter for pg_up (catches the #1 documented outage: disk fills →
   # postgres crashes into recovery → every API 500). common/postgres.nix is NOT
-  # imported deliberately — it would force postgresql_14 (this VM pins _18 for the
-  # garnix migrations), flip on enableTCPIP, and enable postgresqlBackup (the VM
-  # is disposable, durable copies live on gigabuilder). Mirror just its exporter.
+  # imported deliberately — it pins its own postgresql major (this VM needs _18 for
+  # the garnix migrations) and flips on enableTCPIP. Mirror just its exporter.
+  # Nothing backs this database up, here or on gigabuilder: it holds CI history
+  # plus a few access tokens, and a lost token is re-minted. Dump it by hand
+  # before anything that migrates the schema.
   # runAsLocalSuperUser connects over the local socket, which the trust auth above
   # accepts.
   services.prometheus.exporters.postgres = {
