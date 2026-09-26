@@ -187,6 +187,30 @@ in
     };
 
     my.agents.extraInstructions = builtins.readFile ./agents.md;
+
+    # Go trims its build cache at 5 days with no size cap, and every worktree
+    # the herd builds adds its own entries, so it outgrows the disk. Go
+    # refreshes an entry's mtime on use, so age by mtime is safe mid-build.
+    systemd.user.services.go-build-trim = {
+      Unit = {
+        Description = "Trim Go build cache entries unused for a day";
+        ConditionPathIsDirectory = "%h/.cache/go-build";
+      };
+      Service = {
+        Type = "oneshot";
+        ExecStart = "${pkgs.findutils}/bin/find %h/.cache/go-build -type f -mmin +1440 -delete";
+        Nice = 19;
+        IOSchedulingClass = "idle";
+      };
+    };
+    systemd.user.timers.go-build-trim = {
+      Unit.Description = "Daily Go build cache trim";
+      Timer = {
+        OnCalendar = "daily";
+        Persistent = true;
+      };
+      Install.WantedBy = [ "timers.target" ];
+    };
   };
 
   security.sudo.extraRules = [
