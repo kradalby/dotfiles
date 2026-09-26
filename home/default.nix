@@ -38,6 +38,7 @@ in
     ../modules/claude-code
 
     ./mutable-json.nix
+    ./mcp.nix
 
     ../pkgs/home-packages.nix
   ];

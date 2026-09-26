@@ -6,7 +6,19 @@
 # JSON via builtins.toJSON and writes them into home.file entries;
 # machine configs can lib.mkForce those entries to substitute their
 # own merged version.
+let
+  # Served by home.ldn (machines/home.ldn/picnic-mcp.nix). http: the VIP does
+  # not terminate TLS.
+  picnicMcp = "http://picnic-mcp.dalby.ts.net/mcp";
+in
 {
+  # Claude Code ignores mcpServers in settings.json; it reads user-scope
+  # servers from ~/.claude.json, which home/mcp.nix merges these into.
+  claudeMcpServers.picnic = {
+    type = "http";
+    url = picnicMcp;
+  };
+
   claude = {
     permissions = {
       allow = [ ];
@@ -172,6 +184,11 @@
         );
       };
 
+    mcp.picnic = {
+      type = "remote";
+      url = picnicMcp;
+    };
+
     permission = {
       # Allow reading from common project/build directories.
       external_directory = {
@@ -207,6 +224,7 @@
   codex = {
     sandbox_mode = "danger-full-access";
     features.hooks = true;
+    mcp_servers.picnic.url = picnicMcp;
   };
 
   # ~/.codex/hooks.json — the single hook layer. herdr merges its own
