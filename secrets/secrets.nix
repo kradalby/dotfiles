@@ -126,6 +126,7 @@ with builtins;
 
   # nefit-homekit
   "nefit-homekit-env.age".publicKeys = u ++ [ hosts.home-ldn ];
+  "picnic-mcp-env.age".publicKeys = u ++ [ hosts.home-ldn ];
 
   # ts1p (setec) — OP_SERVICE_ACCOUNT_TOKEN (+ optional TS_AUTHKEY) EnvironmentFile
   "ts1p-op-token.age".publicKeys = u ++ [ hosts.ts1p-ldn ];

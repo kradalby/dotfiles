@@ -648,7 +648,10 @@ in
         }
         {
           target = "home-ldn";
-          targets = [ "http://owntone.dalby.ts.net" ];
+          targets = [
+            "http://owntone.dalby.ts.net"
+            "http://picnic-mcp.dalby.ts.net/health"
+          ];
         }
         {
           target = "core-tjoda";

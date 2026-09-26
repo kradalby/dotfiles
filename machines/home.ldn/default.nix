@@ -22,6 +22,7 @@
     ./tasmota-homekit.nix
     ./z2m-homekit.nix
     ./owntone.nix
+    ./picnic-mcp.nix
   ];
 
   # Merges with the tag:server baseline from incus-vm-ldn.nix. tag:homeauto
