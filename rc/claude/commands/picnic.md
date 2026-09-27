@@ -4,6 +4,13 @@ description: Picnic grocery shopping — restock from history, clean-ingredient 
 
 Manage the Picnic cart via the `mcp__picnic__*` tools. Never check out or pick a delivery slot unless asked.
 
+## Household
+
+Two people. Mostly vegetarian. Quick (≤30 min), simple, clean; mix rich and fresh.
+- Base: beans (favourite), potato, pasta.
+- Protein: prefer high-protein recipes; suggest boosts (extra beans/lentils, eggs, cottage cheese, Greek yoghurt).
+- Avoid: goat cheese, walnuts, beets. Skip recipes that need them; never suggest them in restock, even if they appear in order history.
+
 ## Workflow
 
 1. **Cart**: `picnic_get_cart`. Flag sold-out lines (unit price `99999`, line price `0`) and duplicate lines of the same product.
@@ -23,6 +30,16 @@ Priority, in order:
 3. **Price**: when ingredients and quality are the same, the cheapest per kg wins. The brand does not matter (house brand or named brand).
 
 If only ultra-processed options exist, do not pick silently — ask, showing the ingredient difference. Stay pragmatic: a single benign additive (e.g. lactic acid in cheese) is fine.
+
+## Recipes
+
+Order history does not record recipes; use the cookbook (`picnic_get_saved_recipes`) and browse.
+
+1. **Find**: `picnic_browse_recipes` with categories `recipe_cattree_vega` and `recipe_cattree_20minuten`; prefer recipes in both. Always give the link `https://picnic.app/nl/recepten/<id>`.
+2. **Check**: `picnic_get_recipe` for time and ingredients. Apply the product rules above to each ingredient. Propose a clean swap (e.g. liquid stock for a stock cube, own spices for a spice mix); drop recipes that need too many swaps.
+3. **Group** proposals as fresh / rich. Prefer recipes that use staples from order history.
+4. **Save**: ask with a checklist, then `picnic_save_recipe` / `picnic_unsave_recipe`.
+5. **Shop**: do not use `picnic_add_recipe_to_cart` blindly. Get ingredients (`picnic_get_multiple_recipe_ingredients`), scale to 2 portions, merge across recipes and the current cart, and buy the largest sensible pack (one 1 L milk, not two 500 ml). Skip items already in the cart or pantry. Ask with a checklist before adding.
 
 ## Gotchas
 
