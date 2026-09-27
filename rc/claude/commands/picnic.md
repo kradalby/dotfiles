@@ -31,6 +31,8 @@ Priority, in order:
 
 If only ultra-processed options exist, do not pick silently — ask, showing the ingredient difference. Stay pragmatic: a single benign additive (e.g. lactic acid in cheese) is fine.
 
+**Non-food** (cleaning, household): the clean rule does not apply; effective chemicals are wanted. Pick what does the job, then cheapest per litre/unit. Prefer spray bottles over refill bottles for cleaners.
+
 ## Recipes
 
 Order history does not record recipes; use the cookbook (`picnic_get_saved_recipes`) and browse.
