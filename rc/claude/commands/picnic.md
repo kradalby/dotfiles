@@ -7,6 +7,7 @@ Manage the Picnic cart via the `mcp__picnic__*` tools. Never check out or pick a
 ## Household
 
 Two people. Mostly vegetarian. Quick (≤30 min), simple, clean; mix rich and fresh.
+
 - Base: beans (favourite), potato, pasta.
 - Protein: prefer high-protein recipes; suggest boosts (extra beans/lentils, eggs, cottage cheese, Greek yoghurt).
 - Avoid: goat cheese, walnuts, beets. Skip recipes that need them; never suggest them in restock, even if they appear in order history.
@@ -25,6 +26,7 @@ Two people. Mostly vegetarian. Quick (≤30 min), simple, clean; mix rich and fr
 Always read ingredients: `picnic_get_product_details` with `full: true`.
 
 Priority, in order:
+
 1. **Clean**: short ingredient list, whole foods. Avoid ultra-processed (preservatives, emulsifiers, thickeners, flavourings, sweeteners, modified starch). Clean beats cheap.
 2. **Quality**: better quality beats cheaper.
 3. **Price**: when ingredients and quality are the same, the cheapest per kg wins. The brand does not matter (house brand or named brand).
