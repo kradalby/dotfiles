@@ -65,6 +65,7 @@ in
 
     interactiveShellInit = ''
       source ${../pkgs/scripts/wt.fish}
+      source ${../pkgs/scripts/llmpush.fish}
     '';
 
     shellAliases = {
