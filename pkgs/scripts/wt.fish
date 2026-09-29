@@ -65,7 +65,7 @@ function wt --description "Git worktree helper with organized directory structur
                 echo "Error: Branch name required. Usage: wt remove <branch>" >&2
                 return 1
             end
-            __wt_remove $args[1]
+            __wt_remove $WORKTREE_ROOT $args[1]
 
         case prune
             git worktree prune
@@ -118,6 +118,16 @@ function __wt_land --argument-names dir
     end
 end
 
+# __wt_existing prints the worktree holding branch, if any.
+function __wt_existing --argument-names worktree_root branch
+    set -l existing (git worktree list | grep -F "[$branch]" | awk '{print $1}')
+    # A branch mid-rebase lists as detached HEAD; fall back to its canonical path.
+    if test -z "$existing"; and test -e "$worktree_root/$branch/.git"
+        set existing "$worktree_root/$branch"
+    end
+    echo $existing
+end
+
 function __wt_get_default_base
     set -l base (git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@')
     test -n "$base" && echo $base || echo main
@@ -128,8 +138,7 @@ function __wt_checkout
     set -l branch $argv[2]
     set -l path "$worktree_root/$branch"
 
-    # Check if worktree already exists
-    set -l existing (git worktree list | grep "\[$branch\]" | awk '{print $1}')
+    set -l existing (__wt_existing $worktree_root $branch)
     if test -n "$existing"
         echo "Worktree already exists: $existing"
         __wt_land "$existing"
@@ -139,7 +148,7 @@ function __wt_checkout
     # Check if branch exists
     if git show-ref --verify --quiet "refs/heads/$branch"; or git show-ref --verify --quiet "refs/remotes/origin/$branch"
         mkdir -p (dirname "$path")
-        git worktree add "$path" "$branch"
+        git worktree add "$path" "$branch"; or return 1
         echo "Worktree created at: $path"
         __wt_land "$path"
     else
@@ -155,8 +164,7 @@ function __wt_create
     set -l base (test (count $argv) -ge 3 && echo $argv[3] || __wt_get_default_base)
     set -l path "$worktree_root/$branch"
 
-    # Check if worktree already exists
-    set -l existing (git worktree list | grep "\[$branch\]" | awk '{print $1}')
+    set -l existing (__wt_existing $worktree_root $branch)
     if test -n "$existing"
         echo "Worktree already exists: $existing"
         __wt_land "$existing"
@@ -164,7 +172,7 @@ function __wt_create
     end
 
     mkdir -p (dirname "$path")
-    git worktree add "$path" -b "$branch" "$base"
+    git worktree add "$path" -b "$branch" "$base"; or return 1
     echo "Worktree created at: $path"
     __wt_land "$path"
 end
@@ -193,8 +201,7 @@ function __wt_pr
     set -l branch "pr-$pr_number"
     set -l path "$worktree_root/$branch"
 
-    # Check if worktree already exists
-    set -l existing (git worktree list | grep "\[$branch\]" | awk '{print $1}')
+    set -l existing (__wt_existing $worktree_root $branch)
     if test -n "$existing"
         echo "Worktree already exists: $existing"
         __wt_land "$existing"
@@ -211,14 +218,15 @@ function __wt_pr
     # Fetch the PR head commit and create a local branch
     git fetch origin $pr_head
     mkdir -p (dirname "$path")
-    git worktree add "$path" -b "$branch" $pr_head
+    git worktree add "$path" -b "$branch" $pr_head; or return 1
     echo "PR #$pr_number checked out at: $path"
     __wt_land "$path"
 end
 
 function __wt_remove
-    set -l branch $argv[1]
-    set -l existing (git worktree list | grep "\[$branch\]" | awk '{print $1}')
+    set -l worktree_root $argv[1]
+    set -l branch $argv[2]
+    set -l existing (__wt_existing $worktree_root $branch)
     if test -z "$existing"
         echo "Error: No worktree found for branch: $branch" >&2
         return 1
