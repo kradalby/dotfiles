@@ -74,24 +74,50 @@ and ok "branch arg inside repo fast-forwards origin"
 or bad "update push (rc=$rc)"
 test "$PWD" = $laptop; and ok "cwd restored"; or bad "cwd is $PWD"
 
-# laptop-side commit + llm rewrite: pull --rebase conflicts
-set -l before (sha $tmp/origin.git kradalby/feat)
-echo laptop >$wtdir/g
-git -C $wtdir commit -qam laptop
 echo TWO >$tmp/llm/g
 git -C $tmp/llm commit -q --amend -am two-rewritten
 llmpush repo kradalby/feat >$log 2>&1
 set rc $status
-test $rc -ne 0 -a "$(sha $tmp/origin.git kradalby/feat)" = "$before"
-and test -d (git -C $wtdir rev-parse --path-format=absolute --git-path rebase-merge)
-and ok "diverged without -f fails, origin untouched, rebase left for inspection"
-or bad "diverged without -f (rc=$rc)"
+test $rc -eq 0 -a "$(sha $tmp/origin.git kradalby/feat)" = "$(sha $tmp/llm HEAD)"
+and ok "llm rewrite mirrored without -f"
+or bad "llm rewrite (rc=$rc)"
 
-llmpush -f repo kradalby/feat >$log 2>&1
+# someone else pushes to origin; this clone never fetched it
+git -C $tmp/seed fetch -q origin
+git -C $tmp/seed checkout -q kradalby/feat
+echo other >$tmp/seed/h
+git -C $tmp/seed add h
+git -C $tmp/seed commit -qm other
+git -C $tmp/seed push -q origin kradalby/feat
+set -l before (sha $tmp/origin.git kradalby/feat)
+llmpush repo kradalby/feat >$log 2>&1
+set rc $status
+test $rc -ne 0 -a "$(sha $tmp/origin.git kradalby/feat)" = "$before"
+and ok "lease refuses to drop unseen origin commits"
+or bad "lease (rc=$rc)"
+git -C $laptop fetch -q origin
+
+# stuck rebase in the worktree, as left by a conflicting pull
+echo three >$tmp/llm/g
+git -C $tmp/llm commit -qam three
+git -C $laptop fetch -q llm
+echo laptop >$wtdir/g
+git -C $wtdir commit -qam laptop
+git -C $wtdir rebase -q llm/kradalby/feat >/dev/null 2>&1
+cd $wtdir
+llmpush >$log 2>&1
+set rc $status
+test $rc -ne 0 -a "$(sha $tmp/origin.git kradalby/feat)" = "$before"
+and grep -q "rebase in progress" $log
+and ok "no args mid-rebase finds branch, refuses without -f"
+or bad "mid-rebase without -f (rc=$rc)"
+
+llmpush -f >$log 2>&1
 set rc $status
 test $rc -eq 0 -a "$(sha $tmp/origin.git kradalby/feat)" = "$(sha $tmp/llm HEAD)"
-and ok "-f aborts rebase, resets and force-pushes"
+and ok "-f aborts rebase and mirrors"
 or bad "-f (rc=$rc)"
+test "$PWD" = $wtdir; and ok "cwd restored"; or bad "cwd is $PWD"
 
 set before (sha $tmp/origin.git kradalby/feat)
 echo dirty >$wtdir/g

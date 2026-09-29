@@ -3,7 +3,8 @@
 function llmpush --description "Pull a branch from the llm box and push it to origin"
     argparse f/force -- $argv; or return 1
 
-    set -l usage "Usage: llmpush [-f] <repo> <branch>  |  llmpush [-f] [branch] (inside a repo)"
+    set -l usage "Usage: llmpush [-f] <repo> <branch>  |  llmpush [-f] [branch] (inside a repo)" \
+        "  -f  abort an in-progress rebase/merge first"
     set -l dir
     set -l branch
     switch (count $argv)
@@ -20,20 +21,20 @@ function llmpush --description "Pull a branch from the llm box and push it to or
             set dir (git worktree list --porcelain 2>/dev/null | awk '/^worktree / {print substr($0, 10); exit}')
             if test -z "$dir"
                 echo "Error: not in a git repository" >&2
-                echo $usage >&2
+                printf '%s\n' $usage >&2
                 return 1
             end
             if test (count $argv) -eq 1
                 set branch $argv[1]
             else
-                set branch (git symbolic-ref --quiet --short HEAD)
+                set branch (__llmpush_current_branch)
                 or begin
                     echo "Error: detached HEAD; name a branch" >&2
                     return 1
                 end
             end
         case '*'
-            echo $usage >&2
+            printf '%s\n' $usage >&2
             return 1
     end
 
@@ -65,8 +66,6 @@ function __llmpush_run --argument-names repo branch force
     end
     git fetch llm $branch; or return 1
 
-    # Branching from llm/<branch>, not main: a main-based branch pulled with
-    # --rebase would replay main's newer commits onto the pushed branch.
     if git show-ref --verify --quiet "refs/heads/$branch"
         wt checkout $branch
     else
@@ -95,7 +94,7 @@ function __llmpush_run --argument-names repo branch force
         return 1
     end
 
-    # Untracked files survive both pull and reset; only tracked edits are at risk.
+    # Untracked files survive the reset; only tracked edits are at risk.
     set -l dirty (git status --porcelain --untracked-files=no)
     if test -n "$dirty"
         echo "Error: uncommitted changes in $PWD:" >&2
@@ -103,9 +102,20 @@ function __llmpush_run --argument-names repo branch force
         return 1
     end
 
-    if test -n "$force"
-        git reset --hard llm/$branch; and git push --force-with-lease -u origin $branch
-    else
-        git pull --rebase llm $branch; and git push -u origin $branch
+    # llm owns the branch and rewrites it freely, so mirror rather than pull.
+    # The lease still refuses when origin has commits this clone never fetched.
+    git reset --hard llm/$branch; and git push --force-with-lease -u origin $branch
+end
+
+# Mid-rebase HEAD is detached; the branch name lives in the rebase state.
+function __llmpush_current_branch
+    git symbolic-ref --quiet --short HEAD 2>/dev/null; and return
+    for state in rebase-merge rebase-apply
+        set -l head_name (git rev-parse --git-path $state/head-name)
+        if test -f "$head_name"
+            string replace -r '^refs/heads/' '' <$head_name
+            return
+        end
     end
+    return 1
 end
