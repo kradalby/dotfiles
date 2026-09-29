@@ -68,7 +68,7 @@ fetch_window() {
 }
 
 # Darwin launchd label. home-manager names agents org.nix-community.home.<name>.
-# ponytail: hardcoded HM prefix; if HM changes its label scheme this and the
+# Hardcoded HM prefix; if HM changes its label scheme this and the
 # plist path below must follow (the absent-instance self-test guards the basics).
 darwin_label() { echo "org.nix-community.home.claude-code-$1"; }
 

@@ -131,7 +131,7 @@ func repos() []repo {
 }
 
 // lastActive returns the committer time of HEAD in dir, or zero on error.
-// ponytail: HEAD commit date is the signal; a worktree freshly branched from an
+// HEAD commit date is the signal; a worktree freshly branched from an
 // old base sorts old. If that bites, switch to the worktree admin-dir mtime.
 func lastActive(dir string) time.Time {
 	out, err := output("git", "-C", dir, "log", "-1", "--format=%ct", "HEAD")

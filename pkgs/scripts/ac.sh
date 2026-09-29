@@ -248,7 +248,7 @@ ensure_trusted_codex() {
 
   # Appending is safe: TOML accepts tables in any order, and the guard keeps us
   # from writing a duplicate table (which would make the file unparseable).
-  # ponytail: last-writer-wins against codex's own rewrites, same exposure
+  # Last-writer-wins against codex's own rewrites, same exposure
   # ensure_trusted accepts for claude. Re-run fixes a lost append.
   grep -qF "[projects.\"$dir\"]" "$cfg" && return 0
   printf '\n[projects."%s"]\ntrust_level = "trusted"\n' "$dir" >>"$cfg"
@@ -357,7 +357,7 @@ find_workspace() {
 # agent_pane_of echoes the pane id of a workspace's primary agent — the one in
 # the lowest-numbered tab, which create_session puts first. Sorted so the focus
 # target is stable; `agent list` order is not.
-# ponytail: lexical sort on tab_id, so t10 would sort before t2. A session has
+# Lexical sort on tab_id, so t10 would sort before t2. A session has
 # one tab per agent plus a term tab; switch to a numeric key if that changes.
 agent_pane_of() {
   h agent list 2>/dev/null |

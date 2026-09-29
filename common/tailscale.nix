@@ -33,10 +33,9 @@ in
   };
 
   # Every userspace instance gets an outbound SOCKS5+HTTP proxy by default.
-  # ponytail: all plural instances share :1056 — fine because no host runs
-  # more than one today. A second userspace instance on one host trips the
-  # module's proxyListenAddress uniqueness assertion at build; give that one
-  # an explicit port then.
+  # All plural instances share :1056. A second userspace instance on one host
+  # trips the module's proxyListenAddress uniqueness assertion at build; give
+  # that one an explicit port.
   options.services.tailscales = lib.mkOption {
     type = lib.types.attrsOf (
       lib.types.submodule {

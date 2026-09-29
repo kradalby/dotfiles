@@ -46,7 +46,7 @@
       interface = config.my.wan;
     };
 
-    # ponytail: provider gave no nameserver; Cloudflare is the safe default.
+    # Provider gave no nameserver; Cloudflare is the safe default.
     # Swap if they hand you a resolver.
     nameservers = [
       "1.1.1.1"

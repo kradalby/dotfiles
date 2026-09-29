@@ -42,7 +42,7 @@ type platform struct {
 	credKey  string // ts1p secret name holding the OAuth client secret
 }
 
-// ponytail: confirm headscale tokenURL path + tailnet segment against the live
+// Confirm headscale tokenURL path + tailnet segment against the live
 // server (v2 OAuth is main-only, undocumented); fix here if they differ.
 var platforms = map[string]platform{
 	"kradalby": {
