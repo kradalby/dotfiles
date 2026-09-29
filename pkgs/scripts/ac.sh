@@ -23,6 +23,11 @@ HERDR_SESSION="${HERDR_SESSION:-ac}"
 # '/' and would read the role as a branch.
 ROLE=""
 
+# A branch session nests under its repo's parent row as "<branch> [al]", since
+# the parent already names the repo. vlabel puts the repo back so every parser
+# below reads one grammar, nested or not; herdr's own worktree groups parse too.
+VLABEL='def vlabel: if .worktree.is_linked_worktree then "\(.worktree.repo_name)/\(.label)" else .label end;'
+
 # --- helpers ---
 
 die() {
@@ -256,9 +261,11 @@ server_running() {
 }
 
 workspace_sort_request() {
-  jq -c '
+  # herdr indents a linked worktree only when it directly follows its parent,
+  # so main (or a bare repo row herdr made) must sort last before the branches.
+  jq -c "$VLABEL"'
     def sort_key:
-      (.label | sub(" \\[[^]]*\\]$"; "")) as $display
+      (vlabel | sub(" \\[[^]]*\\]$"; "")) as $display
       | ($display
         | capture("^(?<repo>[^:/]+)(?<separator>[:/])(?<suffix>.*)$")? //
           {repo: $display, separator: "", suffix: ""}) as $workspace
@@ -268,10 +275,9 @@ workspace_sort_request() {
           (if $repo == "dotfiles" then 0 else 1 end),
           $repo,
           (if $workspace.separator == ":" and $suffix == "deploy" then 0
-           elif $workspace.separator == ":" and $suffix == "main" then 1
-           elif $workspace.separator == ":" then 2
+           elif $workspace.separator == ":" and $suffix != "main" then 1
            elif $workspace.separator == "/" then 3
-           else 4
+           else 2
            end),
           $suffix,
           ($display | ascii_downcase),
@@ -332,17 +338,20 @@ ensure_server() {
   die "herdr server for session '$HERDR_SESSION' did not come up"
 }
 
-# find_workspace echoes the workspace_id whose session (repo/branch) matches,
-# or nothing. Match is on the display part of the label (agent-agnostic, so
-# `ac repo` and `ac -o repo` share one workspace — mirrors the old server name).
-find_workspace() {
-  local repo="$1" branch="$2" want
-  want="$(display "$repo" "$branch")"
+# workspace_by_display echoes the workspace_id whose display name (label minus
+# the agent tag) matches, or nothing. Agent-agnostic, so `ac repo` and
+# `ac -o repo` share one workspace — mirrors the old server name.
+workspace_by_display() {
   h workspace list 2>/dev/null |
-    jq -r --arg w "$want" '
+    jq -r --arg w "$1" "$VLABEL"'
 			.result.workspaces[]
-			| select((.label | sub(" \\[[^]]*\\]$"; "")) == $w)
+			| select((vlabel | sub(" \\[[^]]*\\]$"; "")) == $w)
 			| .workspace_id' | head -1
+}
+
+# find_workspace echoes the workspace_id of a repo/branch session, or nothing.
+find_workspace() {
+  workspace_by_display "$(display "$1" "$2")"
 }
 
 # agent_pane_of echoes the pane id of a workspace's primary agent — the one in
@@ -397,6 +406,28 @@ start_agent() {
   fi
 }
 
+# open_nested opens a branch checkout as a linked worktree space under the
+# repo's main space, so herdr indents it there, and echoes the workspace id.
+# Fails when there is no parent or the checkout is already open elsewhere; the
+# caller then falls back to a flat space.
+open_nested() {
+  local dir="$1" repo="$2" label="$3" parent resp
+  parent=$(find_workspace "$repo" "")
+  [[ -n "$parent" ]] || return 1
+  # herdr counts any space whose first pane sits in the checkout as its owner,
+  # and opening it again rewrites that space into a linked worktree (herdr#4293).
+  # Leave such a space alone.
+  if h worktree list --workspace "$parent" 2>/dev/null |
+    jq -e --arg p "$dir" '.result.worktrees[] | select(.path == $p and .open_workspace_id != null)' >/dev/null; then
+    return 1
+  fi
+  # --workspace, not --cwd: the parent carries no git provenance until its first
+  # open, and --cwd could make herdr invent a second, bare parent row.
+  resp=$(h worktree open --workspace "$parent" --path "$dir" --label "$label" --no-focus 2>/dev/null) ||
+    return 1
+  jq -er '.result | select(.already_open == false) | .workspace.workspace_id' <<<"$resp"
+}
+
 create_session() {
   # Create the workspace for a repo/branch: one tab per agent, then a terminal
   # tab. Echoes the first agent's pane id (the stable focus target; see
@@ -405,7 +436,7 @@ create_session() {
   shift 3
   local agents=("$@")
 
-  local label disp resp wid root first=""
+  local label disp resp wid="" root first=""
   disp="$(display "$repo" "$branch")"
   label="$(make_label "$repo" "$branch" "${agents[@]}")"
 
@@ -414,9 +445,20 @@ create_session() {
   # own root pane is tab 1, so the first agent lands there with no split at all.
   # --no-focus throughout so a headless spawn doesn't steal the attached
   # client's view.
-  resp=$(h workspace create --cwd "$dir" --label "$label" --no-focus)
-  wid=$(jq -r '.result.workspace.workspace_id // empty' <<<"$resp")
-  root=$(jq -r '.result.root_pane.pane_id // empty' <<<"$resp")
+  if [[ -n "$branch" ]]; then
+    if wid=$(open_nested "$dir" "$repo" "${label#"$repo/"}"); then
+      # worktree open returns no root pane; a fresh space has exactly one.
+      root=$(h pane list --workspace "$wid" | jq -r '.result.panes[0].pane_id // empty')
+    else
+      wid=""
+      echo "warning: could not nest $disp under $(display "$repo" ""); opening it flat" >&2
+    fi
+  fi
+  if [[ -z "$wid" ]]; then
+    resp=$(h workspace create --cwd "$dir" --label "$label" --no-focus)
+    wid=$(jq -r '.result.workspace.workspace_id // empty' <<<"$resp")
+    root=$(jq -r '.result.root_pane.pane_id // empty' <<<"$resp")
+  fi
   [[ -n "$wid" && -n "$root" ]] || die "workspace create failed"
   sort_workspaces
 
@@ -654,7 +696,7 @@ cmd_list_porcelain() {
 
     printf '%s\t%s\t%s\t%s\t%s\t%s\n' "$wid" "$repo" "$branch" "$agent" "$attached" "$workdir"
   done < <(h workspace list 2>/dev/null |
-    jq -r '.result.workspaces[] | [.workspace_id, .label, .focused] | @tsv')
+    jq -r "$VLABEL"'.result.workspaces[] | [.workspace_id, vlabel, .focused] | @tsv')
 }
 
 cmd_list_human() {
@@ -695,11 +737,7 @@ resolve_target() {
 
   # Otherwise treat it as a repo[/branch] display name.
   local wid
-  wid=$(h workspace list 2>/dev/null |
-    jq -r --arg w "$target" '
-			.result.workspaces[]
-			| select((.label | sub(" \\[[^]]*\\]$"; "")) == $w)
-			| .workspace_id' | head -1)
+  wid=$(workspace_by_display "$target")
   [[ -n "$wid" ]] && {
     echo "$wid"
     return 0
@@ -710,8 +748,18 @@ resolve_target() {
 
 cmd_remove() {
   local target="$1"
-  local wid
+  local wid children
   wid=$(resolve_target "$target")
+
+  # herdr refuses to close a parent while its nested branch spaces are open, and
+  # --group would kill their agents without the graceful stop below. Check
+  # before signalling, or the parent is left open with its agents dead.
+  children=$(h workspace list 2>/dev/null | jq -r --arg w "$wid" "$VLABEL"'
+    .result.workspaces as $all
+    | ($all[] | select(.workspace_id == $w and .worktree and (.worktree.is_linked_worktree | not)) | .worktree.repo_key) as $key
+    | $all[] | select(.worktree.is_linked_worktree and .worktree.repo_key == $key)
+    | vlabel | sub(" \\[[^]]*\\]$"; "")')
+  [[ -z "$children" ]] || die "remove its branch sessions first: $(paste -sd, <<<"$children")"
 
   # Stop the agent gracefully before tearing the workspace down: SIGTERM lets
   # `claude remote-control` deregister cleanly (a forced kill orphaned it and
@@ -801,9 +849,15 @@ cmd_selftest() {
       {workspace_id: "dotfiles-deploy", label: "dotfiles:deploy [cl]"},
       {workspace_id: "alpha-deploy", label: "alpha:deploy [cl]"},
       {workspace_id: "alpha-review", label: "alpha:review [cl]"},
-      {workspace_id: "beta-main", label: "beta:main [cl+cx]"}
+      {workspace_id: "beta-main", label: "beta:main [cl+cx]"},
+      {workspace_id: "gamma-child", label: "fix-x",
+        worktree: {is_linked_worktree: true, repo_name: "gamma"}},
+      {workspace_id: "alpha-nested", label: "b-nested [cl]",
+        worktree: {is_linked_worktree: true, repo_name: "alpha"}},
+      {workspace_id: "gamma-root", label: "gamma",
+        worktree: {is_linked_worktree: false, repo_name: "gamma"}}
     ]}}' | workspace_sort_request | jq -r '.params.workspace_ids | join(" ")')
-  expected="dotfiles-deploy dotfiles-main dotfiles-branch alpha-deploy alpha-main alpha-review alpha-branch beta-deploy beta-main beta-branch"
+  expected="dotfiles-deploy dotfiles-main dotfiles-branch alpha-deploy alpha-review alpha-main alpha-branch alpha-nested beta-deploy beta-main beta-branch gamma-root gamma-child"
   if [[ "$sorted" != "$expected" ]]; then
     echo "FAIL workspace sort: '$sorted'" >&2
     fails=$((fails + 1))
@@ -834,17 +888,19 @@ Usage: ac [flags] [command|repo] [branch]
 
 Agent code session manager — one herdr session ("ac") holds every coding-agent
 session as a workspace, so they share a single overview and a single attach.
-Spaces are grouped by repository, with dotfiles first and each repository's
-:deploy and :main spaces ahead of its other roles and branches.
+Spaces are grouped by repository, dotfiles first. Within a repository :deploy
+leads, then other roles, then :main with its branch sessions nested under it.
 
 Commands:
   <repo> [branch]        Create the workspace if needed, then attach the herdr
                          session focused on that repo/branch's agent pane.
                          A branch also brings up "<repo>:main" if it is missing
+                         and nests under it, labelled by branch alone
   ls                     List live sessions ('*' = the one herdr is showing)
   ls --porcelain         Tab-separated listing (for ac-web)
   spawn <repo> [branch]  Create a detached workspace without attaching (for ac-web)
-  rm <workspace|name>    Gracefully stop the agent and close the workspace
+  rm <workspace|name>    Gracefully stop the agent and close the workspace;
+                         "<repo>:main" only once its branch sessions are gone
   permagent ensure <repo> <role>
                          Create the role session if missing; no-op if present
   selftest               Check agent-name mangling against herdr's grammar
