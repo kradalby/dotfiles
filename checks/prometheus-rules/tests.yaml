@@ -8,6 +8,66 @@ rule_files:
 evaluation_interval: 1m
 
 tests:
+  # A live process is insufficient: the relay must be connected and the
+  # protocol probe must keep updating its timestamp.
+  - interval: 1m
+    input_series:
+      - series: 'codex_remote_control_probe_success{host="dev-ldn", instance="dev-ldn:9100", job="nodes"}'
+        values: "1x20"
+      - series: 'codex_remote_control_probe_timestamp_seconds{host="dev-ldn", instance="dev-ldn:9100", job="nodes"}'
+        values: "0+60x20"
+    alert_rule_test:
+      - eval_time: 10m
+        alertname: CodexRemoteControlUnavailable
+        exp_alerts: []
+  - interval: 1m
+    input_series:
+      - series: 'codex_remote_control_probe_success{host="dev-ldn", instance="dev-ldn:9100", job="nodes"}'
+        values: "0x20"
+      - series: 'codex_remote_control_probe_timestamp_seconds{host="dev-ldn", instance="dev-ldn:9100", job="nodes"}'
+        values: "0+60x20"
+    alert_rule_test:
+      - eval_time: 10m
+        alertname: CodexRemoteControlUnavailable
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              host: dev-ldn
+              instance: dev-ldn:9100
+              job: nodes
+            exp_annotations:
+              summary: "Codex remote control is unavailable on dev-ldn"
+              description: "The Codex app-server probe is disconnected, stale, or missing. Check codex-remote-control.service, its health timer, and the user's Codex login."
+  - interval: 1m
+    input_series:
+      - series: 'codex_remote_control_probe_success{host="dev-ldn", instance="dev-ldn:9100", job="nodes"}'
+        values: "1x20"
+      - series: 'codex_remote_control_probe_timestamp_seconds{host="dev-ldn", instance="dev-ldn:9100", job="nodes"}'
+        values: "0x20"
+    alert_rule_test:
+      - eval_time: 10m
+        alertname: CodexRemoteControlUnavailable
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              host: dev-ldn
+              instance: dev-ldn:9100
+              job: nodes
+            exp_annotations:
+              summary: "Codex remote control is unavailable on dev-ldn"
+              description: "The Codex app-server probe is disconnected, stale, or missing. Check codex-remote-control.service, its health timer, and the user's Codex login."
+  - interval: 1m
+    input_series: []
+    alert_rule_test:
+      - eval_time: 10m
+        alertname: CodexRemoteControlUnavailable
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              host: dev-ldn
+            exp_annotations:
+              summary: "Codex remote control is unavailable on dev-ldn"
+              description: "The Codex app-server probe is disconnected, stale, or missing. Check codex-remote-control.service, its health timer, and the user's Codex login."
   # Host-dead vs exporter-broken split: h1 answers ping (scrape broken),
   # h2 does not (host down). Each fires exactly one of the pair.
   - interval: 1m

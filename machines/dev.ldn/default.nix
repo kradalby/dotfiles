@@ -26,6 +26,7 @@ in
     ./restic.nix
     ./syncthing.nix
     ./ac-web.nix
+    ./codex-remote-control.nix
   ];
 
   networking = {
@@ -153,8 +154,8 @@ in
     my.atuin.enable = true; # personal account (shared with krair)
 
     my.packages.ai.codex = true;
-    # Default is claude+opencode; codex needs its own state hook or herdr
-    # cannot tell idle from working in a codex pane.
+    # Codex's session hook works for standalone panes. Shared app-server panes
+    # use terminal state detection (see docs/conventions/services.md).
     my.herdr.integrations = [
       "claude"
       "codex"

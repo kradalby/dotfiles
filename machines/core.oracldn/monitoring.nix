@@ -912,6 +912,21 @@ in
                 };
               }
               {
+                alert = "CodexRemoteControlUnavailable";
+                expr = ''
+                  codex_remote_control_probe_success{host="dev-ldn"} == 0
+                  or time() - codex_remote_control_probe_timestamp_seconds{host="dev-ldn"} > 180
+                  or absent(codex_remote_control_probe_success{host="dev-ldn"})
+                  or absent(codex_remote_control_probe_timestamp_seconds{host="dev-ldn"})
+                '';
+                for = "5m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "Codex remote control is unavailable on dev-ldn";
+                  description = "The Codex app-server probe is disconnected, stale, or missing. Check codex-remote-control.service, its health timer, and the user's Codex login.";
+                };
+              }
+              {
                 alert = "InstanceLowDiskAbs";
                 expr = "node_filesystem_avail_bytes{${diskFilter}} / 1024 / 1024 < 1024";
                 for = "5m";
