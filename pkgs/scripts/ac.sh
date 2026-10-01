@@ -397,16 +397,19 @@ start_agent() {
   elif [[ "$agent" == "codex" ]]; then
     ensure_trusted_codex "$dir"
     argv=(--sandbox danger-full-access)
-    local codex_remote="${AC_CODEX_REMOTE:-}"
-    if [[ -z "$codex_remote" && -S "${CODEX_HOME:-$HOME/.codex}/app-server-control/app-server-control.sock" ]]; then
-      codex_remote="unix://"
+    local codex_remote=""
+    if [[ "$(hostname -s)" == "dev" && "${AC_REMOTE_CONTROL:-1}" == "1" ]]; then
+      codex_remote="${AC_CODEX_REMOTE:-}"
+      if [[ -z "$codex_remote" && -S "${CODEX_HOME:-$HOME/.codex}/app-server-control/app-server-control.sock" ]]; then
+        codex_remote="unix://"
+      fi
     fi
-    if [[ "${AC_REMOTE_CONTROL:-1}" != "1" ]]; then
-      argv+=(--no-daemon)
-    elif [[ -n "$codex_remote" ]]; then
+    if [[ -n "$codex_remote" ]]; then
       # Pin the shared server so herdr and the phone see the same thread.
       # --cd matters: a remote client otherwise uses the server's working dir.
       argv+=(--remote "$codex_remote" --cd "$dir")
+    else
+      argv+=(--no-daemon)
     fi
   fi
   # `agent start` blocks until the agent is interactive and exits non-zero if it
@@ -974,9 +977,9 @@ they are reachable from claude.ai / the phone (AC_REMOTE_CONTROL=0 disables).
 The working dir is pre-trusted so no trust prompt blocks the agent
 (AC_TRUST=0 disables).
 Codex sessions launch with --sandbox danger-full-access.
-They connect to the shared app server when its standard Unix socket exists
-(managed by NixOS on dev.ldn), so remote clients see the same threads.
-AC_CODEX_REMOTE overrides the endpoint; AC_REMOTE_CONTROL=0 runs standalone.
+On dev.ldn they connect to the shared app server when its Unix socket exists,
+so remote clients see the same threads. Other hosts run Codex standalone.
+AC_CODEX_REMOTE overrides dev's endpoint; AC_REMOTE_CONTROL=0 runs standalone.
 Existing panes keep their current connection until reopened or resumed.
 EOF
 }
