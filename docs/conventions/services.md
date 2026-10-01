@@ -14,26 +14,6 @@ Legacy services predate this; bring one up to it when you next touch it.
 
 Never a public / Funnel surface unless the service is deliberately public.
 
-**Coding-agent remote control.** Vendor-managed outbound connections (Claude,
-Codex) use the vendor's authenticated relay; they need no fleet listener or
-Tailscale VIP. Keep local control sockets private. Terminal/SSH access still
-uses Tailscale. On dev.ldn, Codex runs one shared app server at its standard Unix
-socket, supervised by NixOS; `ac` detects that socket and connects herdr's Codex
-panes to it with `--remote unix://` (override with `AC_CODEX_REMOTE`). Pair with
-`codex remote-control pair` after deployment.
-Use `systemctl restart codex-remote-control` for its lifecycle; the CLI's `start`
-installs a separate managed package and the foreground `remote-control` command
-uses a temporary socket. `AC_REMOTE_CONTROL=0` selects an independent terminal
-session. A protocol probe checks the relay connection and writes fresh node
-textfile metrics; `CodexRemoteControlUnavailable` catches failure or a dead
-probe. User credentials and session state remain in `~/.codex`, covered by the
-host's home-directory backups.
-
-Codex's shared server runs hooks in its own environment, so herdr's SessionStart
-hook cannot read a pane's `HERDR_*` variables. Terminal state detection still
-works, but the hook's session-ID reporting is unavailable in this mode. Use
-`AC_REMOTE_CONTROL=0 ac …` for a pane that needs the local hook integration.
-
 **Auth keys.** A service that joins the tailnet as its own tsnet node gets its
 **own** tagged pre-auth key — never the shared host key (golink, krapage, hvor,
 hugin, the homekit bridges, tsnixcache all do). One legacy exception remains:
