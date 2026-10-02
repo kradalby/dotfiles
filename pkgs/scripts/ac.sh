@@ -374,6 +374,76 @@ agent_panes_of() {
 
 # --- commands ---
 
+# Create and save a named thread before opening its TUI, using the shared
+# server when available or a temporary standalone server otherwise.
+codex_start_thread() (
+  local dir="$1" name="$2" remote="$3"
+  local transport=()
+  case "$remote" in
+    "")
+      # SessionStart must report the target pane on resume, not ac's caller.
+      transport=(env -u HERDR_ENV codex app-server --stdio)
+      ;;
+    unix://)
+      transport=(websocat --text --exit-on-eof --ws-c-uri ws://localhost/ -
+        "ws-c:unix-connect:${CODEX_HOME:-$HOME/.codex}/app-server-control/app-server-control.sock")
+      ;;
+    unix://*)
+      transport=(websocat --text --exit-on-eof --ws-c-uri ws://localhost/ - "ws-c:unix-connect:${remote#unix://}")
+      ;;
+    ws://* | wss://*) transport=(websocat --text --exit-on-eof - "$remote") ;;
+    *)
+      echo "unsupported Codex endpoint: $remote" >&2
+      return 1
+      ;;
+  esac
+
+  coproc CODEX_CREATE { timeout 90s "${transport[@]}"; }
+  local transport_pid=$CODEX_CREATE_PID
+  local original_reader=${CODEX_CREATE[0]} original_writer=${CODEX_CREATE[1]}
+  local reader writer
+  exec {reader}<&"$original_reader" {writer}>&"$original_writer"
+  exec {original_reader}<&- {original_writer}>&-
+  trap 'exec {writer}>&-; exec {reader}<&-; wait "$transport_pid" || true' EXIT
+
+  # Ignore notifications and only accept the matching response, including
+  # explicit error handling so a failed name never opens an unnamed TUI.
+  request() {
+    local id="$1" method="$2" params="$3" response
+    jq -nc --argjson id "$id" --arg method "$method" --argjson params "$params" \
+      '{id:$id,method:$method,params:$params}' >&"$writer" || return 1
+    while IFS= read -r -t 60 response <&"$reader"; do
+      if jq -e --argjson id "$id" '.id == $id' <<<"$response" >/dev/null; then
+        if jq -e 'has("error")' <<<"$response" >/dev/null; then
+          jq -r '.error.message' <<<"$response" >&2
+          return 1
+        fi
+        jq -e 'has("result")' <<<"$response" >/dev/null || return 1
+        printf '%s\n' "$response"
+        return 0
+      fi
+    done
+    echo "Codex $method did not respond" >&2
+    return 1
+  }
+
+  request 0 initialize '{"clientInfo":{"name":"ac","version":"1"},"capabilities":{"experimentalApi":true}}' >/dev/null || return 1
+  printf '%s\n' '{"method":"initialized","params":{}}' >&"$writer" || return 1
+  local response thread_id
+  response=$(request 1 thread/start "$(jq -nc --arg cwd "$dir" \
+    '{cwd:$cwd,sandbox:"danger-full-access",threadSource:"cli"}')") || return 1
+  thread_id=$(jq -er '.result.thread.id' <<<"$response") || return 1
+  request 2 thread/name/set "$(jq -nc --arg id "$thread_id" --arg name "$name" \
+    '{threadId:$id,name:$name}')" >/dev/null || return 1
+  # 0.159.1 saves empty threads lazily. Archive/unarchive materializes this
+  # new thread without a model turn, so resume can read its saved history.
+  local thread_params
+  thread_params=$(jq -nc --arg id "$thread_id" '{threadId:$id}')
+  request 3 thread/archive "$thread_params" >/dev/null || return 1
+  request 4 thread/unarchive "$thread_params" >/dev/null || return 1
+  printf '%s\n' "$thread_id"
+)
+
 # start_agent launches one agent in an existing shell pane.
 start_agent() {
   local agent="$1" pane="$2" name="$3" dir="$4" repo="$5" branch="$6"
@@ -411,6 +481,13 @@ start_agent() {
     else
       argv+=(--no-daemon)
     fi
+    local thread_name thread_id
+    thread_name="$(hostname -s)-$(sanitize "$(display "$repo" "$branch")")"
+    if ! thread_id=$(codex_start_thread "$dir" "$thread_name" "$codex_remote"); then
+      echo "warning: could not create named Codex thread for $pane — check the server" >&2
+      return 0
+    fi
+    argv+=(resume "$thread_id")
   fi
   # `agent start` blocks until the agent is interactive and exits non-zero if it
   # isn't (e.g. stuck on a prompt ensure_trusted didn't cover). The pane exists
@@ -977,6 +1054,8 @@ they are reachable from claude.ai / the phone (AC_REMOTE_CONTROL=0 disables).
 The working dir is pre-trusted so no trust prompt blocks the agent
 (AC_TRUST=0 disables).
 Codex sessions launch with --sandbox danger-full-access.
+Threads are created and named <host>-<repo>-<branch|main|role> before the
+terminal opens, then attached with codex resume.
 On dev.ldn they connect to the shared app server when its Unix socket exists,
 so remote clients see the same threads. Other hosts run Codex standalone.
 AC_CODEX_REMOTE overrides dev's endpoint; AC_REMOTE_CONTROL=0 runs standalone.

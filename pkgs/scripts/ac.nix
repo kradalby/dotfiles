@@ -8,6 +8,7 @@ pkgs.writeShellApplication {
       git
       jq
       socat
+      websocat
       coreutils
       gnused
       # `hostname` is not part of coreutils; the remote-control name needs it and
