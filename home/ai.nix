@@ -222,7 +222,8 @@ in
   # there instead (see codexHooks). herdr sets this flag as well; declaring it
   # keeps codex hooks working on a host that runs codex without herdr.
   codex = {
-    sandbox_mode = "danger-full-access";
+    default_permissions = ":danger-full-access";
+    approval_policy = "never";
     features.hooks = true;
     shell_environment_policy.set.BASH_ENV = "$HOME/.codex/hooks/session-env.sh";
     mcp_servers.picnic.url = picnicMcp;

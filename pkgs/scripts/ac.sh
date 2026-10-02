@@ -430,7 +430,7 @@ codex_start_thread() (
   printf '%s\n' '{"method":"initialized","params":{}}' >&"$writer" || return 1
   local response thread_id
   response=$(request 1 thread/start "$(jq -nc --arg cwd "$dir" \
-    '{cwd:$cwd,sandbox:"danger-full-access",threadSource:"cli"}')") || return 1
+    '{cwd:$cwd,permissions:":danger-full-access",approvalPolicy:"never",threadSource:"cli"}')") || return 1
   thread_id=$(jq -er '.result.thread.id' <<<"$response") || return 1
   request 2 thread/name/set "$(jq -nc --arg id "$thread_id" --arg name "$name" \
     '{threadId:$id,name:$name}')" >/dev/null || return 1
@@ -440,6 +440,10 @@ codex_start_thread() (
   thread_params=$(jq -nc --arg id "$thread_id" '{threadId:$id}')
   request 3 thread/archive "$thread_params" >/dev/null || return 1
   request 4 thread/unarchive "$thread_params" >/dev/null || return 1
+  # Empty threads have no saved turn context. Unarchive unloads the thread,
+  # so restore permissions explicitly before the remote TUI's ID-only resume.
+  request 5 thread/resume "$(jq -nc --arg id "$thread_id" --arg cwd "$dir" \
+    '{threadId:$id,cwd:$cwd,permissions:":danger-full-access",approvalPolicy:"never"}')" >/dev/null || return 1
   printf '%s\n' "$thread_id"
 )
 
@@ -474,11 +478,11 @@ start_agent() {
     fi
     if [[ -n "$codex_remote" ]]; then
       # Pin the shared server so herdr and the phone see the same thread.
-      # Remote resume rejects permission flags; thread/start already sets the
-      # sandbox. --cd keeps the server's working directory out of this thread.
+      # Remote resume preserves the thread's permission profile and rejects
+      # permission flags. --cd keeps the server's cwd out of this thread.
       argv+=(--remote "$codex_remote" --cd "$dir")
     else
-      argv+=(--sandbox danger-full-access --no-daemon)
+      argv+=(--dangerously-bypass-approvals-and-sandbox --no-daemon)
     fi
     local thread_name thread_id
     thread_name="$(hostname -s)-$(sanitize "$(display "$repo" "$branch")")"
@@ -1108,7 +1112,9 @@ and, except on kradalby-llm, Remote Control named <host>-<repo>-<branch>, so
 they are reachable from claude.ai / the phone (AC_REMOTE_CONTROL=0 disables).
 The working dir is pre-trusted so no trust prompt blocks the agent
 (AC_TRUST=0 disables).
-Codex sessions launch with --sandbox danger-full-access.
+Codex sessions use full access with approvalPolicy=never. Standalone terminals
+launch with --dangerously-bypass-approvals-and-sandbox; shared-server threads
+save the :danger-full-access permission profile before remote resume.
 Threads are created and named <host>-<repo>-<branch|main|role> before the
 terminal opens, then attached with codex resume.
 On dev.ldn they connect to the shared app server when its Unix socket exists,
