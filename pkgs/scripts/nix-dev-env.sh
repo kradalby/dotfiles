@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # Make Claude Code's (non-interactive) Bash tool adopt per-directory dev envs.
 # Primary: direnv (.envrc, e.g. `use flake` via nix-direnv).
 # Fallback (no usable .envrc): `nix print-dev-env` for the directory's flake.
