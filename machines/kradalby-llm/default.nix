@@ -8,8 +8,7 @@
 let
   aiConfig = import ../../home/ai.nix;
 
-  # Codex equivalent of the Claude dev-env hook: a PreToolUse hook that wraps
-  # every Bash command so it runs inside the per-directory Nix dev env.
+  # Codex captures the dev environment at SessionStart.
   codexDevEnvHook = import ../../pkgs/scripts/codex-nix-dev-env-hook.nix { inherit pkgs; };
 
   # Codex work config: route through the corp Aperture proxy + its MCP server.
@@ -26,23 +25,6 @@ let
       wire_api = "responses";
     };
     mcp_servers.aperture.url = "http://ai.corp.ts.net/v1/mcp";
-
-    # Run every Bash command inside the per-directory Nix dev env (like Claude).
-    # Requires a one-time `/hooks` trust in codex (persisted into the mutable
-    # config.toml). features.hooks pins it on.
-    features.hooks = true;
-    hooks.PreToolUse = [
-      {
-        matcher = "^Bash$";
-        hooks = [
-          {
-            type = "command";
-            command = ''"$HOME/.codex/hooks/nix-dev-env.sh"'';
-            timeout = 30;
-          }
-        ];
-      }
-    ];
   };
 
   # Corp AI proxy: fake auth via apiKeyHelper, inject proxy env, add the
@@ -229,6 +211,10 @@ in
       format = "toml";
       value = codexConfig;
     };
+    codex-hooks = {
+      target = ".codex/hooks.json";
+      value = aiConfig.codexHooks;
+    };
   };
 
   my.packages = {
@@ -259,6 +245,7 @@ in
   # Keep the path in mutable config.toml stable across rebuilds and GC. The
   # symlink target changes with Home Manager, without invalidating hook trust.
   home.file.".codex/hooks/nix-dev-env.sh".source = "${codexDevEnvHook}/bin/codex-nix-dev-env-hook";
+  home.file.".codex/hooks/session-env.sh".source = ../../pkgs/scripts/codex-session-env.sh;
 
   # Keep the generated model catalogs current at the same boundary as the rest
   # of this host's declarative configuration. The command is also on PATH for

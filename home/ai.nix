@@ -224,6 +224,7 @@ in
   codex = {
     sandbox_mode = "danger-full-access";
     features.hooks = true;
+    shell_environment_policy.set.BASH_ENV = "$HOME/.codex/hooks/session-env.sh";
     mcp_servers.picnic.url = picnicMcp;
   };
 
@@ -232,17 +233,17 @@ in
   # coexist. Codex still needs a one-time `/hooks` trust per entry, which it
   # records in config.toml.
   #
-  # This is the codex counterpart of the claude PreToolUse hook and the
-  # opencode shell.env plugin: run Bash inside the per-directory Nix dev env.
+  # Capture the dev env once per thread, including phone-initiated resumes.
+  # Bash reads it through BASH_ENV without changing the displayed command.
   codexHooks = {
-    hooks.PreToolUse = [
+    hooks.SessionStart = [
       {
-        matcher = "^Bash$";
+        matcher = "^(startup|resume|clear|fork)$";
         hooks = [
           {
             type = "command";
             command = ''"$HOME/.codex/hooks/nix-dev-env.sh"'';
-            timeout = 30;
+            timeout = 120;
           }
         ];
       }

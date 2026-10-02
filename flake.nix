@@ -647,6 +647,7 @@
         # (incl. the sloth-generated burn-rate rules) and a VM test of the
         # prometheus → alertmanager → webhook delivery pipeline.
         checks = pkgs.lib.optionalAttrs (system == "x86_64-linux") {
+          codex-session-env = import ./checks/codex-session-env { inherit pkgs; };
           # treefmt in check mode: fails when any file is unformatted, making
           # `nix fmt` enforceable in CI (git.md's claim, now true).
           formatting = treefmtEval.config.build.check self;

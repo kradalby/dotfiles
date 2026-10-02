@@ -14,9 +14,9 @@ let
   # Wired into settings.json hooks via home/ai.nix.
   nixDevEnvHook = import ../pkgs/scripts/nix-dev-env.nix { inherit pkgs; };
 
-  # Codex counterpart: a PreToolUse hook that wraps every Bash command so it
-  # runs inside the per-directory Nix dev env. Wired into config.toml above.
+  # Codex captures the environment at SessionStart; Bash loads the snapshot.
   codexDevEnvHook = import ../pkgs/scripts/codex-nix-dev-env-hook.nix { inherit pkgs; };
+  codexEnvMigrate = import ../pkgs/scripts/codex-session-env-migrate.nix { inherit pkgs; };
 in
 {
   # Available options
@@ -69,6 +69,16 @@ in
       value = (import ./ai.nix).codexHooks;
     };
   };
+
+  # These files are seeded once, so migrate just our hook and environment
+  # setting. Preserve herdr entries, user hooks, project trust, and providers.
+  config.home.activation.codexSessionEnvironment = lib.mkIf (config.my.mutableJson ? codex) (
+    lib.hm.dag.entryAfter [ "writeBoundary" "mutableJson" ] ''
+      run ${codexEnvMigrate}/bin/codex-session-env-migrate "$HOME/.codex" ${
+        config.home.file.".codex/hooks.json.nix".source
+      }
+    ''
+  );
 
   # XDG-compliant configs. Anything the program insists on reading from $HOME
   # directly stays in home.file below.
@@ -175,6 +185,9 @@ in
       # recorded in the mutable config.toml valid across rebuilds and GC.
       ".codex/hooks/nix-dev-env.sh" = lib.mkIf config.my.packages.ai.codex {
         source = "${codexDevEnvHook}/bin/codex-nix-dev-env-hook";
+      };
+      ".codex/hooks/session-env.sh" = lib.mkIf config.my.packages.ai.codex {
+        source = ../pkgs/scripts/codex-session-env.sh;
       };
 
       ".finicky.js" = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin { source = ../rc/finicky.js; };
