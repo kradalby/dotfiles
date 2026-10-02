@@ -15,6 +15,12 @@ let
   herdr = "${pkgs.herdr}/bin/herdr";
   fish = "${pkgs.fish}/bin/fish";
   ac = "${import ../pkgs/scripts/ac.nix { inherit pkgs; }}/bin/ac";
+  codexContext = import ../pkgs/scripts/herdr-codex.nix { inherit pkgs; };
+  codexSkill = pkgs.runCommand "herdr-codex-skill" { } ''
+    mkdir -p $out
+    cp ${../rc/codex/skills/herdr/SKILL.md} $out/SKILL.md
+    cp ${pkgs.herdr-skill} $out/reference.md
+  '';
   # Panes are spawned by the server, so its env is theirs: profile bin for
   # claude/opencode/ac, plus the usual system paths.
   # /run/wrappers/bin first, per NixOS: without it `sudo` resolves to the
@@ -78,7 +84,7 @@ in
 
   config = lib.mkMerge [
     {
-      home.packages = [ pkgs.herdr ];
+      home.packages = [ pkgs.herdr ] ++ lib.optional config.my.packages.ai.codex codexContext;
       # Make "ac" the default session so a bare `herdr` attaches the herd —
       # resolution order is --session > HERDR_SOCKET_PATH > HERDR_SESSION >
       # default. ac.sh already defaults to "ac", and the server unit pins it.
@@ -110,6 +116,10 @@ in
       # gates on HERDR_ENV=1, so it only activates for an agent running inside
       # a herdr pane — teaching it to drive herdr's socket API.
       home.file.".claude/skills/herdr/SKILL.md".source = pkgs.herdr-skill;
+      # Codex follows directory links, but skips a symlinked SKILL.md.
+      home.file.".codex/skills/herdr" = lib.mkIf config.my.packages.ai.codex {
+        source = codexSkill;
+      };
 
       # Install per-agent state hooks so herdr reports precise agent status
       # (blocked/working/idle/done) instead of guessing. Runs after mutableJson

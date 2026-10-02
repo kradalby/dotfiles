@@ -466,7 +466,6 @@ start_agent() {
     fi
   elif [[ "$agent" == "codex" ]]; then
     ensure_trusted_codex "$dir"
-    argv=(--sandbox danger-full-access)
     local codex_remote=""
     if [[ "$(hostname -s)" == "dev" && "${AC_REMOTE_CONTROL:-1}" == "1" ]]; then
       codex_remote="${AC_CODEX_REMOTE:-}"
@@ -476,10 +475,11 @@ start_agent() {
     fi
     if [[ -n "$codex_remote" ]]; then
       # Pin the shared server so herdr and the phone see the same thread.
-      # --cd matters: a remote client otherwise uses the server's working dir.
+      # Remote resume rejects permission flags; thread/start already sets the
+      # sandbox. --cd keeps the server's working directory out of this thread.
       argv+=(--remote "$codex_remote" --cd "$dir")
     else
-      argv+=(--no-daemon)
+      argv+=(--sandbox danger-full-access --no-daemon)
     fi
     local thread_name thread_id
     thread_name="$(hostname -s)-$(sanitize "$(display "$repo" "$branch")")"
@@ -494,6 +494,13 @@ start_agent() {
   # either way, so report and keep going rather than tearing the workspace down.
   if ! h agent start "$name" --kind "$agent" --pane "$pane" -- "${argv[@]}" >/dev/null; then
     echo "warning: $agent in $pane did not report ready — check the pane" >&2
+  elif [[ "$agent" == codex ]]; then
+    # Shared-server SessionStart hooks cannot inherit this frontend's pane.
+    # Report the exact thread so remote tools can recover their caller context.
+    if ! h pane report-agent-session "$pane" --source herdr:codex --agent codex \
+      --agent-session-id "$thread_id" --session-start-source resume >/dev/null; then
+      echo "warning: could not bind Codex thread $thread_id to herdr pane $pane" >&2
+    fi
   fi
 }
 
