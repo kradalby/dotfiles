@@ -5,7 +5,6 @@ set -euo pipefail
 # Mirrors the layout used by wt.fish (default WT_ROOT: ~/worktrees).
 GIT_ROOT="${GIT_ROOT:-$HOME/git}"
 WT_ROOT="${WT_ROOT:-$HOME/worktrees}"
-DEFAULT_AGENT="claude"
 # A plain `ac <repo>` opens one tab per agent plus a terminal tab. Tabs, not
 # splits: a phone terminal is ~88 columns, and two side-by-side panes leave 44
 # each, which is unreadable. An explicit -c/-o/-x narrows this to that one agent.
@@ -16,7 +15,7 @@ DEFAULT_AGENTS=(claude codex)
 # Everything below drives that session over herdr's socket API.
 HERDR_SESSION="${HERDR_SESSION:-ac}"
 
-# A role session pins one long-lived agent to one repo for one job (deploy
+# A role session pins long-lived agents to one repo for one job (deploy
 # today, others later). It always opens the repo's main worktree -- never a
 # branch worktree -- and its display name is "<repo>:<role>". A colon, not a
 # slash, because the label parser below splits repo from branch on the first
@@ -574,6 +573,7 @@ create_session() {
     h tab rename "$(pane_tab "$pane")" "$agent" >/dev/null 2>&1 || true
     start_agent "$agent" "$pane" \
       "$(agent_handle "$disp" "$agent" "${#agents[@]}")" "$dir" "$repo" "$branch"
+    [[ -z "$ROLE" ]] || bootstrap_role "$pane" "$repo" "$dir"
     [[ -n "$first" ]] || first="$pane"
   done
 
@@ -581,9 +581,46 @@ create_session() {
   h tab create --workspace "$wid" --cwd "$dir" --label terminal --no-focus >/dev/null ||
     echo "warning: term tab not created" >&2
 
-  [[ -z "$ROLE" ]] || bootstrap_role "$first" "$repo" "$dir"
-
   echo "$first"
+}
+
+# Add missing agents to standing sessions without replacing their live panes.
+ensure_session_agents() {
+  local wid="$1" dir="$2" repo="$3" branch="$4"
+  shift 4
+  local agents=("$@") agent pane tab registered
+  registered=$(h agent list)
+  for agent in "${agents[@]}"; do
+    if jq -e --arg w "$wid" --arg a "$agent" \
+      '.result.agents[] | select(.workspace_id == $w and .agent == $a)' <<<"$registered" >/dev/null; then
+      continue
+    fi
+    # A previous failed start may have left an empty agent tab. Reuse it.
+    tab=$(h tab list --workspace "$wid" | jq -r --arg a "$agent" \
+      '[.result.tabs[] | select(.label == $a)] | .[0].tab_id // empty')
+    if [[ -n "$tab" ]]; then
+      pane=$(h pane list --workspace "$wid" | jq -r --arg t "$tab" \
+        '[.result.panes[] | select(.tab_id == $t and .agent == null)] | .[0].pane_id // empty')
+      if [[ -z "$pane" ]]; then
+        echo "warning: $agent tab in $wid has no available pane" >&2
+        continue
+      fi
+    else
+      pane=$(h tab create --workspace "$wid" --cwd "$dir" --label "$agent" --no-focus |
+        jq -r '.result.root_pane.pane_id // empty')
+      [[ -n "$pane" ]] || die "tab create failed for $agent"
+    fi
+    start_agent "$agent" "$pane" \
+      "$(agent_handle "$(display "$repo" "$branch")" "$agent" "${#agents[@]}")" "$dir" "$repo" "$branch"
+    [[ -z "$ROLE" ]] || bootstrap_role "$pane" "$repo" "$dir"
+  done
+
+  local present=()
+  mapfile -t present < <(h agent list | jq -r --arg w "$wid" \
+    '[.result.agents[] | select(.workspace_id == $w)] | sort_by(.tab_id) | [.[].agent] | unique[]')
+  if [[ ${#present[@]} -gt 0 ]]; then
+    h workspace rename "$wid" "$(make_label "$repo" "$branch" "${present[@]}")" >/dev/null
+  fi
 }
 
 # ensure_main keeps a "<repo>:main" session beside every branch session, so
@@ -592,7 +629,12 @@ create_session() {
 ensure_main() {
   local repo="$1"
   shift
-  [[ -z "$(find_workspace "$repo" "")" ]] || return 0
+  local wid
+  wid=$(find_workspace "$repo" "")
+  if [[ -n "$wid" ]]; then
+    ensure_session_agents "$wid" "$(find_main_worktree "$repo")" "$repo" "" "$@"
+    return 0
+  fi
   (create_session "$(find_main_worktree "$repo")" "$repo" "" "$@" >/dev/null) ||
     echo "warning: $(display "$repo" "") not created" >&2
 }
@@ -684,6 +726,7 @@ cmd_create_or_attach() {
   local wid pane
   wid=$(find_workspace "$repo" "$branch")
   if [[ -n "$wid" ]]; then
+    [[ -n "$branch" ]] || ensure_session_agents "$wid" "$dir" "$repo" "$branch" "${agents[@]}"
     pane=$(agent_pane_of "$wid")
   else
     pane=$(create_session "$dir" "$repo" "$branch" "${agents[@]}")
@@ -710,7 +753,10 @@ cmd_spawn() {
   ensure_server
   [[ -z "$branch" ]] || ensure_main "$repo" "${agents[@]}"
 
-  if [[ -n "$(find_workspace "$repo" "$branch")" ]]; then
+  local wid
+  wid=$(find_workspace "$repo" "$branch")
+  if [[ -n "$wid" ]]; then
+    [[ -n "$branch" ]] || ensure_session_agents "$wid" "$dir" "$repo" "$branch" "${agents[@]}"
     echo "already running: $(display "$repo" "$branch")"
     return 0
   fi
@@ -720,21 +766,23 @@ cmd_spawn() {
 }
 
 cmd_permagent() {
-  # `ensure <repo> <role>`: create the role session if missing, touch nothing
-  # if it is already there, never attach. Idempotent, so the boot-time unit can
-  # just run it once per declared permagent.
+  # Reconcile the default agents in a role session, without attaching.
   local action="$1" repo="$2" role="$3"
   [[ "$action" == "ensure" ]] || die "usage: ac permagent ensure <repo> <role>"
   ROLE="$role"
 
   ensure_server
 
-  if [[ -n "$(find_workspace "$repo" "")" ]]; then
+  local dir wid
+  dir=$(find_main_worktree "$repo")
+  wid=$(find_workspace "$repo" "")
+  if [[ -n "$wid" ]]; then
+    ensure_session_agents "$wid" "$dir" "$repo" "" "${DEFAULT_AGENTS[@]}"
     echo "present: $(display "$repo" "")"
     return 0
   fi
 
-  create_session "$(find_main_worktree "$repo")" "$repo" "" "$DEFAULT_AGENT" >/dev/null
+  create_session "$dir" "$repo" "" "${DEFAULT_AGENTS[@]}" >/dev/null
   echo "created: $(display "$repo" "")"
 }
 
@@ -926,8 +974,7 @@ cmd_selftest() {
     fi
   done
 
-  # A single-agent session keeps the bare handle, so "dotfiles:deploy" and the
-  # other permagents are not renamed by this change.
+  # Explicit single-agent sessions keep their bare handles.
   h1=$(agent_handle "dotfiles:deploy" claude 1)
   if [[ "$h1" != "$(agent_name "dotfiles:deploy")" ]]; then
     echo "FAIL single-agent handle changed: '$h1'" >&2
@@ -1000,7 +1047,7 @@ Commands:
   rm <workspace|name>    Gracefully stop the agent and close the workspace;
                          "<repo>:main" only once its branch sessions are gone
   permagent ensure <repo> <role>
-                         Create the role session if missing; no-op if present
+                         Ensure the role workspace has Claude and Codex tabs
   selftest               Check agent-name mangling against herdr's grammar
   help                   Show this help
 
@@ -1012,7 +1059,7 @@ Flags:
                          coding session (see "Role sessions" below)
 
 Role sessions:
-  `ac -r deploy dotfiles` opens one durable agent pinned to a repo and a job.
+  `ac -r deploy dotfiles` opens durable agents pinned to a repo and a job.
   It always uses the repo's main worktree, is named "<repo>:<role>", and is
   briefed on start from <repo>/.agents/skills/<role>/SKILL.md — the Agent
   Skills path Codex and OpenCode already discover. The briefing carries the
@@ -1052,8 +1099,9 @@ default `ac <repo>` opens one tab each, named for what is in it:
   terminal   Plain shell in the same directory
 
 An explicit -c/-o/-x narrows that to one agent tab plus the terminal tab. Role
-sessions are always one agent plus term: they brief a single agent for a
-single job. Agents are launched directly (argv, no shell in between).
+sessions use the same defaults and brief each agent for the job. Reconciliation
+adds missing agent tabs to standing sessions. Agents are launched directly
+(argv, no shell in between).
 
 claude sessions launch with --dangerously-skip-permissions (no tool prompts)
 and, except on kradalby-llm, Remote Control named <host>-<repo>-<branch>, so
@@ -1074,7 +1122,7 @@ EOF
 
 main() {
   # Empty until a flag names one: an explicit -c/-o/-x means "just this agent",
-  # while no flag means the DEFAULT_AGENTS trio.
+  # while no flag means DEFAULT_AGENTS.
   local agents=()
   local porcelain=0
   local args=()
@@ -1122,14 +1170,8 @@ main() {
     esac
   done
 
-  # A role session is one briefed agent on one job, so it never fans out to the
-  # trio; an explicit flag still overrides which agent that is.
   if [[ ${#agents[@]} -eq 0 ]]; then
-    if [[ -n "$ROLE" ]]; then
-      agents=("$DEFAULT_AGENT")
-    else
-      agents=("${DEFAULT_AGENTS[@]}")
-    fi
+    agents=("${DEFAULT_AGENTS[@]}")
   fi
 
   # No args: point at the herd. Listing/switching is herdr's job now.

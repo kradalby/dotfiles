@@ -173,8 +173,8 @@ in
 
       # Reconcile the declared role sessions once the server is up. A oneshot,
       # not a supervised service: herdr owns the agent processes, so all this
-      # has to do is notice a missing workspace and create it. `ac permagent
-      # ensure` is idempotent, so re-running it on every login is a no-op.
+      # has to do is create missing workspaces or agent tabs. `ac permagent
+      # ensure` is idempotent, so existing agents keep running on every login.
       # `|| true` per entry: one repo missing from disk must not stop the rest.
       systemd.user.services.herdr-permagents = lib.mkIf declaredSessions {
         Unit = {
