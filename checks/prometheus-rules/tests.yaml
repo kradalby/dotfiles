@@ -8,6 +8,96 @@ rule_files:
 evaluation_interval: 1m
 
 tests:
+  - interval: 1m
+    input_series:
+      - series: 'probe_success{job="inference-probes", instance="http://llm-rpi5.dalby.ts.net/api/version", target="rpi5-ldn"}'
+        values: "0x20"
+      - series: 'probe_success{job="tailnet-probes", instance="http://healthy", target="home-ldn"}'
+        values: "1x20"
+    alert_rule_test:
+      - eval_time: 15m
+        alertname: TailnetServiceDown
+        exp_alerts:
+          - exp_labels:
+              job: inference-probes
+              instance: http://llm-rpi5.dalby.ts.net/api/version
+              target: rpi5-ldn
+              severity: warning
+            exp_annotations:
+              summary: "Tailnet service http://llm-rpi5.dalby.ts.net/api/version not responding"
+              description: "Convenience-tier service is down: dead tsnet node, expired node key, broken Serve mapping, or the backend itself."
+  - interval: 1m
+    input_series:
+      - series: 'llm_inference_probe_success{service="llm-rpi5", model="qwen3.5:2b-q4_K_M", host="rpi5-ldn", target="rpi5-ldn", job="nodes"}'
+        values: "0x20"
+      - series: 'llm_inference_probe_timestamp_seconds{service="llm-rpi5", model="qwen3.5:2b-q4_K_M", host="rpi5-ldn", target="rpi5-ldn", job="nodes"}'
+        values: "0+60x20"
+      - series: 'llm_inference_probe_success{service="llm-rpi5", model="gemma4:e2b-it-q4_K_M", host="rpi5-ldn", target="rpi5-ldn", job="nodes"}'
+        values: "1x20"
+      - series: 'llm_inference_probe_timestamp_seconds{service="llm-rpi5", model="gemma4:e2b-it-q4_K_M", host="rpi5-ldn", target="rpi5-ldn", job="nodes"}'
+        values: "0+60x20"
+    alert_rule_test:
+      - eval_time: 15m
+        alertname: InferenceModelUnhealthy
+        exp_alerts:
+          - exp_labels:
+              service: llm-rpi5
+              model: qwen3.5:2b-q4_K_M
+              host: rpi5-ldn
+              target: rpi5-ldn
+              job: nodes
+              severity: warning
+            exp_annotations:
+              summary: "Inference probe failed or stopped for qwen3.5:2b-q4_K_M on rpi5-ldn"
+              description: "The model failed its last generation probe or has not been checked in two hours. Check inference-healthcheck.service and ollama.service."
+      - eval_time: 15m
+        alertname: InferenceMetricsMissing
+        exp_alerts: []
+  - interval: 1m
+    input_series:
+      - series: 'llm_inference_probe_success{service="llm-rpi5", model="qwen3.5:2b-q4_K_M", host="rpi5-ldn", target="rpi5-ldn", job="nodes"}'
+        values: "1x150"
+      - series: 'llm_inference_probe_timestamp_seconds{service="llm-rpi5", model="qwen3.5:2b-q4_K_M", host="rpi5-ldn", target="rpi5-ldn", job="nodes"}'
+        values: "0x150"
+      - series: 'llm_inference_probe_success{service="llm-rpi5", model="gemma4:e2b-it-q4_K_M", host="rpi5-ldn", target="rpi5-ldn", job="nodes"}'
+        values: "1x150"
+      - series: 'llm_inference_probe_timestamp_seconds{service="llm-rpi5", model="gemma4:e2b-it-q4_K_M", host="rpi5-ldn", target="rpi5-ldn", job="nodes"}'
+        values: "0+60x150"
+    alert_rule_test:
+      - eval_time: 15m
+        alertname: InferenceModelUnhealthy
+        exp_alerts: []
+      - eval_time: 140m
+        alertname: InferenceModelUnhealthy
+        exp_alerts:
+          - exp_labels:
+              service: llm-rpi5
+              model: qwen3.5:2b-q4_K_M
+              host: rpi5-ldn
+              target: rpi5-ldn
+              job: nodes
+              severity: warning
+            exp_annotations:
+              summary: "Inference probe failed or stopped for qwen3.5:2b-q4_K_M on rpi5-ldn"
+              description: "The model failed its last generation probe or has not been checked in two hours. Check inference-healthcheck.service and ollama.service."
+  - interval: 1m
+    input_series:
+      - series: 'llm_inference_probe_success{service="llm-rpi5", model="qwen3.5:2b-q4_K_M"}'
+        values: "1x70"
+      - series: 'llm_inference_probe_timestamp_seconds{service="llm-rpi5", model="qwen3.5:2b-q4_K_M"}'
+        values: "0+60x70"
+    alert_rule_test:
+      - eval_time: 65m
+        alertname: InferenceMetricsMissing
+        exp_alerts:
+          - exp_labels:
+              service: llm-rpi5
+              model: gemma4:e2b-it-q4_K_M
+              target: rpi5-ldn
+              severity: warning
+            exp_annotations:
+              summary: "Inference metrics are missing for gemma4:e2b-it-q4_K_M"
+              description: "The model probe metric is absent. Check inference-healthcheck.timer and the node-exporter textfile collector on rpi5-ldn."
   # A live process is insufficient: the relay must be connected and the
   # protocol probe must keep updating its timestamp.
   - interval: 1m

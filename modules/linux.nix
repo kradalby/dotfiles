@@ -1,5 +1,7 @@
 {
   imports = [
+    ./inference
+    ./inference/linux.nix
     ./mqtt-exporter
     ./oci-usage-exporter.nix
     ./tailscale-proxy.nix

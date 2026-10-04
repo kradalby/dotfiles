@@ -7,6 +7,7 @@
   imports = [
     ../../common
     ../../common/tailscale.nix
+    ./inference.nix
   ];
 
   networking = {
