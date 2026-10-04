@@ -666,6 +666,7 @@
           codex-session-env = import ./checks/codex-session-env { inherit pkgs; };
           tmp-cleanup = import ./checks/tmp-cleanup { inherit pkgs; };
           nix-dev-env = import ./checks/nix-dev-env { inherit pkgs; };
+          ac = import ./checks/ac { inherit pkgs; };
           opensearch-log-retention = import ./checks/opensearch-log-retention { inherit pkgs self; };
           # treefmt in check mode: fails when any file is unformatted, making
           # `nix fmt` enforceable in CI (git.md's claim, now true).
