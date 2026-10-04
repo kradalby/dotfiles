@@ -33,6 +33,7 @@ in
     # Postgres + OpenSearch are separate fork modules; co-located below instead.
     inputs.garnix-ci.nixosModules.garnix
     ./logs.nix
+    ./log-retention.nix
   ];
 
   # A consumed flake exposes `.inputs` but not `self`; graft it back on for the

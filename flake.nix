@@ -664,6 +664,7 @@
         # prometheus → alertmanager → webhook delivery pipeline.
         checks = pkgs.lib.optionalAttrs (system == "x86_64-linux") {
           codex-session-env = import ./checks/codex-session-env { inherit pkgs; };
+          opensearch-log-retention = import ./checks/opensearch-log-retention { inherit pkgs self; };
           # treefmt in check mode: fails when any file is unformatted, making
           # `nix fmt` enforceable in CI (git.md's claim, now true).
           formatting = treefmtEval.config.build.check self;
