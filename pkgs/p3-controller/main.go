@@ -199,14 +199,14 @@ func executePlay(ctx context.Context, client *owntone.Client, cfg *Config, speak
 	expanded := cfg.expandSpeakers(speakers)
 
 	// Get all outputs and deselect them.
-	outputs, err := client.GetOutputs()
+	outputs, err := client.GetOutputs(ctx)
 	if err != nil {
 		resp.Error = fmt.Sprintf("get outputs: %v", err)
 		return resp, http.StatusBadGateway
 	}
 	for _, o := range outputs {
 		if o.Selected {
-			if err := client.SetOutput(o.ID, false, -1); err != nil {
+			if err := client.SetOutput(ctx, o.ID, false, -1); err != nil {
 				slog.Warn("deselecting output", "name", o.Name, "id", o.ID, "err", err)
 			}
 		}
@@ -219,7 +219,7 @@ func executePlay(ctx context.Context, client *owntone.Client, cfg *Config, speak
 			slog.Warn("speaker not found in outputs", "name", sp.Name)
 			continue
 		}
-		if err := client.SetOutput(out.ID, true, sp.Volume); err != nil {
+		if err := client.SetOutput(ctx, out.ID, true, sp.Volume); err != nil {
 			slog.Warn("selecting output", "name", out.Name, "id", out.ID, "err", err)
 			continue
 		}
@@ -233,7 +233,7 @@ func executePlay(ctx context.Context, client *owntone.Client, cfg *Config, speak
 	bo.InitialInterval = 3 * time.Second
 	playlist, err := backoff.Retry(
 		ctx, func() (*owntone.Playlist, error) {
-			p, err := client.FindPlaylist(cfg.PlaylistName)
+			p, err := client.FindPlaylist(ctx, cfg.PlaylistName)
 			if err != nil {
 				return nil, backoff.Permanent(fmt.Errorf("find playlist: %w", err))
 			}
@@ -258,15 +258,15 @@ func executePlay(ctx context.Context, client *owntone.Client, cfg *Config, speak
 	}
 
 	// Clear queue, add playlist, play.
-	if err := client.ClearQueue(); err != nil {
+	if err := client.ClearQueue(ctx); err != nil {
 		resp.Error = fmt.Sprintf("clear queue: %v", err)
 		return resp, http.StatusBadGateway
 	}
-	if err := client.AddToQueue(playlist.URI); err != nil {
+	if err := client.AddToQueue(ctx, playlist.URI); err != nil {
 		resp.Error = fmt.Sprintf("add to queue: %v", err)
 		return resp, http.StatusBadGateway
 	}
-	if err := client.Play(); err != nil {
+	if err := client.Play(ctx); err != nil {
 		resp.Error = fmt.Sprintf("play: %v", err)
 		return resp, http.StatusBadGateway
 	}
@@ -337,20 +337,20 @@ func handleStop(client *owntone.Client) http.HandlerFunc {
 
 		resp := map[string]string{"status": "error"}
 
-		if err := client.Stop(); err != nil {
+		if err := client.Stop(r.Context()); err != nil {
 			resp["error"] = fmt.Sprintf("stop: %v", err)
 			writeJSON(w, http.StatusBadGateway, resp)
 			return
 		}
 
 		// Deselect all outputs.
-		outputs, err := client.GetOutputs()
+		outputs, err := client.GetOutputs(r.Context())
 		if err != nil {
 			slog.Warn("deselect after stop: get outputs", "err", err)
 		} else {
 			for _, o := range outputs {
 				if o.Selected {
-					if err := client.SetOutput(o.ID, false, -1); err != nil {
+					if err := client.SetOutput(r.Context(), o.ID, false, -1); err != nil {
 						slog.Warn("deselecting output", "name", o.Name, "id", o.ID, "err", err)
 					}
 				}
@@ -374,7 +374,7 @@ func handleStatus(client *owntone.Client) http.HandlerFunc {
 
 		var resp statusResponse
 
-		player, err := client.GetPlayer()
+		player, err := client.GetPlayer(r.Context())
 		if err != nil {
 			resp.Error = fmt.Sprintf("get player: %v", err)
 			writeJSON(w, http.StatusBadGateway, resp)
@@ -382,7 +382,7 @@ func handleStatus(client *owntone.Client) http.HandlerFunc {
 		}
 		resp.Player = player
 
-		outputs, err := client.GetOutputs()
+		outputs, err := client.GetOutputs(r.Context())
 		if err != nil {
 			resp.Error = fmt.Sprintf("get outputs: %v", err)
 			writeJSON(w, http.StatusBadGateway, resp)
@@ -449,7 +449,7 @@ func handleSetOutput(client *owntone.Client) http.HandlerFunc {
 
 		unlock := client.LockMutations()
 		defer unlock()
-		if err := client.SetOutput(id, selected, volume); err != nil {
+		if err := client.SetOutput(r.Context(), id, selected, volume); err != nil {
 			writeJSON(w, http.StatusBadGateway, map[string]string{
 				"error": fmt.Sprintf("set output: %v", err),
 			})

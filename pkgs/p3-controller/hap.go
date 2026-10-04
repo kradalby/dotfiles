@@ -109,7 +109,7 @@ func runHAP(ctx context.Context, client *owntone.Client, cfg *Config) error {
 		}
 		unlock := client.LockMutations()
 		defer unlock()
-		if err := client.Stop(); err != nil {
+		if err := client.Stop(ctx); err != nil {
 			slog.Error("hap stop", "err", err)
 		}
 	})
@@ -122,7 +122,7 @@ func runHAP(ctx context.Context, client *owntone.Client, cfg *Config) error {
 	go func() {
 		defer close(wsDone)
 		err := client.SubscribePlayer(wsCtx, func() {
-			player, err := client.GetPlayer()
+			player, err := client.GetPlayer(wsCtx)
 			if err != nil {
 				slog.Warn("hap get player on event", "err", err)
 				return
