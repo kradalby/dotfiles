@@ -543,9 +543,7 @@
             hostname = "kratail2";
             homeDir = /Users/kradalby;
           };
-          kratail2Modules = [
-            inputs.tailscale.darwinModules.default
-          ];
+          kratail2Modules = [ ];
 
           krairMachine = {
             arch = "aarch64-darwin";
@@ -653,6 +651,7 @@
           monitoring-pipeline = import ./checks/monitoring-pipeline.nix { inherit pkgs self; };
           # Fail if any host exposes an exporter/service that nothing scrapes.
           monitoring-coverage = import ./checks/monitoring-coverage { inherit pkgs self; };
+          inference = import ./checks/inference.nix { inherit pkgs self; };
           # core.tjoda's NIC recovery ladder: it only runs unattended, so its
           # thresholds are exercised here rather than discovered during an outage.
           link-watchdog = import ./checks/link-watchdog { inherit pkgs self; };

@@ -82,7 +82,6 @@ let
       "SyncthingFolderError"
       "SyncthingFolderStuck"
       "SyncthingNoConnections"
-      "TailnetServiceDown"
       "TailscaledRouteApprovalPending"
       "TimeMachineFlatline"
       "TjodaPingDown"

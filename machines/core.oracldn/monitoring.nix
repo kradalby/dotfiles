@@ -109,6 +109,16 @@ let
           valid_status_codes: [200, 301, 302, 401, 403]
           fail_if_ssl: false
           fail_if_not_ssl: false
+      # Inference APIs are unauthenticated inside the tailnet. A 403 means the
+      # Serve Host header was rejected, so it must fail this probe.
+      http_inference:
+        prober: http
+        timeout: 5s
+        http:
+          method: GET
+          preferred_ip_protocol: "ip4"
+          ip_protocol_fallback: false
+          valid_status_codes: [200]
       # restic REST endpoints answer 400 on / (verified against the live
       # rclone serve restic) — any HTTP status proves the VIP → daemon path
       # (a dead backend is a connection error, not a status code).
@@ -656,6 +666,13 @@ in
         {
           target = "core-tjoda";
           targets = [ "http://s3-tjoda:3903/health" ];
+        }
+      ])
+
+      (probeJobT "inference-probes" "http_inference" [
+        {
+          target = "rpi5-ldn";
+          targets = [ "http://llm-rpi5.dalby.ts.net/api/version" ];
         }
       ])
 
@@ -1289,12 +1306,40 @@ in
               }
               {
                 alert = "TailnetServiceDown";
-                expr = ''probe_success{job=~"tailnet-probes|tcp-probes"} == 0'';
+                expr = ''probe_success{job=~"tailnet-probes|tcp-probes|inference-probes"} == 0'';
                 for = "10m";
                 labels.severity = "warning";
                 annotations = {
                   summary = "Tailnet service {{ $labels.instance }} not responding";
                   description = "Convenience-tier service is down: dead tsnet node, expired node key, broken Serve mapping, or the backend itself.";
+                };
+              }
+              {
+                alert = "InferenceModelUnhealthy";
+                expr = "llm_inference_probe_success == 0 or time() - llm_inference_probe_timestamp_seconds > 7200";
+                for = "10m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "Inference probe failed or stopped for {{ $labels.model }} on {{ $labels.host }}";
+                  description = "The model failed its last generation probe or has not been checked in two hours. Check inference-healthcheck.service and ollama.service.";
+                };
+              }
+              {
+                alert = "InferenceMetricsMissing";
+                expr = ''
+                  absent(llm_inference_probe_success{service="llm-rpi5", model="qwen3.5:2b-q4_K_M"})
+                  or absent(llm_inference_probe_timestamp_seconds{service="llm-rpi5", model="qwen3.5:2b-q4_K_M"})
+                  or absent(llm_inference_probe_success{service="llm-rpi5", model="gemma4:e2b-it-q4_K_M"})
+                  or absent(llm_inference_probe_timestamp_seconds{service="llm-rpi5", model="gemma4:e2b-it-q4_K_M"})
+                '';
+                for = "1h";
+                labels = {
+                  severity = "warning";
+                  target = "rpi5-ldn";
+                };
+                annotations = {
+                  summary = "Inference metrics are missing for {{ $labels.model }}";
+                  description = "The model probe metric is absent. Check inference-healthcheck.timer and the node-exporter textfile collector on rpi5-ldn.";
                 };
               }
               {
