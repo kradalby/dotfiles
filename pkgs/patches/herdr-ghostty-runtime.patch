@@ -1,0 +1,12 @@
+diff --git a/vendor/libghostty-vt/src/build/GhosttyLibVt.zig b/vendor/libghostty-vt/src/build/GhosttyLibVt.zig
+--- a/vendor/libghostty-vt/src/build/GhosttyLibVt.zig
++++ b/vendor/libghostty-vt/src/build/GhosttyLibVt.zig
+@@ -241,7 +241,7 @@
+         // Otherwise, you get undefined symbol errors. This could cause
+         // problems if you're linking multiple static Zig libraries but
+         // we'll cross that bridge when we get to it.
+-        lib.bundle_compiler_rt = true;
++        lib.bundle_compiler_rt = target.result.cpu.arch != .x86_64 or target.result.os.tag != .linux;
+         lib.bundle_ubsan_rt = true;
+
+         // Enable PIC so the static library can be linked into PIE

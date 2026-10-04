@@ -303,7 +303,23 @@
             ssh-agent-mux = inputs.ssh-agent-mux.packages."${system}".default;
             # Direct package (not herdr.overlays.default — that composes
             # rust-overlay and drags rust-bin into pkgs).
-            herdr = inputs.herdr.packages."${system}".default;
+            herdr =
+              let
+                package = inputs.herdr.packages."${system}".default;
+              in
+              if prev.stdenv.hostPlatform.isAarch64 && prev.stdenv.hostPlatform.isLinux then
+                package.overrideAttrs (old: {
+                  # Zig's bundled ARM compiler runtime requires LLD's ELF linker.
+                  nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ prev.llvmPackages.lld ];
+                  RUSTFLAGS = (old.RUSTFLAGS or "") + " -C link-arg=-fuse-ld=lld";
+                })
+              else if prev.stdenv.hostPlatform.isx86_64 && prev.stdenv.hostPlatform.isLinux then
+                package.overrideAttrs (old: {
+                  # Rust supplies this runtime; Zig 0.16 emits malformed x86 ELF symbols.
+                  patches = (old.patches or [ ]) ++ [ ./pkgs/patches/herdr-ghostty-runtime.patch ];
+                })
+              else
+                package;
             # The agent skill (teaches an agent to drive herdr) is bundled in the
             # binary and printed by `herdr --skill`, so it tracks the package
             # version — nothing to vendor or maintain.
