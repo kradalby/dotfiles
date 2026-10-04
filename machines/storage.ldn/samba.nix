@@ -1,8 +1,19 @@
-{ lib, ... }: {
+{ config, lib, ... }: {
   imports = [
     ../../common/samba-base.nix
     ../../common/samba-storage.nix
   ];
+
+  networking.firewall.interfaces = lib.genAttrs [ config.my.lan "tailscale0" ] (_: {
+    allowedTCPPorts = [
+      139
+      445
+    ];
+    allowedUDPPorts = [
+      137
+      138
+    ];
+  });
 
   services.samba = {
     settings = {
