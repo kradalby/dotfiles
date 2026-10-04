@@ -62,7 +62,6 @@
     wantedBy = [ "multi-user.target" ];
     serviceConfig = {
       Type = "oneshot";
-      RemainAfterExit = true;
     };
     script = ''
       shielded=0
