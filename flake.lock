@@ -201,7 +201,7 @@
           "tasmota-homekit",
           "nixpkgs"
         ],
-        "treefmt-nix": "treefmt-nix_13"
+        "treefmt-nix": "treefmt-nix_12"
       },
       "locked": {
         "lastModified": 1790324098,
@@ -227,7 +227,7 @@
           "ts1p",
           "nixpkgs"
         ],
-        "treefmt-nix": "treefmt-nix_15"
+        "treefmt-nix": "treefmt-nix_14"
       },
       "locked": {
         "lastModified": 1790324098,
@@ -251,7 +251,7 @@
           "headscale",
           "nixpkgs"
         ],
-        "treefmt-nix": "treefmt-nix_16"
+        "treefmt-nix": "treefmt-nix_15"
       },
       "locked": {
         "lastModified": 1790324098,
@@ -274,7 +274,7 @@
           "tsnixcache",
           "nixpkgs"
         ],
-        "treefmt-nix": "treefmt-nix_17"
+        "treefmt-nix": "treefmt-nix_16"
       },
       "locked": {
         "lastModified": 1790324098,
@@ -300,7 +300,7 @@
           "z2m-homekit",
           "nixpkgs"
         ],
-        "treefmt-nix": "treefmt-nix_18"
+        "treefmt-nix": "treefmt-nix_17"
       },
       "locked": {
         "lastModified": 1790324098,
@@ -502,7 +502,7 @@
           "tasmota-exporter",
           "nixpkgs"
         ],
-        "treefmt-nix": "treefmt-nix_12"
+        "treefmt-nix": "treefmt-nix_11"
       },
       "locked": {
         "lastModified": 1790324098,
@@ -1704,11 +1704,10 @@
         "nixpkgs-stable": "nixpkgs-stable",
         "nixpkgs-unstable": "nixpkgs-unstable",
         "ragenix": "ragenix",
-        "ssh-agent-mux": "ssh-agent-mux",
         "tailscale": "tailscale",
         "tasmota-exporter": "tasmota-exporter",
         "tasmota-homekit": "tasmota-homekit",
-        "treefmt-nix": "treefmt-nix_14",
+        "treefmt-nix": "treefmt-nix_13",
         "ts1p": "ts1p",
         "tsidp": "tsidp",
         "tsnixcache": "tsnixcache",
@@ -1757,27 +1756,6 @@
         "type": "github"
       }
     },
-    "rust-overlay_3": {
-      "inputs": {
-        "nixpkgs": [
-          "ssh-agent-mux",
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1790321428,
-        "narHash": "sha256-JQBGEZDY6up5yu0ehQeDDnjvsw7MP8d4AlaBd9RxZVI=",
-        "owner": "oxalica",
-        "repo": "rust-overlay",
-        "rev": "84fb3c79e477d5e7ec4eff9c24dbc5d5c99b0fd1",
-        "type": "github"
-      },
-      "original": {
-        "owner": "oxalica",
-        "repo": "rust-overlay",
-        "type": "github"
-      }
-    },
     "sops-nix": {
       "inputs": {
         "nixpkgs": [
@@ -1813,31 +1791,6 @@
       "original": {
         "type": "git",
         "url": "https://spectrum-os.org/git/spectrum"
-      }
-    },
-    "ssh-agent-mux": {
-      "inputs": {
-        "flake-utils": [
-          "flake-utils"
-        ],
-        "nixpkgs": [
-          "nixpkgs-unstable"
-        ],
-        "rust-overlay": "rust-overlay_3",
-        "treefmt-nix": "treefmt-nix_11"
-      },
-      "locked": {
-        "lastModified": 1790340338,
-        "narHash": "sha256-FTY63VImb1Kev5122jjqrDfHksfh6omJuxLY4YxQPdY=",
-        "owner": "kradalby",
-        "repo": "ssh-agent-mux",
-        "rev": "7ab954e5f5137e58ea1174104c9c2d8897bf23a4",
-        "type": "github"
-      },
-      "original": {
-        "owner": "kradalby",
-        "repo": "ssh-agent-mux",
-        "type": "github"
       }
     },
     "systems": {
@@ -2139,27 +2092,6 @@
     "treefmt-nix_11": {
       "inputs": {
         "nixpkgs": [
-          "ssh-agent-mux",
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1786901030,
-        "narHash": "sha256-WSFCsDSE5ffgD2MqzkM2CYjeFiKhRF/dJUN8uedb6YE=",
-        "owner": "numtide",
-        "repo": "treefmt-nix",
-        "rev": "27b3b12a8e6375f28ebe122f07d230ca5459bbfa",
-        "type": "github"
-      },
-      "original": {
-        "owner": "numtide",
-        "repo": "treefmt-nix",
-        "type": "github"
-      }
-    },
-    "treefmt-nix_12": {
-      "inputs": {
-        "nixpkgs": [
           "tasmota-exporter",
           "flake-checks",
           "nixpkgs"
@@ -2179,7 +2111,7 @@
         "type": "github"
       }
     },
-    "treefmt-nix_13": {
+    "treefmt-nix_12": {
       "inputs": {
         "nixpkgs": [
           "tasmota-homekit",
@@ -2201,7 +2133,7 @@
         "type": "github"
       }
     },
-    "treefmt-nix_14": {
+    "treefmt-nix_13": {
       "inputs": {
         "nixpkgs": [
           "nixpkgs-stable"
@@ -2221,7 +2153,7 @@
         "type": "github"
       }
     },
-    "treefmt-nix_15": {
+    "treefmt-nix_14": {
       "inputs": {
         "nixpkgs": [
           "ts1p",
@@ -2243,7 +2175,7 @@
         "type": "github"
       }
     },
-    "treefmt-nix_16": {
+    "treefmt-nix_15": {
       "inputs": {
         "nixpkgs": [
           "ts1p",
@@ -2266,7 +2198,7 @@
         "type": "github"
       }
     },
-    "treefmt-nix_17": {
+    "treefmt-nix_16": {
       "inputs": {
         "nixpkgs": [
           "tsnixcache",
@@ -2288,7 +2220,7 @@
         "type": "github"
       }
     },
-    "treefmt-nix_18": {
+    "treefmt-nix_17": {
       "inputs": {
         "nixpkgs": [
           "z2m-homekit",
