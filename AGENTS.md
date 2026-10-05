@@ -5,10 +5,12 @@
 Before changing anything, read [`docs/conventions/`](docs/conventions/) — the
 `README.md` index, the file for the stack you're touching, and
 [`services.md`](docs/conventions/services.md) for anything you run on the fleet
-(Tailscale reachability + Prometheus observability + backups). Follow them. If a
-change would contradict a convention, or you notice one that's missing, wrong, or
-stale, **propose an update to the convention doc in the same change** rather than
-silently diverging.
+(Tailscale reachability + Prometheus observability + backups). Follow them.
+
+Conventions are curated exclusively by kradalby. Agents must never add, edit, or
+delete files in `docs/conventions/`. Keep service and implementation documentation
+beside the relevant module or host. If a convention is missing, stale, or conflicts
+with a requested change, flag it to kradalby without modifying the conventions.
 
 ## Project Structure & Module Organization
 
