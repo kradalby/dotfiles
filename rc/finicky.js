@@ -1,24 +1,7 @@
 export default {
-  defaultBrowser: "Google Chrome",
+  defaultBrowser: finicky.getSystemInfo().localizedName === "kratail2" ? "Google Chrome" : "Safari",
+  // Destination rules override opener rules; first match wins.
   handlers: [
-    {
-      // App routing must take precedence over website rules.
-      match: (_url, { opener }) =>
-        [
-          "com.openai.chat",
-          "com.openai.codex",
-          "com.anthropic.claudefordesktop",
-        ].includes(opener?.bundleId),
-      browser: "Safari"
-    },
-    {
-      match: /^https?:\/\/github\.com\/.*\/headscale\/.*$/,
-      browser: "Safari"
-    },
-    {
-      match: /^https?:\/\/github\.com\/kradalby([\/?#]|$)/,
-      browser: "Safari"
-    },
     {
       match: finicky.matchHostnames([
         "youtube.com",
@@ -30,6 +13,14 @@ export default {
         "youtube.app.goo.gl",
       ]),
       browser: "Firefox"
+    },
+    {
+      match: /^https?:\/\/github\.com\/.*\/headscale\/.*$/,
+      browser: "Safari"
+    },
+    {
+      match: /^https?:\/\/github\.com\/kradalby([\/?#]|$)/,
+      browser: "Safari"
     },
     {
       match: finicky.matchHostnames([
@@ -62,6 +53,9 @@ export default {
     {
       match: (_url, { opener }) =>
         [
+          "com.openai.chat",
+          "com.openai.codex",
+          "com.anthropic.claudefordesktop",
           "com.hnc.Discord",
           "net.whatsapp.WhatsApp",             // WhatsApp
           "org.whispersystems.signal-desktop",  // Signal
