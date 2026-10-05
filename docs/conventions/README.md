@@ -1,5 +1,7 @@
 # kradalby conventions
 
+Curated conventions, not documentation. Edits require kradalby's permission.
+
 Starting a new project? Read this file, then the file for your stack.
 
 ## Universal rules
