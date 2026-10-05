@@ -110,17 +110,6 @@ in
     };
   };
 
-  # Configure SSH agent mux for work machine
-  services.ssh-agent-mux = {
-    enable = true;
-    agentSockets = [
-      "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
-      "~/Library/Containers/com.maxgoedjen.Secretive.SecretAgent/Data/socket.ssh"
-      "~/.ssh/yubikey-agent.sock"
-    ];
-    watchForSSHForward = true; # Automatically detect and use forwarded agents
-  };
-
   # Work-specific overrides
   home-manager.users.kradalby = {
     imports = [ ../../home/atuin.nix ];

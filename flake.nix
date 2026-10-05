@@ -137,12 +137,6 @@
       inputs.flake-compat.follows = "";
     };
 
-    ssh-agent-mux = {
-      url = "github:kradalby/ssh-agent-mux";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-      inputs."flake-utils".follows = "flake-utils";
-    };
-
     munin.url = "github:kradalby/munin";
 
     neovim-kradalby = {
@@ -300,7 +294,6 @@
           {
             neovim = neovim-kradalby.packages."${system}".neovim-kradalby;
             tailscale = tailscale.packages."${system}".tailscale;
-            ssh-agent-mux = inputs.ssh-agent-mux.packages."${system}".default;
             # Direct package (not herdr.overlays.default — that composes
             # rust-overlay and drags rust-bin into pkgs).
             herdr = inputs.herdr.packages."${system}".default;
@@ -551,7 +544,6 @@
             homeDir = /Users/kradalby;
           };
           kratail2Modules = [
-            inputs.ssh-agent-mux.darwinModules.default
             inputs.tailscale.darwinModules.default
           ];
 
@@ -561,13 +553,11 @@
             hostname = "krair";
             homeDir = /Users/kradalby;
           };
-          krairModules = [ inputs.ssh-agent-mux.darwinModules.default ];
-
           rosetta = inputs.nix-rosetta-builder.darwinModules.default;
         in
         {
           kratail2 = box.macBox kratail2Machine darwin home-manager (kratail2Modules ++ [ rosetta ]);
-          krair = box.macBox krairMachine darwin home-manager (krairModules ++ [ rosetta ]);
+          krair = box.macBox krairMachine darwin home-manager [ rosetta ];
         };
 
       homeConfigurations = {
