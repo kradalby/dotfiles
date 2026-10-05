@@ -2,9 +2,9 @@
 
 ## Conventions (read first)
 
-Before changing anything, read [`docs/conventions/`](docs/conventions/) — the
-`README.md` index, the file for the stack you're touching, and
-[`services.md`](docs/conventions/services.md) for anything you run on the fleet
+Always read [`docs/conventions/README.md`](docs/conventions/README.md) before
+starting work, then the convention file for the stack you're touching. For
+anything run on the fleet, also read [`services.md`](docs/conventions/services.md)
 (Tailscale reachability + Prometheus observability + backups). Follow them.
 
 Conventions are curated exclusively by kradalby. Agents must never add, edit, or
