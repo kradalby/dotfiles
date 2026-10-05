@@ -61,3 +61,5 @@ notify-on-command-finish-after = 30s
 # Ref: https://github.com/ghostty-org/ghostty/discussions/10919
 # Remove this workaround when Ghostty supports an exec keybind action.
 keybind = cmd+shift+t=unbind
+
+auto-update-channel = tip
