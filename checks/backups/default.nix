@@ -16,7 +16,33 @@ let
     lib.findFirst (script: lib.hasInfix "restic-source-guard" (toString script))
       (throw "Restic source preflight is missing")
       guardConfig.config.systemd.services.restic-backups-tjoda.serviceConfig.ExecStartPre;
+  coreConfig = core.config;
+  units = map (db: "sqlite-backup-${db.name}.service") coreConfig.my.litestream.databases;
+  jobs = [
+    "tjoda"
+    "ldn"
+    "jotta"
+  ];
 in
+assert lib.all (
+  job:
+  lib.all (
+    unit:
+    builtins.elem unit coreConfig.systemd.services."restic-backups-${job}".requires
+    && builtins.elem unit coreConfig.systemd.services."restic-backups-${job}".after
+  ) units
+) jobs;
+assert lib.all (
+  job:
+  lib.all (
+    db:
+    lib.all (path: builtins.elem path coreConfig.services.restic.backups.${job}.exclude) [
+      db.path
+      "${db.path}-wal"
+      "${db.path}-shm"
+    ]
+  ) coreConfig.my.litestream.databases
+) jobs;
 pkgs.runCommand "backup-regressions"
   {
     nativeBuildInputs = with pkgs; [
