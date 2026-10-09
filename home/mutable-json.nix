@@ -43,7 +43,7 @@ in
             description = "Serialisation format for value.";
           };
           value = lib.mkOption {
-            type = lib.types.attrs;
+            type = lib.types.either lib.types.attrs (lib.types.listOf lib.types.attrs);
             description = "Canonical config content.";
           };
         };

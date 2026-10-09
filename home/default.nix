@@ -68,6 +68,15 @@ in
       target = ".codex/hooks.json";
       value = (import ./ai.nix).codexHooks;
     };
+    codex-keybindings = {
+      target = ".codex/keybindings.json";
+      value = [
+        {
+          command = "openAvatarOverlay";
+          key = null;
+        }
+      ];
+    };
   };
 
   # These files are seeded once, so migrate just our hook and environment
