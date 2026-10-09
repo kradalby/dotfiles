@@ -31,6 +31,8 @@ in
     # Standalone Home Manager hosts (e.g. kradalby-llm) should
     # override with config.home.profileDirectory/bin.
     env = {
+      CLAUDE_CODE_DISABLE_AUTO_MEMORY = "1";
+
       # Pairs with ponytail: ponytail what gets built, caveman how it reads.
       CAVEMAN_DEFAULT_MODE = "full";
 

@@ -156,6 +156,7 @@ in
       # Disable Claude Code's adaptive thinking heuristic so every turn
       # gets the full thinking budget instead of being shortchanged.
       CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING = "1";
+      CLAUDE_CODE_DISABLE_AUTO_MEMORY = "1";
     };
 
     language = {
