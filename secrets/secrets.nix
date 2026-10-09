@@ -73,6 +73,7 @@ with builtins;
   # Grafana
   "grafana-admin.age".publicKeys = u ++ [ hosts.core-oracldn ];
   "grafana-secret-key.age".publicKeys = u ++ [ hosts.core-oracldn ];
+  "grafana-mcp-env.age".publicKeys = u ++ [ hosts.core-oracldn ];
 
   "alertmanager-env.age".publicKeys = u ++ [ hosts.core-oracldn ];
 
