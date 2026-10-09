@@ -21,6 +21,7 @@
     ./monitoring.nix
     ./slo.nix
     ./grafana.nix
+    ./grafana-mcp.nix
     ./postgres.nix
     ./stirling-pdf.nix
     ./litestream.nix

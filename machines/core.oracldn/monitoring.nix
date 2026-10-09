@@ -576,6 +576,7 @@ in
       # Native app metrics over tailnet names. krapage/hvor/nefit expose only
       # go runtime series — up{} liveness is the honest signal there.
       (scrapeJob "grafana" [ "localhost:3000" ])
+      (scrapeJob "grafana-mcp" [ "localhost:63471" ])
       (scrapeJob "krapage" [ "krapage:80" ])
       (scrapeJob "hvor" [ "hvor:80" ])
       (scrapeJob "hugin" [ "hugin:80" ])
@@ -627,6 +628,7 @@ in
           target = "core-oracldn";
           targets = [
             "http://grafana.dalby.ts.net"
+            "http://grafana-mcp.dalby.ts.net/healthz"
             "http://pdf.dalby.ts.net"
             "http://go.dalby.ts.net"
           ];

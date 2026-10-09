@@ -8,17 +8,16 @@ let
   ai = import ./ai.nix;
   jq = lib.getExe pkgs.jq;
   home = config.home.homeDirectory;
-  picnicUrl = ai.claudeMcpServers.picnic.url;
   desktopConfig = "${home}/Library/Application Support/Claude/claude_desktop_config.json";
 
   # Claude Desktop's config file only launches stdio servers; mcp-remote
   # bridges to the http one. --allow-http because the VIP is plain http.
-  desktopPicnic = {
+  desktopServer = url: {
     command = "${pkgs.nodejs}/bin/npx";
     args = [
       "-y"
       "mcp-remote@0.14.3"
-      picnicUrl
+      url
       "--allow-http"
     ];
     # npx runs the package's `#!/usr/bin/env node` bin; Desktop's PATH has no node.
@@ -44,20 +43,29 @@ let
 in
 {
   home.activation.mcpServers = lib.hm.dag.entryAfter [ "writeBoundary" "mutableJson" ] (
-    merge "${home}/.claude.json" ".mcpServers.picnic" ai.claudeMcpServers.picnic
-    + merge "${home}/.config/opencode/opencode.json" ".mcp.picnic" ai.opencode.mcp.picnic
-    + lib.optionalString config.my.packages.ai.codex ''
-      if ! ${lib.getExe pkgs.master.codex} mcp get picnic >/dev/null 2>&1; then
-        run ${lib.getExe pkgs.master.codex} mcp add picnic --url ${picnicUrl}
-      fi
-    ''
+    lib.concatStrings (
+      lib.mapAttrsToList (
+        name: server:
+        merge "${home}/.claude.json" ".mcpServers.${name}" server
+        + merge "${home}/.config/opencode/opencode.json" ".mcp.${name}" ai.opencode.mcp.${name}
+        + lib.optionalString config.my.packages.ai.codex ''
+          if ! ${lib.getExe pkgs.master.codex} mcp get ${lib.escapeShellArg name} >/dev/null 2>&1; then
+            run ${lib.getExe pkgs.master.codex} mcp add ${lib.escapeShellArg name} --url ${lib.escapeShellArg server.url}
+          fi
+        ''
+      ) ai.claudeMcpServers
+    )
     + lib.optionalString pkgs.stdenv.hostPlatform.isDarwin (
       ''
         if [ -d ${lib.escapeShellArg (dirOf desktopConfig)} ] && [ ! -f ${lib.escapeShellArg desktopConfig} ]; then
           run install -m600 ${pkgs.writeText "empty.json" "{}"} ${lib.escapeShellArg desktopConfig}
         fi
       ''
-      + merge desktopConfig ".mcpServers.picnic" desktopPicnic
+      + lib.concatStrings (
+        lib.mapAttrsToList (
+          name: server: merge desktopConfig ".mcpServers.${name}" (desktopServer server.url)
+        ) ai.claudeMcpServers
+      )
     )
   );
 }

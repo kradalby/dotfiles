@@ -10,6 +10,7 @@ let
   # Served by home.ldn (machines/home.ldn/picnic-mcp.nix). http: the VIP does
   # not terminate TLS.
   picnicMcp = "http://picnic-mcp.dalby.ts.net/mcp";
+  grafanaMcp = "http://grafana-mcp.dalby.ts.net/mcp";
 in
 {
   # Claude Code ignores mcpServers in settings.json; it reads user-scope
@@ -17,6 +18,10 @@ in
   claudeMcpServers.picnic = {
     type = "http";
     url = picnicMcp;
+  };
+  claudeMcpServers.grafana = {
+    type = "http";
+    url = grafanaMcp;
   };
 
   claude = {
@@ -190,6 +195,10 @@ in
       type = "remote";
       url = picnicMcp;
     };
+    mcp.grafana = {
+      type = "remote";
+      url = grafanaMcp;
+    };
 
     permission = {
       # Allow reading from common project/build directories.
@@ -229,6 +238,7 @@ in
     features.hooks = true;
     shell_environment_policy.set.BASH_ENV = "$HOME/.codex/hooks/session-env.sh";
     mcp_servers.picnic.url = picnicMcp;
+    mcp_servers.grafana.url = grafanaMcp;
   };
 
   # ~/.codex/hooks.json — the single hook layer. herdr merges its own
