@@ -57,12 +57,14 @@ in
       name: f: lib.nameValuePair "${f.target}.nix" { source = genFor name f; }
     ) cfg;
 
-    # Seed the live file from the store path if it is missing. Seeding from
-    # the store path (not the .nix symlink) avoids depending on link order.
-    home.activation.mutableJson = lib.hm.dag.entryAfter [ "writeBoundary" ] (
+    # Old managed links must be removed before seeding writable replacements.
+    home.activation.mutableJson = lib.hm.dag.entryAfter [ "linkGeneration" ] (
       lib.concatStringsSep "\n" (
         lib.mapAttrsToList (name: f: ''
-          [ -e "$HOME/${f.target}" ] || run install -m644 "${genFor name f}" "$HOME/${f.target}"
+          if [ ! -e "$HOME/${f.target}" ]; then
+            run mkdir -p "$HOME/${dirOf f.target}"
+            run install -m644 "${genFor name f}" "$HOME/${f.target}"
+          fi
         '') cfg
       )
     );
