@@ -111,6 +111,54 @@ pkgs.testers.runNixOSTest {
                     hypervisor = "core-ldn";
                   };
                 }
+                {
+                  alert = "AlertmanagerDeliveryErrorBudgetBurn";
+                  expr = "vector(1)";
+                  labels = {
+                    severity = "critical";
+                    integration = "discord";
+                  };
+                }
+                {
+                  alert = "AlertmanagerDeliveryErrorBudgetBurn";
+                  expr = "vector(1)";
+                  labels = {
+                    severity = "warning";
+                    integration = "discord";
+                  };
+                }
+                {
+                  alert = "AlertmanagerDeliveryErrorBudgetBurn";
+                  expr = "vector(1)";
+                  labels = {
+                    severity = "warning";
+                    integration = "email";
+                  };
+                }
+                {
+                  alert = "SeverityInhibitionTest";
+                  expr = "vector(1)";
+                  labels = {
+                    severity = "critical";
+                    host = "severity-test-host";
+                  };
+                }
+                {
+                  alert = "SeverityInhibitionTest";
+                  expr = "vector(1)";
+                  labels = {
+                    severity = "warning";
+                    host = "severity-test-host";
+                  };
+                }
+                {
+                  alert = "SeverityInhibitionTest";
+                  expr = "vector(1)";
+                  labels = {
+                    severity = "warning";
+                    host = "other-severity-host";
+                  };
+                }
               ];
             }
           ];
@@ -252,5 +300,34 @@ pkgs.testers.runNixOSTest {
         for hit in hits
         for a in hit["alerts"]
     ), hits
+
+    # A critical delivery failure must suppress only its integration's warning.
+    # These alerts deliberately lack host, matching the generated Sloth labels.
+    machine.wait_until_succeeds('grep -q "email" /tmp/hits', timeout=120)
+    machine.wait_until_succeeds('grep -q "other-severity-host" /tmp/hits', timeout=120)
+    hits = [json.loads(line) for line in machine.succeed("cat /tmp/hits").splitlines()]
+    delivery = {
+        (a["labels"]["integration"], a["labels"]["severity"], hit["path"])
+        for hit in hits
+        for a in hit["alerts"]
+        if a["labels"]["alertname"] == "AlertmanagerDeliveryErrorBudgetBurn"
+    }
+    assert delivery == {
+        ("discord", "critical", "/critical"),
+        ("email", "warning", "/discord"),
+    }, delivery
+
+    # Without integration on either alert, same-host severity inhibition still
+    # applies, while the warning from another host must be delivered.
+    severity = {
+        (a["labels"]["host"], a["labels"]["severity"], hit["path"])
+        for hit in hits
+        for a in hit["alerts"]
+        if a["labels"]["alertname"] == "SeverityInhibitionTest"
+    }
+    assert severity == {
+        ("severity-test-host", "critical", "/critical"),
+        ("other-severity-host", "warning", "/discord"),
+    }, severity
   '';
 }

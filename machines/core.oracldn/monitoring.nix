@@ -2329,12 +2329,14 @@ in
             ];
           }
           {
-            # Critical inhibits warning for the same alert+host
+            # Critical inhibits warning for the same alert, host and integration.
+            # Alerts without integration still match each other.
             source_matchers = [ "severity=\"critical\"" ];
             target_matchers = [ "severity=\"warning\"" ];
             equal = [
               "alertname"
               "host"
+              "integration"
             ];
           }
           {
