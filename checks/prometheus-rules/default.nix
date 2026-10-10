@@ -71,8 +71,6 @@ let
       "ServiceFlapping"
       "ServiceRestartLoop"
       "SfiberProxyDown"
-      "SmokepingPacketLoss"
-      "SmokepingTargetDown"
       "SwapThrash"
       "SyncthingFolderConflicts"
       "SyncthingFolderError"
