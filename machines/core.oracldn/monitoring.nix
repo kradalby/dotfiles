@@ -1477,8 +1477,8 @@ in
                 for = "15m";
                 labels.severity = "warning";
                 annotations = {
-                  summary = "Packet loss >10% to {{ $labels.host }} from {{ $labels.instance }}";
-                  description = "Smokeping is detecting sustained packet loss to {{ $labels.host }}.";
+                  summary = "Packet loss >10% to {{ $labels.exported_host }} from {{ $labels.instance }}";
+                  description = "Smokeping is detecting sustained packet loss to {{ $labels.exported_host }}.";
                 };
               }
               {
@@ -1487,8 +1487,8 @@ in
                 for = "15m";
                 labels.severity = "critical";
                 annotations = {
-                  summary = "100% packet loss to {{ $labels.host }} from {{ $labels.instance }}";
-                  description = "Smokeping is detecting complete packet loss to {{ $labels.host }} for more than 15 minutes.";
+                  summary = "100% packet loss to {{ $labels.exported_host }} from {{ $labels.instance }}";
+                  description = "Smokeping is detecting complete packet loss to {{ $labels.exported_host }} for more than 15 minutes.";
                 };
               }
             ];
