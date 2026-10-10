@@ -8,6 +8,58 @@ rule_files:
 evaluation_interval: 1m
 
 tests:
+  - name: Watchdog and email successes cannot mask Discord delivery failures
+    interval: 1m
+    input_series:
+      - series: 'alertmanager_notifications_total{job="alertmanager", instance="localhost:9093", integration="discord"}'
+        values: "0+2x120"
+      - series: 'alertmanager_notifications_failed_total{job="alertmanager", instance="localhost:9093", integration="discord", reason="clientError"}'
+        values: "0+1x120"
+      - series: 'alertmanager_notifications_failed_total{job="alertmanager", instance="localhost:9093", integration="discord", reason="serverError"}'
+        values: "0+1x120"
+      - series: 'alertmanager_notifications_total{job="alertmanager", instance="localhost:9093", integration="email"}'
+        values: "0+100x120"
+      - series: 'alertmanager_notifications_failed_total{job="alertmanager", instance="localhost:9093", integration="email", reason="other"}'
+        values: "0x120"
+      - series: 'alertmanager_notifications_total{job="alertmanager", instance="localhost:9093", integration="webhook"}'
+        values: "0+1000x120"
+      - series: 'alertmanager_notifications_failed_total{job="alertmanager", instance="localhost:9093", integration="webhook", reason="other"}'
+        values: "0x120"
+    promql_expr_test:
+      - expr: 'slo:sli_error:ratio_rate5m{sloth_slo="alertmanager-delivery"}'
+        eval_time: 30m
+        exp_samples:
+          - labels: 'slo:sli_error:ratio_rate5m{cluster="homelab", integration="discord", sloth_id="homelab-alertmanager-delivery", sloth_service="homelab", sloth_slo="alertmanager-delivery", sloth_window="5m"}'
+            value: 1
+          - labels: 'slo:sli_error:ratio_rate5m{cluster="homelab", integration="email", sloth_id="homelab-alertmanager-delivery", sloth_service="homelab", sloth_slo="alertmanager-delivery", sloth_window="5m"}'
+            value: 0
+    alert_rule_test:
+      - eval_time: 30m
+        alertname: AlertmanagerDeliveryErrorBudgetBurn
+        exp_alerts:
+          - exp_labels:
+              cluster: homelab
+              integration: discord
+              sloth_id: homelab-alertmanager-delivery
+              sloth_service: homelab
+              sloth_slo: alertmanager-delivery
+              severity: critical
+              sloth_severity: page
+            exp_annotations:
+              summary: "AlertmanagerDeliveryErrorBudgetBurn: burning error budget too fast"
+              title: "(page) homelab alertmanager-delivery SLO error budget burn rate is too fast."
+          - exp_labels:
+              cluster: homelab
+              integration: discord
+              sloth_id: homelab-alertmanager-delivery
+              sloth_service: homelab
+              sloth_slo: alertmanager-delivery
+              severity: warning
+              sloth_severity: ticket
+            exp_annotations:
+              summary: "AlertmanagerDeliveryErrorBudgetBurn: burning error budget too fast"
+              title: "(ticket) homelab alertmanager-delivery SLO error budget burn rate is too fast."
+
   - name: Missing Incus guests retain their backing labels
     interval: 1m
     input_series:

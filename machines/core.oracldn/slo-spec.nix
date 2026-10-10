@@ -52,14 +52,14 @@ let
         alertName = "LitestreamErrorBudgetBurn";
       })
 
-      # The prom→receiver delivery leg. The external dead-man is the backstop
-      # for the case where this alert itself can't be delivered.
+      # Human delivery, per integration. Watchdog's frequent webhook successes
+      # prove heartbeat delivery only and must not dilute Discord/email errors.
       (mkSLO {
         name = "alertmanager-delivery";
-        description = "Alertmanager notification failure ratio";
+        description = "Alertmanager human notification failure ratio per integration";
         objective = 99.0;
-        errorQuery = "sum(rate(alertmanager_notifications_failed_total[{{.window}}]))";
-        totalQuery = "sum(rate(alertmanager_notifications_total[{{.window}}]))";
+        errorQuery = ''sum by (integration) (rate(alertmanager_notifications_failed_total{job="alertmanager",integration=~"discord|email"}[{{.window}}]))'';
+        totalQuery = ''sum by (integration) (rate(alertmanager_notifications_total{job="alertmanager",integration=~"discord|email"}[{{.window}}]))'';
         alertName = "AlertmanagerDeliveryErrorBudgetBurn";
       })
 
