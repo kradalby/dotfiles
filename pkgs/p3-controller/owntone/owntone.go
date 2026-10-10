@@ -5,6 +5,7 @@ package owntone
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -82,9 +83,9 @@ type playlistsResponse struct {
 }
 
 // GetOutputs returns all configured outputs (speakers).
-func (c *Client) GetOutputs() ([]Output, error) {
+func (c *Client) GetOutputs(ctx context.Context) ([]Output, error) {
 	var resp outputsResponse
-	if err := c.getJSON("/api/outputs", &resp); err != nil {
+	if err := c.getJSON(ctx, "/api/outputs", &resp); err != nil {
 		return nil, fmt.Errorf("get outputs: %w", err)
 	}
 	return resp.Outputs, nil
@@ -92,54 +93,54 @@ func (c *Client) GetOutputs() ([]Output, error) {
 
 // SetOutput enables/disables an output and optionally sets its volume.
 // If volume is negative, the volume is not changed.
-func (c *Client) SetOutput(id string, selected bool, volume int) error {
+func (c *Client) SetOutput(ctx context.Context, id string, selected bool, volume int) error {
 	body := map[string]any{"selected": selected}
 	if volume >= 0 {
 		body["volume"] = volume
 	}
-	if err := c.putJSON(fmt.Sprintf("/api/outputs/%s", id), body); err != nil {
+	if err := c.putJSON(ctx, fmt.Sprintf("/api/outputs/%s", id), body); err != nil {
 		return fmt.Errorf("set output %s: %w", id, err)
 	}
 	return nil
 }
 
 // GetPlayer returns the current player state.
-func (c *Client) GetPlayer() (*Player, error) {
+func (c *Client) GetPlayer(ctx context.Context) (*Player, error) {
 	var p Player
-	if err := c.getJSON("/api/player", &p); err != nil {
+	if err := c.getJSON(ctx, "/api/player", &p); err != nil {
 		return nil, fmt.Errorf("get player: %w", err)
 	}
 	return &p, nil
 }
 
 // Play starts playback.
-func (c *Client) Play() error {
-	return c.put("/api/player/play")
+func (c *Client) Play(ctx context.Context) error {
+	return c.put(ctx, "/api/player/play")
 }
 
 // Stop stops playback.
-func (c *Client) Stop() error {
-	return c.put("/api/player/stop")
+func (c *Client) Stop(ctx context.Context) error {
+	return c.put(ctx, "/api/player/stop")
 }
 
 // ClearQueue removes all items from the play queue.
-func (c *Client) ClearQueue() error {
-	return c.put("/api/queue/clear")
+func (c *Client) ClearQueue(ctx context.Context) error {
+	return c.put(ctx, "/api/queue/clear")
 }
 
 // AddToQueue adds items to the queue by URI
 // (e.g. "library:playlist:1").
-func (c *Client) AddToQueue(uri string) error {
+func (c *Client) AddToQueue(ctx context.Context, uri string) error {
 	u := fmt.Sprintf("/api/queue/items/add?uris=%s", url.QueryEscape(uri))
-	return c.post(u)
+	return c.post(ctx, u)
 }
 
 // GetPlaylists returns all playlists from the library.
 // This is more reliable than the search endpoint, which uses
 // full-text search and may miss playlists with short names.
-func (c *Client) GetPlaylists() ([]Playlist, error) {
+func (c *Client) GetPlaylists(ctx context.Context) ([]Playlist, error) {
 	var resp playlistsResponse
-	if err := c.getJSON("/api/library/playlists", &resp); err != nil {
+	if err := c.getJSON(ctx, "/api/library/playlists", &resp); err != nil {
 		return nil, fmt.Errorf("get playlists: %w", err)
 	}
 	return resp.Items, nil
@@ -150,8 +151,8 @@ func (c *Client) GetPlaylists() ([]Playlist, error) {
 // lowercases the string and replaces hyphens with spaces, and strips
 // Nix store hash prefixes (32-char hex + "-") so that a playlist
 // named "9rwbbix…-nrk-p3" will match the query "NRK P3".
-func (c *Client) FindPlaylist(query string) (*Playlist, error) {
-	playlists, err := c.GetPlaylists()
+func (c *Client) FindPlaylist(ctx context.Context, query string) (*Playlist, error) {
+	playlists, err := c.GetPlaylists(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -193,8 +194,12 @@ func isNixHash(s string) bool {
 
 // --- HTTP helpers ---
 
-func (c *Client) getJSON(path string, dst any) error {
-	resp, err := c.HTTPClient.Get(c.BaseURL + path)
+func (c *Client) getJSON(ctx context.Context, path string, dst any) error {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.BaseURL+path, nil)
+	if err != nil {
+		return err
+	}
+	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
 		return err
 	}
@@ -206,12 +211,12 @@ func (c *Client) getJSON(path string, dst any) error {
 	return json.NewDecoder(resp.Body).Decode(dst)
 }
 
-func (c *Client) putJSON(path string, body any) error {
+func (c *Client) putJSON(ctx context.Context, path string, body any) error {
 	data, err := json.Marshal(body)
 	if err != nil {
 		return err
 	}
-	req, err := http.NewRequest(http.MethodPut, c.BaseURL+path, bytes.NewReader(data))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPut, c.BaseURL+path, bytes.NewReader(data))
 	if err != nil {
 		return err
 	}
@@ -228,8 +233,8 @@ func (c *Client) putJSON(path string, body any) error {
 	return nil
 }
 
-func (c *Client) put(path string) error {
-	req, err := http.NewRequest(http.MethodPut, c.BaseURL+path, nil)
+func (c *Client) put(ctx context.Context, path string) error {
+	req, err := http.NewRequestWithContext(ctx, http.MethodPut, c.BaseURL+path, nil)
 	if err != nil {
 		return err
 	}
@@ -245,8 +250,12 @@ func (c *Client) put(path string) error {
 	return nil
 }
 
-func (c *Client) post(path string) error {
-	resp, err := c.HTTPClient.Post(c.BaseURL+path, "", nil)
+func (c *Client) post(ctx context.Context, path string) error {
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.BaseURL+path, nil)
+	if err != nil {
+		return err
+	}
+	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
 		return err
 	}

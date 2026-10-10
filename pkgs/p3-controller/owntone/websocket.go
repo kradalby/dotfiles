@@ -29,9 +29,9 @@ type configResponse struct {
 // GetWebSocketPort returns the port owntone advertises for its
 // notification WebSocket. Returns 0 if owntone was built without
 // libwebsockets (in which case no WS is available).
-func (c *Client) GetWebSocketPort() (int, error) {
+func (c *Client) GetWebSocketPort(ctx context.Context) (int, error) {
 	var resp configResponse
-	if err := c.getJSON("/api/config", &resp); err != nil {
+	if err := c.getJSON(ctx, "/api/config", &resp); err != nil {
 		return 0, fmt.Errorf("get config: %w", err)
 	}
 	return resp.WebSocketPort, nil
@@ -69,7 +69,7 @@ func (c *Client) SubscribePlayer(ctx context.Context, onChange func()) error {
 		// transient owntone outage at startup (the http port not yet
 		// bound when p3-controller queries) recovers via the same
 		// reconnect loop as a mid-run drop.
-		wsPort, err := c.GetWebSocketPort()
+		wsPort, err := c.GetWebSocketPort(ctx)
 		if err == nil && wsPort == 0 {
 			err = fmt.Errorf("owntone built without websocket support")
 		}
