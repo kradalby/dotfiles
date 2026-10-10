@@ -26,6 +26,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"slices"
 	"strings"
 	"time"
 
@@ -89,17 +90,30 @@ func usage() {
 
 func main() {
 	flag.Usage = usage
-	flag.Parse()
-
-	if flag.NArg() != 1 {
+	target, err := parseArgs(flag.CommandLine, os.Args[1:])
+	if err != nil {
 		usage()
 		os.Exit(2)
 	}
 
-	if err := run(flag.Arg(0)); err != nil {
+	if err := run(target); err != nil {
 		slog.Error("authkey", "err", err)
 		os.Exit(1)
 	}
+}
+
+func parseArgs(fs *flag.FlagSet, args []string) (string, error) {
+	// The documented platform-first syntax must not stop flag parsing.
+	if len(args) > 0 && !strings.HasPrefix(args[0], "-") {
+		args = append(slices.Clone(args[1:]), args[0])
+	}
+	if err := fs.Parse(args); err != nil {
+		return "", err
+	}
+	if fs.NArg() != 1 {
+		return "", errors.New("exactly one platform is required")
+	}
+	return fs.Arg(0), nil
 }
 
 func run(target string) error {
