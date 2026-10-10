@@ -67,9 +67,8 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
-    # On the `initial` branch until kradalby/ghdl#1 merges to main.
     ghdl = {
-      url = "github:kradalby/ghdl/initial";
+      url = "github:kradalby/ghdl/main";
       inputs."flake-utils".follows = "flake-utils";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
