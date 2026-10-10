@@ -44,7 +44,6 @@ let
       "IncusInstanceNetworkErrors"
       "IncusInstanceOOMKill"
       "IncusInstanceSwapHigh"
-      "IncusVMVanished"
       "InstanceLowBootDiskAbs"
       "InstanceLowDiskAbs"
       "InstanceLowDiskPerc"

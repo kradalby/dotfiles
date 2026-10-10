@@ -251,6 +251,25 @@ let
     "ts1p-ldn" = "core-ldn";
     "garnix" = "gigabuilder";
   };
+
+  # absent() retains equality matchers, but cannot recover scrape relabels.
+  # Supply the backing labels explicitly so daemon/host inhibition still
+  # works when a guest's series has disappeared. Incus names omit "-ldn".
+  incusMissingRules = lib.mapAttrsToList (guest: hypervisor: {
+    alert = "IncusVMVanished";
+    expr = ''absent(incus_memory_MemTotal_bytes{job="incus",instance="${hypervisor}:8443",host="${hypervisor}",name="${lib.removeSuffix "-ldn" guest}"})'';
+    for = "10m";
+    labels = {
+      severity = "critical";
+      name = lib.removeSuffix "-ldn" guest;
+      inherit hypervisor;
+      target = hypervisor;
+    };
+    annotations = {
+      summary = "Incus VM {{ $labels.name }} has vanished from hypervisor metrics";
+      description = "The VM no longer reports from its hypervisor — stopped, deleted, or renamed.";
+    };
+  }) hypervisorBacking;
   hypervisorRelabels = lib.mapAttrsToList (guest: hv: {
     source_labels = [ "host" ];
     regex = guest;
@@ -2069,7 +2088,7 @@ in
           # Incus hypervisor and VM alerts
           {
             name = "incus";
-            rules = [
+            rules = incusMissingRules ++ [
               # Daemon health
               {
                 alert = "IncusDaemonDown";
@@ -2106,20 +2125,6 @@ in
                 };
               }
 
-              # Per-VM instance alerts
-              {
-                alert = "IncusVMVanished";
-                # The Incus suite has no "instance stopped" rule; a VM that
-                # stops (or is deleted) simply drops its series.
-                expr = ''absent(incus_memory_MemTotal_bytes{name="ts1p"}) or absent(incus_memory_MemTotal_bytes{name="dev"}) or absent(incus_memory_MemTotal_bytes{name="home"}) or absent(incus_memory_MemTotal_bytes{name="storage"}) or absent(incus_memory_MemTotal_bytes{name="garnix"})'';
-                for = "10m";
-                labels.severity = "critical";
-                annotations = {
-                  # absent() carries the name label from its equality matcher.
-                  summary = "Incus VM {{ $labels.name }} has vanished from hypervisor metrics";
-                  description = "The VM no longer reports from its hypervisor — stopped, deleted, or renamed.";
-                };
-              }
               {
                 alert = "TsnixcacheDiskFull";
                 # tsnixcache is the ONLY GC on gigabuilder's nix store (fleet

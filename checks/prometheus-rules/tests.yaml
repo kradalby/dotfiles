@@ -8,6 +8,39 @@ rule_files:
 evaluation_interval: 1m
 
 tests:
+  - name: Missing Incus guests retain their backing labels
+    interval: 1m
+    input_series:
+      - series: 'incus_memory_MemTotal_bytes{job="incus", instance="core-ldn:8443", host="core-ldn", name="dev"}'
+        values: "1000x30"
+      - series: 'incus_memory_MemTotal_bytes{job="incus", instance="core-ldn:8443", host="core-ldn", name="home"}'
+        values: "1000x30"
+      - series: 'incus_memory_MemTotal_bytes{job="incus", instance="core-ldn:8443", host="core-ldn", name="storage"}'
+        values: "1000x30"
+      - series: 'incus_memory_MemTotal_bytes{job="incus", instance="gigabuilder:8443", host="gigabuilder", name="garnix"}'
+        values: "1000x30"
+      # A guest with the same name on a different hypervisor cannot mask ts1p.
+      - series: 'incus_memory_MemTotal_bytes{job="incus", instance="gigabuilder:8443", host="gigabuilder", name="ts1p"}'
+        values: "1000x30"
+    alert_rule_test:
+      - eval_time: 5m
+        alertname: IncusVMVanished
+        exp_alerts: []
+      - eval_time: 20m
+        alertname: IncusVMVanished
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              name: ts1p
+              job: incus
+              instance: core-ldn:8443
+              host: core-ldn
+              target: core-ldn
+              hypervisor: core-ldn
+            exp_annotations:
+              summary: "Incus VM ts1p has vanished from hypervisor metrics"
+              description: "The VM no longer reports from its hypervisor — stopped, deleted, or renamed."
+
   - name: Litestream missing metrics are per scrape
     interval: 1m
     input_series:
