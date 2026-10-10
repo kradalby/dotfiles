@@ -194,19 +194,29 @@ declare -A BUSY_NAMES=()
 BUSY_PATHS=()
 if [ "$USE_LSOF" -eq 1 ]; then
   # One bulk lsof pass; bucket each held /tmp path by its top-level name.
-  # Per-target `lsof +D` is slow on hosts with many mounts (docker
-  # overlay2/nsfs adds seconds per call), so calling it 1× per candidate
-  # would push cleanup into many minutes. Read from OUTPUT, not exit code:
-  # lsof exits non-zero when it can't stat unrelated mounts even with the
-  # target held — relying on $? would falsely greenlight rm.
-  # BUSY_PATHS keeps the full path too: the top-level bucket is too coarse for
-  # anything nested, where one held fd would otherwise shield every sibling.
+  # A partial enumeration cannot prove any unlisted path is safe to delete.
+  lsof_errors=$(mktemp) || exit 1
+  trap 'rm -f -- "$lsof_errors"' EXIT
+  if ! lsof_output=$(lsof -F n 2>"$lsof_errors") || [ -s "$lsof_errors" ] ||
+    [[ "$lsof_output" != p[0-9]* ]]; then
+    echo "tmp-cleanup: incomplete lsof enumeration; refusing cleanup" >&2
+    exit 1
+  fi
+  rm -f -- "$lsof_errors"
+  trap - EXIT
+
   while IFS= read -r line; do
-    BUSY_PATHS+=("${line#n}")
-    name=${line#n/tmp/}
+    # Darwin reports physical paths even when callers use the /tmp alias.
+    case "$line" in
+      n/private/tmp/*) path="/tmp/${line#n/private/tmp/}" ;;
+      n/tmp/*) path=${line#n} ;;
+      *) continue ;;
+    esac
+    BUSY_PATHS+=("$path")
+    name=${path#/tmp/}
     name=${name%%/*}
     [ -n "$name" ] && BUSY_NAMES["$name"]=1
-  done < <(lsof -F n 2>/dev/null | awk '/^n\/tmp\//')
+  done <<<"$lsof_output"
 fi
 
 is_busy() {
