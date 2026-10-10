@@ -641,6 +641,7 @@
           mcp-servers = import ./checks/mcp-servers { inherit pkgs; };
           tmp-cleanup = import ./checks/tmp-cleanup { inherit pkgs; };
           nix-dev-env = import ./checks/nix-dev-env { inherit pkgs; };
+          ac = import ./checks/ac { inherit pkgs; };
           # treefmt in check mode: fails when any file is unformatted, making
           # `nix fmt` enforceable in CI (git.md's claim, now true).
           formatting = treefmtEval.config.build.check self;
