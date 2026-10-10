@@ -8,6 +8,7 @@
     ./vhost.nix
     ./restic-jobs.nix
     ./restic-jobs-linux.nix
+    ./sqlite-backup
 
     ./cook-server.nix
     ./syncthing-nixos.nix
