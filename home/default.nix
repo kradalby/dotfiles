@@ -5,6 +5,7 @@
   ...
 }:
 let
+  ai = import ./ai.nix { inherit config lib; };
   agentsBase = builtins.readFile ../rc/AGENTS.md;
   agentsExtra = config.my.agents.extraInstructions;
   agentsContent = agentsBase + lib.optionalString (agentsExtra != "") ("\n" + agentsExtra);
@@ -49,11 +50,11 @@ in
   config.my.mutableJson = {
     claude-settings = {
       target = ".claude/settings.json";
-      value = (import ./ai.nix).claude;
+      value = ai.claude;
     };
     opencode = {
       target = ".config/opencode/opencode.json";
-      value = (import ./ai.nix).opencode;
+      value = ai.opencode;
     };
   }
   // lib.optionalAttrs config.my.packages.ai.codex {
@@ -62,11 +63,11 @@ in
     codex = {
       target = ".codex/config.toml";
       format = "toml";
-      value = (import ./ai.nix).codex;
+      value = ai.codex;
     };
     codex-hooks = {
       target = ".codex/hooks.json";
-      value = (import ./ai.nix).codexHooks;
+      value = ai.codexHooks;
     };
     codex-keybindings = {
       target = ".codex/keybindings.json";

@@ -6,7 +6,7 @@
   ...
 }:
 let
-  aiConfig = import ../../home/ai.nix;
+  aiConfig = import ../../home/ai.nix { inherit config lib; };
 
   # Codex captures the dev environment at SessionStart.
   codexDevEnvHook = import ../../pkgs/scripts/codex-nix-dev-env-hook.nix { inherit pkgs; };
@@ -16,7 +16,7 @@ let
   # proxy serves openrouter-backed models (glm/deepseek/qwen/…) over chat
   # completions ONLY, so codex cannot reach them — use opencode for those.
   # Codex is therefore limited to the responses-API models (gpt-5.x).
-  codexConfig = aiConfig.codex // {
+  codexConfig = lib.recursiveUpdate aiConfig.codex {
     model = "gpt-5.5";
     model_provider = "aperture";
     model_providers.aperture = {
@@ -58,6 +58,7 @@ let
     provider.ollama = aiConfig.opencode.provider.ollama;
     permission = aiConfig.opencode.permission;
     mcp.aperture.enabled = true;
+    mcp.nixos = aiConfig.opencode.mcp.nixos;
     default_agent = "frontier";
     agent = {
       frontier = {

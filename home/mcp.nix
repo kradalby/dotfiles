@@ -5,24 +5,31 @@
   ...
 }:
 let
-  ai = import ./ai.nix;
+  ai = import ./ai.nix { inherit config lib; };
   jq = lib.getExe pkgs.jq;
   home = config.home.homeDirectory;
   desktopConfig = "${home}/Library/Application Support/Claude/claude_desktop_config.json";
 
   # Claude Desktop's config file only launches stdio servers; mcp-remote
   # bridges to the http one. --allow-http because the VIP is plain http.
-  desktopServer = url: {
-    command = "${pkgs.nodejs}/bin/npx";
-    args = [
-      "-y"
-      "mcp-remote@0.14.3"
-      url
-      "--allow-http"
-    ];
-    # npx runs the package's `#!/usr/bin/env node` bin; Desktop's PATH has no node.
-    env.PATH = "${pkgs.nodejs}/bin:/usr/bin:/bin";
-  };
+  desktopServer =
+    server:
+    if server.type == "stdio" then
+      {
+        inherit (server) command args;
+      }
+    else
+      {
+        command = "${pkgs.nodejs}/bin/npx";
+        args = [
+          "-y"
+          "mcp-remote@0.14.3"
+          server.url
+          "--allow-http"
+        ];
+        # npx runs the package's `#!/usr/bin/env node` bin; Desktop's PATH has no node.
+        env.PATH = "${pkgs.nodejs}/bin:/usr/bin:/bin";
+      };
 
   # Sets one key in a client-owned JSON file. Clients rewrite these files, so
   # they cannot be home.file symlinks, and mutableJson only seeds a missing
@@ -48,9 +55,14 @@ in
         name: server:
         merge "${home}/.claude.json" ".mcpServers.${name}" server
         + merge "${home}/.config/opencode/opencode.json" ".mcp.${name}" ai.opencode.mcp.${name}
-        + lib.optionalString config.my.packages.ai.codex ''
+        + lib.optionalString (config.my.mutableJson ? codex) ''
           if ! ${lib.getExe pkgs.master.codex} mcp get ${lib.escapeShellArg name} >/dev/null 2>&1; then
-            run ${lib.getExe pkgs.master.codex} mcp add ${lib.escapeShellArg name} --url ${lib.escapeShellArg server.url}
+            run ${lib.getExe pkgs.master.codex} mcp add ${lib.escapeShellArg name} ${
+              if server.type == "http" then
+                "--url ${lib.escapeShellArg server.url}"
+              else
+                "-- ${lib.escapeShellArgs ([ server.command ] ++ server.args)}"
+            }
           fi
         ''
       ) ai.claudeMcpServers
@@ -63,7 +75,7 @@ in
       ''
       + lib.concatStrings (
         lib.mapAttrsToList (
-          name: server: merge desktopConfig ".mcpServers.${name}" (desktopServer server.url)
+          name: server: merge desktopConfig ".mcpServers.${name}" (desktopServer server)
         ) ai.claudeMcpServers
       )
     )

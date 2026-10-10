@@ -6,22 +6,37 @@
 # JSON via builtins.toJSON and writes them into home.file entries;
 # machine configs can lib.mkForce those entries to substitute their
 # own merged version.
+{
+  config,
+  lib,
+}:
 let
   # Served by home.ldn (machines/home.ldn/picnic-mcp.nix). http: the VIP does
   # not terminate TLS.
   picnicMcp = "http://picnic-mcp.dalby.ts.net/mcp";
   grafanaMcp = "http://grafana-mcp.dalby.ts.net/mcp";
+  # Codex keeps existing registrations; the profile path survives package upgrades.
+  nixosMcp = "${config.home.profileDirectory}/bin/mcp-nixos";
 in
 {
   # Claude Code ignores mcpServers in settings.json; it reads user-scope
   # servers from ~/.claude.json, which home/mcp.nix merges these into.
-  claudeMcpServers.picnic = {
-    type = "http";
-    url = picnicMcp;
-  };
-  claudeMcpServers.grafana = {
-    type = "http";
-    url = grafanaMcp;
+  claudeMcpServers = {
+    picnic = {
+      type = "http";
+      url = picnicMcp;
+    };
+    grafana = {
+      type = "http";
+      url = grafanaMcp;
+    };
+  }
+  // lib.optionalAttrs config.my.packages.ai.enable {
+    nixos = {
+      type = "stdio";
+      command = nixosMcp;
+      args = [ ];
+    };
   };
 
   claude = {
@@ -191,13 +206,21 @@ in
         );
       };
 
-    mcp.picnic = {
-      type = "remote";
-      url = picnicMcp;
-    };
-    mcp.grafana = {
-      type = "remote";
-      url = grafanaMcp;
+    mcp = {
+      picnic = {
+        type = "remote";
+        url = picnicMcp;
+      };
+      grafana = {
+        type = "remote";
+        url = grafanaMcp;
+      };
+    }
+    // lib.optionalAttrs config.my.packages.ai.enable {
+      nixos = {
+        type = "local";
+        command = [ nixosMcp ];
+      };
     };
 
     permission = {
@@ -237,8 +260,13 @@ in
     approval_policy = "never";
     features.hooks = true;
     shell_environment_policy.set.BASH_ENV = "$HOME/.codex/hooks/session-env.sh";
-    mcp_servers.picnic.url = picnicMcp;
-    mcp_servers.grafana.url = grafanaMcp;
+    mcp_servers = {
+      picnic.url = picnicMcp;
+      grafana.url = grafanaMcp;
+    }
+    // lib.optionalAttrs config.my.packages.ai.enable {
+      nixos.command = nixosMcp;
+    };
   };
 
   # ~/.codex/hooks.json — the single hook layer. herdr merges its own

@@ -238,7 +238,10 @@ in
         let
           ac = import ./scripts/ac.nix { inherit pkgs; };
         in
-        [ ac ]
+        [
+          ac
+          pkgs.unstable.mcp-nixos
+        ]
         ++ (with pkgs; [
           nodejs_26
           python3
