@@ -121,10 +121,53 @@ let
       trap 'exit 130' INT
       trap 'exit 143' TERM
 
+      # Both fetched catalogs and fallback files must support the selected agents.
+      catalogs_valid() {
+        jq -e '
+          . as $catalog |
+          ["aperture-openai", "aperture-anthropic", "aperture-openai-compatible"] as $required |
+          (.enabled_providers | type == "array") and
+          ((.disabled_providers // []) | type == "array") and
+          all($required[]; . as $provider |
+            ($catalog.enabled_providers | index($provider) != null) and
+            (($catalog.disabled_providers // []) | index($provider) == null)) and
+          (.provider["aperture-openai"].models["openai/gpt-5.6-sol"] | type == "object") and
+          (.provider["aperture-anthropic"].models["anthropic/claude-opus-5"] | type == "object") and
+          (.provider["aperture-openai-compatible"].models["deepseek/deepseek-v4-pro"] | type == "object") and
+          (.provider["aperture-openai-compatible"].models["google/gemini-3.7-flash"] | type == "object") and
+          (.provider["aperture-openai-compatible"].models["moonshotai/kimi-k3"] | type == "object") and
+          (.provider["aperture-openai-compatible"].models["zai/glm-5.3"] | type == "object")
+        ' "$1" >/dev/null || return 1
+        jq -e '
+          .providers as $providers |
+          [
+            {provider: "aperture-responses", model: "openai/gpt-5.6-sol"},
+            {provider: "aperture-claude", model: "anthropic/claude-opus-5"},
+            {provider: "aperture-completions", model: "deepseek/deepseek-v4-pro"},
+            {provider: "aperture-completions", model: "google/gemini-3.7-flash"},
+            {provider: "aperture-completions", model: "moonshotai/kimi-k3"},
+            {provider: "aperture-completions", model: "zai/glm-5.3"}
+          ] |
+          all(.[]; . as $reference |
+            $providers[$reference.provider] as $provider |
+            (if $provider | has("enabled") then
+              $provider.enabled | if type == "string" then
+                ascii_downcase | gsub("^\\s+|\\s+$"; "") |
+                . as $flag | ["false", "0", "no", "off"] | index($flag) == null
+              else . != false and . != null and . != 0 and . != [] and . != {}
+              end
+            else true end) and
+            ($provider.models | type == "array") and
+            ($provider.models | index($reference.model) != null))
+        ' "$2" >/dev/null
+      }
+
       live_pair_valid() {
         test -f "$opencode_target" &&
           test -f "$hermes_target" &&
           opencode_mcp="$(jq -er '.mcp.aperture.url | select(type == "string" and length > 0)' "$opencode_target")" &&
+          yq -o=json '.' "$hermes_target" >"$stage/hermes.live.json" 2>/dev/null &&
+          catalogs_valid "$opencode_target" "$stage/hermes.live.json" >/dev/null 2>&1 &&
           jq -e '
             (.provider.ollama | type == "object") and
             (.agent.frontier.model == "aperture-openai/openai/gpt-5.6-sol") and
@@ -134,8 +177,7 @@ let
           (.agent.kimi.model == "aperture-openai-compatible/moonshotai/kimi-k3") and
           (.agent.glm.model == "aperture-openai-compatible/zai/glm-5.3")
           ' "$opencode_target" >/dev/null 2>&1 &&
-          yq -o=json '.' "$hermes_target" 2>/dev/null |
-            jq -e --arg mcp "$opencode_mcp" '
+          jq -e --arg mcp "$opencode_mcp" '
             (.mcp_servers.aperture.url == $mcp) and
             (._config_version == 46) and
             (.plugins.enabled | index("herdr-agent-state") != null) and
@@ -150,7 +192,7 @@ let
                 "moonshotai/kimi-k3",
                 "zai/glm-5.3"
               ]
-            ' >/dev/null 2>&1
+            ' "$stage/hermes.live.json" >/dev/null 2>&1
       }
 
       build_candidates() {
@@ -167,26 +209,9 @@ let
         jq -e -r '.configs.hermes' "$stage/response.json" >"$stage/hermes.generated.yaml" || return 1
         yq -o=json '.' "$stage/hermes.generated.yaml" >"$stage/hermes.generated.json" || return 1
 
-        jq -e --arg mcp "$mcp_endpoint" '
-          (.enabled_providers | type == "array") and
-          (.mcp.aperture.url == $mcp) and
-          (.provider["aperture-openai"].models | has("openai/gpt-5.6-sol")) and
-          (.provider["aperture-anthropic"].models | has("anthropic/claude-opus-5")) and
-          (.provider["aperture-openai-compatible"].models | has("deepseek/deepseek-v4-pro")) and
-          (.provider["aperture-openai-compatible"].models | has("google/gemini-3.7-flash")) and
-          (.provider["aperture-openai-compatible"].models | has("moonshotai/kimi-k3")) and
-          (.provider["aperture-openai-compatible"].models | has("zai/glm-5.3"))
-        ' "$stage/opencode.generated.json" >/dev/null || return 1
-
-        jq -e --arg mcp "$mcp_endpoint" '
-          (.mcp_servers.aperture.url == $mcp) and
-          (.providers["aperture-responses"].models | index("openai/gpt-5.6-sol") != null) and
-          (.providers["aperture-claude"].models | index("anthropic/claude-opus-5") != null) and
-          (.providers["aperture-completions"].models | index("deepseek/deepseek-v4-pro") != null) and
-          (.providers["aperture-completions"].models | index("google/gemini-3.7-flash") != null) and
-          (.providers["aperture-completions"].models | index("moonshotai/kimi-k3") != null) and
-          (.providers["aperture-completions"].models | index("zai/glm-5.3") != null)
-        ' "$stage/hermes.generated.json" >/dev/null || return 1
+        catalogs_valid "$stage/opencode.generated.json" "$stage/hermes.generated.json" || return 1
+        jq -e --arg mcp "$mcp_endpoint" '.mcp.aperture.url == $mcp' "$stage/opencode.generated.json" >/dev/null || return 1
+        jq -e --arg mcp "$mcp_endpoint" '.mcp_servers.aperture.url == $mcp' "$stage/hermes.generated.json" >/dev/null || return 1
 
         jq -S -s '
           .[0] as $generated |
@@ -194,6 +219,7 @@ let
           .enabled_providers = (($generated.enabled_providers + ["ollama"]) | unique)
         ' "$stage/opencode.generated.json" ${opencodeOverlayFile} >"$stage/opencode.json" || return 1
         jq -S -s '.[0] * .[1]' "$stage/hermes.generated.json" ${hermesOverlayFile} >"$stage/hermes.json" || return 1
+        catalogs_valid "$stage/opencode.json" "$stage/hermes.json" || return 1
 
         jq -e --arg mcp "$mcp_endpoint" '
           (.mcp.aperture.type == "remote") and
@@ -334,6 +360,7 @@ let
           fi
           test ! -e "$APERTURE_OPENCODE_CONFIG"
           test ! -e "$APERTURE_HERMES_CONFIG"
+          bash ${../../checks/aperture-agent-config-sync/test.sh} ${validResponseFile} ${malformedResponseFile}
           touch "$out"
       '';
 in
