@@ -57,7 +57,7 @@
       useDHCP = false;
       ipv4.addresses = [
         {
-          address = "10.67.0.1";
+          address = "10.67.0.2";
           prefixLength = 24;
         }
       ];
@@ -67,7 +67,7 @@
 
   my.ociGateway = {
     enable = true;
-    gatewayAddress = "10.67.0.1";
+    gatewayAddress = "10.67.0.2";
   };
 
   services.tailscale = {
