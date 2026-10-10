@@ -17,6 +17,23 @@ let
       (throw "Restic source preflight is missing")
       guardConfig.config.systemd.services.restic-backups-tjoda.serviceConfig.ExecStartPre;
   coreConfig = core.config;
+  kuma = coreConfig.systemd.services.uptime-kuma.serviceConfig;
+  litestream = coreConfig.systemd.services.litestream;
+  kumaTemplate = pkgs.runCommand "kuma-template-test" { nativeBuildInputs = [ pkgs.sqlite ]; } ''
+    mkdir -p "$out/lib/node_modules/uptime-kuma/db"
+    sqlite3 "$out/lib/node_modules/uptime-kuma/db/kuma.db" \
+      'CREATE TABLE items (value INTEGER); INSERT INTO items VALUES (1);'
+  '';
+  kumaConfig =
+    (core.extendModules {
+      modules = [
+        { services.uptime-kuma.package = lib.mkForce kumaTemplate; }
+      ];
+    }).config;
+  kumaBootstrap = pkgs.writeShellScript "kuma-bootstrap-test" (
+    builtins.replaceStrings [ "/var/lib/uptime-kuma" ] [ "fresh-kuma-state" ]
+      kumaConfig.systemd.services.uptime-kuma.preStart
+  );
   units = map (db: "sqlite-backup-${db.name}.service") coreConfig.my.litestream.databases;
   jobs = [
     "tjoda"
@@ -24,6 +41,20 @@ let
     "jotta"
   ];
 in
+assert kuma.StateDirectory == "uptime-kuma";
+assert kuma.StateDirectoryMode == "2770";
+assert coreConfig.users.users.uptime-kuma.homeMode == "2770";
+assert kuma.UMask == "0007" && litestream.serviceConfig.UMask == "0007";
+assert kuma.DynamicUser == false && kuma.User == "uptime-kuma" && kuma.Group == "uptime-kuma";
+assert lib.elem "uptime-kuma" coreConfig.users.users.litestream.extraGroups;
+assert lib.elem "uptime-kuma.service" litestream.after;
+assert lib.elem "uptime-kuma.service" litestream.wants;
+assert lib.all (rule: lib.elem rule coreConfig.systemd.tmpfiles.rules) [
+  "z /var/lib/uptime-kuma 2770 uptime-kuma uptime-kuma - -"
+  "z /var/lib/uptime-kuma/kuma.db 0660 uptime-kuma uptime-kuma - -"
+  "z /var/lib/uptime-kuma/kuma.db-wal 0660 uptime-kuma uptime-kuma - -"
+  "z /var/lib/uptime-kuma/kuma.db-shm 0660 uptime-kuma uptime-kuma - -"
+];
 assert lib.all (
   job:
   lib.all (
@@ -45,10 +76,16 @@ assert lib.all (
 ) jobs;
 pkgs.runCommand "backup-regressions"
   {
+    passthru = { inherit kumaBootstrap; };
     nativeBuildInputs = with pkgs; [
       coreutils
       jq
       restic
+      sqlite
+      python3
+      ruff
+      pyright
+      bubblewrap
     ];
   }
   ''
@@ -81,5 +118,11 @@ pkgs.runCommand "backup-regressions"
     rm required-state
     ln -s absent-state required-state
     if ${guard}; then exit 1; fi
+    ruff check --select ANN,UP,SIM,B,I --line-length 100 ${./permissions.py}
+    ruff format --check --line-length 100 ${./permissions.py}
+    echo '{"typeCheckingMode":"strict"}' > pyrightconfig.json
+    pyright --pythonpath ${pkgs.python3}/bin/python3 --project pyrightconfig.json ${./permissions.py}
+    python3 ${./permissions.py} ${kuma.StateDirectoryMode} ${kuma.UMask} ${litestream.serviceConfig.UMask} ${kumaBootstrap} --sandbox
+
     touch "$out"
   ''

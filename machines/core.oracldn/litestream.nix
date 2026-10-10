@@ -50,7 +50,8 @@
 
   # litestream (in the headscale group) writes its shadow dir inside the
   # headscale state dir; the module default 0750 denies group write, so
-  # headscale replication silently failed. kuma/golink dirs are 0770.
+  # headscale replication silently failed. Kuma applies the same modes in
+  # kuma.nix; golink's directory is 0770.
   #
   # setgid (2xxx) so every file — including the -wal/-shm that litestream may
   # create first (it opens the db at boot) — inherits group headscale, not the
@@ -81,6 +82,10 @@
   # Correct any db/wal/shm left with the old owner/perms from before this fix,
   # on activation, without recreating the db.
   systemd.tmpfiles.rules = [
+    "z /var/lib/uptime-kuma 2770 uptime-kuma uptime-kuma - -"
+    "z /var/lib/uptime-kuma/kuma.db 0660 uptime-kuma uptime-kuma - -"
+    "z /var/lib/uptime-kuma/kuma.db-wal 0660 uptime-kuma uptime-kuma - -"
+    "z /var/lib/uptime-kuma/kuma.db-shm 0660 uptime-kuma uptime-kuma - -"
     "z /var/lib/headscale/db.sqlite 0660 headscale headscale - -"
     "z /var/lib/headscale/db.sqlite-wal 0660 headscale headscale - -"
     "z /var/lib/headscale/db.sqlite-shm 0660 headscale headscale - -"
@@ -104,11 +109,14 @@
   # Let the db owners open their dbs first so the -wal/-shm are born with the
   # owning group; litestream (a member of each) then reads/writes them fine.
   systemd.services.litestream = {
+    serviceConfig.UMask = "0007";
     after = [
+      "uptime-kuma.service"
       "ghdl.service"
       "grafana.service"
     ];
     wants = [
+      "uptime-kuma.service"
       "ghdl.service"
       "grafana.service"
     ];
