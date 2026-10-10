@@ -323,3 +323,58 @@ func TestMutationsWaitForCompletePlay(t *testing.T) {
 		})
 	}
 }
+
+func TestCancelledPlayDoesNotSendRequests(t *testing.T) {
+	var requests atomic.Int64
+	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requests.Add(1)
+		switch r.URL.Path {
+		case "/api/outputs":
+			_, err := w.Write([]byte(`{"outputs":[]}`))
+			require.NoError(t, err)
+		case "/api/library/playlists":
+			_, err := w.Write([]byte(`{"items":[{"name":"NRK P3","uri":"library:playlist:1"}]}`))
+			require.NoError(t, err)
+		default:
+			w.WriteHeader(http.StatusNoContent)
+		}
+	}))
+	defer upstream.Close()
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	resp, status := executePlay(ctx, owntone.NewClient(upstream.URL), &Config{PlaylistName: "NRK P3"}, nil, "weekday")
+	require.Equal(t, http.StatusBadGateway, status)
+	require.Equal(t, "error", resp.Status)
+	require.Zero(t, requests.Load())
+}
+
+func TestPlayCancellationStopsFurtherMutations(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	var subsequent atomic.Int64
+	var cancelled atomic.Bool
+	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if cancelled.Load() {
+			subsequent.Add(1)
+		}
+		switch r.URL.Path {
+		case "/api/outputs":
+			_, err := w.Write([]byte(`{"outputs":[]}`))
+			require.NoError(t, err)
+		case "/api/library/playlists":
+			_, err := w.Write([]byte(`{"items":[{"name":"NRK P3","uri":"library:playlist:1"}]}`))
+			require.NoError(t, err)
+		case "/api/queue/clear":
+			cancelled.Store(true)
+			cancel()
+			w.WriteHeader(http.StatusNoContent)
+		default:
+			w.WriteHeader(http.StatusNoContent)
+		}
+	}))
+	defer upstream.Close()
+	resp, status := executePlay(ctx, owntone.NewClient(upstream.URL), &Config{PlaylistName: "NRK P3"}, nil, "weekday")
+	require.Equal(t, http.StatusBadGateway, status)
+	require.Equal(t, "error", resp.Status)
+	require.Zero(t, subsequent.Load(), "queue append and play must not follow cancellation")
+}
