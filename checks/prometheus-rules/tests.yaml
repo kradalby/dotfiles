@@ -8,6 +8,71 @@ rule_files:
 evaluation_interval: 1m
 
 tests:
+  - name: Smokeping annotations identify the destination rather than the exporter
+    interval: 1m
+    input_series:
+    - series: smokeping_requests_total{job="smokeping",instance="core-tjoda:9374",host="core-tjoda",target="core-tjoda",tos="0",exported_host="core-oracldn.dalby.ts.net",ip="100.74.41.5"}
+      values: 0+60x40
+    - series: smokeping_response_duration_seconds_count{job="smokeping",instance="core-tjoda:9374",host="core-tjoda",target="core-tjoda",tos="0",exported_host="core-oracldn.dalby.ts.net",ip="100.74.41.5"}
+      values: 0+0x40
+    - series: smokeping_requests_total{job="smokeping",instance="core-tjoda:9374",host="core-tjoda",target="core-tjoda",tos="0",exported_host="8.8.8.8",ip="8.8.8.8"}
+      values: 0+60x40
+    - series: smokeping_response_duration_seconds_count{job="smokeping",instance="core-tjoda:9374",host="core-tjoda",target="core-tjoda",tos="0",exported_host="8.8.8.8",ip="8.8.8.8"}
+      values: 0+48x40
+    - series: smokeping_requests_total{job="smokeping",instance="core-tjoda:9374",host="core-tjoda",target="core-tjoda",tos="0",exported_host="1.1.1.1",ip="1.1.1.1"}
+      values: 0+60x40
+    - series: smokeping_response_duration_seconds_count{job="smokeping",instance="core-tjoda:9374",host="core-tjoda",target="core-tjoda",tos="0",exported_host="1.1.1.1",ip="1.1.1.1"}
+      values: 0+60x40
+    alert_rule_test:
+    - eval_time: 10m
+      alertname: SmokepingPacketLoss
+      exp_alerts: []
+    - eval_time: 25m
+      alertname: SmokepingPacketLoss
+      exp_alerts:
+      - exp_labels:
+          job: smokeping
+          instance: core-tjoda:9374
+          host: core-tjoda
+          target: core-tjoda
+          tos: '0'
+          exported_host: core-oracldn.dalby.ts.net
+          ip: 100.74.41.5
+          severity: warning
+        exp_annotations:
+          summary: Packet loss >10% to core-oracldn.dalby.ts.net from core-tjoda:9374
+          description: Smokeping is detecting sustained packet loss to core-oracldn.dalby.ts.net.
+      - exp_labels:
+          job: smokeping
+          instance: core-tjoda:9374
+          host: core-tjoda
+          target: core-tjoda
+          tos: '0'
+          exported_host: 8.8.8.8
+          ip: 8.8.8.8
+          severity: warning
+        exp_annotations:
+          summary: Packet loss >10% to 8.8.8.8 from core-tjoda:9374
+          description: Smokeping is detecting sustained packet loss to 8.8.8.8.
+    - eval_time: 10m
+      alertname: SmokepingTargetDown
+      exp_alerts: []
+    - eval_time: 25m
+      alertname: SmokepingTargetDown
+      exp_alerts:
+      - exp_labels:
+          job: smokeping
+          instance: core-tjoda:9374
+          host: core-tjoda
+          target: core-tjoda
+          tos: '0'
+          exported_host: core-oracldn.dalby.ts.net
+          ip: 100.74.41.5
+          severity: critical
+        exp_annotations:
+          summary: 100% packet loss to core-oracldn.dalby.ts.net from core-tjoda:9374
+          description: Smokeping is detecting complete packet loss to core-oracldn.dalby.ts.net for more than 15 minutes.
+
   - name: Watchdog and email successes cannot mask Discord delivery failures
     interval: 1m
     input_series:
