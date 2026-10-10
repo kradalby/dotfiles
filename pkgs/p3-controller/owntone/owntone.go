@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -18,6 +19,14 @@ import (
 type Client struct {
 	BaseURL    string
 	HTTPClient *http.Client
+	mutations  sync.Mutex
+}
+
+// LockMutations holds a playback transaction across multiple REST calls.
+// The caller must invoke the returned unlock function when finished.
+func (c *Client) LockMutations() func() {
+	c.mutations.Lock()
+	return c.mutations.Unlock
 }
 
 // NewClient returns a Client for the given OwnTone base URL

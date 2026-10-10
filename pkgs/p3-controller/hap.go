@@ -107,6 +107,8 @@ func runHAP(ctx context.Context, client *owntone.Client, cfg *Config) error {
 			}
 			return
 		}
+		unlock := client.LockMutations()
+		defer unlock()
 		if err := client.Stop(); err != nil {
 			slog.Error("hap stop", "err", err)
 		}
