@@ -17,6 +17,9 @@
 let
   lib = pkgs.lib;
   cfgs = self.nixosConfigurations;
+  slothDashboard =
+    (lib.head cfgs.core-oracldn.config.services.grafana.provision.dashboards.settings.providers)
+    .options.path.slothDashboard;
 
   # Hosts are aliased under both dotted and dashed names; scrape targets use the
   # dashed form, so drive off those and skip the dotted duplicates.
@@ -193,9 +196,15 @@ let
   gaps = exporterGaps ++ hostGaps ++ vipGaps ++ backingGaps;
   gapReport = lib.concatMapStrings (g: "echo '  - ${g}' >&2\n") gaps;
 in
-pkgs.runCommand "monitoring-coverage" { } (
+pkgs.runCommand "monitoring-coverage" { nativeBuildInputs = [ pkgs.jq ]; } (
   if gaps == [ ] then
-    "echo 'monitoring-coverage: every enabled exporter is scraped and every host is onboarded' >&2; touch $out"
+    ''
+      # Check the actual provisioned artifact: all Sloth Prometheus references
+      # must resolve through its declared runtime datasource variable.
+      jq -e -f ${./sloth-datasource.jq} ${slothDashboard} >/dev/null
+      echo 'monitoring-coverage: every enabled exporter is scraped and every host is onboarded' >&2
+      touch $out
+    ''
   else
     ''
       echo 'monitoring-coverage: found surfaces nothing watches. Add a scrape/probe, or allowlist with a reason in checks/monitoring-coverage/default.nix:' >&2
