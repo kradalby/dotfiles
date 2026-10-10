@@ -119,7 +119,9 @@ func runOnce(ctx context.Context, wsURL string, onChange func()) error {
 	}
 	cfg.Protocol = []string{"notify"}
 
-	ws, err := websocket.DialConfig(cfg)
+	handshakeCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	ws, err := cfg.DialContext(handshakeCtx)
+	cancel()
 	if err != nil {
 		return fmt.Errorf("dial: %w", err)
 	}
