@@ -318,6 +318,7 @@
             );
           }
         )
+        (import ./pkgs/overlays/agent-native-bindings.nix)
       ];
 
       box = import ./lib/box.nix {
@@ -647,6 +648,11 @@
           tmp-cleanup = import ./checks/tmp-cleanup { inherit pkgs; };
           nix-dev-env = import ./checks/nix-dev-env { inherit pkgs; };
           ac = import ./checks/ac { inherit pkgs; };
+          ac-native-herdr = import ./checks/ac-native-herdr {
+            inherit pkgs;
+            herdrSource = inputs.herdr.outPath;
+          };
+          ac-native-codex = pkgs.master.codex.tests.frontend-thread-selection;
           backups = import ./checks/backups { inherit pkgs self; };
           sqlite-backup = import ./modules/sqlite-backup/tests.nix { inherit pkgs; };
           sqlite-backup-ordering = import ./modules/sqlite-backup/ordering-test.nix { inherit pkgs; };
