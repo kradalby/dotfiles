@@ -1,0 +1,245 @@
+diff --git a/codex-rs/tui/src/app.rs b/codex-rs/tui/src/app.rs
+--- a/codex-rs/tui/src/app.rs
++++ b/codex-rs/tui/src/app.rs
+@@ -227,6 +227,7 @@
+ mod history_ui;
+ mod input;
+ mod link_hover;
++mod herdr_selection;
+ mod loaded_threads;
+ mod managed_worktree_creation;
+ mod misalignment_policy;
+diff --git a/codex-rs/tui/src/app/startup.rs b/codex-rs/tui/src/app/startup.rs
+--- a/codex-rs/tui/src/app/startup.rs
++++ b/codex-rs/tui/src/app/startup.rs
+@@ -1065,10 +1065,18 @@
+         #[cfg(debug_assertions)]
+         let pre_loop_exit_reason: Option<ExitReason> = None;
+
++        let mut herdr_selection = super::herdr_selection::HerdrSessionReporter::from_env();
++        let mut herdr_selection_tick = tokio::time::interval(Duration::from_secs(1));
++        herdr_selection_tick.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Skip);
+         let exit_reason_result = if let Some(exit_reason) = pre_loop_exit_reason {
+             Ok(exit_reason)
+         } else {
+             loop {
++                // Only the settled frontend selection identifies its current thread.
++                // Re-report while idle to recover bindings lost by runtime reconciliation.
++                if let Some(reporter) = herdr_selection.as_mut() {
++                    reporter.report(app.current_displayed_thread_id()).await;
++                }
+                 // Reconnect can dismiss an overlay from the server-event path.
+                 if app.overlay.is_none() {
+                     if !tui.is_owned_screen() && tui.is_alt_screen_active() {
+@@ -1147,6 +1155,7 @@
+                     .rate_limit_refresh_interval()
+                     .and_then(|interval| app.rate_limit_refresh_state.poll_deadline(interval));
+                 let control = select! {
++                    _ = herdr_selection_tick.tick(), if herdr_selection.is_some() => AppRunControl::Continue,
+                     Some(event) = app_event_rx.recv() => {
+                         let is_initial_session_header = matches!(
+                             &event,
+diff --git a/codex-rs/tui/src/app/herdr_selection.rs b/codex-rs/tui/src/app/herdr_selection.rs
+new file mode 100644
+--- /dev/null
++++ b/codex-rs/tui/src/app/herdr_selection.rs
+@@ -0,0 +1,106 @@
++//! Report the frontend's selected thread independently of the shared app-server.
++
++#[cfg(unix)]
++mod unix {
++    use codex_protocol::ThreadId;
++    use serde_json::json;
++    use std::io;
++    use std::path::PathBuf;
++    use std::time::Duration;
++    use tokio::io::AsyncBufReadExt;
++    use tokio::io::AsyncReadExt;
++    use tokio::io::AsyncWriteExt;
++    use tokio::io::BufReader;
++    use tokio::net::UnixStream;
++    use tokio::time::Instant;
++
++    pub(in crate::app) struct HerdrSessionReporter {
++        pub(super) socket_path: PathBuf,
++        pub(super) pane_id: String,
++        pub(super) last_selection: Option<Option<ThreadId>>,
++        pub(super) last_attempt: Option<Instant>,
++    }
++
++    impl HerdrSessionReporter {
++        pub(in crate::app) fn from_env() -> Option<Self> {
++            if std::env::var("HERDR_ENV").ok().as_deref() != Some("1") {
++                return None;
++            }
++            let socket_path = std::env::var_os("HERDR_SOCKET_PATH").filter(|p| !p.is_empty())?;
++            let pane_id = std::env::var("HERDR_PANE_ID")
++                .ok()
++                .filter(|p| !p.is_empty())?;
++            Some(Self {
++                socket_path: socket_path.into(),
++                pane_id,
++                last_selection: None,
++                last_attempt: None,
++            })
++        }
++
++        pub(in crate::app) async fn report(&mut self, thread_id: Option<ThreadId>) {
++            if self.last_selection == Some(thread_id)
++                && self
++                    .last_attempt
++                    .is_some_and(|at| at.elapsed() < Duration::from_secs(1))
++            {
++                return;
++            }
++            self.last_selection = Some(thread_id);
++            self.last_attempt = Some(Instant::now());
++            // A missing or stalled local runtime must not stop the frontend.
++            let _ = tokio::time::timeout(Duration::from_millis(100), self.send(thread_id)).await;
++        }
++
++        async fn send(&self, thread_id: Option<ThreadId>) -> io::Result<()> {
++            let request = json!({
++                "id": "codex:frontend:selection",
++                "method": "pane.report_agent_session",
++                "params": {
++                    "pane_id": self.pane_id,
++                    "source": "herdr:codex",
++                    "agent": "codex",
++                    "agent_session_id": thread_id.map(|id| id.to_string()),
++                    "session_start_source": "select"
++                }
++            });
++            let mut stream = UnixStream::connect(&self.socket_path).await?;
++            stream.write_all(format!("{request}\n").as_bytes()).await?;
++            let mut response = String::new();
++            BufReader::new(stream)
++                .take(16_384)
++                .read_line(&mut response)
++                .await?;
++            let response: serde_json::Value =
++                serde_json::from_str(&response).map_err(io::Error::other)?;
++            if response["id"] != request["id"]
++                || response.get("result").is_none()
++                || response.get("error").is_some()
++            {
++                return Err(io::Error::other(
++                    "herdr did not acknowledge frontend selection",
++                ));
++            }
++            Ok(())
++        }
++    }
++}
++
++#[cfg(unix)]
++pub(super) use unix::HerdrSessionReporter;
++
++#[cfg(not(unix))]
++pub(super) struct HerdrSessionReporter;
++
++#[cfg(not(unix))]
++impl HerdrSessionReporter {
++    pub(super) fn from_env() -> Option<Self> {
++        None
++    }
++
++    pub(super) async fn report(&mut self, _thread_id: Option<codex_protocol::ThreadId>) {}
++}
++
++#[cfg(all(test, unix))]
++#[path = "herdr_selection_tests.rs"]
++mod tests;
+diff --git a/codex-rs/tui/src/app/herdr_selection_tests.rs b/codex-rs/tui/src/app/herdr_selection_tests.rs
+new file mode 100644
+--- /dev/null
++++ b/codex-rs/tui/src/app/herdr_selection_tests.rs
+@@ -0,0 +1,88 @@
++use super::HerdrSessionReporter;
++use codex_protocol::ThreadId;
++use serde_json::Value;
++use serde_json::json;
++use std::time::Duration;
++use tokio::io::AsyncBufReadExt;
++use tokio::io::AsyncWriteExt;
++use tokio::io::BufReader;
++use tokio::net::UnixListener;
++
++async fn receive_selection(
++    reporter: &mut HerdrSessionReporter,
++    listener: &UnixListener,
++    thread_id: Option<ThreadId>,
++) -> Value {
++    let (_, request) = tokio::join!(reporter.report(thread_id), async {
++        let (mut stream, _) = listener.accept().await.unwrap();
++        let mut line = String::new();
++        BufReader::new(&mut stream)
++            .read_line(&mut line)
++            .await
++            .unwrap();
++        let request: Value = serde_json::from_str(&line).unwrap();
++        let response = json!({"id":request["id"],"result":{}});
++        stream
++            .write_all(format!("{response}\n").as_bytes())
++            .await
++            .unwrap();
++        request
++    });
++    request
++}
++
++#[tokio::test]
++async fn native_selection_reports_cached_switches_and_clears_old_binding() {
++    let root = tempfile::tempdir().unwrap();
++    let path = root.path().join("runtime.sock");
++    let listener = UnixListener::bind(&path).unwrap();
++    let mut reporter = HerdrSessionReporter {
++        socket_path: path,
++        pane_id: "w1:p1".into(),
++        last_selection: None,
++        last_attempt: None,
++    };
++    let first = ThreadId::from_u128(1);
++    let second = ThreadId::from_u128(2);
++    for selected in [Some(first), Some(second), None, Some(first)] {
++        let request = receive_selection(&mut reporter, &listener, selected).await;
++        assert_eq!(
++            request,
++            json!({
++                "id":"codex:frontend:selection", "method":"pane.report_agent_session",
++                "params":{"pane_id":"w1:p1","source":"herdr:codex","agent":"codex",
++                "agent_session_id":selected.map(|id| id.to_string()),"session_start_source":"select"}
++            })
++        );
++    }
++    reporter.report(Some(first)).await;
++    assert!(
++        tokio::time::timeout(Duration::from_millis(10), listener.accept())
++            .await
++            .is_err()
++    );
++}
++
++#[tokio::test]
++async fn native_selection_retries_after_runtime_restart_without_another_switch() {
++    let root = tempfile::tempdir().unwrap();
++    let path = root.path().join("runtime.sock");
++    let mut reporter = HerdrSessionReporter {
++        socket_path: path.clone(),
++        pane_id: "w1:p1".into(),
++        last_selection: None,
++        last_attempt: None,
++    };
++    let first = ThreadId::from_u128(1);
++    reporter.report(Some(first)).await;
++    let listener = UnixListener::bind(&path).unwrap();
++    tokio::time::sleep(Duration::from_secs(1)).await;
++    let request = receive_selection(&mut reporter, &listener, Some(first)).await;
++    assert_eq!(request["params"]["agent_session_id"], first.to_string());
++    drop(listener);
++    std::fs::remove_file(&path).unwrap();
++    let listener = UnixListener::bind(&path).unwrap();
++    tokio::time::sleep(Duration::from_secs(1)).await;
++    let request = receive_selection(&mut reporter, &listener, Some(first)).await;
++    assert_eq!(request["params"]["agent_session_id"], first.to_string());
++}

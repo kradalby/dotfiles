@@ -457,6 +457,33 @@ codex_create_thread() {
   printf '%s\n' "$thread_id"
 }
 
+# Resume only the exact ID supplied by the caller. Titles, cwd, and launch
+# argv cannot identify the current thread after an in-TUI thread switch.
+codex_resume_thread() {
+  local thread_id="$1" response
+  response=$(request 1 thread/resume "$(jq -nc --arg id "$thread_id" '{threadId:$id}')") || return 1
+  if ! jq -e --arg id "$thread_id" '.result.thread.id == $id' <<<"$response" >/dev/null; then
+    echo "Codex did not resume the requested thread" >&2
+    return 1
+  fi
+  printf '%s\n' "$thread_id"
+}
+
+# Restart an exited frontend through ac so launch and registration stay paired.
+cmd_codex_resume() {
+  local pane="$1" thread_id="$2" info dir
+  [[ "$thread_id" =~ ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$ ]] ||
+    die "codex-resume requires an exact thread UUID"
+  server_running || die "herdr server is not running"
+  info=$(h pane get "$pane")
+  jq -e '.result.pane.agent == null and .result.pane.pane_id != null' <<<"$info" >/dev/null ||
+    die "exit the frontend in $pane before resuming"
+  pane=$(jq -er '.result.pane.pane_id' <<<"$info")
+  # Cwd is only the launch directory; the caller-supplied UUID is the identity.
+  dir=$(jq -er '.result.pane.cwd // empty' <<<"$info") || die "pane has no launch directory"
+  start_agent codex "$pane" "$(agent_name "codex-$pane")" "$dir" "" "" "$thread_id"
+}
+
 # start_agent launches one agent in an existing shell pane.
 start_agent() {
   local agent="$1" pane="$2" name="$3" dir="$4" repo="$5" branch="$6"
@@ -494,25 +521,38 @@ start_agent() {
     else
       argv+=(--dangerously-bypass-approvals-and-sandbox --no-daemon)
     fi
-    local thread_name thread_id
-    thread_name="$(hostname -s)-$(sanitize "$(display "$repo" "$branch")")"
-    if ! thread_id=$(codex_start_thread "$dir" "$thread_name" "$codex_remote"); then
-      echo "warning: could not create named Codex thread for $pane — check the server" >&2
-      return 0
+    local thread_name thread_id="${7:-}"
+    if [[ -n "$thread_id" ]]; then
+      thread_id=$(codex_connection "$codex_remote" codex_resume_thread "$thread_id") || return 1
+    else
+      thread_name="$(hostname -s)-$(sanitize "$(display "$repo" "$branch")")"
+      if ! thread_id=$(codex_start_thread "$dir" "$thread_name" "$codex_remote"); then
+        echo "warning: could not create named Codex thread for $pane — check the server" >&2
+        return 0
+      fi
     fi
     argv+=(resume "$thread_id")
   fi
   # `agent start` blocks until the agent is interactive and exits non-zero if it
   # isn't (e.g. stuck on a prompt ensure_trusted didn't cover). The pane exists
   # either way, so report and keep going rather than tearing the workspace down.
-  if ! h agent start "$name" --kind "$agent" --pane "$pane" -- "${argv[@]}" >/dev/null; then
+  local started
+  if ! started=$(h agent start "$name" --kind "$agent" --pane "$pane" -- "${argv[@]}"); then
     echo "warning: $agent in $pane did not report ready — check the pane" >&2
+    [[ -z "${7:-}" ]] || return 1
   elif [[ "$agent" == codex ]]; then
+    # A native hook may already have reported a newer thread during startup.
+    # Preserve it; the launch ID is only an initial binding, never reconciliation.
+    if jq -e '.result.agent.agent_session | .source == "herdr:codex" and
+      .agent == "codex" and .kind == "id" and (.value | strings | length > 0)' <<<"$started" >/dev/null; then
+      return 0
+    fi
     # Shared-server SessionStart hooks cannot inherit this frontend's pane.
     # Report the exact thread so remote tools can recover their caller context.
     if ! h pane report-agent-session "$pane" --source herdr:codex --agent codex \
       --agent-session-id "$thread_id" --session-start-source resume >/dev/null; then
       echo "warning: could not bind Codex thread $thread_id to herdr pane $pane" >&2
+      [[ -z "${7:-}" ]] || return 1
     fi
   fi
 }
@@ -607,6 +647,16 @@ ensure_session_agents() {
   for agent in "${agents[@]}"; do
     if jq -e --arg w "$wid" --arg a "$agent" \
       '.result.agents[] | select(.workspace_id == $w and .agent == $a)' <<<"$registered" >/dev/null; then
+      if [[ "$agent" == codex ]]; then
+        local unbound
+        while IFS= read -r unbound; do
+          [[ -n "$unbound" ]] || continue
+          echo "warning: Codex in $unbound has no exact thread binding; exit the frontend and use ac codex-resume $unbound <thread-uuid>" >&2
+        done < <(jq -r --arg w "$wid" '.result.agents[] |
+          select(.workspace_id == $w and .agent == "codex") |
+          select(.agent_session.source != "herdr:codex" or .agent_session.agent != "codex" or
+            .agent_session.kind != "id" or (.agent_session.value // "") == "") | .pane_id' <<<"$registered")
+      fi
       continue
     fi
     # A previous failed start may have left an empty agent tab. Reuse it.
@@ -1055,6 +1105,9 @@ Commands:
                          session focused on that repo/branch's agent pane.
                          A branch also brings up "<repo>:main" if it is missing
                          and nests under it, labelled by branch alone
+  codex-resume <pane> <thread-uuid>
+                         Resume an exact Codex thread in an available shell pane
+                         and register its initial binding; exit the frontend first
   ls                     List live sessions ('*' = the one herdr is showing)
   ls --porcelain         Tab-separated listing (for ac-web)
   spawn <repo> [branch]  Create a detached workspace without attaching (for ac-web)
@@ -1214,6 +1267,10 @@ main() {
     spawn)
       [[ ${#args[@]} -ge 2 ]] || die "usage: ac spawn <repo> [branch]"
       cmd_spawn "${args[1]}" "${args[2]:-}" "${agents[@]}"
+      ;;
+    codex-resume)
+      [[ ${#args[@]} -eq 3 ]] || die "usage: ac codex-resume <pane> <thread-uuid>"
+      cmd_codex_resume "${args[1]}" "${args[2]}"
       ;;
     permagent)
       [[ ${#args[@]} -ge 4 ]] || die "usage: ac permagent ensure <repo> <role>"
