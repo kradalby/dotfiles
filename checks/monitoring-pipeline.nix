@@ -194,9 +194,29 @@ pkgs.testers.runNixOSTest {
 
     # Each severity must land at the receiver the PRODUCTION route assigns:
     # heartbeat→deadman, critical→critical, warning→discord.
-    machine.wait_until_succeeds("grep -q /deadman /tmp/hits", timeout=120)
-    machine.wait_until_succeeds("grep -q /critical /tmp/hits", timeout=120)
-    machine.wait_until_succeeds("grep -q /discord /tmp/hits", timeout=120)
+    expected = {
+        "Watchdog": "/deadman",
+        "AlwaysCritical": "/critical",
+        "AlwaysWarning": "/discord",
+        "NodeExporterDown": "/critical",
+        "IndependentAlert": "/critical",
+        "IncusDaemonDown": "/critical",
+        "IncusVMVanished": "/critical",
+    }
+    for name in expected:
+        machine.wait_until_succeeds(
+            f"grep -q '\"alertname\": \"{name}\"' /tmp/hits", timeout=120
+        )
+    hits = [json.loads(line) for line in machine.succeed("cat /tmp/hits").splitlines()]
+    received = {
+        (a["labels"]["alertname"], hit["path"])
+        for hit in hits
+        for a in hit["alerts"]
+        if a["labels"]["alertname"] in expected
+    }
+    # Seeing all three paths alone also passes if critical/warning routes are
+    # swapped. Every alert must reach its expected receiver exclusively.
+    assert received == set(expected.items()), received
 
     # The heartbeat route must keep re-notifying (dead-man semantics).
     machine.succeed("cp /tmp/hits /tmp/hits.snapshot")
