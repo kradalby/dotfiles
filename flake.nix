@@ -642,6 +642,7 @@
         checks = pkgs.lib.optionalAttrs (system == "x86_64-linux") {
           codex-session-env = import ./checks/codex-session-env { inherit pkgs; };
           mcp-servers = import ./checks/mcp-servers { inherit pkgs; };
+          claude-mcp = import ./checks/claude-mcp { inherit pkgs self; };
           claude-path = import ./checks/claude-path { inherit pkgs self; };
           mutable-json = import ./checks/mutable-json { inherit pkgs self; };
           syncthing-init = import ./checks/syncthing-init { inherit pkgs self; };

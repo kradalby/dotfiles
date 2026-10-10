@@ -9,6 +9,7 @@ let
   jq = lib.getExe pkgs.jq;
   home = config.home.homeDirectory;
   desktopConfig = "${home}/Library/Application Support/Claude/claude_desktop_config.json";
+  claudeServers = ai.claudeMcpServers // config.my.claudeMcpServers;
 
   # Claude Desktop's config file only launches stdio servers; mcp-remote
   # bridges to the http one. --allow-http because the VIP is plain http.
@@ -26,24 +27,30 @@ let
 
   # Sets one key in a client-owned JSON file. Clients rewrite these files, so
   # they cannot be home.file symlinks, and mutableJson only seeds a missing
-  # file, so an existing one would never get the server. Missing files are
-  # skipped (the client creates them; the next switch fills them in).
+  # file, so an existing one would never get the server.
   merge = file: path: value: ''
     f=${lib.escapeShellArg file}
     v=${lib.escapeShellArg (builtins.toJSON value)}
-    if [ -f "$f" ] && ! ${jq} -e --argjson v "$v" '${path} == $v' "$f" >/dev/null; then
+    if [ -f "$f" ] && ! ${jq} -e --argjson v "$v" ${lib.escapeShellArg "${path} == $v"} "$f" >/dev/null; then
       tmp="$(mktemp "$f.XXXXXX")"
-      if ${jq} --argjson v "$v" '${path} = $v' "$f" >"$tmp"; then
+      if ${jq} -e --argjson v "$v" ${lib.escapeShellArg ''if type == "object" then ${path} = $v else error("expected a JSON object") end''} "$f" >"$tmp"; then
         run mv "$tmp" "$f"
       else
         rm -f "$tmp"
+        exit 1
       fi
     fi
   '';
 in
 {
+  options.my.claudeMcpServers = lib.mkOption {
+    type = lib.types.attrsOf lib.types.attrs;
+    default = { };
+    description = "Additional user-scope Claude MCP servers.";
+  };
+
   # Mutable settings retain their seed; migrate only the previous declared PATH.
-  home.activation.claudePath = lib.mkIf pkgs.stdenv.hostPlatform.isLinux (
+  config.home.activation.claudePath = lib.mkIf pkgs.stdenv.hostPlatform.isLinux (
     lib.hm.dag.entryAfter [ "mutableJson" ] ''
       settings=${lib.escapeShellArg "${home}/.claude/settings.json"}
       previous=${lib.escapeShellArg (lib.removePrefix "/run/wrappers/bin:" ai.claude.env.PATH)}
@@ -53,12 +60,22 @@ in
     ''
   );
 
-  home.activation.mcpServers = lib.hm.dag.entryAfter [ "writeBoundary" "mutableJson" ] (
-    lib.concatStrings (
+  config.home.activation.mcpServers = lib.hm.dag.entryAfter [ "writeBoundary" "mutableJson" ] (
+    ''
+      if [ ! -e ${lib.escapeShellArg "${home}/.claude.json"} ]; then
+        run install -m600 ${pkgs.writeText "empty-claude.json" "{}"} ${lib.escapeShellArg "${home}/.claude.json"}
+      fi
+    ''
+    + lib.concatStringsSep "\n" (
+      lib.mapAttrsToList (
+        name: server: merge "${home}/.claude.json" ".mcpServers[${builtins.toJSON name}]" server
+      ) claudeServers
+    )
+    + lib.concatStrings (
       lib.mapAttrsToList (
         name: server:
-        merge "${home}/.claude.json" ".mcpServers.${name}" server
-        + merge "${home}/.config/opencode/opencode.json" ".mcp.${name}" ai.opencode.mcp.${name}
+        merge "${home}/.config/opencode/opencode.json" ".mcp[${builtins.toJSON name}]"
+          ai.opencode.mcp.${name}
         + lib.optionalString config.my.packages.ai.codex ''
           if ! ${lib.getExe pkgs.master.codex} mcp get ${lib.escapeShellArg name} >/dev/null 2>&1; then
             run ${lib.getExe pkgs.master.codex} mcp add ${lib.escapeShellArg name} --url ${lib.escapeShellArg server.url}

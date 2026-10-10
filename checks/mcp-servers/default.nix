@@ -17,6 +17,7 @@ let
       config = {
         home.homeDirectory = home;
         my.packages.ai.codex = false;
+        my.claudeMcpServers = { };
       };
     };
 in
@@ -25,9 +26,9 @@ pkgs.runCommand "mcp-server-registration-tests" { nativeBuildInputs = [ pkgs.jq 
   echo '{"mcpServers":{"existing":{"command":"keep"}},"other":42}' >${home}/.claude.json
   echo '{"mcp":{"existing":{"command":"keep"}},"other":42}' >${home}/.config/opencode/opencode.json
   run() { "$@"; }
-  ${(registration false).home.activation.mcpServers.data}
-  ${(registration true).home.activation.mcpServers.data}
-  ${(registration true).home.activation.mcpServers.data}
+  ${(registration false).config.home.activation.mcpServers.data}
+  ${(registration true).config.home.activation.mcpServers.data}
+  ${(registration true).config.home.activation.mcpServers.data}
 
   jq -e '.other == 42 and .mcpServers.existing.command == "keep"' ${home}/.claude.json
   jq -e '.other == 42 and .mcp.existing.command == "keep"' ${home}/.config/opencode/opencode.json
