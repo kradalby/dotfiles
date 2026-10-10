@@ -91,7 +91,7 @@
 
     # Self-hosted Garnix CI at the reviewed fork revision. Keep its own nixpkgs
     # pin so the action runner stays on the toolchain Garnix builds against.
-    garnix-ci.url = "github:kradalby/garnix/bd57689c8f5adcf1a4c9e5d73cf33e9333b4663a";
+    garnix-ci.url = "github:kradalby/garnix/57118969e4cd2516ccabc1df85d1e6fc388db987";
 
     headscale = {
       url = "github:juanfont/headscale/main";
