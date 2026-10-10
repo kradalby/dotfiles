@@ -192,6 +192,8 @@ func (cfg *Config) expandSpeakers(speakers []Speaker) []Speaker {
 }
 
 func executePlay(ctx context.Context, client *owntone.Client, cfg *Config, speakers []Speaker, schedule string) (playResponse, int) {
+	unlock := client.LockMutations()
+	defer unlock()
 	resp := playResponse{Status: "error", Schedule: schedule}
 
 	expanded := cfg.expandSpeakers(speakers)
@@ -329,6 +331,8 @@ func handlePlay(client *owntone.Client, cfg *Config) http.HandlerFunc {
 
 func handleStop(client *owntone.Client) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		unlock := client.LockMutations()
+		defer unlock()
 		w.Header().Set("Content-Type", "application/json")
 
 		resp := map[string]string{"status": "error"}
@@ -443,6 +447,8 @@ func handleSetOutput(client *owntone.Client) http.HandlerFunc {
 			volume = *req.Volume
 		}
 
+		unlock := client.LockMutations()
+		defer unlock()
 		if err := client.SetOutput(id, selected, volume); err != nil {
 			writeJSON(w, http.StatusBadGateway, map[string]string{
 				"error": fmt.Sprintf("set output: %v", err),
