@@ -804,18 +804,18 @@
         "treetop": "treetop"
       },
       "locked": {
-        "lastModified": 1791660387,
-        "narHash": "sha256-qu8GGipIRRFVNT6CW89wVElC1Vwi53NZ6YjhY3R6aws=",
+        "lastModified": 1791663637,
+        "narHash": "sha256-kgoX6fgb8hFz0WHWrphVTYA7O2+tOem4nfKAh7fSe4Y=",
         "owner": "kradalby",
         "repo": "garnix",
-        "rev": "b3cf67cb9e40110b5e712438b3e8149c01465d4c",
+        "rev": "bd57689c8f5adcf1a4c9e5d73cf33e9333b4663a",
         "type": "github"
       },
       "original": {
         "owner": "kradalby",
-        "ref": "integration",
         "repo": "garnix",
-        "type": "github"
+        "type": "github",
+        "rev": "bd57689c8f5adcf1a4c9e5d73cf33e9333b4663a"
       }
     },
     "garnix-guest-lib": {
