@@ -804,11 +804,11 @@
         "treetop": "treetop"
       },
       "locked": {
-        "lastModified": 1790333561,
-        "narHash": "sha256-NNe3h6p50Ny43//0rnteGo5/Se7u1QvkbIvoT2G21cw=",
+        "lastModified": 1791660360,
+        "narHash": "sha256-U0qLfZNJiLLF3g3BxxcI/w6HmjL54Gf2i26pBk4i8uE=",
         "owner": "kradalby",
         "repo": "garnix",
-        "rev": "d82a86412eb232286f2cafdebecdbeafb7483722",
+        "rev": "0cfbba89e38d855e847954ca55ec85d70b765789",
         "type": "github"
       },
       "original": {
