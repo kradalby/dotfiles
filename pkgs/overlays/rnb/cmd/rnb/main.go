@@ -33,7 +33,8 @@ func run(args []string) error {
 	fs.StringVar(&config, "config", "", "path to builders.json (overrides $RNB_BUILDERS/XDG)")
 	fs.Usage = func() { usage(fs, config) }
 
-	if err := fs.Parse(args); err != nil {
+	flagArgs, command := splitArgs(args)
+	if err := fs.Parse(flagArgs); err != nil {
 		if err == flag.ErrHelp {
 			return nil
 		}
@@ -46,7 +47,7 @@ func run(args []string) error {
 		return nil
 	}
 
-	names, command := splitArgs(fs.Args())
+	names := fs.Args()
 
 	reg, path, err := builders.Load(config)
 	if err != nil {
@@ -89,7 +90,7 @@ func run(args []string) error {
 	return syscall.Exec(bin, command, replaceEnv("NIX_CONFIG", cfg))
 }
 
-// splitArgs divides positional args at the first "--": builder names before,
+// splitArgs divides arguments at the first "--": flags and builder names before,
 // the command after.
 func splitArgs(rest []string) (names, command []string) {
 	for i, a := range rest {
