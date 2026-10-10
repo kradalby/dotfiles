@@ -16,6 +16,12 @@ let
     self.nixosConfigurations.core-oracldn.config.services.prometheus.alertmanager.configuration;
   prodRoute = prodAm.route;
   prodInhibits = prodAm.inhibit_rules;
+  prodRules = builtins.fromJSON (
+    builtins.head self.nixosConfigurations.core-oracldn.config.services.prometheus.rules
+  );
+  vanishedRules = builtins.filter (r: (r.alert or "") == "IncusVMVanished") (
+    pkgs.lib.concatMap (g: g.rules) prodRules.groups
+  );
   fastRoute = prodRoute // {
     group_wait = "1s";
     group_interval = "2s";
@@ -25,6 +31,7 @@ let
       r
       // {
         group_wait = "1s";
+        group_interval = "2s";
         repeat_interval = "5s";
       }
     ) prodRoute.routes;
@@ -33,7 +40,10 @@ in
 pkgs.testers.runNixOSTest {
   name = "monitoring-pipeline";
 
-  nodes.machine = { pkgs, ... }: {
+  nodes.machine = { pkgs, lib, ... }: {
+    # Start Prometheus only after the sinks are ready: otherwise its initial
+    # source-alert batch can fail, while later guest alerts arrive first.
+    systemd.services.prometheus.wantedBy = lib.mkForce [ ];
     services.prometheus = {
       enable = true;
       globalConfig.evaluation_interval = "2s";
@@ -43,7 +53,11 @@ pkgs.testers.runNixOSTest {
           groups = [
             {
               name = "test";
-              rules = [
+              # Run the exact production missing-guest expressions with only
+              # their hold time shortened. No Incus metrics exist in this VM.
+              # As in production (guest 10m, daemon 5m), the source fires
+              # before the guests, giving Alertmanager time to inhibit them.
+              rules = map (r: r // { for = "10s"; }) vanishedRules ++ [
                 {
                   alert = "Watchdog";
                   expr = "vector(1)";
@@ -83,6 +97,18 @@ pkgs.testers.runNixOSTest {
                   labels = {
                     severity = "critical";
                     target = "other-test-host";
+                  };
+                }
+                {
+                  alert = "IncusDaemonDown";
+                  expr = "vector(1)";
+                  labels = {
+                    severity = "critical";
+                    job = "incus";
+                    instance = "core-ldn:8443";
+                    host = "core-ldn";
+                    target = "core-ldn";
+                    hypervisor = "core-ldn";
                   };
                 }
               ];
@@ -143,15 +169,9 @@ pkgs.testers.runNixOSTest {
         class H(http.server.BaseHTTPRequestHandler):
             def do_POST(self):
                 body = self.rfile.read(int(self.headers.get("Content-Length", 0)))
-                try:
-                    names = ",".join(
-                        a["labels"]["alertname"]
-                        for a in json.loads(body).get("alerts", [])
-                    )
-                except Exception:
-                    names = ""
+                alerts = json.loads(body)["alerts"]
                 with open("/tmp/hits", "a") as f:
-                    f.write(self.path + " " + names + "\n")
+                    f.write(json.dumps({"path": self.path, "alerts": alerts}) + "\n")
                 self.send_response(200)
                 self.end_headers()
 
@@ -162,11 +182,15 @@ pkgs.testers.runNixOSTest {
   };
 
   testScript = ''
-    machine.wait_for_unit("prometheus.service")
+    import json
+
     machine.wait_for_unit("alertmanager.service")
     machine.wait_for_unit("webhook-stub.service")
-    machine.wait_for_open_port(9090)
     machine.wait_for_open_port(9093)
+    machine.wait_for_open_port(8081)
+    machine.succeed("systemctl start prometheus.service")
+    machine.wait_for_unit("prometheus.service")
+    machine.wait_for_open_port(9090)
 
     # Each severity must land at the receiver the PRODUCTION route assigns:
     # heartbeat→deadman, critical→critical, warning→discord.
@@ -188,5 +212,25 @@ pkgs.testers.runNixOSTest {
     machine.wait_until_succeeds("grep -q IndependentAlert /tmp/hits", timeout=120)
     machine.succeed("grep -q NodeExporterDown /tmp/hits")
     machine.fail("grep -q DependentAlert /tmp/hits")
+
+    # A missing guest on the failed hypervisor must be inhibited, while the
+    # identically named alert for the other hypervisor must still be delivered.
+    # Inspect individual alerts inside grouped notifications, not just paths.
+    machine.wait_until_succeeds("grep -q garnix /tmp/hits", timeout=120)
+    hits = [json.loads(line) for line in machine.succeed("cat /tmp/hits").splitlines()]
+    guests = [
+        a["labels"]
+        for hit in hits
+        for a in hit["alerts"]
+        if a["labels"]["alertname"] == "IncusVMVanished"
+    ]
+    assert guests and all(
+        a["name"] == "garnix" and a["hypervisor"] == "gigabuilder" for a in guests
+    ), guests
+    assert any(
+        a["labels"]["alertname"] == "IncusDaemonDown"
+        for hit in hits
+        for a in hit["alerts"]
+    ), hits
   '';
 }
