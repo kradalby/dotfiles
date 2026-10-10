@@ -40,7 +40,15 @@ let
     "ldn"
     "jotta"
   ];
+  storageConfig = self.nixosConfigurations."storage.ldn".config;
+  storageArgs = lib.escapeShellArgs (
+    map (builtins.replaceStrings
+      [ "/storage" ]
+      [ "jotta-source/storage" ]
+    ) storageConfig.services.restic.backups.jotta.extraBackupArgs
+  );
 in
+assert lib.elem "/storage" storageConfig.services.restic.jobs.jotta.paths;
 assert kuma.StateDirectory == "uptime-kuma";
 assert kuma.StateDirectoryMode == "2770";
 assert coreConfig.users.users.uptime-kuma.homeMode == "2770";
@@ -124,5 +132,18 @@ pkgs.runCommand "backup-regressions"
     pyright --pythonpath ${pkgs.python3}/bin/python3 --project pyrightconfig.json ${./permissions.py}
     python3 ${./permissions.py} ${kuma.StateDirectoryMode} ${kuma.UMask} ${litestream.serviceConfig.UMask} ${kumaBootstrap} --sandbox
 
+    # Mounted children are traversed through the pool root even when absent
+    # from the explicit source list. Both excluded trees must stay out.
+    mkdir -p jotta-source/storage/{dropbox,timemachine,sync}/nested
+    echo pool-state > jotta-source/storage/pool-state
+    echo cloud-origin > jotta-source/storage/dropbox/nested/data
+    echo laptop-backup > jotta-source/storage/timemachine/nested/data
+    echo required > jotta-source/storage/sync/nested/data
+    restic -r "$TMPDIR/jotta-repository" init
+    restic -r "$TMPDIR/jotta-repository" backup jotta-source/storage jotta-source/storage/sync ${storageArgs}
+    restic -r "$TMPDIR/jotta-repository" ls latest --json > jotta-files.json
+    jq -se 'any(.[]; .path == "/jotta-source/storage/pool-state")
+      and any(.[]; .path == "/jotta-source/storage/sync/nested/data")
+      and all(.[]; ((.path // "") | test("/storage/(dropbox|timemachine)(/|$)")) | not)' jotta-files.json
     touch "$out"
   ''
