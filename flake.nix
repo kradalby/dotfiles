@@ -642,6 +642,7 @@
         checks = pkgs.lib.optionalAttrs (system == "x86_64-linux") {
           codex-session-env = import ./checks/codex-session-env { inherit pkgs; };
           mcp-servers = import ./checks/mcp-servers { inherit pkgs; };
+          syncthing-init = import ./checks/syncthing-init { inherit pkgs self; };
           tmp-cleanup = import ./checks/tmp-cleanup { inherit pkgs; };
           nix-dev-env = import ./checks/nix-dev-env { inherit pkgs; };
           ac = import ./checks/ac { inherit pkgs; };

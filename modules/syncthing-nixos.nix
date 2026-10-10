@@ -81,21 +81,23 @@ let
     in
     pkgs.writers.writeBash "merge-syncthing-config-${name}" (
       ''
-        set -efu
+        set -efu -o pipefail
 
         # be careful not to leak secrets in the filesystem or in process listings
         umask 0077
 
         curl() {
             # get the api key by parsing the config.xml
-            while
-                ! ${pkgs.libxml2}/bin/xmllint \
-                    --xpath 'string(configuration/gui/apikey)' \
-                    ${icfg.configDir}/config.xml \
-                    >"$RUNTIME_DIRECTORY/api_key"
-            do sleep 1; done
-            (printf "X-API-Key: "; cat "$RUNTIME_DIRECTORY/api_key") >"$RUNTIME_DIRECTORY/headers"
-            ${pkgs.curl}/bin/curl -sSLk -H "@$RUNTIME_DIRECTORY/headers" \
+            while [ ! -s "${icfg.configDir}/config.xml" ]; do sleep 1; done
+            ${pkgs.libxml2}/bin/xmllint \
+                --xpath 'string(configuration/gui/apikey)' \
+                "${icfg.configDir}/config.xml" \
+                >"$RUNTIME_DIRECTORY/api_key" || return 1
+            api_key=$(cat "$RUNTIME_DIRECTORY/api_key") || return 1
+            test -n "$api_key" || return 1
+            printf "X-API-Key: " >"$RUNTIME_DIRECTORY/headers" || return 1
+            cat "$RUNTIME_DIRECTORY/api_key" >>"$RUNTIME_DIRECTORY/headers" || return 1
+            ${pkgs.curl}/bin/curl -sSLk --fail -H "@$RUNTIME_DIRECTORY/headers" \
                 --retry 1000 --retry-delay 1 --retry-all-errors \
                 "$@"
         }
@@ -167,7 +169,8 @@ let
                       .${conf_type};
                   in
                   ''
-                    ${injectSecretsJqCmd} ${jsonPreSecretsFile} | curl --json @- -X POST ${s.baseAddress}
+                    ${injectSecretsJqCmd} ${jsonPreSecretsFile} >"$RUNTIME_DIRECTORY/config.json"
+                    curl --json "@$RUNTIME_DIRECTORY/config.json" -X POST ${s.baseAddress}
                   ''
                   + lib.optionalString ((conf_type == "dirs") && (new_cfg.ignorePatterns != null)) ''
                     curl -d '{"ignore": ${builtins.toJSON new_cfg.ignorePatterns}}' -X POST ${s.ignoreAddress}?folder=${new_cfg.id}
@@ -215,8 +218,10 @@ let
         '')
       + ''
         # restart Syncthing if required
-        if curl ${curlAddr "/rest/config/restart-required"} |
-           ${jq} -e .requiresRestart > /dev/null; then
+        restart_status=$(curl ${curlAddr "/rest/config/restart-required"})
+        requires_restart=$(printf '%s\n' "$restart_status" |
+            ${jq} -er '.requiresRestart | select(type == "boolean") | tostring')
+        if [ "$requires_restart" = true ]; then
             curl -X POST ${curlAddr "/rest/system/restart"}
         fi
       ''
