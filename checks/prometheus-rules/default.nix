@@ -67,8 +67,6 @@ let
       "ResticBackupStale"
       "ResticBackupStaleJotta"
       "ResticRepoNoNewSnapshots"
-      "RusticBackupMetricsMissing"
-      "RusticBackupStale"
       "SMARTDiskTemperature"
       "SMARTDiskUnhealthy"
       "ServiceFlapping"

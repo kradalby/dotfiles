@@ -1,4 +1,5 @@
 {
+  inputs,
   pkgs,
   config,
   lib,
@@ -35,6 +36,16 @@ let
   # expected disk count below tracks the device list automatically.
   smartctlDisks = import ../../metadata/smartctl.nix;
   smartctlHosts = lib.attrNames smartctlDisks;
+
+  # Pushgateway metrics persist while laptops are offline. Expect a timestamp
+  # from every laptop with configured backups, even when its peer still pushes.
+  rusticHosts = map (host: host.config.networking.hostName) (
+    lib.attrValues (
+      lib.filterAttrs (
+        _: host: host.config.services.rustic.backups != { }
+      ) inputs.self.darwinConfigurations
+    )
+  );
 
   # One SmartctlDiskMissing rule per host, expected count derived from the disk
   # list. A disk vanishing from the exporter (dead disk/controller, or a stale
@@ -1464,12 +1475,12 @@ in
                 alert = "LitestreamMetricsMissing";
                 # Canary against metric renames: a future litestream bump that
                 # renames its metrics must page, not silently go green.
-                expr = ''absent(litestream_sync_count) and on() up{job="litestream"} == 1'';
+                expr = ''up{job="litestream"} == 1 unless on (job, instance) litestream_sync_count{job="litestream"}'';
                 for = "15m";
                 labels.severity = "critical";
                 annotations = {
-                  summary = "Litestream exporter is up but litestream_sync_count is absent";
-                  description = "The litestream metric names have changed (version bump?). All litestream alerts are blind until the rules are updated.";
+                  summary = "Litestream exporter on {{ $labels.instance }} is up but litestream_sync_count is absent";
+                  description = "Litestream sync metrics disappeared on this host (metric rename or database configuration failure); its replication alerts are blind.";
                 };
               }
               {
@@ -1608,17 +1619,21 @@ in
               }
               {
                 alert = "OracleUsageMetricsMissing";
-                # Canary: exporter up but emitting no usage series (renamed
-                # metric, broken OCI query at startup). Without
-                # oci_usage_month_total the critical OracleCostNonZero can
-                # never fire, so a cost overrun would pass silently — and a
-                # time()-based staleness check cannot fire on an absent series.
-                expr = ''absent(oci_usage_month_total) and on () up{job="oci-usage"} == 1'';
+                # oci_usage_up exists even when an account's first query fails,
+                # before cost/last_success are created. Keep a scrape-level
+                # canary too, in case the whole metric family disappears.
+                expr = ''
+                  ((oci_usage_up{job="oci-usage"}
+                    unless on (job, instance, account) oci_usage_month_total{job="oci-usage"})
+                    and on (job, instance) up{job="oci-usage"} == 1)
+                  or (up{job="oci-usage"} == 1
+                    unless on (job, instance) (oci_usage_month_total{job="oci-usage"} or oci_usage_up{job="oci-usage"}))
+                '';
                 for = "1h";
                 labels.severity = "warning";
                 annotations = {
-                  summary = "OCI usage exporter is up but emitting no usage metrics";
-                  description = "oci_usage_month_total is absent while the oci-usage scrape is up; the Oracle cost and staleness alerts are both blind.";
+                  summary = "OCI usage metrics missing{{ if $labels.account }} for {{ $labels.account }}{{ end }} on {{ $labels.instance }}";
+                  description = "oci_usage_month_total is absent for this account or scrape while the exporter is up; the Oracle cost and staleness alerts are blind.";
                 };
               }
               {
@@ -1807,15 +1822,16 @@ in
               }
               {
                 alert = "RusticBackupMetricsMissing";
-                # Canary against the metric name being wrong or the pushgateway
-                # being wiped — the RusticBackupStale threshold can never fire if
-                # the series does not exist at all.
-                expr = "absent(rustic_backup_last_snapshot_timestamp_seconds)";
+                # A healthy peer must not mask a laptop that has never pushed,
+                # or whose persisted series was removed from the pushgateway.
+                expr = lib.concatMapStringsSep " or " (
+                  host: ''absent(rustic_backup_last_snapshot_timestamp_seconds{host="${host}"})''
+                ) rusticHosts;
                 for = "6h";
                 labels.severity = "warning";
                 annotations = {
-                  summary = "No rustic backup timestamp is being pushed by any laptop";
-                  description = "rustic_backup_last_snapshot_timestamp_seconds is absent fleet-wide; the macOS backup dead-man is blind.";
+                  summary = "No rustic backup timestamp for {{ $labels.host }}";
+                  description = "rustic_backup_last_snapshot_timestamp_seconds is absent for this configured laptop; its backup dead-man is blind.";
                 };
               }
               {

@@ -8,6 +8,128 @@ rule_files:
 evaluation_interval: 1m
 
 tests:
+  - name: Litestream missing metrics are per scrape
+    interval: 1m
+    input_series:
+      - series: 'up{job="litestream", instance="core-oracldn:54909", host="core-oracldn", target="core-oracldn"}'
+        values: "1x30"
+      - series: 'up{job="litestream", instance="dev-oracfurt:54909", host="dev-oracfurt", target="dev-oracfurt"}'
+        values: "1x30"
+      - series: 'up{job="litestream", instance="down:54909", host="down", target="down"}'
+        values: "0x30"
+      - series: 'litestream_sync_count{job="litestream", instance="dev-oracfurt:54909", db="golink.db"}'
+        values: "0+1x30"
+      # The same address in a different job must not satisfy the canary.
+      - series: 'litestream_sync_count{job="other", instance="core-oracldn:54909", db="kuma.db"}'
+        values: "0+1x30"
+    alert_rule_test:
+      - eval_time: 10m
+        alertname: LitestreamMetricsMissing
+        exp_alerts: []
+      - eval_time: 20m
+        alertname: LitestreamMetricsMissing
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              job: litestream
+              instance: core-oracldn:54909
+              host: core-oracldn
+              target: core-oracldn
+            exp_annotations:
+              summary: "Litestream exporter on core-oracldn:54909 is up but litestream_sync_count is absent"
+              description: "Litestream sync metrics disappeared on this host (metric rename or database configuration failure); its replication alerts are blind."
+
+  - name: A healthy laptop cannot mask its missing peer
+    interval: 30m
+    input_series:
+      - series: 'rustic_backup_last_snapshot_timestamp_seconds{job="rustic", instance="krair", host="krair"}'
+        values: "0+1800x16"
+    alert_rule_test:
+      - eval_time: 5h
+        alertname: RusticBackupMetricsMissing
+        exp_alerts: []
+      - eval_time: 7h
+        alertname: RusticBackupMetricsMissing
+        exp_alerts:
+          - exp_labels:
+              host: kratail2
+              severity: warning
+            exp_annotations:
+              summary: "No rustic backup timestamp for kratail2"
+              description: "rustic_backup_last_snapshot_timestamp_seconds is absent for this configured laptop; its backup dead-man is blind."
+
+  - name: Both configured laptops retain missing coverage
+    interval: 30m
+    input_series:
+      - series: 'rustic_backup_last_snapshot_timestamp_seconds{job="rustic", instance="kratail2", host="kratail2"}'
+        values: "0+1800x16"
+    alert_rule_test:
+      - eval_time: 7h
+        alertname: RusticBackupMetricsMissing
+        exp_alerts:
+          - exp_labels:
+              host: krair
+              severity: warning
+            exp_annotations:
+              summary: "No rustic backup timestamp for krair"
+              description: "rustic_backup_last_snapshot_timestamp_seconds is absent for this configured laptop; its backup dead-man is blind."
+
+  - name: Persisted offline laptop metrics use the staleness alert
+    interval: 1m
+    input_series:
+      - series: 'rustic_backup_last_snapshot_timestamp_seconds{job="rustic", instance="krair", host="krair"}'
+        values: "0+60x60"
+      - series: 'rustic_backup_last_snapshot_timestamp_seconds{job="rustic", instance="kratail2", host="kratail2"}'
+        values: "-300000x60"
+    alert_rule_test:
+      - eval_time: 40m
+        alertname: RusticBackupMetricsMissing
+        exp_alerts: []
+      - eval_time: 40m
+        alertname: RusticBackupStale
+        exp_alerts:
+          - exp_labels:
+              job: rustic
+              instance: kratail2
+              host: kratail2
+              severity: warning
+            exp_annotations:
+              summary: "rustic backup on kratail2 is stale (>3d)"
+              description: "No fresh rustic snapshot for over three days; the laptop's backups have silently stopped."
+
+  - name: An OCI account failing from startup cannot hide behind a healthy account
+    interval: 1m
+    input_series:
+      - series: 'up{job="oci-usage", instance="localhost:63461", host="localhost", target="core-oracldn"}'
+        values: "1x120"
+      - series: 'oci_usage_up{job="oci-usage", instance="localhost:63461", host="localhost", target="core-oracldn", account="kradalby"}'
+        values: "1x120"
+      - series: 'oci_usage_month_total{job="oci-usage", instance="localhost:63461", account="kradalby"}'
+        values: "0x120"
+      - series: 'oci_usage_up{job="oci-usage", instance="localhost:63461", host="localhost", target="core-oracldn", account="vsdalby"}'
+        values: "0x120"
+      - series: 'up{job="oci-usage", instance="down:63461"}'
+        values: "0x120"
+      - series: 'oci_usage_up{job="oci-usage", instance="down:63461", account="vsdalby"}'
+        values: "0x120"
+    alert_rule_test:
+      - eval_time: 50m
+        alertname: OracleUsageMetricsMissing
+        exp_alerts: []
+      - eval_time: 70m
+        alertname: OracleUsageMetricsMissing
+        exp_alerts:
+          - exp_labels:
+              account: vsdalby
+              job: oci-usage
+              instance: localhost:63461
+              host: localhost
+              target: core-oracldn
+              severity: warning
+            exp_annotations:
+              summary: "OCI usage metrics missing for vsdalby on localhost:63461"
+              description: "oci_usage_month_total is absent for this account or scrape while the exporter is up; the Oracle cost and staleness alerts are blind."
+
   # PostgreSQL slots are shared by active and idle client connections across
   # databases and users. Other backends and other servers do not share slots.
   - name: PostgreSQL connection totals per server
@@ -314,9 +436,12 @@ tests:
         exp_alerts:
           - exp_labels:
               severity: critical
+              job: litestream
+              instance: core-oracldn:54909
+              host: core-oracldn
             exp_annotations:
-              summary: "Litestream exporter is up but litestream_sync_count is absent"
-              description: "The litestream metric names have changed (version bump?). All litestream alerts are blind until the rules are updated."
+              summary: "Litestream exporter on core-oracldn:54909 is up but litestream_sync_count is absent"
+              description: "Litestream sync metrics disappeared on this host (metric rename or database configuration failure); its replication alerts are blind."
 
   # ghdl per-source freshness: last_success frozen while the exporter stays up
   # → stale after 36h. Fresh at 100m, stale at 2220m.
@@ -460,9 +585,12 @@ tests:
         exp_alerts:
           - exp_labels:
               severity: warning
+              job: oci-usage
+              instance: localhost:63461
+              host: localhost
             exp_annotations:
-              summary: "OCI usage exporter is up but emitting no usage metrics"
-              description: "oci_usage_month_total is absent while the oci-usage scrape is up; the Oracle cost and staleness alerts are both blind."
+              summary: "OCI usage metrics missing on localhost:63461"
+              description: "oci_usage_month_total is absent for this account or scrape while the exporter is up; the Oracle cost and staleness alerts are blind."
 
   # litestream restore-test freshness: a last-success stamp far in the past
   # (>14d before now) pages. A large-negative epoch keeps the sample fresh at a
