@@ -196,7 +196,10 @@ let
       }
 
       build_candidates() {
-        curl --fail --silent --show-error --location "$api_url" --output "$stage/response.json" || return 1
+        # Reach the cached-config fallback even when Aperture stops responding.
+        curl --fail --silent --show-error --location \
+          --connect-timeout 5 --max-time 20 \
+          "$api_url" --output "$stage/response.json" || return 1
         jq -e '
           (.configs | type == "object") and
           (.configs.opencode | type == "string" and length > 0) and
@@ -310,6 +313,9 @@ let
           pkgs.coreutils
           pkgs.jq
           pkgs.yq-go
+          pkgs.python3
+          pkgs.ruff
+          pkgs.pyright
         ];
       }
       ''
@@ -361,6 +367,11 @@ let
           test ! -e "$APERTURE_OPENCODE_CONFIG"
           test ! -e "$APERTURE_HERMES_CONFIG"
           bash ${../../checks/aperture-agent-config-sync/test.sh} ${validResponseFile} ${malformedResponseFile}
+          ruff check --select ANN,UP,SIM,B,I --line-length 100 ${../../checks/aperture-agent-config-sync/timeout.py}
+          ruff format --check --line-length 100 ${../../checks/aperture-agent-config-sync/timeout.py}
+          echo '{"typeCheckingMode":"strict"}' > "$TMPDIR/pyrightconfig.json"
+          pyright --pythonpath ${pkgs.python3}/bin/python3 --project "$TMPDIR/pyrightconfig.json" ${../../checks/aperture-agent-config-sync/timeout.py}
+          python3 ${../../checks/aperture-agent-config-sync/timeout.py} ${package}/bin/aperture-agent-config-sync ${validResponseFile}
           touch "$out"
       '';
 in
