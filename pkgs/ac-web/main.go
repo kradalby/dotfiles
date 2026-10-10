@@ -273,7 +273,7 @@ func handleKill(w http.ResponseWriter, r *http.Request) {
 // handleRmWorktree removes a worktree by its path under wtRoot/<repo> (keeping
 // the branch ref). Removing by path, not by branch name, is what makes this
 // correct when the two differ after a rename. It refuses if a live session's cwd
-// is that worktree — deleting it out from under a running agent orphans the
+// is in that worktree — deleting it out from under a running agent orphans the
 // session and loses in-flight work, the exact failure graceful shutdown exists to
 // prevent. Single --force (not two): remove a dirty tree, but never a locked one.
 func handleRmWorktree(w http.ResponseWriter, r *http.Request) {
@@ -296,7 +296,8 @@ func handleRmWorktree(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	for _, s := range live {
-		if s.Workdir == target {
+		cwdRel, err := filepath.Rel(target, s.Workdir)
+		if s.Workdir != "" && err == nil && cwdRel != ".." && !strings.HasPrefix(cwdRel, ".."+string(filepath.Separator)) {
 			fail(w, fmt.Errorf("session %s is live in %s/%s; kill it first", s.Server, repoName, rel))
 			return
 		}
