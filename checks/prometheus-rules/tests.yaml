@@ -8,6 +8,39 @@ rule_files:
 evaluation_interval: 1m
 
 tests:
+  # PostgreSQL slots are shared by active and idle client connections across
+  # databases and users. Other backends and other servers do not share slots.
+  - name: PostgreSQL connection totals per server
+    interval: 1m
+    input_series:
+      - series: 'pg_stat_activity_count{job="postgres", instance="core-oracldn:9187", host="core-oracldn", target="core-oracldn", server="/run/postgresql:5432", datname="umami", state="active", usename="umami", application_name="web", backend_type="client backend", wait_event_type="", wait_event=""}'
+        values: "45x20"
+      - series: 'pg_stat_activity_count{job="postgres", instance="core-oracldn:9187", host="core-oracldn", target="core-oracldn", server="/run/postgresql:5432", datname="postgres", state="idle", usename="postgres", application_name="", backend_type="client backend", wait_event_type="Client", wait_event="ClientRead"}'
+        values: "50x20"
+      - series: 'pg_stat_activity_count{job="postgres", instance="garnix:9187", host="garnix", target="garnix", hypervisor="gigabuilder", server="/run/postgresql:5432", datname="garnix", state="active", backend_type="client backend"}'
+        values: "40x20"
+      - series: 'pg_stat_activity_count{job="postgres", instance="garnix:9187", host="garnix", target="garnix", hypervisor="gigabuilder", server="/run/postgresql:5432", datname="garnix", state="idle", backend_type="client backend"}'
+        values: "40x20"
+      - series: 'pg_stat_activity_count{job="postgres", instance="garnix:9187", host="garnix", target="garnix", hypervisor="gigabuilder", server="/run/postgresql:5432", datname="garnix", state="active", backend_type="parallel worker"}'
+        values: "10x20"
+    alert_rule_test:
+      - eval_time: 4m
+        alertname: PostgreSQLHighConnections
+        exp_alerts: []
+      - eval_time: 10m
+        alertname: PostgreSQLHighConnections
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              job: postgres
+              instance: core-oracldn:9187
+              host: core-oracldn
+              target: core-oracldn
+              server: /run/postgresql:5432
+            exp_annotations:
+              summary: "PostgreSQL connections high on core-oracldn:9187: 95"
+              description: "PostgreSQL on core-oracldn:9187 has more than 80 client connections (default max is 100)."
+
   # A live process is insufficient: the relay must be connected and the
   # protocol probe must keep updating its timestamp.
   - interval: 1m

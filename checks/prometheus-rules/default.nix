@@ -58,7 +58,6 @@ let
       "OOMKill"
       "PostfixQueueBacklog"
       "PostgreSQLDown"
-      "PostgreSQLHighConnections"
       "PostgresqlBackupStale"
       "PrometheusNotificationErrors"
       "PrometheusRuleEvalFailures"

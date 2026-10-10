@@ -1574,12 +1574,14 @@ in
               }
               {
                 alert = "PostgreSQLHighConnections";
-                expr = "pg_stat_activity_count > 80";
+                # The exporter splits clients by database, state and user.
+                # Idle clients also consume max_connections; workers do not.
+                expr = ''sum without (datname, state, usename, application_name, backend_type, wait_event_type, wait_event) (pg_stat_activity_count{job="postgres",backend_type="client backend"}) > 80'';
                 for = "5m";
                 labels.severity = "warning";
                 annotations = {
                   summary = "PostgreSQL connections high on {{ $labels.instance }}: {{ $value }}";
-                  description = "PostgreSQL on {{ $labels.instance }} has more than 80 active connections (default max is 100).";
+                  description = "PostgreSQL on {{ $labels.instance }} has more than 80 client connections (default max is 100).";
                 };
               }
               {
