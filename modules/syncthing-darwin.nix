@@ -465,30 +465,32 @@ in
       );
 
       updateConfig = pkgs.writers.writeBash "merge-syncthing-config" ''
-        set -efu
+        set -efu -o pipefail
         # get the api key by parsing the config.xml
-        while
-            ! api_key=$(${pkgs.libxml2}/bin/xmllint \
-                --xpath 'string(configuration/gui/apikey)' \
-                "${cfg.configDir}/config.xml")
-        do sleep 1; done
+        while [ ! -s "${cfg.configDir}/config.xml" ]; do sleep 1; done
+        api_key=$(${pkgs.libxml2}/bin/xmllint \
+            --xpath 'string(configuration/gui/apikey)' \
+            "${cfg.configDir}/config.xml")
+        test -n "$api_key"
         curl() {
-            ${pkgs.curl}/bin/curl -sSLk -H "X-API-Key: $api_key" \
+            ${pkgs.curl}/bin/curl -sSLk --fail -H "X-API-Key: $api_key" \
                 --retry 1000 --retry-delay 1 --retry-all-errors \
                 "$@"
         }
         # query the old config
         old_cfg=$(curl ${cfg.guiAddress}/rest/config)
         # generate the new config by merging with the NixOS config options
-        new_cfg=$(printf '%s\n' "$old_cfg" | ${pkgs.jq}/bin/jq -c '. * {
+        new_cfg=$(printf '%s\n' "$old_cfg" | ${pkgs.jq}/bin/jq -ec 'select(type == "object") | . * {
             "devices": (${builtins.toJSON devices}${optionalString (!cfg.overrideDevices) " + .devices"}),
             "folders": (${builtins.toJSON folders}${optionalString (!cfg.overrideFolders) " + .folders"})
         } * ${builtins.toJSON cfg.extraOptions}')
         # send the new config
         curl -X PUT -d "$new_cfg" ${cfg.guiAddress}/rest/config
         # restart Syncthing if required
-        if curl ${cfg.guiAddress}/rest/config/restart-required |
-           ${pkgs.jq}/bin/jq -e .requiresRestart > /dev/null; then
+        restart_status=$(curl ${cfg.guiAddress}/rest/config/restart-required)
+        requires_restart=$(printf '%s\n' "$restart_status" |
+            ${pkgs.jq}/bin/jq -er '.requiresRestart | select(type == "boolean") | tostring')
+        if [ "$requires_restart" = true ]; then
             curl -X POST ${cfg.guiAddress}/rest/system/restart
         fi
         # Push ignore patterns for folders that define them
