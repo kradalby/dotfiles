@@ -332,6 +332,9 @@
       };
     in
     {
+      nixosModules.sqlite-backup = ./modules/sqlite-backup;
+      nixosModules.sqlite-backup-monitoring = ./modules/sqlite-backup/monitoring.nix;
+
       nixosConfigurations =
         let
           hosts = {
@@ -643,6 +646,8 @@
           nix-dev-env = import ./checks/nix-dev-env { inherit pkgs; };
           ac = import ./checks/ac { inherit pkgs; };
           backups = import ./checks/backups { inherit pkgs self; };
+          sqlite-backup = import ./modules/sqlite-backup/tests.nix { inherit pkgs; };
+          sqlite-backup-ordering = import ./modules/sqlite-backup/ordering-test.nix { inherit pkgs; };
           # treefmt in check mode: fails when any file is unformatted, making
           # `nix fmt` enforceable in CI (git.md's claim, now true).
           formatting = treefmtEval.config.build.check self;

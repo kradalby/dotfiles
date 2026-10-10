@@ -316,6 +316,7 @@ let
   };
 in
 {
+  imports = [ ../../modules/sqlite-backup/monitoring.nix ];
   # tcp:443 endpoints have no TLS termination — Tailscale VIP bug
   # (tailscale/tailscale#19724, #18381); consumers use http.
   # TODO(kradalby): revert when fixed.
