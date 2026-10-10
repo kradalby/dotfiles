@@ -27,18 +27,14 @@ let
     mcp_servers.aperture.url = "http://ai.corp.ts.net/v1/mcp";
   };
 
-  # Corp AI proxy: fake auth via apiKeyHelper, inject proxy env, add the
-  # aperture MCP server. PATH override is required for standalone HM
+  # Corp AI proxy: fake auth via apiKeyHelper and inject proxy env.
+  # PATH override is required for standalone HM
   # (see note in home/ai.nix).
   claudeSettings = lib.recursiveUpdate aiConfig.claude {
     apiKeyHelper = "echo '-'";
     env = {
       ANTHROPIC_BASE_URL = "http://ai.corp.ts.net";
       PATH = "${config.home.profileDirectory}/bin:/nix/var/nix/profiles/default/bin:/usr/local/bin:/usr/bin:/bin";
-    };
-    mcpServers.aperture = {
-      type = "http";
-      url = "http://ai.corp.ts.net/v1/mcp";
     };
   };
 
@@ -198,6 +194,11 @@ in
     };
   };
   programs.gh.settings.git_protocol = lib.mkForce "https";
+
+  my.claudeMcpServers.aperture = {
+    type = "http";
+    url = "http://ai.corp.ts.net/v1/mcp";
+  };
 
   # OpenCode and Hermes are refreshed from Aperture below. Claude and Codex
   # retain mutable configs because they persist trust and other runtime state.

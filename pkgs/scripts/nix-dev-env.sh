@@ -13,6 +13,18 @@ dir="$(printf '%s' "$payload" | jq -r '.new_cwd // .cwd // empty' 2>/dev/null)"
   sed -E 's/.*"([^"]*)"$/\1/')"
 [ -n "$dir" ] && [ -d "$dir" ] && cd "$dir" || true
 
+# A child flake must not hide the ancestor .envrc direnv would load.
+envrc_dir="$PWD"
+while [ "$envrc_dir" != / ] && [ ! -f "$envrc_dir/.envrc" ]; do
+  envrc_dir=$(dirname "$envrc_dir")
+done
+
+# Tool cwd may be a source subdirectory; dev environments belong to its project.
+project_dir="$PWD"
+while [ "$project_dir" != / ] && [ ! -f "$project_dir/flake.nix" ]; do
+  project_dir=$(dirname "$project_dir")
+done
+
 SNAP="${CLAUDE_ENV_FILE}.snapshot"
 # CLAUDE_ENV_FILE is append-only and shared between hooks: add the source line once.
 grep -qF "$SNAP" "$CLAUDE_ENV_FILE" 2>/dev/null ||
@@ -21,14 +33,15 @@ grep -qF "$SNAP" "$CLAUDE_ENV_FILE" 2>/dev/null ||
 # Rebuild the snapshot from scratch each call so project transitions are clean.
 {
   loaded=""
-  if has direnv && [ -f .envrc ]; then
+  if has direnv && [ -f "$envrc_dir/.envrc" ]; then
     out="$(direnv export bash 2>/dev/null)"
     [ -n "$out" ] && {
       printf '%s\n' "$out"
       loaded=1
     }
   fi
-  if [ -z "$loaded" ] && [ -f flake.nix ] && has nix; then
+  if [ -z "$loaded" ] && [ -f "$project_dir/flake.nix" ] && has nix; then
+    cd "$project_dir" || exit 1
     cdir="${XDG_CACHE_HOME:-$HOME/.cache}/claude-code-nix-env"
     mkdir -p "$cdir"
     cf="$cdir/$(printf '%s' "$PWD" | sha256sum | cut -c1-32)"

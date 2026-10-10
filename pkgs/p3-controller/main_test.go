@@ -1,10 +1,14 @@
 package main
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"strings"
+	"sync"
+	"sync/atomic"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 
@@ -232,4 +236,145 @@ func TestPlayEmptyJSONMeansSchedule(t *testing.T) {
 		// must NOT be the 400 "no speakers specified" rejection.
 		require.NotEqual(t, http.StatusBadRequest, rec.Code, "body %q", body)
 	}
+}
+
+func TestMutationsWaitForCompletePlay(t *testing.T) {
+	for _, action := range []string{"play", "stop", "output", "homekit play"} {
+		t.Run(action, func(t *testing.T) {
+			clearStarted := make(chan struct{})
+			releaseClear := make(chan struct{})
+			interleaved := make(chan string, 20)
+			var clearing atomic.Bool
+			var clearOnce sync.Once
+			var releaseOnce sync.Once
+			t.Cleanup(func() { releaseOnce.Do(func() { close(releaseClear) }) })
+			upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if clearing.Load() {
+					interleaved <- r.Method + " " + r.URL.Path
+				}
+				switch r.URL.Path {
+				case "/api/outputs":
+					_, err := w.Write([]byte(`{"outputs":[{"id":"1","name":"Kitchen"}]}`))
+					require.NoError(t, err)
+				case "/api/library/playlists":
+					_, err := w.Write([]byte(`{"items":[{"name":"NRK P3","uri":"library:playlist:1"}]}`))
+					require.NoError(t, err)
+				case "/api/queue/clear":
+					clearOnce.Do(func() {
+						clearing.Store(true)
+						close(clearStarted)
+						<-releaseClear
+						clearing.Store(false)
+					})
+					w.WriteHeader(http.StatusNoContent)
+				default:
+					w.WriteHeader(http.StatusNoContent)
+				}
+			}))
+			defer upstream.Close()
+			// Unblock the first request before closing the server on failure.
+			defer releaseOnce.Do(func() { close(releaseClear) })
+			client := owntone.NewClient(upstream.URL)
+			cfg := &Config{PlaylistName: "NRK P3", Weekday: []Speaker{{Name: "Kitchen", Volume: 35}}, Weekend: []Speaker{{Name: "Kitchen", Volume: 35}}}
+			h := routes(client, cfg)
+			request := func(method, path, body string) int {
+				rec := httptest.NewRecorder()
+				h.ServeHTTP(rec, httptest.NewRequest(method, path, strings.NewReader(body)))
+				return rec.Code
+			}
+			firstDone := make(chan int, 1)
+			go func() { firstDone <- request(http.MethodPost, "/play", `{}`) }()
+			select {
+			case <-clearStarted:
+			case <-time.After(time.Second):
+				t.Fatal("first play did not reach queue clearing")
+			}
+			secondStarted := make(chan struct{})
+			secondDone := make(chan int, 1)
+			go func() {
+				close(secondStarted)
+				switch action {
+				case "play":
+					secondDone <- request(http.MethodPost, "/play", `{}`)
+				case "stop":
+					secondDone <- request(http.MethodPost, "/stop", "")
+				case "output":
+					secondDone <- request(http.MethodPut, "/output/1", `{"selected":true,"volume":40}`)
+				case "homekit play":
+					_, status := executePlay(context.Background(), client, cfg, cfg.Weekday, "weekday")
+					secondDone <- status
+				}
+			}()
+			<-secondStarted
+			select {
+			case call := <-interleaved:
+				t.Fatalf("mutation interleaved with unfinished play: %s", call)
+			case <-time.After(100 * time.Millisecond):
+			}
+			releaseOnce.Do(func() { close(releaseClear) })
+			for _, done := range []<-chan int{firstDone, secondDone} {
+				select {
+				case status := <-done:
+					require.Equal(t, http.StatusOK, status)
+				case <-time.After(time.Second):
+					t.Fatal("serialized mutation did not finish")
+				}
+			}
+		})
+	}
+}
+
+func TestCancelledPlayDoesNotSendRequests(t *testing.T) {
+	var requests atomic.Int64
+	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requests.Add(1)
+		switch r.URL.Path {
+		case "/api/outputs":
+			_, err := w.Write([]byte(`{"outputs":[]}`))
+			require.NoError(t, err)
+		case "/api/library/playlists":
+			_, err := w.Write([]byte(`{"items":[{"name":"NRK P3","uri":"library:playlist:1"}]}`))
+			require.NoError(t, err)
+		default:
+			w.WriteHeader(http.StatusNoContent)
+		}
+	}))
+	defer upstream.Close()
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	resp, status := executePlay(ctx, owntone.NewClient(upstream.URL), &Config{PlaylistName: "NRK P3"}, nil, "weekday")
+	require.Equal(t, http.StatusBadGateway, status)
+	require.Equal(t, "error", resp.Status)
+	require.Zero(t, requests.Load())
+}
+
+func TestPlayCancellationStopsFurtherMutations(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	var subsequent atomic.Int64
+	var cancelled atomic.Bool
+	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if cancelled.Load() {
+			subsequent.Add(1)
+		}
+		switch r.URL.Path {
+		case "/api/outputs":
+			_, err := w.Write([]byte(`{"outputs":[]}`))
+			require.NoError(t, err)
+		case "/api/library/playlists":
+			_, err := w.Write([]byte(`{"items":[{"name":"NRK P3","uri":"library:playlist:1"}]}`))
+			require.NoError(t, err)
+		case "/api/queue/clear":
+			cancelled.Store(true)
+			cancel()
+			w.WriteHeader(http.StatusNoContent)
+		default:
+			w.WriteHeader(http.StatusNoContent)
+		}
+	}))
+	defer upstream.Close()
+	resp, status := executePlay(ctx, owntone.NewClient(upstream.URL), &Config{PlaylistName: "NRK P3"}, nil, "weekday")
+	require.Equal(t, http.StatusBadGateway, status)
+	require.Equal(t, "error", resp.Status)
+	require.Zero(t, subsequent.Load(), "queue append and play must not follow cancellation")
 }

@@ -107,18 +107,22 @@ func runHAP(ctx context.Context, client *owntone.Client, cfg *Config) error {
 			}
 			return
 		}
-		if err := client.Stop(); err != nil {
+		unlock := client.LockMutations()
+		defer unlock()
+		if err := client.Stop(ctx); err != nil {
 			slog.Error("hap stop", "err", err)
 		}
 	})
 
 	// WS reader → On characteristic. Runs as a child goroutine of
 	// runHAP so its lifetime tracks the accessory.
+	wsCtx, cancelWS := context.WithCancel(ctx)
+	defer cancelWS()
 	wsDone := make(chan struct{})
 	go func() {
 		defer close(wsDone)
-		err := client.SubscribePlayer(ctx, func() {
-			player, err := client.GetPlayer()
+		err := client.SubscribePlayer(wsCtx, func() {
+			player, err := client.GetPlayer(wsCtx)
 			if err != nil {
 				slog.Warn("hap get player on event", "err", err)
 				return
@@ -136,8 +140,8 @@ func runHAP(ctx context.Context, client *owntone.Client, cfg *Config) error {
 	// on a clean cancel.
 	serveErr := server.ListenAndServe(ctx)
 
-	// Wait for the WS goroutine to unwind. Cancelling ctx closed the
-	// socket; this should return promptly.
+	// A startup error does not cancel the parent context.
+	cancelWS()
 	<-wsDone
 
 	if serveErr != nil && ctx.Err() == nil {

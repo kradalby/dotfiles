@@ -2,7 +2,6 @@
   config,
   pkgs,
   lib,
-  inputs,
   ...
 }:
 let
@@ -20,8 +19,6 @@ in
 
     ../../common/tailscale.nix
     ../../common/tsnixcache-client.nix
-
-    inputs.ssh-agent-mux.nixosModules.default
 
     ./restic.nix
     ./syncthing.nix
@@ -109,12 +106,6 @@ in
       # Routes advertised on the sfiber tailnet are unreachable without this.
       "--accept-routes=true"
     ];
-  };
-
-  services.ssh-agent-mux = {
-    enable = true;
-    watchForSSHForward = true;
-    logLevel = "debug";
   };
 
   # Eternal Terminal — testing alongside mosh. Unlike mosh it forwards the raw

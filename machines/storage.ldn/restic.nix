@@ -26,6 +26,9 @@ in
     repository = "rclone:Jotta:ZW1QYWNrYWdlcyA9IFsKICAgIHBrZ3MuZG";
     secret = "restic-storage-ldn-token";
     paths = [ "/etc/nixos" ] ++ datasetPaths;
+    # The pool root also traverses these mounted children; omitting their
+    # individual source entries does not exclude them from that traversal.
+    extraBackupArgs = map (name: "--exclude=/${name}") excluded;
     # rclone to Jottacloud: reading pack data costs egress and takes forever;
     # verify metadata only, monthly. The tjoda/ldn REST repos get the
     # read-data checks.

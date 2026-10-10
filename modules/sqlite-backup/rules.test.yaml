@@ -1,0 +1,171 @@
+rule_files:
+  - sqlite-backup.rules.json
+evaluation_interval: 1m
+tests:
+  - name: healthy snapshots
+    interval: 1m
+    input_series:
+      - series: 'sqlite_backup_expected{backup="fixture",instance="host:9100"}'
+        values: "1x60"
+      - series: 'sqlite_backup_max_age_seconds{backup="fixture",instance="host:9100"}'
+        values: "600x60"
+      - series: 'sqlite_backup_last_run_success{backup="fixture",instance="host:9100"}'
+        values: "1x60"
+      - series: 'sqlite_backup_last_run_timestamp_seconds{backup="fixture",instance="host:9100"}'
+        values: "0+60x60"
+      - series: 'sqlite_backup_last_success_timestamp_seconds{backup="fixture",instance="host:9100"}'
+        values: "0+60x60"
+    alert_rule_test:
+      - eval_time: 60m
+        alertname: SQLiteBackupFailed
+        exp_alerts: []
+      - eval_time: 60m
+        alertname: SQLiteBackupStale
+        exp_alerts: []
+      - eval_time: 60m
+        alertname: SQLiteBackupMetricsMissing
+        exp_alerts: []
+      - eval_time: 60m
+        alertname: SQLiteBackupMonitoringMissing
+        exp_alerts: []
+  - name: failed attempt with an older valid snapshot
+    interval: 1m
+    input_series:
+      - series: 'sqlite_backup_expected{backup="fixture",instance="host:9100"}'
+        values: "1x20"
+      - series: 'sqlite_backup_last_run_success{backup="fixture",instance="host:9100"}'
+        values: "0x20"
+      - series: 'sqlite_backup_last_success_timestamp_seconds{backup="fixture",instance="host:9100"}'
+        values: "0x20"
+      - series: 'sqlite_backup_max_age_seconds{backup="fixture",instance="host:9100"}'
+        values: "7200x20"
+    alert_rule_test:
+      - eval_time: 1m
+        alertname: SQLiteBackupFailed
+        exp_alerts: []
+      - eval_time: 2m
+        alertname: SQLiteBackupFailed
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              backup: fixture
+              instance: host:9100
+            exp_annotations:
+              summary: SQLite snapshot fixture failed on host:9100
+              description: The latest snapshot attempt failed. Check sqlite-backup-fixture.service; older archives do not indicate a successful new dump.
+      - eval_time: 20m
+        alertname: SQLiteBackupStale
+        exp_alerts: []
+  - name: stopped timer leaves successful but stale results
+    interval: 1m
+    input_series:
+      - series: 'sqlite_backup_expected{backup="fixture",instance="host:9100"}'
+        values: "1x30"
+      - series: 'sqlite_backup_last_run_success{backup="fixture",instance="host:9100"}'
+        values: "1x30"
+      - series: 'sqlite_backup_last_success_timestamp_seconds{backup="fixture",instance="host:9100"}'
+        values: "60x30"
+      - series: 'sqlite_backup_max_age_seconds{backup="fixture",instance="host:9100"}'
+        values: "600x30"
+    alert_rule_test:
+      - eval_time: 16m
+        alertname: SQLiteBackupStale
+        exp_alerts: []
+      - eval_time: 17m
+        alertname: SQLiteBackupStale
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              backup: fixture
+              instance: host:9100
+            exp_annotations:
+              summary: SQLite snapshot fixture stale on host:9100
+              description: No validated snapshot has been published within the configured maximum age. Check the dump timer and service; file uploads may still be succeeding.
+  - name: never-run job is missing even while another job reports
+    interval: 1m
+    input_series:
+      - series: 'sqlite_backup_expected{backup="never",instance="host:9100"}'
+        values: "1x30"
+      - series: 'sqlite_backup_expected{backup="healthy",instance="host:9100"}'
+        values: "1x30"
+      - series: 'sqlite_backup_last_run_success{backup="healthy",instance="host:9100"}'
+        values: "1x30"
+      - series: 'sqlite_backup_last_run_timestamp_seconds{backup="healthy",instance="host:9100"}'
+        values: "0+60x30"
+      - series: 'sqlite_backup_last_success_timestamp_seconds{backup="healthy",instance="host:9100"}'
+        values: "0+60x30"
+    alert_rule_test:
+      - eval_time: 14m
+        alertname: SQLiteBackupMetricsMissing
+        exp_alerts: []
+      - eval_time: 15m
+        alertname: SQLiteBackupMetricsMissing
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              backup: never
+              instance: host:9100
+            exp_annotations:
+              summary: SQLite snapshot never has no results on host:9100
+              description: A configured snapshot job has incomplete or missing metrics. It may never have run, or its result file cannot be published or read.
+  - name: incomplete result file is detected
+    interval: 1m
+    input_series:
+      - series: 'sqlite_backup_expected{backup="fixture",instance="host:9100"}'
+        values: "1x30"
+      - series: 'sqlite_backup_last_run_success{backup="fixture",instance="host:9100"}'
+        values: "1x30"
+      - series: 'sqlite_backup_last_run_timestamp_seconds{backup="fixture",instance="host:9100"}'
+        values: "0+60x30"
+    alert_rule_test:
+      - eval_time: 15m
+        alertname: SQLiteBackupMetricsMissing
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              backup: fixture
+              instance: host:9100
+            exp_annotations:
+              summary: SQLite snapshot fixture has no results on host:9100
+              description: A configured snapshot job has incomplete or missing metrics. It may never have run, or its result file cannot be published or read.
+  - name: recovery clears the failure alert
+    interval: 1m
+    input_series:
+      - series: 'sqlite_backup_expected{backup="fixture",instance="host:9100"}'
+        values: "1x30"
+      - series: 'sqlite_backup_last_run_success{backup="fixture",instance="host:9100"}'
+        values: "0x3 1x20"
+    alert_rule_test:
+      - eval_time: 5m
+        alertname: SQLiteBackupFailed
+        exp_alerts: []
+  - name: disabled jobs cannot alert from old result files
+    interval: 1m
+    input_series:
+      - series: 'sqlite_backup_last_run_success{backup="disabled",instance="host:9100"}'
+        values: "0x30"
+      - series: 'sqlite_backup_last_success_timestamp_seconds{backup="disabled",instance="host:9100"}'
+        values: "0x30"
+      - series: 'sqlite_backup_max_age_seconds{backup="disabled",instance="host:9100"}'
+        values: "600x30"
+    alert_rule_test:
+      - eval_time: 30m
+        alertname: SQLiteBackupFailed
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: SQLiteBackupStale
+        exp_alerts: []
+  - name: missing metric families cannot hide all jobs
+    interval: 1m
+    alert_rule_test:
+      - eval_time: 14m
+        alertname: SQLiteBackupMonitoringMissing
+        exp_alerts: []
+      - eval_time: 15m
+        alertname: SQLiteBackupMonitoringMissing
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+            exp_annotations:
+              summary: SQLite snapshot monitoring is missing
+              description: An expected SQLite snapshot metric family is absent fleet-wide. Check node-exporter's textfile collection and the configured snapshot jobs.

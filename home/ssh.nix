@@ -48,9 +48,10 @@ in
     };
   };
 
-  # Set SSH_AUTH_SOCK to 1Password agent only if not already set
-  # This allows forwarded agents (ssh -A) to take priority
-  home.sessionVariables = lib.mkIf isWorkstation {
-    SSH_AUTH_SOCK = "$HOME/.ssh/ssh-agent-mux.sock";
-  };
+  # Local Mac sessions use 1Password; SSH sessions keep their forwarded agent.
+  home.sessionVariablesExtra = lib.mkIf isWorkstation ''
+    if [ -z "''${SSH_CONNECTION-}" ] || [ -z "''${SSH_AUTH_SOCK-}" ]; then
+      export SSH_AUTH_SOCK="$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+    fi
+  '';
 }

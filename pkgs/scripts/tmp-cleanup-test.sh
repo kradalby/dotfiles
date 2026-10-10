@@ -1,48 +1,64 @@
 #!/usr/bin/env bash
-# Regression check for the one mistake that loses a running session: a session
-# directory's own mtime does not track writes nested inside it, so age must be
-# the newest mtime anywhere below. Dry-run only; the fixture is the only thing
-# this creates, and it is removed on exit.
-set -o errexit -o nounset
+# Run destructive paths only against a private copy of /tmp.
+set -euo pipefail
 
 SCRIPT=${1:-$(dirname "$0")/tmp-cleanup.sh}
-ROOT=/tmp/claude-999999
+ROOT=$(mktemp -d)
 trap 'rm -rf -- "$ROOT"' EXIT
-rm -rf -- "$ROOT"
+mkdir -p "$ROOT/tmp" "$ROOT/bin"
+sed "s@/tmp@$ROOT/tmp@g" "$SCRIPT" >"$ROOT/cleanup.sh"
 
-# stale: nothing written for two days, in or below it
-mkdir -p "$ROOT/-fixture/stale/tasks"
-echo x >"$ROOT/-fixture/stale/tasks/old.output"
-touch -d '2 days ago' "$ROOT/-fixture/stale/tasks/old.output" \
-  "$ROOT/-fixture/stale/tasks" "$ROOT/-fixture/stale"
+cat >"$ROOT/bin/lsof" <<'MOCK'
+#!/usr/bin/env bash
+printf '%s' "${LSOF_OUTPUT:-}"
+printf '%s' "${LSOF_ERRORS:-}" >&2
+exit "${LSOF_STATUS:-0}"
+MOCK
+sed -i "1c#!$BASH" "$ROOT/bin/lsof"
+chmod +x "$ROOT/bin/lsof"
+export PATH="$ROOT/bin:$PATH"
 
-# trap: dir mtime two days stale, but a nested file written just now
-mkdir -p "$ROOT/-fixture/trap/tasks"
-echo x >"$ROOT/-fixture/trap/tasks/live.output"
-touch -d '2 days ago' "$ROOT/-fixture/trap/tasks" "$ROOT/-fixture/trap"
+mkdir -p "$ROOT/tmp/nix-build-idle"
+touch -d '2 days ago' "$ROOT/tmp/nix-build-idle"
+for failure in fatal partial warning empty; do
+  export LSOF_STATUS=0 LSOF_ERRORS='' LSOF_OUTPUT=$'p1\nn/somewhere\n'
+  case "$failure" in
+    fatal) LSOF_STATUS=127 LSOF_ERRORS='lsof unavailable' LSOF_OUTPUT='' ;;
+    partial) LSOF_STATUS=1 LSOF_OUTPUT=$'p1\nn/tmp/unrelated\n' ;;
+    warning) LSOF_ERRORS='WARNING: cannot stat filesystem' ;;
+    empty) LSOF_OUTPUT='' ;;
+  esac
+  rc=0
+  out=$(bash "$ROOT/cleanup.sh" -y 2>&1) || rc=$?
+  [[ $rc == 1 && -d "$ROOT/tmp/nix-build-idle" && "$out" == *'refusing cleanup'* ]]
+  echo "ok   $failure enumeration refuses deletion"
+done
 
-out=$(bash "$SCRIPT" -s 60 2>&1) || true
-fail=0
+session_root="$ROOT/tmp/claude-999999/-fixture"
+mkdir -p "$session_root/stale/tasks" "$session_root/recent/tasks" "$session_root/busy/tasks" \
+  "$ROOT/tmp/nix-build-busy"
+echo x >"$session_root/stale/tasks/old.output"
+echo x >"$session_root/recent/tasks/live.output"
+echo x >"$session_root/busy/tasks/open.output"
+touch -d '2 days ago' "$session_root/stale/tasks/old.output" "$session_root/stale/tasks" \
+  "$session_root/stale" "$session_root/recent/tasks" "$session_root/recent" \
+  "$session_root/busy/tasks/open.output" "$session_root/busy/tasks" "$session_root/busy" \
+  "$ROOT/tmp/nix-build-busy"
 
-if grep -qE '^\[DRY\] +'"$ROOT"'/-fixture/stale ' <<<"$out"; then
-  echo "ok   stale session would be removed"
-else
-  echo "FAIL stale session was not removed"
-  fail=1
-fi
+export LSOF_STATUS=0 LSOF_ERRORS=''
+# The copied script maps /private/tmp to /private<fixture>/tmp too.
+for alias in '' /private; do
+  LSOF_OUTPUT=$(printf 'p1\nn%s%s/nix-build-busy/open\nn%s%s/busy/tasks/open.output\n' \
+    "$alias" "$ROOT/tmp" "$alias" "$session_root")
+  out=$(bash "$ROOT/cleanup.sh" -s 60 -f 101)
+  [[ "$out" == *"[BUSY]"* && "$out" == *"$session_root/stale"* ]]
+  [[ "$out" != *"[DRY]    $session_root/recent "* ]]
+  [[ "$out" != *"[DRY]    $session_root/busy "* ]]
+  [[ "$out" != *"[DRY]    $ROOT/tmp/nix-build-busy "* ]]
+  echo "ok   ${alias:-logical} paths protect open files and recent writes"
+done
 
-if grep -qE '^\[(DRY|RM)\] +'"$ROOT"'/-fixture/trap ' <<<"$out"; then
-  echo "FAIL live session removed on stale dir mtime — the trap"
-  fail=1
-else
-  echo "ok   live session kept despite stale dir mtime"
-fi
-
-if grep -qE '^\[(DRY|RM)\] +'"$ROOT"' ' <<<"$out"; then
-  echo "FAIL claude-<pid> root removed; it must stay on the skip list"
-  fail=1
-else
-  echo "ok   claude-<pid> root left alone"
-fi
-
-exit "$fail"
+bash "$ROOT/cleanup.sh" -y -s 60 -f 101 >/dev/null
+[[ ! -e "$ROOT/tmp/nix-build-idle" && ! -e "$session_root/stale" ]]
+[[ -d "$ROOT/tmp/nix-build-busy" && -d "$session_root/busy" && -d "$session_root/recent" ]]
+echo 'ok   complete enumeration removes only stale, unused fixtures'

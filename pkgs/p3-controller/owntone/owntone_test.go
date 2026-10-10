@@ -1,9 +1,11 @@
 package owntone
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 )
@@ -69,7 +71,7 @@ func TestGetPlayer(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	player, err := NewClient(srv.URL).GetPlayer()
+	player, err := NewClient(srv.URL).GetPlayer(t.Context())
 	require.NoError(t, err)
 	require.Equal(t, &Player{
 		State:        "play",
@@ -122,7 +124,7 @@ func TestFindPlaylist(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			playlist, err := client.FindPlaylist(tt.query)
+			playlist, err := client.FindPlaylist(t.Context(), tt.query)
 			require.NoError(t, err)
 			if tt.wantURI == "" {
 				require.Nil(t, playlist)
@@ -130,6 +132,54 @@ func TestFindPlaylist(t *testing.T) {
 			}
 			require.NotNil(t, playlist)
 			require.Equal(t, tt.wantURI, playlist.URI)
+		})
+	}
+}
+
+func TestRESTRequestsCancelInFlight(t *testing.T) {
+	for _, tt := range []struct {
+		name string
+		call func(context.Context, *Client) error
+	}{
+		{"outputs", func(ctx context.Context, c *Client) error { _, err := c.GetOutputs(ctx); return err }},
+		{"player", func(ctx context.Context, c *Client) error { _, err := c.GetPlayer(ctx); return err }},
+		{"playlists", func(ctx context.Context, c *Client) error { _, err := c.GetPlaylists(ctx); return err }},
+		{"find playlist", func(ctx context.Context, c *Client) error { _, err := c.FindPlaylist(ctx, "NRK P3"); return err }},
+		{"websocket config", func(ctx context.Context, c *Client) error { _, err := c.GetWebSocketPort(ctx); return err }},
+		{"output update", func(ctx context.Context, c *Client) error { return c.SetOutput(ctx, "1", true, 35) }},
+		{"play", func(ctx context.Context, c *Client) error { return c.Play(ctx) }},
+		{"stop", func(ctx context.Context, c *Client) error { return c.Stop(ctx) }},
+		{"clear queue", func(ctx context.Context, c *Client) error { return c.ClearQueue(ctx) }},
+		{"add queue", func(ctx context.Context, c *Client) error { return c.AddToQueue(ctx, "library:playlist:1") }},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			started := make(chan struct{})
+			release := make(chan struct{})
+			upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				close(started)
+				select {
+				case <-r.Context().Done():
+				case <-release:
+				}
+			}))
+			t.Cleanup(upstream.Close)
+			t.Cleanup(func() { close(release) })
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+			done := make(chan error, 1)
+			go func() { done <- tt.call(ctx, NewClient(upstream.URL)) }()
+			select {
+			case <-started:
+			case <-time.After(time.Second):
+				t.Fatal("request did not reach server")
+			}
+			cancel()
+			select {
+			case err := <-done:
+				require.ErrorIs(t, err, context.Canceled)
+			case <-time.After(time.Second):
+				t.Fatal("request ignored cancellation")
+			}
 		})
 	}
 }

@@ -137,12 +137,6 @@
       inputs.flake-compat.follows = "";
     };
 
-    ssh-agent-mux = {
-      url = "github:kradalby/ssh-agent-mux";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-      inputs."flake-utils".follows = "flake-utils";
-    };
-
     munin.url = "github:kradalby/munin";
 
     neovim-kradalby = {
@@ -300,7 +294,6 @@
           {
             neovim = neovim-kradalby.packages."${system}".neovim-kradalby;
             tailscale = tailscale.packages."${system}".tailscale;
-            ssh-agent-mux = inputs.ssh-agent-mux.packages."${system}".default;
             # Direct package (not herdr.overlays.default — that composes
             # rust-overlay and drags rust-bin into pkgs).
             herdr =
@@ -355,6 +348,9 @@
       };
     in
     {
+      nixosModules.sqlite-backup = ./modules/sqlite-backup;
+      nixosModules.sqlite-backup-monitoring = ./modules/sqlite-backup/monitoring.nix;
+
       nixosConfigurations =
         let
           hosts = {
@@ -567,7 +563,6 @@
             homeDir = /Users/kradalby;
           };
           kratail2Modules = [
-            inputs.ssh-agent-mux.darwinModules.default
             inputs.tailscale.darwinModules.default
           ];
 
@@ -577,13 +572,11 @@
             hostname = "krair";
             homeDir = /Users/kradalby;
           };
-          krairModules = [ inputs.ssh-agent-mux.darwinModules.default ];
-
           rosetta = inputs.nix-rosetta-builder.darwinModules.default;
         in
         {
           kratail2 = box.macBox kratail2Machine darwin home-manager (kratail2Modules ++ [ rosetta ]);
-          krair = box.macBox krairMachine darwin home-manager (krairModules ++ [ rosetta ]);
+          krair = box.macBox krairMachine darwin home-manager [ rosetta ];
         };
 
       homeConfigurations = {
@@ -664,6 +657,17 @@
         # prometheus → alertmanager → webhook delivery pipeline.
         checks = pkgs.lib.optionalAttrs (system == "x86_64-linux") {
           codex-session-env = import ./checks/codex-session-env { inherit pkgs; };
+          mcp-servers = import ./checks/mcp-servers { inherit pkgs; };
+          claude-mcp = import ./checks/claude-mcp { inherit pkgs self; };
+          claude-path = import ./checks/claude-path { inherit pkgs self; };
+          mutable-json = import ./checks/mutable-json { inherit pkgs self; };
+          syncthing-init = import ./checks/syncthing-init { inherit pkgs self; };
+          tmp-cleanup = import ./checks/tmp-cleanup { inherit pkgs; };
+          nix-dev-env = import ./checks/nix-dev-env { inherit pkgs; };
+          ac = import ./checks/ac { inherit pkgs; };
+          backups = import ./checks/backups { inherit pkgs self; };
+          sqlite-backup = import ./modules/sqlite-backup/tests.nix { inherit pkgs; };
+          sqlite-backup-ordering = import ./modules/sqlite-backup/ordering-test.nix { inherit pkgs; };
           # treefmt in check mode: fails when any file is unformatted, making
           # `nix fmt` enforceable in CI (git.md's claim, now true).
           formatting = treefmtEval.config.build.check self;
@@ -686,6 +690,7 @@
           # checkPhase, so exposing the builds as checks puts `go test` in CI.
           go-ac-web = pkgs.ac-web;
           go-p3-controller = pkgs.p3-controller;
+          owntone-restart = pkgs.p3-controller.tests.owntone-restart;
           go-oci-usage-exporter = pkgs.oci-usage-exporter;
           go-authkey = pkgs.authkey;
           go-rnb = pkgs.rnb;

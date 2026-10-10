@@ -22,9 +22,22 @@ let
       inherit name;
     };
 
+  # File provisioning does not resolve import inputs. Use the dashboard's
+  # existing datasource variable, whose value is the selected datasource uid.
+  slothDashboard = pkgs.runCommand "sloth.json" { } ''
+    sed 's|''${DS_PROMETHEUS}|''${Datasource}|g' ${
+      fetchDashboard {
+        id = 14348;
+        rev = versions.grafanaDashboards.sloth.rev;
+        hash = versions.grafanaDashboards.sloth.hash;
+        name = "sloth.json";
+      }
+    } > $out
+  '';
+
   # Community dashboards from grafana.com, post-processed to replace
   # datasource template variables with our provisioned datasource name.
-  dashboardDir = pkgs.runCommand "grafana-dashboards" { } ''
+  dashboardDir = pkgs.runCommand "grafana-dashboards" { passthru = { inherit slothDashboard; }; } ''
     mkdir -p $out
     sed 's|''${DS_PROMETHEUS}|Prometheus|g' ${
       pkgs.fetchurl {
@@ -41,17 +54,7 @@ let
       }
     } $out/incus.json
 
-    # Sloth SLO dashboard. Panels reference the datasource by the unresolved
-    # ''${DS_PROMETHEUS} input uid, which Grafana falls back to our default
-    # (Prometheus) datasource for — same as incus above, so no sed needed.
-    cp ${
-      fetchDashboard {
-        id = 14348;
-        rev = versions.grafanaDashboards.sloth.rev;
-        hash = versions.grafanaDashboards.sloth.hash;
-        name = "sloth.json";
-      }
-    } $out/sloth.json
+    cp ${slothDashboard} $out/sloth.json
 
     # tsnixcache dashboard, generated from Go (Foundation SDK) in the tsnixcache
     # repo and shipped as a flake package, so it tracks the metrics it charts.

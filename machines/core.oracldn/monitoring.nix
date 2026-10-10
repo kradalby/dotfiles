@@ -1,4 +1,5 @@
 {
+  inputs,
   pkgs,
   config,
   lib,
@@ -35,6 +36,16 @@ let
   # expected disk count below tracks the device list automatically.
   smartctlDisks = import ../../metadata/smartctl.nix;
   smartctlHosts = lib.attrNames smartctlDisks;
+
+  # Pushgateway metrics persist while laptops are offline. Expect a timestamp
+  # from every laptop with configured backups, even when its peer still pushes.
+  rusticHosts = map (host: host.config.networking.hostName) (
+    lib.attrValues (
+      lib.filterAttrs (
+        _: host: host.config.services.rustic.backups != { }
+      ) inputs.self.darwinConfigurations
+    )
+  );
 
   # One SmartctlDiskMissing rule per host, expected count derived from the disk
   # list. A disk vanishing from the exporter (dead disk/controller, or a stale
@@ -240,6 +251,25 @@ let
     "ts1p-ldn" = "core-ldn";
     "garnix" = "gigabuilder";
   };
+
+  # absent() retains equality matchers, but cannot recover scrape relabels.
+  # Supply the backing labels explicitly so daemon/host inhibition still
+  # works when a guest's series has disappeared. Incus names omit "-ldn".
+  incusMissingRules = lib.mapAttrsToList (guest: hypervisor: {
+    alert = "IncusVMVanished";
+    expr = ''absent(incus_memory_MemTotal_bytes{job="incus",instance="${hypervisor}:8443",host="${hypervisor}",name="${lib.removeSuffix "-ldn" guest}"})'';
+    for = "10m";
+    labels = {
+      severity = "critical";
+      name = lib.removeSuffix "-ldn" guest;
+      inherit hypervisor;
+      target = hypervisor;
+    };
+    annotations = {
+      summary = "Incus VM {{ $labels.name }} has vanished from hypervisor metrics";
+      description = "The VM no longer reports from its hypervisor — stopped, deleted, or renamed.";
+    };
+  }) hypervisorBacking;
   hypervisorRelabels = lib.mapAttrsToList (guest: hv: {
     source_labels = [ "host" ];
     regex = guest;
@@ -316,6 +346,7 @@ let
   };
 in
 {
+  imports = [ ../../modules/sqlite-backup/monitoring.nix ];
   # tcp:443 endpoints have no TLS termination — Tailscale VIP bug
   # (tailscale/tailscale#19724, #18381); consumers use http.
   # TODO(kradalby): revert when fixed.
@@ -576,6 +607,7 @@ in
       # Native app metrics over tailnet names. krapage/hvor/nefit expose only
       # go runtime series — up{} liveness is the honest signal there.
       (scrapeJob "grafana" [ "localhost:3000" ])
+      (scrapeJob "grafana-mcp" [ "localhost:63471" ])
       (scrapeJob "krapage" [ "krapage:80" ])
       (scrapeJob "hvor" [ "hvor:80" ])
       (scrapeJob "hugin" [ "hugin:80" ])
@@ -627,6 +659,7 @@ in
           target = "core-oracldn";
           targets = [
             "http://grafana.dalby.ts.net"
+            "http://grafana-mcp.dalby.ts.net/healthz"
             "http://pdf.dalby.ts.net"
             "http://go.dalby.ts.net"
           ];
@@ -1461,12 +1494,12 @@ in
                 alert = "LitestreamMetricsMissing";
                 # Canary against metric renames: a future litestream bump that
                 # renames its metrics must page, not silently go green.
-                expr = ''absent(litestream_sync_count) and on() up{job="litestream"} == 1'';
+                expr = ''up{job="litestream"} == 1 unless on (job, instance) litestream_sync_count{job="litestream"}'';
                 for = "15m";
                 labels.severity = "critical";
                 annotations = {
-                  summary = "Litestream exporter is up but litestream_sync_count is absent";
-                  description = "The litestream metric names have changed (version bump?). All litestream alerts are blind until the rules are updated.";
+                  summary = "Litestream exporter on {{ $labels.instance }} is up but litestream_sync_count is absent";
+                  description = "Litestream sync metrics disappeared on this host (metric rename or database configuration failure); its replication alerts are blind.";
                 };
               }
               {
@@ -1571,12 +1604,14 @@ in
               }
               {
                 alert = "PostgreSQLHighConnections";
-                expr = "pg_stat_activity_count > 80";
+                # The exporter splits clients by database, state and user.
+                # Idle clients also consume max_connections; workers do not.
+                expr = ''sum without (datname, state, usename, application_name, backend_type, wait_event_type, wait_event) (pg_stat_activity_count{job="postgres",backend_type="client backend"}) > 80'';
                 for = "5m";
                 labels.severity = "warning";
                 annotations = {
                   summary = "PostgreSQL connections high on {{ $labels.instance }}: {{ $value }}";
-                  description = "PostgreSQL on {{ $labels.instance }} has more than 80 active connections (default max is 100).";
+                  description = "PostgreSQL on {{ $labels.instance }} has more than 80 client connections (default max is 100).";
                 };
               }
               {
@@ -1603,17 +1638,21 @@ in
               }
               {
                 alert = "OracleUsageMetricsMissing";
-                # Canary: exporter up but emitting no usage series (renamed
-                # metric, broken OCI query at startup). Without
-                # oci_usage_month_total the critical OracleCostNonZero can
-                # never fire, so a cost overrun would pass silently — and a
-                # time()-based staleness check cannot fire on an absent series.
-                expr = ''absent(oci_usage_month_total) and on () up{job="oci-usage"} == 1'';
+                # oci_usage_up exists even when an account's first query fails,
+                # before cost/last_success are created. Keep a scrape-level
+                # canary too, in case the whole metric family disappears.
+                expr = ''
+                  ((oci_usage_up{job="oci-usage"}
+                    unless on (job, instance, account) oci_usage_month_total{job="oci-usage"})
+                    and on (job, instance) up{job="oci-usage"} == 1)
+                  or (up{job="oci-usage"} == 1
+                    unless on (job, instance) (oci_usage_month_total{job="oci-usage"} or oci_usage_up{job="oci-usage"}))
+                '';
                 for = "1h";
                 labels.severity = "warning";
                 annotations = {
-                  summary = "OCI usage exporter is up but emitting no usage metrics";
-                  description = "oci_usage_month_total is absent while the oci-usage scrape is up; the Oracle cost and staleness alerts are both blind.";
+                  summary = "OCI usage metrics missing{{ if $labels.account }} for {{ $labels.account }}{{ end }} on {{ $labels.instance }}";
+                  description = "oci_usage_month_total is absent for this account or scrape while the exporter is up; the Oracle cost and staleness alerts are blind.";
                 };
               }
               {
@@ -1802,15 +1841,16 @@ in
               }
               {
                 alert = "RusticBackupMetricsMissing";
-                # Canary against the metric name being wrong or the pushgateway
-                # being wiped — the RusticBackupStale threshold can never fire if
-                # the series does not exist at all.
-                expr = "absent(rustic_backup_last_snapshot_timestamp_seconds)";
+                # A healthy peer must not mask a laptop that has never pushed,
+                # or whose persisted series was removed from the pushgateway.
+                expr = lib.concatMapStringsSep " or " (
+                  host: ''absent(rustic_backup_last_snapshot_timestamp_seconds{host="${host}"})''
+                ) rusticHosts;
                 for = "6h";
                 labels.severity = "warning";
                 annotations = {
-                  summary = "No rustic backup timestamp is being pushed by any laptop";
-                  description = "rustic_backup_last_snapshot_timestamp_seconds is absent fleet-wide; the macOS backup dead-man is blind.";
+                  summary = "No rustic backup timestamp for {{ $labels.host }}";
+                  description = "rustic_backup_last_snapshot_timestamp_seconds is absent for this configured laptop; its backup dead-man is blind.";
                 };
               }
               {
@@ -2048,7 +2088,7 @@ in
           # Incus hypervisor and VM alerts
           {
             name = "incus";
-            rules = [
+            rules = incusMissingRules ++ [
               # Daemon health
               {
                 alert = "IncusDaemonDown";
@@ -2085,20 +2125,6 @@ in
                 };
               }
 
-              # Per-VM instance alerts
-              {
-                alert = "IncusVMVanished";
-                # The Incus suite has no "instance stopped" rule; a VM that
-                # stops (or is deleted) simply drops its series.
-                expr = ''absent(incus_memory_MemTotal_bytes{name="ts1p"}) or absent(incus_memory_MemTotal_bytes{name="dev"}) or absent(incus_memory_MemTotal_bytes{name="home"}) or absent(incus_memory_MemTotal_bytes{name="storage"}) or absent(incus_memory_MemTotal_bytes{name="garnix"})'';
-                for = "10m";
-                labels.severity = "critical";
-                annotations = {
-                  # absent() carries the name label from its equality matcher.
-                  summary = "Incus VM {{ $labels.name }} has vanished from hypervisor metrics";
-                  description = "The VM no longer reports from its hypervisor — stopped, deleted, or renamed.";
-                };
-              }
               {
                 alert = "TsnixcacheDiskFull";
                 # tsnixcache is the ONLY GC on gigabuilder's nix store (fleet
@@ -2303,12 +2329,14 @@ in
             ];
           }
           {
-            # Critical inhibits warning for the same alert+host
+            # Critical inhibits warning for the same alert, host and integration.
+            # Alerts without integration still match each other.
             source_matchers = [ "severity=\"critical\"" ];
             target_matchers = [ "severity=\"warning\"" ];
             equal = [
               "alertname"
               "host"
+              "integration"
             ];
           }
           {

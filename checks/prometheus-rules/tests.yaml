@@ -8,6 +8,246 @@ rule_files:
 evaluation_interval: 1m
 
 tests:
+  - name: Watchdog and email successes cannot mask Discord delivery failures
+    interval: 1m
+    input_series:
+      - series: 'alertmanager_notifications_total{job="alertmanager", instance="localhost:9093", integration="discord"}'
+        values: "0+2x120"
+      - series: 'alertmanager_notifications_failed_total{job="alertmanager", instance="localhost:9093", integration="discord", reason="clientError"}'
+        values: "0+1x120"
+      - series: 'alertmanager_notifications_failed_total{job="alertmanager", instance="localhost:9093", integration="discord", reason="serverError"}'
+        values: "0+1x120"
+      - series: 'alertmanager_notifications_total{job="alertmanager", instance="localhost:9093", integration="email"}'
+        values: "0+100x120"
+      - series: 'alertmanager_notifications_failed_total{job="alertmanager", instance="localhost:9093", integration="email", reason="other"}'
+        values: "0x120"
+      - series: 'alertmanager_notifications_total{job="alertmanager", instance="localhost:9093", integration="webhook"}'
+        values: "0+1000x120"
+      - series: 'alertmanager_notifications_failed_total{job="alertmanager", instance="localhost:9093", integration="webhook", reason="other"}'
+        values: "0x120"
+    promql_expr_test:
+      - expr: 'slo:sli_error:ratio_rate5m{sloth_slo="alertmanager-delivery"}'
+        eval_time: 30m
+        exp_samples:
+          - labels: 'slo:sli_error:ratio_rate5m{cluster="homelab", integration="discord", sloth_id="homelab-alertmanager-delivery", sloth_service="homelab", sloth_slo="alertmanager-delivery", sloth_window="5m"}'
+            value: 1
+          - labels: 'slo:sli_error:ratio_rate5m{cluster="homelab", integration="email", sloth_id="homelab-alertmanager-delivery", sloth_service="homelab", sloth_slo="alertmanager-delivery", sloth_window="5m"}'
+            value: 0
+    alert_rule_test:
+      - eval_time: 30m
+        alertname: AlertmanagerDeliveryErrorBudgetBurn
+        exp_alerts:
+          - exp_labels:
+              cluster: homelab
+              integration: discord
+              sloth_id: homelab-alertmanager-delivery
+              sloth_service: homelab
+              sloth_slo: alertmanager-delivery
+              severity: critical
+              sloth_severity: page
+            exp_annotations:
+              summary: "AlertmanagerDeliveryErrorBudgetBurn: burning error budget too fast"
+              title: "(page) homelab alertmanager-delivery SLO error budget burn rate is too fast."
+          - exp_labels:
+              cluster: homelab
+              integration: discord
+              sloth_id: homelab-alertmanager-delivery
+              sloth_service: homelab
+              sloth_slo: alertmanager-delivery
+              severity: warning
+              sloth_severity: ticket
+            exp_annotations:
+              summary: "AlertmanagerDeliveryErrorBudgetBurn: burning error budget too fast"
+              title: "(ticket) homelab alertmanager-delivery SLO error budget burn rate is too fast."
+
+  - name: Missing Incus guests retain their backing labels
+    interval: 1m
+    input_series:
+      - series: 'incus_memory_MemTotal_bytes{job="incus", instance="core-ldn:8443", host="core-ldn", name="dev"}'
+        values: "1000x30"
+      - series: 'incus_memory_MemTotal_bytes{job="incus", instance="core-ldn:8443", host="core-ldn", name="home"}'
+        values: "1000x30"
+      - series: 'incus_memory_MemTotal_bytes{job="incus", instance="core-ldn:8443", host="core-ldn", name="storage"}'
+        values: "1000x30"
+      - series: 'incus_memory_MemTotal_bytes{job="incus", instance="gigabuilder:8443", host="gigabuilder", name="garnix"}'
+        values: "1000x30"
+      # A guest with the same name on a different hypervisor cannot mask ts1p.
+      - series: 'incus_memory_MemTotal_bytes{job="incus", instance="gigabuilder:8443", host="gigabuilder", name="ts1p"}'
+        values: "1000x30"
+    alert_rule_test:
+      - eval_time: 5m
+        alertname: IncusVMVanished
+        exp_alerts: []
+      - eval_time: 20m
+        alertname: IncusVMVanished
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              name: ts1p
+              job: incus
+              instance: core-ldn:8443
+              host: core-ldn
+              target: core-ldn
+              hypervisor: core-ldn
+            exp_annotations:
+              summary: "Incus VM ts1p has vanished from hypervisor metrics"
+              description: "The VM no longer reports from its hypervisor — stopped, deleted, or renamed."
+
+  - name: Litestream missing metrics are per scrape
+    interval: 1m
+    input_series:
+      - series: 'up{job="litestream", instance="core-oracldn:54909", host="core-oracldn", target="core-oracldn"}'
+        values: "1x30"
+      - series: 'up{job="litestream", instance="dev-oracfurt:54909", host="dev-oracfurt", target="dev-oracfurt"}'
+        values: "1x30"
+      - series: 'up{job="litestream", instance="down:54909", host="down", target="down"}'
+        values: "0x30"
+      - series: 'litestream_sync_count{job="litestream", instance="dev-oracfurt:54909", db="golink.db"}'
+        values: "0+1x30"
+      # The same address in a different job must not satisfy the canary.
+      - series: 'litestream_sync_count{job="other", instance="core-oracldn:54909", db="kuma.db"}'
+        values: "0+1x30"
+    alert_rule_test:
+      - eval_time: 10m
+        alertname: LitestreamMetricsMissing
+        exp_alerts: []
+      - eval_time: 20m
+        alertname: LitestreamMetricsMissing
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              job: litestream
+              instance: core-oracldn:54909
+              host: core-oracldn
+              target: core-oracldn
+            exp_annotations:
+              summary: "Litestream exporter on core-oracldn:54909 is up but litestream_sync_count is absent"
+              description: "Litestream sync metrics disappeared on this host (metric rename or database configuration failure); its replication alerts are blind."
+
+  - name: A healthy laptop cannot mask its missing peer
+    interval: 30m
+    input_series:
+      - series: 'rustic_backup_last_snapshot_timestamp_seconds{job="rustic", instance="krair", host="krair"}'
+        values: "0+1800x16"
+    alert_rule_test:
+      - eval_time: 5h
+        alertname: RusticBackupMetricsMissing
+        exp_alerts: []
+      - eval_time: 7h
+        alertname: RusticBackupMetricsMissing
+        exp_alerts:
+          - exp_labels:
+              host: kratail2
+              severity: warning
+            exp_annotations:
+              summary: "No rustic backup timestamp for kratail2"
+              description: "rustic_backup_last_snapshot_timestamp_seconds is absent for this configured laptop; its backup dead-man is blind."
+
+  - name: Both configured laptops retain missing coverage
+    interval: 30m
+    input_series:
+      - series: 'rustic_backup_last_snapshot_timestamp_seconds{job="rustic", instance="kratail2", host="kratail2"}'
+        values: "0+1800x16"
+    alert_rule_test:
+      - eval_time: 7h
+        alertname: RusticBackupMetricsMissing
+        exp_alerts:
+          - exp_labels:
+              host: krair
+              severity: warning
+            exp_annotations:
+              summary: "No rustic backup timestamp for krair"
+              description: "rustic_backup_last_snapshot_timestamp_seconds is absent for this configured laptop; its backup dead-man is blind."
+
+  - name: Persisted offline laptop metrics use the staleness alert
+    interval: 1m
+    input_series:
+      - series: 'rustic_backup_last_snapshot_timestamp_seconds{job="rustic", instance="krair", host="krair"}'
+        values: "0+60x60"
+      - series: 'rustic_backup_last_snapshot_timestamp_seconds{job="rustic", instance="kratail2", host="kratail2"}'
+        values: "-300000x60"
+    alert_rule_test:
+      - eval_time: 40m
+        alertname: RusticBackupMetricsMissing
+        exp_alerts: []
+      - eval_time: 40m
+        alertname: RusticBackupStale
+        exp_alerts:
+          - exp_labels:
+              job: rustic
+              instance: kratail2
+              host: kratail2
+              severity: warning
+            exp_annotations:
+              summary: "rustic backup on kratail2 is stale (>3d)"
+              description: "No fresh rustic snapshot for over three days; the laptop's backups have silently stopped."
+
+  - name: An OCI account failing from startup cannot hide behind a healthy account
+    interval: 1m
+    input_series:
+      - series: 'up{job="oci-usage", instance="localhost:63461", host="localhost", target="core-oracldn"}'
+        values: "1x120"
+      - series: 'oci_usage_up{job="oci-usage", instance="localhost:63461", host="localhost", target="core-oracldn", account="kradalby"}'
+        values: "1x120"
+      - series: 'oci_usage_month_total{job="oci-usage", instance="localhost:63461", account="kradalby"}'
+        values: "0x120"
+      - series: 'oci_usage_up{job="oci-usage", instance="localhost:63461", host="localhost", target="core-oracldn", account="vsdalby"}'
+        values: "0x120"
+      - series: 'up{job="oci-usage", instance="down:63461"}'
+        values: "0x120"
+      - series: 'oci_usage_up{job="oci-usage", instance="down:63461", account="vsdalby"}'
+        values: "0x120"
+    alert_rule_test:
+      - eval_time: 50m
+        alertname: OracleUsageMetricsMissing
+        exp_alerts: []
+      - eval_time: 70m
+        alertname: OracleUsageMetricsMissing
+        exp_alerts:
+          - exp_labels:
+              account: vsdalby
+              job: oci-usage
+              instance: localhost:63461
+              host: localhost
+              target: core-oracldn
+              severity: warning
+            exp_annotations:
+              summary: "OCI usage metrics missing for vsdalby on localhost:63461"
+              description: "oci_usage_month_total is absent for this account or scrape while the exporter is up; the Oracle cost and staleness alerts are blind."
+
+  # PostgreSQL slots are shared by active and idle client connections across
+  # databases and users. Other backends and other servers do not share slots.
+  - name: PostgreSQL connection totals per server
+    interval: 1m
+    input_series:
+      - series: 'pg_stat_activity_count{job="postgres", instance="core-oracldn:9187", host="core-oracldn", target="core-oracldn", server="/run/postgresql:5432", datname="umami", state="active", usename="umami", application_name="web", backend_type="client backend", wait_event_type="", wait_event=""}'
+        values: "45x20"
+      - series: 'pg_stat_activity_count{job="postgres", instance="core-oracldn:9187", host="core-oracldn", target="core-oracldn", server="/run/postgresql:5432", datname="postgres", state="idle", usename="postgres", application_name="", backend_type="client backend", wait_event_type="Client", wait_event="ClientRead"}'
+        values: "50x20"
+      - series: 'pg_stat_activity_count{job="postgres", instance="garnix:9187", host="garnix", target="garnix", hypervisor="gigabuilder", server="/run/postgresql:5432", datname="garnix", state="active", backend_type="client backend"}'
+        values: "40x20"
+      - series: 'pg_stat_activity_count{job="postgres", instance="garnix:9187", host="garnix", target="garnix", hypervisor="gigabuilder", server="/run/postgresql:5432", datname="garnix", state="idle", backend_type="client backend"}'
+        values: "40x20"
+      - series: 'pg_stat_activity_count{job="postgres", instance="garnix:9187", host="garnix", target="garnix", hypervisor="gigabuilder", server="/run/postgresql:5432", datname="garnix", state="active", backend_type="parallel worker"}'
+        values: "10x20"
+    alert_rule_test:
+      - eval_time: 4m
+        alertname: PostgreSQLHighConnections
+        exp_alerts: []
+      - eval_time: 10m
+        alertname: PostgreSQLHighConnections
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              job: postgres
+              instance: core-oracldn:9187
+              host: core-oracldn
+              target: core-oracldn
+              server: /run/postgresql:5432
+            exp_annotations:
+              summary: "PostgreSQL connections high on core-oracldn:9187: 95"
+              description: "PostgreSQL on core-oracldn:9187 has more than 80 client connections (default max is 100)."
+
   # A live process is insufficient: the relay must be connected and the
   # protocol probe must keep updating its timestamp.
   - interval: 1m
@@ -281,9 +521,12 @@ tests:
         exp_alerts:
           - exp_labels:
               severity: critical
+              job: litestream
+              instance: core-oracldn:54909
+              host: core-oracldn
             exp_annotations:
-              summary: "Litestream exporter is up but litestream_sync_count is absent"
-              description: "The litestream metric names have changed (version bump?). All litestream alerts are blind until the rules are updated."
+              summary: "Litestream exporter on core-oracldn:54909 is up but litestream_sync_count is absent"
+              description: "Litestream sync metrics disappeared on this host (metric rename or database configuration failure); its replication alerts are blind."
 
   # ghdl per-source freshness: last_success frozen while the exporter stays up
   # → stale after 36h. Fresh at 100m, stale at 2220m.
@@ -427,9 +670,12 @@ tests:
         exp_alerts:
           - exp_labels:
               severity: warning
+              job: oci-usage
+              instance: localhost:63461
+              host: localhost
             exp_annotations:
-              summary: "OCI usage exporter is up but emitting no usage metrics"
-              description: "oci_usage_month_total is absent while the oci-usage scrape is up; the Oracle cost and staleness alerts are both blind."
+              summary: "OCI usage metrics missing on localhost:63461"
+              description: "oci_usage_month_total is absent for this account or scrape while the exporter is up; the Oracle cost and staleness alerts are blind."
 
   # litestream restore-test freshness: a last-success stamp far in the past
   # (>14d before now) pages. A large-negative epoch keeps the sample fresh at a

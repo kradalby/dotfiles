@@ -33,8 +33,7 @@
 #
 #   nix-darwin's `command` option always wraps in `/bin/sh -c ...`,
 #   which would make /bin/sh the responsible process. FDA-enabled jobs
-#   set serviceConfig.ProgramArguments directly to bypass this. The
-#   ssh-agent-mux module demonstrates the same pattern.
+#   set serviceConfig.ProgramArguments directly to bypass this.
 #
 #   We build a RusticBackup.app bundle with a stable bundle ID
 #   (com.kradalby.rustic-backup) and copy it to ~/Applications/ via
