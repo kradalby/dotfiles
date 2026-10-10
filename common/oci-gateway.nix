@@ -16,7 +16,7 @@ in
 
     gatewayAddress = lib.mkOption {
       type = lib.types.str;
-      description = "This gateway's address on the site subnet (SSH forward target), e.g. 10.66.0.1.";
+      description = "This gateway's address on the site subnet (SSH forward target), e.g. 10.66.0.2.";
     };
 
     extraUDPPorts = lib.mkOption {

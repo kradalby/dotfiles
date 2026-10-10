@@ -65,7 +65,7 @@
         useDHCP = false;
         ipv4.addresses = [
           {
-            address = "10.66.0.1";
+            address = "10.66.0.2";
             prefixLength = 24;
           }
         ];
@@ -77,7 +77,7 @@
 
   my.ociGateway = {
     enable = true;
-    gatewayAddress = "10.66.0.1";
+    gatewayAddress = "10.66.0.2";
     # headscale DERP STUN. headscale.nix also opens this, but the gateway
     # lists are mkForce'd — extra ports must live here to take effect.
     extraUDPPorts = [ 3478 ];
