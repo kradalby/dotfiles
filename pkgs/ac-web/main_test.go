@@ -145,3 +145,47 @@ func TestRoutes(t *testing.T) {
 		require.Equal(t, c.want, rec.Code, "%s %s (%q)", c.method, c.path, c.form)
 	}
 }
+
+func TestRemoveWorktreeProtectsLiveDescendants(t *testing.T) {
+	root := t.TempDir()
+	origGit, origWT := gitRoot, wtRoot
+	t.Cleanup(func() { gitRoot, wtRoot = origGit, origWT })
+	gitRoot, wtRoot = filepath.Join(root, "git"), filepath.Join(root, "worktrees")
+	require.NoError(t, os.MkdirAll(filepath.Join(gitRoot, "repo", ".git"), 0o755))
+	target := filepath.Join(wtRoot, "repo", "branch")
+	bin := filepath.Join(root, "bin")
+	require.NoError(t, os.MkdirAll(bin, 0o755))
+	marker := filepath.Join(root, "git-called")
+	require.NoError(t, os.WriteFile(filepath.Join(bin, "ac"), []byte("#!/bin/sh\nprintf 'ws1\\trepo\\tbranch\\tclaude\\t0\\t%s\\n' \"$TEST_SESSION_CWD\"\n"), 0o755))
+	require.NoError(t, os.WriteFile(filepath.Join(bin, "git"), []byte("#!/bin/sh\n: > \"$TEST_GIT_MARKER\"\n"), 0o755))
+	t.Setenv("PATH", bin+string(os.PathListSeparator)+os.Getenv("PATH"))
+	t.Setenv("TEST_GIT_MARKER", marker)
+
+	for _, tt := range []struct {
+		name, cwd string
+		blocked   bool
+	}{
+		{"root", target, true},
+		{"descendant", filepath.Join(target, "src", "nested"), true},
+		{"cleaned descendant", target + "/src/../nested", true},
+		{"sibling sharing prefix", target + "-other/src", false},
+		{"parent", filepath.Dir(target), false},
+		{"unknown cwd", "", false},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Setenv("TEST_SESSION_CWD", tt.cwd)
+			req := httptest.NewRequest(http.MethodPost, "/rmworktree", strings.NewReader("repo=repo&path=branch"))
+			req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+			rec := httptest.NewRecorder()
+			handleRmWorktree(rec, req)
+			if tt.blocked {
+				require.Equal(t, http.StatusBadRequest, rec.Code)
+				require.NoFileExists(t, marker, "git must not run for a live worktree")
+			} else {
+				require.Equal(t, http.StatusSeeOther, rec.Code)
+				require.FileExists(t, marker)
+				require.NoError(t, os.Remove(marker))
+			}
+		})
+	}
+}
