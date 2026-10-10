@@ -42,6 +42,17 @@ let
   '';
 in
 {
+  # Mutable settings retain their seed; migrate only the previous declared PATH.
+  home.activation.claudePath = lib.mkIf pkgs.stdenv.hostPlatform.isLinux (
+    lib.hm.dag.entryAfter [ "mutableJson" ] ''
+      settings=${lib.escapeShellArg "${home}/.claude/settings.json"}
+      previous=${lib.escapeShellArg (lib.removePrefix "/run/wrappers/bin:" ai.claude.env.PATH)}
+      if [ -f "$settings" ] && ${jq} -e --arg previous "$previous" '.env.PATH == $previous' "$settings" >/dev/null; then
+        ${merge "${home}/.claude/settings.json" ".env.PATH" ai.claude.env.PATH}
+      fi
+    ''
+  );
+
   home.activation.mcpServers = lib.hm.dag.entryAfter [ "writeBoundary" "mutableJson" ] (
     lib.concatStrings (
       lib.mapAttrsToList (

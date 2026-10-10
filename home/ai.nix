@@ -42,6 +42,7 @@ in
       CAVEMAN_DEFAULT_MODE = "full";
 
       PATH = builtins.concatStringsSep ":" [
+        "/run/wrappers/bin"
         "/etc/profiles/per-user/kradalby/bin"
         "/run/current-system/sw/bin"
         "/nix/var/nix/profiles/default/bin"

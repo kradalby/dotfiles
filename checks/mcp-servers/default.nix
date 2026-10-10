@@ -6,7 +6,10 @@ let
     isDarwin:
     import ../../home/mcp.nix {
       pkgs = pkgs // {
-        stdenv.hostPlatform = { inherit isDarwin; };
+        stdenv.hostPlatform = {
+          inherit isDarwin;
+          isLinux = !isDarwin;
+        };
       };
       lib = pkgs.lib // {
         hm.dag.entryAfter = _: data: { inherit data; };
