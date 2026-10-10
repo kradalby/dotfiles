@@ -883,16 +883,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1790801162,
+        "lastModified": 1791575304,
         "narHash": "sha256-j5gCfw+qn6Wwr70FQBg4u5oUcFT7xuau77e2FNYDjyc=",
         "owner": "kradalby",
         "repo": "ghdl",
-        "rev": "97d0a2a374d254a0f21ba684c2059f8fe1e72694",
+        "rev": "437b6c4c7e6b1560818134f5d07e11f4b89bfaa6",
         "type": "github"
       },
       "original": {
         "owner": "kradalby",
-        "ref": "initial",
+        "ref": "main",
         "repo": "ghdl",
         "type": "github"
       }
