@@ -1,0 +1,179 @@
+diff --git a/src/terminal/state.rs b/src/terminal/state.rs
+--- a/src/terminal/state.rs
++++ b/src/terminal/state.rs
+@@ -1331,7 +1331,7 @@
+             ) | (
+                 "herdr:codex",
+                 "codex",
+-                Some("startup" | "clear" | "resume" | "compact")
++                Some("startup" | "clear" | "resume" | "compact" | "select")
+             ) | ("herdr:mastracode", "mastracode", Some("startup"))
+                 | ("herdr:hermes", "hermes", Some("startup" | "new" | "resume"))
+                 | ("herdr:opencode", "opencode", Some("select"))
+@@ -1401,11 +1401,43 @@
+         seq: Option<u64>,
+         session_start_source: Option<String>,
+     ) -> Option<TerminalStateMutation> {
+-        let session_ref = session_ref?;
+         let known_agent = crate::detect::parse_agent_label(&agent_label);
+         let process_present = known_agent.is_some()
+             && self.detected_agent == known_agent
+             && self.recent_agent_process_exit.is_none();
++        // Selection belongs to the live frontend, including cached thread switches.
++        // It must not be blocked by timestamps from app-server SessionStart hooks.
++        let native_codex_selection = (
++            source.as_str(),
++            agent_label.as_str(),
++            session_start_source.as_deref(),
++            seq,
++        ) == ("herdr:codex", "codex", Some("select"), None);
++        if native_codex_selection {
++            if !process_present {
++                return None;
++            }
++            if session_ref.is_none() {
++                if self.current_session_owner_conflicts(&source, &agent_label) {
++                    return None;
++                }
++                let previous_session = self.current_session_identity_for_persistence();
++                self.persisted_agent_session = None;
++                self.managed_agent_launch_session = None;
++                if let Some(authority) = self.hook_authority.as_mut() {
++                    authority.session_ref = None;
++                }
++                if let Some(owner) = self.agent_name_owner.as_mut() {
++                    owner.session_ref = None;
++                }
++                return Some(TerminalStateMutation {
++                    effective_state_change: None,
++                    session_ref_changed: previous_session.is_some(),
++                    agent_released: false,
++                });
++            }
++        }
++        let session_ref = session_ref?;
+         let full_lifecycle_source =
+             crate::detect::full_lifecycle_hook_authority(&source, &agent_label);
+         let generation_gated = self
+@@ -1523,7 +1555,10 @@
+             }
+             return None;
+         }
+-        if !unsequenced_selection && !self.accept_hook_report(&source, seq) {
++        if !unsequenced_selection
++            && !native_codex_selection
++            && !self.accept_hook_report(&source, seq)
++        {
+             return None;
+         }
+         if self.known_agent_label_conflicts_with_detected_agent(&agent_label) {
+@@ -4559,6 +4604,109 @@
+     }
+
+     #[test]
++    fn codex_native_selection_replaces_sequenced_hook_identity_and_can_return() {
++        let mut terminal = test_terminal();
++        terminal.set_detected_state(Some(Agent::Codex), AgentState::Idle);
++        terminal
++            .set_agent_session_ref(
++                "herdr:codex".into(),
++                "codex".into(),
++                crate::agent_resume::AgentSessionRef::id("first"),
++                Some(900),
++            )
++            .unwrap();
++        for id in ["second", "first"] {
++            let mutation = terminal
++                .set_agent_session_ref_for_session_start(
++                    "herdr:codex".into(),
++                    "codex".into(),
++                    crate::agent_resume::AgentSessionRef::id(id),
++                    None,
++                    Some("select".into()),
++                )
++                .unwrap();
++            assert!(mutation.session_ref_changed);
++            assert_eq!(
++                terminal.current_session_identity_for_persistence(),
++                Some((
++                    "herdr:codex".into(),
++                    "codex".into(),
++                    crate::agent_resume::AgentSessionRefKind::Id,
++                    id.into()
++                ))
++            );
++        }
++    }
++
++    #[test]
++    fn codex_native_selection_clears_only_identity_and_recovers_after_respawn() {
++        let mut terminal = test_terminal();
++        terminal.set_detected_state(Some(Agent::Codex), AgentState::Idle);
++        terminal
++            .set_agent_session_ref(
++                "herdr:codex".into(),
++                "codex".into(),
++                crate::agent_resume::AgentSessionRef::id("first"),
++                Some(900),
++            )
++            .unwrap();
++        terminal.set_agent_name("frontend".into());
++        let mutation = terminal
++            .set_agent_session_ref_for_session_start(
++                "herdr:codex".into(),
++                "codex".into(),
++                None,
++                None,
++                Some("select".into()),
++            )
++            .unwrap();
++        assert!(mutation.session_ref_changed);
++        assert_eq!(terminal.current_session_identity_for_persistence(), None);
++        assert_eq!(terminal.agent_name.as_deref(), Some("frontend"));
++        assert_eq!(terminal.detected_agent, Some(Agent::Codex));
++        terminal.clear_agent_runtime_identity_after_respawn();
++        terminal.set_detected_state(Some(Agent::Codex), AgentState::Idle);
++        terminal
++            .set_agent_session_ref_for_session_start(
++                "herdr:codex".into(),
++                "codex".into(),
++                crate::agent_resume::AgentSessionRef::id("second"),
++                None,
++                Some("select".into()),
++            )
++            .unwrap();
++        assert_eq!(
++            terminal.current_session_identity_for_persistence(),
++            Some((
++                "herdr:codex".into(),
++                "codex".into(),
++                crate::agent_resume::AgentSessionRefKind::Id,
++                "second".into()
++            ))
++        );
++    }
++
++    #[test]
++    fn codex_native_selection_cannot_rebind_an_exited_or_different_agent() {
++        for agent in [None, Some(Agent::Claude)] {
++            let mut terminal = test_terminal();
++            terminal.set_detected_state(agent, AgentState::Idle);
++            assert!(
++                terminal
++                    .set_agent_session_ref_for_session_start(
++                        "herdr:codex".into(),
++                        "codex".into(),
++                        crate::agent_resume::AgentSessionRef::id("second"),
++                        None,
++                        Some("select".into())
++                    )
++                    .is_none()
++            );
++            assert_eq!(terminal.current_session_identity_for_persistence(), None);
++        }
++    }
++
++    #[test]
+     fn codex_lifecycle_session_ref_replaces_existing_session_ref() {
+         for session_start_source in ["startup", "clear", "resume", "compact"] {
+             let mut terminal = test_terminal();

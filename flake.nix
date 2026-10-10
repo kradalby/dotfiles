@@ -89,11 +89,9 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
-    # Self-hosted garnix CI (our fork's integration branch). Update independently
-    # with `nix flake update garnix-ci`. Do NOT `follows` nixpkgs: garnix pins
-    # nixpkgs-25.11-small + its own nixpkgsUnstable + libkrun for krun; overriding
-    # them risks breaking the action-runner.
-    garnix-ci.url = "github:kradalby/garnix/integration";
+    # Self-hosted Garnix CI at the reviewed fork revision. Keep its own nixpkgs
+    # pin so the action runner stays on the toolchain Garnix builds against.
+    garnix-ci.url = "github:kradalby/garnix/57118969e4cd2516ccabc1df85d1e6fc388db987";
 
     headscale = {
       url = "github:juanfont/headscale/main";
@@ -320,6 +318,7 @@
             );
           }
         )
+        (import ./pkgs/overlays/agent-native-bindings.nix)
       ];
 
       box = import ./lib/box.nix {
@@ -649,6 +648,11 @@
           tmp-cleanup = import ./checks/tmp-cleanup { inherit pkgs; };
           nix-dev-env = import ./checks/nix-dev-env { inherit pkgs; };
           ac = import ./checks/ac { inherit pkgs; };
+          ac-native-herdr = import ./checks/ac-native-herdr {
+            inherit pkgs;
+            herdrSource = inputs.herdr.outPath;
+          };
+          ac-native-codex = pkgs.master.codex.tests.frontend-thread-selection;
           backups = import ./checks/backups { inherit pkgs self; };
           sqlite-backup = import ./modules/sqlite-backup/tests.nix { inherit pkgs; };
           sqlite-backup-ordering = import ./modules/sqlite-backup/ordering-test.nix { inherit pkgs; };
