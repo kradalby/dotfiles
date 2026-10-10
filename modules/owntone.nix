@@ -301,7 +301,8 @@ in
             "network.target"
             "owntone.service"
           ];
-          bindsTo = [ "owntone.service" ];
+          # Keep the controller's reconnect loop alive across OwnTone failures.
+          wants = [ "owntone.service" ];
           wantedBy = [ "multi-user.target" ];
 
           restartTriggers = [ controllerConfigFile ];
