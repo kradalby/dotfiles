@@ -664,6 +664,7 @@
           # checkPhase, so exposing the builds as checks puts `go test` in CI.
           go-ac-web = pkgs.ac-web;
           go-p3-controller = pkgs.p3-controller;
+          owntone-restart = pkgs.p3-controller.tests.owntone-restart;
           go-oci-usage-exporter = pkgs.oci-usage-exporter;
           go-authkey = pkgs.authkey;
           go-rnb = pkgs.rnb;
