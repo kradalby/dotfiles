@@ -805,10 +805,10 @@
       },
       "locked": {
         "lastModified": 1791660387,
-        "narHash": "sha256-qu8GGipIRRFVNT6CW89wVElC1Vwi53NZ6YjhY3R6aws=",
+        "narHash": "sha256-2pKdnD4ol7CL2oE+Yan1mb/CBcRHsWkMYL3+uCm+XCo=",
         "owner": "kradalby",
         "repo": "garnix",
-        "rev": "b3cf67cb9e40110b5e712438b3e8149c01465d4c",
+        "rev": "f0794f824292f7f6aa7bf36c7e2e74112c290aa3",
         "type": "github"
       },
       "original": {
