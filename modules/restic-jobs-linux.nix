@@ -21,14 +21,18 @@ let
   # State directories of DynamicUser units live under /var/lib/private/<x>;
   # /var/lib/<x> is only a symlink and restic snapshots it as ~20 bytes.
   # A backup path that is itself a symlink is essentially always this
-  # mistake — fail the unit before restic runs so ServiceFailed pages.
-  symlinkGuard =
+  # mistake. Missing entries in restic's files-from list are silently skipped
+  # with exit 0, so every declared source must exist before the backup starts.
+  sourceGuard =
     jobName: jobCfg:
-    pkgs.writeShellScript "restic-symlink-guard-${jobName}" ''
+    pkgs.writeShellScript "restic-source-guard-${jobName}" ''
       status=0
       for p in ${escapeShellArgs jobCfg.paths}; do
         if [ -L "$p" ]; then
           echo "restic job ${jobName}: $p is a symlink ($(readlink "$p")) — back up the target instead (DynamicUser state lives in /var/lib/private/)" >&2
+          status=1
+        elif [ ! -e "$p" ]; then
+          echo "restic job ${jobName}: required source $p does not exist" >&2
           status=1
         fi
       done
@@ -64,7 +68,7 @@ in
         jobName: jobCfg:
         nameValuePair "restic-backups-${jobName}" (
           mkIf jobCfg.enable {
-            serviceConfig.ExecStartPre = [ (symlinkGuard jobName jobCfg) ];
+            serviceConfig.ExecStartPre = [ (sourceGuard jobName jobCfg) ];
             serviceConfig.ExecStopPost = [ (pushSuccess jobName) ];
             # Exit 3 = "some source files could not be read" (files vanishing
             # mid-scan on live homedirs). A snapshot IS created; treat it as
