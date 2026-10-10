@@ -240,17 +240,10 @@ ensure_trusted_codex() {
   # ~/.codex/config.toml as a [projects."<dir>"] table, and `-c` overrides do
   # NOT satisfy the check (verified: the flag reaches codex and the dialog
   # still appears), so the table has to be on disk. AC_TRUST=0 skips.
-  local dir="$1" cfg="${CODEX_HOME:-$HOME/.codex}/config.toml"
   [[ "${AC_TRUST:-1}" == "1" ]] || return 0
-  mkdir -p "$(dirname "$cfg")"
-  [[ -f "$cfg" ]] || : >"$cfg"
-
-  # Appending is safe: TOML accepts tables in any order, and the guard keeps us
-  # from writing a duplicate table (which would make the file unparseable).
-  # Last-writer-wins against codex's own rewrites, same exposure
-  # ensure_trusted accepts for claude. Re-run fixes a lost append.
-  grep -qF "[projects.\"$dir\"]" "$cfg" && return 0
-  printf '\n[projects."%s"]\ntrust_level = "trusted"\n' "$dir" >>"$cfg"
+  # Use Codex's TOML editor: an existing table may be untrusted, quoted
+  # differently, or inline. A textual append cannot safely update those forms.
+  codex_connection "" codex_trust_project "$1"
 }
 
 # --- herdr server / lookup ---
@@ -373,10 +366,11 @@ agent_panes_of() {
 
 # --- commands ---
 
-# Create and save a named thread before opening its TUI, using the shared
-# server when available or a temporary standalone server otherwise.
-codex_start_thread() (
-  local dir="$1" name="$2" remote="$3"
+# Initialize one connection, then run an operation with the matching-response
+# request helper. Trust edits always use a standalone local server.
+codex_connection() (
+  local remote="$1" operation="$2"
+  shift 2
   local transport=()
   case "$remote" in
     "")
@@ -428,7 +422,23 @@ codex_start_thread() (
 
   request 0 initialize '{"clientInfo":{"name":"ac","version":"1"},"capabilities":{"experimentalApi":true}}' >/dev/null || return 1
   printf '%s\n' '{"method":"initialized","params":{}}' >&"$writer" || return 1
-  local response thread_id
+  "$operation" "$@"
+)
+
+codex_trust_project() {
+  # A quoted leaf update preserves unrelated projects' comments and formatting.
+  request 1 config/value/write "$(jq -nc --arg dir "$1" \
+    '{keyPath:("projects." + ($dir | tojson) + ".trust_level"),value:"trusted",mergeStrategy:"upsert"}')" >/dev/null
+}
+
+# Create and save a named thread before opening its TUI, using the shared
+# server when available or a temporary standalone server otherwise.
+codex_start_thread() {
+  codex_connection "$3" codex_create_thread "$1" "$2"
+}
+
+codex_create_thread() {
+  local dir="$1" name="$2" response thread_id
   response=$(request 1 thread/start "$(jq -nc --arg cwd "$dir" \
     '{cwd:$cwd,permissions:":danger-full-access",approvalPolicy:"never",threadSource:"cli"}')") || return 1
   thread_id=$(jq -er '.result.thread.id' <<<"$response") || return 1
@@ -445,7 +455,7 @@ codex_start_thread() (
   request 5 thread/resume "$(jq -nc --arg id "$thread_id" --arg cwd "$dir" \
     '{threadId:$id,cwd:$cwd,permissions:":danger-full-access",approvalPolicy:"never"}')" >/dev/null || return 1
   printf '%s\n' "$thread_id"
-)
+}
 
 # start_agent launches one agent in an existing shell pane.
 start_agent() {
@@ -1227,4 +1237,6 @@ main() {
   esac
 }
 
-main "$@"
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+  main "$@"
+fi
