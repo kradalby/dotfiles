@@ -138,8 +138,8 @@ in
 
             package = lib.mkOption {
               type = lib.types.package;
-              default = pkgs.master.claude-code;
-              defaultText = lib.literalExpression "pkgs.master.claude-code";
+              default = config.programs.claude-code.finalPackage;
+              defaultText = lib.literalExpression "config.programs.claude-code.finalPackage";
               description = "Package providing the `claude` binary.";
             };
           };

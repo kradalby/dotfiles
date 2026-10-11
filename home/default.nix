@@ -90,6 +90,12 @@ in
     ''
   );
 
+  config.programs.claude-code = lib.mkIf config.my.packages.ai.enable {
+    enable = true;
+    package = pkgs.master.claude-code;
+    plugins = [ pkgs.claude-codex-plugin ];
+  };
+
   # XDG-compliant configs. Anything the program insists on reading from $HOME
   # directly stays in home.file below.
   config.xdg.configFile = {

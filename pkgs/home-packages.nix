@@ -246,9 +246,6 @@ in
           nodejs_26
           python3
         ])
-        ++ (with pkgs.master; [
-          claude-code
-        ])
         ++ lib.optionals cfg.ai.opencode [
           pkgs.master.opencode
         ]
