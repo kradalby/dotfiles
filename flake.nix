@@ -89,11 +89,11 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
-    # Self-hosted garnix CI (our fork's integration branch). Update independently
-    # with `nix flake update garnix-ci`. Do NOT `follows` nixpkgs: garnix pins
+    # Self-hosted garnix CI, pinned to the reviewed GC and eval fixes so routine
+    # flake updates cannot revert them to integration. Do NOT `follows` nixpkgs: garnix pins
     # nixpkgs-25.11-small + its own nixpkgsUnstable + libkrun for krun; overriding
     # them risks breaking the action-runner.
-    garnix-ci.url = "github:kradalby/garnix/integration";
+    garnix-ci.url = "github:kradalby/garnix/f0794f824292f7f6aa7bf36c7e2e74112c290aa3";
 
     headscale = {
       url = "github:juanfont/headscale/main";
