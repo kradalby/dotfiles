@@ -34,6 +34,11 @@ let
       ../../home/mutable-json.nix
       base
       {
+        my.mutableJson.codex = {
+          target = ".codex/config.toml";
+          format = "toml";
+          value.model = "seeded-model";
+        };
         my.mutableJson.fixture = {
           target = ".config/tool/config.json";
           value.canonical = true;
@@ -72,6 +77,7 @@ pkgs.runCommand "mutable-json-test"
     test ! -L "$HOME/.config/tool/config.json"
     test -w "$HOME/.config/tool/config.json"
     test "$(stat -c %a "$HOME/.config/tool/config.json")" = 644
+    grep -F 'model = "seeded-model"' "$HOME/.codex/config.toml"
 
     export HOME="$TMPDIR/migration"
     export oldGenPath="$TMPDIR/old"
@@ -89,10 +95,13 @@ pkgs.runCommand "mutable-json-test"
 
     printf '%s\n' '{"deliberate":true}' > "$HOME/.config/tool/config.json"
     chmod 600 "$HOME/.config/tool/config.json"
+    printf '%s\n' 'model = "user-model"' > "$HOME/.codex/config.toml"
+    codexBefore="$(sha256sum "$HOME/.codex/config.toml") $(stat -c %i:%a:%Y "$HOME/.codex/config.toml")"
     before="$(sha256sum "$HOME/.config/tool/config.json") $(stat -c %i:%a:%Y "$HOME/.config/tool/config.json")"
     ${link}
     ${seed}
     ${seed}
     test "$before" = "$(sha256sum "$HOME/.config/tool/config.json") $(stat -c %i:%a:%Y "$HOME/.config/tool/config.json")"
+    test "$codexBefore" = "$(sha256sum "$HOME/.codex/config.toml") $(stat -c %i:%a:%Y "$HOME/.codex/config.toml")"
     touch "$out"
   ''
