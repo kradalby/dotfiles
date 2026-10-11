@@ -29,7 +29,16 @@
 
     openFirewall = true;
 
+    nefit = {
+      mode = "both";
+      deviceIP = "192.168.156.96";
+      updates = "block";
+    };
+
+    bindAddresses.xmpp = "10.65.0.26";
+
     ports = {
+      xmpp = 5222;
       hap = 51826;
       web = 51827;
     };
