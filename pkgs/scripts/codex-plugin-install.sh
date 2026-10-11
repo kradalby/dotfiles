@@ -16,6 +16,11 @@ if jq -e --arg name "$marketplace" --arg source "$source_root" '
 fi
 codex plugin marketplace add "$source_root"
 
+# The same skill was previously installed from two Anthropic marketplaces.
+if [ "$marketplace" = "claude-plugins-official" ]; then
+  codex plugin remove frontend-design@claude-code-plugins
+fi
+
 # Always refresh: source revisions can change without a plugin-version bump.
 jq -r '.plugins[].name' "$catalog" | while IFS= read -r name; do
   codex plugin add "$name@$marketplace"
