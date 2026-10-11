@@ -296,7 +296,14 @@
             tailscale = tailscale.packages."${system}".tailscale;
             # Direct package (not herdr.overlays.default — that composes
             # rust-overlay and drags rust-bin into pkgs).
-            herdr = inputs.herdr.packages."${system}".default;
+            herdr = inputs.herdr.packages."${system}".default.overrideAttrs (
+              old:
+              prev.lib.optionalAttrs (system == "aarch64-linux") {
+                nativeBuildInputs = old.nativeBuildInputs ++ [ prev.unstable.llvmPackages.lld ];
+                # BFD rejects Zig's bundled compiler_rt object on aarch64.
+                RUSTFLAGS = "${old.RUSTFLAGS or ""} -Cforce-frame-pointers=yes -C link-arg=-fuse-ld=lld";
+              }
+            );
             # The agent skill (teaches an agent to drive herdr) is bundled in the
             # binary and printed by `herdr --skill`, so it tracks the package
             # version — nothing to vendor or maintain.
