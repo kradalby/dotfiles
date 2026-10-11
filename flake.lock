@@ -1256,11 +1256,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1790801409,
-        "narHash": "sha256-D3armbUCd+XPoVdTDkeBJ3jRVC/5JPaZ/80X6XLv5F4=",
+        "lastModified": 1791713026,
+        "narHash": "sha256-h12y0L3f5EqULdw0hTcUF1UeXGnio0SV5i0hmAdSt7g=",
         "owner": "kradalby",
         "repo": "nefit-homekit",
-        "rev": "65d317af2575be1e22765b61b03717d979e4d2c4",
+        "rev": "3700d6cd21c403a340c1999923aaab7de798c954",
         "type": "github"
       },
       "original": {
