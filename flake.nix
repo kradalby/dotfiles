@@ -333,10 +333,11 @@
             # binary and printed by `herdr --skill`, so it tracks the package
             # version — nothing to vendor or maintain.
             herdr-skill = final.runCommand "herdr-skill.md" { } "${final.herdr}/bin/herdr --skill > $out";
-            claude-plugins = import ./home/claude-plugins.nix {
+            ai-plugins = import ./home/ai-plugins.nix {
               inherit inputs;
               pkgs = final;
             };
+            claude-plugins = final.ai-plugins.claude;
             nefit-homekit = inputs.nefit-homekit.packages."${system}".default;
             tasmota-homekit = inputs.tasmota-homekit.packages."${system}".default;
             z2m-homekit = inputs.z2m-homekit.packages."${system}".default;
@@ -674,6 +675,7 @@
         # (incl. the sloth-generated burn-rate rules) and a VM test of the
         # prometheus → alertmanager → webhook delivery pipeline.
         checks = pkgs.lib.optionalAttrs (system == "x86_64-linux") {
+          ai-plugins = import ./checks/ai-plugins { inherit pkgs; };
           claude-plugins = import ./checks/claude-plugins { inherit pkgs; };
           codex-session-env = import ./checks/codex-session-env { inherit pkgs; };
           mcp-servers = import ./checks/mcp-servers { inherit pkgs; };

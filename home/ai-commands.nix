@@ -96,5 +96,13 @@ in
       };
     };
 
-  xdg.configFile."opencode/commands".source = commandDirectory;
+  xdg.configFile."opencode/commands".source = pkgs.symlinkJoin {
+    name = "opencode-commands";
+    paths = [
+      commandDirectory
+    ]
+    ++ lib.optional (
+      config.my.packages.ai.enable && config.my.packages.ai.opencode
+    ) pkgs.ai-plugins.opencodeCommands;
+  };
 }

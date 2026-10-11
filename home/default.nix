@@ -35,6 +35,7 @@ in
     ./starship.nix
     ./ssh.nix
     ./ai-commands.nix
+    ./ai-plugin-install.nix
 
     ../modules/claude-code
 
