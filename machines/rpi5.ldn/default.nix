@@ -63,6 +63,7 @@
     infra.enable = true; # ansible/headscale/docker/rnb
     media.enable = false; # ffmpeg/cook-cli/sql-studio/squibble
     ai.enable = true; # claude-code/opencode/nodejs/python3
+    ai.codex = true; # Runtime for the shared Claude Codex plugin.
   };
 
   # nixos-raspberrypi is migrating the default from "kernelboot" to
