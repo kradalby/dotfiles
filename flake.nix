@@ -18,6 +18,27 @@
 
     home-manager.url = "github:nix-community/home-manager/release-26.05";
     home-manager.inputs.nixpkgs.follows = "nixpkgs-stable";
+    # Plugin sources share inputs by repository and carry no flake dependencies.
+    claude-plugins-official = {
+      url = "github:anthropics/claude-plugins-official";
+      flake = false;
+    };
+    claude-superpowers = {
+      url = "github:obra/superpowers";
+      flake = false;
+    };
+    claude-ponytail = {
+      url = "github:DietrichGebert/ponytail";
+      flake = false;
+    };
+    claude-caveman = {
+      url = "github:JuliusBrussee/caveman";
+      flake = false;
+    };
+    claude-ui-ux-pro-max = {
+      url = "github:nextlevelbuilder/ui-ux-pro-max-skill";
+      flake = false;
+    };
     codex-plugin-cc = {
       url = "github:openai/codex-plugin-cc";
       flake = false;
@@ -312,7 +333,10 @@
             # binary and printed by `herdr --skill`, so it tracks the package
             # version — nothing to vendor or maintain.
             herdr-skill = final.runCommand "herdr-skill.md" { } "${final.herdr}/bin/herdr --skill > $out";
-            claude-codex-plugin = "${inputs.codex-plugin-cc}/plugins/codex";
+            claude-plugins = import ./home/claude-plugins.nix {
+              inherit inputs;
+              pkgs = final;
+            };
             nefit-homekit = inputs.nefit-homekit.packages."${system}".default;
             tasmota-homekit = inputs.tasmota-homekit.packages."${system}".default;
             z2m-homekit = inputs.z2m-homekit.packages."${system}".default;
@@ -650,6 +674,7 @@
         # (incl. the sloth-generated burn-rate rules) and a VM test of the
         # prometheus → alertmanager → webhook delivery pipeline.
         checks = pkgs.lib.optionalAttrs (system == "x86_64-linux") {
+          claude-plugins = import ./checks/claude-plugins { inherit pkgs; };
           codex-session-env = import ./checks/codex-session-env { inherit pkgs; };
           mcp-servers = import ./checks/mcp-servers { inherit pkgs; };
           claude-mcp = import ./checks/claude-mcp { inherit pkgs self; };
