@@ -71,41 +71,6 @@ in
       ];
     };
 
-    enabledPlugins = {
-      "gopls-lsp@claude-plugins-official" = true;
-      "code-simplifier@claude-plugins-official" = true;
-      "ui-ux-pro-max@ui-ux-pro-max-skill" = true;
-      "frontend-design@claude-plugins-official" = true;
-      "superpowers@claude-plugins-official" = true;
-      "code-review@claude-plugins-official" = true;
-      "github@claude-plugins-official" = true;
-      "frontend-design@claude-code-plugins" = true;
-      "playwright@claude-plugins-official" = true;
-      "ponytail@ponytail" = true;
-      # Available on demand via /caveman; starts off (CAVEMAN_DEFAULT_MODE).
-      "caveman@caveman" = true;
-    };
-
-    extraKnownMarketplaces = {
-      ui-ux-pro-max-skill.source = {
-        source = "github";
-        repo = "nextlevelbuilder/ui-ux-pro-max-skill";
-      };
-      claude-code-plugins.source = {
-        source = "github";
-        repo = "anthropics/claude-code";
-      };
-      ponytail.source = {
-        source = "github";
-        repo = "DietrichGebert/ponytail";
-      };
-      # opencode/codex get the prose rule in rc/AGENTS.md — no plugin system.
-      caveman.source = {
-        source = "github";
-        repo = "JuliusBrussee/caveman";
-      };
-    };
-
     outputStyle = "ELI5";
 
     alwaysThinkingEnabled = true;
