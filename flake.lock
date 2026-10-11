@@ -40,6 +40,86 @@
         "type": "github"
       }
     },
+    "claude-caveman": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1791438150,
+        "narHash": "sha256-przOot/S0VLw2aP3tOdxF27mZHMp0NQhyTls0eDAjjs=",
+        "owner": "JuliusBrussee",
+        "repo": "caveman",
+        "rev": "2e08b9177c07bb7249a8a2d1a6758e5db281d002",
+        "type": "github"
+      },
+      "original": {
+        "owner": "JuliusBrussee",
+        "repo": "caveman",
+        "type": "github"
+      }
+    },
+    "claude-plugins-official": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1791686481,
+        "narHash": "sha256-f5mnVFXVkaMoahQv5pu5fS0gGV1uaowi/mpJM0gm/I8=",
+        "owner": "anthropics",
+        "repo": "claude-plugins-official",
+        "rev": "f359d43b406057f1a8cdbc4ea93b827642c162e6",
+        "type": "github"
+      },
+      "original": {
+        "owner": "anthropics",
+        "repo": "claude-plugins-official",
+        "type": "github"
+      }
+    },
+    "claude-ponytail": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1791605992,
+        "narHash": "sha256-S2gHV4/c8XPDqpf0jS8Q5r22//6skZjITf2T9CVhVRE=",
+        "owner": "DietrichGebert",
+        "repo": "ponytail",
+        "rev": "9b58c1ffb790c075ca32e70a89cf1d80588f4abf",
+        "type": "github"
+      },
+      "original": {
+        "owner": "DietrichGebert",
+        "repo": "ponytail",
+        "type": "github"
+      }
+    },
+    "claude-superpowers": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1791592084,
+        "narHash": "sha256-UCVI+T7j1Xh1LDkrvnJduis7eHFqrizCyGTWAGW5d6U=",
+        "owner": "obra",
+        "repo": "superpowers",
+        "rev": "bb92a77741419a4ab5f06e711a283343f1ada0c3",
+        "type": "github"
+      },
+      "original": {
+        "owner": "obra",
+        "repo": "superpowers",
+        "type": "github"
+      }
+    },
+    "claude-ui-ux-pro-max": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1791673522,
+        "narHash": "sha256-CDK5ibSx1L7LRg0Wj6lEa6/WNXS+rw4RRFIP5OvxjH0=",
+        "owner": "nextlevelbuilder",
+        "repo": "ui-ux-pro-max-skill",
+        "rev": "67803eac81607188194aea9842a723b89326d90d",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nextlevelbuilder",
+        "repo": "ui-ux-pro-max-skill",
+        "type": "github"
+      }
+    },
     "codex-plugin-cc": {
       "flake": false,
       "locked": {
@@ -1694,6 +1774,11 @@
     },
     "root": {
       "inputs": {
+        "claude-caveman": "claude-caveman",
+        "claude-plugins-official": "claude-plugins-official",
+        "claude-ponytail": "claude-ponytail",
+        "claude-superpowers": "claude-superpowers",
+        "claude-ui-ux-pro-max": "claude-ui-ux-pro-max",
         "codex-plugin-cc": "codex-plugin-cc",
         "darwin": "darwin",
         "flake-utils": "flake-utils",
