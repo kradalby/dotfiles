@@ -90,6 +90,32 @@ config_path.write_text(
 )
 hooks_path = root / ".codex/hooks.json"
 hooks_path.write_text('{"hooks": {"SessionStart": []}}\n')
+
+legacy = root / "legacy"
+(legacy / ".agents/plugins").mkdir(parents=True)
+(legacy / ".agents/plugins/marketplace.json").write_text(
+    json.dumps(
+        {
+            "name": "claude-code-plugins",
+            "plugins": [
+                {
+                    "name": "frontend-design",
+                    "source": {"source": "local", "path": "./frontend-design"},
+                    "policy": {"installation": "AVAILABLE", "authentication": "ON_USE"},
+                    "category": "Productivity",
+                }
+            ],
+        }
+    )
+)
+(legacy / "frontend-design").symlink_to(
+    Path(sources["codex"]["claude-plugins-official"]["root"]) / "plugins/frontend-design"
+)
+run(codex, "plugin", "marketplace", "add", legacy)
+old_frontend = cast(
+    Installation,
+    json.loads(run(codex, "plugin", "add", "frontend-design@claude-code-plugins", "--json")),
+)
 expected_ids: list[str] = []
 for marketplace, source in sources["codex"].items():
     run(installer, source["root"])
@@ -122,6 +148,9 @@ for marketplace, source in sources["codex"].items():
     }
     assert all(item["enabled"] for item in installed)
 assert len(expected_ids) == 7
+assert not Path(old_frontend["installedPath"]).exists()
+# Fresh homes and repeated activation must handle an absent duplicate too.
+run(installer, sources["codex"]["claude-plugins-official"]["root"])
 
 # A source revision can change without an upstream plugin-version bump.
 for revision in ["first", "second"]:

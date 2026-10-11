@@ -16,10 +16,16 @@ plugins, and the Claude-to-Codex bridge is only installed in Claude.
 Codex copies local plugins into its own cache. Home Manager activation replaces a
 marketplace registration when its pinned source changes, preserves the existing
 marketplace identity, and refreshes every managed plugin even if its version did
-not change. Client-owned configuration and other plugins remain intact. Account
+not change. The legacy duplicate `frontend-design@claude-code-plugins` is removed;
+client-owned configuration and other plugins remain intact. Account
 connections and hook trust still use Codex's normal setup flow.
 Caveman's Codex manifest uses its upstream startup script through `PLUGIN_ROOT`,
 so its hook works independently of the session's Git checkout.
+
+A rollback between generations that manage Codex refreshes the older pinned
+plugins during activation. A generation predating this module cannot undo
+Codex's writable configuration and cache; snapshot `~/.codex` before a live
+canary and restore it alongside that generation.
 
 OpenCode loads small entrypoints that import the pinned upstream integrations.
 Skills retain their upstream directory layout, and Cavecrew agents use the
