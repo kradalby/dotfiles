@@ -25,6 +25,8 @@ in
     settings = {
       general = {
         bind_address = "0.0.0.0";
+        # HomePod OS 27 rejects OwnTone's default User-Agent (owntone-server#2042).
+        user_agent = "AirPlay/999.0.0";
         # Audio drop-outs → upstream advises trying this toggle.
         high_resolution_clock = false;
       };
