@@ -219,7 +219,10 @@ in
           # Respawn only on a crash: a clean `server stop` (exit 0) stays down,
           # and a restart would drop every pane anyway.
           KeepAlive.SuccessfulExit = false;
-          ProcessType = "Background";
+          # The server renders every frame the TUI shows and parents every pane,
+          # so Background's darwinbg clamp (CPU/IO throttle, timer coalescing)
+          # lands on the attached client and every agent/build in a pane.
+          ProcessType = "Interactive";
           EnvironmentVariables = {
             PATH = darwinPath;
             HOME = config.home.homeDirectory;
