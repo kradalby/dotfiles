@@ -20,39 +20,51 @@ write features, do not open PRs, do not deploy another repo. A host not in
 stop. Do not commit, push, checkout, stash or fetch to make it pass — that is
 the human's call. `git-ready` runs the same check on demand.
 
-Confirm CI is green for `HEAD`:
+Never build closures locally — no `nix flake check`, `colmena build` or
+`cache-arm`. CI builds every host; a deploy only substitutes. CI is two
+systems, and both must be green for `HEAD`:
 
-    gh pr checks
+    curl -s "http://garnixlogs/$(git rev-parse HEAD)"     # x86: fail=0 pend=0
+    gh run list --workflow cache-hosts.yml --limit 1 \
+      --json headSha,status,conclusion                    # arm64
 
-Fall back to the garnix API when `gh` is unclear — it reports `pending 0s`
-for a build that is actively running, which looks identical to one that was
-never dispatched:
-
-    direnv exec . sh -c 'curl -s -H "Authorization: Bearer $GARNIX_TOKEN" \
-      "$GARNIX_SERVER/api/commits/$(git rev-parse HEAD)"'
-
-A build with no `status` key is pending, not failed; a real `start_time` on
-`$GARNIX_SERVER/api/build/<id>` proves it is running. aarch64 is slow — check
-the cache is populated rather than assuming a stall.
+garnix has no aarch64 hardware, so `garnix.yaml` excludes the arm hosts and
+`cache-hosts.yml` builds them on GitHub runners and pushes to tsnixcache.
+Until that run is `completed success` for `HEAD`, arm hosts are not
+deployable.
 
 ## Preview
 
-    nix flake check
-    colmena build --on <node> --keep-result     # GC roots land in ./.gcroots
+Present the plan and get approval before Execute. The plan is built from
+evidence, not guesses:
+
     ssh root@<node> nixos-version --json | jq -r .configurationRevision
     git log --oneline <that rev>..HEAD
+    colmena apply dry-activate --on <nodes> --nix-option narinfo-cache-negative-ttl 0
 
-That last range is what is actually landing. A host tens of commits behind is
+The commit range is what is actually landing. A host tens of commits behind is
 not a one-service deploy — it lands the whole backlog, including deliberate
 deletions made months ago.
 
-The real closure diff cannot happen here: hosts have `max-jobs = 0`, so the
-new closure is not on the target until it is pushed. That is step 2 of
-Execute, and it is the last exit point.
+`dry-activate` pushes the closure and prints which units the switch would
+stop, restart and reload; it activates nothing. That list picks the method
+per host (see Execute). Any `building '…'` line for a real package is a cache
+miss — stop it and find out why rather than let dev.ldn build it, under
+emulation for arm. `narinfo-cache-negative-ttl 0` matters: without it dev.ldn
+reuses a "not in cache" answer cached before CI finished pushing, for up to
+an hour, and builds what tsnixcache already has.
 
 ## Execute
 
 One host at a time. Wait for Verify to pass before starting the next.
+
+Pick the method from the host's dry-activate output:
+
+- **tailscaled (or systemd-networkd) not in the stop/restart list** — live
+  `colmena apply --on <node> --nix-option narinfo-cache-negative-ttl 0`. No
+  reboot; a kernel change waits in the boot entry for a later one.
+- **tailscaled restarts** — steps 1–3 below: `apply boot`, read the diff,
+  reboot. Typical when a host is behind a nixpkgs bump.
 
 Capture the baseline first — Verify depends on it:
 
@@ -61,8 +73,8 @@ Capture the baseline first — Verify depends on it:
       --no-legend | awk "{print \$1}" | grep -v @ \
       | xargs -r -I{} sh -c "systemctl is-active --quiet {} || echo {}" | sort'
 
-1.  `colmena apply boot --on <node>` — idempotent: yes; self-severing: no.
-    Pushes the closure and arms the next boot. Touches no running unit.
+1.  `colmena apply boot --on <node> --nix-option narinfo-cache-negative-ttl 0`
+    — idempotent: yes; self-severing: no. Pushes the closure and arms the next boot. Touches no running unit.
 
     A nixpkgs bump replaces nearly every path, so the target briefly holds two
     full closures. `No space left on device` here is the disk being too small
@@ -84,6 +96,10 @@ Capture the baseline first — Verify depends on it:
     - anything under `secrets/` moving,
     - a closure delta far larger than the commit range explains.
 
+    A version bump of a daemon that migrates its own database (headscale) is
+    forward-only. Take a `sqlite3 <db> ".backup <db>.pre-<rev>"` copy before
+    the reboot, mode 0640.
+
     Step 1 already armed the next boot, so backing out is not "do nothing".
     Undo it explicitly before any reboot, planned or not:
 
@@ -92,9 +108,9 @@ Capture the baseline first — Verify depends on it:
 
 3.  `ssh root@<node> systemctl reboot` — idempotent: yes; self-severing: yes.
 
-**Never `colmena apply switch`, and never `--reboot`.** colmena rides SSH over
-the tailnet. An activation that restarts tailscaled severs colmena's own
-connection, `switch-to-configuration` dies as a child of that session, and the
+**Never a live switch when tailscaled restarts, and never `--reboot`.**
+colmena rides SSH over the tailnet. An activation that restarts tailscaled
+severs colmena's own connection, `switch-to-configuration` dies as a child of that session, and the
 host is left with units **stopped but never started** — reporting
 `is-system-running: running` with zero failed units, because a cleanly stopped
 unit is invisible to the failed count. That gutted storage.ldn for 26 hours
@@ -111,9 +127,8 @@ it is not the safe option.
    still be unreachable; `tailscale status` reports how long one has been
    offline, and a host that has not been seen for weeks is not a deploy
    target. Check before queueing it, not after the push hangs.
-2. **arm64** — `core.oracldn`, `dev.oracfurt`, `rpi5.ldn`. Check the cache is
-   populated first: `nix run .#cache-arm`. Without it they build under
-   emulation, which is slow enough to look hung.
+2. **arm64** — `core.oracldn`, `dev.oracfurt`, `rpi5.ldn`. Only after the
+   `cache-hosts.yml` run for `HEAD` succeeded.
 3. **dev.ldn** — after approval. Last, because it is the sole builder: hosts
    get `max-jobs = 0` from `lib/box.nix` unless they set `buildOnTarget`, so
    they need it up. `dev.oracfurt` is the exception — it forces
@@ -129,10 +144,22 @@ it is not the safe option.
   `must be owned by uid 0`, the devShell is serving a stale colmena — `rm -rf
 .direnv`, because nix-direnv watches `flake.nix`/`flake.lock` and not the files
   they import.
-- **gigabuilder** hosts one Incus guest: `garnix`. Deploying it restarts incus
-  and bounces CI with it, so deploy it alone and let it settle. Its root is on
-  ZFS (`rpool/root`), the only host where that is true, so a zfs bump decides
-  whether it boots at all. It also serves tsnixcache, which the rest of the
+- **gigabuilder + garnix** are one deploy, in a CI-idle window. garnix is
+  gigabuilder's Incus guest, so a gigabuilder reboot bounces CI too. Wait
+  until both hold:
+
+      ssh root@garnix "sudo -u postgres psql -d garnix -Atc \
+        'select count(*) from builds where status is null'"   # 0
+      gh run list --workflow cache-hosts.yml --limit 1          # not running
+
+  The second because that workflow pushes into tsnixcache on gigabuilder. A
+  garnix restart cancels pending builds rather than resuming them. Then
+  `apply boot` both, reboot gigabuilder once: the guest restarts with it and
+  boots its armed generation, so CI goes down once, not twice. Check the
+  queue again right before the reboot.
+
+- **gigabuilder**'s root is on ZFS (`rpool/root`), the only host where that
+  is true, so a zfs bump decides whether it boots at all. It also serves tsnixcache, which the rest of the
   fleet substitutes from.
 - **`dev.ldn`, `home.ldn`, `storage.ldn`, `ts1p.ldn`** are guests of a
   different Incus server, `ldn` (10.65.0.15), which is not a colmena node in
@@ -249,7 +276,7 @@ Ask before these, and only these. Everything else proceeds.
   `10.62.0.0/16` into the tailnet, so while it is down nothing at Tjodalyng is
   reachable, itself included. It is not the LAN gateway; that is a separate
   device at `10.62.0.1`. State the closure diff and wait.
-- Deploying `gigabuilder` — it bounces five guests, including CI.
+- Deploying `gigabuilder` — it bounces its Incus guests, including CI.
 - A rollback that Rollback says cannot be rolled back.
 - garnix red on HEAD, or the x86 checks amber for over an hour.
 - Anything the wrapped `colmena` refused.
@@ -260,7 +287,7 @@ Ask before these, and only these. Everything else proceeds.
   hosts lagging master together is normal.
 - `root@<node>` works over Tailscale SSH; `sudo` as `kradalby` over ssh does
   not (no askpass). Use root.
-- `nix flake check` and `colmena build` can outrun a tool-call timeout on a
-  cold cache. Run them in the workspace's shell pane and watch, not inline.
+- `colmena apply` on a cold cache can outrun a tool-call timeout. Run it in
+  the workspace's shell pane and watch, not inline.
 - `rnb -m dev-ldn -- colmena apply …` forces the build onto a remote builder.
   On dev.ldn `rnb` must run as root — `kradalby` is not a nix trusted-user there.
