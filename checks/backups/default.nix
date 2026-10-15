@@ -1,7 +1,10 @@
 { pkgs, self }:
 let
   lib = pkgs.lib;
-  core = self.nixosConfigurations."core.oracldn";
+  # core.oracldn is aarch64; its scripts run here, so build them for this platform.
+  core = self.nixosConfigurations."core.oracldn".extendModules {
+    modules = [ { nixpkgs.hostPlatform = lib.mkForce pkgs.stdenv.hostPlatform; } ];
+  };
   guardConfig = core.extendModules {
     modules = [
       {
