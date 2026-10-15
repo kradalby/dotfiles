@@ -10,7 +10,7 @@ let
 in
 {
   # GARAGE_RPC_SECRET + GARAGE_ADMIN_TOKEN. The admin token also lives in
-  # setec (infra/garage/tjoda/admin-token) for the garage/ tofu root in
+  # setec (garage/tjoda/admin-token) for the garage/ tofu root in
   # ~/git/infrastructure, which manages buckets/keys over the admin API.
   age.secrets.garage = {
     file = ../secrets/garage.age;
