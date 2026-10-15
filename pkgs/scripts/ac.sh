@@ -234,6 +234,18 @@ ensure_trusted() {
   fi
 }
 
+warm_direnv() {
+  # A new pane's shell runs direnv before its first prompt, and herdr gives up
+  # on `agent start` after waiting only briefly for a busy shell. A cold
+  # `use flake` outlasts that, so the agent never launches. One evaluation
+  # here leaves every pane a cached load, instead of each pane racing its own.
+  local dir="$1"
+  [[ -f "$dir/.envrc" ]] || return 0
+  echo "Loading dev env in $dir..." >&2
+  direnv exec "$dir" true >/dev/null 2>&1 ||
+    echo "warning: direnv failed in $dir" >&2
+}
+
 ensure_trusted_codex() {
   # Codex has the same per-directory trust gate as claude, and blocks on it at
   # startup — the tab sits at a dialog instead of a prompt. Its answer lives in
@@ -556,6 +568,7 @@ create_session() {
   # own root pane is tab 1, so the first agent lands there with no split at all.
   # --no-focus throughout so a headless spawn doesn't steal the attached
   # client's view.
+  warm_direnv "$dir"
   if [[ -n "$branch" ]]; then
     if wid=$(open_nested "$dir" "$repo" "${label#"$repo/"}"); then
       # worktree open returns no root pane; a fresh space has exactly one.
@@ -620,6 +633,7 @@ ensure_session_agents() {
         continue
       fi
     else
+      warm_direnv "$dir"
       pane=$(h tab create --workspace "$wid" --cwd "$dir" --label "$agent" --no-focus |
         jq -r '.result.root_pane.pane_id // empty')
       [[ -n "$pane" ]] || die "tab create failed for $agent"
