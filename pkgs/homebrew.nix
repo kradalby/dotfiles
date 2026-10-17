@@ -78,7 +78,6 @@ _: {
       "claude" # Anthropic desktop client
       "ollama-app" # local LLM runner GUI
       "chatgpt"
-      "nativ"
     ];
 
     # masApps disabled: mas + Spotlight indexing is unreliable,
