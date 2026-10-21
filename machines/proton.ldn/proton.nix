@@ -49,24 +49,33 @@
     ];
   };
 
-  # Tailscale Services configuration for Proton Bridge
-  # Service must be pre-defined in Tailscale admin console at https://login.tailscale.com/admin/services
+  # tailscaled terminates TLS with a real cert for the service name, so phones
+  # get implicit-TLS IMAPS/SMTPS without trusting the bridge's self-signed
+  # cert. The bridge accepts plaintext auth behind it while in STARTTLS mode.
+  # Service object + grant: infrastructure/tailscale.
   services.tailscale.services.proton-bridge = {
     endpoints = {
-      "tcp:25" = "tcp://127.0.0.1:1025"; # SMTP
-      "tcp:143" = "tcp://127.0.0.1:1143"; # IMAP
+      "tcp:465" = "tls-terminated-tcp://127.0.0.1:1025"; # SMTPS
+      "tcp:993" = "tls-terminated-tcp://127.0.0.1:1143"; # IMAPS
     };
   };
 
+  # shortcut: backport of tailscale/tailscale#21789 (set-config rejects
+  # tls-terminated-tcp targets); drop once the tailscale input contains it.
+  services.tailscale.package = pkgs.tailscale.overrideAttrs (o: {
+    patches = (o.patches or [ ]) ++ [ ./tailscale-set-config-tls-terminated.patch ];
+  });
+
   environment.systemPackages = [ pkgs.protonmail-bridge ];
 
+  # Also the triage agents' pm-cli credential (see default.nix).
   age.secrets.proton-imap-check = {
     file = ../../secrets/proton-imap-check.age;
+    owner = "kradalby";
   };
 
   # A signed-out bridge keeps its listeners up and passes any banner/TCP
   # check; an authenticated LOGIN is the only real "mail path works" signal.
-  # Pushed to the pushgateway; staleness/0 is alerted on core.oracldn.
   systemd.services.proton-login-check = {
     description = "authenticated IMAP login probe of protonmail-bridge";
     serviceConfig = {
@@ -84,11 +93,13 @@
       else
         ok=0
       fi
-      ${pkgs.curl}/bin/curl -s --max-time 30 --data-binary @- \
-        "http://pushgateway/metrics/job/proton-bridge/instance/dev-oracfurt" <<EOF || true
-      # TYPE proton_bridge_login_ok gauge
-      proton_bridge_login_ok $ok
-      EOF
+      dir=/var/lib/prometheus-node-exporter-textfile
+      tmp=$(mktemp "$dir/.proton-bridge.XXXXXX")
+      trap 'rm -f "$tmp"' EXIT
+      printf 'proton_bridge_login_ok %s\nproton_bridge_login_check_timestamp_seconds %s\n' \
+        "$ok" "$(date +%s)" >"$tmp"
+      chmod 0644 "$tmp"
+      mv "$tmp" "$dir/proton-bridge.prom"
     '';
   };
 

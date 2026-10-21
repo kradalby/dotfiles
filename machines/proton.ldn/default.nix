@@ -12,6 +12,8 @@ in
     ../../common/incus-vm-ldn.nix
     ../../common/systemd-exporter.nix
     ../../common/tailscale.nix
+
+    ./proton.nix
   ];
 
   networking = {
@@ -61,6 +63,25 @@ in
       media.enable = false;
       ai.opencode = false;
       ai.codex = true;
+    };
+
+    home.packages = [
+      # Headless: no secret-service keyring, so hand pm-cli the bridge
+      # password through its env override instead.
+      (pkgs.writeShellScriptBin "pm-cli" ''
+        PM_CLI_BRIDGE_PASSWORD=$(${pkgs.gnused}/bin/sed -n 's/^PROTON_IMAP_PASSWORD=//p' ${config.age.secrets.proton-imap-check.path}) \
+          exec ${pkgs.pm-cli}/bin/pm-cli "$@"
+      '')
+    ];
+
+    xdg.configFile."pm-cli/config.yaml".text = builtins.toJSON {
+      bridge = {
+        imap_host = "127.0.0.1";
+        imap_port = 1143;
+        smtp_host = "127.0.0.1";
+        smtp_port = 1025;
+        email = "kristoffer@dalby.cc";
+      };
     };
   };
 

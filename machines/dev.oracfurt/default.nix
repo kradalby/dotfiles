@@ -18,7 +18,6 @@
     ./garnix-builder.nix
     ./restic.nix
     ./syncthing.nix
-    ./proton.nix
     ./cook.nix
     ./atuin.nix
     ./litestream.nix
