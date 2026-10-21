@@ -154,13 +154,17 @@ in
     ];
 
     # This is the box the fleet is deployed from, so it is the one that wants
-    # a standing deploy agent per repo. Each is briefed from that repo's own
-    # .agents/skills/deploy/SKILL.md, so the rules live with the thing they
-    # deploy.
+    # standing role agents. Each is briefed from that repo's own
+    # .agents/skills/<role>/SKILL.md, so the rules live with the thing they
+    # act on.
     my.herdr.permagents = [
       {
         repo = "dotfiles";
         role = "deploy";
+      }
+      {
+        repo = "dotfiles";
+        role = "triage";
       }
       {
         repo = "sfiber";
