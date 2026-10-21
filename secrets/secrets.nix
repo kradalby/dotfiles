@@ -15,6 +15,7 @@ let
     storage-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICj6c1im2tC/E1ZYlFtryyqNui58+onflUqBiVOuc1on";
     rpi5-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHCZ2YG1xvb9BJjYbv9MWWeqhjCNzZROWkwaPQFM76/T";
     ts1p-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHXka6MsWIgSNxAyhdILZ7+hWbR4CvWgKdBCVQWQM/MV";
+    proton-ldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICpMzV9/0eTvMTkzi/P02vbCAVCQo5lxBnEqlqn3hkVn";
 
     core-oracldn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGEe9eIMf462ZQhE8Nl9jyUscRtTTYeAIPRN2kvO3cdC";
 
@@ -83,8 +84,8 @@ with builtins;
   "ghdl.age".publicKeys = u ++ [ hosts.core-oracldn ];
 
   # bridge IMAP credentials for the authenticated login probe (a signed-out
-  # bridge keeps listening; only a LOGIN proves it works)
-  "proton-imap-check.age".publicKeys = u ++ [ hosts.dev-oracfurt ];
+  # bridge keeps listening; only a LOGIN proves it works) and pm-cli
+  "proton-imap-check.age".publicKeys = u ++ [ hosts.proton-ldn ];
 
   # garage (RPC secret + admin token; token also in setec for the
   # infrastructure garage/ tofu root)
