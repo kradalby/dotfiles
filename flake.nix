@@ -502,6 +502,17 @@
               ];
             };
 
+            # protonmail-bridge (svc:proton-bridge) + the mail-triage agents.
+            "proton.ldn" = box.nixosBox {
+              arch = "x86_64-linux";
+              homeBase = home-manager;
+              name = "proton.ldn";
+              tags = [
+                "x86"
+                "ldn"
+              ];
+            };
+
             # Remote backup / syncthing mirror at bassan (Sebastian's house);
             # the old lenovo.ldn dummy box repurposed. Bare-metal, ZFS data pool.
             "storage.bassan" = box.nixosBox {
