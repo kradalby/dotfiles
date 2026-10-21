@@ -51,11 +51,10 @@ export default {
       browser: "Safari"
     },
     {
+      // Vendor prefix catches every Claude/ChatGPT/Codex desktop app, not just the ones we know IDs for.
       match: (_url, { opener }) =>
+        /^com\.(anthropic|openai)\./.test(opener?.bundleId) ||
         [
-          "com.openai.chat",
-          "com.openai.codex",
-          "com.anthropic.claudefordesktop",
           "com.hnc.Discord",
           "net.whatsapp.WhatsApp",             // WhatsApp
           "org.whispersystems.signal-desktop",  // Signal
