@@ -224,6 +224,8 @@ tests:
         values: "1000x30"
       - series: 'incus_memory_MemTotal_bytes{job="incus", instance="core-ldn:8443", host="core-ldn", name="storage"}'
         values: "1000x30"
+      - series: 'incus_memory_MemTotal_bytes{job="incus", instance="core-ldn:8443", host="core-ldn", name="proton"}'
+        values: "1000x30"
       - series: 'incus_memory_MemTotal_bytes{job="incus", instance="gigabuilder:8443", host="gigabuilder", name="garnix"}'
         values: "1000x30"
       # A guest with the same name on a different hypervisor cannot mask ts1p.
@@ -402,6 +404,72 @@ tests:
             exp_annotations:
               summary: "PostgreSQL connections high on core-oracldn:9187: 95"
               description: "PostgreSQL on core-oracldn:9187 has more than 80 client connections (default max is 100)."
+
+  # A listening but signed-out bridge only shows up as a failed LOGIN; a dead
+  # probe timer only as a stale timestamp or a missing series.
+  - interval: 1m
+    input_series:
+      - series: 'proton_bridge_login_ok{host="proton-ldn", instance="proton-ldn:9100", job="nodes"}'
+        values: "1x60"
+      - series: 'proton_bridge_login_check_timestamp_seconds{host="proton-ldn", instance="proton-ldn:9100", job="nodes"}'
+        values: "0+60x60"
+    alert_rule_test:
+      - eval_time: 45m
+        alertname: ProtonBridgeLoginFailing
+        exp_alerts: []
+  - interval: 1m
+    input_series:
+      - series: 'proton_bridge_login_ok{host="proton-ldn", instance="proton-ldn:9100", job="nodes"}'
+        values: "0x60"
+      - series: 'proton_bridge_login_check_timestamp_seconds{host="proton-ldn", instance="proton-ldn:9100", job="nodes"}'
+        values: "0+60x60"
+    alert_rule_test:
+      - eval_time: 45m
+        alertname: ProtonBridgeLoginFailing
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              host: proton-ldn
+              instance: proton-ldn:9100
+              job: nodes
+            exp_annotations:
+              summary: "protonmail-bridge on proton-ldn rejects IMAP login"
+              description: "The bridge is signed out, broken, or its login probe stopped reporting: phone mail and the triage agents are down until someone re-runs `protonmail-bridge --cli` login as user proton."
+  - interval: 1m
+    input_series:
+      - series: 'proton_bridge_login_ok{host="proton-ldn", instance="proton-ldn:9100", job="nodes"}'
+        values: "1x200"
+      - series: 'proton_bridge_login_check_timestamp_seconds{host="proton-ldn", instance="proton-ldn:9100", job="nodes"}'
+        values: "0x200"
+    alert_rule_test:
+      - eval_time: 100m
+        alertname: ProtonBridgeLoginFailing
+        exp_alerts: []
+      - eval_time: 160m
+        alertname: ProtonBridgeLoginFailing
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              host: proton-ldn
+              instance: proton-ldn:9100
+              job: nodes
+            exp_annotations:
+              summary: "protonmail-bridge on proton-ldn rejects IMAP login"
+              description: "The bridge is signed out, broken, or its login probe stopped reporting: phone mail and the triage agents are down until someone re-runs `protonmail-bridge --cli` login as user proton."
+  - interval: 1m
+    input_series:
+      - series: 'up{host="proton-ldn", instance="proton-ldn:9100", job="nodes"}'
+        values: "1x60"
+    alert_rule_test:
+      - eval_time: 45m
+        alertname: ProtonBridgeLoginFailing
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              host: proton-ldn
+            exp_annotations:
+              summary: "protonmail-bridge on proton-ldn rejects IMAP login"
+              description: "The bridge is signed out, broken, or its login probe stopped reporting: phone mail and the triage agents are down until someone re-runs `protonmail-bridge --cli` login as user proton."
 
   # A live process is insufficient: the relay must be connected and the
   # protocol probe must keep updating its timestamp.

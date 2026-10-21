@@ -61,7 +61,6 @@ let
       "PrometheusNotificationErrors"
       "PrometheusRuleEvalFailures"
       "PrometheusTSDBErrors"
-      "ProtonBridgeLoginFailing"
       "PushgatewayGroupStale"
       "ResticBackupStale"
       "ResticBackupStaleJotta"

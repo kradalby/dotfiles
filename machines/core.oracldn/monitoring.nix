@@ -20,6 +20,7 @@ let
     "rpi5-ldn"
     "gigabuilder"
     "ts1p-ldn"
+    "proton-ldn"
     "garnix"
   ];
 
@@ -259,6 +260,7 @@ let
     "home-ldn" = "core-ldn";
     "storage-ldn" = "core-ldn";
     "ts1p-ldn" = "core-ldn";
+    "proton-ldn" = "core-ldn";
     "garnix" = "gigabuilder";
   };
 
@@ -719,11 +721,12 @@ in
         }
       ])
 
-      # proton-bridge (:143 IMAP) is NOT tcp-probed here: it is a tailnet VIP
+      # proton-bridge (IMAPS) is NOT tcp-probed here: it is a tailnet VIP
       # that doesn't resolve from this host, and a signed-out bridge passes a
-      # bare TCP connect anyway. dev.oracfurt's proton-login-check does a real
-      # authenticated IMAP login and pushes proton_bridge_login_ok — that is the
-      # actual mail-path signal, alerted separately.
+      # bare TCP connect anyway. proton.ldn's proton-login-check does a real
+      # authenticated IMAP login and writes proton_bridge_login_ok to its
+      # textfile collector — that is the actual mail-path signal, alerted
+      # separately.
       (probeJobT "tcp-probes" "tcp_connect" [
         {
           target = "core-tjoda";
@@ -1403,12 +1406,16 @@ in
               }
               {
                 alert = "ProtonBridgeLoginFailing";
-                expr = "proton_bridge_login_ok == 0";
+                expr = ''
+                  proton_bridge_login_ok{host="proton-ldn"} == 0
+                  or time() - proton_bridge_login_check_timestamp_seconds{host="proton-ldn"} > 7200
+                  or absent(proton_bridge_login_ok{host="proton-ldn"})
+                '';
                 for = "30m";
                 labels.severity = "critical";
                 annotations = {
-                  summary = "protonmail-bridge on dev-oracfurt rejects IMAP login";
-                  description = "The bridge is signed out or broken — the fleet's outgoing mail path (and the email alert fallback) is dead until someone re-runs `protonmail-bridge --cli` login.";
+                  summary = "protonmail-bridge on proton-ldn rejects IMAP login";
+                  description = "The bridge is signed out, broken, or its login probe stopped reporting: phone mail and the triage agents are down until someone re-runs `protonmail-bridge --cli` login as user proton.";
                 };
               }
               {

@@ -137,7 +137,7 @@ let
     "pushgateway" = "scraped locally on core-oracldn (localhost:9091), not by VIP name";
     "atuin" = "scraped by backing host dev-oracfurt:8889, not by VIP name";
     "proton-bridge" =
-      "login-probe pushes proton_bridge_* to the pushgateway; no direct scrape (see monitoring.nix)";
+      "login probe writes proton_bridge_* to proton-ldn's textfile collector; no direct scrape (see monitoring.nix)";
     # TODO: give these a blackbox probe and drop the exemption.
     "p3" = "TODO: no liveness probe yet — add a blackbox target for the p3-controller web UI";
     "zigbee2mqtt-ldn" =
