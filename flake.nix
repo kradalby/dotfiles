@@ -239,6 +239,12 @@
         buildGoModule = prev.buildGoModule.override {
           go = goLatest prev.stdenv.hostPlatform.system;
         };
+        # libcap builds only its captree tool with Go, yet sits under bubblewrap
+        # and pulseaudio (codex, ffmpeg, ...). Our Go would rebuild all of them,
+        # so keep the channel's and stay on Hydra's cache.
+        libcap = (prev.libcap.override { inherit (prev) go; }).overrideAttrs {
+          disallowedReferences = [ prev.go ];
+        };
       };
 
       # Fallout from building all of nixpkgs' Go with our toolchain rather than
