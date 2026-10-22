@@ -130,6 +130,13 @@ in
           a: "run ${herdr} integration install ${a} || true"
         ) config.my.herdr.integrations
       );
+
+      # herdr installs its OpenCode 2 TUI plugin only into an existing cli.json,
+      # and OpenCode writes one only when it has V1 TUI settings to migrate.
+      my.mutableJson.opencodeCli = lib.mkIf (lib.elem "opencode" config.my.herdr.integrations) {
+        target = ".config/opencode/cli.json";
+        value."$schema" = "https://opencode.ai/v2/cli.json";
+      };
     }
 
     (lib.mkIf declaredSessions {

@@ -217,6 +217,11 @@ in
       target = ".codex/hooks.json";
       value = aiConfig.codexHooks;
     };
+    # Aperture does not own the TUI settings; herdr needs them seeded.
+    opencodeCli = {
+      target = ".config/opencode/cli.json";
+      value."$schema" = "https://opencode.ai/v2/cli.json";
+    };
   };
 
   my.packages = {
