@@ -2,9 +2,11 @@
 
 import json
 import os
+import socket
 import subprocess
 import sys
 import tempfile
+import time
 from pathlib import Path
 from typing import NotRequired, TypedDict, cast
 
@@ -51,6 +53,10 @@ class Skill(TypedDict):
     name: str
 
 
+class SkillList(TypedDict):
+    data: list[Skill]
+
+
 codex, opencode, installer, source_file = sys.argv[1:]
 sources = cast(Sources, json.loads(Path(source_file).read_text()))
 root = Path(tempfile.mkdtemp(prefix="ai-plugins-"))
@@ -64,6 +70,8 @@ env.update(
         "XDG_CACHE_HOME": str(root / ".cache"),
         "XDG_STATE_HOME": str(root / ".local/state"),
         "OPENCODE_DISABLE_MODELS_FETCH": "true",
+        # A served instance demands a password from its clients.
+        "OPENCODE_PASSWORD": "ai-plugins",
     }
 )
 
@@ -227,21 +235,47 @@ for agent in Path(sources["agents"]).glob("*.md"):
     (opencode_root / f"agents/{agent.name}").symlink_to(agent)
 (opencode_root / "commands").symlink_to(sources["commands"])
 (opencode_root / "opencode.json").write_text("{}\n")
-# File stdout avoids truncation from OpenCode exiting before a large pipe flushes.
-with (root / "skills.json").open("w") as output:
-    result = subprocess.run(
-        [opencode, "debug", "skill", "--print-logs"],
-        cwd=root,
-        env=env,
-        stdout=output,
-        stderr=subprocess.PIPE,
-        text=True,
-        timeout=120,
-    )
-assert result.returncode == 0, result.stderr
-assert "failed to load plugin" not in result.stderr, result.stderr
-skills = {
-    item["name"] for item in cast(list[Skill], json.loads((root / "skills.json").read_text()))
-}
-assert {"ponytail", "brainstorming", "caveman", "frontend-design", "ui-ux-pro-max"} <= skills
+
+# OpenCode answers before it has discovered plugins and skills, so poll a
+# private server until the expected skills show up.
+with socket.socket() as probe:
+    probe.bind(("127.0.0.1", 0))
+    port = str(probe.getsockname()[1])
+url = f"http://127.0.0.1:{port}"
+expected = {"ponytail", "brainstorming", "caveman", "frontend-design", "ui-ux-pro-max"}
+skills: set[str] = set()
+server = subprocess.Popen(
+    [opencode, "serve", "--hostname", "127.0.0.1", "--port", port],
+    cwd=root,
+    env=env,
+    stdout=subprocess.DEVNULL,
+    stderr=subprocess.DEVNULL,
+)
+try:
+    deadline = time.monotonic() + 120
+    while not expected <= skills and time.monotonic() < deadline:
+        time.sleep(1)
+        # File stdout avoids truncation from OpenCode exiting before a large pipe flushes.
+        with (root / "skills.json").open("w") as output:
+            listed = subprocess.run(
+                [opencode, "api", "skill.list", "--server", url],
+                cwd=root,
+                env=env,
+                stdout=output,
+                stderr=subprocess.DEVNULL,
+                timeout=60,
+            )
+        if listed.returncode != 0:
+            continue
+        try:
+            response = cast(SkillList, json.loads((root / "skills.json").read_text()))
+        except ValueError:
+            continue
+        skills = {item["name"] for item in response["data"]}
+finally:
+    server.terminate()
+    server.wait(timeout=30)
+logs = "".join(p.read_text() for p in (root / ".local/share/opencode/log").glob("*.log"))
+assert "failed to load plugin" not in logs, logs
+assert expected <= skills, (sorted(expected - skills), logs[-4000:])
 print("Native installs, same-version updates, config preservation, and OpenCode discovery passed")

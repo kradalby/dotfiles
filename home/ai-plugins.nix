@@ -126,7 +126,7 @@ in
       export { default } from '${superpowers}/.opencode/plugins/superpowers.js';
     '';
     caveman = pkgs.writeText "caveman.js" ''
-      export { CavemanPlugin } from '${caveman}/src/plugins/opencode/plugin.js';
+      export { default } from '${caveman}/src/plugins/opencode/server.js';
     '';
   };
 
