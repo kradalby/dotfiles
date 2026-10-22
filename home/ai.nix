@@ -145,8 +145,11 @@ in
         mkModel = v: {
           name = "${v.label} @ ${toString (v.context / 1024)}k";
           tool_call = v.tools;
-          reasoning = v.reasoning;
-          attachment = v.vision;
+          # OpenCode 2 drops `attachment` and assumes image input unless told.
+          modalities = {
+            input = [ "text" ] ++ lib.optional v.vision "image";
+            output = [ "text" ];
+          };
           limit = {
             inherit (v) context output;
           };

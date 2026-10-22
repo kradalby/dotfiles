@@ -21,7 +21,6 @@ rec {
   defaults = {
     vision = false;
     tools = true; # tool / function calling
-    reasoning = true; # thinking
     output = 8192; # max output tokens (opencode limit.output)
   };
 
@@ -66,7 +65,6 @@ rec {
         label
         vision
         tools
-        reasoning
         output
         ;
       context = ctx;
