@@ -1,8 +1,12 @@
 # kradalby-llm agent configuration
 
-This Home Manager target gets its remote model catalogs and Aperture MCP
-configuration from `http://ai.corp.ts.net/api/agent-config`. The activation
-merges that generated data with the local policy in `default.nix` and owns:
+This Home Manager target builds its remote model catalogs from Aperture's
+per-user model list, `http://ai.corp.ts.net/v1/models` (Aperture's `/api/` is
+admin-only). OpenCode gets a single Chat Completions provider,
+`aperture-openai-compatible`; Hermes lists each model once, on its vendor's
+native transport among those it advertises in `supported_endpoints`. The MCP
+server is `http://ai.corp.ts.net/v1/mcp`. The activation merges that catalog with the
+local policy in `default.nix` and owns:
 
 - `~/.config/opencode/opencode.json`
 - `~/.hermes/config.yaml`
@@ -35,18 +39,15 @@ initial activation fails when no valid pair exists.
 Inspect and verify the installed configuration with:
 
 ```console
-curl -fsS http://ai.corp.ts.net/api/agent-config | jq '.models'
-curl -fsS http://ai.corp.ts.net/api/agent-config | jq -r '.configs.opencode' | jq
-curl -fsS http://ai.corp.ts.net/api/agent-config | jq -r '.configs.hermes'
+curl -fsS http://ai.corp.ts.net/v1/models | jq -r '.data[] | [.id, (.supported_endpoints | join(","))] | @tsv'
 opencode debug config
 hermes doctor
 hermes moa list
 herdr integration status
 ```
 
-Both generated configs must contain the MCP endpoint advertised in the API's
-`.mcpEndpoint`: OpenCode at `mcp.aperture`, and Hermes at
-`mcp_servers.aperture`.
+Both generated configs carry the MCP endpoint: OpenCode at `mcp.aperture`, and
+Hermes at `mcp_servers.aperture`.
 
 ## Shared commands
 
@@ -68,8 +69,8 @@ interpolation semantics. Add or edit only the files under
 
 When Aperture adds or retires a model:
 
-1. Inspect `.configs.opencode` and `.configs.hermes` as shown above. Confirm the
-   exact model ID and which provider/transport lists it.
+1. Inspect `/v1/models` as shown above. Confirm the exact model ID and that it
+   advertises the endpoint its provider/transport needs.
 2. Update `opencodeOverlay.agent` and `hermesOverlay.moa.presets.frontier` in
    `default.nix`. OpenCode model names are `<provider>/<model-id>`; Hermes uses
    `custom:<provider>` and a separate model ID.

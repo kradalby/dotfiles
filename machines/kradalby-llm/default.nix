@@ -60,7 +60,7 @@ let
       frontier = {
         description = "Frontier-model orchestrator that challenges and synthesizes independent reviews";
         mode = "primary";
-        model = "aperture-openai/openai/gpt-5.6-sol";
+        model = "aperture-openai-compatible/openai/gpt-5.6-sol";
         prompt = ''
           For consequential or ambiguous work, ask the frontier subagents for
           independent analyses in parallel. Require them to challenge the
@@ -78,7 +78,7 @@ let
         };
       };
       claude-opus =
-        readonlyAgent "aperture-anthropic/anthropic/claude-opus-5"
+        readonlyAgent "aperture-openai-compatible/anthropic/claude-opus-5"
           "Independent Claude Opus reviewer for architecture, correctness, and overlooked risks"
           "Analyze independently. Challenge assumptions, identify concrete failure modes, and recommend the strongest approach.";
       deepseek =

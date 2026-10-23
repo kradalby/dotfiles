@@ -43,7 +43,7 @@ def main() -> None:
         fresh_env = environment(root / "fresh")
         seed = refresh(
             script,
-            {**cached_env, "APERTURE_AGENT_CONFIG_URL": pathlib.Path(valid_response).as_uri()},
+            {**cached_env, "APERTURE_MODELS_URL": pathlib.Path(valid_response).as_uri()},
         )
         assert seed.returncode == 0, seed.stderr
         targets = [
@@ -66,7 +66,7 @@ def main() -> None:
         for cached, env in [(True, cached_env), (False, fresh_env)]:
             result = refresh(
                 script,
-                {**env, "BASH_ENV": str(stub), "APERTURE_AGENT_CONFIG_URL": "http://127.0.0.1:1/"},
+                {**env, "BASH_ENV": str(stub), "APERTURE_MODELS_URL": "http://127.0.0.1:1/"},
             )
             assert "fixture: curl timed out" in result.stderr, result.stderr
             assert_fallback(result, cached=cached)
@@ -87,11 +87,11 @@ def main() -> None:
         server.daemon_threads = True
         thread = threading.Thread(target=server.serve_forever, daemon=True)
         thread.start()
-        url = f"http://127.0.0.1:{server.server_port}/agent-config"
+        url = f"http://127.0.0.1:{server.server_port}/v1/models"
 
         def stalled_refresh(cached: bool, env: dict[str, str]) -> None:
             started = time.monotonic()
-            result = refresh(script, {**env, "APERTURE_AGENT_CONFIG_URL": url})
+            result = refresh(script, {**env, "APERTURE_MODELS_URL": url})
             elapsed = time.monotonic() - started
             assert "curl: (28)" in result.stderr, result.stderr
             assert 18 <= elapsed < 25, elapsed
@@ -111,7 +111,7 @@ def main() -> None:
             server.shutdown()
             server.server_close()
             thread.join()
-        assert requests == ["/agent-config", "/agent-config"], requests
+        assert requests == ["/v1/models", "/v1/models"], requests
         assert before == [target.read_bytes() for target in targets]
         assert not pathlib.Path(fresh_env["APERTURE_OPENCODE_CONFIG"]).exists()
         assert not pathlib.Path(fresh_env["APERTURE_HERMES_CONFIG"]).exists()
