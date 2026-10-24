@@ -39,8 +39,8 @@ done <<'RESPONSES'
 no-model-list|.data = {}
 empty-model-list|.data = []
 missing-required-model|.data |= map(select(.id != "openai/gpt-5.6-sol"))
-required-model-off-protocol|(.data[] | select(.id == "zai/glm-5.3") | .supported_endpoints) = ["/v1/messages"]
-untyped-endpoints|(.data[] | select(.id == "anthropic/claude-opus-5") | .supported_endpoints) = "/v1/messages"
+default-model-off-chat|(.data[] | select(.id == "openai/gpt-5.6-sol") | .supported_endpoints) = ["/v1/messages"]
+untyped-endpoints|(.data[] | select(.id == "openai/gpt-5.6-sol") | .supported_endpoints) = "/v1/chat/completions"
 RESPONSES
 
 # A damaged live pair must not pass as the last-known-good fallback.
@@ -65,11 +65,13 @@ missing-enabled-provider|opencode|.enabled_providers -= ["aperture-openai-compat
 disabled-required-provider|opencode|.disabled_providers = ["aperture-openai-compatible"]
 missing-opencode-model|opencode|del(.provider["aperture-openai-compatible"].models["openai/gpt-5.6-sol"])
 null-opencode-model|opencode|.provider["aperture-openai-compatible"].models["openai/gpt-5.6-sol"] = null
-missing-hermes-provider|hermes|del(.providers["aperture-responses"])
-invalid-hermes-catalog-type|hermes|.providers["aperture-responses"].models = "openai/gpt-5.6-sol"
-disabled-hermes-aggregator|hermes|.providers["aperture-responses"].enabled = false
-disabled-hermes-anthropic|hermes|.providers["aperture-claude"].enabled = false
-disabled-hermes-completions|hermes|.providers["aperture-completions"].enabled = false
-quoted-disabled-hermes-provider|hermes|.providers["aperture-responses"].enabled = " FALSE "
-null-enabled-hermes-provider|hermes|.providers["aperture-responses"].enabled = null
+opencode-overlay-dropped|opencode|del(.mcp.nixos)
+missing-hermes-provider|hermes|del(.providers["aperture-completions"])
+invalid-hermes-catalog-type|hermes|.providers["aperture-completions"].models = "openai/gpt-5.6-sol"
+missing-hermes-model|hermes|.providers["aperture-completions"].models -= ["openai/gpt-5.6-sol"]
+disabled-hermes-provider|hermes|.providers["aperture-completions"].enabled = false
+quoted-disabled-hermes-provider|hermes|.providers["aperture-completions"].enabled = " FALSE "
+null-enabled-hermes-provider|hermes|.providers["aperture-completions"].enabled = null
+hermes-mcp-mismatch|hermes|.mcp_servers.aperture.url = "http://wrong.invalid/mcp"
+hermes-overlay-dropped|hermes|del(.skills)
 CASES

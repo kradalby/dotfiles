@@ -38,66 +38,17 @@ let
     };
   };
 
-  readonlyAgent = model: description: prompt: {
-    inherit model description prompt;
-    mode = "subagent";
-    permission = {
-      edit = "deny";
-      bash = "deny";
-      task = "deny";
-    };
-  };
+  # Both tools start on this model; the sync refuses a catalog that lacks it.
+  defaultModel = "openai/gpt-5.6-sol";
 
-  # Aperture owns the remote catalog. This overlay contains only policy that is
-  # local to this host and is reapplied whenever that catalog is refreshed.
+  # Aperture owns the remote catalog. These overlays contain only policy that is
+  # local to this host and are reapplied whenever that catalog is refreshed.
   opencodeOverlay = {
     provider.ollama = aiConfig.opencode.provider.ollama;
     permission = aiConfig.opencode.permission;
     mcp.aperture.enabled = true;
     mcp.nixos = aiConfig.opencode.mcp.nixos;
-    default_agent = "frontier";
-    agent = {
-      frontier = {
-        description = "Frontier-model orchestrator that challenges and synthesizes independent reviews";
-        mode = "primary";
-        model = "aperture-openai-compatible/openai/gpt-5.6-sol";
-        prompt = ''
-          For consequential or ambiguous work, ask the frontier subagents for
-          independent analyses in parallel. Require them to challenge the
-          assumptions and likely failure modes in the proposed approach, then
-          reconcile disagreements and synthesize the best-supported result.
-          Use judgement for routine work where fan-out would add no value.
-        '';
-        permission.task = {
-          "*" = "deny";
-          "claude-opus" = "allow";
-          deepseek = "allow";
-          gemini = "allow";
-          kimi = "allow";
-          glm = "allow";
-        };
-      };
-      claude-opus =
-        readonlyAgent "aperture-openai-compatible/anthropic/claude-opus-5"
-          "Independent Claude Opus reviewer for architecture, correctness, and overlooked risks"
-          "Analyze independently. Challenge assumptions, identify concrete failure modes, and recommend the strongest approach.";
-      deepseek =
-        readonlyAgent "aperture-openai-compatible/deepseek/deepseek-v4-pro"
-          "Independent DeepSeek reviewer for technical reasoning and implementation details"
-          "Develop an independent technical solution. Look for logical gaps, edge cases, and simpler alternatives.";
-      gemini =
-        readonlyAgent "aperture-openai-compatible/google/gemini-3.7-flash"
-          "Independent Gemini reviewer for broad alternatives and missing context"
-          "Review from a distinct perspective. Surface missing information, counterexamples, and viable alternatives.";
-      kimi =
-        readonlyAgent "aperture-openai-compatible/moonshotai/kimi-k3"
-          "Independent Kimi reviewer for code, long-context analysis, and integration risks"
-          "Inspect the full context independently. Focus on cross-file interactions, integration risks, and concrete corrections.";
-      glm =
-        readonlyAgent "aperture-openai-compatible/zai/glm-5.3"
-          "Independent GLM reviewer for adversarial validation and pragmatic alternatives"
-          "Try to disprove the leading approach. Report correctness, security, and operational concerns with actionable fixes.";
-    };
+    model = "aperture-openai-compatible/${defaultModel}";
   };
 
   hermesOverlay = {
@@ -107,49 +58,8 @@ let
     plugins.enabled = [ "herdr-agent-state" ];
     skills.external_dirs = [ "~/.agents/skills" ];
     model = {
-      default = "frontier";
-      provider = "moa";
-    };
-    moa = {
-      active_preset = "frontier";
-      default_preset = "frontier";
-      presets.frontier = {
-        enabled = true;
-        fanout = "user_turn";
-        reference_max_tokens = 600;
-        reference_models = [
-          {
-            provider = "custom:aperture-claude";
-            model = "anthropic/claude-opus-5";
-            reasoning_effort = "medium";
-          }
-          {
-            provider = "custom:aperture-completions";
-            model = "deepseek/deepseek-v4-pro";
-            reasoning_effort = "medium";
-          }
-          {
-            provider = "custom:aperture-completions";
-            model = "google/gemini-3.7-flash";
-            reasoning_effort = "medium";
-          }
-          {
-            provider = "custom:aperture-completions";
-            model = "moonshotai/kimi-k3";
-            reasoning_effort = "medium";
-          }
-          {
-            provider = "custom:aperture-completions";
-            model = "zai/glm-5.3";
-            reasoning_effort = "medium";
-          }
-        ];
-        aggregator = {
-          provider = "custom:aperture-responses";
-          model = "openai/gpt-5.6-sol";
-          reasoning_effort = "high";
-        };
-      };
+      default = defaultModel;
+      provider = "custom:aperture-completions";
     };
   };
 

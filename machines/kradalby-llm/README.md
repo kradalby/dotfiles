@@ -2,21 +2,20 @@
 
 This Home Manager target builds its remote model catalogs from Aperture's
 per-user model list, `http://ai.corp.ts.net/v1/models` (Aperture's `/api/` is
-admin-only). OpenCode gets a single Chat Completions provider,
-`aperture-openai-compatible`; Hermes lists each model once, on its vendor's
-native transport among those it advertises in `supported_endpoints`. The MCP
-server is `http://ai.corp.ts.net/v1/mcp`. The activation merges that catalog with the
+admin-only). Both tools get one Chat Completions provider listing every model
+that advertises `/v1/chat/completions`: `aperture-openai-compatible` in
+OpenCode, `custom:aperture-completions` in Hermes. The MCP server is
+`http://ai.corp.ts.net/v1/mcp`. The activation merges that catalog with the
 local policy in `default.nix` and owns:
 
 - `~/.config/opencode/opencode.json`
 - `~/.hermes/config.yaml`
 
 Do not edit those files directly. The next successful refresh replaces them.
-OpenCode's Ollama provider, its frontier agents, and Hermes' `frontier` MoA
-preset are Nix-defined overlays and survive catalog refreshes.
-Both tools start with their frontier mixture selected by default.
-Hermes' Herdr plugin enablement is also part of the overlay; Herdr owns the
-plugin files and activation reinstalls them after each refresh.
+OpenCode's Ollama provider, permissions and extra MCP servers, both tools'
+default model (`defaultModel`), and Hermes' Herdr plugin enablement are
+Nix-defined overlays and survive catalog refreshes. Herdr owns the plugin files
+and activation reinstalls them after each refresh.
 
 ## Refresh and verify
 
@@ -42,7 +41,6 @@ Inspect and verify the installed configuration with:
 curl -fsS http://ai.corp.ts.net/v1/models | jq -r '.data[] | [.id, (.supported_endpoints | join(","))] | @tsv'
 opencode debug config
 hermes doctor
-hermes moa list
 herdr integration status
 ```
 
@@ -65,32 +63,24 @@ The wrappers preserve `$ARGUMENTS`, `argument-hint`, and Claude/OpenCode shell
 interpolation semantics. Add or edit only the files under
 `rc/claude/commands/`, then run the normal Home Manager switch.
 
-## Updating the frontier mixture
+## Changing the default model
 
-When Aperture adds or retires a model:
+New Aperture models appear on the next refresh with no change here. To start
+both tools on a different model:
 
 1. Inspect `/v1/models` as shown above. Confirm the exact model ID and that it
-   advertises the endpoint its provider/transport needs.
-2. Update `opencodeOverlay.agent` and `hermesOverlay.moa.presets.frontier` in
-   `default.nix`. OpenCode model names are `<provider>/<model-id>`; Hermes uses
-   `custom:<provider>` and a separate model ID.
+   advertises `/v1/chat/completions`.
+2. Set `defaultModel` in `default.nix`. The sync refuses a catalog that does not
+   serve it, keeping the last-known-good pair instead.
 3. When updating the `hermes-agent` flake input, compare `_config_version` with
    `hermes_cli/config_defaults.py` in the new locked revision and update the
-   overlay and validation together.
-4. Update the required-model checks in `aperture-agent-config-sync.nix`. These
-   intentionally stop a retired or rerouted model from producing a partially
-   usable mixture.
-5. Run `nix fmt`, build the Home Manager target, activate it, and smoke-test
-   every reference model plus the GPT aggregator. Check MCP tool discovery in
-   both OpenCode and `hermes doctor`.
+   overlay and the sync test together.
+4. Run `nix fmt`, build the Home Manager target, activate it, and smoke-test the
+   default model in both tools. Check MCP tool discovery in both OpenCode and
+   `hermes doctor`.
 
 The deterministic sync behavior can be checked without contacting Aperture:
 
 ```console
 nix build .#checks.x86_64-linux.aperture-agent-config-sync
 ```
-
-The current mixture uses GPT-5.6 Sol as aggregator with Claude Opus 5,
-DeepSeek V4 Pro, Gemini 3.7 Flash, Kimi K3, and GLM 5.3 as independent
-reviewers. OpenCode orchestrates these through subagents; Hermes exposes the
-same lineup as its native `frontier` MoA preset.

@@ -8,7 +8,7 @@ let
   opencodeOverlayFile = json.generate "aperture-opencode-overlay.json" opencodeOverlay;
   hermesOverlayFile = json.generate "aperture-hermes-overlay.json" hermesOverlay;
   validMcp = "http://ai.corp.ts.net/v1/mcp";
-  # A /v1/models page serving every model the overlays select, on every protocol.
+  # A /v1/models page: chat-capable models plus one served only over Messages.
   validResponseFile = json.generate "aperture-models-valid.json" {
     object = "list";
     data =
@@ -28,45 +28,29 @@ let
         [
           "anthropic/claude-opus-5"
           "openai/gpt-5.6-sol"
-          "deepseek/deepseek-v4-pro"
-          "google/gemini-3.7-flash"
-          "moonshotai/kimi-k3"
           "zai/glm-5.3"
-        ];
+        ]
+      ++ [
+        {
+          id = "anthropic/messages-only";
+          supported_endpoints = [ "/v1/messages" ];
+        }
+      ];
   };
   malformedResponseFile = pkgs.writeText "aperture-models-malformed.json" "{";
 
   # Turns /v1/models into the catalog half of one tool's config. Aperture serves
-  # most models on every protocol. OpenCode gets one Chat Completions provider;
-  # Hermes lists each model once, on its vendor's native protocol.
+  # most models on every protocol; both tools get one Chat Completions provider.
   generate = pkgs.writeText "aperture-catalog.jq" ''
-    def rows:
+    def chat:
       .data
       | map(select((.id | type) == "string" and (.supported_endpoints | type) == "array"))
+      | map(select(.supported_endpoints | index("/v1/chat/completions") != null))
       | unique_by(.id);
-    def protocol:
-      .supported_endpoints as $advertised
-      | [
-          (if (.id | startswith("anthropic/")) then "/v1/messages"
-           elif (.id | startswith("openai/")) then "/v1/responses"
-           else empty end),
-          "/v1/chat/completions", "/v1/responses", "/v1/messages"
-        ]
-      | map(select(. as $endpoint | $advertised | index($endpoint) != null))
-      | first;
-    def native($endpoint): [rows[] | select(protocol == $endpoint)];
-    def advertising($endpoint): [rows[] | select(.supported_endpoints | index($endpoint) != null)];
     def limit:
       if (.context_window_tokens | type) == "number" and (.max_output_tokens | type) == "number"
       then {limit: {context: .context_window_tokens, output: .max_output_tokens}}
       else {} end;
-
-    def hermes($transport; $endpoint): {
-      api: "\($base)/v1",
-      api_key: "no-key-required",
-      transport: $transport,
-      models: (native($endpoint) | map(.id))
-    };
 
     if (.data | type) != "array" then error("no model list")
     elif $tool == "opencode" then {
@@ -78,7 +62,7 @@ let
           name: "Aperture",
           npm: "@ai-sdk/openai-compatible",
           options: {apiKey: "not-required", baseURL: "\($base)/v1"},
-          models: (advertising("/v1/chat/completions")
+          models: (chat
             | map({key: .id, value: ({name: (.display_name // .id), tool_call: true} + limit)})
             | from_entries)
         }
@@ -87,9 +71,12 @@ let
     else {
       mcp_servers: {aperture: {url: $mcp}},
       providers: {
-        "aperture-claude": hermes("anthropic_messages"; "/v1/messages"),
-        "aperture-completions": hermes("chat_completions"; "/v1/chat/completions"),
-        "aperture-responses": hermes("codex_responses"; "/v1/responses")
+        "aperture-completions": {
+          api: "\($base)/v1",
+          api_key: "no-key-required",
+          transport: "chat_completions",
+          models: (chat | map(.id))
+        }
       }
     }
     end
@@ -151,78 +138,40 @@ let
       trap 'exit 130' INT
       trap 'exit 143' TERM
 
-      # Both fetched catalogs and fallback files must support the selected agents.
-      catalogs_valid() {
-        jq -e '
-          . as $catalog |
-          ["aperture-openai-compatible"] as $required |
-          (.enabled_providers | type == "array") and
-          ((.disabled_providers // []) | type == "array") and
-          all($required[]; . as $provider |
-            ($catalog.enabled_providers | index($provider) != null) and
-            (($catalog.disabled_providers // []) | index($provider) == null)) and
-          (.provider["aperture-openai-compatible"].models["openai/gpt-5.6-sol"] | type == "object") and
-          (.provider["aperture-openai-compatible"].models["anthropic/claude-opus-5"] | type == "object") and
-          (.provider["aperture-openai-compatible"].models["deepseek/deepseek-v4-pro"] | type == "object") and
-          (.provider["aperture-openai-compatible"].models["google/gemini-3.7-flash"] | type == "object") and
-          (.provider["aperture-openai-compatible"].models["moonshotai/kimi-k3"] | type == "object") and
-          (.provider["aperture-openai-compatible"].models["zai/glm-5.3"] | type == "object")
+      # A pair is usable when the local overlays are intact, both tools share
+      # one MCP endpoint, and each tool's default model is served and enabled.
+      configs_valid() {
+        jq -e --slurpfile overlay ${opencodeOverlayFile} '
+          (.model | capture("^(?<provider>[^/]+)/(?<id>.+)$")) as $default |
+          ((. * $overlay[0]) == .) and
+          (.mcp.aperture.url | type == "string" and length > 0) and
+          (.enabled_providers | type == "array" and
+            index($default.provider) != null and index("ollama") != null) and
+          ((.disabled_providers // []) | type == "array" and index($default.provider) == null) and
+          (.provider[$default.provider].models[$default.id] | type == "object")
         ' "$1" >/dev/null || return 1
-        jq -e '
-          .providers as $providers |
-          [
-            {provider: "aperture-responses", model: "openai/gpt-5.6-sol"},
-            {provider: "aperture-claude", model: "anthropic/claude-opus-5"},
-            {provider: "aperture-completions", model: "deepseek/deepseek-v4-pro"},
-            {provider: "aperture-completions", model: "google/gemini-3.7-flash"},
-            {provider: "aperture-completions", model: "moonshotai/kimi-k3"},
-            {provider: "aperture-completions", model: "zai/glm-5.3"}
-          ] |
-          all(.[]; . as $reference |
-            $providers[$reference.provider] as $provider |
-            (if $provider | has("enabled") then
-              $provider.enabled | if type == "string" then
-                ascii_downcase | gsub("^\\s+|\\s+$"; "") |
-                . as $flag | ["false", "0", "no", "off"] | index($flag) == null
-              else . != false and . != null and . != 0 and . != [] and . != {}
-              end
-            else true end) and
-            ($provider.models | type == "array") and
-            ($provider.models | index($reference.model) != null))
+        mcp="$(jq -er '.mcp.aperture.url' "$1")" || return 1
+        jq -e --slurpfile overlay ${hermesOverlayFile} --arg mcp "$mcp" '
+          .providers[.model.provider | ltrimstr("custom:")] as $provider |
+          ((. * $overlay[0]) == .) and
+          (.mcp_servers.aperture.url == $mcp) and
+          ($provider | type == "object") and
+          (if $provider | has("enabled") then
+            $provider.enabled | if type == "string" then
+              ascii_downcase | gsub("^\\s+|\\s+$"; "") |
+              . as $flag | ["false", "0", "no", "off"] | index($flag) == null
+            else . != false and . != null and . != 0 and . != [] and . != {}
+            end
+          else true end) and
+          ($provider.models | type == "array" and index($overlay[0].model.default) != null)
         ' "$2" >/dev/null
       }
 
       live_pair_valid() {
         test -f "$opencode_target" &&
           test -f "$hermes_target" &&
-          opencode_mcp="$(jq -er '.mcp.aperture.url | select(type == "string" and length > 0)' "$opencode_target")" &&
           yq -o=json '.' "$hermes_target" >"$stage/hermes.live.json" 2>/dev/null &&
-          catalogs_valid "$opencode_target" "$stage/hermes.live.json" >/dev/null 2>&1 &&
-          jq -e '
-            (.provider.ollama | type == "object") and
-            (.agent.frontier.model == "aperture-openai-compatible/openai/gpt-5.6-sol") and
-          (.agent["claude-opus"].model == "aperture-openai-compatible/anthropic/claude-opus-5") and
-          (.agent.deepseek.model == "aperture-openai-compatible/deepseek/deepseek-v4-pro") and
-          (.agent.gemini.model == "aperture-openai-compatible/google/gemini-3.7-flash") and
-          (.agent.kimi.model == "aperture-openai-compatible/moonshotai/kimi-k3") and
-          (.agent.glm.model == "aperture-openai-compatible/zai/glm-5.3")
-          ' "$opencode_target" >/dev/null 2>&1 &&
-          jq -e --arg mcp "$opencode_mcp" '
-            (.mcp_servers.aperture.url == $mcp) and
-            (._config_version == 46) and
-            (.plugins.enabled | index("herdr-agent-state") != null) and
-            (.skills.external_dirs | index("~/.agents/skills") != null) and
-            (.model == { default: "frontier", provider: "moa" }) and
-              (.moa.active_preset == "frontier") and
-              (.moa.presets.frontier.aggregator.model == "openai/gpt-5.6-sol") and
-              (.moa.presets.frontier.reference_models | map(.model)) == [
-                "anthropic/claude-opus-5",
-                "deepseek/deepseek-v4-pro",
-                "google/gemini-3.7-flash",
-                "moonshotai/kimi-k3",
-                "zai/glm-5.3"
-              ]
-            ' "$stage/hermes.live.json" >/dev/null 2>&1
+          configs_valid "$opencode_target" "$stage/hermes.live.json" >/dev/null 2>&1
       }
 
       build_candidates() {
@@ -234,7 +183,6 @@ let
           jq -e --arg tool "$tool" --arg base "$aperture_url" --arg mcp "$mcp_endpoint" \
             -f ${generate} "$stage/response.json" >"$stage/$tool.generated.json" || return 1
         done
-        catalogs_valid "$stage/opencode.generated.json" "$stage/hermes.generated.json" || return 1
 
         jq -S -s '
           .[0] as $generated |
@@ -242,34 +190,8 @@ let
           .enabled_providers = (($generated.enabled_providers + ["ollama"]) | unique)
         ' "$stage/opencode.generated.json" ${opencodeOverlayFile} >"$stage/opencode.json" || return 1
         jq -S -s '.[0] * .[1]' "$stage/hermes.generated.json" ${hermesOverlayFile} >"$stage/hermes.json" || return 1
-        catalogs_valid "$stage/opencode.json" "$stage/hermes.json" || return 1
-
-        jq -e --arg mcp "$mcp_endpoint" '
-          (.mcp.aperture.type == "remote") and
-          (.mcp.aperture.url == $mcp) and
-          (.mcp.aperture.enabled == true) and
-          (.provider.ollama | type == "object") and
-          (.enabled_providers | index("ollama") != null) and
-          (.default_agent == "frontier") and
-          (.agent | keys | (index("frontier") != null and index("claude-opus") != null and
-            index("deepseek") != null and index("gemini") != null and
-            index("kimi") != null and index("glm") != null))
-        ' "$stage/opencode.json" >/dev/null || return 1
-        jq -e --arg mcp "$mcp_endpoint" '
-        (.mcp_servers.aperture.url == $mcp) and
-        (._config_version == 46) and
-        (.plugins.enabled | index("herdr-agent-state") != null) and
-        (.skills.external_dirs | index("~/.agents/skills") != null) and
-        (.model == { default: "frontier", provider: "moa" }) and
-          (.moa.active_preset == "frontier") and
-          (.moa.default_preset == "frontier") and
-          (.moa.presets.frontier.reference_models | length == 5) and
-          (.moa.presets.frontier.aggregator == {
-            provider: "custom:aperture-responses",
-            model: "openai/gpt-5.6-sol",
-            reasoning_effort: "high"
-          })
-        ' "$stage/hermes.json" >/dev/null || return 1
+        configs_valid "$stage/opencode.json" "$stage/hermes.json" || return 1
+        jq -e --arg mcp "$mcp_endpoint" '.mcp.aperture.url == $mcp' "$stage/opencode.json" >/dev/null || return 1
         yq -o=yaml -P '.' "$stage/hermes.json" >"$stage/config.yaml" || return 1
         yq -e '.' "$stage/config.yaml" >/dev/null || return 1
       }
@@ -339,63 +261,60 @@ let
         ];
       }
       ''
-          export HOME="$TMPDIR/home"
-          export APERTURE_OPENCODE_CONFIG="$HOME/.config/opencode/opencode.json"
-          export APERTURE_HERMES_CONFIG="$HOME/.hermes/config.yaml"
+        export HOME="$TMPDIR/home"
+        export APERTURE_OPENCODE_CONFIG="$HOME/.config/opencode/opencode.json"
+        export APERTURE_HERMES_CONFIG="$HOME/.hermes/config.yaml"
 
-          APERTURE_MODELS_URL=file://${validResponseFile} aperture-agent-config-sync
-          test "$(stat -c %a "$APERTURE_OPENCODE_CONFIG")" = 600
-          test "$(stat -c %a "$APERTURE_HERMES_CONFIG")" = 600
-          jq -e '
-            .default_agent == "frontier" and
-            .mcp.aperture == {
-              enabled: true,
-              type: "remote",
-              url: "${validMcp}"
-            } and
-            (.provider | has("ollama")) and
-            .provider["aperture-openai-compatible"].models["zai/glm-5.3"].limit == {
-              context: 1000000,
-              output: 128000
-            } and
-            ([.provider[] | .models | keys[]] | length) == 6 + (.provider.ollama.models | length) and
-            (.agent | keys) == ["claude-opus", "deepseek", "frontier", "gemini", "glm", "kimi"]
-          ' "$APERTURE_OPENCODE_CONFIG" >/dev/null
-          yq -o=json '.' "$APERTURE_HERMES_CONFIG" | jq -e '
-        ._config_version == 46 and
-        (.plugins.enabled | index("herdr-agent-state") != null) and
-        (.skills.external_dirs | index("~/.agents/skills") != null) and
-        .model == { default: "frontier", provider: "moa" } and
-            .mcp_servers.aperture.url == "${validMcp}" and
-            .moa.active_preset == "frontier" and
-            (.moa.presets.frontier.reference_models | map(.model)) == [
-              "anthropic/claude-opus-5",
-              "deepseek/deepseek-v4-pro",
-              "google/gemini-3.7-flash",
-              "moonshotai/kimi-k3",
-              "zai/glm-5.3"
-            ]
-          ' >/dev/null
+        APERTURE_MODELS_URL=file://${validResponseFile} aperture-agent-config-sync
+        test "$(stat -c %a "$APERTURE_OPENCODE_CONFIG")" = 600
+        test "$(stat -c %a "$APERTURE_HERMES_CONFIG")" = 600
+        jq -e '
+          .model == "aperture-openai-compatible/openai/gpt-5.6-sol" and
+          (has("agent") or has("default_agent") | not) and
+          .mcp.aperture == {
+            enabled: true,
+            type: "remote",
+            url: "${validMcp}"
+          } and
+          (.provider | keys) == ["aperture-openai-compatible", "ollama"] and
+          (.provider["aperture-openai-compatible"].models | keys) ==
+            ["anthropic/claude-opus-5", "openai/gpt-5.6-sol", "zai/glm-5.3"] and
+          .provider["aperture-openai-compatible"].models["zai/glm-5.3"].limit == {
+            context: 1000000,
+            output: 128000
+          }
+        ' "$APERTURE_OPENCODE_CONFIG" >/dev/null
+        yq -o=json '.' "$APERTURE_HERMES_CONFIG" | jq -e '
+          ._config_version == 46 and
+          (.plugins.enabled | index("herdr-agent-state") != null) and
+          (.skills.external_dirs | index("~/.agents/skills") != null) and
+          .model == { default: "openai/gpt-5.6-sol", provider: "custom:aperture-completions" } and
+          (has("moa") | not) and
+          .mcp_servers.aperture.url == "${validMcp}" and
+          (.providers | keys) == ["aperture-completions"] and
+          .providers["aperture-completions"].models ==
+            ["anthropic/claude-opus-5", "openai/gpt-5.6-sol", "zai/glm-5.3"]
+        ' >/dev/null
 
-          before="$(sha256sum "$APERTURE_OPENCODE_CONFIG" "$APERTURE_HERMES_CONFIG")"
-          APERTURE_MODELS_URL=file://${malformedResponseFile} aperture-agent-config-sync
-          test "$before" = "$(sha256sum "$APERTURE_OPENCODE_CONFIG" "$APERTURE_HERMES_CONFIG")"
+        before="$(sha256sum "$APERTURE_OPENCODE_CONFIG" "$APERTURE_HERMES_CONFIG")"
+        APERTURE_MODELS_URL=file://${malformedResponseFile} aperture-agent-config-sync
+        test "$before" = "$(sha256sum "$APERTURE_OPENCODE_CONFIG" "$APERTURE_HERMES_CONFIG")"
 
-          export APERTURE_OPENCODE_CONFIG="$TMPDIR/fresh/opencode.json"
-          export APERTURE_HERMES_CONFIG="$TMPDIR/fresh/config.yaml"
-          if APERTURE_MODELS_URL=file://${malformedResponseFile} aperture-agent-config-sync; then
-            echo "malformed first refresh unexpectedly succeeded" >&2
-            exit 1
-          fi
-          test ! -e "$APERTURE_OPENCODE_CONFIG"
-          test ! -e "$APERTURE_HERMES_CONFIG"
-          bash ${../../checks/aperture-agent-config-sync/test.sh} ${validResponseFile} ${malformedResponseFile}
-          ruff check --select ANN,UP,SIM,B,I --line-length 100 ${../../checks/aperture-agent-config-sync/timeout.py}
-          ruff format --check --line-length 100 ${../../checks/aperture-agent-config-sync/timeout.py}
-          echo '{"typeCheckingMode":"strict"}' > "$TMPDIR/pyrightconfig.json"
-          pyright --pythonpath ${pkgs.python3}/bin/python3 --project "$TMPDIR/pyrightconfig.json" ${../../checks/aperture-agent-config-sync/timeout.py}
-          python3 ${../../checks/aperture-agent-config-sync/timeout.py} ${package}/bin/aperture-agent-config-sync ${validResponseFile}
-          touch "$out"
+        export APERTURE_OPENCODE_CONFIG="$TMPDIR/fresh/opencode.json"
+        export APERTURE_HERMES_CONFIG="$TMPDIR/fresh/config.yaml"
+        if APERTURE_MODELS_URL=file://${malformedResponseFile} aperture-agent-config-sync; then
+          echo "malformed first refresh unexpectedly succeeded" >&2
+          exit 1
+        fi
+        test ! -e "$APERTURE_OPENCODE_CONFIG"
+        test ! -e "$APERTURE_HERMES_CONFIG"
+        bash ${../../checks/aperture-agent-config-sync/test.sh} ${validResponseFile} ${malformedResponseFile}
+        ruff check --select ANN,UP,SIM,B,I --line-length 100 ${../../checks/aperture-agent-config-sync/timeout.py}
+        ruff format --check --line-length 100 ${../../checks/aperture-agent-config-sync/timeout.py}
+        echo '{"typeCheckingMode":"strict"}' > "$TMPDIR/pyrightconfig.json"
+        pyright --pythonpath ${pkgs.python3}/bin/python3 --project "$TMPDIR/pyrightconfig.json" ${../../checks/aperture-agent-config-sync/timeout.py}
+        python3 ${../../checks/aperture-agent-config-sync/timeout.py} ${package}/bin/aperture-agent-config-sync ${validResponseFile}
+        touch "$out"
       '';
 in
 package.overrideAttrs (old: {
