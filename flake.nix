@@ -274,12 +274,6 @@
               "-X tailscale.com/version.shortStamp=${tsVersion}"
             ];
         };
-
-        # generate-database's parser tests panic under 1.27 (parse_test.go:40,
-        # index out of range). They cover a build-time code generator, not the
-        # daemon we run. Drop once upstream incus supports 1.27.
-        incus = prev.incus.overrideAttrs { doCheck = false; };
-        incus-lts = prev.incus-lts.overrideAttrs { doCheck = false; };
       };
 
       overlay-pkgs = final: _: {
