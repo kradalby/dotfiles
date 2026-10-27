@@ -285,7 +285,7 @@ let
           }
         ' "$APERTURE_OPENCODE_CONFIG" >/dev/null
         yq -o=json '.' "$APERTURE_HERMES_CONFIG" | jq -e '
-          ._config_version == 46 and
+          ._config_version == ${toString hermesOverlay._config_version} and
           (.plugins.enabled | index("herdr-agent-state") != null) and
           (.skills.external_dirs | index("~/.agents/skills") != null) and
           .model == { default: "openai/gpt-5.6-sol", provider: "custom:aperture-completions" } and
