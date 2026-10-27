@@ -1,11 +1,11 @@
 module github.com/kradalby/dotfiles/pkgs/overlays/authkey
 
-go 1.26.6
+go 1.27.3
 
 require (
 	github.com/stretchr/testify v1.12.1
 	golang.org/x/oauth2 v0.37.0
-	tailscale.com v1.102.5
+	tailscale.com v1.104.2
 )
 
 require (
