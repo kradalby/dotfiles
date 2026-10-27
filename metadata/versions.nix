@@ -29,9 +29,9 @@
   mqttExporter = "v1.12.1";
 
   # https://github.com/umami-software/umami/pkgs/container/umami
-  umami = "ghcr.io/umami-software/umami:3.4.0";
+  umami = "ghcr.io/umami-software/umami:3.4.1";
   # https://hub.docker.com/r/frooodle/s-pdf/tags
-  stirling = "frooodle/s-pdf:2.14.3";
+  stirling = "frooodle/s-pdf:3.2.2";
   ## pkgs
   pkgs = {
     overlays = {
