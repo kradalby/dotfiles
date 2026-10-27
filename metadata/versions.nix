@@ -40,7 +40,7 @@
       # https://github.com/micropython/webrepl
       webreplCli = "1e09d9a1d90fe52aba11d1e659afbc95a50cf088";
       # https://github.com/cooklang/cookcli/releases
-      cook = "0.36.0";
+      cook = "0.39.0";
       # https://github.com/ivo-toby/mcp-picnic/releases
       mcpPicnic = "1.15.1";
       # https://github.com/tailscale/tailscale

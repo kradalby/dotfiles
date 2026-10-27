@@ -15,4 +15,7 @@ in
     enable = true;
     inherit port;
   };
+
+  # The VIP proxy keeps the tailnet Host; cook answers 403 to any host it was not told about.
+  systemd.services.cook-server.environment.COOK_CORS_ORIGIN = "http://cook.dalby.ts.net,http://cook";
 }
