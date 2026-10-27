@@ -645,13 +645,7 @@
     // flake-utils.lib.eachSystem [ "x86_64-linux" "aarch64-darwin" ] (
       system:
       let
-        pkgs = import nixpkgs-stable {
-          inherit overlays system;
-          # prettier builds via the EOL pnpm_9 (build-time only); the system-level
-          # allow in common/nix.nix doesn't reach this pkgs import.
-          # See NixOS/nixpkgs#529285.
-          config.permittedInsecurePackages = [ "pnpm-9.15.9" ];
-        };
+        pkgs = import nixpkgs-stable { inherit overlays system; };
 
         # Single formatter entrypoint (`nix fmt` / the treefmt devShell binary).
         # prettier + shfmt are custom formatters pinned to the exact args the old
