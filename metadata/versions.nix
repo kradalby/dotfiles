@@ -44,11 +44,11 @@
       # https://github.com/ivo-toby/mcp-picnic/releases
       mcpPicnic = "1.15.1";
       # https://github.com/tailscale/tailscale
-      tailscaleTools = "v1.102.4";
+      tailscaleTools = "v1.104.2";
       # https://github.com/tailscale/squibble
       squibble = "9a4c8961e6f5a4ec322b06129567b086c24540e6";
       # https://github.com/tailscale/setec
-      setec = "f8d7a936837c8bdb8e1af9fd99158f9b5551dbad";
+      setec = "bc168fdb236279b5c5a43d14685df674d7fefb35";
       # https://github.com/seruman/boo (installed as `ghostty-tab`)
       ghostty-tab = "3bc3b2ec1f1dfc75bd9f8e919f1150ae5d42cf6b";
       # https://github.com/bscott/pm-cli/releases
