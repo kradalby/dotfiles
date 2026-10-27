@@ -91,9 +91,6 @@ in
         };
       };
 
-      grpc_listen_addr = "127.0.0.1:50443";
-      grpc_allow_insecure = true;
-
       noise = {
         private_key_path = config.age.secrets.headscale-noise-private-key.path;
       };
@@ -151,12 +148,6 @@ in
     forceSSL = true;
     useACMEHost = domain;
     locations = {
-      "/headscale." = {
-        extraConfig = ''
-          grpc_pass grpc://${config.services.headscale.settings.grpc_listen_addr};
-        '';
-        priority = 1;
-      };
       "/metrics" = {
         proxyPass = "http://127.0.0.1:${toString config.services.headscale.port}";
         extraConfig = ''
