@@ -274,6 +274,10 @@
               "-X tailscale.com/version.shortStamp=${tsVersion}"
             ];
         };
+
+        # Stable's 0.5.11 can drop WAL pages on replication and its checkpoint
+        # test is flaky; both are fixed in 0.5.15. Drop once stable ships it.
+        litestream = prev.unstable.litestream;
       };
 
       overlay-pkgs = final: _: {
