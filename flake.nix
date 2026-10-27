@@ -92,9 +92,8 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
-    # On the `initial` branch until kradalby/ghdl#1 merges to main.
     ghdl = {
-      url = "github:kradalby/ghdl/initial";
+      url = "github:kradalby/ghdl";
       inputs."flake-utils".follows = "flake-utils";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
@@ -197,7 +196,7 @@
     # Agent multiplexer (tmux replacement for `ac`). Do NOT `follows` its
     # rust-overlay — the package is built against the toolchain herdr pins.
     herdr = {
-      url = "github:herdrdev/herdr/v0.9.1";
+      url = "github:herdrdev/herdr/v0.9.5";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
