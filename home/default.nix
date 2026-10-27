@@ -72,7 +72,7 @@ in
     };
   }
   # The ChatGPT desktop app (every darwin host) reads ~/.codex too.
-  // lib.optionalAttrs (config.my.packages.ai.codex || pkgs.stdenv.isDarwin) {
+  // lib.optionalAttrs (config.my.packages.ai.codex || pkgs.stdenv.hostPlatform.isDarwin) {
     codex-keybindings = {
       target = ".codex/keybindings.json";
       value = [
