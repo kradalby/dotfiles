@@ -179,11 +179,9 @@ in
       };
 
     mcp =
+      # No picnic: opencode serve opens one MCP session per directory and
+      # retries 429s, which drains picnic-mcp's single shared rate limit.
       lib.optionalAttrs personal {
-        picnic = {
-          type = "remote";
-          url = picnicMcp;
-        };
         grafana = {
           type = "remote";
           url = grafanaMcp;
