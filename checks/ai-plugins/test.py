@@ -243,7 +243,9 @@ with socket.socket() as probe:
     port = str(probe.getsockname()[1])
 url = f"http://127.0.0.1:{port}"
 expected = {"ponytail", "brainstorming", "caveman", "frontend-design", "ui-ux-pro-max"}
+expected_commands = {"caveman", "caveman-init", "code-review"}
 skills: set[str] = set()
+commands: set[str] = set()
 server = subprocess.Popen(
     [opencode, "serve", "--hostname", "127.0.0.1", "--port", port],
     cwd=root,
@@ -253,29 +255,37 @@ server = subprocess.Popen(
 )
 try:
     deadline = time.monotonic() + 120
-    while not expected <= skills and time.monotonic() < deadline:
+    while not (expected <= skills and expected_commands <= commands) and (
+        time.monotonic() < deadline
+    ):
         time.sleep(1)
-        # File stdout avoids truncation from OpenCode exiting before a large pipe flushes.
-        with (root / "skills.json").open("w") as output:
-            listed = subprocess.run(
-                [opencode, "api", "skill.list", "--server", url],
-                cwd=root,
-                env=env,
-                stdout=output,
-                stderr=subprocess.DEVNULL,
-                timeout=60,
-            )
-        if listed.returncode != 0:
-            continue
-        try:
-            response = cast(SkillList, json.loads((root / "skills.json").read_text()))
-        except ValueError:
-            continue
-        skills = {item["name"] for item in response["data"]}
+        for operation in ("skill.list", "command.list"):
+            # File stdout avoids truncation from OpenCode exiting before a large pipe flushes.
+            with (root / "listing.json").open("w") as output:
+                listed = subprocess.run(
+                    [opencode, "api", operation, "--server", url],
+                    cwd=root,
+                    env=env,
+                    stdout=output,
+                    stderr=subprocess.DEVNULL,
+                    timeout=60,
+                )
+            if listed.returncode != 0:
+                continue
+            try:
+                response = cast(SkillList, json.loads((root / "listing.json").read_text()))
+            except ValueError:
+                continue
+            names = {item["name"] for item in response["data"]}
+            if operation == "skill.list":
+                skills = names
+            else:
+                commands = names
 finally:
     server.terminate()
     server.wait(timeout=30)
 logs = "".join(p.read_text() for p in (root / ".local/share/opencode/log").glob("*.log"))
 assert "failed to load plugin" not in logs, logs
 assert expected <= skills, (sorted(expected - skills), logs[-4000:])
+assert expected_commands <= commands, (sorted(expected_commands - commands), logs[-4000:])
 print("Native installs, same-version updates, config preservation, and OpenCode discovery passed")

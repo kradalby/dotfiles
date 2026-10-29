@@ -146,7 +146,17 @@ in
         "${official}/plugins/frontend-design/skills"
       ];
 
-  opencodeCommands = "${caveman}/src/plugins/opencode/commands";
+  opencodeCommands = pkgs.symlinkJoin {
+    name = "opencode-plugin-commands";
+    paths = [
+      "${caveman}/src/plugins/opencode/commands"
+      # Claude-only plugin commands are plain prompts, so OpenCode runs them as-is.
+      (pkgs.linkFarm "claude-plugin-commands" {
+        "caveman-init.md" = "${caveman}/commands/caveman-init.md";
+        "code-review.md" = "${official}/plugins/code-review/commands/code-review.md";
+      })
+    ];
+  };
   opencodeAgents =
     pkgs.runCommand "cavecrew-opencode-agents" { nativeBuildInputs = [ pkgs.nodejs_26 ]; }
       ''
