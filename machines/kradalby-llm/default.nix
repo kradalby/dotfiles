@@ -44,7 +44,6 @@ let
   # Aperture owns the remote catalog. These overlays contain only policy that is
   # local to this host and are reapplied whenever that catalog is refreshed.
   opencodeOverlay = {
-    provider.ollama = aiConfig.opencode.provider.ollama;
     permission = aiConfig.opencode.permission;
     mcp.aperture.enabled = true;
     mcp.nixos = aiConfig.opencode.mcp.nixos;

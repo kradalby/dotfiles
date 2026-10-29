@@ -146,7 +146,7 @@ let
           ((. * $overlay[0]) == .) and
           (.mcp.aperture.url | type == "string" and length > 0) and
           (.enabled_providers | type == "array" and
-            index($default.provider) != null and index("ollama") != null) and
+            index($default.provider) != null) and
           ((.disabled_providers // []) | type == "array" and index($default.provider) == null) and
           (.provider[$default.provider].models[$default.id] | type == "object")
         ' "$1" >/dev/null || return 1
@@ -184,11 +184,7 @@ let
             -f ${generate} "$stage/response.json" >"$stage/$tool.generated.json" || return 1
         done
 
-        jq -S -s '
-          .[0] as $generated |
-          ($generated * .[1]) |
-          .enabled_providers = (($generated.enabled_providers + ["ollama"]) | unique)
-        ' "$stage/opencode.generated.json" ${opencodeOverlayFile} >"$stage/opencode.json" || return 1
+        jq -S -s '.[0] * .[1]' "$stage/opencode.generated.json" ${opencodeOverlayFile} >"$stage/opencode.json" || return 1
         jq -S -s '.[0] * .[1]' "$stage/hermes.generated.json" ${hermesOverlayFile} >"$stage/hermes.json" || return 1
         configs_valid "$stage/opencode.json" "$stage/hermes.json" || return 1
         jq -e --arg mcp "$mcp_endpoint" '.mcp.aperture.url == $mcp' "$stage/opencode.json" >/dev/null || return 1
@@ -276,7 +272,8 @@ let
             type: "remote",
             url: "${validMcp}"
           } and
-          (.provider | keys) == ["aperture-openai-compatible", "ollama"] and
+          (.provider | keys) == ["aperture-openai-compatible"] and
+          .enabled_providers == ["aperture-openai-compatible"] and
           (.provider["aperture-openai-compatible"].models | keys) ==
             ["anthropic/claude-opus-5", "openai/gpt-5.6-sol", "zai/glm-5.3"] and
           .provider["aperture-openai-compatible"].models["zai/glm-5.3"].limit == {

@@ -12,7 +12,7 @@ local policy in `default.nix` and owns:
 - `~/.hermes/config.yaml`
 
 Do not edit those files directly. The next successful refresh replaces them.
-OpenCode's Ollama provider, permissions and extra MCP servers, both tools'
+OpenCode's permissions and extra MCP servers, both tools'
 default model (`defaultModel`), and Hermes' Herdr plugin enablement are
 Nix-defined overlays and survive catalog refreshes. Herdr owns the plugin files
 and activation reinstalls them after each refresh.
