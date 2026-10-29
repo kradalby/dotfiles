@@ -106,6 +106,7 @@ in
   };
   programs.gh.settings.git_protocol = lib.mkForce "https";
 
+  my.mcp.work = true;
   my.claudeMcpServers.aperture = {
     type = "http";
     url = "http://ai.corp.ts.net/v1/mcp";

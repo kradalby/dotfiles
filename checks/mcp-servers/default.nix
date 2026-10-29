@@ -4,6 +4,12 @@ let
   disabledAi = import ../../home/ai.nix {
     lib = pkgs.lib;
     config.my.packages.ai.enable = false;
+    config.my.mcp.work = false;
+  };
+  workAi = import ../../home/ai.nix {
+    lib = pkgs.lib;
+    config.my.packages.ai.enable = false;
+    config.my.mcp.work = true;
   };
   # Exercise Desktop registration on the Linux CI builder too.
   registration =
@@ -23,6 +29,7 @@ let
         home.profileDirectory = "${home}/.nix-profile";
         my.packages.ai.enable = true;
         my.packages.ai.codex = false;
+        my.mcp.work = false;
         my.mutableJson = { };
         my.claudeMcpServers = { };
       };
@@ -31,6 +38,9 @@ in
 assert !(disabledAi.claudeMcpServers ? nixos);
 assert !(disabledAi.opencode.mcp ? nixos);
 assert !(disabledAi.codex.mcp_servers ? nixos);
+assert workAi.claudeMcpServers == { };
+assert workAi.opencode.mcp == { };
+assert workAi.codex.mcp_servers == { };
 pkgs.runCommand "mcp-server-registration-tests" { nativeBuildInputs = [ pkgs.jq ]; } ''
   mkdir -p ${home}/.config/opencode "${home}/Library/Application Support/Claude"
   echo '{"mcpServers":{"existing":{"command":"keep"}},"other":42}' >${home}/.claude.json

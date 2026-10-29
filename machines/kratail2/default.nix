@@ -118,6 +118,7 @@ in
     my.atuin.enable = true;
 
     my.packages.ai.enable = false;
+    my.mcp.work = true;
 
     programs.git.settings.user = {
       email = lib.mkForce "kristoffer@tailscale.com";

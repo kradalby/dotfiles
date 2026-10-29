@@ -56,6 +56,7 @@ in
     description = "Additional user-scope Claude MCP servers.";
   };
 
+  options.my.mcp.work = lib.mkEnableOption "work MCP scope, without personal-tailnet servers";
   # Mutable settings retain their seed; migrate only the previous declared PATH.
   config.home.activation.claudePath = lib.mkIf pkgs.stdenv.hostPlatform.isLinux (
     lib.hm.dag.entryAfter [ "mutableJson" ] ''

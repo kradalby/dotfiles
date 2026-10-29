@@ -21,6 +21,7 @@ let
         home.homeDirectory = "/fixture";
         home.stateVersion = "26.05";
         my.claudeMcpServers = work.my.claudeMcpServers;
+        my.mcp.work = work.my.mcp.work;
       }
     ];
   };
@@ -49,7 +50,7 @@ pkgs.runCommand "claude-mcp-test"
     sed "s|/fixture|$HOME|g" ${merge} > "$TMPDIR/merge"
     bash "$TMPDIR/merge"
     test "$(stat -c %a "$HOME/.claude.json")" = 600
-    jq -e '.mcpServers.aperture == {type:"http",url:"http://ai.corp.ts.net/v1/mcp"} and (.mcpServers | has("picnic"))' "$HOME/.claude.json"
+    jq -e '.mcpServers.aperture == {type:"http",url:"http://ai.corp.ts.net/v1/mcp"} and (.mcpServers | has("picnic") or has("grafana") | not)' "$HOME/.claude.json"
 
     cat > "$HOME/.claude.json" <<'JSON'
     {"oauthAccount":{"accountUuid":"fixture"},"projects":{"/project":{"hasTrustDialogAccepted":true}},"customState":[1,2],"mcpServers":{"other":{"type":"stdio","command":"custom"},"aperture":{"type":"http","url":"http://old.invalid"}}}
