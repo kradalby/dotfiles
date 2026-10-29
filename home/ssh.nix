@@ -21,6 +21,7 @@ in
     enable = true;
     enableDefaultConfig = false;
 
+    includes = [ "config.d/*" ];
     settings = {
       "*".ForwardAgent = isWorkstation;
       "devl" = kradalbyLogin "dev.ldn.fap.no";
