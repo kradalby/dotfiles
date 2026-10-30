@@ -96,6 +96,8 @@ SAFETY
   Default mode is dry-run; pass -y to actually delete.
   lsof guard skips any path with an open file descriptor — it is the
   real safety net, not the age threshold. Use --no-lsof at your peril.
+  Trees holding a git repo with unsaved work stay and report [DIRTY]: uncommitted
+  changes, commits on no remote in a clone, or a repo git cannot read.
 
 EXIT CODES
   0  clean, /tmp below -f
@@ -245,6 +247,23 @@ has_recent_write() {
   [ -n "$found" ]
 }
 
+has_unsaved_work() {
+  # Agents nest repos inside scratch, so check every .git below $1. A clone's
+  # commits die with it; a worktree's live in its main repo. Unreadable counts
+  # as unsaved, because nothing then proves there is nothing to lose.
+  [ -d "$1" ] || return 1
+  local dotgit repo status
+  while IFS= read -r dotgit; do
+    repo=${dotgit%/.git}
+    status=$(git --no-optional-locks -C "$repo" status --porcelain 2>/dev/null) || return 0
+    [ -z "$status" ] || return 0
+    [ -f "$dotgit" ] ||
+      [ -z "$(git -C "$repo" log -1 --branches --not --remotes --format=%h 2>/dev/null)" ] ||
+      return 0
+  done < <(find "$1" -name .git -prune -print 2>/dev/null)
+  return 1
+}
+
 get_size() {
   # Sets size_b (integer bytes) and size_h (human readable) for $1
   # via a single du call rather than separate -sh/-sb passes.
@@ -264,6 +283,11 @@ emit() {
 
 prune() {
   # Remove (or, in dry-run, account for) $1. Expects get_size already called.
+  if has_unsaved_work "$1"; then
+    emit "$size_b" DIRTY "$1" "unsaved work, $size_h"
+    kept=$((kept + 1))
+    return
+  fi
   if [ "$EXECUTE" -eq 1 ]; then
     if rm -rf -- "$1" 2>/dev/null; then
       emit "$size_b" RM "$1" "$size_h"

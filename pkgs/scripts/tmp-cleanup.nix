@@ -6,6 +6,7 @@ pkgs.writeShellApplication {
     coreutils
     findutils
     gawk
+    git
     lsof
   ];
 

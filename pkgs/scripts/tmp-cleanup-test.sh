@@ -54,6 +54,11 @@ touch -d '2 days ago' "$session_root/stale/tasks/old.output" "$session_root/stal
   "$session_root/busy/tasks/open.output" "$session_root/busy/tasks" "$session_root/busy" \
   "$ROOT/tmp/nix-build-busy"
 
+git init -q "$ROOT/tmp/hs-clean"
+git init -q "$ROOT/tmp/hs-dirty"
+echo x >"$ROOT/tmp/hs-dirty/edit"
+touch -d '2 days ago' "$ROOT/tmp/hs-clean" "$ROOT/tmp/hs-dirty"
+
 export LSOF_STATUS=0 LSOF_ERRORS=''
 # The copied script maps /private/tmp to /private<fixture>/tmp too.
 for alias in '' /private; do
@@ -67,7 +72,9 @@ for alias in '' /private; do
   echo "ok   ${alias:-logical} paths protect open files and recent writes"
 done
 
-bash "$ROOT/cleanup.sh" -y -s 60 -f 101 >/dev/null
+out=$(bash "$ROOT/cleanup.sh" -y -s 60 -f 101)
+[[ "$out" == *"[DIRTY]  $ROOT/tmp/hs-dirty"* && -e "$ROOT/tmp/hs-dirty/edit" && ! -e "$ROOT/tmp/hs-clean" ]]
+echo 'ok   uncommitted worktree survives, clean worktree goes'
 [[ ! -e "$ROOT/tmp/nix-build-idle" && ! -e "$session_root/stale" ]]
 [[ -d "$ROOT/tmp/nix-build-busy" && -d "$session_root/busy" && -d "$session_root/recent" ]]
 echo 'ok   complete enumeration removes only stale, unused fixtures'
