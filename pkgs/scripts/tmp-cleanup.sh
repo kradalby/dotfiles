@@ -59,6 +59,7 @@ SKIP_PATTERNS=(
 EXECUTE=0
 AGE_MIN=20
 SESSION_AGE_MIN=480
+OVERFLOW_DAYS=0
 FULL_PCT=90
 VERBOSE=0
 USE_LSOF=1
@@ -68,13 +69,14 @@ usage() {
 tmp-cleanup — prune stale entries from /tmp.
 
 USAGE
-  tmp-cleanup [-y|--execute] [-d MINUTES] [-s MINUTES] [-f PERCENT] [-v]
-              [--no-lsof] [-h|--help]
+  tmp-cleanup [-y|--execute] [-d MINUTES] [-s MINUTES] [-o DAYS] [-f PERCENT]
+              [-v] [--no-lsof] [-h|--help]
 
 OPTIONS
   -y, --execute    actually delete (default: dry-run)
   -d MINUTES       age threshold in minutes (default: 20)
   -s MINUTES       claude session-scratch threshold (default: 480)
+  -o DAYS          also prune overflow scratch on disk idle this long (default: off)
   -f PERCENT       exit 3 if /tmp is still this full afterwards (default: 90)
   -v               verbose: also list KEEP entries
   --no-lsof        skip lsof guard (NOT recommended)
@@ -88,6 +90,9 @@ $(printf '    %s\n' "${FILE_PATTERNS[@]}")
 
   Claude session scratch (older than -s AND no open fd):
     /tmp/claude-<pid>/<project>/<session-uuid>
+
+  Overflow scratch on disk (only with -o, older than -o AND no open fd):
+    ~/.cache/*  ~/*tmp  ~/*tmp-*
 
 NEVER TOUCHED (regardless of age or pattern)
 $(printf '    %s\n' "${SKIP_PATTERNS[@]}")
@@ -131,6 +136,14 @@ while [ $# -gt 0 ]; do
       }
       SESSION_AGE_MIN="$1"
       ;;
+    -o)
+      shift
+      [ $# -gt 0 ] || {
+        echo "tmp-cleanup: -o needs a value" >&2
+        exit 2
+      }
+      OVERFLOW_DAYS="$1"
+      ;;
     -f)
       shift
       [ $# -gt 0 ] || {
@@ -168,6 +181,13 @@ case "$SESSION_AGE_MIN" in
     ;;
 esac
 
+case "$OVERFLOW_DAYS" in
+  '' | *[!0-9]*)
+    echo "tmp-cleanup: -o needs a non-negative integer (days), got: $OVERFLOW_DAYS" >&2
+    exit 2
+    ;;
+esac
+
 case "$FULL_PCT" in
   '' | *[!0-9]*)
     echo "tmp-cleanup: -f needs a non-negative integer (percent), got: $FULL_PCT" >&2
@@ -193,7 +213,7 @@ is_old() {
 }
 
 declare -A BUSY_NAMES=()
-BUSY_PATHS=()
+declare -A BUSY_PATHS=()
 if [ "$USE_LSOF" -eq 1 ]; then
   # One bulk lsof pass; bucket each held /tmp path by its top-level name.
   # A partial enumeration cannot prove any unlisted path is safe to delete.
@@ -211,9 +231,13 @@ if [ "$USE_LSOF" -eq 1 ]; then
     case "$line" in
       n/private/tmp/*) path="/tmp/${line#n/private/tmp/}" ;;
       n/tmp/*) path=${line#n} ;;
+      n"$HOME"/.cache/* | n"$HOME"/*tmp*)
+        [ "$OVERFLOW_DAYS" -gt 0 ] && BUSY_PATHS["${line#n}"]=1
+        continue
+        ;;
       *) continue ;;
     esac
-    BUSY_PATHS+=("$path")
+    BUSY_PATHS["$path"]=1
     name=${path#/tmp/}
     name=${name%%/*}
     [ -n "$name" ] && BUSY_NAMES["$name"]=1
@@ -231,7 +255,7 @@ busy_under() {
   [ "$USE_LSOF" -eq 1 ] || return 1
   [ "${#BUSY_PATHS[@]}" -gt 0 ] || return 1
   local p
-  for p in "${BUSY_PATHS[@]}"; do
+  for p in "${!BUSY_PATHS[@]}"; do
     case "$p" in "$1" | "$1"/*) return 0 ;; esac
   done
   return 1
@@ -243,7 +267,7 @@ has_recent_write() {
   # mtime hours stale, and deleting on that would take out a running session.
   # -quit stops at the first hit, so this costs a match, not a full walk.
   local found
-  found=$(find "$1" -mmin -"$SESSION_AGE_MIN" -print -quit 2>/dev/null || true)
+  found=$(find "$1" -mmin -"$2" -print -quit 2>/dev/null || true)
   [ -n "$found" ]
 }
 
@@ -380,7 +404,7 @@ for sess in /tmp/claude-[0-9]*/*/*; do
     continue
   fi
 
-  if has_recent_write "$sess"; then
+  if has_recent_write "$sess" "$SESSION_AGE_MIN"; then
     [ "$VERBOSE" -eq 1 ] && emit 0 KEEP "$sess" "written within ${SESSION_AGE_MIN}m"
     kept=$((kept + 1))
     continue
@@ -389,6 +413,44 @@ for sess in /tmp/claude-[0-9]*/*/*; do
   get_size "$sess"
   prune "$sess"
 done
+
+prune_overflow() {
+  # A folder idle as a whole goes in one piece. A shared TMPDIR root stays fresh
+  # while any run uses it, so look inside it for the runs that finished.
+  local dir=$1 depth=$2 child
+  { [ -d "$dir" ] && [ ! -L "$dir" ]; } || return 0
+
+  if ! busy_under "$dir" && ! has_recent_write "$dir" "$((OVERFLOW_DAYS * 1440))"; then
+    get_size "$dir"
+    prune "$dir"
+    return 0
+  fi
+
+  if [ "$depth" -gt 0 ]; then
+    for child in "$dir"/*; do
+      prune_overflow "$child" "$((depth - 1))"
+    done
+    return 0
+  fi
+
+  [ "$VERBOSE" -eq 1 ] && emit 0 KEEP "$dir" "written within ${OVERFLOW_DAYS}d or open fd"
+  kept=$((kept + 1))
+}
+
+# Overflow scratch on disk. /tmp is small, so agents point TMPDIR at folders they
+# name themselves under ~/.cache and ~. Nothing else removes those. Whole-folder
+# removal is safe for real tool caches too: they refill.
+if [ "$OVERFLOW_DAYS" -gt 0 ]; then
+  for dir in "$HOME"/.cache/* "$HOME"/*tmp "$HOME"/*tmp-*; do
+    name=${dir##*/}
+    case "$name" in .*) continue ;; esac
+    # shortcut: only these names are searched inside; a live root under another
+    # name waits until it goes idle. Add a pattern if one grows without bound.
+    depth=0
+    match_any "$name" '*tmp*' '*kreview*' && depth=2
+    prune_overflow "$dir" "$depth"
+  done
+fi
 
 [ "${#REPORT[@]}" -gt 0 ] && printf '%s\n' "${REPORT[@]}" | sort -t$'\t' -k1,1rn | cut -f2-
 
