@@ -202,6 +202,8 @@ if [ "$USE_LSOF" -eq 1 ]; then
     exit 1
   fi
 
+  # Not a here-string: bash spools a large one to a file in /tmp, and when /tmp
+  # is full the loop never runs, so every open file reads as idle.
   while IFS= read -r line; do
     # Darwin reports physical paths even when callers use the /tmp alias.
     case "$line" in
@@ -213,7 +215,7 @@ if [ "$USE_LSOF" -eq 1 ]; then
     name=${path#/tmp/}
     name=${name%%/*}
     [ -n "$name" ] && BUSY_NAMES["$name"]=1
-  done <<<"$lsof_output"
+  done < <(printf '%s\n' "$lsof_output")
 fi
 
 is_busy() {
