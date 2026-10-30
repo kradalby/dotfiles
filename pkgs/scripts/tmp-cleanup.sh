@@ -323,6 +323,13 @@ for path in /tmp/*; do
     continue
   fi
 
+  # Sticky /tmp: rm of another user's entry can only fail and report an error.
+  if [ ! -O "$path" ]; then
+    [ "$VERBOSE" -eq 1 ] && emit 0 KEEP "$path" "not ours"
+    kept=$((kept + 1))
+    continue
+  fi
+
   hit=0
   if [ -d "$path" ] && match_any "$name" "${DIR_PATTERNS[@]}"; then hit=1; fi
   if [ -f "$path" ] && match_any "$name" "${FILE_PATTERNS[@]}"; then hit=1; fi
