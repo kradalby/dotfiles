@@ -171,6 +171,9 @@ in
           # Panes inherit this. 100 is the floor — lower is silently clamped,
           # since dropping below the user manager needs CAP_SYS_RESOURCE.
           OOMScoreAdjust = 100;
+          # The default stops the service when the kernel kills any one pane
+          # process, and that takes every other pane with it.
+          OOMPolicy = "continue";
           # default_shell is unset (herdr falls back to $SHELL), so pin fish in
           # the unit env — panes inherit it, and it holds even if the seeded
           # config.toml has been edited by hand.
