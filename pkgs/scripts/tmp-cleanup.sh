@@ -195,15 +195,12 @@ BUSY_PATHS=()
 if [ "$USE_LSOF" -eq 1 ]; then
   # One bulk lsof pass; bucket each held /tmp path by its top-level name.
   # A partial enumeration cannot prove any unlisted path is safe to delete.
-  lsof_errors=$(mktemp) || exit 1
-  trap 'rm -f -- "$lsof_errors"' EXIT
-  if ! lsof_output=$(lsof -F n 2>"$lsof_errors") || [ -s "$lsof_errors" ] ||
-    [[ "$lsof_output" != p[0-9]* ]]; then
+  # -w: docker hosts always warn about overlay and nsfs mounts lsof cannot stat.
+  # Names come from /proc, so those warnings hide no open file.
+  if ! lsof_output=$(lsof -w -F n) || [[ "$lsof_output" != p[0-9]* ]]; then
     echo "tmp-cleanup: incomplete lsof enumeration; refusing cleanup" >&2
     exit 1
   fi
-  rm -f -- "$lsof_errors"
-  trap - EXIT
 
   while IFS= read -r line; do
     # Darwin reports physical paths even when callers use the /tmp alias.
