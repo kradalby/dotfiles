@@ -81,10 +81,13 @@ in
     )
     + lib.concatStrings (
       lib.mapAttrsToList (
+        name: server: merge "${home}/.config/opencode/opencode.json" ".mcp[${builtins.toJSON name}]" server
+      ) ai.opencode.mcp
+    )
+    + lib.concatStrings (
+      lib.mapAttrsToList (
         name: server:
-        merge "${home}/.config/opencode/opencode.json" ".mcp[${builtins.toJSON name}]"
-          ai.opencode.mcp.${name}
-        + lib.optionalString (config.my.mutableJson ? codex) ''
+        lib.optionalString (config.my.mutableJson ? codex) ''
           if ! ${lib.getExe pkgs.master.codex} mcp get ${lib.escapeShellArg name} >/dev/null 2>&1; then
             run ${lib.getExe pkgs.master.codex} mcp add ${lib.escapeShellArg name} ${
               if server.type == "http" then

@@ -60,13 +60,13 @@ pkgs.runCommand "mcp-server-registration-tests" { nativeBuildInputs = [ pkgs.jq 
     '.mcpServers.nixos.command == $command and .mcpServers.nixos.args == []' \
     "${home}/Library/Application Support/Claude/claude_desktop_config.json"
   for server in grafana picnic; do
-    for file in ${home}/.claude.json ${home}/.config/opencode/opencode.json; do
-      jq -e --arg server "$server" --arg url "http://$server-mcp.dalby.ts.net/mcp" \
-        '(.mcpServers // .mcp)[$server].url == $url' "$file"
-    done
+    jq -e --arg server "$server" --arg url "http://$server-mcp.dalby.ts.net/mcp" \
+      '.mcpServers[$server].url == $url' ${home}/.claude.json
     jq -e --arg server "$server" --arg url "http://$server-mcp.dalby.ts.net/mcp" \
       '.mcpServers[$server].args | index($url) != null' \
       "${home}/Library/Application Support/Claude/claude_desktop_config.json"
   done
+  jq -e '.mcp.grafana.url == "http://grafana-mcp.dalby.ts.net/mcp" and (.mcp | has("picnic") | not)' \
+    ${home}/.config/opencode/opencode.json
   touch $out
 ''
