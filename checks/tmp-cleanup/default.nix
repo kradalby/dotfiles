@@ -6,6 +6,7 @@ pkgs.runCommand "tmp-cleanup-test"
       coreutils
       findutils
       gawk
+      gnugrep
       gnused
       (import ../../pkgs/scripts/tmp-cleanup.nix { inherit pkgs; })
     ];

@@ -39,6 +39,10 @@ out=$(bash "$ROOT/cleanup.sh" -f 101 2>&1)
 [[ "$out" == *"[DRY]    $ROOT/tmp/nix-build-idle"* ]]
 echo 'ok   mount warnings do not block cleanup'
 
+# A here-string or mktemp needs room in /tmp, which is what this tool lacks.
+if grep -nE '<<<|mktemp' "$SCRIPT"; then exit 1; fi
+echo 'ok   lsof handling never writes to /tmp'
+
 session_root="$ROOT/tmp/claude-999999/-fixture"
 mkdir -p "$session_root/stale/tasks" "$session_root/recent/tasks" "$session_root/busy/tasks" \
   "$ROOT/tmp/nix-build-busy"
