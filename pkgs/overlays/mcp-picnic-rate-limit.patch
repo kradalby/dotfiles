@@ -1,0 +1,85 @@
+diff --git a/src/config.ts b/src/config.ts
+index 6fb3aef..91b53ba 100644
+--- a/src/config.ts
++++ b/src/config.ts
+@@ -27,6 +27,20 @@ const configSchema = z.object({
+   HTTP_HOST: z.string().default("localhost"),
+   HTTP_AUTH_TOKEN: z.string().optional(),
+   HTTP_AUTH_HEADER_NAME: z.string().default("x-mcp-token"),
++  HTTP_RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(15 * 60 * 1000),
++  HTTP_RATE_LIMIT_MAX_REQUESTS: z.coerce.number().int().positive().default(100),
++  HTTP_RATE_LIMIT_SKIP_PATHS: z
++    .string()
++    .default("/health")
++    .transform((value) =>
++      value
++        .split(",")
++        .map((path) => path.trim())
++        .filter(Boolean),
++    )
++    .refine((paths) => paths.every((path) => path.startsWith("/")), {
++      message: "HTTP_RATE_LIMIT_SKIP_PATHS entries must start with '/'.",
++    }),
+   PICNIC_SESSION_FILE: z.string().default(defaultSessionFile),
+ })
+
+diff --git a/src/index.ts b/src/index.ts
+index b0f3a1b..9d20a13 100644
+--- a/src/index.ts
++++ b/src/index.ts
+@@ -19,6 +19,11 @@ async function runServer() {
+       host: config.HTTP_HOST,
+       authToken: config.HTTP_AUTH_TOKEN,
+       authHeaderName: config.HTTP_AUTH_HEADER_NAME,
++      rateLimitConfig: {
++        windowMs: config.HTTP_RATE_LIMIT_WINDOW_MS,
++        maxRequests: config.HTTP_RATE_LIMIT_MAX_REQUESTS,
++        skipPaths: config.HTTP_RATE_LIMIT_SKIP_PATHS,
++      },
+     })
+
+     // Handle graceful shutdown for HTTP server
+diff --git a/src/transports/streamable-http.ts b/src/transports/streamable-http.ts
+index d9c21a5..7c117e2 100644
+--- a/src/transports/streamable-http.ts
++++ b/src/transports/streamable-http.ts
+@@ -50,7 +50,7 @@ export class StreamableHttpServer extends BaseTransportServer {
+       host: "localhost",
+       authHeaderName: "x-mcp-token",
+       corsOptions: { origin: "*" },
+-      rateLimitConfig: { windowMs: 15 * 60 * 1000, maxRequests: 100 },
++      rateLimitConfig: { windowMs: 15 * 60 * 1000, maxRequests: 100, skipPaths: ["/health"] },
+       requestTimeoutMs: 10000,
+       maxRequestSizeBytes: 1024 * 1024 * 10, // 10MB
+       enableRequestLogging: true,
+diff --git a/src/utils/rate-limiter.ts b/src/utils/rate-limiter.ts
+index 415a3a1..4fb8da8 100644
+--- a/src/utils/rate-limiter.ts
++++ b/src/utils/rate-limiter.ts
+@@ -4,6 +4,7 @@ import { TransportError, ErrorCode } from "../types/errors.js"
+ export interface RateLimitConfig {
+   windowMs: number // Time window in milliseconds
+   maxRequests: number // Maximum requests per window
++  skipPaths?: string[] // Request paths excluded from rate limiting
+   skipSuccessfulRequests?: boolean // Don't count successful requests
+   skipFailedRequests?: boolean // Don't count failed requests
+   keyGenerator?: (identifier: string) => string // Custom key generation
+@@ -22,6 +23,7 @@ export class RateLimiter {
+
+   constructor(config: RateLimitConfig) {
+     this.config = {
++      skipPaths: [],
+       skipSuccessfulRequests: false,
+       skipFailedRequests: false,
+       keyGenerator: (id: string) => id,
+@@ -203,6 +205,10 @@ export function createRateLimitMiddleware(config: RateLimitConfig) {
+
+   return {
+     middleware: (req: ANNIE, res: ANNIE, next: ANNIE) => {
++      if (config.skipPaths?.includes(req.path)) {
++        return next()
++      }
++
+       // Use IP address as default identifier, but allow custom extraction
+       const identifier = req.ip || req.connection.remoteAddress || "unknown"
+       const result = limiter.checkLimit(identifier)
