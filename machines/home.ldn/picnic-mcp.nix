@@ -23,6 +23,10 @@ in
       ENABLE_HTTP_SERVER = "true";
       HTTP_HOST = "127.0.0.1";
       HTTP_PORT = toString port;
+      # Every client arrives from the VIP proxy on 127.0.0.1, so all sessions share
+      # one bucket. This clears what upstream's 100 session cap can send at startup
+      # and still brakes a runaway tool loop, the only traffic that reaches Picnic.
+      HTTP_RATE_LIMIT_MAX_REQUESTS = "1000";
       PICNIC_COUNTRY_CODE = "NL";
       PICNIC_SESSION_FILE = "/var/lib/picnic-mcp/session.json";
       PICNIC_DEVICE_FILE = "/var/lib/picnic-mcp/device.json";
