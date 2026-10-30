@@ -1294,11 +1294,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1790795147,
-        "narHash": "sha256-3HBfsfr6mbHmZlAAE89VuSWDnHyxrkPz05og/lyzTWw=",
+        "lastModified": 1793397498,
+        "narHash": "sha256-unXVkJpi+QLUpOVUA/g5ySS+5EmpcHV3phSxuZEQ/kc=",
         "owner": "kradalby",
         "repo": "homewizard-p1-exporter",
-        "rev": "36122ce0ed4d1239a5b46950c049adcfee5458d7",
+        "rev": "3a2e29a15000b44cc16fe85658e3e01482e9cc43",
         "type": "github"
       },
       "original": {
