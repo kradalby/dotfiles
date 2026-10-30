@@ -60,12 +60,6 @@
     };
   };
 
-  # shortcut: backport of tailscale/tailscale#21789 (set-config rejects
-  # tls-terminated-tcp targets); drop once the tailscale input contains it.
-  services.tailscale.package = pkgs.tailscale.overrideAttrs (o: {
-    patches = (o.patches or [ ]) ++ [ ./tailscale-set-config-tls-terminated.patch ];
-  });
-
   environment.systemPackages = [ pkgs.protonmail-bridge ];
 
   # Also the triage agents' pm-cli credential (see default.nix).

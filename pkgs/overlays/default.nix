@@ -32,6 +32,8 @@ final: prev: {
 
   pm-cli = prev.callPackage ./pm-cli.nix { };
 
+  gotools = prev.callPackage ./gotools.nix { inherit (prev) gotools; };
+
   # Stable still has rich 14.x's aarch64 broken-pipe test failure; unstable's
   # rich 15.x no longer needs the workaround.
   pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [

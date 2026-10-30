@@ -43,8 +43,10 @@
       cook = "0.39.0";
       # https://github.com/ivo-toby/mcp-picnic/releases
       mcpPicnic = "1.15.1";
+      # https://github.com/golang/tools/tags
+      gotools = "0.52.0";
       # https://github.com/tailscale/tailscale
-      tailscaleTools = "v1.104.2";
+      tailscaleTools = "v1.104.4";
       # https://github.com/tailscale/squibble
       squibble = "9a4c8961e6f5a4ec322b06129567b086c24540e6";
       # https://github.com/tailscale/setec
