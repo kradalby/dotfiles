@@ -152,7 +152,12 @@ in
 
     (lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
       systemd.user.services.herdr = {
-        Unit.Description = "herdr — agent multiplexer server (session: ac)";
+        Unit = {
+          Description = "herdr — agent multiplexer server (session: ac)";
+          # A restart exits every pane, so a home-manager switch must not do it.
+          # The new binary starts with the next server start.
+          X-SwitchMethod = "keep-old";
+        };
         Service = {
           Type = "simple";
           ExecStart = "${herdr} --session ac server";
