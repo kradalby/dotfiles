@@ -20,12 +20,11 @@ export PATH="$ROOT/bin:$PATH"
 
 mkdir -p "$ROOT/tmp/nix-build-idle"
 touch -d '2 days ago' "$ROOT/tmp/nix-build-idle"
-for failure in fatal partial warning empty; do
+for failure in fatal partial empty; do
   export LSOF_STATUS=0 LSOF_ERRORS='' LSOF_OUTPUT=$'p1\nn/somewhere\n'
   case "$failure" in
     fatal) LSOF_STATUS=127 LSOF_ERRORS='lsof unavailable' LSOF_OUTPUT='' ;;
     partial) LSOF_STATUS=1 LSOF_OUTPUT=$'p1\nn/tmp/unrelated\n' ;;
-    warning) LSOF_ERRORS='WARNING: cannot stat filesystem' ;;
     empty) LSOF_OUTPUT='' ;;
   esac
   rc=0
@@ -33,6 +32,12 @@ for failure in fatal partial warning empty; do
   [[ $rc == 1 && -d "$ROOT/tmp/nix-build-idle" && "$out" == *'refusing cleanup'* ]]
   echo "ok   $failure enumeration refuses deletion"
 done
+
+export LSOF_STATUS=0 LSOF_OUTPUT=$'p1\nn/somewhere\n'
+export LSOF_ERRORS=$'lsof: WARNING: can\'t stat() overlay file system /merged\n'
+out=$(bash "$ROOT/cleanup.sh" -f 101 2>&1)
+[[ "$out" == *"[DRY]    $ROOT/tmp/nix-build-idle"* ]]
+echo 'ok   mount warnings do not block cleanup'
 
 session_root="$ROOT/tmp/claude-999999/-fixture"
 mkdir -p "$session_root/stale/tasks" "$session_root/recent/tasks" "$session_root/busy/tasks" \
