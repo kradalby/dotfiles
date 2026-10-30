@@ -242,7 +242,7 @@ in
         in
         [
           ac
-          pkgs.mcp-nixos
+          pkgs.unstable.mcp-nixos
         ]
         ++ (with pkgs; [
           nodejs_26
