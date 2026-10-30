@@ -8,6 +8,7 @@ let
   cfg = config.my.packages;
   tom = import ./scripts/tom.nix { inherit pkgs; };
   tmp-cleanup = import ./scripts/tmp-cleanup.nix { inherit pkgs; };
+  disk-cleanup = import ./scripts/disk-cleanup.nix { inherit pkgs; };
 in
 {
   options.my.packages = {
@@ -69,6 +70,7 @@ in
           cloc
           tom
           tmp-cleanup
+          disk-cleanup
         ])
         ++ (with pkgs.unstable; [
           shellcheck
