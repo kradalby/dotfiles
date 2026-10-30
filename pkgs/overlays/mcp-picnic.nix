@@ -21,7 +21,8 @@ buildNpmPackage (finalAttrs: {
 
   # Source files of ivo-toby/mcp-picnic#62: makes the limit configurable and exempts
   # /health. No env var exists without it, and the probe spends from the clients'
-  # bucket (see also #69). Fails to apply once merged. TODO(kradalby): revert when fixed.
+  # bucket (see also ivo-toby/mcp-picnic#69). Fails to apply once merged.
+  # TODO(kradalby): revert when fixed.
   patches = [ ./mcp-picnic-rate-limit.patch ];
 
   # Upstream reads HTTP_HOST but never passes it to listen(), so the server
