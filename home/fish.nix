@@ -44,6 +44,15 @@ in
       }
     ];
 
+    # A block's programs inherit this, so the kernel kills them before the Rex
+    # server, which cannot go below the user manager's score. Nix builders still
+    # go first.
+    shellInit = ''
+      if set -q REX_BLOCK; and test -w /proc/self/oom_score_adj
+        echo 300 >/proc/self/oom_score_adj
+      end
+    '';
+
     loginShellInit =
       let
         fishReorderPath = path: "fish_add_path --move --prepend ${path}";
