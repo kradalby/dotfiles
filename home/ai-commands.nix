@@ -94,7 +94,26 @@ in
         source = commandDirectory;
         recursive = true;
       };
+      # Force replaces a copy `rex skill setup` or the Rex app wrote. Not gated on
+      # my.packages.ai: some hosts run these agents with those options off.
+      ".claude/skills/rex/SKILL.md" = {
+        source = "${pkgs.rex-skill}/SKILL.md";
+        force = true;
+      };
+      # OpenCode, Pi and Hermes read this directory.
+      ".agents/skills/rex/SKILL.md" = {
+        source = "${pkgs.rex-skill}/SKILL.md";
+        force = true;
+      };
+      # Codex follows directory links, but skips a symlinked SKILL.md.
+      ".codex/skills/rex" = {
+        source = pkgs.rex-skill;
+        force = true;
+      };
     };
+
+  # The skill only tells an agent to run this command.
+  home.packages = [ pkgs.rex-cli ];
 
   xdg.configFile."opencode/commands".source = pkgs.symlinkJoin {
     name = "opencode-commands";
