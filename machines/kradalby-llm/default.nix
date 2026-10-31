@@ -74,6 +74,16 @@ in
       advertiseTags = [ "tag:rex" ];
     };
   };
+  systemd.user.services.rex.Service = {
+    # The default stops the unit, and every session, when the kernel kills one
+    # program in a block.
+    OOMPolicy = "continue";
+    # The default signals blocks together with the server. They are gone before
+    # it saves, so a restart brings back empty sessions.
+    KillMode = "mixed";
+    # The user manager's floor. Its default for units is one step higher.
+    OOMScoreAdjust = 100;
+  };
 
   home.username = "ubuntu";
   home.homeDirectory = "/home/ubuntu";
