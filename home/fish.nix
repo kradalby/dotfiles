@@ -63,10 +63,20 @@ in
         ${builtins.concatStringsSep "\n" path}
       '';
 
-    interactiveShellInit = ''
-      source ${../pkgs/scripts/wt.fish}
-      source ${../pkgs/scripts/llmpush.fish}
-    '';
+    interactiveShellInit = lib.mkMerge [
+      ''
+        source ${../pkgs/scripts/wt.fish}
+        source ${../pkgs/scripts/llmpush.fish}
+      ''
+      # Shell startup resets PATH, which puts the installed rex ahead of the one
+      # matching this session's server. A running server keeps its version across
+      # upgrades.
+      (lib.mkAfter ''
+        if set -q REX_BIN_DIR
+          fish_add_path --path --prepend --move $REX_BIN_DIR
+        end
+      '')
+    ];
 
     shellAliases = {
       s = "${pkgs.findutils}/bin/xargs ${pkgs.perl}/bin/perl -pi -E";
