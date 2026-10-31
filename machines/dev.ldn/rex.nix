@@ -49,14 +49,6 @@ in
   # could otherwise lose whichever write lands first.
   systemd.services.rex-tailscale-serve.after = [ "tailscaled-serve-config.service" ];
 
-  # Shell startup resets PATH, which puts the system rex ahead of the one matching
-  # this session's server. An account server keeps its version across upgrades.
-  home-manager.users.kradalby.programs.fish.interactiveShellInit = lib.mkAfter ''
-    if set -q REX_BIN_DIR
-      fish_add_path --path --prepend --move $REX_BIN_DIR
-    end
-  '';
-
   systemd.services.rex-login-server-health = {
     description = "Probe the Rex login server for node_exporter";
     after = [
