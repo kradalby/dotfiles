@@ -711,14 +711,7 @@
           # treefmt in check mode: fails when any file is unformatted, making
           # `nix fmt` enforceable in CI (git.md's claim, now true).
           formatting = treefmtEval.config.build.check self;
-          aperture-agent-config-sync =
-            let
-              packages = self.homeConfigurations."ubuntu@kradalby-llm".config.home.packages;
-              sync = builtins.head (
-                builtins.filter (package: package.name == "aperture-agent-config-sync") packages
-              );
-            in
-            sync.tests;
+          opencode-aperture-models = import ./checks/opencode-aperture-models.nix { inherit pkgs; };
           prometheus-rules = import ./checks/prometheus-rules { inherit pkgs self; };
           monitoring-pipeline = import ./checks/monitoring-pipeline.nix { inherit pkgs self; };
           # Fail if any host exposes an exporter/service that nothing scrapes.

@@ -38,33 +38,9 @@ let
     };
   };
 
-  # Both tools start on this model; the sync refuses a catalog that lacks it.
+  # OpenCode and Hermes start on this model. Each agent discovers the rest
+  # of Aperture's catalog from /v1/models at runtime.
   defaultModel = "openai/gpt-5.6-sol";
-
-  # Aperture owns the remote catalog. These overlays contain only policy that is
-  # local to this host and are reapplied whenever that catalog is refreshed.
-  opencodeOverlay = {
-    permission = aiConfig.opencode.permission;
-    mcp.aperture.enabled = true;
-    mcp.nixos = aiConfig.opencode.mcp.nixos;
-    model = "aperture-openai-compatible/${defaultModel}";
-  };
-
-  hermesOverlay = {
-    # Keep in sync with hermes_cli/config_defaults.py in the locked input.
-    _config_version = 52;
-    # Herdr installs the plugin files; keep enablement across manual refreshes.
-    plugins.enabled = [ "herdr-agent-state" ];
-    skills.external_dirs = [ "~/.agents/skills" ];
-    model = {
-      default = defaultModel;
-      provider = "custom:aperture-completions";
-    };
-  };
-
-  apertureAgentConfigSync = import ./aperture-agent-config-sync.nix {
-    inherit pkgs opencodeOverlay hermesOverlay;
-  };
 in
 {
   imports = [
@@ -111,8 +87,7 @@ in
     url = "http://ai.corp.ts.net/v1/mcp";
   };
 
-  # OpenCode and Hermes are refreshed from Aperture below. Claude and Codex
-  # retain mutable configs because they persist trust and other runtime state.
+  # mkForce swaps the shared opencode seed for the Aperture one below.
   my.mutableJson = lib.mkForce {
     claude-settings = {
       target = ".claude/settings.json";
@@ -127,10 +102,46 @@ in
       target = ".codex/hooks.json";
       value = aiConfig.codexHooks;
     };
-    # Aperture does not own the TUI settings; herdr needs them seeded.
+    opencode = {
+      target = ".config/opencode/opencode.json";
+      value = {
+        "$schema" = "https://opencode.ai/config.json";
+        inherit (aiConfig.opencode) permission;
+        # aperture-models.js adds the Aperture provider and its models.
+        enabled_providers = [ "aperture-openai-compatible" ];
+        model = "aperture-openai-compatible/${defaultModel}";
+        # home/mcp.nix merges the shared servers on every activation.
+        mcp.aperture = {
+          type = "remote";
+          url = "http://ai.corp.ts.net/v1/mcp";
+        };
+      };
+    };
+    # herdr installs its TUI plugin only into an existing cli.json.
     opencodeCli = {
       target = ".config/opencode/cli.json";
       value."$schema" = "https://opencode.ai/v2/cli.json";
+    };
+    hermes = {
+      target = ".hermes/config.yaml";
+      format = "yaml";
+      value = {
+        # Keep in sync with hermes_cli/config_defaults.py in the locked input.
+        _config_version = 52;
+        plugins.enabled = [ "herdr-agent-state" ];
+        skills.external_dirs = [ "~/.agents/skills" ];
+        model = {
+          default = defaultModel;
+          provider = "custom:aperture-completions";
+        };
+        # No models list: Hermes discovers them from /v1/models.
+        providers.aperture-completions = {
+          api = "http://ai.corp.ts.net/v1";
+          api_key = "no-key-required";
+          transport = "chat_completions";
+        };
+        mcp_servers.aperture.url = "http://ai.corp.ts.net/v1/mcp";
+      };
     };
   };
 
@@ -146,7 +157,6 @@ in
   # userland.enable is off here, which drops neovim and tmux (both live in
   # bundles this host disables). $EDITOR and the vim→nvim abbrevs need nvim.
   home.packages = [
-    apertureAgentConfigSync
     inputs.hermes-agent.packages.${pkgs.stdenv.hostPlatform.system}.minimal
     pkgs.master.codex
     pkgs.neovim
@@ -159,22 +169,11 @@ in
   # No NixOS module here to write /etc/tmux.conf, so use the XDG path.
   xdg.configFile."tmux/tmux.conf".text = import ../../common/tmux-conf.nix { inherit pkgs lib; };
 
+  xdg.configFile."opencode/plugin/aperture-models.js".source =
+    ../../pkgs/scripts/opencode-aperture-models.js;
+
   # Keep the path in mutable config.toml stable across rebuilds and GC. The
   # symlink target changes with Home Manager, without invalidating hook trust.
   home.file.".codex/hooks/nix-dev-env.sh".source = "${codexDevEnvHook}/bin/codex-nix-dev-env-hook";
   home.file.".codex/hooks/session-env.sh".source = ../../pkgs/scripts/codex-session-env.sh;
-
-  # Keep the generated model catalogs current at the same boundary as the rest
-  # of this host's declarative configuration. The command is also on PATH for
-  # an explicit refresh between Home Manager activations.
-  home.activation.apertureAgentConfig =
-    lib.hm.dag.entryBetween
-      [ "herdrIntegrations" ]
-      [
-        "writeBoundary"
-        "mutableJson"
-      ]
-      ''
-        run ${apertureAgentConfigSync}/bin/aperture-agent-config-sync
-      '';
 }
