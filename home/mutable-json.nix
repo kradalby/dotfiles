@@ -19,7 +19,7 @@ in
   options.my.mutableJson = lib.mkOption {
     default = { };
     description = ''
-      JSON/TOML config that nix defines but a client app mutates at runtime.
+      JSON/TOML/YAML config that nix defines but a client app mutates at runtime.
       home-manager can only symlink into the read-only store, which breaks
       apps that write their own config. For each entry this publishes the
       canonical content at <target>.nix (an ordinary store symlink the app
@@ -38,6 +38,7 @@ in
             type = lib.types.enum [
               "json"
               "toml"
+              "yaml"
             ];
             default = "json";
             description = "Serialisation format for value.";
