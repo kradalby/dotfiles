@@ -55,6 +55,7 @@ Specifics:
 - `net/netip` not `net.IP`; `envknob` for toggles; `errgroup` + `context` threaded top-down (no bare `go`).
 - **Twelve-factor:** config from env, log to stdout, stateless where possible.
 - **SQLite persistence:** `modernc.org/sqlite` (no cgo) opened via `sqliteconfig.Default(path).ToURL()`; migrate with `squibble` (`//go:embed schema.sql` → `squibble.Schema{Current}`, `schema.Apply` at open, changes append hash-chained `UpdateRule`s that must match `schema.sql` byte-for-byte); typed queries via `sqlc` into a `db/dbsqlc` package. WAL mode makes the file litestream-replicable (→ [services.md](services.md)). (sfiber, ghdl)
+- **Database access is always sqlc**, never hand-written SQL in Go: every query lives in `db/queries/*.sql` and runs through the generated package. `database/sql` only opens the database, applies the schema and starts transactions. One exception: a test that reads the schema catalog (`sqlite_master`), which sqlc cannot parse.
 - **Grafana dashboards are generated from Go**, never hand-edited JSON: build them with the Grafana Foundation SDK in `cmd/dashboard`, and **put a legend on every panel**. Ship them with the ship-tool-and-output pattern (→ [nix.md](nix.md)) so the dashboard tracks the metrics/endpoints it charts. (tsnixcache, ghdl)
 
 ## Debug & metrics
