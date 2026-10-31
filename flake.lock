@@ -1791,6 +1791,22 @@
         "type": "github"
       }
     },
+    "pi-aperture-models": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1793210711,
+        "narHash": "sha256-VJXFNOVO582GwjvatTsO8vmDMBZscI6nvrfdhakTd+Q=",
+        "owner": "raggi",
+        "repo": "aperture-models",
+        "rev": "83cef13f42662147aa0628a915794c39d0be4826",
+        "type": "github"
+      },
+      "original": {
+        "owner": "raggi",
+        "repo": "aperture-models",
+        "type": "github"
+      }
+    },
     "pyproject-build-systems": {
       "inputs": {
         "nixpkgs": [
@@ -1917,6 +1933,7 @@
         "nixpkgs-master": "nixpkgs-master",
         "nixpkgs-stable": "nixpkgs-stable",
         "nixpkgs-unstable": "nixpkgs-unstable",
+        "pi-aperture-models": "pi-aperture-models",
         "ragenix": "ragenix",
         "rex": "rex",
         "tailscale": "tailscale",
