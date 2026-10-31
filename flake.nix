@@ -193,6 +193,12 @@
       inputs.home-manager.follows = "home-manager";
     };
 
+    # Pi extension that registers Aperture's /v1/models catalog as providers.
+    pi-aperture-models = {
+      url = "github:raggi/aperture-models";
+      flake = false;
+    };
+
     # Agent multiplexer (tmux replacement for `ac`). Do NOT `follows` its
     # rust-overlay — the package is built against the toolchain herdr pins.
     herdr = {

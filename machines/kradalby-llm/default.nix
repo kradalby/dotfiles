@@ -38,7 +38,7 @@ let
     };
   };
 
-  # OpenCode and Hermes start on this model. Each agent discovers the rest
+  # OpenCode, Hermes and Pi start on this model. Each agent discovers the rest
   # of Aperture's catalog from /v1/models at runtime.
   defaultModel = "openai/gpt-5.6-sol";
 in
@@ -54,6 +54,7 @@ in
     "codex"
     "opencode"
     "hermes"
+    "pi"
   ];
 
   home.username = "ubuntu";
@@ -143,6 +144,14 @@ in
         mcp_servers.aperture.url = "http://ai.corp.ts.net/v1/mcp";
       };
     };
+    pi-settings = {
+      target = ".pi/agent/settings.json";
+      value = {
+        # The extension names providers after Aperture's backing routes.
+        defaultProvider = "vercel-ent-zdr";
+        inherit defaultModel;
+      };
+    };
   };
 
   my.packages = {
@@ -159,6 +168,8 @@ in
   home.packages = [
     inputs.hermes-agent.packages.${pkgs.stdenv.hostPlatform.system}.minimal
     pkgs.master.codex
+    # Stable lags the extension API (Pi 1.x).
+    pkgs.master.pi-coding-agent
     pkgs.neovim
     pkgs.tmux
 
@@ -171,6 +182,8 @@ in
 
   xdg.configFile."opencode/plugin/aperture-models.js".source =
     ../../pkgs/scripts/opencode-aperture-models.js;
+  # Pi loads the directory through its package.json `pi.extensions` entry.
+  home.file.".pi/agent/extensions/aperture-models".source = inputs.pi-aperture-models;
 
   # Keep the path in mutable config.toml stable across rebuilds and GC. The
   # symlink target changes with Home Manager, without invalidating hook trust.
