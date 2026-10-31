@@ -980,6 +980,21 @@ in
                 };
               }
               {
+                alert = "RexLoginServerUnavailable";
+                expr = ''
+                  rex_login_server_probe_success{host="dev-ldn"} == 0
+                  or time() - rex_login_server_probe_timestamp_seconds{host="dev-ldn"} > 180
+                  or absent(rex_login_server_probe_success{host="dev-ldn"})
+                  or absent(rex_login_server_probe_timestamp_seconds{host="dev-ldn"})
+                '';
+                for = "5m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "Rex login server is unavailable on dev-ldn";
+                  description = "The Rex login server probe is failing, stale, or missing. Check rex-login-server.service, rex-tailscale-serve.service, and rex-login-server-health.timer.";
+                };
+              }
+              {
                 alert = "InstanceLowDiskAbs";
                 expr = "node_filesystem_avail_bytes{${diskFilter}} / 1024 / 1024 < 1024";
                 for = "5m";
