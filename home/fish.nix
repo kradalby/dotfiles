@@ -109,6 +109,12 @@ in
           "/Applications/Tailscale.app/Contents/MacOS/Tailscale"
         else
           "tailscale";
+      # shortcut: names the beta app, update when Rex leaves beta.
+      rex =
+        if pkgs.stdenv.hostPlatform.isDarwin then
+          "'/Applications/Rex Beta.app/Contents/Helpers/Rex Server.rex/Contents/MacOS/rex'"
+        else
+          "rex";
       ts = "tailscale";
       tss = "tailscale status";
       tsp = "tailscale ping";
