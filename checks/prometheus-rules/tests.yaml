@@ -531,6 +531,67 @@ tests:
             exp_annotations:
               summary: "Codex remote control is unavailable on dev-ldn"
               description: "The Codex app-server probe is disconnected, stale, or missing. Check codex-remote-control.service, its health timer, and the user's Codex login."
+
+  # The probe must keep passing and keep updating its timestamp.
+  - interval: 1m
+    input_series:
+      - series: 'rex_login_server_probe_success{host="dev-ldn", instance="dev-ldn:9100", job="nodes"}'
+        values: "1x20"
+      - series: 'rex_login_server_probe_timestamp_seconds{host="dev-ldn", instance="dev-ldn:9100", job="nodes"}'
+        values: "0+60x20"
+    alert_rule_test:
+      - eval_time: 10m
+        alertname: RexLoginServerUnavailable
+        exp_alerts: []
+  - interval: 1m
+    input_series:
+      - series: 'rex_login_server_probe_success{host="dev-ldn", instance="dev-ldn:9100", job="nodes"}'
+        values: "0x20"
+      - series: 'rex_login_server_probe_timestamp_seconds{host="dev-ldn", instance="dev-ldn:9100", job="nodes"}'
+        values: "0+60x20"
+    alert_rule_test:
+      - eval_time: 10m
+        alertname: RexLoginServerUnavailable
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              host: dev-ldn
+              instance: dev-ldn:9100
+              job: nodes
+            exp_annotations:
+              summary: "Rex login server is unavailable on dev-ldn"
+              description: "The Rex login server probe is failing, stale, or missing. Check rex-login-server.service, rex-tailscale-serve.service, and rex-login-server-health.timer."
+  - interval: 1m
+    input_series:
+      - series: 'rex_login_server_probe_success{host="dev-ldn", instance="dev-ldn:9100", job="nodes"}'
+        values: "1x20"
+      - series: 'rex_login_server_probe_timestamp_seconds{host="dev-ldn", instance="dev-ldn:9100", job="nodes"}'
+        values: "0x20"
+    alert_rule_test:
+      - eval_time: 10m
+        alertname: RexLoginServerUnavailable
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              host: dev-ldn
+              instance: dev-ldn:9100
+              job: nodes
+            exp_annotations:
+              summary: "Rex login server is unavailable on dev-ldn"
+              description: "The Rex login server probe is failing, stale, or missing. Check rex-login-server.service, rex-tailscale-serve.service, and rex-login-server-health.timer."
+  - interval: 1m
+    input_series: []
+    alert_rule_test:
+      - eval_time: 10m
+        alertname: RexLoginServerUnavailable
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              host: dev-ldn
+            exp_annotations:
+              summary: "Rex login server is unavailable on dev-ldn"
+              description: "The Rex login server probe is failing, stale, or missing. Check rex-login-server.service, rex-tailscale-serve.service, and rex-login-server-health.timer."
+
   # Host-dead vs exporter-broken split: h1 answers ping (scrape broken),
   # h2 does not (host down). Each fires exactly one of the pair.
   - interval: 1m
