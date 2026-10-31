@@ -1227,3 +1227,202 @@ tests:
             exp_annotations:
               summary: "core.tjoda is up but link_watchdog_carrier is absent"
               description: "The link watchdog timer is not running or its textfile is gone. core.tjoda no longer recovers itself from a dead NIC, and Tjodalyng has no hands."
+
+  # energyd: a stale supplier day must not fire during normal delivery lag.
+  - interval: 5m
+    input_series:
+      - series: 'energyd_newest_supplier_day_timestamp_seconds{job="energyd", instance="localhost:63463"}'
+        values: "0x1400"
+    alert_rule_test:
+      - eval_time: 95h
+        alertname: EnergydSupplierStale
+        exp_alerts: []
+      - eval_time: 110h
+        alertname: EnergydSupplierStale
+        exp_alerts:
+          - exp_labels:
+              job: energyd
+              instance: localhost:63463
+              severity: warning
+            exp_annotations:
+              summary: "NextEnergy data is stale"
+              description: "energyd has no NextEnergy day newer than four days, so costs are computed estimates only. Check login, API version and the grid operator's delivery."
+
+  # The absent() arm fires when the series never appears at all.
+  - interval: 1h
+    input_series:
+      - series: 'up{job="energyd", instance="localhost:63463"}'
+        values: "1x20"
+    alert_rule_test:
+      - eval_time: 14h
+        alertname: EnergydSupplierStale
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+            exp_annotations:
+              summary: "NextEnergy data is stale"
+              description: "energyd has no NextEnergy day newer than four days, so costs are computed estimates only. Check login, API version and the grid operator's delivery."
+
+  - interval: 1m
+    input_series:
+      - series: 'energyd_supplier_login_blocked{job="energyd", instance="localhost:63463"}'
+        values: "0x10 1x20"
+    alert_rule_test:
+      - eval_time: 8m
+        alertname: EnergydLoginBlocked
+        exp_alerts: []
+      - eval_time: 25m
+        alertname: EnergydLoginBlocked
+        exp_alerts:
+          - exp_labels:
+              job: energyd
+              instance: localhost:63463
+              severity: warning
+            exp_annotations:
+              summary: "NextEnergy rejected the login"
+              description: "energyd stopped logging in for a day so it cannot lock the account. Check secrets/energyd.age, then run systemctl start energyd-unblock and restart energyd."
+
+  - interval: 1m
+    input_series:
+      - series: 'energyd_supplier_api_version_changed{job="energyd", instance="localhost:63463"}'
+        values: "0x10 1x20"
+    alert_rule_test:
+      - eval_time: 8m
+        alertname: EnergydApiVersionChanged
+        exp_alerts: []
+      - eval_time: 25m
+        alertname: EnergydApiVersionChanged
+        exp_alerts:
+          - exp_labels:
+              job: energyd
+              instance: localhost:63463
+              severity: warning
+            exp_annotations:
+              summary: "NextEnergy changed an API version"
+              description: "energyd's hard-coded apiVersion is stale; update pkgs/energyd/nextenergy/client.go from the app's public scripts."
+
+  # Fires only inside the window when tomorrow's prices should exist. Tests start
+  # at 00:00 UTC, so 10h and 16h are 10:00 and 16:00, and 23h is past the window.
+  - interval: 5m
+    input_series:
+      - series: 'energyd_tomorrow_price_hours{job="energyd", instance="localhost:63463"}'
+        values: "0x400"
+    alert_rule_test:
+      - eval_time: 10h
+        alertname: EnergydTomorrowPricesMissing
+        exp_alerts: []
+      - eval_time: 16h
+        alertname: EnergydTomorrowPricesMissing
+        exp_alerts:
+          - exp_labels:
+              job: energyd
+              instance: localhost:63463
+              severity: warning
+            exp_annotations:
+              summary: "Tomorrow's energy prices are missing"
+              description: "EnergyZero has not published tomorrow's prices through energyd two hours after the market result."
+      - eval_time: 23h
+        alertname: EnergydTomorrowPricesMissing
+        exp_alerts: []
+
+  - interval: 1m
+    input_series:
+      - series: 'energyd_tomorrow_price_hours{job="energyd", instance="localhost:63463"}'
+        values: "24x1200"
+    alert_rule_test:
+      - eval_time: 16h
+        alertname: EnergydTomorrowPricesMissing
+        exp_alerts: []
+
+  # Each source is judged by its own cadence. A value 60 minutes behind at the
+  # end is fine for prices and stale for the meter.
+  - interval: 5m
+    input_series:
+      - series: 'energyd_source_last_success_timestamp_seconds{job="energyd", instance="localhost:63463", source="meter"}'
+        values: "0x30"
+      - series: 'energyd_source_last_success_timestamp_seconds{job="energyd", instance="localhost:63463", source="prices"}'
+        values: "0x30"
+      - series: 'energyd_source_last_success_timestamp_seconds{job="energyd", instance="localhost:63463", source="weather"}'
+        values: "0x30"
+    alert_rule_test:
+      - eval_time: 25m
+        alertname: EnergydSourceStale
+        exp_alerts: []
+      - eval_time: 60m
+        alertname: EnergydSourceStale
+        exp_alerts:
+          - exp_labels:
+              job: energyd
+              instance: localhost:63463
+              source: meter
+              severity: warning
+            exp_annotations:
+              summary: "energyd source meter is stale"
+              description: "energyd has not read meter successfully within its normal cadence. Check the service log."
+
+  # After a restart a source that keeps failing has no series at all, so absence
+  # must alert for each one.
+  - interval: 5m
+    input_series:
+      - series: 'up{job="energyd", instance="localhost:63463"}'
+        values: "1x30"
+    alert_rule_test:
+      - eval_time: 30m
+        alertname: EnergydSourceStale
+        exp_alerts:
+          - exp_labels:
+              source: meter
+              severity: warning
+            exp_annotations:
+              summary: "energyd source meter is stale"
+              description: "energyd has not read meter successfully within its normal cadence. Check the service log."
+          - exp_labels:
+              source: prices
+              severity: warning
+            exp_annotations:
+              summary: "energyd source prices is stale"
+              description: "energyd has not read prices successfully within its normal cadence. Check the service log."
+          - exp_labels:
+              source: weather
+              severity: warning
+            exp_annotations:
+              summary: "energyd source weather is stale"
+              description: "energyd has not read weather successfully within its normal cadence. Check the service log."
+
+  # NextEnergy gets a longer wait: a restart soon after a login waits out spacing.
+  - interval: 5m
+    input_series:
+      - series: 'up{job="energyd", instance="localhost:63463"}'
+        values: "1x40"
+    alert_rule_test:
+      - eval_time: 60m
+        alertname: EnergydSupplierNeverRead
+        exp_alerts: []
+      - eval_time: 150m
+        alertname: EnergydSupplierNeverRead
+        exp_alerts:
+          - exp_labels:
+              source: nextenergy
+              severity: warning
+            exp_annotations:
+              summary: "energyd has not read NextEnergy since it started"
+              description: "energyd has no successful NextEnergy read in this process. Check its credentials in secrets/energyd.age and the service log."
+
+  - interval: 5m
+    input_series:
+      - series: 'energyd_computed_error_ratio{job="energyd", instance="localhost:63463"}'
+        values: "0.01x120 0.2x700"
+    alert_rule_test:
+      - eval_time: 30h
+        alertname: EnergydComputedDrift
+        exp_alerts: []
+      - eval_time: 65h
+        alertname: EnergydComputedDrift
+        exp_alerts:
+          - exp_labels:
+              job: energyd
+              instance: localhost:63463
+              severity: warning
+            exp_annotations:
+              summary: "Computed energy cost has drifted from NextEnergy's"
+              description: "Computed electricity differs from NextEnergy's figures by 20% over the last week."
