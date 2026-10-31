@@ -33,6 +33,28 @@ pi --list-models
 herdr integration status
 ```
 
+## Rex
+
+`services.rex` runs one server as a systemd user service. Both networks reach
+the same sessions:
+
+- Personal tailnet, through Rex's own `tag:rex` node:
+  `rex -S kradalby-llm-rex.dalby.ts.net`
+- Work tailnet, through this VM's tailscaled: `rex -S kradalby-llm:7297`. Only
+  the node's owner is admitted.
+
+On first start, open the link from `rex server status` and sign in as
+`kradalby@kradalby.no`.
+
+A Home Manager switch does not restart the server. Running the new version
+needs `systemctl --user restart rex`, which ends every session.
+
+Rex refuses to start if this VM's own node gets tagged, because owner-only
+admission then admits nobody. That also takes down the personal route.
+
+There is no Prometheus probe. This VM has no node_exporter, and a `tag:monitoring`
+grant to `tag:rex` would let core.oracldn run programs as `ubuntu`.
+
 ## Shared commands
 
 `rc/claude/commands/*.md` is the canonical source for personal AI workflows.
