@@ -448,6 +448,9 @@
               allowLocalDeployment = true;
               # Sole builder for the fleet.
               buildOnTarget = true;
+              modules = with inputs; [
+                rex.nixosModules.default
+              ];
             };
 
             "rpi5.ldn" = box.nixosBox {
