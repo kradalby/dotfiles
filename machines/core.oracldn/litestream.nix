@@ -27,6 +27,10 @@
       path = "/var/lib/ghdl/ghdl.db";
     }
     {
+      name = "energyd.db";
+      path = "/var/lib/energyd/energyd.db";
+    }
+    {
       # Dashboards/settings; was only covered by restic reading the live file
       # (hot sqlite copy — inconsistent by construction).
       name = "grafana.db";
@@ -42,6 +46,7 @@
           config.services.golink.group
           "headscale"
           "ghdl"
+          "energyd"
           "grafana"
         ];
       };
@@ -96,6 +101,9 @@
     "z /var/lib/ghdl/ghdl.db 0660 ghdl ghdl - -"
     "z /var/lib/ghdl/ghdl.db-wal 0660 ghdl ghdl - -"
     "z /var/lib/ghdl/ghdl.db-shm 0660 ghdl ghdl - -"
+    "z /var/lib/energyd/energyd.db 0660 energyd energyd - -"
+    "z /var/lib/energyd/energyd.db-wal 0660 energyd energyd - -"
+    "z /var/lib/energyd/energyd.db-shm 0660 energyd energyd - -"
     # grafana's data dir predates the setgid fix; heal existing files. The
     # parent is kept at 2770 by StateDirectory above; this only covers the
     # window before grafana's first start under it.
@@ -113,11 +121,13 @@
     after = [
       "uptime-kuma.service"
       "ghdl.service"
+      "energyd.service"
       "grafana.service"
     ];
     wants = [
       "uptime-kuma.service"
       "ghdl.service"
+      "energyd.service"
       "grafana.service"
     ];
   };

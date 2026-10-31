@@ -28,6 +28,10 @@ final: prev: {
 
   oci-usage-exporter = prev.callPackage ../oci-usage-exporter { };
 
+  energyd = prev.callPackage ../energyd { };
+
+  dashboards = prev.callPackage ../dashboards { };
+
   ghostty-tab = prev.callPackage ./ghostty-tab.nix { };
 
   pm-cli = prev.callPackage ./pm-cli.nix { };
