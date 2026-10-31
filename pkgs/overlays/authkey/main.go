@@ -50,8 +50,8 @@ var platforms = map[string]platform{
 		tokenURL: "https://login.tailscale.com/api/v2/oauth/token",
 		tailnet:  "kradalby.no",
 		secret:   "tailscale-preauthkey.age",
-		credID:   "authkey-kradalby-client-id",
-		credKey:  "authkey-kradalby-client-secret",
+		credID:   "tailscale/kradalby/oauth/client-id",
+		credKey:  "tailscale/kradalby/oauth/client-secret",
 	},
 	"headscale": {
 		baseURL:  "https://headscale.kradalby.no",
