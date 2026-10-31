@@ -627,6 +627,7 @@
           pkgs = self.nixosConfigurations."dev.ldn".pkgs;
           modules = [
             inputs.nix-index-database.homeModules.nix-index
+            inputs.rex.homeManagerModules.default
             ./machines/kradalby-llm
           ];
           extraSpecialArgs = {

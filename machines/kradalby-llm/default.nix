@@ -27,6 +27,8 @@ let
     mcp_servers.aperture.url = "http://ai.corp.ts.net/v1/mcp";
   };
 
+  sessionPath = "${config.home.profileDirectory}/bin:/nix/var/nix/profiles/default/bin:/usr/local/bin:/usr/bin:/bin";
+
   # Corp AI proxy: fake auth via apiKeyHelper and inject proxy env.
   # PATH override is required for standalone HM
   # (see note in home/ai.nix).
@@ -34,7 +36,7 @@ let
     apiKeyHelper = "echo '-'";
     env = {
       ANTHROPIC_BASE_URL = "http://ai.corp.ts.net";
-      PATH = "${config.home.profileDirectory}/bin:/nix/var/nix/profiles/default/bin:/usr/local/bin:/usr/bin:/bin";
+      PATH = sessionPath;
     };
   };
 
@@ -79,6 +81,22 @@ in
     "opencode"
     "hermes"
   ];
+
+  services.rex = {
+    enable = true;
+    # Sessions inherit the server's environment.
+    environment.PATH = sessionPath;
+    # Work tailnet, through this VM's tailscaled. Admits only the node's owner.
+    extraListen = [ "tailnet://:7297" ];
+    # Personal tailnet, through Rex's own node. The tag keeps a node key copied
+    # from this work VM from inheriting group:kradalby's wildcard grant.
+    tailscale = {
+      enable = true;
+      hostname = "kradalby-llm-rex";
+      allowTailnetMembers = true;
+      advertiseTags = [ "tag:rex" ];
+    };
+  };
 
   home.username = "ubuntu";
   home.homeDirectory = "/home/ubuntu";
