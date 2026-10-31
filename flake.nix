@@ -200,6 +200,13 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
+    # Prebuilt Rex. Follow the fleet nixpkgs: the login server dlopens the
+    # host's PAM modules, so keep one pam and glibc in the process.
+    rex = {
+      url = "https://pkgs.superlogical.com/rex/nix/snapshot.tar.gz";
+      inputs.nixpkgs.follows = "nixpkgs-stable";
+    };
+
     # Stock nixpkgs sd-image-aarch64 has no Pi5 support (no bcm2712 DTB,
     # u-boot, or [pi5] config.txt). nixos-raspberrypi ships proper Pi5
     # firmware + sd-image generator.
