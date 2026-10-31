@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"testing"
@@ -10,10 +11,26 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// energydFile reads a source file of the service these panels chart. Nix sets
+// ENERGYD_SRC, because a build sees only this package's own directory.
+func energydFile(t *testing.T, path string) []byte {
+	t.Helper()
+
+	root := os.Getenv("ENERGYD_SRC")
+	if root == "" {
+		root = "../energyd"
+	}
+
+	src, err := os.ReadFile(filepath.Join(root, path))
+	require.NoError(t, err)
+
+	return src
+}
+
 func model(t *testing.T) map[string]any {
 	t.Helper()
 
-	d, err := buildDashboard()
+	d, err := buildLeiden()
 	require.NoError(t, err)
 
 	raw, err := json.Marshal(d)
@@ -107,10 +124,8 @@ func TestInfinityQueriesUseTheBackendParser(t *testing.T) {
 func TestInfinityColumnsExistInTheAPI(t *testing.T) {
 	var fields strings.Builder
 
-	for _, path := range []string{"../../ledger/ledger.go", "../../api/api.go"} {
-		src, err := os.ReadFile(path)
-		require.NoError(t, err)
-		fields.Write(src)
+	for _, path := range []string{"ledger/ledger.go", "api/api.go"} {
+		fields.Write(energydFile(t, path))
 	}
 
 	known := map[string]bool{"weekday": true}
@@ -137,8 +152,7 @@ func TestInfinityColumnsExistInTheAPI(t *testing.T) {
 // Conventions demand that metric names be checked against source: a rename
 // matches nothing and the panel just goes quiet.
 func TestEnergydMetricsExistInTheService(t *testing.T) {
-	src, err := os.ReadFile("../energyd/metrics.go")
-	require.NoError(t, err)
+	src := energydFile(t, "cmd/energyd/metrics.go")
 
 	raw, err := json.Marshal(model(t))
 	require.NoError(t, err)
@@ -257,6 +271,133 @@ func TestComputedPanelChartsOnlyDeliveredFiguresAsNextEnergy(t *testing.T) {
 		require.NoError(t, err)
 		require.Contains(t, string(raw), "nextenergy_eur")
 		require.NotContains(t, string(raw), "total_eur")
+
+		return
+	}
+
+	t.Fatal("panel not found")
+}
+
+// The old Leiden dashboard is what this one replaces, so everything it showed that
+// still has data must stay reachable. Its Bandwidth and Temperature panels queried
+// series that no longer exist, which TestDeadQueriesStayGone covers.
+func TestEverythingTheOldDashboardShowedIsStillHere(t *testing.T) {
+	raw, err := json.Marshal(model(t))
+	require.NoError(t, err)
+
+	for _, expr := range []string{
+		"tasmota_power_watts",
+		"homewizard_active_power_watts",
+		"homewizard_gas_m3_total",
+		"homewizard_any_power_fail_count",
+		"homewizard_long_power_fail_count",
+	} {
+		require.Contains(t, string(raw), expr)
+	}
+}
+
+// Live power was the first thing the old dashboard showed. Folding it away is not
+// an improvement, whatever else is added.
+func TestLivePowerAndIntraDayGasAreVisibleWithoutExpandingARow(t *testing.T) {
+	visible := map[string]map[string]any{}
+
+	for _, item := range model(t)["panels"].([]any) {
+		p := item.(map[string]any)
+		if p["type"] != "row" {
+			visible[p["title"].(string)] = p
+		}
+	}
+
+	require.Contains(t, visible, "Power")
+	require.Contains(t, visible, "Hourly gas")
+	require.Contains(t, visible, "Power now")
+
+	raw, err := json.Marshal(visible["Power"]["targets"])
+	require.NoError(t, err)
+	require.Contains(t, string(raw), "homewizard_active_power_watts")
+	require.Contains(t, string(raw), "tasmota_power_watts")
+
+	raw, err = json.Marshal(visible["Hourly gas"]["targets"])
+	require.NoError(t, err)
+	require.Contains(t, string(raw), `"m3"`)
+}
+
+func TestDashboardRefreshesOftenEnoughForLivePower(t *testing.T) {
+	require.Equal(t, "1m", model(t)["refresh"])
+}
+
+func TestEveryBuilderProducesADashboard(t *testing.T) {
+	for name, build := range builders {
+		d, err := build()
+		require.NoError(t, err, name)
+		require.NotEmpty(t, d.Title, name)
+	}
+}
+
+func TestRunWritesEachDashboardValidJSON(t *testing.T) {
+	dir := t.TempDir()
+	require.NoError(t, run(dir))
+
+	raw, err := os.ReadFile(filepath.Join(dir, "leiden.json"))
+	require.NoError(t, err)
+
+	var out map[string]any
+	require.NoError(t, json.Unmarshal(raw, &out))
+	require.Equal(t, "leiden-energy", out["uid"])
+}
+
+// Grafana rejects queries with the same ID as duplicates, and an empty ID counts.
+// The panel then shows an error and drops a series, which no build step catches.
+func TestPanelsWithSeveralQueriesGiveEachAUniqueID(t *testing.T) {
+	seen := 0
+
+	for _, p := range panels(t) {
+		targets, _ := p["targets"].([]any)
+		if len(targets) < 2 {
+			continue
+		}
+
+		seen++
+		ids := map[string]bool{}
+
+		for _, target := range targets {
+			id, _ := target.(map[string]any)["refId"].(string)
+			require.NotEmpty(t, id, "%v has a query with no ID", p["title"])
+			require.False(t, ids[id], "%v repeats query ID %s", p["title"], id)
+			ids[id] = true
+		}
+	}
+
+	require.Positive(t, seen)
+}
+
+// Titles are the only label a tile has, so a tile must be wide enough to show one.
+func TestAnswerTilesAreWideEnoughForTheirTitles(t *testing.T) {
+	for _, p := range panels(t) {
+		if p["type"] != "stat" {
+			continue
+		}
+
+		width := p["gridPos"].(map[string]any)["w"].(float64)
+		require.GreaterOrEqual(t, width, 6.0, "%v", p["title"])
+	}
+}
+
+// Infinity sorts table columns by name, which puts the day after hour 23, off the
+// edge of the screen. A table of 25 columns also has to fit without scrolling.
+func TestWeekdayTableStartsWithTheDayAndFitsOnScreen(t *testing.T) {
+	for _, p := range panels(t) {
+		if p["title"] != "Use above the floor by weekday and hour" {
+			continue
+		}
+
+		raw, err := json.Marshal(p["transformations"])
+		require.NoError(t, err)
+		require.Contains(t, string(raw), `"day":0`)
+
+		config := p["fieldConfig"].(map[string]any)["defaults"].(map[string]any)
+		require.Equal(t, "none", config["unit"], "a unit on every cell does not fit 25 columns")
+		require.LessOrEqual(t, config["custom"].(map[string]any)["minWidth"], 40.0)
 
 		return
 	}

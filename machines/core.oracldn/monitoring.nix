@@ -557,6 +557,7 @@ in
       # Application-specific exporters
       # OCI usage exporter binds localhost on this host, no ACL needed
       (scrapeJob "oci-usage" [ "localhost:63461" ])
+      (scrapeJob "energyd" [ "localhost:63463" ])
       (scrapeJob "litestream" [
         "core-oracldn:54909"
         "dev-oracfurt:54909"
@@ -674,6 +675,7 @@ in
             "http://grafana-mcp.dalby.ts.net/healthz"
             "http://pdf.dalby.ts.net"
             "http://go.dalby.ts.net"
+            "http://localhost:63463/healthz"
           ];
         }
         {
@@ -1720,6 +1722,103 @@ in
                 annotations = {
                   summary = "OCI usage metrics missing{{ if $labels.account }} for {{ $labels.account }}{{ end }} on {{ $labels.instance }}";
                   description = "oci_usage_month_total is absent for this account or scrape while the exporter is up; the Oracle cost and staleness alerts are blind.";
+                };
+              }
+              {
+                alert = "EnergydSupplierStale";
+                # Delivery runs about a day late, so a day's midnight is two days
+                # old just before the next one lands; four means NextEnergy has
+                # stopped answering. The metric is absent until the first read.
+                expr = ''
+                  time() - energyd_newest_supplier_day_timestamp_seconds > 4 * 86400
+                  or absent(energyd_newest_supplier_day_timestamp_seconds)
+                '';
+                for = "12h";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "NextEnergy data is stale";
+                  description = "energyd has no NextEnergy day newer than four days, so costs are computed estimates only. Check login, API version and the grid operator's delivery.";
+                };
+              }
+              {
+                alert = "EnergydLoginBlocked";
+                # energyd stops trying after one rejection, because retrying a bad
+                # password could lock the account. Fixing it needs a person.
+                expr = "energyd_supplier_login_blocked == 1";
+                for = "5m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "NextEnergy rejected the login";
+                  description = "energyd stopped logging in for a day so it cannot lock the account. Check secrets/energyd.age, then run systemctl start energyd-unblock and restart energyd.";
+                };
+              }
+              {
+                alert = "EnergydApiVersionChanged";
+                # A stale apiVersion answers HTTP 200 with empty data, so nothing
+                # else notices. Bump the version in pkgs/energyd/nextenergy/client.go.
+                expr = "energyd_supplier_api_version_changed == 1";
+                for = "10m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "NextEnergy changed an API version";
+                  description = "energyd's hard-coded apiVersion is stale; update pkgs/energyd/nextenergy/client.go from the app's public scripts.";
+                };
+              }
+              {
+                alert = "EnergydTomorrowPricesMissing";
+                # Prices publish around 12:00 UTC. PromQL has UTC hours only, and
+                # the window ends before local midnight, when "tomorrow" rolls over
+                # and is empty again by nature.
+                expr = "energyd_tomorrow_price_hours == 0 and on () (hour() >= 14 and hour() < 22)";
+                for = "1h";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "Tomorrow's energy prices are missing";
+                  description = "EnergyZero has not published tomorrow's prices through energyd two hours after the market result.";
+                };
+              }
+              {
+                alert = "EnergydSourceStale";
+                # Thresholds follow each source's cadence. The absent() arm is the
+                # canary for a rename or a source that never once succeeded.
+                expr = ''
+                  time() - energyd_source_last_success_timestamp_seconds{source="meter"} > 1800
+                  or time() - energyd_source_last_success_timestamp_seconds{source="prices"} > 3 * 3600
+                  or time() - energyd_source_last_success_timestamp_seconds{source="nextenergy"} > 86400
+                  or time() - energyd_source_last_success_timestamp_seconds{source="weather"} > 2 * 86400
+                  or absent(energyd_source_last_success_timestamp_seconds{source="meter"})
+                  or absent(energyd_source_last_success_timestamp_seconds{source="prices"})
+                  or absent(energyd_source_last_success_timestamp_seconds{source="weather"})
+                '';
+                for = "15m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "energyd source {{ $labels.source }} is stale";
+                  description = "energyd has not read {{ $labels.source }} successfully within its normal cadence. Check the service log.";
+                };
+              }
+              {
+                alert = "EnergydSupplierNeverRead";
+                # Success is per process, and a restart inside the hour after the
+                # last login waits out login spacing, so this needs a long wait.
+                expr = ''absent(energyd_source_last_success_timestamp_seconds{source="nextenergy"})'';
+                for = "2h";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "energyd has not read NextEnergy since it started";
+                  description = "energyd has no successful NextEnergy read in this process. Check its credentials in secrets/energyd.age and the service log.";
+                };
+              }
+              {
+                alert = "EnergydComputedDrift";
+                # Computed electricity tracks NextEnergy within a fraction of a
+                # percent. A lasting gap means a rate or the price feed moved.
+                expr = "energyd_computed_error_ratio > 0.05";
+                for = "2d";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "Computed energy cost has drifted from NextEnergy's";
+                  description = "Computed electricity differs from NextEnergy's figures by {{ $value | humanizePercentage }} over the last week.";
                 };
               }
               {

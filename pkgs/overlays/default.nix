@@ -30,6 +30,8 @@ final: prev: {
 
   energyd = prev.callPackage ../energyd { };
 
+  dashboards = prev.callPackage ../dashboards { };
+
   ghostty-tab = prev.callPackage ./ghostty-tab.nix { };
 
   pm-cli = prev.callPackage ./pm-cli.nix { };

@@ -49,6 +49,8 @@ const (
 	// floorWatts is the always-on load: a low percentile and not the minimum,
 	// because a dropped reading or a cycling load makes the minimum a lie.
 	floorWatts = `max(quantile_over_time(0.05, homewizard_active_power_watts[48h]))`
+	meterWatts = `max(homewizard_active_power_watts)`
+	plugWatts  = `label_replace(max by (instance) (tasmota_power_watts), "plug", "$1", "instance", "([^.]+).*")`
 	// meanPrice prices plugs; it ignores when a plug ran.
 	meanPrice = `scalar(energyd_mean_price_30d_eur_per_kwh)`
 )
@@ -175,17 +177,30 @@ func lineOnRight(unit string) []dashboard.DynamicConfigValue {
 	}
 }
 
+// queries names each query of a panel. Grafana rejects queries sharing an ID, and
+// an empty ID counts, which shows an error and drops a series.
+func queries(targets ...*prometheus.DataqueryBuilder) []*prometheus.DataqueryBuilder {
+	for i, t := range targets {
+		t.RefId(string(rune('A' + i)))
+	}
+
+	return targets
+}
+
 func tile(title, desc, unit string, targets ...*prometheus.DataqueryBuilder) *stat.PanelBuilder {
 	p := stat.NewPanelBuilder().
 		Title(title).Description(desc).Unit(unit).
-		Datasource(promDS()).Span(4).Height(5).
+		Datasource(promDS()).Span(6).Height(4).
 		TimeFrom(nowWindow).
 		HideTimeOverride(true).
 		GraphMode(common.BigValueGraphModeNone).
+		// Vertical puts values side by side. Stacked, the second value overflows a
+		// tile this short and is simply not shown.
+		Orientation(common.VizOrientationVertical).
 		// The default thresholds paint any number above 80 red, which says nothing.
 		ColorScheme(dashboard.NewFieldColorBuilder().Mode(dashboard.FieldColorModeIdFixed).FixedColor("text")).
 		ReduceOptions(common.NewReduceDataOptionsBuilder().Calcs([]string{"lastNotNull"}))
-	for _, t := range targets {
+	for _, t := range queries(targets...) {
 		p = p.WithTarget(t)
 	}
 
@@ -244,6 +259,8 @@ func answersPanels() []cog.Builder[dashboard.Panel] {
 			ColorMode(common.BigValueColorModeBackground),
 		tile("Next cheap window", "Start of the cheapest three hours still ahead, for the dishwasher or the laundry. Automation beats looking at this.", "dateTimeFromNow",
 			promInstant(`energyd_cheapest_window_start_timestamp_seconds * 1000`, "starts")),
+		tile("Power now", "What the whole home draws right now, at the P1 meter.", unitWatt,
+			promInstant(meterWatts, "now")),
 		tile("Today (computed)", "Computed cost so far today, including fixed cost. It lags the meter by up to 15 minutes, and NextEnergy's figure replaces it a day later.", unitEUR,
 			promInstant(`energyd_cost_today_eur`, "today")),
 		tile("Month so far", "This month from NextEnergy's daily figures, computed where they have not arrived, against the monthly advance.", unitEUR,
@@ -257,10 +274,10 @@ func answersPanels() []cog.Builder[dashboard.Panel] {
 				dashboard.Threshold{Value: new(1.0), Color: "red"},
 			)).
 			ColorMode(common.BigValueColorModeValue),
-		tile("Always-on floor", "The lowest 5% of power over two days, so a dropped reading cannot pull it down. Everything that never turns off is in here, and for this home it is the biggest lever.", unitWatt,
-			promInstant(floorWatts, "floor")),
-		tile("Floor per year", "What the always-on floor costs in a year at the 30-day mean price.", unitEUR,
-			promInstant(floorWatts+` / 1000 * 8760 * `+meanPrice, "per year")),
+		tile("Always-on floor", "The lowest 5% of power over two days, so a dropped reading cannot pull it down, and what that costs in a year at the 30-day mean price. Everything that never turns off is in here, and for this home it is the biggest lever.", unitWatt,
+			promInstant(floorWatts, "floor"),
+			promInstant(floorWatts+` / 1000 * 8760 * `+meanPrice, "per year")).
+			OverrideByName("per year", []dashboard.DynamicConfigValue{{Id: "unit", Value: unitEUR}}),
 	}
 }
 
@@ -272,6 +289,14 @@ func todayPanels() []cog.Builder[dashboard.Panel] {
 			Legend(legend("mean", "max")).
 			WithTarget(series(hoursURL, num("kwh", "kWh"), num("all_in_eur_kwh", "price"))).
 			OverrideByName("price", lineOnRight(unitEUR)),
+		colored(graph("Power", "What the home draws at the P1 meter, with each smart plug under it. The gap between the top line and the plugs is everything unmetered.", unitWatt, 12), "total", colorElec).
+			Datasource(promDS()).
+			TimeFrom("6h").
+			WithTarget(prom(meterWatts, "total").RefId("A")).
+			WithTarget(prom(plugWatts, "{{plug}}").RefId("B")),
+		colored(bars("Hourly gas", "m³ per hour from the meter. Every hour of a gas day has the same price, so this shows when the boiler ran and not what it cost.", unitM3, 12), "m³", colorGas).
+			Legend(legend("sum", "max")).
+			WithTarget(series(hoursURL, num("m3", "m³"))),
 		statetimeline.NewPanelBuilder().
 			Title("Price band").
 			Description("Each hour against its own day's prices: cheapest third, middle, dearest third. Use it to plan loads that can wait.").
@@ -300,8 +325,8 @@ func monthPanels() []cog.Builder[dashboard.Panel] {
 			ColorScheme(palette()).
 			Legend(simpleLegend()).
 			ReduceOptions(common.NewReduceDataOptionsBuilder().Calcs([]string{"lastNotNull"})).
-			WithTarget(promInstant(`sort_desc(label_replace(max by (instance) (increase(tasmota_kwh_total`+window+`)) * `+meanPrice+`, "plug", "$1", "instance", "([^.]+).*"))`, "{{plug}}")).
-			WithTarget(promInstant(`label_replace((max(avg_over_time(homewizard_active_power_watts`+window+`)) * 720 / 1000 - sum(max by (instance) (increase(tasmota_kwh_total`+window+`)))) * `+meanPrice+`, "plug", "unmetered", "", "")`, "{{plug}}")),
+			WithTarget(promInstant(`sort_desc(label_replace(max by (instance) (increase(tasmota_kwh_total`+window+`)) * `+meanPrice+`, "plug", "$1", "instance", "([^.]+).*"))`, "{{plug}}").RefId("A")).
+			WithTarget(promInstant(`label_replace((max(avg_over_time(homewizard_active_power_watts`+window+`)) * 720 / 1000 - sum(max by (instance) (increase(tasmota_kwh_total`+window+`)))) * `+meanPrice+`, "plug", "unmetered", "", "")`, "{{plug}}").RefId("B")),
 		colored(colored(colored(stacked(bars("Daily cost", "Each day's cost split into electricity, gas and fixed cost. NextEnergy's daily figures once delivered; computed before that.", unitEUR, 12)),
 			"electricity", colorElec), "gas", colorGas), "fixed", colorFixed).
 			TimeFrom("30d").
@@ -421,23 +446,25 @@ func detailPanels() []cog.Builder[dashboard.Panel] {
 		Title("Use above the floor by weekday and hour").
 		Description("Mean kWh above each day's smallest hour, over the last 90 days. It shows habits with the constant load taken out.").
 		Datasource(infinityDS()).
-		Unit(unitKWh).
+		Unit("none").
 		Decimals(2).
-		Span(24).Height(9).
+		MinWidth(36).
+		Span(24).Height(10).
+		// Infinity sorts columns by name, which puts the day last.
+		WithTransformation(dashboard.DataTransformerConfig{Id: "organize", Options: map[string]any{
+			"indexByName": map[string]int{"day": 0},
+		}}).
 		ColorScheme(dashboard.NewFieldColorBuilder().Mode(dashboard.FieldColorModeIdContinuousGrYlRd)).
 		CellOptions(common.TableCellOptions{TableColoredBackgroundCellOptions: common.NewTableColoredBackgroundCellOptions()}).
 		WithTarget(infinity("/api/weekdayhours", "table", columns...))
 
 	return []cog.Builder[dashboard.Panel]{
 		heat,
-		graph("Plugs, live", "Power per smart plug.", unitWatt, 12).
-			Datasource(promDS()).
-			TimeFrom("24h").
-			WithTarget(prom(`max by (instance) (tasmota_power_watts)`, "{{instance}}")),
-		colored(graph("Meter, live", "Total power at the P1 meter. Live watts are for debugging; the euros above are the point.", unitWatt, 12), "total", colorElec).
-			Datasource(promDS()).
-			TimeFrom("24h").
-			WithTarget(prom(`max(homewizard_active_power_watts)`, "total")),
+		tile("Gas meter", "The gas meter's lifetime reading, to check against the meter itself.", unitM3,
+			promInstant(`max(homewizard_gas_m3_total)`, "reading")),
+		tile("Power failures", "Lifetime counts from the meter. Each new failure is also marked on the time graphs.", "none",
+			promInstant(`max(homewizard_any_power_fail_count)`, "any"),
+			promInstant(`max(homewizard_long_power_fail_count)`, "long")),
 		graph("Voltage", "Voltage per phase at the meter.", unitVolt, 12).
 			Datasource(promDS()).
 			TimeFrom("7d").
@@ -445,21 +472,21 @@ func detailPanels() []cog.Builder[dashboard.Panel] {
 		graph("Sags and swells", "Grid events per phase per day, from the meter's counters.", "none", 12).
 			Datasource(promDS()).
 			TimeFrom("30d").
-			WithTarget(prom(`increase(homewizard_voltage_sags_total[1d])`, "sag {{phase}}")).
-			WithTarget(prom(`increase(homewizard_voltage_swells_total[1d])`, "swell {{phase}}")),
+			WithTarget(prom(`increase(homewizard_voltage_sags_total[1d])`, "sag {{phase}}").RefId("A")).
+			WithTarget(prom(`increase(homewizard_voltage_swells_total[1d])`, "swell {{phase}}").RefId("B")),
 	}
 }
 
-// buildDashboard assembles the dashboard. Build() validates it, so a malformed
-// panel fails the generating derivation.
+// buildLeiden assembles the Leiden home dashboard. Build() validates it, so a
+// malformed panel fails the generating derivation.
 //
 //nolint:staticcheck // v1 model required for portable file-based provisioning
-func buildDashboard() (dashboard.Dashboard, error) {
+func buildLeiden() (dashboard.Dashboard, error) {
 	b := dashboard.NewDashboardBuilder("Leiden").
 		Uid("leiden-energy").
-		Description("What energy costs this home and why: NextEnergy's daily figures, day-ahead prices, the P1 meter and the plugs. Generated from pkgs/energyd/cmd/dashboard.").
+		Description("What energy costs this home and why: NextEnergy's daily figures, day-ahead prices, the P1 meter and the plugs. Generated from pkgs/dashboards.").
 		Tags([]string{"energy", "leiden", "nix", "generated"}).
-		Refresh("5m").
+		Refresh("1m").
 		// A browser timezone would send offset 0 for absolute ranges and shift
 		// every day bar; bills are in this zone.
 		Timezone("Europe/Amsterdam").

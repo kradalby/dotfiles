@@ -734,6 +734,7 @@
           owntone-restart = pkgs.p3-controller.tests.owntone-restart;
           go-oci-usage-exporter = pkgs.oci-usage-exporter;
           go-energyd = pkgs.energyd;
+          go-dashboards = pkgs.dashboards;
           go-authkey = pkgs.authkey;
           go-rnb = pkgs.rnb;
           go-rustic-wrapper = pkgs.rustic-wrapper;
