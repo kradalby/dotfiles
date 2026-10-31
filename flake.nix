@@ -349,6 +349,15 @@
             # binary and printed by `herdr --skill`, so it tracks the package
             # version — nothing to vendor or maintain.
             herdr-skill = final.runCommand "herdr-skill.md" { } "${final.herdr}/bin/herdr --skill > $out";
+            # Named apart from nixpkgs' rex, an unrelated automation tool.
+            rex-cli = inputs.rex.packages."${system}".rex;
+            # The stub `rex skill setup` writes, so `rex skill status` reads current.
+            # It asks the installed rex for the guide, which tracks that version.
+            rex-skill = final.runCommand "rex-skill" { } ''
+              export HOME=$TMPDIR REX_AUTOSTART=0
+              ${final.rex-cli}/bin/rex skill setup --agent claude >/dev/null
+              install -Dm644 $HOME/.claude/skills/rex/SKILL.md $out/SKILL.md
+            '';
             ai-plugins = import ./home/ai-plugins.nix {
               inherit inputs;
               pkgs = final;
