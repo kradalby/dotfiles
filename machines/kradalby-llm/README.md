@@ -47,7 +47,25 @@ On first start, open the link from `rex server status` and sign in as
 `kradalby@kradalby.no`.
 
 A Home Manager switch does not restart the server. Running the new version
-needs `systemctl --user restart rex`, which ends every session.
+needs `systemctl --user restart rex`, which ends every program.
+
+After a restart or a crash, sessions, windows, blocks and working directories
+come back as new shells. A crash can lose the newest working directories.
+Commands do not run again, and scrollback and environment variables are gone.
+Resume agents with their own command, such as `claude --resume`. Keep long
+output in a file.
+
+When memory runs out, the kernel should pick programs in blocks before the
+server, because fish raises their OOM score. `rex run --shell=none` skips fish,
+so those programs keep the server's score. A killed program leaves the server
+and the other blocks running.
+
+Programs under `sudo` read root's terminal database, which Home Manager cannot
+change here. Add Rex's entry once:
+
+```console
+sudo ~/.nix-profile/bin/rex terminfo setup --system
+```
 
 Rex refuses to start if this VM's own node gets tagged, because owner-only
 admission then admits nobody. That also takes down the personal route.
