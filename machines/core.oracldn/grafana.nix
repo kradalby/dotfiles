@@ -71,6 +71,9 @@ let
     cp ${
       inputs.ghdl.packages.${pkgs.stdenv.hostPlatform.system}.grafanaDashboards
     }/ghdl-service.json $out/ghdl-service.json
+
+    # Dashboards that chart several fleet services side by side, generated from Go.
+    cp ${pkgs.dashboards.grafanaDashboards}/*.json $out/
   '';
 in
 {
@@ -171,6 +174,14 @@ in
             type = "yesoreyeram-infinity-datasource";
             access = "proxy";
             url = "http://ghdl";
+            jsonData = { };
+          }
+          {
+            # energyd's JSON API, on localhost beside Grafana.
+            name = "energyd";
+            type = "yesoreyeram-infinity-datasource";
+            access = "proxy";
+            url = "http://${config.services.energyd.listenAddr}";
             jsonData = { };
           }
         ];

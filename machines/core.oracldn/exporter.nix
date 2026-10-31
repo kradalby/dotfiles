@@ -9,6 +9,19 @@
     environmentFile = config.age.secrets.oci-usage-exporter.path;
   };
 
+  # NextEnergy has no customer API, so energyd logs in to its app backend. Plain
+  # servers cannot read setec, so production credentials live here; the same
+  # values are in setec at nextenergy/kradalby/* for dev runs.
+  age.secrets.energyd.file = ../../secrets/energyd.age;
+
+  services.energyd = {
+    enable = true;
+    environmentFile = config.age.secrets.energyd.path;
+  };
+
+  # The environment file's path never changes, so a new secret would not restart it.
+  systemd.services.energyd.restartTriggers = [ config.age.secrets.energyd.file ];
+
   services.tasmota-exporter = {
     enable = true;
     listenAddr = "localhost:63459";

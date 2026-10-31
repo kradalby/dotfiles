@@ -4,6 +4,7 @@
     ./inference/linux.nix
     ./mqtt-exporter
     ./oci-usage-exporter.nix
+    ./energyd.nix
     ./tailscale-proxy.nix
     ./vhost.nix
     ./restic-jobs.nix

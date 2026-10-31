@@ -1294,11 +1294,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1793397498,
-        "narHash": "sha256-unXVkJpi+QLUpOVUA/g5ySS+5EmpcHV3phSxuZEQ/kc=",
+        "lastModified": 1793434222,
+        "narHash": "sha256-RugGj5DR2JRMBdI/l9hnXIRZhPKL/1DtRC+/hKkhC7Y=",
         "owner": "kradalby",
         "repo": "homewizard-p1-exporter",
-        "rev": "3a2e29a15000b44cc16fe85658e3e01482e9cc43",
+        "rev": "5aca2bda2f5c6340ad1ac197c7642e10241b1a4d",
         "type": "github"
       },
       "original": {
@@ -1431,11 +1431,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1791792183,
-        "narHash": "sha256-A4kXRNvla1U0JmoOme2uRNTLoj1t5OfpNkFPkHWZg48=",
+        "lastModified": 1793431950,
+        "narHash": "sha256-4Z+ojK7O5Seah5igsDIr1XuYM58H57XO4ZbUXlXYUBA=",
         "owner": "kradalby",
         "repo": "nefit-homekit",
-        "rev": "1453be4585350ed901173adcad7a6b072d526e6f",
+        "rev": "bc875b7b187d702b387daf69199604c03546a7c5",
         "type": "github"
       },
       "original": {
