@@ -1,6 +1,6 @@
 # energyd
 
-Ledger of what energy costs this home. It reads NextEnergy's app backend, EnergyZero day-ahead prices, the HomeWizard P1 meter and Open-Meteo into SQLite. It serves `/metrics` and a JSON API on localhost for Prometheus and Grafana's Infinity datasource. The Leiden dashboard that charts it lives in `pkgs/dashboards`, because it charts other services too.
+Ledger of what energy costs this home. It reads NextEnergy's app backend, EnergyZero day-ahead prices, the HomeWizard P1 meter and yr.no weather into SQLite. It serves `/metrics` and a JSON API on localhost for Prometheus and Grafana's Infinity datasource. The Leiden dashboard that charts it lives in `pkgs/dashboards`, because it charts other services too.
 
 NextEnergy has no customer API. The client speaks the app's undocumented protocol, and may break without notice.
 
@@ -43,6 +43,10 @@ A stale `apiVersion` answers HTTP 200 with empty data. To fix it:
 1. Fetch `https://mijn.nextenergy.nl/Mobile_EnergyNext/moduleservices/moduleinfo` and find the action's versioned screen script.
 2. Read the new `apiVersion` from the `callDataAction` or `callServerAction` call in that script.
 3. Update the `action` table in `nextenergy/client.go`.
+
+## Weather
+
+New days come from yr.no (MET Norway's Locationforecast). It only looks forward and has no past for this location, so energyd keeps each hour's last forecast and builds the daily mean from those hours. Past days it never saw come from Open-Meteo's archive, during a backfill only, and that never replaces a stored day.
 
 ## Schema
 
