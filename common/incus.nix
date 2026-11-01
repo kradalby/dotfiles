@@ -23,8 +23,8 @@
     ];
   };
 
-  # Raising a guest's incus disk size does nothing on its own: sda2 is the last
-  # partition and stays where it is. These two make the guest claim the new
+  # Raising a guest's incus disk size does nothing on its own: the root partition
+  # is last and stays where it is. These two make the guest claim the new
   # space itself at boot, so growing a VM is one number in infrastructure/incus
   # plus a reboot, with no partition surgery on a live root. No-op when the
   # partition already fills the disk.
@@ -32,15 +32,16 @@
   # The /tmp tmpfs can mount over growpart's working directory mid-run.
   systemd.services.growpart.environment.TMPDIR = "/run";
 
+  # By label: sdX follows probe order, which a second disk can change.
   fileSystems = {
     "/" = {
-      device = "/dev/sda2";
+      device = "/dev/disk/by-label/nixos";
       fsType = "ext4";
       autoResize = true;
     };
 
     "/boot" = {
-      device = "/dev/sda1";
+      device = "/dev/disk/by-label/ESP";
       fsType = "vfat";
     };
   };

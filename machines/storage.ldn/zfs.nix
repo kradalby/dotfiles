@@ -19,8 +19,8 @@ in
     ../../common/zfs.nix
     ../../common/sanoid-exporter.nix
   ];
-  # Disk preparation (single 5 TB disk at /dev/sdb)
-  # The disk is stably exposed as /dev/sdb inside the VM.
+  # Disk preparation (single passthrough disk). Use the by-id path: sdX follows
+  # probe order.
   # Example:
   #   zpool create -f \
   #     -O canmount=on \
@@ -31,7 +31,7 @@ in
   #     -O acltype=posixacl \
   #     -O utf8only=on \
   #     -O normalization=formD \
-  #     storage /dev/sdb
+  #     storage /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_incus_storage
   #   for fs in backup books dropbox libraries pictures software sync timemachine; do
   #     zfs create -o canmount=on -o mountpoint=/storage/$fs storage/$fs
   #   done
