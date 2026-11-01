@@ -367,6 +367,61 @@ func TestEstimateProjectsElectricityAndGasPerDegreeDay(t *testing.T) {
 	require.InDelta(t, sofar+wantElec+wantFixed+wantGas, got.YearCostEUR, 1)
 }
 
+// Heating starts below the balance point, so the least-squares base can come out
+// negative. Clamping only the base keeps the steep slope and overstates the year.
+func TestGasFitKeepsTheYearsTotalWhenTheBaseWouldBeNegative(t *testing.T) {
+	var (
+		days    []dbsqlc.SupplierDay
+		weather []dbsqlc.WeatherDay
+		total   float64
+		degrees float64
+	)
+
+	for i := range 100 {
+		day := fmt.Sprintf("2026-%02d-%02d", i/28+1, i%28+1)
+		mean, m3 := 17.0, 0.0
+		if i%2 == 0 {
+			mean, m3 = 8, 5
+		}
+
+		days = append(days, dbsqlc.SupplierDay{Day: day, GasM3: m3})
+		weather = append(weather, dbsqlc.WeatherDay{Day: day, MeanC: mean})
+		total += m3
+		degrees += heatingDegrees(mean)
+	}
+
+	base, perDegree := fitGas(days, weather)
+	require.Zero(t, base)
+	require.InDelta(t, total, perDegree*degrees, 1e-6)
+}
+
+// A month of use is seasonal and a year of it is not, so a winter month must not
+// set the use of the whole remaining year. The month still sets the price.
+func TestEstimateProjectsAYearOfElectricityUseAtTheRecentPrice(t *testing.T) {
+	f := newFixture(t, "2026-09-12 12:00")
+
+	day := at(t, "2025-09-12 00:00")
+	for day.Before(at(t, "2026-09-12 00:00")) {
+		date := tz.DateString(day)
+		f.weather(date, 18)
+
+		kwh, delivery, tax := 10.0, 0.5, 0.5 // 0.10 a kWh for most of the year
+		if !day.Before(at(t, "2026-08-15 00:00")) {
+			kwh, delivery, tax = 20, 4, 4 // 0.40 a kWh, and twice the use, for the last 28 days
+		}
+
+		f.supplierDay(date, kwh, delivery, tax, 0, 0, 0, 0, 0)
+		day = day.AddDate(0, 0, 1)
+	}
+
+	got, err := f.led.Estimate(f.Context())
+	require.NoError(t, err)
+
+	meanKWh := (337*10.0 + 28*20.0) / 365
+	sofar := 2 * 8.0 // 09-10 and 09-11
+	require.InDelta(t, sofar+363*meanKWh*0.40, got.YearCostEUR, 1)
+}
+
 func TestEstimateWithoutHistoryDoesNotInventGas(t *testing.T) {
 	f := newFixture(t, "2026-09-12 12:00")
 	f.bill("Termijnnota", "2026-10-01", "2026-11-01", 100)
