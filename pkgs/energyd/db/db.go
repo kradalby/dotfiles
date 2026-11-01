@@ -21,11 +21,27 @@ import (
 //go:embed schema.sql
 var dbSchema string
 
+const (
+	deployedSchemaDigest = "66edde0343f39854c33a3dff9652fcf26044bb04a9c2b9e6f69db072b5953b68"
+	weatherHoursDigest   = "eb76d986d475138a9b66ebec1ce52e263a6975980a90ce09a3563cf00f5499e2"
+
+	// weatherHoursTable must match schema.sql byte for byte.
+	weatherHoursTable = `CREATE TABLE weather_hours (
+    hour_ts INTEGER PRIMARY KEY,
+    temp_c  REAL NOT NULL
+)`
+)
+
 // IgnoreTables keeps litestream's bookkeeping tables out of the schema digest:
 // litestream creates them at runtime, and squibble would refuse them as drift.
 var schema = &squibble.Schema{
 	Current:      dbSchema,
 	IgnoreTables: []string{"_litestream_seq", "_litestream_lock"},
+	Updates: []squibble.UpdateRule{{
+		Source: deployedSchemaDigest,
+		Target: weatherHoursDigest,
+		Apply:  squibble.Exec(weatherHoursTable),
+	}},
 }
 
 // DB is the ledger store. Reads go through the embedded generated queries.

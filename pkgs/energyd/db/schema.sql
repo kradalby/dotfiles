@@ -86,3 +86,10 @@ CREATE TABLE weather_days (
     day    TEXT PRIMARY KEY,
     mean_c REAL NOT NULL
 );
+
+-- weather_hours holds yr.no's temperature per hour. yr.no only looks forward, so
+-- each hour keeps the last forecast made for it, and days are built from these.
+CREATE TABLE weather_hours (
+    hour_ts INTEGER PRIMARY KEY,
+    temp_c  REAL NOT NULL
+);

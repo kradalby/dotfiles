@@ -6,11 +6,14 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 	"syscall"
 	"testing"
 	"time"
 
+	"github.com/juanfont/headscale/hscontrol/db/sqliteconfig"
 	"github.com/stretchr/testify/require"
+	"github.com/tailscale/squibble"
 
 	"energyd/db/dbsqlc"
 )
@@ -23,6 +26,41 @@ func openTest(t *testing.T) *DB {
 	t.Cleanup(func() { _ = d.Close() })
 
 	return d
+}
+
+// The live database holds years of history, so a schema change must upgrade it in
+// place, keep what it holds, and reach the same schema a new database gets.
+func TestSchemaUpgradesTheDeployedDatabase(t *testing.T) {
+	ctx := t.Context()
+	path := filepath.Join(t.TempDir(), "test.db")
+
+	before := strings.Replace(dbSchema, weatherHoursTable+";", "", 1)
+	require.NotEqual(t, dbSchema, before)
+
+	digest, err := squibble.SQLDigest(before)
+	require.NoError(t, err)
+	require.Equal(t, deployedSchemaDigest, digest, "the rule must start from the deployed schema")
+
+	uri, err := sqliteconfig.Default(path).ToURL()
+	require.NoError(t, err)
+
+	old, err := sql.Open("sqlite", uri)
+	require.NoError(t, err)
+	require.NoError(t, (&squibble.Schema{Current: before, IgnoreTables: schema.IgnoreTables}).Apply(ctx, old))
+	_, err = old.ExecContext(ctx, `INSERT INTO weather_days (day, mean_c) VALUES ('2026-10-30', 12.5)`)
+	require.NoError(t, err)
+	require.NoError(t, old.Close())
+
+	d, err := Open(ctx, path)
+	require.NoError(t, err)
+	t.Cleanup(func() { _ = d.Close() })
+
+	rows, err := d.WeatherBetween(ctx, dbsqlc.WeatherBetweenParams{FromDay: "", ToDay: "9999"})
+	require.NoError(t, err)
+	require.Len(t, rows, 1, "history survives the upgrade")
+
+	require.NoError(t, d.UpsertWeatherHour(ctx, dbsqlc.UpsertWeatherHourParams{HourTs: 3600, TempC: 9}))
+	require.NoError(t, schema.Check())
 }
 
 // The ledger is replicated off-site, so personal data must not be able to reach
