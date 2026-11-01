@@ -68,3 +68,8 @@ type WeatherDay struct {
 	Day   string  `db:"day"`
 	MeanC float64 `db:"mean_c"`
 }
+
+type WeatherHour struct {
+	HourTs int64   `db:"hour_ts"`
+	TempC  float64 `db:"temp_c"`
+}

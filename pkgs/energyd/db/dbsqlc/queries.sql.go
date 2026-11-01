@@ -84,6 +84,21 @@ func (q *Queries) InsertReading(ctx context.Context, arg InsertReadingParams) er
 	return err
 }
 
+const insertWeatherIfMissing = `-- name: InsertWeatherIfMissing :exec
+INSERT INTO weather_days (day, mean_c) VALUES (?, ?)
+ON CONFLICT (day) DO NOTHING
+`
+
+type InsertWeatherIfMissingParams struct {
+	Day   string  `db:"day"`
+	MeanC float64 `db:"mean_c"`
+}
+
+func (q *Queries) InsertWeatherIfMissing(ctx context.Context, arg InsertWeatherIfMissingParams) error {
+	_, err := q.db.ExecContext(ctx, insertWeatherIfMissing, arg.Day, arg.MeanC)
+	return err
+}
+
 const lastReadingBefore = `-- name: LastReadingBefore :one
 SELECT period_start, read_at, import_kwh, export_kwh, gas_m3 FROM meter_readings
 WHERE period_start < ?1
@@ -551,6 +566,21 @@ func (q *Queries) UpsertWeather(ctx context.Context, arg UpsertWeatherParams) er
 	return err
 }
 
+const upsertWeatherHour = `-- name: UpsertWeatherHour :exec
+INSERT INTO weather_hours (hour_ts, temp_c) VALUES (?, ?)
+ON CONFLICT (hour_ts) DO UPDATE SET temp_c = excluded.temp_c
+`
+
+type UpsertWeatherHourParams struct {
+	HourTs int64   `db:"hour_ts"`
+	TempC  float64 `db:"temp_c"`
+}
+
+func (q *Queries) UpsertWeatherHour(ctx context.Context, arg UpsertWeatherHourParams) error {
+	_, err := q.db.ExecContext(ctx, upsertWeatherHour, arg.HourTs, arg.TempC)
+	return err
+}
+
 const weatherBetween = `-- name: WeatherBetween :many
 SELECT day, mean_c FROM weather_days
 WHERE day >= ?1 AND day <= ?2
@@ -572,6 +602,40 @@ func (q *Queries) WeatherBetween(ctx context.Context, arg WeatherBetweenParams) 
 	for rows.Next() {
 		var i WeatherDay
 		if err := rows.Scan(&i.Day, &i.MeanC); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const weatherHoursBetween = `-- name: WeatherHoursBetween :many
+SELECT hour_ts, temp_c FROM weather_hours
+WHERE hour_ts >= ?1 AND hour_ts < ?2
+ORDER BY hour_ts
+`
+
+type WeatherHoursBetweenParams struct {
+	FromTs int64 `db:"from_ts"`
+	ToTs   int64 `db:"to_ts"`
+}
+
+func (q *Queries) WeatherHoursBetween(ctx context.Context, arg WeatherHoursBetweenParams) ([]WeatherHour, error) {
+	rows, err := q.db.QueryContext(ctx, weatherHoursBetween, arg.FromTs, arg.ToTs)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []WeatherHour
+	for rows.Next() {
+		var i WeatherHour
+		if err := rows.Scan(&i.HourTs, &i.TempC); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
