@@ -109,6 +109,19 @@ ON CONFLICT (id) DO UPDATE SET
 INSERT INTO weather_days (day, mean_c) VALUES (?, ?)
 ON CONFLICT (day) DO UPDATE SET mean_c = excluded.mean_c;
 
+-- name: InsertWeatherIfMissing :exec
+INSERT INTO weather_days (day, mean_c) VALUES (?, ?)
+ON CONFLICT (day) DO NOTHING;
+
+-- name: UpsertWeatherHour :exec
+INSERT INTO weather_hours (hour_ts, temp_c) VALUES (?, ?)
+ON CONFLICT (hour_ts) DO UPDATE SET temp_c = excluded.temp_c;
+
+-- name: WeatherHoursBetween :many
+SELECT * FROM weather_hours
+WHERE hour_ts >= sqlc.arg(from_ts) AND hour_ts < sqlc.arg(to_ts)
+ORDER BY hour_ts;
+
 -- name: WeatherBetween :many
 SELECT * FROM weather_days
 WHERE day >= sqlc.arg(from_day) AND day <= sqlc.arg(to_day)
