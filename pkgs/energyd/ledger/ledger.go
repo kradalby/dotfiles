@@ -1044,9 +1044,10 @@ func (l *Ledger) Estimate(ctx context.Context) (Estimate, error) {
 		return est, nil
 	}
 
-	var elec, m3, gasEUR float64
+	var elec, kwh, m3, gasEUR float64
 	for _, d := range recent {
 		elec += d.ElecDeliveryEur + d.ElecTaxEur
+		kwh += d.ElecKwh
 		m3 += d.GasM3
 		gasEUR += d.GasDeliveryEur + d.GasTaxEur
 	}
@@ -1056,6 +1057,16 @@ func (l *Ledger) Estimate(ctx context.Context) (Estimate, error) {
 
 	fit := daysSince(v.days, tz.DateString(today.AddDate(0, 0, -estimateFitDays)), todayStr)
 	est.GasBaseM3PerDay, est.GasM3PerDegree = fitGas(fit, weather)
+
+	// A month of use is seasonal and a year of it is not. The month sets the price.
+	if kwh > 0 {
+		var yearKWh float64
+		for _, d := range fit {
+			yearKWh += d.ElecKwh
+		}
+
+		elecPerDay = yearKWh / float64(len(fit)) * elec / kwh
+	}
 
 	// Summer has too little gas for a stable unit price, so widen to the year.
 	if m3 < 1 {
@@ -1185,9 +1196,15 @@ func fitGas(days []dbsqlc.SupplierDay, weather []dbsqlc.WeatherDay) (base, perDe
 	}
 
 	perDegree = max(0, (n*sumXY-sumX*sumY)/denominator)
-	base = max(0, (sumY-perDegree*sumX)/n)
 
-	return base, perDegree
+	base = (sumY - perDegree*sumX) / n
+	if base >= 0 {
+		return base, perDegree
+	}
+
+	// Heating starts below the balance point, which makes the base negative. With
+	// no base, the slope alone must carry the total or the year is overstated.
+	return 0, max(0, sumY/sumX)
 }
 
 // normalDegrees is mean degree days by MM-DD across every stored year.
