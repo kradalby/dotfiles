@@ -8,6 +8,7 @@ import (
 	"net/http/httptest"
 	"path/filepath"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -253,24 +254,195 @@ func TestPricesRejectAnUnparsableValue(t *testing.T) {
 	require.Empty(t, rows)
 }
 
-func TestWeatherStoresDailyMeans(t *testing.T) {
-	var path string
+// yrReply builds a Locationforecast reply with one temperature per hour.
+func yrReply(start time.Time, temps ...float64) string {
+	points := make([]string, 0, len(temps))
+	for i, temp := range temps {
+		at := start.Add(time.Duration(i) * time.Hour).UTC().Format(time.RFC3339)
+		points = append(points, fmt.Sprintf(`{"time":%q,"data":{"instant":{"details":{"air_temperature":%v}}}}`, at, temp))
+	}
+
+	return `{"properties":{"timeseries":[` + strings.Join(points, ",") + `]}}`
+}
+
+func repeated(temp float64, n int) []float64 {
+	temps := make([]float64, n)
+	for i := range temps {
+		temps[i] = temp
+	}
+
+	return temps
+}
+
+func weatherRows(t *testing.T, d *db.DB) map[string]float64 {
+	t.Helper()
+
+	rows, err := d.WeatherBetween(t.Context(), dbsqlc.WeatherBetweenParams{FromDay: "", ToDay: "9999"})
+	require.NoError(t, err)
+
+	got := map[string]float64{}
+	for _, r := range rows {
+		got[r.Day] = r.MeanC
+	}
+
+	return got
+}
+
+// serveYr answers each request with the next reply, repeating the last.
+func serveYr(t *testing.T, replies ...string) (*Weather, *db.DB) {
+	t.Helper()
+
+	var mu sync.Mutex
+
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		mu.Lock()
+		defer mu.Unlock()
+
+		fmt.Fprint(w, replies[0])
+
+		if len(replies) > 1 {
+			replies = replies[1:]
+		}
+	}))
+	t.Cleanup(srv.Close)
+
+	d := openDB(t)
+
+	return &Weather{DB: d, HTTP: srv.Client(), ForecastURL: srv.URL, ArchiveURL: srv.URL, Latitude: 52.16, Longitude: 4.49}, d
+}
+
+func TestWeatherBuildsADayFromItsHours(t *testing.T) {
+	day := date(t, "2026-10-30")
+	w, d := serveYr(t, yrReply(day, append(repeated(10, 12), repeated(20, 12)...)...))
+
+	require.NoError(t, w.Poll(t.Context(), day.Add(13*time.Hour)))
+	require.InDelta(t, 15, weatherRows(t, d)["2026-10-30"], 1e-9)
+}
+
+// yr.no only looks forward, so what it said last about an hour is all there will
+// ever be, and a later reply must not lose the hours it no longer lists.
+func TestWeatherPastHoursKeepTheLastForecastMadeForThem(t *testing.T) {
+	day := date(t, "2026-10-30")
+	w, d := serveYr(
+		t,
+		yrReply(day, repeated(10, 24)...),
+		yrReply(day.Add(12*time.Hour), repeated(20, 12)...),
+	)
+
+	require.NoError(t, w.Poll(t.Context(), day.Add(time.Hour)))
+	require.NoError(t, w.Poll(t.Context(), day.Add(13*time.Hour)))
+	require.InDelta(t, 15, weatherRows(t, d)["2026-10-30"], 1e-9)
+}
+
+// A mean of the few hours left after an outage is not the day's temperature, and
+// the first poll after a start must not replace a whole day with an afternoon.
+func TestWeatherSkipsADayWithTooFewHours(t *testing.T) {
+	day := date(t, "2026-10-30")
+	w, d := serveYr(t, yrReply(day.Add(18*time.Hour), repeated(5, 6)...))
+
+	require.NoError(t, d.UpsertWeather(t.Context(), dbsqlc.UpsertWeatherParams{Day: "2026-10-30", MeanC: 12}))
+	require.NoError(t, w.Poll(t.Context(), day.Add(18*time.Hour)))
+	require.InDelta(t, 12, weatherRows(t, d)["2026-10-30"], 1e-9)
+}
+
+func TestWeatherStoresNoDayThatHasNotStarted(t *testing.T) {
+	day := date(t, "2026-10-30")
+	w, d := serveYr(t, yrReply(day, repeated(10, 72)...))
+
+	require.NoError(t, w.Poll(t.Context(), day.Add(time.Hour)))
+
+	got := weatherRows(t, d)
+	require.Contains(t, got, "2026-10-30")
+	require.NotContains(t, got, "2026-10-31")
+}
+
+// An empty 200 is how these sources fail, and a poll must say so.
+func TestWeatherEmptyReplyIsAnError(t *testing.T) {
+	w, _ := serveYr(t, `{"properties":{"timeseries":[]}}`)
+	require.ErrorIs(t, w.Poll(t.Context(), date(t, "2026-10-30")), ErrEmpty)
+}
+
+// A point without a temperature must never be stored as zero degrees.
+func TestWeatherSkipsPointsWithoutATemperature(t *testing.T) {
+	day := date(t, "2026-10-30")
+	points := strings.Replace(yrReply(day, repeated(10, 24)...), `"air_temperature":10`, `"air_temperature":null`, 1)
+	w, d := serveYr(t, points)
+
+	require.NoError(t, w.Poll(t.Context(), day.Add(time.Hour)))
+	require.InDelta(t, 10, weatherRows(t, d)["2026-10-30"], 1e-9)
+}
+
+// MET Norway answers 403 without a contact, and asks for at most four decimals.
+func TestWeatherAsksYrTheWayItRequires(t *testing.T) {
+	var (
+		agent string
+		query string
+	)
 
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		path = r.URL.RawQuery
+		agent, query = r.UserAgent(), r.URL.RawQuery
+		fmt.Fprint(w, yrReply(date(t, "2026-10-30"), repeated(10, 24)...))
+	}))
+	defer srv.Close()
+
+	w := &Weather{DB: openDB(t), HTTP: srv.Client(), ForecastURL: srv.URL, Latitude: 52.123456, Longitude: 4.49}
+	require.NoError(t, w.Poll(t.Context(), date(t, "2026-10-30")))
+	require.Contains(t, agent, "github.com/kradalby/dotfiles")
+	require.Contains(t, query, "lat=52.1235")
+	require.Contains(t, query, "lon=4.4900")
+}
+
+// MET Norway asks clients to send If-Modified-Since. Unchanged is not a failure.
+func TestWeatherUnchangedReplyIsSuccess(t *testing.T) {
+	const modified = "Sun, 01 Nov 2026 20:22:48 GMT"
+
+	day := date(t, "2026-10-30")
+
+	var since string
+
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		since = r.Header.Get("If-Modified-Since")
+		if since != "" {
+			w.WriteHeader(http.StatusNotModified)
+
+			return
+		}
+
+		w.Header().Set("Last-Modified", modified)
+		fmt.Fprint(w, yrReply(day, repeated(10, 48)...))
+	}))
+	defer srv.Close()
+
+	d := openDB(t)
+	w := &Weather{DB: d, HTTP: srv.Client(), ForecastURL: srv.URL}
+
+	require.NoError(t, w.Poll(t.Context(), day.Add(time.Hour)))
+	require.NoError(t, w.Poll(t.Context(), day.AddDate(0, 0, 1).Add(time.Hour)))
+	require.Equal(t, modified, since)
+	require.Contains(t, weatherRows(t, d), "2026-10-31", "a day that has started is built even when yr.no has nothing new")
+}
+
+// The archive only fills what yr.no never saw, so history stays as it was stored.
+func TestWeatherArchiveKeepsDaysAlreadyStored(t *testing.T) {
+	var query string
+
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		query = r.URL.RawQuery
 		fmt.Fprint(w, `{"daily":{"time":["2026-10-29","2026-10-30","2026-10-31"],"temperature_2m_mean":[12.9,10.0,null]}}`)
 	}))
 	defer srv.Close()
 
 	d := openDB(t)
-	w := &Weather{DB: d, HTTP: srv.Client(), ForecastURL: srv.URL, ArchiveURL: srv.URL, Latitude: 52.16, Longitude: 4.49}
-	require.NoError(t, w.Recent(t.Context()))
+	require.NoError(t, d.UpsertWeather(t.Context(), dbsqlc.UpsertWeatherParams{Day: "2026-10-30", MeanC: 7}))
 
-	rows, err := d.WeatherBetween(t.Context(), dbsqlc.WeatherBetweenParams{FromDay: "", ToDay: "9999"})
-	require.NoError(t, err)
-	require.Len(t, rows, 2, "a null mean is skipped, never stored as zero degrees")
-	require.InDelta(t, 12.9, rows[0].MeanC, 1e-9)
-	require.Contains(t, path, "timezone=Europe%2FAmsterdam")
+	w := &Weather{DB: d, HTTP: srv.Client(), ArchiveURL: srv.URL}
+	require.NoError(t, w.Archive(t.Context(), date(t, "2026-10-29"), date(t, "2026-10-31")))
+
+	got := weatherRows(t, d)
+	require.Len(t, got, 2, "a null mean is skipped, never stored as zero degrees")
+	require.InDelta(t, 12.9, got["2026-10-29"], 1e-9)
+	require.InDelta(t, 7, got["2026-10-30"], 1e-9)
+	require.Contains(t, query, "timezone=Europe%2FAmsterdam")
 }
 
 func TestWeatherArchiveSendsTheRange(t *testing.T) {

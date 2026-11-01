@@ -38,9 +38,10 @@ const (
 	priceInterval    = time.Hour
 	supplierTick     = time.Hour
 	supplierInterval = 6 * time.Hour
-	weatherInterval  = 6 * time.Hour
-	metricsInterval  = time.Minute
-	httpTimeout      = 20 * time.Second
+	// Hourly, because each past hour keeps the last forecast made for it.
+	weatherInterval = time.Hour
+	metricsInterval = time.Minute
+	httpTimeout     = 20 * time.Second
 
 	// Day-ahead prices appear around 13:00 local.
 	pricesPublishedHour = 13
@@ -316,7 +317,7 @@ func (s *service) pollSupplier(ctx context.Context) {
 }
 
 func (s *service) pollWeather(ctx context.Context) {
-	s.record("weather", s.weather.Recent(ctx))
+	s.record("weather", s.weather.Poll(ctx, time.Now()))
 }
 
 func (s *service) refreshMetrics(ctx context.Context) {
