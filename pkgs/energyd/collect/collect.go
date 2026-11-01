@@ -28,9 +28,15 @@ const (
 	// recentDays is how far back corrections are re-read each poll.
 	recentDays = 7
 
-	energyZeroURL   = "https://public.api.energyzero.nl/public/v1/prices"
-	openMeteoURL    = "https://api.open-meteo.com/v1/forecast"
+	energyZeroURL = "https://public.api.energyzero.nl/public/v1/prices"
+	metNoURL      = "https://api.met.no/weatherapi/locationforecast/2.0/compact"
+	// metNoUserAgent is the contact MET Norway requires. It refuses requests without.
+	metNoUserAgent  = "energyd github.com/kradalby/dotfiles"
 	openMeteoOldURL = "https://archive-api.open-meteo.com/v1/archive"
+
+	// minWeatherHours keeps a mean of a few hours from standing in for a whole day.
+	// It leaves room for a 23-hour day and a short outage.
+	minWeatherHours = 20
 )
 
 // ErrEmpty means a source answered successfully with no usable data. An empty
@@ -219,12 +225,14 @@ type Weather struct {
 	ArchiveURL  string
 	Latitude    float64
 	Longitude   float64
+
+	lastModified string
 }
 
 // NewWeather builds a fetcher for the real service.
 func NewWeather(d *db.DB, client *http.Client, latitude, longitude float64) *Weather {
 	return &Weather{
-		DB: d, HTTP: client, ForecastURL: openMeteoURL, ArchiveURL: openMeteoOldURL,
+		DB: d, HTTP: client, ForecastURL: metNoURL, ArchiveURL: openMeteoOldURL,
 		Latitude: latitude, Longitude: longitude,
 	}
 }
@@ -238,16 +246,135 @@ func (w *Weather) query() url.Values {
 	}
 }
 
-// Recent stores the last week, whose forecast values settle as days pass.
-func (w *Weather) Recent(ctx context.Context) error {
-	q := w.query()
-	q.Set("past_days", strconv.Itoa(recentDays))
-	q.Set("forecast_days", "1")
-
-	return w.store(ctx, w.ForecastURL+"?"+q.Encode())
+type weatherHour struct {
+	at   time.Time
+	temp float64
 }
 
-// Archive stores a range of past days.
+// Poll stores yr.no's hours and rebuilds the recent days from them. yr.no only
+// looks forward, so a past hour keeps the last forecast made for it.
+func (w *Weather) Poll(ctx context.Context, now time.Time) error {
+	hours, err := w.forecast(ctx)
+	if err != nil {
+		return fmt.Errorf("weather: %w", err)
+	}
+
+	today := tz.Day(now)
+
+	return w.DB.Tx(ctx, func(q *dbsqlc.Queries) error {
+		for _, h := range hours {
+			err := q.UpsertWeatherHour(ctx, dbsqlc.UpsertWeatherHourParams{HourTs: h.at.Unix(), TempC: h.temp})
+			if err != nil {
+				return fmt.Errorf("weather: store hour: %w", err)
+			}
+		}
+
+		for d := today.AddDate(0, 0, -recentDays); !d.After(today); d = d.AddDate(0, 0, 1) {
+			if err := storeDayFromHours(ctx, q, d); err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+}
+
+func storeDayFromHours(ctx context.Context, q *dbsqlc.Queries, day time.Time) error {
+	rows, err := q.WeatherHoursBetween(ctx, dbsqlc.WeatherHoursBetweenParams{
+		FromTs: day.Unix(),
+		ToTs:   day.AddDate(0, 0, 1).Unix(),
+	})
+	if err != nil {
+		return fmt.Errorf("weather: read hours: %w", err)
+	}
+
+	if len(rows) < minWeatherHours {
+		return nil
+	}
+
+	var sum float64
+	for _, r := range rows {
+		sum += r.TempC
+	}
+
+	err = q.UpsertWeather(ctx, dbsqlc.UpsertWeatherParams{Day: tz.DateString(day), MeanC: sum / float64(len(rows))})
+	if err != nil {
+		return fmt.Errorf("weather: store day: %w", err)
+	}
+
+	return nil
+}
+
+// forecast reads yr.no's hours. It returns none when they have not changed.
+func (w *Weather) forecast(ctx context.Context) ([]weatherHour, error) {
+	q := url.Values{
+		"lat": {strconv.FormatFloat(w.Latitude, 'f', 4, 64)},
+		"lon": {strconv.FormatFloat(w.Longitude, 'f', 4, 64)},
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, w.ForecastURL+"?"+q.Encode(), nil)
+	if err != nil {
+		return nil, fmt.Errorf("build request: %w", err)
+	}
+
+	req.Header.Set("User-Agent", metNoUserAgent)
+
+	if w.lastModified != "" {
+		req.Header.Set("If-Modified-Since", w.lastModified)
+	}
+
+	resp, err := w.HTTP.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("request: %w", err)
+	}
+	defer func() { _ = resp.Body.Close() }()
+
+	if resp.StatusCode == http.StatusNotModified {
+		return nil, nil
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("HTTP %d from %s", resp.StatusCode, req.URL.Host)
+	}
+
+	var data struct {
+		Properties struct {
+			Timeseries []struct {
+				Time time.Time `json:"time"`
+				Data struct {
+					Instant struct {
+						Details struct {
+							AirTemperature *float64 `json:"air_temperature"`
+						} `json:"details"`
+					} `json:"instant"`
+				} `json:"data"`
+			} `json:"timeseries"`
+		} `json:"properties"`
+	}
+
+	if err := json.NewDecoder(io.LimitReader(resp.Body, maxReplyBytes)).Decode(&data); err != nil {
+		return nil, fmt.Errorf("decode reply from %s: %w", req.URL.Host, err)
+	}
+
+	hours := make([]weatherHour, 0, len(data.Properties.Timeseries))
+
+	for _, p := range data.Properties.Timeseries {
+		if temp := p.Data.Instant.Details.AirTemperature; temp != nil {
+			hours = append(hours, weatherHour{at: p.Time, temp: *temp})
+		}
+	}
+
+	if len(hours) == 0 {
+		return nil, ErrEmpty
+	}
+
+	w.lastModified = resp.Header.Get("Last-Modified")
+
+	return hours, nil
+}
+
+// Archive fills past days yr.no never saw, which it cannot provide because it only
+// looks forward. It keeps days already stored, so a rerun changes no history.
 func (w *Weather) Archive(ctx context.Context, from, to time.Time) error {
 	q := w.query()
 	q.Set("start_date", tz.DateString(from))
@@ -278,7 +405,7 @@ func (w *Weather) store(ctx context.Context, rawURL string) error {
 				continue
 			}
 
-			err := q.UpsertWeather(ctx, dbsqlc.UpsertWeatherParams{Day: day, MeanC: *data.Daily.Mean[i]})
+			err := q.InsertWeatherIfMissing(ctx, dbsqlc.InsertWeatherIfMissingParams{Day: day, MeanC: *data.Daily.Mean[i]})
 			if err != nil {
 				return fmt.Errorf("weather: store: %w", err)
 			}
