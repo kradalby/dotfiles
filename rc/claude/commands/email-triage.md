@@ -14,7 +14,7 @@ Use `pm-cli --help-json` to discover available commands and flags.
 5. **Sent is a two-level check.** The bulk scan (`pm-cli mail list -m Sent -n 60 --json`) is for classification: it tells you which threads are live. It is NOT sufficient to call something an action item -- per-item verification happens in step 12.
 6. **Read ambiguous emails**: for any email where the action isn't clear from sender+subject alone, read it with `pm-cli mail read uid:X --json` before classifying. `body` is often empty; fall back to `html_body` and strip tags.
 7. **Ask about uncertain emails**: use the interactive question/ask feature to ask the user about emails that don't clearly match any rule. Always ask rather than guess. Group related questions into a single prompt when possible.
-8. **Present a full plan** with sender + subject for every email (not just UIDs) grouped by action
+8. **Present a full plan** with sender + subject for every email (not just UIDs) grouped by action, plus any reminder changes (see Reminders)
 9. **STOP and wait for explicit user approval**. After presenting the plan, end your turn and wait. Do NOT self-approve with phrases like "Approving and executing" or "Looks good, executing now". Do NOT proceed until the user types an unambiguous approval ("yes", "go", "approve", "looks good", etc.). This applies to **every round** in a conversation -- prior approval does not carry forward to follow-up rounds. Read-only commands (`mail list`, `mail read`, `mail label list`) are fine without approval since they build the plan; only mutating commands (`mail move`, `mail label add/remove`, `mail flag`, `mail archive`) require approval.
 10. **Execute** (only after approval): move deletions to Trash, apply labels, mark read, then for each kept email either archive (records) or leave in inbox (action items requiring user attention)
 11. **Verify**: confirm inbox state matches the plan
@@ -130,6 +130,45 @@ or subject term>' -m Sent --since <date of inbox message>`. A Sent message
 Report the evidence, not just the verdict: "no reply in Sent since 21.09" beats
 "still open". When nothing is checkable, say "unverified" -- never silently
 promote an unchecked item to the list.
+
+## Reminders (optional)
+
+Action items can also live in Apple Reminders, so they nudge without the inbox
+being open. Skip this section if `osascript` or a single list named `Email` is
+missing: say so once and do not create the list. Run `osascript` under `timeout`.
+
+Read the list before presenting the plan (no approval needed) and match each
+reminder to its mail by the ID in the note:
+
+- **Ticked, mail still in INBOX**: done. Propose archiving the mail.
+- **Open, mail in INBOX**: do not add another. The done-checks above still run; if
+  they show it handled, propose archiving the mail and completing the reminder.
+- **Open, mail gone from INBOX**: report it and ask.
+- **Action item with no reminder**: propose one, and ask whether to add it. Default
+  nudge is next Monday 09:00.
+
+Reminder writes need approval like mail mutations: preview exact titles and
+dates in the plan. Read reminders back after writing.
+
+- **Title**: what must be done, with any hard deadline: `Reply to <sender>: <topic> (by <date>)`
+- **Note**: the link and nothing else, since anything more makes the list too busy:
+  `https://mail.proton.me/u/0/all-mail/<id>`, where `<id>` is the `X-Pm-Internal-Id`
+  header from `pm-cli mail read uid:X --raw`. Scripts cannot set the URL field,
+  sections or subtasks, which is why it is a note in a separate list.
+- **Nudge**: set both due date and remind me date.
+
+```applescript
+set d to current date
+set day of d to 1 -- first, so changing the month cannot overflow
+set year of d to 2026
+set month of d to November
+set day of d to 2
+set time of d to 9 * hours
+tell application "Reminders"
+  set l to item 1 of (every list whose name is "Email")
+  make new reminder at end of reminders of l with properties {name:t, body:link, due date:d, remind me date:d}
+end tell
+```
 
 ## Multi-labeling
 
