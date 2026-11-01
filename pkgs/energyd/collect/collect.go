@@ -408,8 +408,13 @@ func (s *Supplier) Backfill(ctx context.Context, from, to time.Time, progress fu
 	}
 
 	stored := make(map[string]bool, len(rows))
+	oldest := ""
+
 	for _, r := range rows {
 		stored[r.Day] = r.Status != "MISS"
+		if stored[r.Day] && (oldest == "" || r.Day < oldest) {
+			oldest = r.Day
+		}
 	}
 
 	contract, err := s.Client.Contract(ctx)
@@ -420,12 +425,23 @@ func (s *Supplier) Backfill(ctx context.Context, from, to time.Time, progress fu
 	first := tz.Day(from)
 
 	for d := tz.Day(to).AddDate(0, 0, -1); !d.Before(first); d = d.AddDate(0, 0, -1) {
-		if stored[tz.DateString(d)] {
+		day := tz.DateString(d)
+		if stored[day] {
 			continue
 		}
 
 		if err := s.Day(ctx, d, contract.HasGas); err != nil {
+			// A contract can begin before NextEnergy's history. An empty day older
+			// than every answered day is that start, and not a broken session.
+			if errors.Is(err, nextenergy.ErrEmptyReply) && oldest != "" && day < oldest {
+				return nil
+			}
+
 			return fmt.Errorf("backfill: %w", err)
+		}
+
+		if oldest == "" || day < oldest {
+			oldest = day
 		}
 
 		if progress != nil {

@@ -293,6 +293,7 @@ type fakeSupplier struct {
 	days     map[string]nextenergy.Day
 	calls    []string
 	failOn   string
+	emptyOn  func(day string) bool
 	fees     []nextenergy.Fee
 	invoices []nextenergy.Invoice
 }
@@ -300,6 +301,10 @@ type fakeSupplier struct {
 func (f *fakeSupplier) Usage(_ context.Context, day time.Time, u nextenergy.Utility) (nextenergy.Day, error) {
 	key := tz.DateString(day)
 	f.calls = append(f.calls, key+"/"+u.String())
+
+	if f.emptyOn != nil && f.emptyOn(key) {
+		return nextenergy.Day{}, fmt.Errorf("%w: usage %s has no volume", nextenergy.ErrEmptyReply, key)
+	}
 
 	if key == f.failOn && u == nextenergy.Gas {
 		return nextenergy.Day{}, errors.New("backend down")
@@ -398,6 +403,51 @@ func TestBackfillGoesNewestFirstSkipsStoredDaysAndResumes(t *testing.T) {
 	require.NoError(t, s.Backfill(t.Context(), date(t, "2022-09-10"), date(t, "2022-09-14"), nil))
 	require.Equal(t, "2022-09-12/electricity", f.calls[0], "resume at the newest missing day")
 	require.Len(t, f.calls, 6, "three days, two utilities, end exclusive")
+}
+
+// A contract can begin before NextEnergy's history does. The walk must end there
+// without failing, on the first run and on every later one, or what follows it
+// never runs.
+func TestBackfillEndsCleanlyAtTheStartOfHistory(t *testing.T) {
+	d := openDB(t)
+	f := &fakeSupplier{
+		days:    map[string]nextenergy.Day{},
+		emptyOn: func(day string) bool { return day < "2022-09-12" },
+	}
+	s := &Supplier{DB: d, Client: f}
+
+	require.NoError(t, s.Backfill(t.Context(), date(t, "2022-09-10"), date(t, "2022-09-14"), nil))
+	require.Equal(t, "2022-09-11/electricity", f.calls[len(f.calls)-1], "nothing older is asked for")
+
+	f.calls = nil
+	require.NoError(t, s.Backfill(t.Context(), date(t, "2022-09-10"), date(t, "2022-09-14"), nil))
+	require.Equal(t, []string{"2022-09-11/electricity"}, f.calls)
+}
+
+func TestBackfillFailsOnAnEmptyDayInsideHistory(t *testing.T) {
+	d := openDB(t)
+	f := &fakeSupplier{
+		days:    map[string]nextenergy.Day{},
+		emptyOn: func(day string) bool { return day == "2022-09-12" },
+	}
+	s := &Supplier{DB: d, Client: f}
+
+	require.NoError(t, d.UpsertSupplierDay(t.Context(), dbsqlc.UpsertSupplierDayParams{Day: "2022-09-10"}))
+
+	err := s.Backfill(t.Context(), date(t, "2022-09-10"), date(t, "2022-09-14"), nil)
+	require.ErrorIs(t, err, nextenergy.ErrEmptyReply)
+}
+
+// With no answered day to compare against, an empty reply means a broken session.
+func TestBackfillFailsWhenNoDayHasEverAnswered(t *testing.T) {
+	f := &fakeSupplier{
+		days:    map[string]nextenergy.Day{},
+		emptyOn: func(string) bool { return true },
+	}
+	s := &Supplier{DB: openDB(t), Client: f}
+
+	err := s.Backfill(t.Context(), date(t, "2022-09-10"), date(t, "2022-09-14"), nil)
+	require.ErrorIs(t, err, nextenergy.ErrEmptyReply)
 }
 
 // A re-read that says "not delivered" must not wipe a day that was.
