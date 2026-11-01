@@ -85,6 +85,20 @@ assert lib.all (
     ]
   ) coreConfig.my.litestream.databases
 ) jobs;
+assert lib.all (
+  job:
+  lib.all
+    (
+      unit:
+      lib.elem "-/run/current-system/sw/bin/restic-${job} unlock"
+        coreConfig.systemd.services."restic-${unit}-${job}".serviceConfig.ExecStartPre
+    )
+    [
+      "backups"
+      "check"
+      "prune"
+    ]
+) jobs;
 pkgs.runCommand "backup-regressions"
   {
     passthru = { inherit kumaBootstrap; };
@@ -148,5 +162,29 @@ pkgs.runCommand "backup-regressions"
     jq -se 'any(.[]; .path == "/jotta-source/storage/pool-state")
       and any(.[]; .path == "/jotta-source/storage/sync/nested/data")
       and all(.[]; ((.path // "") | test("/storage/(dropbox|timemachine)(/|$)")) | not)' jotta-files.json
+
+    # The units run `unlock` while other units may hold the repo, so it has to
+    # spare a live lock and still clear a dead run's. A stdin backup holds its
+    # lock until the pipe closes.
+    mkfifo hold
+    exec 3<>hold
+    restic backup --stdin --stdin-filename held <&3 >/dev/null &
+    holder=$!
+    until [ -n "$(restic list locks --no-lock)" ]; do
+      kill -0 "$holder"
+      sleep 0.2
+    done
+    restic unlock
+    kill -0 "$holder"
+    [ -n "$(restic list locks --no-lock)" ]
+    kill -9 "$holder"
+    wait "$holder" || true
+    if restic check; then
+      echo "a dead run's lock did not block an exclusive command" >&2
+      exit 1
+    fi
+    restic unlock
+    [ -z "$(restic list locks --no-lock)" ]
+    restic check
     touch "$out"
   ''

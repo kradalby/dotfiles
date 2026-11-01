@@ -60,6 +60,12 @@ let
       EOF
       exit 0
     '';
+
+  # A run that dies or loses the backend leaves its lock behind, and restic never
+  # expires one on its own: --retry-lock just waits it out and fails, every run,
+  # until someone unlocks by hand. Plain `unlock` removes only stale locks (owner
+  # gone, or unrefreshed for 30m). Best effort: a lock it missed still fails the job.
+  unlockStale = jobName: "-/run/current-system/sw/bin/restic-${jobName} unlock";
 in
 {
   config = {
@@ -68,7 +74,10 @@ in
         jobName: jobCfg:
         nameValuePair "restic-backups-${jobName}" (
           mkIf jobCfg.enable {
-            serviceConfig.ExecStartPre = [ (sourceGuard jobName jobCfg) ];
+            serviceConfig.ExecStartPre = [
+              (sourceGuard jobName jobCfg)
+              (unlockStale jobName)
+            ];
             serviceConfig.ExecStopPost = [ (pushSuccess jobName) ];
             # Exit 3 = "some source files could not be read" (files vanishing
             # mid-scan on live homedirs). A snapshot IS created; treat it as
@@ -111,6 +120,7 @@ in
               CacheDirectory = "restic-backups-${jobName}";
               User = config.services.restic.backups.${jobName}.user;
               TimeoutStartSec = "24h";
+              ExecStartPre = [ (unlockStale jobName) ];
               # pruneOpts entries are pre-split shell words ("--keep-daily 7");
               # systemd word-splits ExecStart the same way.
               ExecStart = "/run/current-system/sw/bin/restic-${jobName} forget --prune --retry-lock=12h ${concatStringsSep " " jobCfg.pruneOpts}";
@@ -147,6 +157,7 @@ in
               # not `failed`, so ServiceFailed never fires. Bound it clear of
               # the lock wait plus a --read-data-subset run.
               TimeoutStartSec = "6h";
+              ExecStartPre = [ (unlockStale jobName) ];
               # Backups run hourly and this timer has a 6h random delay, so
               # overlap is routine; restic defaults to no lock retry and exits
               # 11 the moment it finds the repository locked.
