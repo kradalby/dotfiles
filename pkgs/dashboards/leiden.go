@@ -315,7 +315,7 @@ func monthPanels() []cog.Builder[dashboard.Panel] {
 	return []cog.Builder[dashboard.Panel]{
 		bargauge.NewPanelBuilder().
 			Title("Plugs by cost, 30 days").
-			Description("Plug kWh times the 30-day mean all-in price. This ignores when a plug ran, so it ranks devices and is not a bill. Unmetered is the meter minus all plugs. A negative value means plugs double-count, for example a plug inside a plug-monitored strip.").
+			Description("Mean plug power as kWh over 30 days, times the 30-day mean all-in price. Hours a plug is offline are not counted. This ignores when a plug ran, so it ranks devices and is not a bill. Unmetered is the meter minus all plugs. A negative value means plugs double-count, for example a plug inside a plug-monitored strip.").
 			Unit(unitEUR).
 			Datasource(promDS()).Span(12).Height(12).
 			TimeFrom(nowWindow).
@@ -325,8 +325,8 @@ func monthPanels() []cog.Builder[dashboard.Panel] {
 			ColorScheme(palette()).
 			Legend(simpleLegend()).
 			ReduceOptions(common.NewReduceDataOptionsBuilder().Calcs([]string{"lastNotNull"})).
-			WithTarget(promInstant(`sort_desc(label_replace(max by (instance) (increase(tasmota_kwh_total`+window+`)) * `+meanPrice+`, "plug", "$1", "instance", "([^.]+).*"))`, "{{plug}}").RefId("A")).
-			WithTarget(promInstant(`label_replace((max(avg_over_time(homewizard_active_power_watts`+window+`)) * 720 / 1000 - sum(max by (instance) (increase(tasmota_kwh_total`+window+`)))) * `+meanPrice+`, "plug", "unmetered", "", "")`, "{{plug}}").RefId("B")),
+			WithTarget(promInstant(`sort_desc(label_replace(max by (instance) (avg_over_time(tasmota_power_watts`+window+`)) * 720 / 1000 * `+meanPrice+`, "plug", "$1", "instance", "([^.]+).*"))`, "{{plug}}").RefId("A")).
+			WithTarget(promInstant(`label_replace((max(avg_over_time(homewizard_active_power_watts`+window+`)) - sum(max by (instance) (avg_over_time(tasmota_power_watts`+window+`)))) * 720 / 1000 * `+meanPrice+`, "plug", "unmetered", "", "")`, "{{plug}}").RefId("B")),
 		colored(colored(colored(stacked(bars("Daily cost", "Each day's cost split into electricity, gas and fixed cost. NextEnergy's daily figures once delivered; computed before that.", unitEUR, 12)),
 			"electricity", colorElec), "gas", colorGas), "fixed", colorFixed).
 			TimeFrom("30d").

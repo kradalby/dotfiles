@@ -176,6 +176,15 @@ func TestDeadQueriesStayGone(t *testing.T) {
 	}
 }
 
+// A plug's counter can drop by rounding at midnight. increase() reads the drop as
+// a reset and adds the whole register, so plug cost must come from power.
+func TestPlugCostDoesNotTrustThePlugCounter(t *testing.T) {
+	raw, err := json.Marshal(model(t))
+	require.NoError(t, err)
+
+	require.NotContains(t, string(raw), "tasmota_kwh_total")
+}
+
 func TestPowerFailuresAreAnnotations(t *testing.T) {
 	annotations := model(t)["annotations"].(map[string]any)["list"].([]any)
 	require.Len(t, annotations, 1)
