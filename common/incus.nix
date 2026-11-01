@@ -29,6 +29,8 @@
   # plus a reboot, with no partition surgery on a live root. No-op when the
   # partition already fills the disk.
   boot.growPartition = true;
+  # The /tmp tmpfs can mount over growpart's working directory mid-run.
+  systemd.services.growpart.environment.TMPDIR = "/run";
 
   fileSystems = {
     "/" = {
