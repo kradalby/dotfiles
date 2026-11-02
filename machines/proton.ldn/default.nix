@@ -15,6 +15,7 @@ in
     ../../common/tailscale.nix
 
     ./proton.nix
+    ./rex.nix
   ];
 
   networking = {
