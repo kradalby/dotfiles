@@ -5,6 +5,7 @@
 }:
 let
   sshKeys = import ../../metadata/ssh.nix;
+  bridgePasswordCommand = "${pkgs.gnused}/bin/sed -n 's/^PROTON_IMAP_PASSWORD=//p' ${config.age.secrets.proton-imap-check.path}";
 in
 {
   imports = [
@@ -66,13 +67,41 @@ in
     };
 
     home.packages = [
+      pkgs.unstable.himalaya
+
       # Headless: no secret-service keyring, so hand pm-cli the bridge
       # password through its env override instead.
       (pkgs.writeShellScriptBin "pm-cli" ''
-        PM_CLI_BRIDGE_PASSWORD=$(${pkgs.gnused}/bin/sed -n 's/^PROTON_IMAP_PASSWORD=//p' ${config.age.secrets.proton-imap-check.path}) \
+        PM_CLI_BRIDGE_PASSWORD=$(${bridgePasswordCommand}) \
           exec ${pkgs.pm-cli}/bin/pm-cli "$@"
       '')
     ];
+
+    # The pinned Home Manager account generator uses the pre-v2 schema.
+    # Verify with `himalaya account check` and `himalaya mailbox list`.
+    xdg.configFile."himalaya/config.toml".source =
+      (pkgs.formats.toml { }).generate "himalaya-config.toml"
+        {
+          accounts.proton = {
+            default = true;
+            email = "kristoffer@dalby.cc";
+            display-name = "Kristoffer Dalby";
+            imap = {
+              server = "imap://127.0.0.1:1143";
+              sasl.plain = {
+                username = "kristoffer@dalby.cc";
+                password.command = bridgePasswordCommand;
+              };
+            };
+            smtp = {
+              server = "smtp://127.0.0.1:1025";
+              sasl.plain = {
+                username = "kristoffer@dalby.cc";
+                password.command = bridgePasswordCommand;
+              };
+            };
+          };
+        };
 
     xdg.configFile."pm-cli/config.yaml".text = builtins.toJSON {
       bridge = {
