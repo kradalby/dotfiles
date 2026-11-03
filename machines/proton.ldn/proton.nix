@@ -62,7 +62,7 @@
 
   environment.systemPackages = [ pkgs.protonmail-bridge ];
 
-  # Also the triage agents' pm-cli and Himalaya credential (see default.nix).
+  # Also the triage agents' pm-cli, Himalaya, and Herald credential (see default.nix).
   age.secrets.proton-imap-check = {
     file = ../../secrets/proton-imap-check.age;
     owner = "kradalby";

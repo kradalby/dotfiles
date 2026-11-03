@@ -70,6 +70,13 @@ in
     home.packages = [
       pkgs.unstable.himalaya
 
+      (pkgs.writeShellScriptBin "herald" ''
+        export VISUAL=${pkgs.neovim}/bin/nvim
+        export EDITOR="$VISUAL"
+        chmod 600 "$HOME/.herald/conf.yaml"
+        exec ${pkgs.herald}/bin/herald "$@"
+      '')
+
       # Headless: no secret-service keyring, so hand pm-cli the bridge
       # password through its env override instead.
       (pkgs.writeShellScriptBin "pm-cli" ''
@@ -77,6 +84,19 @@ in
           exec ${pkgs.pm-cli}/bin/pm-cli "$@"
       '')
     ];
+
+    my.mutableJson.herald = {
+      target = ".herald/conf.yaml";
+      format = "yaml";
+      value = {
+        vendor = "protonmail";
+        credentials = {
+          username = "kristoffer@dalby.cc";
+          password.command = bridgePasswordCommand;
+        };
+        ai.provider = "disabled";
+      };
+    };
 
     # The pinned Home Manager account generator uses the pre-v2 schema.
     # Verify with `himalaya account check` and `himalaya mailbox list`.
