@@ -55,6 +55,8 @@
       ghostty-tab = "3bc3b2ec1f1dfc75bd9f8e919f1150ae5d42cf6b";
       # https://github.com/bscott/pm-cli/releases
       pmCli = "0.2.7";
+      # https://github.com/herald-email/herald-mail-app/releases
+      herald = "0.9.0-beta.1";
     };
   };
 }

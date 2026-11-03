@@ -36,6 +36,8 @@ final: prev: {
 
   pm-cli = prev.callPackage ./pm-cli.nix { };
 
+  herald = prev.callPackage ./herald.nix { };
+
   gotools = prev.callPackage ./gotools.nix { inherit (prev) gotools; };
 
   # Stable still has rich 14.x's aarch64 broken-pipe test failure; unstable's
