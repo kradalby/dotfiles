@@ -73,6 +73,8 @@ in
       (pkgs.writeShellScriptBin "herald" ''
         export VISUAL=${pkgs.neovim}/bin/nvim
         export EDITOR="$VISUAL"
+        # smtp.SendMail verifies the Bridge's self-signed STARTTLS certificate.
+        export SSL_CERT_DIR=${./certs}
         chmod 600 "$HOME/.herald/conf.yaml"
         exec ${pkgs.herald}/bin/herald "$@"
       '')
