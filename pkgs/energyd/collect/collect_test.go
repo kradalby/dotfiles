@@ -654,6 +654,45 @@ func TestRecentRereadsTheLastWeekForCorrections(t *testing.T) {
 	require.Len(t, f.calls, 14)
 }
 
+// NextEnergy delivers about a day late and answers empty until then, so the
+// newest days not being there yet is normal, and must neither fail the poll nor
+// make it retry, and log in again, every hour.
+func TestRecentTreatsTheNewestEmptyDaysAsNotDeliveredYet(t *testing.T) {
+	d := openDB(t)
+	f := &fakeSupplier{
+		days:    map[string]nextenergy.Day{},
+		emptyOn: func(day string) bool { return day >= "2026-10-30" },
+	}
+	s := &Supplier{DB: d, Client: f}
+
+	require.NoError(t, d.UpsertSupplierDay(t.Context(), dbsqlc.UpsertSupplierDayParams{Day: "2026-10-29"}))
+	require.NoError(t, s.Recent(t.Context(), date(t, "2026-10-31"), true))
+	require.Equal(t, "2026-10-30/electricity", f.calls[len(f.calls)-1])
+}
+
+func TestRecentFailsOnAnEmptyDayInsideHistory(t *testing.T) {
+	d := openDB(t)
+	f := &fakeSupplier{
+		days:    map[string]nextenergy.Day{},
+		emptyOn: func(day string) bool { return day == "2026-10-27" },
+	}
+	s := &Supplier{DB: d, Client: f}
+
+	require.NoError(t, d.UpsertSupplierDay(t.Context(), dbsqlc.UpsertSupplierDayParams{Day: "2026-10-29"}))
+	require.ErrorIs(t, s.Recent(t.Context(), date(t, "2026-10-31"), true), nextenergy.ErrEmptyReply)
+}
+
+// With no delivered day to compare against, an empty reply means a broken session.
+func TestRecentFailsWhenNoRecentDayWasEverDelivered(t *testing.T) {
+	f := &fakeSupplier{
+		days:    map[string]nextenergy.Day{},
+		emptyOn: func(string) bool { return true },
+	}
+	s := &Supplier{DB: openDB(t), Client: f}
+
+	require.ErrorIs(t, s.Recent(t.Context(), date(t, "2026-10-31"), true), nextenergy.ErrEmptyReply)
+}
+
 func TestFeesAndInvoicesReplaceStoredBills(t *testing.T) {
 	d := openDB(t)
 	f := &fakeSupplier{

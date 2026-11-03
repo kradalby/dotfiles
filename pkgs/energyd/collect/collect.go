@@ -510,9 +510,32 @@ func storeHours(ctx context.Context, q *dbsqlc.Queries, utility string, hours []
 // correct earlier days. Today is never delivered yet.
 func (s *Supplier) Recent(ctx context.Context, today time.Time, hasGas bool) error {
 	today = tz.Day(today)
+	from := today.AddDate(0, 0, -recentDays)
 
-	for d := today.AddDate(0, 0, -recentDays); d.Before(today); d = d.AddDate(0, 0, 1) {
+	rows, err := s.DB.SupplierDaysBetween(ctx, dbsqlc.SupplierDaysBetweenParams{
+		FromDay: tz.DateString(from),
+		ToDay:   tz.DateString(today),
+	})
+	if err != nil {
+		return fmt.Errorf("supplier: stored days: %w", err)
+	}
+
+	newest := ""
+
+	for _, r := range rows {
+		if r.Status != "MISS" && r.Day > newest {
+			newest = r.Day
+		}
+	}
+
+	for d := from; d.Before(today); d = d.AddDate(0, 0, 1) {
 		if err := s.Day(ctx, d, hasGas); err != nil {
+			// Delivery runs about a day late, and an undelivered day answers empty.
+			// An empty day newer than every delivered one is not late yet.
+			if errors.Is(err, nextenergy.ErrEmptyReply) && newest != "" && tz.DateString(d) > newest {
+				return nil
+			}
+
 			return err
 		}
 	}
