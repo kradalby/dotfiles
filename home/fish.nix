@@ -74,7 +74,6 @@ in
 
     interactiveShellInit = lib.mkMerge [
       ''
-        source ${../pkgs/scripts/wt.fish}
         source ${../pkgs/scripts/llmpush.fish}
       ''
       # Shell startup resets PATH, which puts the installed rex ahead of the one

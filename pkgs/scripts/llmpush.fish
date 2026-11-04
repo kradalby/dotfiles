@@ -66,12 +66,14 @@ function __llmpush_run --argument-names repo branch force
     end
     git fetch llm $branch; or return 1
 
+    set -l dir
     if git show-ref --verify --quiet "refs/heads/$branch"
-        wt checkout $branch
+        set dir (wt checkout $branch)
     else
-        wt create $branch llm/$branch
+        set dir (wt create $branch llm/$branch)
     end
     or return 1
+    cd $dir
 
     set -l pending
     if test -d (git rev-parse --git-path rebase-merge); or test -d (git rev-parse --git-path rebase-apply)

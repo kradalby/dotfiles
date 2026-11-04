@@ -9,6 +9,7 @@ let
   tom = import ./scripts/tom.nix { inherit pkgs; };
   tmp-cleanup = import ./scripts/tmp-cleanup.nix { inherit pkgs; };
   disk-cleanup = import ./scripts/disk-cleanup.nix { inherit pkgs; };
+  wt = import ./scripts/wt.nix { inherit pkgs; };
 in
 {
   options.my.packages = {
@@ -71,6 +72,7 @@ in
           tom
           tmp-cleanup
           disk-cleanup
+          wt
         ])
         ++ (with pkgs.unstable; [
           shellcheck

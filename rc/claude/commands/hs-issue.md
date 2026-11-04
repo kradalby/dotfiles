@@ -14,7 +14,7 @@ Name this Claude session descriptively (e.g. `hs-<issue-number>-<short-descripti
 
 ## Step 1: Create worktree
 
-Set up a development worktree for this issue using `wt` (see `pkgs/scripts/wt.fish`).
+Set up a development worktree for this issue using `wt` (see `pkgs/scripts/wt.sh`).
 Main repo lives at `~/git/headscale`; worktrees go under `$WT_ROOT/headscale/<branch>`.
 
 1. From `~/git/headscale`, verify the `upstream` remote points to `juanfont/headscale`:
@@ -26,7 +26,7 @@ Main repo lives at `~/git/headscale`; worktrees go under `$WT_ROOT/headscale/<br
    - Branch: `kradalby/<issue-number>-<short-description>`
    - From `~/git/headscale`: `wt create kradalby/<issue-number>-<short-description> upstream/main`
      (substitute `origin/main` if upstream is unavailable)
-4. `wt create` cd's into the new worktree; work from there.
+4. `wt create` prints the new worktree path; work from there.
 
 ## Step 2: Diagnose
 
