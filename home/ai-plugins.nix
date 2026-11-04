@@ -5,6 +5,16 @@ let
   caveman = inputs.claude-caveman;
   superpowers = inputs.claude-superpowers;
   uiUx = inputs.claude-ui-ux-pro-max;
+  floorplan = pkgs.applyPatches {
+    name = "floorplan";
+    src = inputs.claude-floorplan;
+    # copyFileSync keeps the store's read-only mode, so the next build cannot overwrite serve.mjs.
+    postPatch = ''
+      substituteInPlace skills/floorplan/scripts/build.mjs --replace-fail \
+        "fs.copyFileSync(path.join(SKILL_DIR, 'assets', 'serve.mjs'), path.join(outDir, 'serve.mjs'));" \
+        "fs.writeFileSync(path.join(outDir, 'serve.mjs'), fs.readFileSync(path.join(SKILL_DIR, 'assets', 'serve.mjs')));"
+    '';
+  };
   # Codex does not load Caveman's inline Claude hooks or its repo-local config.
   cavemanCodex =
     let
@@ -50,6 +60,7 @@ let
     ponytail.ponytail = ponytail.outPath;
     caveman.caveman = cavemanCodex;
     ui-ux-pro-max-skill.ui-ux-pro-max = uiUx.outPath;
+    floorplan.floorplan = floorplan;
   };
   marketplace = builtins.fromJSON (builtins.readFile "${official}/.claude-plugin/marketplace.json");
   gopls = pkgs.lib.findFirst (
@@ -83,6 +94,7 @@ in
     # shortcut: Cavecrew model rewrites need writable agents; package overrides if used.
     caveman.outPath
     uiUx.outPath
+    floorplan
     "${inputs.codex-plugin-cc}/plugins/codex"
   ];
 
@@ -139,7 +151,8 @@ in
           pkgs.lib.filterAttrs (_: type: type == "directory") (builtins.readDir directory)
         )
       )
-      { }
+      # Named, since listing the patched floorplan would build it during evaluation.
+      { floorplan = "${floorplan}/skills/floorplan"; }
       [
         "${caveman}/skills"
         "${uiUx}/.claude/skills"

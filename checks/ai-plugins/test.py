@@ -155,7 +155,7 @@ for marketplace, source in sources["codex"].items():
         f"{name}@{marketplace}" for name in source["names"]
     }
     assert all(item["enabled"] for item in installed)
-assert len(expected_ids) == 7
+assert len(expected_ids) == 8
 assert not Path(old_frontend["installedPath"]).exists()
 # Fresh homes and repeated activation must handle an absent duplicate too.
 run(installer, sources["codex"]["claude-plugins-official"]["root"])
@@ -242,7 +242,7 @@ with socket.socket() as probe:
     probe.bind(("127.0.0.1", 0))
     port = str(probe.getsockname()[1])
 url = f"http://127.0.0.1:{port}"
-expected = {"ponytail", "brainstorming", "caveman", "frontend-design", "ui-ux-pro-max"}
+expected = {"ponytail", "brainstorming", "caveman", "frontend-design", "ui-ux-pro-max", "floorplan"}
 expected_commands = {"caveman", "caveman-init", "code-review"}
 skills: set[str] = set()
 commands: set[str] = set()
