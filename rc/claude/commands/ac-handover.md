@@ -35,12 +35,12 @@ ac spawn [-c] [-x] [-o] <repo> <branch>
 
 Always `spawn`. Bare `ac <repo> <branch>` prompts `[y/N]` and moves the user's view.
 
-| Flag   | Harness        | Launch                                                                    |
-| ------ | -------------- | ------------------------------------------------------------------------- |
-| (none) | claude + codex | one tab each, plus `terminal`                                             |
-| `-c`   | claude         | `--dangerously-skip-permissions`; Remote Control `<host>-<repo>-<branch>` |
-| `-x`   | codex          | full access, approvals never; thread `<host>-<repo>-<branch>`             |
-| `-o`   | opencode       |                                                                           |
+| Flag   | Harness        | Launch                                             |
+| ------ | -------------- | -------------------------------------------------- |
+| (none) | claude + codex | one tab each, plus `terminal`                      |
+| `-c`   | claude         | auto mode; Remote Control `<host>-<repo>-<branch>` |
+| `-x`   | codex          | Approve for me; thread `<host>-<repo>-<branch>`    |
+| `-o`   | opencode       |                                                    |
 
 Any flag replaces the default set; flags combine (`-c -o`). Unsure → default.
 

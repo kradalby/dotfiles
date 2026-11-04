@@ -78,7 +78,6 @@ in
 
     alwaysThinkingEnabled = true;
     effortLevel = "high";
-    skipDangerousModePermissionPrompt = true;
 
     # The non-interactive Bash tool never sources the shell rc, so direnv
     # and `nix develop` never activate. This hook runs nix-dev-env.sh (see
@@ -227,8 +226,10 @@ in
   # there instead (see codexHooks). herdr sets this flag as well; declaring it
   # keeps codex hooks working on a host that runs codex without herdr.
   codex = {
-    default_permissions = ":danger-full-access";
-    approval_policy = "never";
+    # Approve for me: sandboxed, escalations go to the auto reviewer.
+    default_permissions = ":workspace";
+    approval_policy = "on-request";
+    approvals_reviewer = "auto_review";
     features.hooks = true;
     shell_environment_policy.set.BASH_ENV = "$HOME/.codex/hooks/session-env.sh";
     mcp_servers =
