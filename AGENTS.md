@@ -37,7 +37,7 @@ The flake root (`flake.nix` plus helpers in `lib/box.nix`) stitches together the
 - `nix build .#packages.${system}.<name>` exercises individual packages; scripts under `pkgs/scripts/` should remain runnable once Home Manager syncs.
 - Prefer Nix-native helpers when fetching or deploying: `nix-prefetch-git` for pinning sources, `colmena apply` for multi-host rollouts, `nurl <url>` for fetcher snippets, and `nix-init` for scaffolding new derivations.
 
-## Reading CI Logs
+## Reading and Re-running CI
 
 `garnixlogs` serves garnix CI output as plain text on the tailnet. No auth, no token, no `direnv`, no setec — reach for it before the garnix API.
 
@@ -46,7 +46,10 @@ curl -s http://garnixlogs/<repo>                 # recent commits, newest first
 curl -s "http://garnixlogs/$(git rev-parse HEAD)" # summary + every failed build's log
 curl -s http://garnixlogs/<build-id>              # one build's log
 curl -sN "http://garnixlogs/<build-id>?follow"    # stream until it finishes
+curl -s -X POST "http://garnixlogs/<sha>/retry"   # re-run every garnix check on a commit
 ```
+
+A retry is the only restart agents have: GitHub accepts a check-suite rerequest from the garnix App alone, so a `gh` token cannot do it, and garnixlogs makes the request as the App. Read the failed log first, since a retry only helps flakes and infrastructure faults. The whole commit reruns: passed builds come back from cache, and actions fire again, so a green retry of a default-branch commit can deploy.
 
 Query flags: `?follow` stream · `?all` list successes too · `?ansi` keep colour escapes · `?ts` prefix timestamps. A bare repo name assumes owner `kradalby`; `owner/repo` is explicit. Commit hashes must be the **full 40 characters** — garnix rejects abbreviated ones, which is why the repo listing prints them in full. Private repos work: the service holds the token, so the tailnet ACL is the only access control.
 
