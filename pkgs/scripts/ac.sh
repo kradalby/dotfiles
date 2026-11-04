@@ -452,7 +452,7 @@ codex_start_thread() {
 codex_create_thread() {
   local dir="$1" name="$2" response thread_id
   response=$(request 1 thread/start "$(jq -nc --arg cwd "$dir" \
-    '{cwd:$cwd,permissions:":danger-full-access",approvalPolicy:"never",threadSource:"cli"}')") || return 1
+    '{cwd:$cwd,permissions:":workspace",approvalPolicy:"on-request",approvalsReviewer:"auto_review",threadSource:"cli"}')") || return 1
   thread_id=$(jq -er '.result.thread.id' <<<"$response") || return 1
   request 2 thread/name/set "$(jq -nc --arg id "$thread_id" --arg name "$name" \
     '{threadId:$id,name:$name}')" >/dev/null || return 1
@@ -465,7 +465,7 @@ codex_create_thread() {
   # Empty threads have no saved turn context. Unarchive unloads the thread,
   # so restore permissions explicitly before the remote TUI's ID-only resume.
   request 5 thread/resume "$(jq -nc --arg id "$thread_id" --arg cwd "$dir" \
-    '{threadId:$id,cwd:$cwd,permissions:":danger-full-access",approvalPolicy:"never"}')" >/dev/null || return 1
+    '{threadId:$id,cwd:$cwd,permissions:":workspace",approvalPolicy:"on-request",approvalsReviewer:"auto_review"}')" >/dev/null || return 1
   printf '%s\n' "$thread_id"
 }
 
@@ -473,7 +473,7 @@ codex_create_thread() {
 start_agent() {
   local agent="$1" pane="$2" name="$3" dir="$4" repo="$5" branch="$6"
 
-  # For claude: --dangerously-skip-permissions (no tool prompts), pre-trust the
+  # For claude: auto mode (a classifier gates risky tool calls), pre-trust the
   # dir (a separate gate, pinned explicitly so it survives claude behaviour
   # drift), and Remote Control named <host>-<repo>-<branch> so the session is
   # also reachable from claude.ai / the phone. kradalby-llm cannot reach the
@@ -483,7 +483,7 @@ start_agent() {
   local argv=()
   if [[ "$agent" == "claude" ]]; then
     ensure_trusted "$dir"
-    argv=(--dangerously-skip-permissions)
+    argv=(--permission-mode auto)
     if claude_remote_control_enabled "$(hostname -s)"; then
       local rc_name
       rc_name="$(hostname -s)-$(sanitize "$(display "$repo" "$branch")")"
@@ -504,7 +504,7 @@ start_agent() {
       # permission flags. --cd keeps the server's cwd out of this thread.
       argv+=(--remote "$codex_remote" --cd "$dir")
     else
-      argv+=(--dangerously-bypass-approvals-and-sandbox --no-daemon)
+      argv+=(--approve-for-me --no-daemon)
     fi
     local thread_name thread_id
     thread_name="$(hostname -s)-$(sanitize "$(display "$repo" "$branch")")"
@@ -1131,14 +1131,14 @@ sessions use the same defaults and brief each agent for the job. Reconciliation
 adds missing agent tabs to standing sessions. Agents are launched directly
 (argv, no shell in between).
 
-claude sessions launch with --dangerously-skip-permissions (no tool prompts)
+claude sessions launch in auto mode (--permission-mode auto)
 and, except on kradalby-llm, Remote Control named <host>-<repo>-<branch>, so
 they are reachable from claude.ai / the phone (AC_REMOTE_CONTROL=0 disables).
 The working dir is pre-trusted so no trust prompt blocks the agent
 (AC_TRUST=0 disables).
-Codex sessions use full access with approvalPolicy=never. Standalone terminals
-launch with --dangerously-bypass-approvals-and-sandbox; shared-server threads
-save the :danger-full-access permission profile before remote resume.
+Codex sessions use Approve for me: the :workspace profile, with escalations
+sent to auto review. Standalone terminals launch with --approve-for-me;
+shared-server threads save that profile before remote resume.
 Threads are created and named <host>-<repo>-<branch|main|role> before the
 terminal opens, then attached with codex resume.
 On dev.ldn they connect to the shared app server when its Unix socket exists,
