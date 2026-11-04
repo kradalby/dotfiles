@@ -26,12 +26,13 @@ repos:
       - id: destroyed-symlinks
 
   # All formatting (nix/markdown/shell) runs through treefmt; its config lives
-  # in flake.nix. treefmt comes from the devShell, hence language: system.
+  # in flake.nix. `nix fmt`, not the devShell's treefmt, so the hook still runs
+  # where direnv has not loaded: a blocked .envrc or a fresh worktree.
   - repo: local
     hooks:
       - id: treefmt
         name: treefmt
-        entry: treefmt --fail-on-change
+        entry: nix fmt -- --fail-on-change
         language: system
         pass_filenames: false
 
