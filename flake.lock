@@ -56,6 +56,22 @@
         "type": "github"
       }
     },
+    "claude-floorplan": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1793649994,
+        "narHash": "sha256-eFS9l/QRWSU2oj4SAQZvYeX3CcQWG4Sw+iQn+bq/22Q=",
+        "owner": "haydenschmitty",
+        "repo": "floorplan",
+        "rev": "70be3f40f9c2e061290b76027f180d9ff892edd6",
+        "type": "github"
+      },
+      "original": {
+        "owner": "haydenschmitty",
+        "repo": "floorplan",
+        "type": "github"
+      }
+    },
     "claude-plugins-official": {
       "flake": false,
       "locked": {
@@ -1903,6 +1919,7 @@
     "root": {
       "inputs": {
         "claude-caveman": "claude-caveman",
+        "claude-floorplan": "claude-floorplan",
         "claude-plugins-official": "claude-plugins-official",
         "claude-ponytail": "claude-ponytail",
         "claude-superpowers": "claude-superpowers",
