@@ -722,6 +722,7 @@
           mutable-json = import ./checks/mutable-json { inherit pkgs self; };
           syncthing-init = import ./checks/syncthing-init { inherit pkgs self; };
           tmp-cleanup = import ./checks/tmp-cleanup { inherit pkgs; };
+          wt = import ./checks/wt { inherit pkgs; };
           disk-cleanup = import ./checks/disk-cleanup { inherit pkgs; };
           nix-dev-env = import ./checks/nix-dev-env { inherit pkgs; };
           ac = import ./checks/ac { inherit pkgs; };

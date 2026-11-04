@@ -4,7 +4,10 @@
 # sandboxed; nothing outside the temp dir is touched.
 
 set -l here (realpath (status dirname))
-source $here/wt.fish; or exit 1
+command -q wt; or begin
+    echo 'wt (pkgs/scripts/wt.nix) must be on PATH' >&2
+    exit 1
+end
 source $here/llmpush.fish; or exit 1
 
 set -g tmp (mktemp -d)

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Main repos live at $GIT_ROOT/<repo>; worktrees at $WT_ROOT/<repo>/<branch>.
-# Mirrors the layout used by wt.fish (default WT_ROOT: ~/worktrees).
+# Mirrors the layout used by wt (default WT_ROOT: ~/worktrees).
 GIT_ROOT="${GIT_ROOT:-$HOME/git}"
 WT_ROOT="${WT_ROOT:-$HOME/worktrees}"
 # A plain `ac <repo>` opens one tab per agent plus a terminal tab. Tabs, not
