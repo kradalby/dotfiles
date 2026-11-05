@@ -50,11 +50,6 @@
     nix-index-database.url = "github:nix-community/nix-index-database";
     nix-index-database.inputs.nixpkgs.follows = "nixpkgs-stable";
 
-    nixos-generators = {
-      url = "github:nix-community/nixos-generators";
-      inputs.nixpkgs.follows = "nixpkgs-stable";
-    };
-
     treefmt-nix = {
       url = "github:numtide/treefmt-nix";
       inputs.nixpkgs.follows = "nixpkgs-stable";
@@ -234,7 +229,6 @@
       nixpkgs-darwin,
       darwin,
       home-manager,
-      nixos-generators,
       flake-utils,
       ...
     }@inputs:
