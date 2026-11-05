@@ -133,14 +133,12 @@ func (m *metrics) collect(ctx context.Context, acc account) (float64, error) {
 	now := time.Now().UTC()
 	start := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.UTC)
 	req := usageapi.RequestSummarizedUsagesRequest{
-		RequestSummarizedUsagesDetails: usageapi.RequestSummarizedUsagesDetails{
-			TenantId:         common.String(acc.tenancy),
-			TimeUsageStarted: &common.SDKTime{Time: start},
-			TimeUsageEnded:   &common.SDKTime{Time: start.AddDate(0, 1, 0)},
-			Granularity:      usageapi.RequestSummarizedUsagesDetailsGranularityMonthly,
-			QueryType:        usageapi.RequestSummarizedUsagesDetailsQueryTypeCost,
-			GroupBy:          []string{"service"},
-		},
+		TenantId:         new(acc.tenancy),
+		TimeUsageStarted: &common.SDKTime{Time: start},
+		TimeUsageEnded:   &common.SDKTime{Time: start.AddDate(0, 1, 0)},
+		Granularity:      usageapi.RequestSummarizedUsagesDetailsGranularityMonthly,
+		QueryType:        usageapi.RequestSummarizedUsagesDetailsQueryTypeCost,
+		GroupBy:          []string{"service"},
 	}
 
 	var items []usageapi.UsageSummary

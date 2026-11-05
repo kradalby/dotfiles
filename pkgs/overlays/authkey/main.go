@@ -173,7 +173,7 @@ func run(target string) error {
 
 func parseTags(s string) []string {
 	var out []string
-	for _, t := range strings.Split(s, ",") {
+	for t := range strings.SplitSeq(s, ",") {
 		if t = strings.TrimSpace(t); t != "" {
 			out = append(out, t)
 		}

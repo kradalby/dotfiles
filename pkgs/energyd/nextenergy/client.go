@@ -17,6 +17,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"maps"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
@@ -434,9 +435,7 @@ func (c *Client) post(ctx context.Context, a action, fields map[string]any, out 
 		"versionInfo": map[string]string{"moduleVersion": c.moduleVersion, "apiVersion": a.apiVersion},
 		"viewName":    a.view,
 	}
-	for k, v := range fields {
-		payload[k] = v
-	}
+	maps.Copy(payload, fields)
 
 	raw, err := json.Marshal(payload)
 	if err != nil {
@@ -632,9 +631,7 @@ func (c *Client) screenVariables(contract Contract, day time.Time, screen *scree
 		"ScreenVariables":                 screen.Variables,
 		"ContractInfo":                    screen.ContractInfo,
 	}
-	for k, v := range extra {
-		vars[k] = v
-	}
+	maps.Copy(vars, extra)
 
 	return vars
 }
