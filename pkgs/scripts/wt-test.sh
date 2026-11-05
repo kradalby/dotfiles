@@ -25,6 +25,11 @@ dir=$(wt create kra/feat)
   echo "checkout from inside a worktree missed it"
   exit 1
 }
+WT_CD_FILE="$HOME/cd" wt checkout kra/feat >/dev/null 2>&1
+[[ "$(<"$HOME/cd")" == "$dir" ]] || {
+  echo "checkout did not hand '$dir' to WT_CD_FILE"
+  exit 1
+}
 if wt checkout missing 2>/dev/null; then
   echo "checkout of a missing branch succeeded"
   exit 1

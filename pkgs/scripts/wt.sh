@@ -40,9 +40,13 @@ existing() {
 }
 
 # land allows direnv so the caller arrives ready to work, then prints the path.
+# A script cannot cd its parent shell; wt.fish cds to what lands in $WT_CD_FILE.
 land() {
   if [[ -f "$1/.envrc" ]]; then
     direnv allow "$1"
+  fi
+  if [[ -n "${WT_CD_FILE:-}" ]]; then
+    printf '%s\n' "$1" >"$WT_CD_FILE"
   fi
   printf '%s\n' "$1"
 }
