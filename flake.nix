@@ -805,17 +805,6 @@
     )
     // (
       let
-        mkRpiBootstrap = import ./lib/rpi-bootstrap.nix {
-          inherit nixos-generators inputs overlays;
-        };
-        rpiPkgs = import nixpkgs-stable {
-          system = "aarch64-linux";
-          inherit overlays;
-        };
-        allowMissingModulesOverlay = _: super: {
-          makeModulesClosure = x: super.makeModulesClosure (x // { allowMissing = true; });
-        };
-
         # Bootstrap secrets come from the environment, never from a tracked
         # file of a public repo. Build with:
         #   BOOTSTRAP_WIFI_PSK=... BOOTSTRAP_TS_AUTHKEY=... \
@@ -830,52 +819,43 @@
           tsAuthKey = builtins.getEnv "BOOTSTRAP_TS_AUTHKEY";
         };
 
-        # Shared module list for the rpi5 nixos-raspberrypi build.
-        rpi5Modules = [
-          inputs.ragenix.nixosModules.age
-          inputs.tailscale.nixosModules.default
-          ./common
-          ./common/tailscale.nix
-          ./common/bootstrap-common.nix
-          inputs.nixos-raspberrypi.nixosModules.raspberry-pi-5.base
-          inputs.nixos-raspberrypi.nixosModules.raspberry-pi-5.page-size-16k
-          inputs.nixos-raspberrypi.nixosModules.sd-image
-          {
-            nixpkgs.overlays = overlays;
-            my.bootstrap = bootstrapSecrets // {
-              enable = true;
-              name = "bootstrap5";
-            };
-          }
-        ];
-      in
-      {
-        # Bootstrap SD image for Raspberry Pi 4 (nixpkgs sd-image-aarch64).
-        packages.aarch64-linux.rpi4 = mkRpiBootstrap (
-          bootstrapSecrets
-          // {
-            name = "bootstrap4";
-            hardwareModule = ./common/rpi4-configuration.nix;
-            extraOverlays = [ allowMissingModulesOverlay ];
-            extraModules = [
-              {
-                boot.kernelPackages = rpiPkgs.lib.mkForce rpiPkgs.linuxPackages_rpi4;
-              }
-            ];
-          }
-        );
-
-        # Bootstrap SD image for Raspberry Pi 5 (nixos-raspberrypi).
+        # Bootstrap SD image for a Raspberry Pi board (nixos-raspberrypi).
         # nixosSystemFull pulls the Pi-optimised pkgs overlay (ffmpeg,
         # kodi, libcamera, libpisp). For a headless server that overlay
         # is a no-op since nothing references those packages, so cost is
         # zero and future camera/kodi work gets the optimised variants
         # for free.
-        packages.aarch64-linux.rpi5 =
+        mkRpiBootstrap =
+          name: boardModules:
           (inputs.nixos-raspberrypi.lib.nixosSystemFull {
             specialArgs = { inherit inputs; };
-            modules = rpi5Modules;
+            modules = [
+              inputs.ragenix.nixosModules.age
+              inputs.tailscale.nixosModules.default
+              ./common
+              ./common/tailscale.nix
+              ./common/bootstrap-common.nix
+              inputs.nixos-raspberrypi.nixosModules.sd-image
+              {
+                nixpkgs.overlays = overlays;
+                my.bootstrap = bootstrapSecrets // {
+                  enable = true;
+                  inherit name;
+                };
+              }
+            ]
+            ++ boardModules;
           }).config.system.build.sdImage;
+      in
+      {
+        packages.aarch64-linux.rpi4 = mkRpiBootstrap "bootstrap4" [
+          inputs.nixos-raspberrypi.nixosModules.raspberry-pi-4.base
+        ];
+
+        packages.aarch64-linux.rpi5 = mkRpiBootstrap "bootstrap5" [
+          inputs.nixos-raspberrypi.nixosModules.raspberry-pi-5.base
+          inputs.nixos-raspberrypi.nixosModules.raspberry-pi-5.page-size-16k
+        ];
       }
     );
 }

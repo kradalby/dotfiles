@@ -59,6 +59,14 @@ in
     # build chain.
     environment.enableAllTerminfo = mkForce false;
 
+    # A fresh image is a fresh install of the release it was built from; the
+    # host config pins its own once it takes over.
+    system.stateVersion = mkDefault lib.trivial.release;
+
+    # The sd-image installer profile enables zfs, but the root is ext4, so
+    # nothing to force-import.
+    boot.zfs.forceImportRoot = mkDefault false;
+
     networking = {
       hostName = cfg.name;
       domain = "bootstrap.fap.no";
