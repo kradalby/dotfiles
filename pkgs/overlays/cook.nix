@@ -21,10 +21,10 @@ rustPlatform.buildRustPackage (finalAttrs: {
     owner = "cooklang";
     repo = "cookcli";
     rev = "v${finalAttrs.version}";
-    hash = "sha256-Q3dQSnRJaecYkDWTwh/k3PROOSp+1uvQP9yNcCsnnc4=";
+    hash = "sha256-jlXLBADpvEjIaqolA+1sZ3xjuL9r3kDLbwLCqVEdqGU=";
   };
 
-  cargoHash = "sha256-YSpZDF/YkZ+UsEHK2pJkZSWUc/B2aPeMs6xoyGy69fs=";
+  cargoHash = "sha256-2EG9WLXpIIgmQ3cWZ8h24Ci8EJQTAgeHzzHBv/E9gNs=";
 
   # Build without the self-updating feature. Dropping the defaults wholesale
   # also drops `server`, which upstream feature-gated after 0.22.0 — that
@@ -47,7 +47,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
 
   npmDeps = fetchNpmDeps {
     inherit (finalAttrs) src;
-    hash = "sha256-rQDKNk7PQdYBvtah8oziVWWaKT55zd6vu/KghMceGek=";
+    hash = "sha256-epKELLGq4bq1+hWXWksR+G79WbvvMi4ylnjrrakVrYI=";
   };
 
   # Neither generated asset is checked in, and the crate's build script fails
