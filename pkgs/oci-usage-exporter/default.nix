@@ -8,7 +8,7 @@ buildGoModule {
 
   src = ./.;
 
-  vendorHash = "sha256-84khk6fg3VxidC3+Lxys9iKN1nO2bjWbX8Yg3cEYrM0=";
+  vendorHash = "sha256-7EVcFsthJKFELgyqaBNgX4Mvi9JuZkDpPZarNrc++Yg=";
 
   env.CGO_ENABLED = 0;
 

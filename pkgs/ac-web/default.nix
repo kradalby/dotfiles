@@ -4,7 +4,7 @@ buildGoModule {
   version = "0.1.0";
 
   src = ./.;
-  vendorHash = "sha256-5cKs+6VEhARtftAhqwmnjysLNo9UKhzpT8R1ZvUgz0M=";
+  vendorHash = "sha256-i5R7+H4+K9O7VpqRqkCd57aXcMMKahk86doWaY/fHlo=";
 
   env.CGO_ENABLED = 0;
 
