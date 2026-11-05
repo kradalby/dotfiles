@@ -203,6 +203,13 @@
     herdr = {
       url = "github:herdrdev/herdr/v0.9.5";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
+      # herdr's lock pins a rust-overlay that reads the deprecated
+      # stdenv.isLinux. rust-toolchain.toml pins the compiler, so tracking
+      # upstream only changes the overlay's own Nix.
+      inputs.rust-overlay = {
+        url = "github:oxalica/rust-overlay";
+        inputs.nixpkgs.follows = "nixpkgs-unstable";
+      };
     };
 
     # Prebuilt Rex. Follow the fleet nixpkgs: the login server dlopens the
