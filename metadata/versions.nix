@@ -17,6 +17,11 @@
       rev = "2";
       hash = "sha256-3+f11v3qfTmM6poCwjUAlQmyZNs9X0TwcCdxFTreyuQ=";
     };
+    # https://grafana.com/grafana/dashboards/1860-node-exporter-full/
+    nodeExporterFull = {
+      rev = "46";
+      hash = "sha256-5Y3cXcU11MkB+U2pZIvD49Wue2946Y4YW86LKJlhzqM=";
+    };
     # https://grafana.com/grafana/dashboards/14348-sloth-slo-detail/
     sloth = {
       rev = "5";

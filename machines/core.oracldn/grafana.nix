@@ -35,16 +35,16 @@ let
     } > $out
   '';
 
-  # Community dashboards from grafana.com, post-processed to replace
-  # datasource template variables with our provisioned datasource name.
   dashboardDir = pkgs.runCommand "grafana-dashboards" { passthru = { inherit slothDashboard; }; } ''
     mkdir -p $out
-    sed 's|''${DS_PROMETHEUS}|Prometheus|g' ${
-      pkgs.fetchurl {
-        url = "https://grafana.com/api/dashboards/1860/revisions/37/download";
-        hash = "sha256-1DE1aaanRHHeCOMWDGdOS1wBXxOF84UXAjJzT5Ek6mM=";
+    cp ${
+      fetchDashboard {
+        id = 1860;
+        rev = versions.grafanaDashboards.nodeExporterFull.rev;
+        hash = versions.grafanaDashboards.nodeExporterFull.hash;
+        name = "node-exporter-full.json";
       }
-    } > $out/node-exporter-full.json
+    } $out/node-exporter-full.json
     cp ${
       fetchDashboard {
         id = 19727;
