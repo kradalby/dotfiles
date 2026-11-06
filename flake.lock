@@ -1031,11 +1031,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1793913067,
-        "narHash": "sha256-TeHTPY0fO571K0jVrH1yiiq/Ax9ylIZ3Ck4DV9sDPf4=",
+        "lastModified": 1794000655,
+        "narHash": "sha256-TAB/abCfHu9H+6rVDCNIXIXhh3N1MeZqqeeV7dnBiEc=",
         "owner": "kradalby",
         "repo": "garnixlogs",
-        "rev": "d3ee72b54b760be9a4227015abe25e8bf2fa6d98",
+        "rev": "304768c66f592209a03b581cb67f474f97f2dc8e",
         "type": "github"
       },
       "original": {
