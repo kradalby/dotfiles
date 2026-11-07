@@ -257,4 +257,9 @@ in
 
   # Builders inherit this, so they get OOM-killed before the herd's panes (100).
   systemd.services.nix-daemon.serviceConfig.OOMScoreAdjust = 500;
+
+  # Swap sits full here, so page cache is all that is left to reclaim, and
+  # evicting it means re-reading every running binary: the box stalls while
+  # earlyoom's default 10% still counts that cache as available.
+  services.earlyoom.freeMemThreshold = 15;
 }
