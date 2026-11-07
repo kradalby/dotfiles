@@ -36,6 +36,7 @@ in
     ./ssh.nix
     ./ai-commands.nix
     ./ai-plugin-install.nix
+    ./cooklang.nix
 
     ../modules/claude-code
 
