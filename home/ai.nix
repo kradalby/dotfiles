@@ -19,6 +19,9 @@ let
   personal = !config.my.mcp.work;
   # Codex keeps existing registrations; the profile path survives package upgrades.
   nixosMcp = "${config.home.profileDirectory}/bin/mcp-nixos";
+  # Wrapper from home/cooklang.nix, which bakes in the recipe root.
+  cookMcp = "${config.home.profileDirectory}/bin/cook-mcp";
+  cook = config.my.cooklang.recipes != null;
 in
 {
   # Claude Code ignores mcpServers in settings.json; it reads user-scope
@@ -38,6 +41,13 @@ in
       nixos = {
         type = "stdio";
         command = nixosMcp;
+        args = [ ];
+      };
+    }
+    // lib.optionalAttrs cook {
+      cook = {
+        type = "stdio";
+        command = cookMcp;
         args = [ ];
       };
     };
@@ -191,6 +201,12 @@ in
           type = "local";
           command = [ nixosMcp ];
         };
+      }
+      // lib.optionalAttrs cook {
+        cook = {
+          type = "local";
+          command = [ cookMcp ];
+        };
       };
 
     permission = {
@@ -239,6 +255,9 @@ in
       }
       // lib.optionalAttrs config.my.packages.ai.enable {
         nixos.command = nixosMcp;
+      }
+      // lib.optionalAttrs cook {
+        cook.command = cookMcp;
       };
   };
 

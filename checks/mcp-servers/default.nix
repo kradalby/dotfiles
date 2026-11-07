@@ -5,11 +5,20 @@ let
     lib = pkgs.lib;
     config.my.packages.ai.enable = false;
     config.my.mcp.work = false;
+    config.my.cooklang.recipes = null;
   };
   workAi = import ../../home/ai.nix {
     lib = pkgs.lib;
     config.my.packages.ai.enable = false;
     config.my.mcp.work = true;
+    config.my.cooklang.recipes = null;
+  };
+  cookAi = import ../../home/ai.nix {
+    lib = pkgs.lib;
+    config.home.profileDirectory = "${home}/.nix-profile";
+    config.my.packages.ai.enable = false;
+    config.my.mcp.work = false;
+    config.my.cooklang.recipes = "/recipes";
   };
   # Exercise Desktop registration on the Linux CI builder too.
   registration =
@@ -30,6 +39,7 @@ let
         my.packages.ai.enable = true;
         my.packages.ai.codex = false;
         my.mcp.work = false;
+        my.cooklang.recipes = "/recipes";
         my.mutableJson = { };
         my.claudeMcpServers = { };
       };
@@ -38,6 +48,12 @@ in
 assert !(disabledAi.claudeMcpServers ? nixos);
 assert !(disabledAi.opencode.mcp ? nixos);
 assert !(disabledAi.codex.mcp_servers ? nixos);
+assert !(disabledAi.claudeMcpServers ? cook);
+assert !(disabledAi.opencode.mcp ? cook);
+assert !(disabledAi.codex.mcp_servers ? cook);
+assert cookAi.claudeMcpServers.cook.command == "${home}/.nix-profile/bin/cook-mcp";
+assert cookAi.opencode.mcp.cook.command == [ "${home}/.nix-profile/bin/cook-mcp" ];
+assert cookAi.codex.mcp_servers.cook.command == "${home}/.nix-profile/bin/cook-mcp";
 assert workAi.claudeMcpServers == { };
 assert workAi.opencode.mcp == { };
 assert workAi.codex.mcp_servers == { };
@@ -59,6 +75,8 @@ pkgs.runCommand "mcp-server-registration-tests" { nativeBuildInputs = [ pkgs.jq 
   jq -e --arg command "${home}/.nix-profile/bin/mcp-nixos" \
     '.mcpServers.nixos.command == $command and .mcpServers.nixos.args == []' \
     "${home}/Library/Application Support/Claude/claude_desktop_config.json"
+  jq -e --arg command "${home}/.nix-profile/bin/cook-mcp" \
+    '.mcpServers.cook.type == "stdio" and .mcpServers.cook.command == $command' ${home}/.claude.json
   for server in grafana picnic; do
     jq -e --arg server "$server" --arg url "http://$server-mcp.dalby.ts.net/mcp" \
       '.mcpServers[$server].url == $url' ${home}/.claude.json

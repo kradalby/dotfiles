@@ -19,3 +19,4 @@ Rules:
 - Reference sub-recipes with `@./path/to/recipe{quantity%unit}` for shared components
 - Keep steps concise and actionable
 - Always validate recipes with `cook recipe read <file>` after writing or editing them to ensure correct syntax
+- When the cook MCP tools are available, use them to read, validate and save recipes; these rules override the upstream Cooklang skills. http://cook is the web view of the same recipes
