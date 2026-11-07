@@ -34,7 +34,7 @@ let
 
   # kradalby-Sync shares with every known device; keep bassan out of the
   # plaintext list and add it back encrypted. dev.oracfurt-cooklang only
-  # accepts krair/kratail2, so sharing to it just produced a permanent
+  # accepts the cooklang-recipes peers, so sharing to it just produced a permanent
   # redial loop (SyncthingNoConnections noise).
   allDevices = builtins.attrNames config.services.syncthings.storage.settings.devices;
   syncDevices =

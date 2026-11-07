@@ -20,6 +20,7 @@
     my.atuin.enable = true; # personal account (shared with dev.ldn)
 
     my.packages.ai.codex = true;
+    my.cooklang.recipes = "/Users/kradalby/cooklang";
     # Default is claude+opencode; codex needs its own state hook or herdr
     # cannot tell idle from working in a codex pane.
     my.herdr.integrations = [

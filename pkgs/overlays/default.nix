@@ -12,6 +12,8 @@ final: prev: {
 
   cook-cli = prev.callPackage ./cook.nix { };
 
+  cook-mcp = prev.callPackage ./cook-mcp.nix { };
+
   mcp-picnic = prev.callPackage ./mcp-picnic.nix { };
 
   webrepl_cli = prev.callPackage ./webrepl_cli.nix { };

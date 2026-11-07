@@ -33,7 +33,8 @@ in
             # storage.bassan only gets this folder encrypted, from
             # core.tjoda/storage.ldn (common/syncthing-storage.nix); keep it
             # out of this plain device list. The cooklang instance only
-            # accepts krair/kratail2 — sharing to it just redials forever.
+            # accepts the cooklang-recipes peers — sharing to it just
+            # redials forever.
             devices = lib.filter (d: d != "storage.bassan" && d != "dev.oracfurt-cooklang") (
               builtins.attrNames config.services.syncthings.personal.settings.devices
             );
@@ -52,6 +53,7 @@ in
       overrideFolders = true;
       settings = {
         devices = {
+          "dev.ldn" = cfg.devices."dev.ldn";
           "krair" = cfg.devices."krair";
           "kratail2" = cfg.devices."kratail2";
         };
@@ -67,6 +69,7 @@ in
             id = "cooklang-recipes";
             path = "/var/lib/cook-server";
             devices = [
+              "dev.ldn"
               "krair"
               "kratail2"
             ];
