@@ -15,6 +15,10 @@ let
           type = lib.types.bool;
           default = false;
         };
+        options.my.cooklang.recipes = lib.mkOption {
+          type = lib.types.nullOr lib.types.str;
+          default = null;
+        };
       })
       {
         home.username = "fixture";
