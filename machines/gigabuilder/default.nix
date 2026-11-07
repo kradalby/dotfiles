@@ -40,7 +40,7 @@
   boot.kernelParams = [ "zfs.zfs_arc_max=8589934592" ]; # 8 GiB
 
   # Third tailnet on top of common/tailscale.nix: the sfiber headscale
-  # (userspace, no TUN conflict). cache.nix's sfiber tsnet reuses this secret.
+  # (userspace, no TUN conflict).
   age.secrets.headscale-sfiber-client-preauthkey.file = ../../secrets/headscale-sfiber-client-preauthkey.age;
   services.tailscales.sfiber = {
     enable = true;

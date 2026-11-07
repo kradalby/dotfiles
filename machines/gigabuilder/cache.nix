@@ -44,8 +44,10 @@
     owner = "tsnixcache";
     group = "tsnixcache";
   };
-  # The sfiber node still uses the (reusable) sfiber join key.
-  age.secrets.headscale-sfiber-client-preauthkey = {
+  # Own key for the sfiber node too: tsnet re-presents it on every start, and a
+  # shared key that rotates reads to headscale as a retag of tag:cache.
+  age.secrets.tsnixcache-sfiber-tskey = {
+    file = ../../secrets/tsnixcache-sfiber-tskey.age;
     owner = "tsnixcache";
     group = "tsnixcache";
   };
@@ -69,7 +71,7 @@
       {
         hostname = "tsnixcache";
         controlUrl = "https://headscale.sandefjordfiber.no";
-        authKeyFile = config.age.secrets.headscale-sfiber-client-preauthkey.path;
+        authKeyFile = config.age.secrets.tsnixcache-sfiber-tskey.path;
         dir = "/var/lib/tsnixcache/tsnet-sfiber";
       }
     ];
