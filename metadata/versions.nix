@@ -46,6 +46,8 @@
       webreplCli = "1e09d9a1d90fe52aba11d1e659afbc95a50cf088";
       # https://github.com/cooklang/cookcli/releases
       cook = "0.40.0";
+      # https://github.com/cook-md/cook-mcp/releases
+      cookMcp = "0.2.3";
       # https://github.com/ivo-toby/mcp-picnic/releases
       mcpPicnic = "1.15.1";
       # https://github.com/golang/tools/tags
