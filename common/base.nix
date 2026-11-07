@@ -8,6 +8,7 @@
   imports = [
     ./ca.nix
     ./cpufreq.nix
+    ./earlyoom.nix
     ./environment.nix
     ./firewall.nix
     ./lldp.nix
