@@ -24,9 +24,16 @@ in
             # storage.bassan only gets this folder encrypted, from
             # core.tjoda/storage.ldn (common/syncthing-storage.nix); keep it
             # out of this plain device list.
-            devices = lib.filter (d: d != "storage.bassan") (
+            # dev.oracfurt-cooklang only takes cooklang-recipes.
+            devices = lib.filter (d: d != "storage.bassan" && d != "dev.oracfurt-cooklang") (
               builtins.attrNames config.services.syncthings.personal.settings.devices
             );
+            type = "sendreceive";
+          };
+          "cooklang-recipes" = {
+            id = "cooklang-recipes";
+            path = "/home/kradalby/cooklang";
+            devices = [ "dev.oracfurt-cooklang" ];
             type = "sendreceive";
           };
         };

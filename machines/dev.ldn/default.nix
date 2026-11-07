@@ -146,6 +146,7 @@ in
     my.atuin.enable = true; # personal account (shared with krair)
 
     my.packages.ai.codex = true;
+    my.cooklang.recipes = "/home/kradalby/cooklang";
     # Codex's session hook works for standalone panes. Shared app-server panes
     # use terminal state detection (see docs/conventions/services.md).
     my.herdr.integrations = [
