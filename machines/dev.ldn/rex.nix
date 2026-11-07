@@ -45,9 +45,21 @@ in
     };
   };
 
-  # Both read-modify-write tailscaled's serve config, so a tailscaled restart
-  # could otherwise lose whichever write lands first.
-  systemd.services.rex-tailscale-serve.after = [ "tailscaled-serve-config.service" ];
+  # The module's Requires= stops Rex on every tailscaled restart, and if
+  # tailscaled then fails to start, Rex's start fails with it and nothing ever
+  # retries, so Rex stays down after tailscaled recovers. Serve's mapping
+  # persists in tailscaled's state, so neither needs restarting with it.
+  systemd.services.rex-login-server = {
+    requires = lib.mkForce [ ];
+    wants = [ "tailscaled.service" ];
+  };
+  systemd.services.rex-tailscale-serve = {
+    requires = lib.mkForce [ "rex-login-server.service" ];
+    wants = [ "tailscaled.service" ];
+    # Both read-modify-write tailscaled's serve config, so a tailscaled restart
+    # could otherwise lose whichever write lands first.
+    after = [ "tailscaled-serve-config.service" ];
+  };
 
   systemd.services.rex-login-server-health = {
     description = "Probe the Rex login server for node_exporter";
