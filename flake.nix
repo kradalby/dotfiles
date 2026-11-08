@@ -785,7 +785,7 @@
         };
 
         # colmena here is wrapped with the deploy gate (git-ready): `apply`,
-        # `apply-local` and `upload-keys` refuse unless the repo is on master,
+        # `apply-local` and `upload-keys` refuse unless the repo is on main,
         # clean, in sync with origin and fully pushed. It is deliberately not an
         # overlay -- that would gate colmena for every consumer of this flake --
         # and deliberately the only colmena on PATH, so the gate cannot be

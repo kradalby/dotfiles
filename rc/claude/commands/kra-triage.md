@@ -50,7 +50,7 @@ Run these; stop early only if the alert pipeline itself is dead.
 9. **Deploy drift** — compare `nixos-version --json | jq -r .configurationRevision`
    on each host against `git rev-parse HEAD` in `~/git/dotfiles`. All hosts
    should share one revision. Divergence _between hosts_ is the real
-   signal; lagging master by a few commits is normal.
+   signal; lagging main by a few commits is normal.
 10. **CI** — garnix, via `garnixlogs`: plain text, no auth, no setec, private
     repos included. Reach for this first; it is the whole point of it.
 

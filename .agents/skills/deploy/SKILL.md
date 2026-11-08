@@ -1,6 +1,6 @@
 ---
 name: deploy
-description: Deploy the NixOS/darwin fleet from master with colmena. Use for any fleet deploy, host reboot, or post-deploy verification in this repo.
+description: Deploy the NixOS/darwin fleet from main with colmena. Use for any fleet deploy, host reboot, or post-deploy verification in this repo.
 ---
 
 # Deploy the fleet
@@ -15,7 +15,7 @@ write features, do not open PRs, do not deploy another repo. A host not in
 ## Preconditions
 
 `colmena` in this devShell is wrapped: `apply`, `apply-local` and
-`upload-keys` refuse unless the repo is on `master`, clean, in sync with
+`upload-keys` refuse unless the repo is on `main`, clean, in sync with
 `origin`, and has nothing unpushed. If it refuses, report the message and
 stop. Do not commit, push, checkout, stash or fetch to make it pass — that is
 the human's call. `git-ready` runs the same check on demand.
@@ -284,7 +284,7 @@ Ask before these, and only these. Everything else proceeds.
 ## Notes
 
 - Deploy drift is `configurationRevision` diverging **between** hosts. All
-  hosts lagging master together is normal.
+  hosts lagging main together is normal.
 - `root@<node>` works over Tailscale SSH; `sudo` as `kradalby` over ssh does
   not (no askpass). Use root.
 - `colmena apply` on a cold cache can outrun a tool-call timeout. Run it in
