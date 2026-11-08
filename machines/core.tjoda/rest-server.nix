@@ -24,9 +24,14 @@ in
     };
   };
 
+  # Own key, not the shared sfiber one: tsnet re-presents its key on every
+  # start, and headscale validates any tagged key that is not the node's own.
+  # Root-only; the proxy module reads it via LoadCredential.
+  age.secrets.restic-sfiber-tskey.file = ../../secrets/restic-sfiber-tskey.age;
+
   services.tailscale-proxies.restic-sfiber = {
     enable = true;
-    tailscaleKeyPath = config.age.secrets.headscale-sfiber-authkey.path;
+    tailscaleKeyPath = config.age.secrets.restic-sfiber-tskey.path;
     loginServer = "https://headscale.sandefjordfiber.no";
     hostname = "restic-tjoda";
     backendPort = port;

@@ -122,6 +122,9 @@ with builtins;
   # on every start, and headscale reads a different tagged key as a retag that
   # must be valid, so this node needs its own key, never a shared one.
   "tsnixcache-sfiber-tskey.age".publicKeys = u ++ [ hosts.gigabuilder ];
+  # restic-tjoda's sfiber tsnet node (tag:tjoda, single-use); own key for the
+  # same reason as tsnixcache-sfiber-tskey.
+  "restic-sfiber-tskey.age".publicKeys = u ++ [ hosts.core-tjoda ];
   "krapage-env.age".publicKeys = u ++ [ hosts.core-oracldn ];
 
   # WIFI
@@ -145,7 +148,7 @@ with builtins;
   # any host may need to rebuild-join, and a spent one-time key is inert.
   "tailscale-preauthkey.age".publicKeys = global;
   # sfiber tailnet join key, scoped to its consumers (gigabuilder tailscaled,
-  # dev.ldn plural instance, core.tjoda proxies; garnix has its own CI key).
+  # dev.ldn plural instance, core.tjoda s3 proxy; garnix has its own CI key).
   "headscale-sfiber-client-preauthkey.age".publicKeys = u ++ [
     hosts.gigabuilder
     hosts.dev-ldn
