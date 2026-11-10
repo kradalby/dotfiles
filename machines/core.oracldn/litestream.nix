@@ -36,6 +36,10 @@
       name = "grafana.db";
       path = "/var/lib/grafana/data/grafana.db";
     }
+    {
+      name = "asparges.db";
+      path = "${config.services.asparges.dataDir}/asparges.db";
+    }
   ];
 
   users = {
@@ -48,6 +52,7 @@
           "ghdl"
           "energyd"
           "grafana"
+          config.services.asparges.group
         ];
       };
     };
@@ -123,12 +128,14 @@
       "ghdl.service"
       "energyd.service"
       "grafana.service"
+      "asparges.service"
     ];
     wants = [
       "uptime-kuma.service"
       "ghdl.service"
       "energyd.service"
       "grafana.service"
+      "asparges.service"
     ];
   };
 }

@@ -19,6 +19,8 @@ let
     config.services.golink.dataDir
     config.services.postgresqlBackup.location
     config.services.grafana.dataDir
+    # Built image sizes included on purpose: a restore needs no rebuild.
+    config.services.asparges.dataDir
     backupDirectory
   ];
 
@@ -26,7 +28,12 @@ let
     enable = true;
     inherit site paths;
     secret = "restic-core-oracldn-token";
-    extraConfig.exclude = liveDatabaseFiles ++ [ "${backupDirectory}/.sqlite-backup.*" ];
+    extraConfig.exclude = liveDatabaseFiles ++ [
+      "${backupDirectory}/.sqlite-backup.*"
+      # Work files, and litestream's shadow WAL beside the db.
+      "${config.services.asparges.dataDir}/tmp"
+      "${config.services.asparges.dataDir}/.asparges.db-litestream"
+    ];
   };
 in
 {
