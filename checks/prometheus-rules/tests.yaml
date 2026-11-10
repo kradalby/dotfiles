@@ -851,6 +851,91 @@ tests:
               summary: "ghdl is up but ghdl_last_success_timestamp is absent"
               description: "The ghdl metric names changed (version bump?), or no collection has ever succeeded. All ghdl freshness alerts are blind until fixed."
 
+  # asparges: a failed size build pages once; quiet before it.
+  - interval: 1m
+    input_series:
+      - series: 'asparges_images_build_errors_total{kind="event", instance="asparges-beta:80", job="asparges-beta"}'
+        values: "0x20 1x40"
+    alert_rule_test:
+      - eval_time: 15m
+        alertname: AspargesImageBuildErrors
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: AspargesImageBuildErrors
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              kind: event
+              instance: asparges-beta:80
+              job: asparges-beta
+            exp_annotations:
+              summary: "asparges failed to build image sizes"
+              description: "Some photo sizes were not built; pages show those pictures as missing. See journalctl -u asparges."
+
+  # asparges: a long rebuild keeps the queue up while sizes get built: quiet.
+  - interval: 1m
+    input_series:
+      - series: 'asparges_images_queue_length{instance="asparges-beta:80", job="asparges-beta"}'
+        values: "40x180"
+      - series: 'asparges_images_variants_built_total{kind="event", format="avif", instance="asparges-beta:80", job="asparges-beta"}'
+        values: "0+1x180"
+    alert_rule_test:
+      - eval_time: 150m
+        alertname: AspargesImageQueueStuck
+        exp_alerts: []
+
+  # asparges: queue waiting and nothing built for an hour, or ever: stuck.
+  - interval: 1m
+    input_series:
+      - series: 'asparges_images_queue_length{instance="asparges-beta:80", job="asparges-beta"}'
+        values: "3x180"
+      - series: 'asparges_images_variants_built_total{kind="event", format="avif", instance="asparges-beta:80", job="asparges-beta"}'
+        values: "0+1x30 30x150"
+    alert_rule_test:
+      - eval_time: 60m
+        alertname: AspargesImageQueueStuck
+        exp_alerts: []
+      - eval_time: 120m
+        alertname: AspargesImageQueueStuck
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: asparges-beta:80
+              job: asparges-beta
+            exp_annotations:
+              summary: "asparges image queue is stuck at 3"
+              description: "Photos wait for their sizes but none were built in the last hour. See journalctl -u asparges."
+  - interval: 1m
+    input_series:
+      - series: 'asparges_images_queue_length{instance="asparges-beta:80", job="asparges-beta"}'
+        values: "3x30"
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: AspargesImageQueueStuck
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: asparges-beta:80
+              job: asparges-beta
+            exp_annotations:
+              summary: "asparges image queue is stuck at 3"
+              description: "Photos wait for their sizes but none were built in the last hour. See journalctl -u asparges."
+
+  # asparges metric-rename canary: scrape up, image metrics absent.
+  - interval: 1m
+    input_series:
+      - series: 'up{job="asparges-beta", instance="asparges-beta:80", host="asparges-beta"}'
+        values: "1x30"
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: AspargesMetricsMissing
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+            exp_annotations:
+              summary: "asparges is up but asparges_images_queue_length is absent"
+              description: "The asparges metric names changed; its image alerts are blind until fixed."
+
   # The dead-man heartbeat must always be firing.
   - interval: 1m
     input_series: []

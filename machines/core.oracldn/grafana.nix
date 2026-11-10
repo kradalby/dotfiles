@@ -72,6 +72,11 @@ let
       inputs.ghdl.packages.${pkgs.stdenv.hostPlatform.system}.grafanaDashboards
     }/ghdl-service.json $out/ghdl-service.json
 
+    # asparges dashboard, likewise generated from Go in the asparges repo.
+    cp ${
+      inputs.asparges.packages.${pkgs.stdenv.hostPlatform.system}.grafanaDashboards
+    }/asparges.json $out/asparges.json
+
     # Dashboards that chart several fleet services side by side, generated from Go.
     cp ${pkgs.dashboards.grafanaDashboards}/*.json $out/
   '';

@@ -238,6 +238,7 @@ let
     "hugin" = "core-tjoda";
     "hvor" = "core-oracldn";
     "krapage" = "core-oracldn";
+    "asparges-beta" = "core-oracldn";
     "localhost" = "core-oracldn"; # prometheus/alertmanager/grafana/oci-usage on this box
     "nefit-homekit" = "home-ldn";
     "tasmota-homekit" = "home-ldn";
@@ -554,6 +555,9 @@ in
       # garnixlogs: garnix CI logs as plain text. tsnet node, /metrics on :80.
       (scrapeJob "garnixlogs" [ "garnixlogs:80" ])
 
+      # asparges (aspargesgaarden.no): tsnet node, /metrics on :80.
+      (scrapeJob "asparges-beta" [ "asparges-beta:80" ])
+
       # Application-specific exporters
       # OCI usage exporter binds localhost on this host, no ACL needed
       (scrapeJob "oci-usage" [ "localhost:63461" ])
@@ -769,6 +773,7 @@ in
               "https://kradalby.no"
               "https://umami.kradalby.no"
               "https://hvor.kradalby.no?from=discord"
+              "https://beta.aspargesgaarden.no"
             ];
           }
           {
@@ -1609,6 +1614,39 @@ in
                 annotations = {
                   summary = "ghdl is up but ghdl_last_success_timestamp is absent";
                   description = "The ghdl metric names changed (version bump?), or no collection has ever succeeded. All ghdl freshness alerts are blind until fixed.";
+                };
+              }
+              {
+                alert = "AspargesImageBuildErrors";
+                expr = "increase(asparges_images_build_errors_total[1h]) > 0";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "asparges failed to build image sizes";
+                  description = "Some photo sizes were not built; pages show those pictures as missing. See journalctl -u asparges.";
+                };
+              }
+              {
+                alert = "AspargesImageQueueStuck";
+                # Queue waiting AND nothing built for an hour. A full rebuild on
+                # 2 cores keeps the queue up for hours while building, so the
+                # queue length alone is not a fault.
+                expr = "asparges_images_queue_length > 0 unless on() increase(asparges_images_variants_built_total[1h]) > 0";
+                for = "15m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "asparges image queue is stuck at {{ $value }}";
+                  description = "Photos wait for their sizes but none were built in the last hour. See journalctl -u asparges.";
+                };
+              }
+              {
+                alert = "AspargesMetricsMissing";
+                # Canary against metric renames: target up, image metrics gone.
+                expr = ''absent(asparges_images_queue_length) and on() up{job="asparges-beta"} == 1'';
+                for = "15m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "asparges is up but asparges_images_queue_length is absent";
+                  description = "The asparges metric names changed; its image alerts are blind until fixed.";
                 };
               }
               # Syncthing folder states verified against pinned 2.0.15 source:
