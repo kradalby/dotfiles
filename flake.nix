@@ -97,6 +97,15 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
+    # aspargesgaarden.no; branch asparges until it replaces the Pages site on
+    # main. headscale is only its VM-test control server.
+    asparges = {
+      url = "github:kradalby/aspargesgaarden-elm/asparges";
+      inputs."flake-utils".follows = "flake-utils";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+      inputs.headscale.follows = "headscale";
+    };
+
     # garnix CI build logs as plain text; runs on the garnix VM as its own
     # tsnet node. Follows unstable: its go.mod needs go >= 1.27.0.
     garnixlogs = {
@@ -327,6 +336,7 @@
         tasmota-exporter.overlays.default
         homewizard-p1-exporter.overlays.default
         ghdl.overlays.default
+        asparges.overlays.default
         # Adds `munin-gallery` (binary `munin`), x86_64-linux only.
         munin.overlays.default
         # After the input overlays: it replaces packages they define.
@@ -421,6 +431,7 @@
                 tasmota-exporter.nixosModules.default
                 homewizard-p1-exporter.nixosModules.default
                 ghdl.nixosModules.default
+                asparges.nixosModules.default
               ];
             };
 
