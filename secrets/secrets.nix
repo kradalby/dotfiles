@@ -110,6 +110,9 @@ with builtins;
   "hvor-tskey.age".publicKeys = u ++ [ hosts.core-oracldn ];
   "hvor-env.age".publicKeys = u ++ [ hosts.core-oracldn ];
 
+  # asparges's tsnet node (tag:asparges, single-use, authkey_asparges.tf).
+  "asparges-tskey.age".publicKeys = u ++ [ hosts.core-oracldn ];
+
   # krapage
   "krapage-tskey.age".publicKeys = u ++ [ hosts.core-oracldn ];
   # Shared by the three home.ldn homekit bridges (tag:homekit, reusable —

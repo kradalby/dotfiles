@@ -31,6 +31,7 @@
     ./golink.nix
     ./webpage.nix
     ./hvor.nix
+    ./asparges.nix
     ./exporter.nix
   ];
 
