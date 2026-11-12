@@ -5,16 +5,7 @@ let
   caveman = inputs.claude-caveman;
   superpowers = inputs.claude-superpowers;
   uiUx = inputs.claude-ui-ux-pro-max;
-  floorplan = pkgs.applyPatches {
-    name = "floorplan";
-    src = inputs.claude-floorplan;
-    # copyFileSync keeps the store's read-only mode, so the next build cannot overwrite serve.mjs.
-    postPatch = ''
-      substituteInPlace skills/floorplan/scripts/build.mjs --replace-fail \
-        "fs.copyFileSync(path.join(SKILL_DIR, 'assets', 'serve.mjs'), path.join(outDir, 'serve.mjs'));" \
-        "fs.writeFileSync(path.join(outDir, 'serve.mjs'), fs.readFileSync(path.join(SKILL_DIR, 'assets', 'serve.mjs')));"
-    '';
-  };
+  floorplan = inputs.claude-floorplan.outPath;
   # Codex does not load Caveman's inline Claude hooks or its repo-local config.
   cavemanCodex =
     let
@@ -151,9 +142,9 @@ in
           pkgs.lib.filterAttrs (_: type: type == "directory") (builtins.readDir directory)
         )
       )
-      # Named, since listing the patched floorplan would build it during evaluation.
-      { floorplan = "${floorplan}/skills/floorplan"; }
+      { }
       [
+        "${floorplan}/skills"
         "${caveman}/skills"
         "${uiUx}/.claude/skills"
         "${official}/plugins/frontend-design/skills"
