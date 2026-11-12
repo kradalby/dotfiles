@@ -54,11 +54,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1794466452,
-        "narHash": "sha256-t8CBRHgAwWY3s0CdhnWl4PbI5jWMQai9JHcj51xMiw4=",
+        "lastModified": 1794472246,
+        "narHash": "sha256-BoUrZzU0iPcA4Mw2nOuaD8taF+vz0oh6NQQjTNXJMnk=",
         "owner": "kradalby",
         "repo": "aspargesgaarden-elm",
-        "rev": "40559c690ead00b341c2ec6384790eb7ae3cea58",
+        "rev": "bd98c8d86bc28a55b0b6274c202f92f1300a466f",
         "type": "github"
       },
       "original": {
