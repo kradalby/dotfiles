@@ -936,6 +936,244 @@ tests:
               summary: "asparges is up but asparges_images_queue_length is absent"
               description: "The asparges metric names changed; its image alerts are blind until fixed."
 
+  # asparges calendar, healthy: read every few minutes, shown, steady dates.
+  - interval: 1m
+    input_series:
+      - series: 'up{job="asparges-beta", instance="asparges-beta:80"}'
+        values: "1x180"
+      - series: 'asparges_calendar_shown{instance="asparges-beta:80", job="asparges-beta"}'
+        values: "1x180"
+      - series: 'asparges_calendar_last_read_timestamp_seconds{instance="asparges-beta:80", job="asparges-beta"}'
+        values: "60+60x180"
+      - series: 'asparges_calendar_reads_total{result="ok", instance="asparges-beta:80", job="asparges-beta"}'
+        values: "1+1x180"
+      - series: 'asparges_calendar_taken_dates{instance="asparges-beta:80", job="asparges-beta"}'
+        values: "40x180"
+    alert_rule_test:
+      - eval_time: 170m
+        alertname: AspargesCalendarHidden
+        exp_alerts: []
+      - eval_time: 170m
+        alertname: AspargesCalendarStale
+        exp_alerts: []
+      - eval_time: 170m
+        alertname: AspargesCalendarRefused
+        exp_alerts: []
+      - eval_time: 170m
+        alertname: AspargesCalendarDatesDropped
+        exp_alerts: []
+      - eval_time: 170m
+        alertname: AspargesCalendarMetricsMissing
+        exp_alerts: []
+
+  # asparges calendar, restart: metrics gone for two scrapes, counters reset,
+  # hidden for a minute until the first read.
+  - interval: 1m
+    input_series:
+      - series: 'up{job="asparges-beta", instance="asparges-beta:80"}'
+        values: "1x60 0x2 1x60"
+      - series: 'asparges_calendar_shown{instance="asparges-beta:80", job="asparges-beta"}'
+        values: "1x60 _x2 0 1x60"
+      - series: 'asparges_calendar_last_read_timestamp_seconds{instance="asparges-beta:80", job="asparges-beta"}'
+        values: "60+60x60 _x2 3600 3780+60x60"
+      - series: 'asparges_calendar_reads_total{result="ok", instance="asparges-beta:80", job="asparges-beta"}'
+        values: "1+1x60 _x3 1+1x60"
+      - series: 'asparges_calendar_taken_dates{instance="asparges-beta:80", job="asparges-beta"}'
+        values: "40x60 _x2 40x61"
+    alert_rule_test:
+      - eval_time: 64m
+        alertname: AspargesCalendarHidden
+        exp_alerts: []
+      - eval_time: 64m
+        alertname: AspargesCalendarStale
+        exp_alerts: []
+      - eval_time: 64m
+        alertname: AspargesCalendarRefused
+        exp_alerts: []
+      - eval_time: 64m
+        alertname: AspargesCalendarDatesDropped
+        exp_alerts: []
+      - eval_time: 64m
+        alertname: AspargesCalendarMetricsMissing
+        exp_alerts: []
+      - eval_time: 80m
+        alertname: AspargesCalendarHidden
+        exp_alerts: []
+      - eval_time: 80m
+        alertname: AspargesCalendarStale
+        exp_alerts: []
+      - eval_time: 80m
+        alertname: AspargesCalendarRefused
+        exp_alerts: []
+      - eval_time: 80m
+        alertname: AspargesCalendarDatesDropped
+        exp_alerts: []
+      - eval_time: 80m
+        alertname: AspargesCalendarMetricsMissing
+        exp_alerts: []
+
+  # asparges calendar, not configured: no calendar series at all.
+  - interval: 1m
+    input_series:
+      - series: 'asparges_images_queue_length{instance="asparges-beta:80", job="asparges-beta"}'
+        values: "0x60"
+    alert_rule_test:
+      - eval_time: 50m
+        alertname: AspargesCalendarHidden
+        exp_alerts: []
+      - eval_time: 50m
+        alertname: AspargesCalendarStale
+        exp_alerts: []
+      - eval_time: 50m
+        alertname: AspargesCalendarRefused
+        exp_alerts: []
+      - eval_time: 50m
+        alertname: AspargesCalendarDatesDropped
+        exp_alerts: []
+
+  # asparges calendar hidden: Google down for 30 minutes.
+  - interval: 1m
+    input_series:
+      - series: 'asparges_calendar_shown{instance="asparges-beta:80", job="asparges-beta"}'
+        values: "1x30 0x30"
+    alert_rule_test:
+      - eval_time: 33m
+        alertname: AspargesCalendarHidden
+        exp_alerts: []
+      - eval_time: 40m
+        alertname: AspargesCalendarHidden
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              instance: asparges-beta:80
+              job: asparges-beta
+            exp_annotations:
+              summary: "aspargesgaarden.no is not showing the booking calendar"
+              description: 'Visitors to /kontakt see "Kalenderen er ikke tilgjengelig" and a phone number instead of the calendar: no good read of the Google feed for 30 minutes, or none since start. journalctl -u asparges names the fetch error or the refused event.'
+
+  # asparges calendar never read since start: hidden pages, not stale.
+  - interval: 1m
+    input_series:
+      - series: 'asparges_calendar_shown{instance="asparges-beta:80", job="asparges-beta"}'
+        values: "0x30"
+      - series: 'asparges_calendar_last_read_timestamp_seconds{instance="asparges-beta:80", job="asparges-beta"}'
+        values: "0x30"
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: AspargesCalendarStale
+        exp_alerts: []
+      - eval_time: 20m
+        alertname: AspargesCalendarHidden
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              instance: asparges-beta:80
+              job: asparges-beta
+            exp_annotations:
+              summary: "aspargesgaarden.no is not showing the booking calendar"
+              description: 'Visitors to /kontakt see "Kalenderen er ikke tilgjengelig" and a phone number instead of the calendar: no good read of the Google feed for 30 minutes, or none since start. journalctl -u asparges names the fetch error or the refused event.'
+
+  # asparges calendar stale: the last good read stays at 60s.
+  - interval: 1m
+    input_series:
+      - series: 'asparges_calendar_last_read_timestamp_seconds{instance="asparges-beta:80", job="asparges-beta"}'
+        values: "60x30"
+    alert_rule_test:
+      - eval_time: 15m
+        alertname: AspargesCalendarStale
+        exp_alerts: []
+      - eval_time: 20m
+        alertname: AspargesCalendarStale
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: asparges-beta:80
+              job: asparges-beta
+            exp_annotations:
+              summary: "asparges has not read the booking calendar for 15 minutes"
+              description: "The calendar is still shown from the last good read; it is hidden at 30 minutes. journalctl -u asparges says why the reads fail."
+
+  # asparges calendar refused, first ever: the series is born at 1.
+  - interval: 1m
+    input_series:
+      - series: 'asparges_calendar_reads_total{result="refused", instance="asparges-beta:80", job="asparges-beta"}'
+        values: "_x10 1x40"
+    alert_rule_test:
+      - eval_time: 12m
+        alertname: AspargesCalendarRefused
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              result: refused
+              instance: asparges-beta:80
+              job: asparges-beta
+            exp_annotations:
+              summary: "asparges refused the booking calendar's content"
+              description: "Google answered, but the calendar holds something the site will not guess at, most likely an event just made or changed in Google Calendar (an unusual repeat, a time zone, a date that ends before it starts). journalctl -u asparges names the event; change it in Google Calendar and the next read, within 5 minutes, takes it. Until then the last good read is shown, and it is hidden after 30 minutes."
+      - eval_time: 45m
+        alertname: AspargesCalendarRefused
+        exp_alerts: []
+
+  # asparges calendar refused again on a series that already existed.
+  - interval: 1m
+    input_series:
+      - series: 'asparges_calendar_reads_total{result="refused", instance="asparges-beta:80", job="asparges-beta"}'
+        values: "1x30 2x30"
+    alert_rule_test:
+      - eval_time: 25m
+        alertname: AspargesCalendarRefused
+        exp_alerts: []
+      - eval_time: 35m
+        alertname: AspargesCalendarRefused
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              result: refused
+              instance: asparges-beta:80
+              job: asparges-beta
+            exp_annotations:
+              summary: "asparges refused the booking calendar's content"
+              description: "Google answered, but the calendar holds something the site will not guess at, most likely an event just made or changed in Google Calendar (an unusual repeat, a time zone, a date that ends before it starts). journalctl -u asparges names the event; change it in Google Calendar and the next read, within 5 minutes, takes it. Until then the last good read is shown, and it is hidden after 30 minutes."
+
+  # asparges calendar: 40 taken dates fall to 10 while still shown.
+  - interval: 1m
+    input_series:
+      - series: 'asparges_calendar_shown{instance="asparges-beta:80", job="asparges-beta"}'
+        values: "1x120"
+      - series: 'asparges_calendar_taken_dates{instance="asparges-beta:80", job="asparges-beta"}'
+        values: "40x60 10x60"
+    alert_rule_test:
+      - eval_time: 70m
+        alertname: AspargesCalendarDatesDropped
+        exp_alerts: []
+      - eval_time: 80m
+        alertname: AspargesCalendarDatesDropped
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: asparges-beta:80
+              job: asparges-beta
+            exp_annotations:
+              summary: "The booking calendar lost half its taken dates within a day"
+              description: "asparges shows 10 taken dates, under half of the day's highest. If no one cancelled that many bookings, check the calendar's events and sharing in Google Calendar."
+
+  # asparges calendar canary: target up, calendar metrics absent.
+  - interval: 1m
+    input_series:
+      - series: 'up{job="asparges-beta", instance="asparges-beta:80", host="asparges-beta"}'
+        values: "1x30"
+      - series: 'asparges_images_queue_length{instance="asparges-beta:80", job="asparges-beta"}'
+        values: "0x30"
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: AspargesCalendarMetricsMissing
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+            exp_annotations:
+              summary: "asparges is up but asparges_calendar_shown is absent"
+              description: "The calendar metrics are gone (a rename, or the calendar no longer configured); the calendar alerts are blind until fixed."
+
   # The dead-man heartbeat must always be firing.
   - interval: 1m
     input_series: []

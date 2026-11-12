@@ -268,6 +268,73 @@ let
   # absent() retains equality matchers, but cannot recover scrape relabels.
   # Supply the backing labels explicitly so daemon/host inhibition still
   # works when a guest's series has disappeared. Incus names omit "-ldn".
+  # asparges booking calendar. The owner's rule: no calendar and an alert is
+  # better than a wrong one. The gauges exist only where calendarURL is set,
+  # so the rules do too.
+  aspargesCalendarRules = lib.optionals (config.services.asparges.calendarURL != null) [
+    {
+      alert = "AspargesCalendarHidden";
+      # Also covers never read since start (0 = never, shown 0). The for
+      # rides out a restart's first read.
+      expr = "asparges_calendar_shown == 0";
+      for = "5m";
+      labels.severity = "critical";
+      annotations = {
+        summary = "aspargesgaarden.no is not showing the booking calendar";
+        description = "Visitors to /kontakt see \"Kalenderen er ikke tilgjengelig\" and a phone number instead of the calendar: no good read of the Google feed for 30 minutes, or none since start. journalctl -u asparges names the fetch error or the refused event.";
+      };
+    }
+    {
+      alert = "AspargesCalendarStale";
+      # 0 is never read; that is AspargesCalendarHidden's case, not 55 years
+      # stale.
+      expr = "time() - asparges_calendar_last_read_timestamp_seconds > 900 and asparges_calendar_last_read_timestamp_seconds > 0";
+      for = "2m";
+      labels.severity = "warning";
+      annotations = {
+        summary = "asparges has not read the booking calendar for 15 minutes";
+        description = "The calendar is still shown from the last good read; it is hidden at 30 minutes. journalctl -u asparges says why the reads fail.";
+      };
+    }
+    {
+      alert = "AspargesCalendarRefused";
+      # The counter series is born at its first refusal, where increase()
+      # sees no rise: the unless arm catches a series newer than the window.
+      expr = ''
+        increase(asparges_calendar_reads_total{result="refused"}[15m]) > 0
+        or (asparges_calendar_reads_total{result="refused"} unless asparges_calendar_reads_total{result="refused"} offset 15m)
+      '';
+      labels.severity = "warning";
+      annotations = {
+        summary = "asparges refused the booking calendar's content";
+        description = "Google answered, but the calendar holds something the site will not guess at, most likely an event just made or changed in Google Calendar (an unusual repeat, a time zone, a date that ends before it starts). journalctl -u asparges names the event; change it in Google Calendar and the next read, within 5 minutes, takes it. Until then the last good read is shown, and it is hidden after 30 minutes.";
+      };
+    }
+    {
+      alert = "AspargesCalendarDatesDropped";
+      # A mass deletion or a sharing change that still leaves a valid feed.
+      # Only while shown: a hidden or never-read calendar already pages.
+      expr = "asparges_calendar_taken_dates < 0.5 * max_over_time(asparges_calendar_taken_dates[1d]) and asparges_calendar_shown == 1";
+      for = "15m";
+      labels.severity = "warning";
+      annotations = {
+        summary = "The booking calendar lost half its taken dates within a day";
+        description = "asparges shows {{ $value }} taken dates, under half of the day's highest. If no one cancelled that many bookings, check the calendar's events and sharing in Google Calendar.";
+      };
+    }
+    {
+      alert = "AspargesCalendarMetricsMissing";
+      # Critical: without these, AspargesCalendarHidden cannot fire.
+      expr = ''absent(asparges_calendar_shown) and on() up{job="asparges-beta"} == 1'';
+      for = "15m";
+      labels.severity = "critical";
+      annotations = {
+        summary = "asparges is up but asparges_calendar_shown is absent";
+        description = "The calendar metrics are gone (a rename, or the calendar no longer configured); the calendar alerts are blind until fixed.";
+      };
+    }
+  ];
+
   incusMissingRules = lib.mapAttrsToList (guest: hypervisor: {
     alert = "IncusVMVanished";
     expr = ''absent(incus_memory_MemTotal_bytes{job="incus",instance="${hypervisor}:8443",host="${hypervisor}",name="${lib.removeSuffix "-ldn" guest}"})'';
@@ -1526,7 +1593,7 @@ in
           # Application-level alerts
           {
             name = "application";
-            rules = [
+            rules = aspargesCalendarRules ++ [
               # Metric names verified against the pinned litestream 0.5.11
               # source (db.go, internal/internal.go). The replica_operation
               # counters cover the S3/garage path (expired creds, unreachable
