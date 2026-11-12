@@ -16,6 +16,8 @@ in
     listenAddr = "127.0.0.1:63464";
     noindex = true;
     tailscaleKeyPath = config.age.secrets.asparges-tskey.path;
+    # The farm's booking calendar, public; read every 5 minutes.
+    calendarURL = "https://calendar.google.com/calendar/ical/klatrerosen.no_hgf7kiksq8hrmilogq5nd6f4rs%40group.calendar.google.com/public/basic.ics";
   };
 
   services.vhost."beta.aspargesgaarden.no".proxyPass = "http://${cfg.listenAddr}";
