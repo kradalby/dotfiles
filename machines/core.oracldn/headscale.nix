@@ -79,6 +79,8 @@ in
 
     settings = {
       server_url = "https://${domain}";
+      # nginx terminates TLS in front; the module's default binds every interface.
+      listen_addr = "127.0.0.1:8080";
 
       policy.path = aclPath;
 
@@ -149,7 +151,7 @@ in
     useACMEHost = domain;
     locations = {
       "/metrics" = {
-        proxyPass = "http://127.0.0.1:${toString config.services.headscale.port}";
+        proxyPass = "http://${cfg.settings.listen_addr}";
         extraConfig = ''
           allow 10.0.0.0/8;
           allow 100.64.0.0/16;
@@ -158,7 +160,7 @@ in
         priority = 2;
       };
       "/" = {
-        proxyPass = "http://127.0.0.1:${toString config.services.headscale.port}";
+        proxyPass = "http://${cfg.settings.listen_addr}";
         proxyWebsockets = true;
         extraConfig = ''
           keepalive_requests          100000;
