@@ -2802,11 +2802,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1794440358,
-        "narHash": "sha256-+BfXMhVoaj3rtIljlZW2BlRuUyiFenW+6yv9cn8RFzM=",
+        "lastModified": 1794065593,
+        "narHash": "sha256-IjNBJhHsx1BhNMnBsST06ZpL6vgAacqNs3nQiOUoeY4=",
         "owner": "tailscale",
         "repo": "tsidp",
-        "rev": "8875bd1f6ad603a1ef8e7e927955bc4fb687fe8e",
+        "rev": "43c68a646380fe4f027c7cf430784ab1875360dd",
         "type": "github"
       },
       "original": {
