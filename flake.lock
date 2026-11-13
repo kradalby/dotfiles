@@ -2309,11 +2309,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1790801669,
-        "narHash": "sha256-kv28kTJEcAiYBwu1G+6GLW2b3SOqbWrrLZX6+SqHcL8=",
+        "lastModified": 1794601107,
+        "narHash": "sha256-+ph2CiDmo/BTxOr6CKOg2REDS/W+UMZ0NesxZp4eZ1g=",
         "owner": "kradalby",
         "repo": "tasmota-homekit",
-        "rev": "4a6d94f092cbda85f53ed41259628ebffa633cba",
+        "rev": "c0ffb795388a14f2e887c525f658a1eddf0cc46e",
         "type": "github"
       },
       "original": {
