@@ -84,6 +84,13 @@ in
         name: server: merge "${home}/.config/opencode/opencode.json" ".mcp[${builtins.toJSON name}]" server
       ) ai.opencode.mcp
     )
+    + lib.optionalString (config.my.mutableJson ? pi-mcp) (
+      lib.concatStrings (
+        lib.mapAttrsToList (
+          name: server: merge "${home}/.pi/agent/mcp.json" ".mcpServers[${builtins.toJSON name}]" server
+        ) config.my.mutableJson.pi-mcp.value.mcpServers
+      )
+    )
     + lib.concatStrings (
       lib.mapAttrsToList (
         name: server:

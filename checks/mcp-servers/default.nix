@@ -40,7 +40,7 @@ let
         my.packages.ai.codex = false;
         my.mcp.work = false;
         my.cooklang.recipes = "/recipes";
-        my.mutableJson = { };
+        my.mutableJson.pi-mcp.value.mcpServers.superlogical = disabledAi.claudeMcpServers.superlogical;
         my.claudeMcpServers = { };
       };
     };
@@ -54,11 +54,29 @@ assert !(disabledAi.codex.mcp_servers ? cook);
 assert cookAi.claudeMcpServers.cook.command == "${home}/.nix-profile/bin/cook-mcp";
 assert cookAi.opencode.mcp.cook.command == [ "${home}/.nix-profile/bin/cook-mcp" ];
 assert cookAi.codex.mcp_servers.cook.command == "${home}/.nix-profile/bin/cook-mcp";
-assert workAi.claudeMcpServers == { };
-assert workAi.opencode.mcp == { };
-assert workAi.codex.mcp_servers == { };
+assert
+  workAi.claudeMcpServers == {
+    superlogical = {
+      type = "http";
+      url = "https://www.superlogical.com/rex/community-mcp";
+    };
+  };
+assert
+  workAi.opencode.mcp == {
+    superlogical = {
+      type = "remote";
+      url = "https://www.superlogical.com/rex/community-mcp";
+    };
+  };
+assert
+  workAi.codex.mcp_servers == {
+    superlogical.url = "https://www.superlogical.com/rex/community-mcp";
+  };
+assert disabledAi.codex.mcp_servers.superlogical == workAi.codex.mcp_servers.superlogical;
 pkgs.runCommand "mcp-server-registration-tests" { nativeBuildInputs = [ pkgs.jq ]; } ''
   mkdir -p ${home}/.config/opencode "${home}/Library/Application Support/Claude"
+  mkdir -p ${home}/.pi/agent
+  echo '{"mcpServers":{"existing":{"command":"keep"}},"other":42}' >${home}/.pi/agent/mcp.json
   echo '{"mcpServers":{"existing":{"command":"keep"}},"other":42}' >${home}/.claude.json
   echo '{"mcp":{"existing":{"command":"keep"}},"other":42}' >${home}/.config/opencode/opencode.json
   run() { "$@"; }
@@ -68,6 +86,11 @@ pkgs.runCommand "mcp-server-registration-tests" { nativeBuildInputs = [ pkgs.jq 
 
   jq -e '.other == 42 and .mcpServers.existing.command == "keep"' ${home}/.claude.json
   jq -e '.other == 42 and .mcp.existing.command == "keep"' ${home}/.config/opencode/opencode.json
+  jq -e '.mcpServers.superlogical == {type:"http",url:"https://www.superlogical.com/rex/community-mcp"}' ${home}/.claude.json
+  jq -e '.mcp.superlogical == {type:"remote",url:"https://www.superlogical.com/rex/community-mcp"}' ${home}/.config/opencode/opencode.json
+  jq -e '.other == 42 and .mcpServers.existing.command == "keep" and .mcpServers.superlogical == {type:"http",url:"https://www.superlogical.com/rex/community-mcp"}' ${home}/.pi/agent/mcp.json
+  jq -e '.mcpServers.superlogical.args | index("https://www.superlogical.com/rex/community-mcp") != null' \
+    "${home}/Library/Application Support/Claude/claude_desktop_config.json"
   jq -e --arg command "${home}/.nix-profile/bin/mcp-nixos" \
     '.mcpServers.nixos.type == "stdio" and .mcpServers.nixos.command == $command' ${home}/.claude.json
   jq -e --arg command "${home}/.nix-profile/bin/mcp-nixos" \

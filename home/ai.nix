@@ -17,6 +17,7 @@ let
   grafanaMcp = "http://grafana-mcp.dalby.ts.net/mcp";
   # Both live on the personal tailnet, which work hosts must not reach.
   personal = !config.my.mcp.work;
+  superlogicalMcp = "https://www.superlogical.com/rex/community-mcp";
   # Codex keeps existing registrations; the profile path survives package upgrades.
   nixosMcp = "${config.home.profileDirectory}/bin/mcp-nixos";
   # Wrapper from home/cooklang.nix, which bakes in the recipe root.
@@ -49,6 +50,12 @@ in
         type = "stdio";
         command = cookMcp;
         args = [ ];
+      };
+    }
+    // {
+      superlogical = {
+        type = "http";
+        url = superlogicalMcp;
       };
     };
 
@@ -207,6 +214,12 @@ in
           type = "local";
           command = [ cookMcp ];
         };
+      }
+      // {
+        superlogical = {
+          type = "remote";
+          url = superlogicalMcp;
+        };
       };
 
     permission = {
@@ -258,6 +271,9 @@ in
       }
       // lib.optionalAttrs cook {
         cook.command = cookMcp;
+      }
+      // {
+        superlogical.url = superlogicalMcp;
       };
   };
 

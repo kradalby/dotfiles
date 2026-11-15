@@ -160,7 +160,15 @@ in
           transport = "chat_completions";
         };
         mcp_servers.aperture.url = "http://ai.corp.ts.net/v1/mcp";
+        mcp_servers.superlogical = {
+          inherit (aiConfig.claudeMcpServers.superlogical) url;
+          auth = "oauth";
+        };
       };
+    };
+    pi-mcp = {
+      target = ".pi/agent/mcp.json";
+      value.mcpServers.superlogical = aiConfig.claudeMcpServers.superlogical;
     };
     pi-settings = {
       target = ".pi/agent/settings.json";
@@ -171,6 +179,16 @@ in
       };
     };
   };
+
+  # Hermes owns its YAML config; update only the declared server after seeding.
+  home.activation.hermesMcp = lib.hm.dag.entryAfter [ "mutableJson" ] ''
+    run ${lib.getExe pkgs.yq-go} -i ${
+      lib.escapeShellArg (
+        ".mcp_servers.superlogical = "
+        + builtins.toJSON config.my.mutableJson.hermes.value.mcp_servers.superlogical
+      )
+    } ${lib.escapeShellArg "${config.home.homeDirectory}/.hermes/config.yaml"}
+  '';
 
   my.packages = {
     userland.enable = false;
