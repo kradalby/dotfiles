@@ -1714,6 +1714,22 @@
         "type": "github"
       }
     },
+    "nixpkgs-stable-small": {
+      "locked": {
+        "lastModified": 1795017444,
+        "narHash": "sha256-zAW6zDvAWMptz3WwRl0jX9khtVsgKTDbm7POQqIgYc4=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "1e6cf0d7cf5f5354d1bfd7105813dddb527851d4",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-26.05-small",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "nixpkgs-unstable": {
       "locked": {
         "lastModified": 1794840529,
@@ -1945,6 +1961,7 @@
         "nixpkgs-darwin": "nixpkgs-darwin",
         "nixpkgs-master": "nixpkgs-master",
         "nixpkgs-stable": "nixpkgs-stable",
+        "nixpkgs-stable-small": "nixpkgs-stable-small",
         "nixpkgs-unstable": "nixpkgs-unstable",
         "pi-aperture-models": "pi-aperture-models",
         "ragenix": "ragenix",
