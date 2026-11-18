@@ -189,10 +189,10 @@ in
         kristoffer@dalby.cc ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJmukT03vff7EvEQb57NYPvM4TgCVLYcRq4SxE+YOSGx kradalby@dev
       '';
 
-      # Global agent instructions — agents walk up from cwd, so
-      # placing this in $HOME acts as a catch-all for repos that
-      # don't ship their own AGENTS.md.
-      "AGENTS.md".text = agentsContent;
+      # Not ~/AGENTS.md: Claude loads that as project instructions on top of
+      # ~/.claude/CLAUDE.md in repos without a CLAUDE.md, and Codex stops its
+      # walk at the git root, so it only ever read it outside repos.
+      ".codex/AGENTS.md".text = agentsContent;
 
       ".claude/CLAUDE.md".text = agentsContent;
 
