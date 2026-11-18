@@ -14,16 +14,10 @@ buildNpmPackage (finalAttrs: {
     owner = "ivo-toby";
     repo = "mcp-picnic";
     rev = "v${finalAttrs.version}";
-    hash = "sha256-lfWvOhqL0p1QmD8dkPOfOXIh7ln4j1dZZPK7GIQuruE=";
+    hash = "sha256-mOOIOoF5hALdV93DoSnmawzvDwCo2EZEo9aQrFbUQX0=";
   };
 
   npmDepsHash = "sha256-b+M+o7sPyWj+NDB3V9V9T11LypTbthdTJ0VKoDdfyGY=";
-
-  # Source files of ivo-toby/mcp-picnic#62: makes the limit configurable and exempts
-  # /health. No env var exists without it, and the probe spends from the clients'
-  # bucket (see also ivo-toby/mcp-picnic#69). Fails to apply once merged.
-  # TODO(kradalby): revert when fixed.
-  patches = [ ./mcp-picnic-rate-limit.patch ];
 
   # Upstream reads HTTP_HOST but never passes it to listen(), so the server
   # binds every interface — on home.ldn that is the trusted LAN, unauthenticated.

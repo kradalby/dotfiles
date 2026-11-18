@@ -13,7 +13,7 @@ stdenv.mkDerivation rec {
 
   src = fetchurl {
     url = "https://github.com/herald-email/herald-mail-app/releases/download/v${version}/herald-v${version}-linux-amd64.tar.gz";
-    hash = "sha256-CoEhO4WEa7lf7EA65O4/9pCT+b50bhO/sFm4KAtpSeM=";
+    hash = "sha256-K2+YNENGeX/3KvCap4OU11Qda7aoOo1HKEmEppnquMI=";
   };
 
   nativeBuildInputs = [ autoPatchelfHook ];

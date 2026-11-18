@@ -21,10 +21,10 @@ rustPlatform.buildRustPackage (finalAttrs: {
     owner = "cooklang";
     repo = "cookcli";
     rev = "v${finalAttrs.version}";
-    hash = "sha256-jlXLBADpvEjIaqolA+1sZ3xjuL9r3kDLbwLCqVEdqGU=";
+    hash = "sha256-sTr6YBgxxgl7tFKQEUM40Ov7/dehBVQPGxZhNZDu63I=";
   };
 
-  cargoHash = "sha256-2EG9WLXpIIgmQ3cWZ8h24Ci8EJQTAgeHzzHBv/E9gNs=";
+  cargoHash = "sha256-irIwfPFDklss9t45/CV9SrDbxhIxj1x9sFyiPmdBWkg=";
 
   # Build without the self-updating feature. Dropping the defaults wholesale
   # also drops `server`, which upstream feature-gated after 0.22.0 — that

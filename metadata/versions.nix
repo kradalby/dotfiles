@@ -34,9 +34,9 @@
   mqttExporter = "v1.12.1";
 
   # https://github.com/umami-software/umami/pkgs/container/umami
-  umami = "ghcr.io/umami-software/umami:3.4.1";
+  umami = "ghcr.io/umami-software/umami:3.5.0";
   # https://hub.docker.com/r/frooodle/s-pdf/tags
-  stirling = "frooodle/s-pdf:3.2.2";
+  stirling = "frooodle/s-pdf:3.3.0";
   ## pkgs
   pkgs = {
     overlays = {
@@ -45,13 +45,13 @@
       # https://github.com/micropython/webrepl
       webreplCli = "1e09d9a1d90fe52aba11d1e659afbc95a50cf088";
       # https://github.com/cooklang/cookcli/releases
-      cook = "0.40.0";
+      cook = "0.41.1";
       # https://github.com/cook-md/cook-mcp/releases
       cookMcp = "0.2.3";
       # https://github.com/ivo-toby/mcp-picnic/releases
-      mcpPicnic = "1.15.1";
+      mcpPicnic = "1.16.3";
       # https://github.com/golang/tools/tags
-      gotools = "0.52.0";
+      gotools = "0.53.0";
       # https://github.com/tailscale/tailscale
       tailscaleTools = "v1.104.5";
       # https://github.com/tailscale/squibble
@@ -63,7 +63,7 @@
       # https://github.com/bscott/pm-cli/releases
       pmCli = "0.2.7";
       # https://github.com/herald-email/herald-mail-app/releases
-      herald = "0.9.0-beta.1";
+      herald = "0.10.0-beta.1";
     };
   };
 }
