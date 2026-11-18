@@ -63,7 +63,8 @@ in
     permissions = {
       allow = [ ];
       deny = [ ];
-      ask = [ ];
+      # Prompt, not deny: pushing is fine once explicitly asked.
+      ask = [ "Bash(git push:*)" ];
       defaultMode = "auto";
     };
 
@@ -117,6 +118,21 @@ in
         }
       ];
       CwdChanged = SessionStart;
+
+      # Plain goimports (no -local): repos whose linters use no local prefix
+      # would flag a split import group. Parse failures are left for the
+      # repo's own toolchain to report.
+      PostToolUse = [
+        {
+          matcher = "Edit|MultiEdit|Write";
+          hooks = [
+            {
+              type = "command";
+              command = ''f=$(jq -r '.tool_input.file_path // empty'); case "$f" in *.go) goimports -w "$f" 2>/dev/null ;; esac; true'';
+            }
+          ];
+        }
+      ];
     };
 
     # Status bar: renders a unicode progress bar showing context
