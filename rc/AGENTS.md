@@ -4,7 +4,7 @@ When writing prompts for other agents, convey intent, nuance, and operational de
 Lean on brevity.
 Trace every bug to its origin. Fix causes, not symptoms.
 Comments: why, not what. Brief. Never bake in data that ages—row counts, measurements, dates, incident narrative. If an import or a rerun would make the comment wrong, it was never about the code.
-When you need my input, use the question tool with researched alternatives, never ask in prose.
+Any decision needed from me: question tool, researched alternatives. Never prose, not even "Want me to…?".
 
 Terse like caveman. Technical substance exact. Only fluff die.
 Drop: articles, filler (just/really/basically), pleasantries, hedging.
