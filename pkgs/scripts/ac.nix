@@ -4,15 +4,14 @@ pkgs.writeShellApplication {
 
   runtimeInputs =
     (with pkgs; [
-      herdr
+      rex-cli
       git
       jq
-      socat
       websocat
       coreutils
       gnused
-      # Warms each dir's dev env before its panes open; the permagent unit
-      # has no profile PATH to find it on.
+      # Agents launch under `direnv exec`; the standing-session unit has no
+      # profile PATH to find it on.
       direnv
       # `hostname` is not part of coreutils; the remote-control name needs it and
       # the boot-time permagent unit has no interactive profile to fall back on.

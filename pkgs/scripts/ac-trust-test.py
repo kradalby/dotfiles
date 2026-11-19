@@ -50,8 +50,7 @@ requires_openai_auth = false
     env = {
         k: v
         for k, v in os.environ.items()
-        if not k.startswith(("CODEX_", "HERDR_", "OPENAI_", "DIRENV_"))
-        and k not in ("BASH_ENV", "AC_TRUST")
+        if not k.startswith(("CODEX_", "OPENAI_", "DIRENV_")) and k not in ("BASH_ENV", "AC_TRUST")
     }
     env.update(
         HOME=str(root),

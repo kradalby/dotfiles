@@ -5,27 +5,17 @@ set -euo pipefail
 # Mirrors the layout used by wt (default WT_ROOT: ~/worktrees).
 GIT_ROOT="${GIT_ROOT:-$HOME/git}"
 WT_ROOT="${WT_ROOT:-$HOME/worktrees}"
-# A plain `ac <repo>` opens one tab per agent plus a terminal tab. Tabs, not
-# splits: a phone terminal is ~88 columns, and two side-by-side panes leave 44
-# each, which is unreadable. An explicit -c/-o/-x narrows this to that one agent.
-DEFAULT_AGENTS=(claude codex)
+# A job (main checkout, role or branch) is one rex tab per agent, inside a
+# session named after the repo unless -s says otherwise. Claude unless
+# -c/-o/-x ask for others.
+DEFAULT_AGENTS=(claude)
 
-# All agent sessions live inside ONE herdr session, so they show up together in a
-# single overview and a single `herdr` attach — one workspace per repo/branch.
-# Everything below drives that session over herdr's socket API.
-HERDR_SESSION="${HERDR_SESSION:-ac}"
-
-# A role session pins long-lived agents to one repo for one job (deploy
-# today, others later). It always opens the repo's main worktree -- never a
-# branch worktree -- and its display name is "<repo>:<role>". A colon, not a
-# slash, because the label parser below splits repo from branch on the first
-# '/' and would read the role as a branch.
+# A role pins long-lived agents to one repo for one job (deploy today, others
+# later). It always opens the repo's main worktree -- never a branch worktree.
 ROLE=""
-
-# A branch session nests under its repo's parent row as "<branch> [al]", since
-# the parent already names the repo. vlabel puts the repo back so every parser
-# below reads one grammar, nested or not; herdr's own worktree groups parse too.
-VLABEL='def vlabel: if .worktree.is_linked_worktree then "\(.worktree.repo_name)/\(.label)" else .label end;'
+# Overrides for the rex session and tab a job lands in.
+SESSION=""
+TAB=""
 
 # --- helpers ---
 
@@ -34,34 +24,7 @@ die() {
   exit 1
 }
 
-# h: run a herdr control command against our session. Wrapping keeps the
-# --session plumbing in one place and out of every call site.
-h() {
-  herdr --session "$HERDR_SESSION" "$@"
-}
-
-sanitize() {
-  # Slashes and colons are illegal in herdr agent names; branch names carry
-  # the first, role sessions the second.
-  echo "$1" | tr '/:' '--'
-}
-
-# agent_name maps a display name to a legal herdr agent handle:
-# ^[a-z][a-z0-9_-]{0,31}$ — lowercase, 32 chars max. Repos like
-# "TubeLogger2000" and branches with '/' or '.' are rejected verbatim.
-# printf (not echo): `tr -c` would fold echo's trailing newline into a '-'.
-agent_name() {
-  local n
-  n=$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]' | tr -c 'a-z0-9_-' '-')
-  # Must start with a letter. Prefix rather than strip, so a numeric-leading
-  # name ("2000only") keeps its digits instead of losing them or going empty.
-  [[ "$n" == [a-z]* ]] || n="a-$n"
-  printf '%s\n' "${n:0:32}"
-}
-
-# display: human name for a session — "repo:role", "repo/branch", or
-# "repo:main" for the main checkout, which reads like a role beside
-# "repo:deploy" and so can never collide with a branch name.
+# display: human name for a job — "repo:role", "repo/branch", or "repo:main".
 display() {
   local repo="$1" branch="$2"
   if [[ -n "$ROLE" ]]; then
@@ -73,48 +36,63 @@ display() {
   fi
 }
 
-agent_label() {
-  case "$1" in
-    opencode) echo "oc" ;;
-    claude) echo "cl" ;;
-    codex) echo "cx" ;;
-    *) echo "$1" ;;
+# slug folds a name into a rex-friendly label. printf (not echo): `tr -c`
+# would fold a trailing newline into '-'.
+slug() {
+  printf '%s' "$1" | tr -c 'A-Za-z0-9._-' '-'
+  echo
+}
+
+# tab_name: the tab a job's agent gets. Claude carries the bare job name, so
+# the common case reads "deploy"; other agents get a suffix.
+tab_name() {
+  local branch="$1" agent="$2" name
+  if [[ -n "$TAB" ]]; then
+    name="$TAB"
+  elif [[ -n "$ROLE" ]]; then
+    name="$ROLE"
+  elif [[ -n "$branch" ]]; then
+    name=$(slug "$branch")
+  else
+    name="main"
+  fi
+  case "$agent" in
+    claude) echo "$name" ;;
+    codex) echo "$name-cx" ;;
+    opencode) echo "$name-oc" ;;
+    *) echo "$name-$agent" ;;
   esac
 }
 
-# The workspace label is the single source of truth for repo/branch/agent:
-#   "<repo>/<branch> [<al>]"     e.g. "headscale/kradalby/3049 [cl]"
-#   "<repo>:<main|role> [<al>]"  e.g. "headscale:main [cl+cx]"
-# It stays human-readable in herdr's sidebar and parses back unambiguously
-# (repo has no '/', so the first '/' splits repo from branch; the trailing
-# "[al]" is the agent). Workdir is read separately from the pane's real cwd, so
-# a worktree checked out off-convention is still reported correctly.
-#
-# make_label repo branch agent... — several agents join with '+' ("[cl+cx]").
-# The parsers only strip or split the tag, so its width is free.
-make_label() {
-  local repo="$1" branch="$2"
-  shift 2
-  local tag=""
-  local a
-  for a in "$@"; do
-    tag="${tag:+$tag+}$(agent_label "$a")"
-  done
-  echo "$(display "$repo" "$branch") [$tag]"
+# The pane label marks a tab as ac's and carries its job: tab names are free
+# for the user to rename and share a session with hand-made tabs. A pane label
+# survives the agent's own terminal title changes.
+#   ac|<repo>|<branch>|<role>|<agent>
+tab_meta() {
+  printf 'ac|%s|%s|%s|%s\n' "$1" "$2" "$ROLE" "$3"
 }
 
-# agent_handle: herdr agent name for one agent of a session. Single-agent
-# sessions keep the bare session handle, so long-lived names like
-# "dotfiles-deploy" survive; only a multi-agent session needs the suffix.
-agent_handle() {
-  local disp="$1" agent="$2" total="$3"
-  if [[ "$total" -le 1 ]]; then
-    agent_name "$disp"
-  else
-    # Truncate the base first: agent_name caps at 32, and suffixing afterwards
-    # would push the tag off the end and collide the two handles.
-    agent_name "$(printf '%.28s' "$(agent_name "$disp")")-$(agent_label "$agent")"
-  fi
+# ac_tabs lists every ac pane on the server, tab separated:
+# session_id, session_label, window_id, block_id, meta.
+ac_tabs() {
+  local sid label
+  while IFS=$'\t' read -r sid label; do
+    rex --autostart=false session inspect "$sid" --json 2>/dev/null |
+      jq -r --arg s "$sid" --arg l "$label" '.windows[]? | .window_id as $w
+        | .layers[]?.blocks[]? | select(.label | startswith("ac|"))
+        | [$s, $l, $w, .block_id, .label] | @tsv'
+  done < <(rex --autostart=false ls --json 2>/dev/null | jq -r '.sessions[] | [.session_id, .label] | @tsv')
+}
+
+# find_tab echoes the ac_tabs row for a job's agent, wherever the tab has moved.
+find_tab() {
+  local meta
+  meta=$(tab_meta "$1" "$2" "$3")
+  ac_tabs | awk -F'\t' -v m="$meta" '$5 == m { print; exit }'
+}
+
+session_id() {
+  rex ls --json 2>/dev/null | jq -r --arg l "$1" '[.sessions[] | select(.label == $l)][0].session_id // empty'
 }
 
 find_main_worktree() {
@@ -234,18 +212,6 @@ ensure_trusted() {
   fi
 }
 
-warm_direnv() {
-  # A new pane's shell runs direnv before its first prompt, and herdr gives up
-  # on `agent start` after waiting only briefly for a busy shell. A cold
-  # `use flake` outlasts that, so the agent never launches. One evaluation
-  # here leaves every pane a cached load, instead of each pane racing its own.
-  local dir="$1"
-  [[ -f "$dir/.envrc" ]] || return 0
-  echo "Loading dev env in $dir..." >&2
-  direnv exec "$dir" true >/dev/null 2>&1 ||
-    echo "warning: direnv failed in $dir" >&2
-}
-
 ensure_trusted_codex() {
   # Codex has the same per-directory trust gate as claude, and blocks on it at
   # startup — the tab sits at a dialog instead of a prompt. Its answer lives in
@@ -258,122 +224,9 @@ ensure_trusted_codex() {
   codex_connection "" codex_trust_project "$1"
 }
 
-# --- herdr server / lookup ---
-
-server_running() {
-  h status server 2>/dev/null | grep -q '^status: running'
-}
-
-workspace_sort_request() {
-  # herdr indents a linked worktree only when it directly follows its parent,
-  # so main (or a bare repo row herdr made) must sort last before the branches.
-  jq -c "$VLABEL"'
-    def sort_key:
-      (vlabel | sub(" \\[[^]]*\\]$"; "")) as $display
-      | ($display
-        | capture("^(?<repo>[^:/]+)(?<separator>[:/])(?<suffix>.*)$")? //
-          {repo: $display, separator: "", suffix: ""}) as $workspace
-      | ($workspace.repo | ascii_downcase) as $repo
-      | ($workspace.suffix | ascii_downcase) as $suffix
-      | [
-          (if $repo == "dotfiles" then 0 else 1 end),
-          $repo,
-          (if $workspace.separator == ":" and $suffix == "deploy" then 0
-           elif $workspace.separator == ":" and $suffix != "main" then 1
-           elif $workspace.separator == "/" then 3
-           else 2
-           end),
-          $suffix,
-          ($display | ascii_downcase),
-          .workspace_id
-        ];
-
-    .result.workspaces
-    | map(.workspace_id) as $current
-    | sort_by(sort_key)
-    | map(.workspace_id)
-    | select(. != $current)
-    | {id: "ac-sort", method: "workspace.move_block", params: {workspace_ids: .}}
-  '
-}
-
-sort_workspaces() {
-  # herdr exposes reordering over the socket API only, never the CLI. Moving one block keeps
-  # the focused pane intact and avoids applying a partially sorted order.
-  local request socket
-  if ! request=$(h workspace list | workspace_sort_request); then
-    echo "warning: could not list spaces for sorting" >&2
-    return 0
-  fi
-  [[ -n "$request" ]] || return 0
-
-  # Let herdr resolve the named session's socket, including custom config paths.
-  if socket=$(h status server --json | jq -er '.socket') &&
-    printf '%s\n' "$request" | socat -T 5 -t 5 - "UNIX-CONNECT:$socket" |
-    jq -e 'if .error then error(.error.message) else .result.workspaces | type == "array" end' >/dev/null; then
-    return 0
-  fi
-  echo "warning: could not sort herdr spaces" >&2
-}
-
 claude_remote_control_enabled() {
   local host="$1"
   [[ "${AC_REMOTE_CONTROL:-1}" == "1" && "$host" != "kradalby-llm" ]]
-}
-
-ensure_server() {
-  # Control commands do not auto-start the server (attaching to a dead socket
-  # errors), so make sure it's up. On the deployed box a systemd user unit owns
-  # it; fall back to spawning a detached server for anywhere that unit isn't
-  # running (first boot, a mac, a throwaway shell).
-  if server_running; then
-    sort_workspaces
-    return 0
-  fi
-  systemctl --user start herdr 2>/dev/null || true
-  if ! server_running; then
-    nohup herdr --session "$HERDR_SESSION" server >/dev/null 2>&1 &
-  fi
-  # Socket appears a beat after the process; wait briefly.
-  for _ in $(seq 1 20); do
-    server_running && return 0
-    sleep 0.25
-  done
-  die "herdr server for session '$HERDR_SESSION' did not come up"
-}
-
-# workspace_by_display echoes the workspace_id whose display name (label minus
-# the agent tag) matches, or nothing. Agent-agnostic, so `ac repo` and
-# `ac -o repo` share one workspace — mirrors the old server name.
-workspace_by_display() {
-  h workspace list 2>/dev/null |
-    jq -r --arg w "$1" "$VLABEL"'
-			.result.workspaces[]
-			| select((vlabel | sub(" \\[[^]]*\\]$"; "")) == $w)
-			| .workspace_id' | head -1
-}
-
-# find_workspace echoes the workspace_id of a repo/branch session, or nothing.
-find_workspace() {
-  workspace_by_display "$(display "$1" "$2")"
-}
-
-# agent_pane_of echoes the pane id of a workspace's primary agent — the one in
-# the lowest-numbered tab, which create_session puts first. Sorted so the focus
-# target is stable; `agent list` order is not.
-# Lexical sort on tab_id, so t10 would sort before t2. A session has
-# one tab per agent plus a term tab; switch to a numeric key if that changes.
-agent_pane_of() {
-  h agent list 2>/dev/null |
-    jq -r --arg w "$1" '[.result.agents[] | select(.workspace_id==$w)]
-      | sort_by(.tab_id) | .[0].pane_id // empty'
-}
-
-# agent_panes_of echoes every agent pane in a workspace, one per line.
-agent_panes_of() {
-  h agent list 2>/dev/null |
-    jq -r --arg w "$1" '[.result.agents[] | select(.workspace_id==$w)]
-      | sort_by(.tab_id) | .[].pane_id'
 }
 
 # --- commands ---
@@ -386,8 +239,7 @@ codex_connection() (
   local transport=()
   case "$remote" in
     "")
-      # SessionStart must report the target pane on resume, not ac's caller.
-      transport=(env -u HERDR_ENV codex app-server --stdio)
+      transport=(codex app-server --stdio)
       ;;
     unix://)
       transport=(websocat --text --exit-on-eof --ws-c-uri ws://localhost/ -
@@ -469,25 +321,51 @@ codex_create_thread() {
   printf '%s\n' "$thread_id"
 }
 
-# start_agent launches one agent in an existing shell pane.
-start_agent() {
-  local agent="$1" pane="$2" name="$3" dir="$4" repo="$5" branch="$6"
+# role_prompt echoes the opening briefing for a role, or nothing. It names the
+# skill file explicitly, so the load is deterministic instead of depending on a
+# description matching.
+role_prompt() {
+  local repo="$1" dir="$2"
+  local skill=".agents/skills/$ROLE/SKILL.md" ready
+
+  if [[ ! -f "$dir/$skill" ]]; then
+    echo "warning: $repo has no $skill — starting the agent unbriefed" >&2
+    return 0
+  fi
+
+  # The gate's verdict travels in the prompt rather than blocking creation: an
+  # agent that says "main is 65 behind, fix me" beats a missing one.
+  if ! ready=$(git-ready "$dir" 2>&1); then
+    ready="FAILED — $ready"
+  fi
+
+  echo "You are the $ROLE agent for $repo on $(hostname -s).
+Read $skill in this repo now and follow it.
+git-ready: $ready
+Change nothing until I say so. First report what a run would do, and anything
+already broken."
+}
+
+# agent_argv echoes, NUL separated, the command line for one agent.
+agent_argv() {
+  local agent="$1" dir="$2" repo="$3" branch="$4"
+  local prompt="" argv=() name
+  [[ -z "$ROLE" ]] || prompt=$(role_prompt "$repo" "$dir")
+  name="$(hostname -s)-$(slug "$(display "$repo" "$branch")")"
 
   # For claude: auto mode (a classifier gates risky tool calls), pre-trust the
   # dir (a separate gate, pinned explicitly so it survives claude behaviour
-  # drift), and Remote Control named <host>-<repo>-<branch> so the session is
-  # also reachable from claude.ai / the phone. kradalby-llm cannot reach the
+  # drift), and Remote Control named <host>-<repo>-<job> so the agent is also
+  # reachable from claude.ai / the phone. kradalby-llm cannot reach the
   # Remote Control service, so omit that flag there. AC_TRUST=0 /
-  # AC_REMOTE_CONTROL=0 opt out respectively. argv goes straight to herdr
-  # after `--`, no shell in between.
-  local argv=()
+  # AC_REMOTE_CONTROL=0 opt out respectively.
   if [[ "$agent" == "claude" ]]; then
     ensure_trusted "$dir"
-    argv=(--permission-mode auto)
+    # Prompt first: --remote-control takes an optional value and would eat it.
+    [[ -z "$prompt" ]] || argv+=("$prompt")
+    argv+=(--permission-mode auto)
     if claude_remote_control_enabled "$(hostname -s)"; then
-      local rc_name
-      rc_name="$(hostname -s)-$(sanitize "$(display "$repo" "$branch")")"
-      argv+=(--remote-control "$rc_name")
+      argv+=(--remote-control "$name")
     fi
   elif [[ "$agent" == "codex" ]]; then
     ensure_trusted_codex "$dir"
@@ -499,243 +377,73 @@ start_agent() {
       fi
     fi
     if [[ -n "$codex_remote" ]]; then
-      # Pin the shared server so herdr and the phone see the same thread.
+      # Pin the shared server so rex and the phone see the same thread.
       # Remote resume preserves the thread's permission profile and rejects
       # permission flags. --cd keeps the server's cwd out of this thread.
       argv+=(--remote "$codex_remote" --cd "$dir")
     else
       argv+=(--approve-for-me --no-daemon)
     fi
-    local thread_name thread_id
-    thread_name="$(hostname -s)-$(sanitize "$(display "$repo" "$branch")")"
-    if ! thread_id=$(codex_start_thread "$dir" "$thread_name" "$codex_remote"); then
-      echo "warning: could not create named Codex thread for $pane — check the server" >&2
-      return 0
-    fi
+    local thread_id
+    thread_id=$(codex_start_thread "$dir" "$name" "$codex_remote") || return 1
     argv+=(resume "$thread_id")
+    [[ -z "$prompt" ]] || argv+=("$prompt")
+  elif [[ "$agent" == "opencode" ]]; then
+    [[ -z "$prompt" ]] || argv+=(--prompt "$prompt")
   fi
-  # `agent start` blocks until the agent is interactive and exits non-zero if it
-  # isn't (e.g. stuck on a prompt ensure_trusted didn't cover). The pane exists
-  # either way, so report and keep going rather than tearing the workspace down.
-  if ! h agent start "$name" --kind "$agent" --pane "$pane" -- "${argv[@]}" >/dev/null; then
-    echo "warning: $agent in $pane did not report ready — check the pane" >&2
-  elif [[ "$agent" == codex ]]; then
-    # Shared-server SessionStart hooks cannot inherit this frontend's pane.
-    # Report the exact thread so remote tools can recover their caller context.
-    if ! h pane report-agent-session "$pane" --source herdr:codex --agent codex \
-      --agent-session-id "$thread_id" --session-start-source resume >/dev/null; then
-      echo "warning: could not bind Codex thread $thread_id to herdr pane $pane" >&2
-    fi
-  fi
+
+  # Rex runs commands in the login environment, which never reaches the
+  # interactive direnv hook, so load the repo's dev env explicitly.
+  local cmd=("$agent" "${argv[@]}")
+  [[ ! -f "$dir/.envrc" ]] || cmd=(direnv exec "$dir" "${cmd[@]}")
+  printf '%s\0' "${cmd[@]}"
 }
 
-# open_nested opens a branch checkout as a linked worktree space under the
-# repo's main space, so herdr indents it there, and echoes the workspace id.
-# Fails when there is no parent or the checkout is already open elsewhere; the
-# caller then falls back to a flat space.
-open_nested() {
-  local dir="$1" repo="$2" label="$3" parent resp
-  parent=$(find_workspace "$repo" "")
-  [[ -n "$parent" ]] || return 1
-  # herdr counts any space whose first pane sits in the checkout as its owner,
-  # and opening it again rewrites that space into a linked worktree (herdr#4293).
-  # Leave such a space alone.
-  if h worktree list --workspace "$parent" 2>/dev/null |
-    jq -e --arg p "$dir" '.result.worktrees[] | select(.path == $p and .open_workspace_id != null)' >/dev/null; then
-    return 1
-  fi
-  # --workspace, not --cwd: the parent carries no git provenance until its first
-  # open, and --cwd could make herdr invent a second, bare parent row.
-  resp=$(h worktree open --workspace "$parent" --path "$dir" --label "$label" --no-focus 2>/dev/null) ||
-    return 1
-  jq -er '.result | select(.already_open == false) | .workspace.workspace_id' <<<"$resp"
-}
-
-create_session() {
-  # Create the workspace for a repo/branch: one tab per agent, then a terminal
-  # tab. Echoes the first agent's pane id (the stable focus target; see
-  # attach_workspace).
+# ensure_job opens a tab for every agent of a job that has none yet, and leaves
+# running tabs alone. Echoes the first agent's "session_id<TAB>window_id".
+ensure_job() {
   local dir="$1" repo="$2" branch="$3"
   shift 3
-  local agents=("$@")
+  local agent row sid wid bid tab session first="" cmd=() created
+  session="${SESSION:-$repo}"
 
-  local label disp resp wid="" root first=""
-  disp="$(display "$repo" "$branch")"
-  label="$(make_label "$repo" "$branch" "${agents[@]}")"
-
-  # `agent start` only adopts an existing shell pane — it never creates layout.
-  # Every tab is created as a bare shell first, then adopted. The workspace's
-  # own root pane is tab 1, so the first agent lands there with no split at all.
-  # --no-focus throughout so a headless spawn doesn't steal the attached
-  # client's view.
-  warm_direnv "$dir"
-  if [[ -n "$branch" ]]; then
-    if wid=$(open_nested "$dir" "$repo" "${label#"$repo/"}"); then
-      # worktree open returns no root pane; a fresh space has exactly one.
-      root=$(h pane list --workspace "$wid" | jq -r '.result.panes[0].pane_id // empty')
+  for agent in "$@"; do
+    row=$(find_tab "$repo" "$branch" "$agent")
+    if [[ -n "$row" ]]; then
+      IFS=$'\t' read -r sid _ wid _ _ <<<"$row"
     else
-      wid=""
-      echo "warning: could not nest $disp under $(display "$repo" ""); opening it flat" >&2
-    fi
-  fi
-  if [[ -z "$wid" ]]; then
-    resp=$(h workspace create --cwd "$dir" --label "$label" --no-focus)
-    wid=$(jq -r '.result.workspace.workspace_id // empty' <<<"$resp")
-    root=$(jq -r '.result.root_pane.pane_id // empty' <<<"$resp")
-  fi
-  [[ -n "$wid" && -n "$root" ]] || die "workspace create failed"
-  sort_workspaces
-
-  local i agent pane
-  for i in "${!agents[@]}"; do
-    agent="${agents[$i]}"
-    if [[ "$i" -eq 0 ]]; then
-      pane="$root"
-    else
-      pane=$(h tab create --workspace "$wid" --cwd "$dir" \
-        --label "$agent" --no-focus |
-        jq -r '.result.root_pane.pane_id // empty')
-      [[ -n "$pane" ]] || die "tab create failed for $agent"
-    fi
-    h tab rename "$(pane_tab "$pane")" "$agent" >/dev/null 2>&1 || true
-    start_agent "$agent" "$pane" \
-      "$(agent_handle "$disp" "$agent" "${#agents[@]}")" "$dir" "$repo" "$branch"
-    [[ -z "$ROLE" ]] || bootstrap_role "$pane" "$repo" "$dir"
-    [[ -n "$first" ]] || first="$pane"
-  done
-
-  # Plain shell, last so the agents keep the low tab numbers.
-  h tab create --workspace "$wid" --cwd "$dir" --label terminal --no-focus >/dev/null ||
-    echo "warning: term tab not created" >&2
-
-  echo "$first"
-}
-
-# Add missing agents to standing sessions without replacing their live panes.
-ensure_session_agents() {
-  local wid="$1" dir="$2" repo="$3" branch="$4"
-  shift 4
-  local agents=("$@") agent pane tab registered
-  registered=$(h agent list)
-  for agent in "${agents[@]}"; do
-    if jq -e --arg w "$wid" --arg a "$agent" \
-      '.result.agents[] | select(.workspace_id == $w and .agent == $a)' <<<"$registered" >/dev/null; then
-      continue
-    fi
-    # A previous failed start may have left an empty agent tab. Reuse it.
-    tab=$(h tab list --workspace "$wid" | jq -r --arg a "$agent" \
-      '[.result.tabs[] | select(.label == $a)] | .[0].tab_id // empty')
-    if [[ -n "$tab" ]]; then
-      pane=$(h pane list --workspace "$wid" | jq -r --arg t "$tab" \
-        '[.result.panes[] | select(.tab_id == $t and .agent == null)] | .[0].pane_id // empty')
-      if [[ -z "$pane" ]]; then
-        echo "warning: $agent tab in $wid has no available pane" >&2
+      if ! mapfile -d '' -t cmd < <(agent_argv "$agent" "$dir" "$repo" "$branch") || [[ ${#cmd[@]} -eq 0 ]]; then
+        echo "warning: could not prepare $agent for $(display "$repo" "$branch")" >&2
         continue
       fi
-    else
-      warm_direnv "$dir"
-      pane=$(h tab create --workspace "$wid" --cwd "$dir" --label "$agent" --no-focus |
-        jq -r '.result.root_pane.pane_id // empty')
-      [[ -n "$pane" ]] || die "tab create failed for $agent"
+      tab=$(tab_name "$branch" "$agent")
+      sid=$(session_id "$session")
+      # --focus=false so a headless spawn doesn't move a viewer's tab.
+      if [[ -n "$sid" ]]; then
+        created=$(rex window new -s "$sid" "$tab" -c "$dir" --focus=false --json -- "${cmd[@]}") || {
+          echo "warning: $tab tab not created in $session" >&2
+          continue
+        }
+        wid=$(jq -r '.window_id' <<<"$created")
+        bid=$(jq -r '.block_ids[0]' <<<"$created")
+      else
+        created=$(rex new "$session" -c "$dir" --window "$tab" --json -- "${cmd[@]}") ||
+          die "rex new $session failed"
+        sid=$(jq -r '.session_id' <<<"$created")
+        wid=$(jq -r '.initial_windows[0].window_id' <<<"$created")
+        bid=$(jq -r '.initial_windows[0].block_ids[0]' <<<"$created")
+      fi
+      rex block rename -s "$sid" "$bid" "$(tab_meta "$repo" "$branch" "$agent")" >/dev/null ||
+        echo "warning: could not tag $tab; ac will not find it again" >&2
     fi
-    start_agent "$agent" "$pane" \
-      "$(agent_handle "$(display "$repo" "$branch")" "$agent" "${#agents[@]}")" "$dir" "$repo" "$branch"
-    [[ -z "$ROLE" ]] || bootstrap_role "$pane" "$repo" "$dir"
+    [[ -n "$first" ]] || first="$sid"$'\t'"$wid"
   done
-
-  local present=()
-  mapfile -t present < <(h agent list | jq -r --arg w "$wid" \
-    '[.result.agents[] | select(.workspace_id == $w)] | sort_by(.tab_id) | [.[].agent] | unique[]')
-  if [[ ${#present[@]} -gt 0 ]]; then
-    h workspace rename "$wid" "$(make_label "$repo" "$branch" "${present[@]}")" >/dev/null
-  fi
-}
-
-# ensure_main keeps a "<repo>:main" session beside every branch session, so
-# the default branch always has an agent. Subshell: create_session dies on
-# failure, and that must not cost the branch session actually asked for.
-ensure_main() {
-  local repo="$1"
-  shift
-  local wid
-  wid=$(find_workspace "$repo" "")
-  if [[ -n "$wid" ]]; then
-    ensure_session_agents "$wid" "$(find_main_worktree "$repo")" "$repo" "" "$@"
-    return 0
-  fi
-  (create_session "$(find_main_worktree "$repo")" "$repo" "" "$@" >/dev/null) ||
-    echo "warning: $(display "$repo" "") not created" >&2
-}
-
-# pane_tab echoes the tab id owning a pane; herdr names tab 1 from the
-# workspace, so the first agent's tab needs renaming after the fact.
-pane_tab() {
-  h pane get "$1" 2>/dev/null | jq -r '.result.pane.tab_id // empty'
-}
-
-# bootstrap_role hands the agent its job the moment it is interactive. Sent as
-# a prompt rather than a per-agent launch flag because `agent prompt` is the one
-# injection point every agent kind shares — claude, codex and opencode alike —
-# and because it names the skill file explicitly, so the load is deterministic
-# instead of depending on a description matching.
-bootstrap_role() {
-  local pane="$1" repo="$2" dir="$3"
-  local skill=".agents/skills/$ROLE/SKILL.md" ready
-
-  if [[ ! -f "$dir/$skill" ]]; then
-    echo "warning: $repo has no $skill — starting the session unbriefed" >&2
-    return 0
-  fi
-
-  # The gate's verdict travels in the prompt rather than blocking creation: a
-  # session that says "main is 65 behind, fix me" beats a missing session.
-  if ! ready=$(git-ready "$dir" 2>&1); then
-    ready="FAILED — $ready"
-  fi
-
-  h agent prompt "$pane" "You are the $ROLE agent for $repo on $(hostname -s).
-Read $skill in this repo now and follow it.
-git-ready: $ready
-Change nothing until I say so. First report what a run would do, and anything
-already broken." >/dev/null ||
-    echo "warning: bootstrap prompt not delivered to $pane" >&2
-}
-
-# attach_herd hands off to the herdr TUI so `ac`/`ac ls` land you in the one
-# session's overview. When already inside herdr (HERDR_ENV=1) the client is
-# attached to this very session, so exec'ing the TUI would nest herdr inside the
-# current pane — just say so and return instead.
-attach_herd() {
-  sort_workspaces
-  if [[ "${HERDR_ENV:-}" == "1" ]]; then
-    echo "already attached to herd (session: $HERDR_SESSION)"
-    return 0
-  fi
-  exec herdr --session "$HERDR_SESSION"
-}
-
-# attach focuses the workspace (and its agent pane) then hands off to the herdr
-# TUI, so `ac <repo>` always lands you in the one session on the right pane.
-# Inside herdr the focus calls already move the attached client's view to the
-# target, so we skip the exec (which would nest herdr in the current pane) and
-# just hand the prompt back — the view has already switched.
-attach_workspace() {
-  local wid="$1" pane="$2" repo="${3:-}" branch="${4:-}"
-  h workspace focus "$wid" >/dev/null 2>&1 || true
-  # Focus by pane id, not agent name: the name is cleared when the agent exits
-  # or is replaced, while the pane id is stable for the workspace's lifetime.
-  [[ -n "$pane" ]] && h agent focus "$pane" >/dev/null 2>&1 || true
-  if [[ "${HERDR_ENV:-}" == "1" ]]; then
-    echo "switched to $(display "$repo" "$branch")"
-    return 0
-  fi
-  exec herdr --session "$HERDR_SESSION"
+  echo "$first"
 }
 
 cmd_create_or_attach() {
   local repo="$1" branch="${2:-}"
   shift 2
-  local agents=("$@")
 
   # A role plus a branch would be two different jobs sharing one name.
   [[ -z "$ROLE" || -z "$branch" ]] || die "--role takes no branch"
@@ -748,28 +456,26 @@ cmd_create_or_attach() {
     dir=$(find_main_worktree "$repo")
   fi
 
-  ensure_server
-  [[ -z "$branch" ]] || ensure_main "$repo" "${agents[@]}"
+  local target sid wid
+  target=$(ensure_job "$dir" "$repo" "$branch" "$@")
+  [[ -n "$target" ]] || die "no agent started for $(display "$repo" "$branch")"
+  IFS=$'\t' read -r sid wid <<<"$target"
 
-  local wid pane
-  wid=$(find_workspace "$repo" "$branch")
-  if [[ -n "$wid" ]]; then
-    [[ -n "$branch" ]] || ensure_session_agents "$wid" "$dir" "$repo" "$branch" "${agents[@]}"
-    pane=$(agent_pane_of "$wid")
+  # Rex has no terminal attach: focus the tab and ask the Rex app to show it.
+  # With several apps connected, REX_CLIENT picks one.
+  rex focus -s "$sid" "$wid" >/dev/null 2>&1 || true
+  if rex "do" session.select session_id="$sid" window_id="$wid" >/dev/null 2>&1; then
+    echo "switched to $(display "$repo" "$branch")"
   else
-    pane=$(create_session "$dir" "$repo" "$branch" "${agents[@]}")
-    wid=$(find_workspace "$repo" "$branch")
+    echo "$(display "$repo" "$branch") ready; open it in Rex"
   fi
-  attach_workspace "$wid" "$pane" "$repo" "$branch"
 }
 
 cmd_spawn() {
   # Headless create: like cmd_create_or_attach but never prompts and never
-  # attaches. Used by ac-web to start a detached session from the phone; you
-  # attach later with `ac <repo> [branch]`.
+  # attaches. Used by ac-web and the standing-agent unit.
   local repo="$1" branch="${2:-}"
   shift 2
-  local agents=("$@")
 
   local dir
   if [[ -n "$branch" ]]; then
@@ -778,181 +484,87 @@ cmd_spawn() {
     dir=$(find_main_worktree "$repo")
   fi
 
-  ensure_server
-  [[ -z "$branch" ]] || ensure_main "$repo" "${agents[@]}"
-
-  local wid
-  wid=$(find_workspace "$repo" "$branch")
-  if [[ -n "$wid" ]]; then
-    [[ -n "$branch" ]] || ensure_session_agents "$wid" "$dir" "$repo" "$branch" "${agents[@]}"
-    echo "already running: $(display "$repo" "$branch")"
-    return 0
-  fi
-
-  create_session "$dir" "$repo" "$branch" "${agents[@]}" >/dev/null
-  echo "spawned: $(display "$repo" "$branch")"
+  ensure_job "$dir" "$repo" "$branch" "$@" >/dev/null
+  echo "ensured: $(display "$repo" "$branch")"
 }
 
 cmd_permagent() {
-  # Reconcile the default agents in a role session, without attaching.
   local action="$1" repo="$2" role="$3"
+  shift 3
   [[ "$action" == "ensure" ]] || die "usage: ac permagent ensure <repo> <role>"
   ROLE="$role"
-
-  ensure_server
-
-  local dir wid
-  dir=$(find_main_worktree "$repo")
-  wid=$(find_workspace "$repo" "")
-  if [[ -n "$wid" ]]; then
-    ensure_session_agents "$wid" "$dir" "$repo" "" "${DEFAULT_AGENTS[@]}"
-    echo "present: $(display "$repo" "")"
-    return 0
-  fi
-
-  create_session "$dir" "$repo" "" "${DEFAULT_AGENTS[@]}" >/dev/null
-  echo "created: $(display "$repo" "")"
-}
-
-# workdir_of echoes the real cwd of a workspace (its root pane), so ac-web can
-# refuse deleting a worktree that backs a live session.
-workdir_of() {
-  h pane list --workspace "$1" 2>/dev/null |
-    jq -r '.result.panes[0].cwd // ""'
+  ensure_job "$(find_main_worktree "$repo")" "$repo" "" "$@" >/dev/null
+  echo "ensured: $(display "$repo" "")"
 }
 
 cmd_list_porcelain() {
-  # Machine-readable listing for ac-web. One live session per line, tab
-  # separated: workspace<TAB>repo<TAB>branch<TAB>agent<TAB>attached(0|1)<TAB>workdir.
-  # repo/branch/agent come from the label; workdir from the pane's real cwd;
-  # attached(=focused) marks the workspace the TUI is currently showing.
-  server_running || return 0
-
-  local wid label focused
-  while IFS=$'\t' read -r wid label focused; do
-    [[ -n "$wid" ]] || continue
-
-    local agent_l disp repo branch agent workdir attached
-    # label = "DISPLAY [al]" — split off the trailing agent tag. Workspaces not
-    # created by ac (herdr's own, e.g. "~") carry no tag; without the guard the
-    # unstripped label became both the display name AND the agent.
-    if [[ "$label" == *" ["*"]" ]]; then
-      agent_l="${label##*\[}"
-      agent_l="${agent_l%\]}"
-      disp="${label% \[*\]}"
-    else
-      agent_l=""
-      disp="$label"
+  # Machine-readable listing for ac-web. One ac tab per line, tab separated:
+  # handle<TAB>repo<TAB>branch<TAB>agent<TAB>attached(0|1)<TAB>workdir.
+  # The handle is the window ID without its "window:" prefix, which ac-web
+  # hands back to `ac rm`. Main and roles read "repo:main" / "repo:deploy".
+  # shortcut: attached is always 0, since rex does not say which tab an app
+  # shows; read it from the client API if rex ever exposes that.
+  local sid wid bid meta repo branch role agent workdir
+  while IFS=$'\t' read -r sid _ wid bid meta; do
+    IFS='|' read -r _ repo branch role agent <<<"$meta"
+    if [[ -n "$role" ]]; then
+      repo="$repo:$role"
+    elif [[ -z "$branch" ]]; then
+      repo="$repo:main"
     fi
-    # A multi-agent session tags as "cl+cx"; expand each part so ac-web shows
-    # "claude+codex" rather than a code only this script understands.
-    agent=""
-    local part
-    while IFS= read -r part; do
-      case "$part" in
-        cl) part="claude" ;;
-        oc) part="opencode" ;;
-        cx) part="codex" ;;
-      esac
-      agent="${agent:+$agent+}$part"
-    done < <(tr '+' '\n' <<<"$agent_l")
-    # repo has no '/', so the first '/' splits repo from branch.
-    if [[ "$disp" == */* ]]; then
-      repo="${disp%%/*}"
-      branch="${disp#*/}"
-    else
-      repo="$disp"
-      branch=""
-    fi
-    workdir=$(workdir_of "$wid")
-    attached=0
-    [[ "$focused" == "true" ]] && attached=1
-
-    printf '%s\t%s\t%s\t%s\t%s\t%s\n' "$wid" "$repo" "$branch" "$agent" "$attached" "$workdir"
-  done < <(h workspace list 2>/dev/null |
-    jq -r "$VLABEL"'.result.workspaces[] | [.workspace_id, vlabel, .focused] | @tsv')
+    workdir=$(rex --autostart=false block call -s "$sid" -b "$bid" process 2>/dev/null | jq -r '.child.cwd // ""')
+    printf '%s\t%s\t%s\t%s\t%s\t%s\n' "${wid#window:}" "$repo" "$branch" "$agent" 0 "$workdir"
+  done < <(ac_tabs)
 }
 
 cmd_list_human() {
-  # `ac ls` prints a table. It used to hand off to the herdr TUI, which is a
-  # no-op when you are already inside herdr — so the one place you most want a
-  # listing printed you got "already attached" instead. Same data as the
-  # porcelain listing, columns aligned.
-  local out
-  out=$(cmd_list_porcelain)
-  if [[ -z "$out" ]]; then
-    echo "no agent sessions"
+  local sid label wid meta repo branch role agent rows=""
+  while IFS=$'\t' read -r sid label wid _ meta; do
+    IFS='|' read -r _ repo branch role agent <<<"$meta"
+    ROLE="$role"
+    rows+="$label"$'\t'"$(rex --autostart=false window ls -s "$sid" --json 2>/dev/null |
+      jq -r --arg w "$wid" '.windows[] | select(.window_id == $w) | .label')"$'\t'"$(display "$repo" "$branch")"$'\t'"$agent"$'\n'
+  done < <(ac_tabs)
+  if [[ -z "$rows" ]]; then
+    echo "no agent tabs"
     return 0
   fi
-  # awk, not a read loop: tab is IFS whitespace, so `read` collapses the empty
-  # branch field and shifts every column after it.
-  {
-    printf 'SESSION\tAGENT\tDIR\n'
-    awk -F'\t' '{
-      s = ($3 == "") ? $2 : $2 "/" $3
-      if ($5 == 1) s = s " *"
-      print s "\t" ($4 == "" ? "-" : $4) "\t" $6
-    }' <<<"$out"
-  } | column -t -s $'\t'
+  { printf 'SESSION\tTAB\tJOB\tAGENT\n%s' "$rows"; } | column -t -s $'\t'
 }
 
-# Resolve a target (workspace_id or repo[/branch] display name) to a workspace_id.
-resolve_target() {
-  local target="$1"
-
-  local ids
-  ids=$(h workspace list 2>/dev/null | jq -r '.result.workspaces[].workspace_id')
-
-  # Exact workspace_id (what ac-web passes back from the porcelain listing).
-  if grep -qxF "$target" <<<"$ids"; then
-    echo "$target"
-    return 0
+# matching_tabs prints the ac_tabs rows a target names: a handle from the
+# porcelain listing, or a job ("repo:role", "repo:main", "repo/branch").
+matching_tabs() {
+  local target="$1" repo="" branch="" role=""
+  if [[ "$target" == */* ]]; then
+    repo="${target%%/*}" branch="${target#*/}"
+  elif [[ "$target" == *:* ]]; then
+    repo="${target%%:*}" role="${target#*:}"
+    [[ "$role" != "main" ]] || role=""
   fi
-
-  # Otherwise treat it as a repo[/branch] display name.
-  local wid
-  wid=$(workspace_by_display "$target")
-  [[ -n "$wid" ]] && {
-    echo "$wid"
-    return 0
-  }
-
-  die "no session found: $target"
+  ac_tabs | awk -F'\t' -v h="window:$target" -v r="$repo" -v b="$branch" -v o="$role" '
+    $3 == h { print; next }
+    r != "" { split($5, m, "|"); if (m[2] == r && m[3] == b && m[4] == o) print }'
 }
 
 cmd_remove() {
-  local target="$1"
-  local wid children
-  wid=$(resolve_target "$target")
+  local rows
+  rows=$(matching_tabs "$1")
+  [[ -n "$rows" ]] || die "no ac tab found: $1"
 
-  # herdr refuses to close a parent while its nested branch spaces are open, and
-  # --group would kill their agents without the graceful stop below. Check
-  # before signalling, or the parent is left open with its agents dead.
-  children=$(h workspace list 2>/dev/null | jq -r --arg w "$wid" "$VLABEL"'
-    .result.workspaces as $all
-    | ($all[] | select(.workspace_id == $w and .worktree and (.worktree.is_linked_worktree | not)) | .worktree.repo_key) as $key
-    | $all[] | select(.worktree.is_linked_worktree and .worktree.repo_key == $key)
-    | vlabel | sub(" \\[[^]]*\\]$"; "")')
-  [[ -z "$children" ]] || die "remove its branch sessions first: $(paste -sd, <<<"$children")"
-
-  # Stop the agent gracefully before tearing the workspace down: SIGTERM lets
+  # Stop the agents gracefully before closing their tabs: SIGTERM lets
   # `claude remote-control` deregister cleanly (a forced kill orphaned it and
-  # filled the claude.ai picker with dead duplicates). herdr runs the agent
-  # argv directly as the pane process, so its shell_pid IS the agent — signal
-  # it, wait out a grace window, then close the workspace (which also disposes
-  # the term pane). `|| true`: goal state is a closed workspace; if the agent
-  # already exited, the missing pid/pane must not abort us before close.
-  # Every agent tab, not just the first: workspace close would otherwise kill
-  # the rest outright. Signal them all, then wait once — they exit in parallel.
-  local pane pid pids=()
-  while read -r pane; do
-    [[ -n "$pane" ]] || continue
-    pid=$(h pane process-info --pane "$pane" 2>/dev/null |
-      jq -r '.result.process_info.shell_pid // empty')
+  # filled the claude.ai picker with dead duplicates). Signal every agent,
+  # then wait once — they exit in parallel. `|| true`: goal state is a closed
+  # tab; an agent that already exited must not abort us.
+  local sid wid bid pid pids=()
+  while IFS=$'\t' read -r sid _ wid bid _; do
+    pid=$(rex block call -s "$sid" -b "$bid" process 2>/dev/null |
+      jq -r '.foreground.pid // .child.pid // empty')
     [[ -n "$pid" ]] || continue
     kill -TERM "$pid" 2>/dev/null || true
     pids+=("$pid")
-  done < <(agent_panes_of "$wid")
+  done <<<"$rows"
 
   # ~10s grace for the agents to deregister and exit
   for _ in $(seq 1 20); do
@@ -964,79 +576,32 @@ cmd_remove() {
     sleep 0.5
   done
 
-  h workspace close "$wid" >/dev/null 2>&1 || true
-  echo "killed: $wid"
+  # Only ac's tabs close; the user's tabs stay. A session left with no tabs
+  # would only clutter the app, so it goes too.
+  while IFS=$'\t' read -r sid _ wid _ _; do
+    rex window close -s "$sid" "$wid" >/dev/null 2>&1 || true
+    echo "closed: ${wid#window:}"
+    [[ -n "$(rex window ls -s "$sid" -q 2>/dev/null)" ]] || rex kill "$sid" >/dev/null 2>&1 || true
+  done <<<"$rows"
 }
 
-# cmd_selftest checks agent_name against herdr's documented handle grammar
-# (^[a-z][a-z0-9_-]{0,31}$). It is the one bit of string munging here that fails
-# silently — a bad handle makes `agent start` error and the pane sit at a shell.
 cmd_selftest() {
-  local s n fails=0
-  for s in "headscale/kradalby/go127" "TubeLogger2000" "dotfiles" \
-    "2000only" "1234" "sfiber/planet-olt" "a.b" "x/$(printf 'y%.0s' {1..60})" \
-    "dotfiles:deploy" "sfiber:deploy" "TubeLogger2000:deploy" "sfiber:main"; do
-    n=$(agent_name "$s")
-    if [[ "$n" =~ ^[a-z][a-z0-9_-]{0,31}$ ]]; then
-      echo "ok   $s -> $n"
+  local fails=0
+  check() {
+    if [[ "$2" == "$3" ]]; then
+      echo "ok   $1 -> '$2'"
     else
-      echo "FAIL $s -> '$n'" >&2
+      echo "FAIL $1 -> '$2', want '$3'" >&2
       fails=$((fails + 1))
     fi
-  done
-  # agent_handle must stay legal AND unique per agent, or `agent start` errors
-  # and the second tab silently sits at a shell.
-  local h1 h2
-  for s in "headscale/kradalby/go127" "dotfiles" "TubeLogger2000" \
-    "x/$(printf 'y%.0s' {1..60})"; do
-    h1=$(agent_handle "$s" claude 2)
-    h2=$(agent_handle "$s" codex 2)
-    if [[ ! "$h1" =~ ^[a-z][a-z0-9_-]{0,31}$ || ! "$h2" =~ ^[a-z][a-z0-9_-]{0,31}$ ]]; then
-      echo "FAIL handle grammar $s -> '$h1' '$h2'" >&2
-      fails=$((fails + 1))
-    elif [[ "$h1" == "$h2" ]]; then
-      echo "FAIL handle collision $s -> '$h1'" >&2
-      fails=$((fails + 1))
-    else
-      echo "ok   $s -> $h1 / $h2"
-    fi
-  done
+  }
 
-  # Explicit single-agent sessions keep their bare handles.
-  h1=$(agent_handle "dotfiles:deploy" claude 1)
-  if [[ "$h1" != "$(agent_name "dotfiles:deploy")" ]]; then
-    echo "FAIL single-agent handle changed: '$h1'" >&2
-    fails=$((fails + 1))
-  else
-    echo "ok   single-agent handle stable -> $h1"
-  fi
-
-  local sorted expected
-  sorted=$(jq -nc '{result: {workspaces: [
-      {workspace_id: "beta-branch", label: "beta/z-last [cl]"},
-      {workspace_id: "dotfiles-branch", label: "dotfiles/a-first [cl]"},
-      {workspace_id: "alpha-main", label: "alpha:main [cl+cx]"},
-      {workspace_id: "dotfiles-main", label: "dotfiles:main [cl+cx]"},
-      {workspace_id: "beta-deploy", label: "beta:deploy [cl]"},
-      {workspace_id: "alpha-branch", label: "alpha/a-first [cx]"},
-      {workspace_id: "dotfiles-deploy", label: "dotfiles:deploy [cl]"},
-      {workspace_id: "alpha-deploy", label: "alpha:deploy [cl]"},
-      {workspace_id: "alpha-review", label: "alpha:review [cl]"},
-      {workspace_id: "beta-main", label: "beta:main [cl+cx]"},
-      {workspace_id: "gamma-child", label: "fix-x",
-        worktree: {is_linked_worktree: true, repo_name: "gamma"}},
-      {workspace_id: "alpha-nested", label: "b-nested [cl]",
-        worktree: {is_linked_worktree: true, repo_name: "alpha"}},
-      {workspace_id: "gamma-root", label: "gamma",
-        worktree: {is_linked_worktree: false, repo_name: "gamma"}}
-    ]}}' | workspace_sort_request | jq -r '.params.workspace_ids | join(" ")')
-  expected="dotfiles-deploy dotfiles-main dotfiles-branch alpha-deploy alpha-review alpha-main alpha-branch alpha-nested beta-deploy beta-main beta-branch gamma-root gamma-child"
-  if [[ "$sorted" != "$expected" ]]; then
-    echo "FAIL workspace sort: '$sorted'" >&2
-    fails=$((fails + 1))
-  else
-    echo "ok   workspace sort -> $sorted"
-  fi
+  check "tab main" "$(tab_name "" claude)" "main"
+  check "tab branch" "$(tab_name "kradalby/fix dns" claude)" "kradalby-fix-dns"
+  check "tab codex" "$(tab_name "" codex)" "main-cx"
+  check "tab role" "$(ROLE=deploy tab_name "" claude)" "deploy"
+  check "tab override" "$(TAB=infra tab_name "" claude)" "infra"
+  check "meta role" "$(ROLE=deploy tab_meta dotfiles "" claude)" "ac|dotfiles||deploy|claude"
 
   if AC_REMOTE_CONTROL=1 claude_remote_control_enabled kradalby-llm; then
     echo "FAIL remote control enabled on kradalby-llm" >&2
@@ -1056,48 +621,46 @@ cmd_selftest() {
 }
 
 cmd_help() {
-  cat <<'EOF'
+  cat <<'EOF2'
 Usage: ac [flags] [command|repo] [branch]
 
-Agent code session manager — one herdr session ("ac") holds every coding-agent
-session as a workspace, so they share a single overview and a single attach.
-Spaces are grouped by repository, dotfiles first. Within a repository :deploy
-leads, then other roles, then :main with its branch sessions nested under it.
+Agent code tab manager. A job — a repo's main checkout, a role, or a branch —
+is one rex tab per agent, inside the rex session named after the repo (or -s).
+Claude only, unless -c/-x/-o ask for others. ac tags its panes, so it finds
+its tabs wherever they are and never opens one twice; your own tabs and
+sessions are left alone.
 
 Commands:
-  <repo> [branch]        Create the workspace if needed, then attach the herdr
-                         session focused on that repo/branch's agent pane.
-                         A branch also brings up "<repo>:main" if it is missing
-                         and nests under it, labelled by branch alone
-  ls                     List live sessions ('*' = the one herdr is showing)
+  <repo> [branch]        Open the job's tab if missing, then focus it and ask
+                         the Rex app to show it
+  ls                     List ac tabs (also: no arguments)
   ls --porcelain         Tab-separated listing (for ac-web)
-  spawn <repo> [branch]  Create a detached workspace without attaching (for ac-web)
-  rm <workspace|name>    Gracefully stop the agent and close the workspace;
-                         "<repo>:main" only once its branch sessions are gone
+  spawn <repo> [branch]  Open the job's tab without showing it
+  rm <handle|job>        Gracefully stop the agents and close their tabs.
+                         A job is "repo:main", "repo:<role>" or "repo/branch"
   permagent ensure <repo> <role>
-                         Ensure the role workspace has Claude and Codex tabs
-  selftest               Check agent-name mangling against herdr's grammar
+                         Ensure the role's tab exists
+  selftest               Check tab naming
   help                   Show this help
 
 Flags:
-  -o, --opencode         Only opencode, instead of the default set
-  -c, --claude           Only claude
-  -x, --codex            Only codex
-  -r, --role <name>      Open the repo's long-lived <name> session instead of a
-                         coding session (see "Role sessions" below)
+  -c, --claude           Claude (the default)
+  -x, --codex            Codex; with -c, both
+  -o, --opencode         opencode
+  -r, --role <name>      The repo's long-lived <name> job (see "Roles")
+  -s, --session <name>   Rex session to open tabs in (default: the repo)
+  -t, --tab <name>       Tab name (default: role, branch, or "main")
 
-Role sessions:
-  `ac -r deploy dotfiles` opens durable agents pinned to a repo and a job.
-  It always uses the repo's main worktree, is named "<repo>:<role>", and is
-  briefed on start from <repo>/.agents/skills/<role>/SKILL.md — the Agent
-  Skills path Codex and OpenCode already discover. The briefing carries the
-  `git-ready` verdict (default branch, clean, in sync, nothing unpushed), so
+Tabs are named after the job: "main", the role ("deploy"), or the branch with
+'/' as '-'. Codex and opencode tabs get "-cx" / "-oc" appended.
+
+Roles:
+  `ac -r deploy dotfiles` opens a durable agent pinned to a repo and a job.
+  It always uses the repo's main worktree and is briefed at launch from
+  <repo>/.agents/skills/<role>/SKILL.md — the Agent Skills path Codex and
+  OpenCode already discover. The briefing carries the `git-ready` verdict, so
   the agent knows the repo's state before it does anything. A failing verdict
-  does not block the session: the deploy commands are gated themselves, and a
-  session that can tell you what is wrong beats a missing one.
-
-To switch or split sessions interactively, attach the herd with `herdr` (or
-`herdr --session ac`) and use its TUI — that's the single overview.
+  does not block the agent: the deploy commands are gated themselves.
 
 If the branch worktree does not exist, you will be prompted to create it. An
 existing branch is checked out as-is; a new branch is based on the appropriate
@@ -1110,54 +673,37 @@ The main repo lives at ~/git/<repo>; branch worktrees are created under
 $WT_ROOT/<repo>/<branch> (default WT_ROOT: ~/worktrees).
 
 Examples:
-  ac headscale                   "headscale:main": claude+codex+term on ~/git/headscale
-  ac headscale kradalby/3049     same, on ~/worktrees/headscale/kradalby/3049,
-                                 plus "headscale:main" if not already up
-  ac headscale kradalby/new      prompts to create branch from upstream/main
-  ac sfiber planet-olt -o        opencode only, on ~/worktrees/sfiber/planet-olt
-  ac sfiber -x                   codex only, no claude tab
-  ac -r deploy dotfiles          the durable "dotfiles:deploy" session
-  ac rm dotfiles:deploy          Gracefully close that workspace
+  ac headscale                   tab "main" in session "headscale"
+  ac headscale kradalby/3049     tab "kradalby-3049" on that worktree
+  ac -c -x sfiber planet-olt     tabs "planet-olt" and "planet-olt-cx"
+  ac -r deploy sfiber            tab "deploy" in session "sfiber"
+  ac -s dotfiles -t infra infrastructure
+                                 tab "infra" in session "dotfiles"
+  ac rm sfiber:deploy            close that tab
 
-Layout — one tab per thing, never a split. A phone terminal is about 88
-columns, and side-by-side panes leave ~44 each, which is unreadable. By
-default `ac <repo>` opens one tab each, named for what is in it:
-  claude
-  codex
-  terminal   Plain shell in the same directory
-
-An explicit -c/-o/-x narrows that to one agent tab plus the terminal tab. Role
-sessions use the same defaults and brief each agent for the job. Reconciliation
-adds missing agent tabs to standing sessions. Agents are launched directly
-(argv, no shell in between).
-
-claude sessions launch in auto mode (--permission-mode auto)
-and, except on kradalby-llm, Remote Control named <host>-<repo>-<branch>, so
-they are reachable from claude.ai / the phone (AC_REMOTE_CONTROL=0 disables).
-The working dir is pre-trusted so no trust prompt blocks the agent
-(AC_TRUST=0 disables).
-Codex sessions use Approve for me: the :workspace profile, with escalations
-sent to auto review. Standalone terminals launch with --approve-for-me;
-shared-server threads save that profile before remote resume.
-Threads are created and named <host>-<repo>-<branch|main|role> before the
-terminal opens, then attached with codex resume.
-On dev.ldn they connect to the shared app server when its Unix socket exists,
-so remote clients see the same threads. Other hosts run Codex standalone.
-AC_CODEX_REMOTE overrides dev's endpoint; AC_REMOTE_CONTROL=0 runs standalone.
-Existing panes keep their current connection until reopened or resumed.
-EOF
+claude launches in auto mode (--permission-mode auto) and, except on
+kradalby-llm, with Remote Control named <host>-<repo>-<job>, so it is reachable
+from claude.ai / the phone (AC_REMOTE_CONTROL=0 disables). The working dir is
+pre-trusted so no trust prompt blocks the agent (AC_TRUST=0 disables). Agents
+run in the repo's direnv environment when it has an .envrc.
+Codex uses Approve for me: the :workspace profile, with escalations sent to
+auto review. Threads are created and named <host>-<repo>-<job> before the tab
+opens, then attached with codex resume. On dev.ldn they connect to the shared
+app server when its Unix socket exists, so remote clients see the same
+threads. AC_CODEX_REMOTE overrides dev's endpoint; AC_REMOTE_CONTROL=0 runs
+standalone.
+EOF2
 }
 
 # --- main ---
 
 main() {
-  # Empty until a flag names one: an explicit -c/-o/-x means "just this agent",
+  # Empty until a flag names one: an explicit -c/-o/-x means "just these",
   # while no flag means DEFAULT_AGENTS.
   local agents=()
   local porcelain=0
   local args=()
 
-  # Parse flags
   while [[ $# -gt 0 ]]; do
     case "$1" in
       -o | --opencode)
@@ -1172,9 +718,13 @@ main() {
         agents+=(codex)
         shift
         ;;
-      -r | --role)
-        [[ $# -ge 2 ]] || die "--role needs a name"
-        ROLE="$2"
+      -r | --role | -s | --session | -t | --tab)
+        [[ $# -ge 2 ]] || die "$1 needs a name"
+        case "$1" in
+          -r | --role) ROLE="$2" ;;
+          -s | --session) SESSION="$2" ;;
+          *) TAB="$2" ;;
+        esac
         shift 2
         ;;
       -p | --porcelain)
@@ -1204,19 +754,13 @@ main() {
     agents=("${DEFAULT_AGENTS[@]}")
   fi
 
-  # No args: point at the herd. Listing/switching is herdr's job now.
   if [[ ${#args[@]} -eq 0 ]]; then
-    if server_running; then
-      attach_herd
-      return 0
-    fi
-    echo "no agent sessions (herdr server not running)"
+    cmd_list_human
     return 0
   fi
 
   local first="${args[0]}"
 
-  # Subcommands
   case "$first" in
     ls | list)
       if [[ "$porcelain" == 1 ]]; then
@@ -1231,11 +775,10 @@ main() {
       ;;
     permagent)
       [[ ${#args[@]} -ge 4 ]] || die "usage: ac permagent ensure <repo> <role>"
-      cmd_permagent "${args[1]}" "${args[2]}" "${args[3]}"
+      cmd_permagent "${args[1]}" "${args[2]}" "${args[3]}" "${agents[@]}"
       ;;
     rm | remove | kill)
-      [[ ${#args[@]} -ge 2 ]] || die "usage: ac rm <workspace|name>"
-      ensure_server
+      [[ ${#args[@]} -ge 2 ]] || die "usage: ac rm <handle|job>"
       cmd_remove "${args[1]}"
       ;;
     selftest)
@@ -1245,7 +788,6 @@ main() {
       cmd_help
       ;;
     *)
-      # repo [branch]: create or attach
       cmd_create_or_attach "$first" "${args[1]:-}" "${agents[@]}"
       ;;
   esac
