@@ -19,6 +19,8 @@ in
 
   users.groups.umami = { };
 
+  age.secrets.umami-env.file = ../../secrets/umami-env.age;
+
   virtualisation.oci-containers.containers.umami = {
     image = (import ../../metadata/versions.nix).umami;
     user = config.users.users.umami.uid;
@@ -35,7 +37,8 @@ in
       DISABLE_TELEMETRY = "1";
       DISABLE_UPDATES = "1";
     };
-    environmentFiles = [ ];
+    # APP_SECRET: umami >= 3.5 refuses to start on the default placeholder.
+    environmentFiles = [ config.age.secrets.umami-env.path ];
     volumes = [ ];
   };
 
