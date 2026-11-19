@@ -1,4 +1,4 @@
-# atuin shell-history sync client. Opt-in per host (like home/herdr.nix) so it
+# atuin shell-history sync client. Opt-in per host so it
 # only lands on the machines granted svc:atuin — enabling it elsewhere would
 # just fail to sync. The two-account split (personal vs work) is runtime state
 # (`atuin login`/`register`), not config, so it lives outside nix.

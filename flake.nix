@@ -210,20 +210,6 @@
       flake = false;
     };
 
-    # Agent multiplexer (tmux replacement for `ac`). Do NOT `follows` its
-    # rust-overlay — the package is built against the toolchain herdr pins.
-    herdr = {
-      url = "github:herdrdev/herdr/v0.9.5";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-      # herdr's lock pins a rust-overlay that reads the deprecated
-      # stdenv.isLinux. rust-toolchain.toml pins the compiler, so tracking
-      # upstream only changes the overlay's own Nix.
-      inputs.rust-overlay = {
-        url = "github:oxalica/rust-overlay";
-        inputs.nixpkgs.follows = "nixpkgs-unstable";
-      };
-    };
-
     # Prebuilt Rex. Follow the fleet nixpkgs: the login server dlopens the
     # host's PAM modules, so keep one pam and glibc in the process.
     rex = {
@@ -357,20 +343,6 @@
           {
             neovim = neovim-kradalby.packages."${system}".neovim-kradalby;
             tailscale = tailscale.packages."${system}".tailscale;
-            # Direct package (not herdr.overlays.default — that composes
-            # rust-overlay and drags rust-bin into pkgs).
-            herdr = inputs.herdr.packages."${system}".default.overrideAttrs (
-              old:
-              prev.lib.optionalAttrs (system == "aarch64-linux") {
-                nativeBuildInputs = old.nativeBuildInputs ++ [ prev.unstable.llvmPackages.lld ];
-                # BFD rejects Zig's bundled compiler_rt object on aarch64.
-                RUSTFLAGS = "${old.RUSTFLAGS or ""} -Cforce-frame-pointers=yes -C link-arg=-fuse-ld=lld";
-              }
-            );
-            # The agent skill (teaches an agent to drive herdr) is bundled in the
-            # binary and printed by `herdr --skill`, so it tracks the package
-            # version — nothing to vendor or maintain.
-            herdr-skill = final.runCommand "herdr-skill.md" { } "${final.herdr}/bin/herdr --skill > $out";
             # Named apart from nixpkgs' rex, an unrelated automation tool.
             rex-cli = inputs.rex.packages."${system}".rex;
             # The stub `rex skill setup` writes, so `rex skill status` reads current.

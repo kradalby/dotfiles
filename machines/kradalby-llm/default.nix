@@ -47,16 +47,6 @@ in
 {
   imports = [
     ../../home
-    ../../home/herdr.nix
-  ];
-
-  # This box runs codex too, so add its state hook alongside claude/opencode.
-  my.herdr.integrations = [
-    "claude"
-    "codex"
-    "opencode"
-    "hermes"
-    "pi"
   ];
 
   services.rex = {
@@ -136,18 +126,12 @@ in
         };
       };
     };
-    # herdr installs its TUI plugin only into an existing cli.json.
-    opencodeCli = {
-      target = ".config/opencode/cli.json";
-      value."$schema" = "https://opencode.ai/v2/cli.json";
-    };
     hermes = {
       target = ".hermes/config.yaml";
       format = "yaml";
       value = {
         # Keep in sync with hermes_cli/config_defaults.py in the locked input.
         _config_version = 52;
-        plugins.enabled = [ "herdr-agent-state" ];
         skills.external_dirs = [ "~/.agents/skills" ];
         model = {
           default = defaultModel;
