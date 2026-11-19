@@ -726,6 +726,7 @@
           opencode-aperture-models = import ./checks/opencode-aperture-models.nix { inherit pkgs; };
           prometheus-rules = import ./checks/prometheus-rules { inherit pkgs self; };
           monitoring-pipeline = import ./checks/monitoring-pipeline.nix { inherit pkgs self; };
+          umami = import ./checks/umami.nix { inherit pkgs self; };
           # Fail if any host exposes an exporter/service that nothing scrapes.
           monitoring-coverage = import ./checks/monitoring-coverage { inherit pkgs self; };
           inference = import ./checks/inference.nix { inherit pkgs self; };

@@ -4,6 +4,8 @@ let
   port = 63458;
 in
 {
+  imports = [ ./umami-sites.nix ];
+
   age.secrets.umami-app-secret.file = ../../secrets/umami-app-secret.age;
 
   services.umami = {
