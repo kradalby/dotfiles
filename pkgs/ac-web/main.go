@@ -328,7 +328,7 @@ func fail(w http.ResponseWriter, err error) { http.Error(w, err.Error(), http.St
 // --- validation (the exec trust boundary; args go via argv, never a shell) ---
 
 var (
-	// An opaque herdr workspace handle from `ac ls --porcelain`, passed straight
+	// An opaque rex session label from `ac ls --porcelain`, passed straight
 	// back to `ac rm` via argv (no shell). Any bare token is safe; the old `ac-`
 	// prefix was a tmux-socket-name artifact and no longer applies.
 	serverRe = regexp.MustCompile(`^[A-Za-z0-9._-]+$`)

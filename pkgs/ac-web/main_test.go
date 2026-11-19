@@ -40,7 +40,7 @@ func TestValidateRepo(t *testing.T) {
 }
 
 func TestServerRe(t *testing.T) {
-	// Opaque herdr workspace handles: any bare token (letters, digits, . _ -).
+	// Opaque rex session labels: any bare token (letters, digits, . _ -).
 	for _, s := range []string{"ac-dotfiles", "dotfiles", "ws_1", "01H9-abc.def"} {
 		require.True(t, serverRe.MatchString(s), "serverRe rejected valid %q", s)
 	}
