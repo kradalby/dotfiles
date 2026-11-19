@@ -560,6 +560,17 @@
               ];
             };
 
+            "core.giga" = box.nixosBox {
+              arch = "x86_64-linux";
+              name = "core.giga";
+              tags = [
+                "x86"
+                "giga"
+              ];
+              # TODO(install): drop once it has joined the tailnet.
+              targetHost = "185.243.216.95";
+            };
+
             # gigabuilder: bare-metal Incus VM host + tsnixcache cache.
             "gigabuilder" = box.nixosBox {
               arch = "x86_64-linux";

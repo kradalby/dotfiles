@@ -10,6 +10,7 @@ let
   # These all have node_exporter and systemd_exporter enabled
   allHosts = [
     "core-oracldn"
+    "core-giga"
     # "core-terra"
     "core-tjoda"
     "dev-oracfurt"
@@ -26,6 +27,7 @@ let
 
   # Hosts with ZFS pools (have zfs_exporter enabled)
   zfsHosts = [
+    "core-giga"
     # "core-terra"
     "core-tjoda"
     "storage-ldn"
