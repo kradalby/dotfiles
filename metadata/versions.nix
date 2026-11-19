@@ -33,8 +33,6 @@
   # https://github.com/kpetremann/mqtt-exporter/releases
   mqttExporter = "v1.12.1";
 
-  # https://github.com/umami-software/umami/pkgs/container/umami
-  umami = "ghcr.io/umami-software/umami:3.5.0";
   # https://hub.docker.com/r/frooodle/s-pdf/tags
   stirling = "frooodle/s-pdf:3.3.0";
   ## pkgs
