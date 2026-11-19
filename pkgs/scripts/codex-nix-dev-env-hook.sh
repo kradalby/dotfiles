@@ -32,10 +32,10 @@ else
 fi
 
 # Quote values as shell literals, including newlines and apostrophes. Preserve
-# Codex/herdr identity and shell bookkeeping when a tool chooses another cwd.
+# Codex/rex identity and shell bookkeeping when a tool chooses another cwd.
 jq -r 'to_entries[] |
   select(.key | test("^[a-zA-Z_][a-zA-Z0-9_]*$")) |
-  select(.key | test("^(BASH_ENV|PWD|OLDPWD|SHLVL|_|CODEX_THREAD_ID|CODEX_SESSION_ID|HERDR_.*)$") | not) |
+  select(.key | test("^(BASH_ENV|PWD|OLDPWD|SHLVL|_|CODEX_THREAD_ID|CODEX_SESSION_ID|REX_.*)$") | not) |
   if .value == null then "unset \(.key)"
   else "export \(.key)=\(.value | @sh)" end' <<<"$changes" >"$snapshot" || exit 1
 mv "$snapshot" "$state_dir/$thread_id.sh"

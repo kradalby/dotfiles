@@ -61,7 +61,7 @@ in
   }
   // lib.optionalAttrs config.my.packages.ai.codex {
     # Both mutable: codex records hook trust and project trust into
-    # config.toml, and herdr merges its state hook into hooks.json.
+    # config.toml, and other tools merge their hooks into hooks.json.
     codex = {
       target = ".codex/config.toml";
       format = "toml";
@@ -86,7 +86,7 @@ in
   };
 
   # These files are seeded once, so migrate just our hook and environment
-  # setting. Preserve herdr entries, user hooks, project trust, and providers.
+  # setting. Preserve other tools' entries, user hooks, project trust, and providers.
   config.home.activation.codexSessionEnvironment = lib.mkIf (config.my.mutableJson ? codex) (
     lib.hm.dag.entryAfter [ "writeBoundary" "mutableJson" ] ''
       run ${codexEnvMigrate}/bin/codex-session-env-migrate "$HOME/.codex" ${

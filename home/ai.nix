@@ -265,9 +265,7 @@ in
   #
   # Only the hooks feature flag lives in config.toml. Codex reads hooks from both
   # config.toml and hooks.json and warns when definitions are split across the
-  # two, and herdr's codex integration owns hooks.json, so hook definitions go
-  # there instead (see codexHooks). herdr sets this flag as well; declaring it
-  # keeps codex hooks working on a host that runs codex without herdr.
+  # two, so hook definitions go to hooks.json instead (see codexHooks).
   codex = {
     # Approve for me: sandboxed, escalations go to the auto reviewer.
     default_permissions = ":workspace";
@@ -291,9 +289,8 @@ in
       };
   };
 
-  # ~/.codex/hooks.json — the single hook layer. herdr merges its own
-  # SessionStart entry into this file rather than replacing it, so the two
-  # coexist. Codex still needs a one-time `/hooks` trust per entry, which it
+  # ~/.codex/hooks.json — the single hook layer. Other tools may merge their
+  # own entries into this file, and the migration keeps them. Codex still needs a one-time `/hooks` trust per entry, which it
   # records in config.toml.
   #
   # Capture the dev env once per thread, including phone-initiated resumes.

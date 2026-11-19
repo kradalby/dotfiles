@@ -30,7 +30,6 @@ curl -fsS http://ai.corp.ts.net/v1/models | jq -r '.data[] | [.id, (.supported_e
 opencode models | grep aperture
 hermes doctor
 pi --list-models
-herdr integration status
 ```
 
 ## Rex

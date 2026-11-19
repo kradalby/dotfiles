@@ -39,10 +39,10 @@ probe() {
 
 export EXPECTED="quote ' and a newline
 \$(touch $root/injected)"
-jq -n --arg value "$EXPECTED" '{DEV_TOOL:$value,REMOVE_ME:null,BASH_ENV:"bad",CODEX_THREAD_ID:"wrong",HERDR_PANE_ID:"wrong"}' >"$CODEX_HOME/changes.json"
+jq -n --arg value "$EXPECTED" '{DEV_TOOL:$value,REMOVE_ME:null,BASH_ENV:"bad",CODEX_THREAD_ID:"wrong",REX_BLOCK:"wrong"}' >"$CODEX_HOME/changes.json"
 start one "$root/one/child"
-export REMOVE_ME=old HERDR_PANE_ID=original
-probe one '[[ "$DEV_TOOL" == "$EXPECTED" && ! -v REMOVE_ME && "$CODEX_THREAD_ID" == one && "$HERDR_PANE_ID" == original ]]'
+export REMOVE_ME=old REX_BLOCK=original
+probe one '[[ "$DEV_TOOL" == "$EXPECTED" && ! -v REMOVE_ME && "$CODEX_THREAD_ID" == one && "$REX_BLOCK" == original ]]'
 probe one '[[ "$DEV_TOOL" == "$EXPECTED" ]]'
 [[ ! -e "$root/injected" && $(wc -l <"$CODEX_HOME/loads") == 1 ]]
 [[ $(stat -c %a "$CODEX_HOME/session-env") == 700 && $(stat -c %a "$CODEX_HOME/session-env/one.sh") == 600 ]]
@@ -92,7 +92,7 @@ type = "command"
 command = "user-hook"
 TOML
 cat >"$CODEX_HOME/hooks.json" <<'JSON'
-{"hooks":{"SessionStart":[{"hooks":[{"type":"command","command":"herdr hook codex"}]}],"PreToolUse":[{"matcher":"Bash","hooks":[{"type":"command","command":"\"$HOME/.codex/hooks/nix-dev-env.sh\""},{"type":"command","command":"user-tool-hook"}]}]}}
+{"hooks":{"SessionStart":[{"hooks":[{"type":"command","command":"other-tool hook"}]}],"PreToolUse":[{"matcher":"Bash","hooks":[{"type":"command","command":"\"$HOME/.codex/hooks/nix-dev-env.sh\""},{"type":"command","command":"user-tool-hook"}]}]}}
 JSON
 cat >"$root/reference.json" <<'JSON'
 {"hooks":{"SessionStart":[{"matcher":"^(startup|resume|clear|fork)$","hooks":[{"type":"command","command":"\"$HOME/.codex/hooks/nix-dev-env.sh\"","timeout":120}]}]}}
@@ -114,7 +114,7 @@ assert config["hooks"]["state"]["user-hook"]["trusted_hash"] == "preserve"
 assert config["hooks"]["PreToolUse"][0]["hooks"][0]["command"] == "user-hook"
 hooks = json.loads((root / "hooks.json").read_text())["hooks"]
 assert hooks["PreToolUse"][0]["hooks"][0]["command"] == "user-tool-hook"
-assert hooks["SessionStart"][0]["hooks"][0]["command"] == "herdr hook codex"
+assert hooks["SessionStart"][0]["hooks"][0]["command"] == "other-tool hook"
 assert len(hooks["SessionStart"]) == 2
 PY
 cp "$CODEX_HOME/config.toml" "$root/config.before"
