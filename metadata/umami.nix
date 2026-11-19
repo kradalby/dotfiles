@@ -20,6 +20,10 @@
     id = "22ed64e2-2fb1-4e6f-936e-70245264f121";
     domain = "resume.kradalby.no";
   };
+  map = {
+    id = "dc476950-45db-49d7-9428-a0a990105487";
+    domain = "map.kradalby.no";
+  };
   asparges-beta = {
     id = "7c69f259-3316-4bb0-ad18-1a33c70a7f49";
     domain = "beta.aspargesgaarden.no";
