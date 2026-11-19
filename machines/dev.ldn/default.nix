@@ -140,26 +140,18 @@ in
 
   home-manager.users.kradalby = {
     imports = [
-      ../../home/herdr.nix
+      ../../home/ac.nix
       ../../home/atuin.nix
     ];
     my.atuin.enable = true; # personal account (shared with krair)
 
     my.packages.ai.codex = true;
     my.cooklang.recipes = "/home/kradalby/cooklang";
-    # Codex's session hook works for standalone panes. Shared app-server panes
-    # use terminal state detection (see docs/conventions/services.md).
-    my.herdr.integrations = [
-      "claude"
-      "codex"
-      "opencode"
-    ];
-
     # This is the box the fleet is deployed from, so it is the one that wants
     # standing role agents. Each is briefed from that repo's own
     # .agents/skills/<role>/SKILL.md, so the rules live with the thing they
     # act on.
-    my.herdr.permagents = [
+    my.ac.permagents = [
       {
         repo = "dotfiles";
         role = "deploy";
@@ -175,8 +167,15 @@ in
     ];
 
     # infrastructure has no deploy role — tofu is applied by hand, per module —
-    # but it is worked on continuously, so keep its main session standing.
-    my.herdr.mainSessions = [ "infrastructure" ];
+    # but it is worked on continuously, so keep its main agent standing, beside
+    # the dotfiles agents.
+    my.ac.mainSessions = [
+      {
+        repo = "infrastructure";
+        session = "dotfiles";
+        tab = "infra";
+      }
+    ];
 
     programs.git.settings = {
       commit.gpgsign = true;
