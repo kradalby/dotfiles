@@ -19,7 +19,7 @@ with a requested change, flag it to kradalby without modifying the conventions.
 - `nixos-rebuild test --flake .#<hostname>` / `darwin-rebuild switch --flake .#<hostname>` apply to a host. For service changes or new hosts, run it and note the outcome in the PR.
 - `nix build .#packages.${system}.<name>` builds one package.
 - `statix` and `deadnix` before large refactors.
-- Fetching/deploying: `nurl <url>` or `nix-prefetch-git` for pins, `nix-init` for new derivations, `colmena apply` for multi-host rollouts.
+- Fetching/deploying: `nurl <url>` or `nix-prefetch-git` for pins, `nix-init` for new derivations, `nh os switch . --target-host root@<host>` to deploy (see `.agents/skills/deploy`).
 
 ## Layout rules
 

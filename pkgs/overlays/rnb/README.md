@@ -3,7 +3,7 @@
 Run a nix command against an on-demand remote builder, chosen by short name.
 It maps a name to a builder spec, injects it into `NIX_CONFIG`
 (`builders = …` + `max-jobs = 0`), and execs the command — so the build runs on
-the remote, not locally. Works the same for `nix build`, `colmena`,
+the remote, not locally. Works the same for `nix build`, `nh`,
 `darwin-rebuild`, and `nixos-rebuild`.
 
 Requires the calling user to be a nix `trusted-user` (the daemon only honors
@@ -13,7 +13,7 @@ client-supplied `builders`/`max-jobs` from trusted users).
 
 ```
 rnb dev.ldn -- nix build .#foo            # exec, like env
-rnb -m dev-ldn -- colmena apply           # merge: remote + local builders
+rnb -m dev-ldn -- nh os switch .         # merge: remote + local builders
 rnb --auto -- darwin-rebuild switch ...   # pick the reachable builder
 rnb --print dev.ldn | source              # fish: set NIX_CONFIG persistently
 eval "$(rnb --print --posix dev.ldn)"     # bash/sh

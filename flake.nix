@@ -702,17 +702,16 @@
             );
         };
 
-        # colmena here is wrapped with the deploy gate (git-ready): `apply`,
-        # `apply-local` and `upload-keys` refuse unless the repo is on main,
-        # clean, in sync with origin and fully pushed. It is deliberately not an
-        # overlay -- that would gate colmena for every consumer of this flake --
-        # and deliberately the only colmena on PATH, so the gate cannot be
-        # sidestepped by reaching for an unwrapped one.
+        # nh here is wrapped with the deploy gate (git-ready): `os|darwin|home
+        # switch|boot|test` refuse unless the repo is on main, clean, in sync
+        # with origin and fully pushed. It is deliberately not an overlay --
+        # that would gate nh for every consumer of this flake -- and it sits
+        # ahead of the home-packages nh, so plain `nh` in this repo is gated.
         devShells.default = pkgs.mkShell {
           buildInputs = [
             treefmtEval.config.build.wrapper
             pkgs.unstable.prek
-            (import ./pkgs/scripts/colmena-gate.nix { inherit pkgs; })
+            (import ./pkgs/scripts/nh-gate.nix { inherit pkgs; })
             (import ./pkgs/scripts/git-ready.nix { inherit pkgs; })
             pkgs.webrepl_cli
           ];

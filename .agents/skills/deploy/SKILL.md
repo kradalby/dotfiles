@@ -1,6 +1,6 @@
 ---
 name: deploy
-description: Deploy the NixOS/darwin fleet from main with colmena. Use for any fleet deploy, host reboot, or post-deploy verification in this repo.
+description: Deploy the NixOS/darwin fleet from main with nh. Use for any fleet deploy, host reboot, or post-deploy verification in this repo.
 ---
 
 # Deploy the fleet
@@ -9,18 +9,49 @@ description: Deploy the NixOS/darwin fleet from main with colmena. Use for any f
 
 Deploy THIS repo to the hosts declared in `flake.nix` / `machines/`. Do not
 write features, do not open PRs, do not deploy another repo. A host not in
-`machines/` is out of scope — say so and stop. One host per deploy; never
-`colmena apply` without `--on`.
+`machines/` is out of scope — say so and stop. One host per deploy.
+
+`<target>` below is the host's tailnet name, the dotted name with `-` for `.`
+(`core.oracldn` → `core-oracldn`). nh picks the `nixosConfigurations` entry
+named after `--target-host`, and the flake carries a dot-free copy of every
+host for garnix, so no `-H` is needed. Pass `-H <node>` only when the target
+is an IP (first deploy, before the host joins tailscale).
+
+## nh quick reference
+
+Run from the repo root, as `kradalby`, inside the devShell (direnv). `.` is
+the flake. Everything after `--` goes to `nix build`.
+
+| Task                                               | Command                                                    |
+| -------------------------------------------------- | ---------------------------------------------------------- |
+| Preview a host (copies closure, activates nothing) | `nh os dry-activate . --target-host root@<target>`         |
+| Live switch a remote host                          | `nh os switch . --target-host root@<target>`               |
+| Arm next boot, no unit touched                     | `nh os boot . --target-host root@<target>`                 |
+| Build on the target itself (gigabuilder)           | add `--build-host root@gigabuilder`                        |
+| Bootstrap by IP                                    | `nh os switch . -H <node> --target-host root@<ip>`         |
+| dev.ldn (local)                                    | `nh os switch . -H dev.ldn`                                |
+| Mac (on the Mac)                                   | `nh darwin switch . -H <host>`                             |
+| Mac → remote, build on dev.ldn                     | `rnb --auto -- nh os switch . --target-host root@<target>` |
+| Fresh cache answers                                | append `-- --option narinfo-cache-negative-ttl 0`          |
+| Generations on a host                              | `ssh root@<target> nixos-rebuild list-generations`         |
+
+Builds run on the deploying machine (dev.ldn) and fetch from tsnixcache
+(priority 30) and cachix first, via `nix.settings.substituters`. Fleet hosts
+have `max-jobs = 0` and never build, except `buildOnTarget` hosts (dev.ldn,
+gigabuilder). There is no fleet-wide command: deploy host by host in the
+Order below.
 
 ## Preconditions
 
-`colmena` in this devShell is wrapped: `apply`, `apply-local` and
-`upload-keys` refuse unless the repo is on `main`, clean, in sync with
+`nh` in this devShell is wrapped: `os|darwin|home switch|boot|test` refuse
+unless the repo is on `main`, clean, in sync with
 `origin`, and has nothing unpushed. If it refuses, report the message and
 stop. Do not commit, push, checkout, stash or fetch to make it pass — that is
-the human's call. `git-ready` runs the same check on demand.
+the human's call. `git-ready` runs the same check on demand. The wrapper also
+adds `--use-substitutes` whenever `--target-host` is set, so the target pulls
+from tsnixcache and cachix instead of receiving the whole closure from here.
 
-Never build closures locally — no `nix flake check`, `colmena build` or
+Never build closures locally — no `nix flake check`, `nh os build` or
 `cache-arm`. CI builds every host; a deploy only substitutes. CI is two
 systems, and both must be green for `HEAD`:
 
@@ -40,13 +71,13 @@ evidence, not guesses:
 
     ssh root@<node> nixos-version --json | jq -r .configurationRevision
     git log --oneline <that rev>..HEAD
-    colmena apply dry-activate --on <nodes> --nix-option narinfo-cache-negative-ttl 0
+    nh os dry-activate . --target-host root@<target> -- --option narinfo-cache-negative-ttl 0
 
 The commit range is what is actually landing. A host tens of commits behind is
 not a one-service deploy — it lands the whole backlog, including deliberate
 deletions made months ago.
 
-`dry-activate` pushes the closure and prints which units the switch would
+`dry-activate` builds, copies the closure and prints which units the switch would
 stop, restart and reload; it activates nothing. That list picks the method
 per host (see Execute). Any `building '…'` line for a real package is a cache
 miss — stop it and find out why rather than let dev.ldn build it, under
@@ -61,9 +92,9 @@ One host at a time. Wait for Verify to pass before starting the next.
 Pick the method from the host's dry-activate output:
 
 - **tailscaled (or systemd-networkd) not in the stop/restart list** — live
-  `colmena apply --on <node> --nix-option narinfo-cache-negative-ttl 0`. No
+  `nh os switch . --target-host root@<target> -- --option narinfo-cache-negative-ttl 0`. No
   reboot; a kernel change waits in the boot entry for a later one.
-- **tailscaled restarts** — steps 1–3 below: `apply boot`, read the diff,
+- **tailscaled restarts** — steps 1–3 below: `nh os boot`, read the diff,
   reboot. Typical when a host is behind a nixpkgs bump.
 
 Capture the baseline first — Verify depends on it:
@@ -73,7 +104,7 @@ Capture the baseline first — Verify depends on it:
       --no-legend | awk "{print \$1}" | grep -v @ \
       | xargs -r -I{} sh -c "systemctl is-active --quiet {} || echo {}" | sort'
 
-1.  `colmena apply boot --on <node> --nix-option narinfo-cache-negative-ttl 0`
+1.  `nh os boot . --target-host root@<target> -- --option narinfo-cache-negative-ttl 0`
     — idempotent: yes; self-severing: no. Pushes the closure and arms the next boot. Touches no running unit.
 
     A nixpkgs bump replaces nearly every path, so the target briefly holds two
@@ -108,17 +139,17 @@ Capture the baseline first — Verify depends on it:
 
 3.  `ssh root@<node> systemctl reboot` — idempotent: yes; self-severing: yes.
 
-**Never a live switch when tailscaled restarts, and never `--reboot`.**
-colmena rides SSH over the tailnet. An activation that restarts tailscaled
-severs colmena's own connection, `switch-to-configuration` dies as a child of that session, and the
-host is left with units **stopped but never started** — reporting
+**Never a live switch when tailscaled restarts, and never switch-then-reboot.**
+nh rides Tailscale SSH, and that session lives inside tailscaled. An activation
+that restarts tailscaled severs it, `switch-to-configuration` dies as a child
+of that session, and the host is left with units **stopped but never started** — reporting
 `is-system-running: running` with zero failed units, because a cleanly stopped
 unit is invisible to the failed count. That gutted storage.ldn for 26 hours
-and took 12 services down on core.oracldn. `apply boot` cannot sever anything
+and took 12 services down on core.oracldn. `nh os boot` cannot sever anything
 because it never restarts a unit, and the reboot then activates the whole
 generation from PID 1, which also repairs a previously half-applied one.
-`--reboot` is a live switch _plus_ a reboot, so it keeps the severing window —
-it is not the safe option.
+A switch followed by a reboot keeps the severing window — it is not the safe
+option.
 
 ### Order
 
@@ -137,13 +168,14 @@ it is not the safe option.
 ### Per-host
 
 - **dev.ldn** is this workstation. `ssh root@dev-ldn` is SSH-to-self and is
-  refused; that is correct, not drift. Deploy it locally:
-  `colmena apply-local --sudo --node dev.ldn`. The gated colmena puts
-  `/run/wrappers/bin` first, so `--sudo` finds the setuid sudo rather than the
-  plain one in `sw/bin`; no PATH prefix is needed. If activation ever dies on
-  `must be owned by uid 0`, the devShell is serving a stale colmena — `rm -rf
-.direnv`, because nix-direnv watches `flake.nix`/`flake.lock` and not the files
-  they import.
+  refused; that is correct, not drift. Deploy it locally, as `kradalby` (nh
+  refuses to run as root and calls sudo itself):
+  `nh os switch . -H dev.ldn -- --option narinfo-cache-negative-ttl 0`. The gated nh puts
+  `/run/wrappers/bin` first, so it finds the setuid sudo rather than the plain
+  one in `sw/bin`. If activation ever dies on `must be owned by uid 0`, the
+  devShell is serving a stale nh — `rm -rf .direnv`, because nix-direnv
+  watches `flake.nix`/`flake.lock` and not the files they import.
+- **gigabuilder** builds on itself: add `--build-host root@gigabuilder`.
 - **gigabuilder + garnix** are one deploy, in a CI-idle window. garnix is
   gigabuilder's Incus guest, so a gigabuilder reboot bounces CI too. Wait
   until both hold:
@@ -154,7 +186,7 @@ it is not the safe option.
 
   The second because that workflow pushes into tsnixcache on gigabuilder. A
   garnix restart cancels pending builds rather than resuming them. Then
-  `apply boot` both, reboot gigabuilder once: the guest restarts with it and
+  `nh os boot` both, reboot gigabuilder once: the guest restarts with it and
   boots its armed generation, so CI goes down once, not twice. Check the
   queue again right before the reboot.
 
@@ -162,11 +194,11 @@ it is not the safe option.
   is true, so a zfs bump decides whether it boots at all. It also serves tsnixcache, which the rest of the
   fleet substitutes from.
 - **`dev.ldn`, `home.ldn`, `storage.ldn`, `ts1p.ldn`** are guests of a
-  different Incus server, `ldn` (10.65.0.15), which is not a colmena node in
-  this repo. Deploying gigabuilder does not touch them. Confirm with
+  different Incus server, `ldn` (10.65.0.15), which is not a host in this
+  repo. Deploying gigabuilder does not touch them. Confirm with
   `incus list ldn:` and `incus list gigabuilder:` rather than assuming.
-- **darwin** (`kratail2`, `krair`) are not colmena nodes; deploy on the
-  machine itself with `darwin-rebuild switch --flake .#<host>`.
+- **darwin** (`kratail2`, `krair`): nh has no `--target-host` for darwin;
+  deploy on the machine itself with `nh darwin switch . -H <host>`.
   `kradalby-llm` is standalone home-manager:
   `home-manager switch --flake .#ubuntu@kradalby-llm -b backup`.
 
@@ -279,7 +311,7 @@ Ask before these, and only these. Everything else proceeds.
 - Deploying `gigabuilder` — it bounces its Incus guests, including CI.
 - A rollback that Rollback says cannot be rolled back.
 - garnix red on HEAD, or the x86 checks amber for over an hour.
-- Anything the wrapped `colmena` refused.
+- Anything the wrapped `nh` refused.
 
 ## Notes
 
@@ -287,7 +319,7 @@ Ask before these, and only these. Everything else proceeds.
   hosts lagging main together is normal.
 - `root@<node>` works over Tailscale SSH; `sudo` as `kradalby` over ssh does
   not (no askpass). Use root.
-- `colmena apply` on a cold cache can outrun a tool-call timeout. Run it in
+- `nh os switch` on a cold cache can outrun a tool-call timeout. Run it in
   the workspace's shell pane and watch, not inline.
-- `rnb -m dev-ldn -- colmena apply …` forces the build onto a remote builder.
-  On dev.ldn `rnb` must run as root — `kradalby` is not a nix trusted-user there.
+- `rnb --auto -- nh os switch . --target-host root@<target>` builds on dev.ldn
+  from a Mac. On dev.ldn itself `rnb` is not needed: it is the builder.

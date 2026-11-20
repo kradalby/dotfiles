@@ -8,7 +8,7 @@
 {
   environment.homeBinInPath = true;
   # HM's activation service is a bare oneshot, so switch-to-configuration
-  # (colmena/nixos-rebuild) won't re-run it on a live switch -- it only fires
+  # (nh/nixos-rebuild) won't re-run it on a live switch -- it only fires
   # at boot via multi-user.target, leaving user services on the old generation
   # (i.e. new versions never adopted on deploy). RemainAfterExit keeps it
   # "active (exited)" so switch reconciles it on every change.

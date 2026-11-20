@@ -11,7 +11,6 @@ DIR_PATTERNS=(
   'nix-build-*'
   'nix-develop-*'
   'auth-agent*'
-  'colmena-assets-*'
   'claude-*'
   'commit-stash'
   'go-build*'
