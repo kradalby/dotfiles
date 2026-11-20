@@ -29,12 +29,8 @@ in
       nixpkgs ? pkgs,
       homeBase ? null,
       name,
-      tags ? [ ],
       modules ? [ ],
-      targetHost ? null,
-      allowLocalDeployment ? false,
-      # Default off: nodes don't build, neither as a colmena target
-      # (buildOnTarget) nor locally (max-jobs = 0 below). dev.ldn is the
+      # Default off: nodes don't build (max-jobs = 0 below). dev.ldn is the
       # sole builder and opts back in with buildOnTarget = true.
       buildOnTarget ? false,
     }:
@@ -54,15 +50,6 @@ in
           { nix.settings.max-jobs = lib.mkIf (!buildOnTarget) 0; }
 
           (./.. + "/machines/${name}")
-
-          {
-            _module.args = {
-              inherit tags;
-              inherit targetHost;
-              inherit allowLocalDeployment;
-              inherit buildOnTarget;
-            };
-          }
         ]
         ++ (
           if homeBase == null then
@@ -105,36 +92,4 @@ in
       };
     };
 
-  mkColmenaFromNixOSConfigurations =
-    nixosConfigurations:
-    let
-      base = {
-        meta = {
-          # Overlay-free on purpose: colmena prepends these overlays to every
-          # node's own nixpkgs.overlays, so a set that already carries ours
-          # applies them twice. Non-idempotent ones (list appends) then give
-          # deploys different derivations than the nixosConfigurations CI builds.
-          nixpkgs = import pkgs { system = "x86_64-linux"; };
-
-          specialArgs = {
-            inherit inputs;
-          };
-        };
-      }
-      // (builtins.mapAttrs (name: value: {
-        deployment = {
-          inherit (value._module.args) buildOnTarget;
-          # Replace hostname with tailscale hostname to use tailscale auth.
-          targetHost =
-            if value._module.args.targetHost != null then
-              value._module.args.targetHost
-            else
-              builtins.replaceStrings [ "." ] [ "-" ] name;
-          inherit (value._module.args) tags;
-          inherit (value._module.args) allowLocalDeployment;
-        };
-        imports = value._module.args.modules;
-      }) nixosConfigurations);
-    in
-    base;
 }
