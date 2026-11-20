@@ -104,7 +104,7 @@ upstream backoff, worth reporting).
 
 ### Deploy
 
-- `colmena apply --on garnix` — the VM is on the tailnet, so colmena reaches it by name.
+- `nh os switch . --target-host root@garnix` — the VM is on the tailnet, so nh reaches it by name.
 - Incus/VM config (CPU pinning, sizing, nested virt) is OpenTofu in
   `~/git/infrastructure`, never ad-hoc `incus config set`.
 - A gigabuilder deploy restarts `incus`, bouncing the VM + the `:8443` API; it

@@ -19,8 +19,8 @@ Create a draft pull request for the current branch.
   - The whole body should read like this:
 
     ```
-    `tailscaled` restarts sever colmena's own connection, so new units never
-    start. Deploy with `apply boot` and reboot instead.
+    `tailscaled` restarts sever the deploy's own SSH connection, so new units
+    never start. Deploy with `nh os boot` and reboot instead.
 
     Fixes #1234
     ```
