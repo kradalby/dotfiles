@@ -189,3 +189,43 @@ func TestRemoveWorktreeProtectsLiveDescendants(t *testing.T) {
 		})
 	}
 }
+
+// repos fans git calls out concurrently; results must still land in the right
+// repo and worktree, sorted newest-first.
+func TestRepos(t *testing.T) {
+	root := t.TempDir()
+	origGit, origWT := gitRoot, wtRoot
+	t.Cleanup(func() { gitRoot, wtRoot = origGit, origWT })
+	gitRoot, wtRoot = filepath.Join(root, "git"), filepath.Join(root, "worktrees")
+
+	// Fake git: `git -C <dir> log|worktree ...` prints <dir>/ts or <dir>/wt.
+	bin := filepath.Join(root, "bin")
+	require.NoError(t, os.MkdirAll(bin, 0o755))
+	require.NoError(t, os.WriteFile(filepath.Join(bin, "git"), []byte("#!/bin/sh\ncase \"$3\" in log) cat \"$2/ts\";; worktree) cat \"$2/wt\";; esac\n"), 0o755))
+	t.Setenv("PATH", bin+string(os.PathListSeparator)+os.Getenv("PATH"))
+
+	write := func(dir, name, body string) {
+		t.Helper()
+		require.NoError(t, os.MkdirAll(dir, 0o755))
+		require.NoError(t, os.WriteFile(filepath.Join(dir, name), []byte(body), 0o644))
+	}
+	a, b := filepath.Join(gitRoot, "a"), filepath.Join(gitRoot, "b")
+	ax, ay := filepath.Join(wtRoot, "a", "x"), filepath.Join(wtRoot, "a", "y")
+	require.NoError(t, os.MkdirAll(filepath.Join(a, ".git"), 0o755))
+	require.NoError(t, os.MkdirAll(filepath.Join(b, ".git"), 0o755))
+	write(a, "ts", "100")
+	write(a, "wt", "worktree "+a+"\n\nworktree "+ax+"\nbranch refs/heads/x\n\nworktree "+ay+"\nbranch refs/heads/y\n")
+	write(ax, "ts", "300")
+	write(ay, "ts", "150")
+	write(b, "ts", "200")
+	write(b, "wt", "worktree "+b+"\n")
+
+	got := repos()
+	require.Len(t, got, 2)
+	require.Equal(t, "a", got[0].Name)
+	require.Equal(t, time.Unix(300, 0), got[0].Active)
+	require.Equal(t, []string{"x", "y"}, []string{got[0].Worktrees[0].Branch, got[0].Worktrees[1].Branch})
+	require.Equal(t, time.Unix(150, 0), got[0].Worktrees[1].LastActive)
+	require.Equal(t, "b", got[1].Name)
+	require.Equal(t, time.Unix(200, 0), got[1].Active)
+}
