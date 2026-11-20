@@ -549,7 +549,7 @@
           }) (builtins.attrNames hosts)
         );
 
-      # darwin-rebuild switch --flake .#kramacbook
+      # nh darwin switch . -H <host>
       darwinConfigurations =
         let
           kratail2Machine = {

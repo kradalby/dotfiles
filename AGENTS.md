@@ -14,9 +14,9 @@ with a requested change, flag it to kradalby without modifying the conventions.
 
 ## Commands
 
-- `nix flake check`: canonical check (x86_64-linux); garnix runs the same plus host builds. Darwin is validated locally via `darwin-rebuild`. Run before pushing.
+- `nix flake check`: canonical check (x86_64-linux); garnix runs the same plus host builds. Darwin is validated locally via `nh darwin build .`. Run before pushing.
 - `nix fmt` formats everything (treefmt); `prek run --all-files` adds shellcheck and the pre-commit builtins. CI enforces `checks.x86_64-linux.formatting`.
-- `nixos-rebuild test --flake .#<hostname>` / `darwin-rebuild switch --flake .#<hostname>` apply to a host. For service changes or new hosts, run it and note the outcome in the PR.
+- Apply to a host with nh, never bare `nixos-rebuild`/`darwin-rebuild`/`colmena`: follow `.agents/skills/deploy`. For service changes or new hosts, deploy and note the outcome in the PR.
 - `nix build .#packages.${system}.<name>` builds one package.
 - `statix` and `deadnix` before large refactors.
 - Fetching/deploying: `nurl <url>` or `nix-prefetch-git` for pins, `nix-init` for new derivations, `nh os switch . --target-host root@<host>` to deploy (see `.agents/skills/deploy`).

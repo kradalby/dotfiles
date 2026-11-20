@@ -14,7 +14,7 @@ client-supplied `builders`/`max-jobs` from trusted users).
 ```
 rnb dev.ldn -- nix build .#foo            # exec, like env
 rnb -m dev-ldn -- nh os switch .         # merge: remote + local builders
-rnb --auto -- darwin-rebuild switch ...   # pick the reachable builder
+rnb --auto -- nh darwin switch .          # pick the reachable builder
 rnb --print dev.ldn | source              # fish: set NIX_CONFIG persistently
 eval "$(rnb --print --posix dev.ldn)"     # bash/sh
 rnb --print --clear | source              # reset
