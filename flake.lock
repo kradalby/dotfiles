@@ -308,6 +308,26 @@
         "type": "github"
       }
     },
+    "disko": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs-unstable"
+        ]
+      },
+      "locked": {
+        "lastModified": 1795168368,
+        "narHash": "sha256-D35n2Q2v1KrlF9LS/pFl8Z3EBMJW6qvPw5q4HMbXXLg=",
+        "owner": "nix-community",
+        "repo": "disko",
+        "rev": "44761d4f745b95e037458a0e57133c5700c8e320",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "disko",
+        "type": "github"
+      }
+    },
     "flake-checks": {
       "inputs": {
         "flake-utils": [
@@ -1917,6 +1937,7 @@
         "claude-ui-ux-pro-max": "claude-ui-ux-pro-max",
         "codex-plugin-cc": "codex-plugin-cc",
         "darwin": "darwin",
+        "disko": "disko",
         "flake-utils": "flake-utils",
         "garnix-ci": "garnix-ci",
         "garnixlogs": "garnixlogs",

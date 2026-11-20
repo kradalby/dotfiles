@@ -146,6 +146,11 @@
       inputs.systems.follows = "flake-utils/systems";
     };
 
+    disko = {
+      url = "github:nix-community/disko";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+
     hugin = {
       url = "github:kradalby/hugin";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
@@ -557,6 +562,20 @@
               ];
               modules = with inputs; [
                 hugin.nixosModules.default
+              ];
+            };
+
+            "core.giga" = box.nixosBox {
+              arch = "x86_64-linux";
+              name = "core.giga";
+              tags = [
+                "x86"
+                "giga"
+              ];
+              # TODO(install): drop once it has joined the tailnet.
+              targetHost = "185.243.216.95";
+              modules = with inputs; [
+                disko.nixosModules.disko
               ];
             };
 
