@@ -145,7 +145,7 @@ Flags:
 Examples:
   rnb dev.ldn -- nix build .#foo
   rnb -m dev-ldn -- nh os switch .
-  rnb --auto -- darwin-rebuild switch --flake .#krair
+  rnb --auto -- nh darwin switch . -H krair
   rnb --print dev.ldn | source           # fish: set NIX_CONFIG in this shell
   eval "$(rnb --print --posix dev.ldn)"  # bash/sh
 `)
