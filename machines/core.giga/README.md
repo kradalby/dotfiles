@@ -39,6 +39,19 @@ Placement follows what a disk loss costs:
 (`software`, `pictures`, `backup`, `books`, `sync`), plus `album`, `garage`,
 `files`, `replica`.
 
+## Install
+
+`disko.nix` is the disk layout. From the installer, after the disk ids are
+filled in:
+
+```sh
+nix run github:nix-community/disko -- --mode destroy,format,mount --flake .#core.giga
+nixos-generate-config --no-filesystems --root /mnt
+nixos-install --flake .#core.giga
+```
+
+The first command erases all eleven disks.
+
 ## Mail reputation
 
 DNS blocklist lookup of `.95`, `.96`, both transit v6 and the routed prefix:

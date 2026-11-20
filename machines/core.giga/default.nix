@@ -7,6 +7,7 @@
     ../../common/zfs.nix
 
     ./hardware-configuration.nix
+    ./disko.nix
     ./networking.nix
   ];
 
