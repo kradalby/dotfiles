@@ -397,11 +397,6 @@
             "core.oracldn" = box.nixosBox {
               arch = "aarch64-linux";
               name = "core.oracldn";
-              tags = [
-                "arm64"
-                "oracle"
-                "oracldn"
-              ];
               modules = with inputs; [
                 headscale.nixosModules.default
                 golink.nixosModules.default
@@ -417,11 +412,6 @@
             "dev.oracfurt" = box.nixosBox {
               arch = "aarch64-linux";
               name = "dev.oracfurt";
-              tags = [
-                "arm64"
-                "oracle"
-                "oracfurt"
-              ];
               modules = with inputs; [
                 tsidp.nixosModules.default
               ];
@@ -430,10 +420,6 @@
             "home.ldn" = box.nixosBox {
               arch = "x86_64-linux";
               name = "home.ldn";
-              tags = [
-                "x86"
-                "ldn"
-              ];
               modules = with inputs; [
                 nefit-homekit.nixosModules.default
                 tasmota-homekit.nixosModules.default
@@ -444,18 +430,12 @@
             # "rpi.vetle" = box.nixosBox {
             #   arch = "aarch64-linux";
             #   name = "home.ldn";
-            #   tags = ["arm64" "ldn"];
             # };
 
             "dev.ldn" = box.nixosBox {
               arch = "x86_64-linux";
               homeBase = home-manager;
               name = "dev.ldn";
-              tags = [
-                "x86"
-                "ldn"
-              ];
-              allowLocalDeployment = true;
               # Sole builder for the fleet.
               buildOnTarget = true;
               modules = with inputs; [
@@ -467,16 +447,11 @@
               arch = "aarch64-linux";
               # AI tools + userland (home/ai.nix) come with home-manager, same
               # as the other workstation-class hosts. The SD image stays a bare
-              # bootstrap; everything above that is deployed here via colmena.
+              # bootstrap; everything above that is deployed here.
               homeBase = home-manager;
               name = "rpi5.ldn";
-              tags = [
-                "arm64"
-                "ldn"
-              ];
-              # LAN IP for the first deploy before the host joins
-              # tailscale. Drop to null once rpi5-ldn.<tailnet> resolves.
-              # targetHost = "10.65.0.196";
+              # First deploy, before it joins tailscale:
+              #   nh os switch . -H rpi5.ldn --target-host root@10.65.0.196
               modules = with inputs; [
                 # raspberry-pi-5 modules consume nixos-raspberrypi as a
                 # module argument (normally set by the flake's own
@@ -505,21 +480,11 @@
             "storage.ldn" = box.nixosBox {
               arch = "x86_64-linux";
               name = "storage.ldn";
-              tags = [
-                "x86"
-                "ldn"
-              ];
             };
 
             "ts1p.ldn" = box.nixosBox {
               arch = "x86_64-linux";
               name = "ts1p.ldn";
-              tags = [
-                "x86"
-                "ldn"
-              ];
-              # Small VM: build on the deployer, not the target.
-              buildOnTarget = false;
               modules = with inputs; [
                 ts1p.nixosModules.default
               ];
@@ -530,10 +495,6 @@
               arch = "x86_64-linux";
               homeBase = home-manager;
               name = "proton.ldn";
-              tags = [
-                "x86"
-                "ldn"
-              ];
             };
 
             # Remote backup / syncthing mirror at bassan (Sebastian's house);
@@ -541,20 +502,11 @@
             "storage.bassan" = box.nixosBox {
               arch = "x86_64-linux";
               name = "storage.bassan";
-              tags = [
-                "x86"
-                "bassan"
-              ];
             };
 
             "core.tjoda" = box.nixosBox {
               arch = "x86_64-linux";
               name = "core.tjoda";
-              tags = [
-                "x86"
-                "router"
-                "tjoda"
-              ];
               modules = with inputs; [
                 hugin.nixosModules.default
               ];
@@ -564,14 +516,9 @@
             "gigabuilder" = box.nixosBox {
               arch = "x86_64-linux";
               name = "gigabuilder";
-              tags = [
-                "x86"
-                "builder"
-              ];
               # No upstream builder to offload to, so build on the target (32 cores).
               buildOnTarget = true;
-              # Deploys reach it by tailnet name; uncomment to bootstrap by IP.
-              # targetHost = "194.32.107.146";
+              # Bootstrap by IP: --target-host root@194.32.107.146
               modules = with inputs; [
                 tsnixcache.nixosModules.tsnixcache
               ];
@@ -581,24 +528,18 @@
             "garnix" = box.nixosBox {
               arch = "x86_64-linux";
               name = "garnix";
-              tags = [
-                "x86"
-                "ci"
-                "builder"
-              ];
               modules = with inputs; [
                 garnixlogs.nixosModules.default
               ];
-              # Deploys reach it by tailnet name; uncomment to bootstrap by IP.
-              # targetHost = "10.68.10.10";
+              # Bootstrap by IP: --target-host root@10.68.10.10
             };
           };
         in
         # garnix's attribute matcher is dot-delimited, so it can't build
         # nixosConfigurations whose names contain '.'. Duplicate each host
         # under a dot-free key (dev.ldn -> dev-ldn) so garnix builds them.
-        # Dotted originals stay canonical for colmena/deploy; the dupes are
-        # filtered back out of colmena below. Drop once garnix handles
+        # The dupes also match tailnet names, so `nh os switch --target-host
+        # root@dev-ldn` picks its config without -H. Drop once garnix handles
         # dotted/quoted names (see home/fish.nix TODO).
         hosts
         // builtins.listToAttrs (
@@ -645,20 +586,6 @@
           };
         };
       };
-
-      # Deploy each host once: drop the dot-free dupes garnix needs (dev.ldn ->
-      # dev-ldn), i.e. any name that is the de-dotted form of a dotted host.
-      colmena = box.mkColmenaFromNixOSConfigurations (
-        let
-          cfgs = self.nixosConfigurations;
-          isDupe =
-            name:
-            builtins.any (
-              n: nixpkgs-stable.lib.hasInfix "." n && builtins.replaceStrings [ "." ] [ "-" ] n == name
-            ) (builtins.attrNames cfgs);
-        in
-        nixpkgs-stable.lib.filterAttrs (name: _: !isDupe name) cfgs
-      );
     }
     // flake-utils.lib.eachSystem [ "x86_64-linux" "aarch64-darwin" ] (
       system:
