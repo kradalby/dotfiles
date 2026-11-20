@@ -19,6 +19,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/cenkalti/backoff/v5"
@@ -33,6 +34,11 @@ const (
 	readTimeout  = 15 * time.Second
 	spawnTimeout = 5 * time.Minute
 )
+
+// procs caps concurrent read subprocesses: the index fans out one git call
+// per repo and worktree, hundreds in all, and serially that outgrew the probe
+// timeout.
+var procs = make(chan struct{}, 8)
 
 var (
 	gitRoot = envOr("GIT_ROOT", filepath.Join(home(), "git"))
@@ -111,7 +117,7 @@ func repos() []repo {
 		slog.Error("read git root", "dir", gitRoot, "err", err)
 		return nil
 	}
-	var out []repo
+	var names []string
 	for _, e := range entries {
 		if !e.IsDir() {
 			continue
@@ -119,13 +125,21 @@ func repos() []repo {
 		if _, err := os.Stat(filepath.Join(gitRoot, e.Name(), ".git")); err != nil {
 			continue
 		}
-		wts := worktreesFor(e.Name())
-		active := lastActive(filepath.Join(gitRoot, e.Name()))
-		if len(wts) > 0 && wts[0].LastActive.After(active) { // wts sorted newest-first
-			active = wts[0].LastActive
-		}
-		out = append(out, repo{Name: e.Name(), Worktrees: wts, Active: active})
+		names = append(names, e.Name())
 	}
+	out := make([]repo, len(names))
+	var wg sync.WaitGroup
+	for i, name := range names {
+		wg.Go(func() {
+			wts := worktreesFor(name)
+			active := lastActive(filepath.Join(gitRoot, name))
+			if len(wts) > 0 && wts[0].LastActive.After(active) { // wts sorted newest-first
+				active = wts[0].LastActive
+			}
+			out[i] = repo{Name: name, Worktrees: wts, Active: active}
+		})
+	}
+	wg.Wait()
 	slices.SortFunc(out, func(a, b repo) int { return b.Active.Compare(a.Active) })
 	return out
 }
@@ -153,9 +167,11 @@ func worktreesFor(name string) []worktree {
 		return nil
 	}
 	res := parseWorktrees(out, filepath.Join(wtRoot, name)+"/")
+	var wg sync.WaitGroup
 	for i := range res {
-		res[i].LastActive = lastActive(res[i].path)
+		wg.Go(func() { res[i].LastActive = lastActive(res[i].path) })
 	}
+	wg.Wait()
 	slices.SortFunc(res, func(a, b worktree) int { return b.LastActive.Compare(a.LastActive) })
 	return res
 }
@@ -363,6 +379,8 @@ func validateBranch(name string) error {
 // keeps a child that daemonizes (holding the pipe) from stalling us after the
 // kill.
 func output(name string, args ...string) ([]byte, error) {
+	procs <- struct{}{}
+	defer func() { <-procs }()
 	ctx, cancel := context.WithTimeout(context.Background(), readTimeout)
 	defer cancel()
 	cmd := exec.CommandContext(ctx, name, args...)
