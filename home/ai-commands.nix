@@ -6,6 +6,7 @@
 }:
 let
   commandDirectory = ../rc/claude/commands;
+  pbtExplorer = ../rc/skills/pbt-explorer;
 
   # Claude and OpenCode consume these files directly. Codex and Hermes use the
   # Agent Skills standard, so wrap the same source without duplicating prompts.
@@ -88,8 +89,12 @@ in
 {
   home.file =
     commandSkills
-    // lib.optionalAttrs config.my.packages.ai.codex codexSkills
+    // lib.optionalAttrs config.my.packages.ai.codex (
+      codexSkills // { ".codex/skills/pbt-explorer".source = pbtExplorer; }
+    )
     // {
+      ".agents/skills/pbt-explorer".source = pbtExplorer;
+      ".claude/skills/pbt-explorer".source = pbtExplorer;
       ".claude/commands" = {
         source = commandDirectory;
         recursive = true;
