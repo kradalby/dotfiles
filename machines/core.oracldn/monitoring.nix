@@ -31,6 +31,23 @@ let
     ) allHosts
   );
 
+  sdCardWriteRules = lib.concatMap (
+    host:
+    let
+      device = inputs.self.nixosConfigurations.${host}.config.monitoring.sdCardDevice or null;
+    in
+    lib.optional (device != null) {
+      alert = "SDCardSustainedWrites";
+      expr = ''increase(node_disk_written_bytes_total{job="nodes",host=${builtins.toJSON host},device=${builtins.toJSON device}}[15m]) > 1024 * 1024'';
+      for = "2h";
+      labels.severity = "warning";
+      annotations = {
+        summary = "Sustained SD card writes on {{ $labels.host }}";
+        description = "Writes exceeded 1 MiB per 15 minutes for two hours. Check active writers with sudo iotop -oPa.";
+      };
+    }
+  ) allHosts;
+
   # Hosts with ZFS pools (have zfs_exporter enabled)
   zfsHosts = [
     # "core-terra"
@@ -1076,16 +1093,6 @@ in
                 };
               }
               {
-                alert = "SDCardSustainedWrites";
-                expr = ''increase(node_disk_written_bytes_total{job="nodes",host="rpisc",device="mmcblk0"}[15m]) > 1024 * 1024'';
-                for = "2h";
-                labels.severity = "warning";
-                annotations = {
-                  summary = "Sustained SD card writes on {{ $labels.host }}";
-                  description = "Writes exceeded 1 MiB per 15 minutes for two hours. Check active writers with sudo iotop -oPa.";
-                };
-              }
-              {
                 alert = "InstanceLowDiskAbs";
                 expr = "node_filesystem_avail_bytes{${diskFilter}} / 1024 / 1024 < 1024";
                 for = "5m";
@@ -1419,7 +1426,8 @@ in
                 };
               }
             ]
-            ++ smartctlMissingRules;
+            ++ smartctlMissingRules
+            ++ sdCardWriteRules;
           }
 
           # Network and connectivity alerts
