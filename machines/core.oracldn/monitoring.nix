@@ -17,6 +17,7 @@ let
     "home-ldn"
     "storage-ldn"
     "storage-bassan"
+    "rpisc"
     "rpi5-ldn"
     "gigabuilder"
     "ts1p-ldn"

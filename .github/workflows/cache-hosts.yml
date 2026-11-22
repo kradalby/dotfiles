@@ -28,6 +28,7 @@ jobs:
       matrix:
         include:
           - host: core.oracldn
+          - host: rpisc
           - host: dev.oracfurt
           # nixos-raspberrypi's overlays give rpi5 its own python, so it builds
           # what the others substitute, and those tests lose races under

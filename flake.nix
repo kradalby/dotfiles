@@ -445,6 +445,11 @@
               buildOnTarget = true;
             };
 
+            rpisc = box.nixosBox {
+              arch = "aarch64-linux";
+              name = "rpisc";
+            };
+
             "rpi5.ldn" = box.nixosBox {
               arch = "aarch64-linux";
               # AI tools + userland (home/ai.nix) come with home-manager, same
