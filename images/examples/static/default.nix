@@ -1,6 +1,6 @@
 {
   networking.hostName = "edge-01";
-  age.secrets.tailscale-preauthkey.file = ./join.age;
+  services.tailscale.authKeyFile = ./join.key;
   networking.useDHCP = false;
   systemd.network.networks."10-uplink" = {
     matchConfig.MACAddress = "02:00:00:00:00:10";

@@ -1,8 +1,7 @@
 { inputs }:
 let
   inherit (inputs) nixpkgs-stable nixos-raspberrypi image-config;
-  installed = [
-    inputs.ragenix.nixosModules.age
+  hostModules = [
     inputs.tailscale.nixosModules.default
     ../common/bootstrap-common.nix
     (image-config + "/default.nix")
@@ -12,7 +11,7 @@ let
     name: boardModules:
     (nixos-raspberrypi.lib.nixosSystemFull {
       modules =
-        installed
+        hostModules
         ++ boardModules
         ++ [
           nixos-raspberrypi.nixosModules.sd-image
@@ -22,7 +21,7 @@ let
 
   server = nixpkgs-stable.lib.nixosSystem {
     system = "x86_64-linux";
-    modules = installed ++ [
+    modules = hostModules ++ [
       ({ lib, ... }: {
         networking.hostName = lib.mkDefault "bootstrap";
         boot.initrd.availableKernelModules = [
@@ -43,24 +42,23 @@ let
   installer = nixpkgs-stable.lib.nixosSystem {
     system = "x86_64-linux";
     modules = [
-      ({ pkgs, lib, ... }: {
+      ({ lib, ... }: {
         image.modules.iso-installer = {
+          imports = hostModules;
+          networking.hostName = lib.mkDefault target.networking.hostName;
+          # The upstream live profile uses NetworkManager; the host profiles use networkd.
+          networking.networkmanager.enable = lib.mkForce false;
           image.baseName = lib.mkForce "${target.networking.hostName}-installer";
           boot.zfs.forceImportRoot = false;
           # Each fresh join key produces a new ISO; favor build time.
           isoImage.squashfsCompression = "zstd -Xcompression-level 3";
-          isoImage.storeContents = [ target.system.build.toplevel ];
-          isoImage.contents = [
-            {
-              source = pkgs.writeText "target-system" (toString target.system.build.toplevel);
-              target = "/provision/target-system";
-            }
-          ]
-          ++ lib.optional (builtins.pathExists (image-config + "/installer-identity.age")) {
-            source = image-config + "/installer-identity.age";
-            target = "/provision/installer-identity.age";
+          systemd.services.install-bootstrap = {
+            description = "Install the mounted target and hand off the live identity";
+            environment.TARGET_SYSTEM = toString target.system.build.toplevel;
+            path = [ "/run/current-system/sw" ];
+            serviceConfig.Type = "oneshot";
+            script = builtins.readFile ./install.sh;
           };
-          environment.systemPackages = [ pkgs.age ];
         };
       })
     ];

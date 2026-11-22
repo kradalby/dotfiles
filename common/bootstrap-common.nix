@@ -1,11 +1,9 @@
 {
   config,
   lib,
-  pkgs,
   ...
 }:
 let
-  join = config.age.secrets.tailscale-preauthkey or null;
   sshKeys = import ../metadata/ssh.nix;
 in
 {
@@ -21,15 +19,8 @@ in
         dhcpV4Config.RouteMetric = 2048;
       };
 
-  # With userborn, agenix decrypts at boot, after the image has its host identity.
-  services.userborn.enable = true;
-  systemd.services.agenix-install-secrets = lib.mkIf (config.age.secrets != { }) {
-    before = [ "sysinit.target" ];
-  };
-
   services.openssh = {
     enable = true;
-    openFirewall = lib.mkDefault false;
     settings.PasswordAuthentication = false;
     settings.KbdInteractiveAuthentication = false;
   };
@@ -42,13 +33,8 @@ in
     openssh.authorizedKeys.keys = sshKeys.main ++ sshKeys.kradalby;
   };
 
-  services.tailscale = {
-    enable = true;
-    # The upstream unit reads this file into argv. Pass the CLI a file reference.
-    authKeyFile = lib.mkIf (join != null) (pkgs.writeText "join-key-path" "file:${join.path}");
-    extraUpFlags = [ "--ssh" ];
-  };
-  systemd.services.tailscaled-autoconnect = lib.mkIf (join != null) {
+  services.tailscale.enable = true;
+  systemd.services.tailscaled-autoconnect = lib.mkIf (config.services.tailscale.authKeyFile != null) {
     serviceConfig.Restart = "on-failure";
     serviceConfig.RestartSec = "15s";
   };
