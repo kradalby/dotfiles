@@ -198,9 +198,9 @@
       inputs."flake-utils".follows = "flake-utils";
     };
 
+    # Hermes patches patchelf for its Linux binaries against its own nixpkgs pin.
     hermes-agent = {
       url = "github:NousResearch/hermes-agent";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
       inputs.home-manager.follows = "home-manager";
     };
 
