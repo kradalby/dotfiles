@@ -1076,6 +1076,16 @@ in
                 };
               }
               {
+                alert = "SDCardSustainedWrites";
+                expr = ''increase(node_disk_written_bytes_total{job="nodes",host="rpisc",device="mmcblk0"}[15m]) > 1024 * 1024'';
+                for = "2h";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "Sustained SD card writes on {{ $labels.host }}";
+                  description = "Writes exceeded 1 MiB per 15 minutes for two hours. Check active writers with sudo iotop -oPa.";
+                };
+              }
+              {
                 alert = "InstanceLowDiskAbs";
                 expr = "node_filesystem_avail_bytes{${diskFilter}} / 1024 / 1024 < 1024";
                 for = "5m";

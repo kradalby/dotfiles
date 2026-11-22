@@ -8,6 +8,33 @@ rule_files:
 evaluation_interval: 1m
 
 tests:
+  - name: rpisc SD writes ignore short updates and warn on sustained traffic
+    interval: 1m
+    input_series:
+      - series: 'node_disk_written_bytes_total{job="nodes",host="rpisc",device="mmcblk0"}'
+        values: "0x10 67108864x140 67108864+131072x150"
+      - series: 'node_disk_written_bytes_total{job="nodes",host="rpisc",device="mmcblk0p2"}'
+        values: "0+131072x310"
+      - series: 'node_disk_written_bytes_total{job="nodes",host="rpi5-ldn",device="mmcblk0"}'
+        values: "0+131072x310"
+    alert_rule_test:
+      - eval_time: 12m
+        alertname: SDCardSustainedWrites
+        exp_alerts: []
+      - eval_time: 150m
+        alertname: SDCardSustainedWrites
+        exp_alerts: []
+      - eval_time: 300m
+        alertname: SDCardSustainedWrites
+        exp_alerts:
+          - exp_labels:
+              job: nodes
+              host: rpisc
+              device: mmcblk0
+              severity: warning
+            exp_annotations:
+              summary: "Sustained SD card writes on rpisc"
+              description: "Writes exceeded 1 MiB per 15 minutes for two hours. Check active writers with sudo iotop -oPa."
   - interval: 1m
     input_series:
       - series: 'probe_success{job="inference-probes", instance="http://llm-rpi5.dalby.ts.net/api/version", target="rpi5-ldn"}'
