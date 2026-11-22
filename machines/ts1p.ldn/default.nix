@@ -1,6 +1,5 @@
 {
   config,
-  lib,
   pkgs,
   ...
 }:
@@ -14,12 +13,6 @@ in
     ../../common/systemd-exporter.nix
     ../../common/tailscale.nix
   ];
-
-  # Work-tailnet admission is managed separately. Keep remote access behind SSH.
-  services.rex.loginServer = {
-    tailscaleServe.enable = false;
-    accounts.kradalby.principals = lib.mkForce [ "peer:${toString config.users.users.kradalby.uid}" ];
-  };
 
   networking = {
     hostName = "ts1p";
@@ -69,7 +62,7 @@ in
   environment.systemPackages = [ pkgs._1password-cli ];
 
   # Reach node (9100) and systemd (9558) exporters over the tailnet. The host
-  # joins the tailscale.com tailnet as node "ts1p-ldn" (separate from the "setec"
+  # joins the personal tailnet as node "ts1p-ldn" (separate from the "setec"
   # tsnet listener), and tailscale0 is not a trusted interface here, so open the
   # exporter ports on it explicitly. node-exporter only opens on my.lan (enp5s0)
   # and systemd-exporter opens globally, but we pin both to tailscale0 to make the
