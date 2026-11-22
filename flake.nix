@@ -6,6 +6,11 @@
   # hosts that need them.
 
   inputs = {
+    image-config = {
+      url = "path:./images/default";
+      flake = false;
+    };
+
     flake-utils.url = "github:numtide/flake-utils";
 
     # "stable" tracks the latest NixOS release (26.05) and is the box default.
@@ -641,6 +646,10 @@
           disk-cleanup = import ./checks/disk-cleanup { inherit pkgs; };
           nix-dev-env = import ./checks/nix-dev-env { inherit pkgs; };
           ac = import ./checks/ac { inherit pkgs; };
+          bootstrap-images = import ./checks/bootstrap-images {
+            pkgs = nixpkgs-stable.legacyPackages.${system};
+            inherit inputs self;
+          };
           backups = import ./checks/backups { inherit pkgs self; };
           sqlite-backup = import ./modules/sqlite-backup/tests.nix { inherit pkgs; };
           sqlite-backup-ordering = import ./modules/sqlite-backup/ordering-test.nix { inherit pkgs; };
@@ -719,59 +728,7 @@
         apps.cache-arm = import ./pkgs/cache-arm.nix { inherit pkgs inputs system; };
       }
     )
-    // (
-      let
-        # Bootstrap secrets come from the environment, never from a tracked
-        # file of a public repo. Build with:
-        #   BOOTSTRAP_WIFI_PSK=... BOOTSTRAP_TS_AUTHKEY=... \
-        #     nix build .#rpi5 --impure
-        # bootstrap-common.nix only WARNS when a variable is unset (pure-eval
-        # flake checks legitimately eval these images with no env), so watch
-        # the build output: a missed warning means an image that joins neither
-        # wifi nor the tailnet. Mint the key one-time (authkey kradalby) — it
-        # still lands in the image's store, which a spent key makes acceptable.
-        bootstrapSecrets = {
-          kadPsk = builtins.getEnv "BOOTSTRAP_WIFI_PSK";
-          tsAuthKey = builtins.getEnv "BOOTSTRAP_TS_AUTHKEY";
-        };
-
-        # Bootstrap SD image for a Raspberry Pi board (nixos-raspberrypi).
-        # nixosSystemFull pulls the Pi-optimised pkgs overlay (ffmpeg,
-        # kodi, libcamera, libpisp). For a headless server that overlay
-        # is a no-op since nothing references those packages, so cost is
-        # zero and future camera/kodi work gets the optimised variants
-        # for free.
-        mkRpiBootstrap =
-          name: boardModules:
-          (inputs.nixos-raspberrypi.lib.nixosSystemFull {
-            specialArgs = { inherit inputs; };
-            modules = [
-              inputs.ragenix.nixosModules.age
-              inputs.tailscale.nixosModules.default
-              ./common
-              ./common/tailscale.nix
-              ./common/bootstrap-common.nix
-              inputs.nixos-raspberrypi.nixosModules.sd-image
-              {
-                nixpkgs.overlays = overlays;
-                my.bootstrap = bootstrapSecrets // {
-                  enable = true;
-                  inherit name;
-                };
-              }
-            ]
-            ++ boardModules;
-          }).config.system.build.sdImage;
-      in
-      {
-        packages.aarch64-linux.rpi4 = mkRpiBootstrap "bootstrap4" [
-          inputs.nixos-raspberrypi.nixosModules.raspberry-pi-4.base
-        ];
-
-        packages.aarch64-linux.rpi5 = mkRpiBootstrap "bootstrap5" [
-          inputs.nixos-raspberrypi.nixosModules.raspberry-pi-5.base
-          inputs.nixos-raspberrypi.nixosModules.raspberry-pi-5.page-size-16k
-        ];
-      }
-    );
+    // {
+      packages = import ./images { inherit inputs; };
+    };
 }

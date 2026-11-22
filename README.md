@@ -2,6 +2,8 @@
 
 This repository uses [Nix](https://nixos.org) for management with [home-manager](https://github.com/nix-community/home-manager) and [nix-darwin](https://github.com/LnL7/nix-darwin) (On macOS).
 
+[Build a per-host server installer, raw disk image or Raspberry Pi SD card](common/bootstrap-images.md).
+
 ## Notable commits
 
 - macOS launchfiles, defaults scripts can be found at [e1e3683](https://github.com/kradalby/dotfiles/tree/e1e3683d81a73ca9f153eb1f4bde251152b33c1c)

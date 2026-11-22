@@ -1,115 +1,55 @@
 {
-  lib,
   config,
+  lib,
   pkgs,
   ...
 }:
-with lib;
 let
-  cfg = config.my.bootstrap;
+  join = config.age.secrets.tailscale-preauthkey or null;
+  sshKeys = import ../metadata/ssh.nix;
 in
 {
-  options.my.bootstrap = {
-    enable = mkEnableOption "Raspberry Pi bootstrap image configuration";
+  system.stateVersion = lib.mkDefault lib.trivial.release;
+  boot.zfs.forceImportRoot = lib.mkDefault false;
+  networking.useNetworkd = lib.mkDefault true;
+  networking.useDHCP = lib.mkDefault true;
+  systemd.network.networks."40-wlan" =
+    lib.mkIf (config.networking.wireless.enable && config.networking.useDHCP)
+      {
+        matchConfig.Name = "wl*";
+        networkConfig.DHCP = "yes";
+        dhcpV4Config.RouteMetric = 2048;
+      };
 
-    name = mkOption {
-      type = types.str;
-      default = "bootstrap";
-      description = "Hostname for the bootstrap image.";
-    };
-
-    kadPsk = mkOption {
-      type = types.str;
-      default = "";
-      description = "WPA passphrase for the _kad wifi network.";
-    };
-
-    tsAuthKey = mkOption {
-      type = types.str;
-      default = "";
-      description = "Tailscale preauth key baked into the image.";
-    };
-
-    tags = mkOption {
-      type = types.listOf types.str;
-      default = [ "tag:server" ];
-      description = "Tailscale tags to advertise on first up.";
-    };
-
-    wifi = mkOption {
-      type = types.bool;
-      default = true;
-      description = "Enable the _kad wifi networks. Off for wired installers.";
-    };
-
-    firewall = mkOption {
-      type = types.bool;
-      default = false;
-      description = ''
-        Let the host config own the firewall. Default false force-disables it
-        (safe on a LAN/wifi rpi). Set true for public-IP installers that must
-        lock SSH to an allowlist.
-      '';
-    };
+  # With userborn, agenix decrypts at boot, after the image has its host identity.
+  services.userborn.enable = true;
+  systemd.services.agenix-install-secrets = lib.mkIf (config.age.secrets != { }) {
+    before = [ "sysinit.target" ];
   };
 
-  config = mkIf cfg.enable {
-    # Bootstrap images are headless — avoid pulling every terminal
-    # emulator's terminfo (ghostty/kitty/wezterm/...) and their gtk/x11
-    # build chain.
-    environment.enableAllTerminfo = mkForce false;
+  services.openssh = {
+    enable = true;
+    openFirewall = lib.mkDefault false;
+    settings.PasswordAuthentication = false;
+    settings.KbdInteractiveAuthentication = false;
+  };
+  networking.firewall.interfaces.tailscale0.allowedTCPPorts = [ 22 ];
+  users.users.root.openssh.authorizedKeys.keys = sshKeys.main;
+  users.users.kradalby = {
+    isNormalUser = true;
+    uid = 21000;
+    extraGroups = [ "wheel" ];
+    openssh.authorizedKeys.keys = sshKeys.main ++ sshKeys.kradalby;
+  };
 
-    # A fresh image is a fresh install of the release it was built from; the
-    # host config pins its own once it takes over.
-    system.stateVersion = mkDefault lib.trivial.release;
-
-    # The sd-image installer profile enables zfs, but the root is ext4, so
-    # nothing to force-import.
-    boot.zfs.forceImportRoot = mkDefault false;
-
-    networking = {
-      hostName = cfg.name;
-      domain = "bootstrap.fap.no";
-      firewall.enable = mkIf (!cfg.firewall) (mkForce false);
-      useDHCP = mkForce true;
-
-      wireless = mkIf cfg.wifi {
-        enable = true;
-        # Only defined when the PSK was actually provided: an empty psk fails
-        # the wpa option's pattern type at eval, which would break pure-eval
-        # flake checks that never pass the env vars.
-        networks = mkIf (cfg.kadPsk != "") {
-          "_kad".psk = cfg.kadPsk;
-          "_kad24".psk = cfg.kadPsk;
-        };
-      };
-    };
-
-    # networkd default DHCP match only covers eth*/en*.
-    systemd.network.networks."40-wlan" = mkIf cfg.wifi {
-      matchConfig.Name = "wl*";
-      networkConfig.DHCP = "yes";
-      dhcpV4Config.RouteMetric = 2048;
-    };
-
-    # Warn (not assert — pure-eval flake checks legitimately eval these images
-    # with no env) when a bootstrap secret wasn't provided; the built image
-    # would boot but join neither wifi nor the tailnet.
-    warnings =
-      optional (cfg.tsAuthKey == "")
-        "bootstrap: BOOTSTRAP_TS_AUTHKEY is unset — build with --impure and the env vars documented in flake.nix"
-      ++ optional (
-        cfg.wifi && cfg.kadPsk == ""
-      ) "bootstrap: BOOTSTRAP_WIFI_PSK is unset — the image will have no wifi credentials";
-
-    services.tailscale = {
-      authKeyFile = mkForce (pkgs.writeText "authkey" cfg.tsAuthKey);
-      inherit (cfg) tags;
-    };
-
-    # Dummy console passwords so you aren't locked out if wifi/ssh
-    # fails on first boot. Change after login.
-    users.users.kradalby.initialPassword = "kradalby";
-    users.users.root.initialPassword = "root";
+  services.tailscale = {
+    enable = true;
+    # The upstream unit reads this file into argv. Pass the CLI a file reference.
+    authKeyFile = lib.mkIf (join != null) (pkgs.writeText "join-key-path" "file:${join.path}");
+    extraUpFlags = [ "--ssh" ];
+  };
+  systemd.services.tailscaled-autoconnect = lib.mkIf (join != null) {
+    serviceConfig.Restart = "on-failure";
+    serviceConfig.RestartSec = "15s";
   };
 }
