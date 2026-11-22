@@ -648,7 +648,7 @@
           ac = import ./checks/ac { inherit pkgs; };
           bootstrap-images = import ./checks/bootstrap-images {
             pkgs = nixpkgs-stable.legacyPackages.${system};
-            inherit inputs self;
+            inherit inputs;
           };
           backups = import ./checks/backups { inherit pkgs self; };
           sqlite-backup = import ./modules/sqlite-backup/tests.nix { inherit pkgs; };
