@@ -1402,6 +1402,18 @@
         "type": "github"
       }
     },
+    "image-config": {
+      "flake": false,
+      "locked": {
+        "path": "./images/default",
+        "type": "path"
+      },
+      "original": {
+        "path": "./images/default",
+        "type": "path"
+      },
+      "parent": []
+    },
     "krapage": {
       "inputs": {
         "flake-checks": "flake-checks_8",
@@ -1928,6 +1940,7 @@
         "homewizard-p1-exporter": "homewizard-p1-exporter",
         "hugin": "hugin",
         "hvor": "hvor",
+        "image-config": "image-config",
         "krapage": "krapage",
         "munin": "munin",
         "nefit-homekit": "nefit-homekit",
