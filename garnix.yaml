@@ -20,4 +20,5 @@ builds:
     - "darwinConfigurations.*"
     - "nixosConfigurations.core-oracldn"
     - "nixosConfigurations.dev-oracfurt"
+    - "nixosConfigurations.rpisc"
     - "nixosConfigurations.rpi5-ldn"
