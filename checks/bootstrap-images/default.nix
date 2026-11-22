@@ -27,6 +27,15 @@ pkgs.testers.runNixOSTest {
   globalTimeout = 900;
   nodes.control = {
     imports = [ inputs.headscale.nixosModules.testkit ];
+    services.headscale.settings.policy = {
+      mode = "file";
+      path = pkgs.writeText "policy.hujson" ''
+        {
+          "acls": [{"action":"accept","src":["*"],"dst":["*:*"]}],
+          "ssh": [{"action":"accept","src":["autogroup:member"],"dst":["autogroup:self"],"users":["root"]}]
+        }
+      '';
+    };
     services.tailscale.enable = true;
     services.tailscale.openFirewall = true;
   };
@@ -54,7 +63,7 @@ pkgs.testers.runNixOSTest {
     control.wait_until_succeeds(ssh + "tailscale status")
     first = json.loads(remote("tailscale status --json"))["Self"]
     assert first["ID"] and first["TailscaleIPs"]
-    ssh = ssh.replace("192.168.1.10", first["TailscaleIPs"][0])
+    ssh = "ssh -o BatchMode=yes -o PubkeyAuthentication=no -o ConnectTimeout=3 -o StrictHostKeyChecking=accept-new root@" + first["TailscaleIPs"][0] + " "
     control.wait_until_succeeds(ssh + "true", timeout=120)
     fingerprint = remote("ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub")
     remote("parted -s /dev/vda mklabel gpt mkpart ESP fat32 1MiB 513MiB set 1 esp on mkpart root ext4 513MiB 100% && udevadm settle")
