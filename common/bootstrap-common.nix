@@ -34,6 +34,7 @@ in
   };
 
   services.tailscale.enable = true;
+  services.tailscale.extraSetFlags = [ "--ssh=true" ];
   systemd.services.tailscaled-autoconnect = lib.mkIf (config.services.tailscale.authKeyFile != null) {
     serviceConfig.Restart = "on-failure";
     serviceConfig.RestartSec = "15s";
