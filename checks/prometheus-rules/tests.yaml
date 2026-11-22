@@ -580,16 +580,20 @@ tests:
               summary: "Rex login server is unavailable on dev-ldn"
               description: "The Rex login server probe is failing, stale, or missing. Check rex-login-server.service, rex-tailscale-serve.service, and rex-login-server-health.timer."
   - interval: 1m
-    input_series: []
+    input_series:
+      - series: 'up{job="nodes", instance="proton-ldn:9100", host="proton-ldn"}'
+        values: "1x20"
     alert_rule_test:
       - eval_time: 10m
         alertname: RexLoginServerUnavailable
         exp_alerts:
           - exp_labels:
               severity: warning
-              host: dev-ldn
+              host: proton-ldn
+              instance: proton-ldn:9100
+              job: nodes
             exp_annotations:
-              summary: "Rex login server is unavailable on dev-ldn"
+              summary: "Rex login server is unavailable on proton-ldn"
               description: "The Rex login server probe is failing, stale, or missing. Check rex-login-server.service, rex-tailscale-serve.service, and rex-login-server-health.timer."
 
   # Host-dead vs exporter-broken split: h1 answers ping (scrape broken),

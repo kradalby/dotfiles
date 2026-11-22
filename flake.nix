@@ -438,9 +438,6 @@
               name = "dev.ldn";
               # Sole builder for the fleet.
               buildOnTarget = true;
-              modules = with inputs; [
-                rex.nixosModules.default
-              ];
             };
 
             "rpi5.ldn" = box.nixosBox {
@@ -578,7 +575,7 @@
           pkgs = self.nixosConfigurations."dev.ldn".pkgs;
           modules = [
             inputs.nix-index-database.homeModules.nix-index
-            inputs.rex.homeManagerModules.default
+            (import ./home/rex-personal.nix { inherit inputs; })
             ./machines/kradalby-llm
           ];
           extraSpecialArgs = {
@@ -651,6 +648,7 @@
           # `nix fmt` enforceable in CI (git.md's claim, now true).
           formatting = treefmtEval.config.build.check self;
           opencode-aperture-models = import ./checks/opencode-aperture-models.nix { inherit pkgs; };
+          rex-access = import ./checks/rex.nix { inherit pkgs self; };
           prometheus-rules = import ./checks/prometheus-rules { inherit pkgs self; };
           monitoring-pipeline = import ./checks/monitoring-pipeline.nix { inherit pkgs self; };
           umami = import ./checks/umami.nix { inherit pkgs self; };

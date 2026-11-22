@@ -24,6 +24,12 @@ let
     "garnix"
   ];
 
+  rexHosts = lib.concatStringsSep "|" (
+    lib.filter (
+      host: inputs.self.nixosConfigurations.${host}.config.services.rex.loginServer.enable
+    ) allHosts
+  );
+
   # Hosts with ZFS pools (have zfs_exporter enabled)
   zfsHosts = [
     # "core-terra"
@@ -1056,15 +1062,15 @@ in
               {
                 alert = "RexLoginServerUnavailable";
                 expr = ''
-                  rex_login_server_probe_success{host="dev-ldn"} == 0
-                  or time() - rex_login_server_probe_timestamp_seconds{host="dev-ldn"} > 180
-                  or absent(rex_login_server_probe_success{host="dev-ldn"})
-                  or absent(rex_login_server_probe_timestamp_seconds{host="dev-ldn"})
+                  rex_login_server_probe_success{host=~"${rexHosts}"} == 0
+                  or time() - rex_login_server_probe_timestamp_seconds{host=~"${rexHosts}"} > 180
+                  or (up{job="nodes",host=~"${rexHosts}"} == 1 unless on(host) rex_login_server_probe_success)
+                  or (up{job="nodes",host=~"${rexHosts}"} == 1 unless on(host) rex_login_server_probe_timestamp_seconds)
                 '';
                 for = "5m";
                 labels.severity = "warning";
                 annotations = {
-                  summary = "Rex login server is unavailable on dev-ldn";
+                  summary = "Rex login server is unavailable on {{ $labels.host }}";
                   description = "The Rex login server probe is failing, stale, or missing. Check rex-login-server.service, rex-tailscale-serve.service, and rex-login-server-health.timer.";
                 };
               }
