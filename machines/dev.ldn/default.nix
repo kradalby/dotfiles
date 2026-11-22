@@ -24,7 +24,6 @@ in
     ./syncthing.nix
     ./ac-web.nix
     ./codex-remote-control.nix
-    ./rex.nix
   ];
 
   networking = {

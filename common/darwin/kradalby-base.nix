@@ -63,8 +63,22 @@ in
     '';
   };
 
+  # The signed beta app owns the user's server and socket.
+  launchd.user.agents.rex.serviceConfig = {
+    ProgramArguments = [
+      "/usr/bin/open"
+      "-gj"
+      "/Applications/Rex Beta.app"
+    ];
+    RunAtLoad = true;
+    LimitLoadToSessionType = "Aqua";
+  };
+
   nix-rosetta-builder = {
     enable = useRosettaBuilder;
+    potentiallyInsecureExtraNixosModule.environment.systemPackages = [
+      inputs.rex.packages.aarch64-linux.rex
+    ];
     speedFactor = 10; # Highest priority - local builder
   };
   nix.linux-builder.enable = !useRosettaBuilder;
@@ -95,8 +109,10 @@ in
     useGlobalPkgs = true;
     sharedModules = [ inputs.nix-index-database.homeModules.nix-index ];
     users."${machine.username}" = {
+      programs.rex.enable = true;
       imports = [
         ../../home
+        inputs.rex.homeManagerModules.default
       ];
 
       # macOS Safari settings - disable autofill and password manager

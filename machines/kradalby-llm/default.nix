@@ -50,7 +50,6 @@ in
   ];
 
   services.rex = {
-    enable = true;
     # Sessions inherit the server's environment.
     environment.PATH = sessionPath;
     # Work tailnet, through this VM's tailscaled. Admits only the node's owner.

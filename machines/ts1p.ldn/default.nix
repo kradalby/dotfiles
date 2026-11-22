@@ -1,5 +1,6 @@
 {
   config,
+  lib,
   pkgs,
   ...
 }:
@@ -13,6 +14,12 @@ in
     ../../common/systemd-exporter.nix
     ../../common/tailscale.nix
   ];
+
+  # Work-tailnet admission is managed separately. Keep remote access behind SSH.
+  services.rex.loginServer = {
+    tailscaleServe.enable = false;
+    accounts.kradalby.principals = lib.mkForce [ "peer:${toString config.users.users.kradalby.uid}" ];
+  };
 
   networking = {
     hostName = "ts1p";
