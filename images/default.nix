@@ -15,6 +15,7 @@ let
         ++ boardModules
         ++ [
           nixos-raspberrypi.nixosModules.sd-image
+          ../profiles/sd-card.nix
           ({ lib, ... }: { networking.hostName = lib.mkDefault name; })
         ];
     }).config.system.build.sdImage;
@@ -72,7 +73,6 @@ in
   aarch64-linux = {
     rpi4 = pi "bootstrap4" [
       nixos-raspberrypi.nixosModules.raspberry-pi-4.base
-      ../profiles/sd-card.nix
     ];
     rpi5 = pi "bootstrap5" [
       nixos-raspberrypi.nixosModules.raspberry-pi-5.base

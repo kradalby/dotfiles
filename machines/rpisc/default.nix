@@ -84,22 +84,6 @@ in
       "x-systemd.idle-timeout=1min"
     ];
   };
-  fileSystems."/var/log" = {
-    device = "tmpfs";
-    fsType = "tmpfs";
-    options = [
-      "size=16M"
-      "mode=0755"
-      "nosuid"
-      "nodev"
-    ];
-  };
-  # Rotate RAM-backed login logs without updating a state file on the card.
-  services.logrotate.extraArgs = [
-    "--state"
-    "/var/log/logrotate.status"
-  ];
-
   # Keep a clock floor across power loss on the Pi 4, which lacks an RTC.
   services.timesyncd.extraConfig = "SaveIntervalSec=1d";
   documentation.man.enable = false;
