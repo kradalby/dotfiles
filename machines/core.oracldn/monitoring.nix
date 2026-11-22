@@ -6,24 +6,10 @@
   ...
 }:
 let
-  # All NixOS hosts reachable via Tailscale
-  # These all have node_exporter and systemd_exporter enabled
-  allHosts = [
-    "core-oracldn"
-    # "core-terra"
-    "core-tjoda"
-    "dev-oracfurt"
-    "dev-ldn"
-    "home-ldn"
-    "storage-ldn"
-    "storage-bassan"
-    "rpisc"
-    "rpi5-ldn"
-    "gigabuilder"
-    "ts1p-ldn"
-    "proton-ldn"
-    "garnix"
-  ];
+  # Dot-free flake keys match tailnet names and select each host once.
+  allHosts = lib.filter (host: !(lib.hasInfix "." host)) (
+    lib.attrNames inputs.self.nixosConfigurations
+  );
 
   rexHosts = lib.concatStringsSep "|" (
     lib.filter (

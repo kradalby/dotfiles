@@ -5,7 +5,7 @@
 #
 #   1. every enabled `services.prometheus.exporters.<name>` on any host has a
 #      scrape job on core.oracldn that targets it;
-#   2. every NixOS host has a node_exporter scrape (i.e. is in `allHosts`).
+#   2. every NixOS host has a node_exporter scrape.
 #
 # A new exporter or host that nobody monitors fails CI until it is either wired
 # up or explicitly allowlisted below with a reason — that decision is the point.
@@ -103,7 +103,7 @@ let
     if (exemptHosts ? ${host}) || lib.elem host monitoredHosts then
       [ ]
     else
-      [ "${host}: NixOS host has no node_exporter scrape (add it to allHosts)" ]
+      [ "${host}: NixOS host has no node_exporter target in the nodes job" ]
   ) hostNames;
 
   # --- VIP services: every services.tailscale.services.<name> must be watched
