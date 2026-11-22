@@ -1,19 +1,33 @@
 # Build a host image
 
-Choose [wired DHCP](../images/examples/wired/default.nix), [Wi-Fi DHCP](../images/examples/wifi/default.nix) or [static Ethernet](../images/examples/static/default.nix). From the repo root:
+## Raspberry Pi 4 with Wi-Fi
+
+From the repo root, set up the profile once. Edit the hostname, SSID and password.
 
 ```sh
-umask 077
-host=$(mktemp -d)
-cp images/examples/wired/default.nix "$host/default.nix"
-$EDITOR "$host/default.nix"
-authkey kradalby > "$host/join.key"
-nix build .#installer-iso --override-input image-config "path:$host"
+cp -r images/examples/wifi ~/cabin-pi
+vim ~/cabin-pi/default.nix
 ```
 
-The profile sets the hostname and network. The Wi-Fi example takes the SSID and password directly. Keep the directory outside Git. Its plaintext credentials enter the Nix store, image and any cache that receives them. The single-use join key defaults to 24 hours.
+Build each new SD image:
+
+```sh
+authkey kradalby > ~/cabin-pi/join.key
+nix build .#packages.aarch64-linux.rpi4 --override-input image-config "path:$HOME/cabin-pi"
+```
+
+Flash `result/sd-image/*.img.zst`. Credentials enter the Nix store, the image and any cache that receives them.
 
 ## Install a server
+
+From the repo root, start with [wired DHCP](../images/examples/wired/default.nix) or [static Ethernet](../images/examples/static/default.nix):
+
+```sh
+cp -r images/examples/wired ~/edge-01
+vim ~/edge-01/default.nix
+authkey kradalby > ~/edge-01/join.key
+nix build .#installer-iso --override-input image-config "path:$HOME/edge-01"
+```
 
 1. Boot the ISO from `result/iso/` in UEFI mode. It joins Tailscale automatically.
 2. Run `ssh root@HOSTNAME` over Tailscale. Your tailnet policy must allow SSH to `root`. On the LAN, use `ssh root@LAN_IP` with your usual [SSH key](../metadata/ssh.nix).
