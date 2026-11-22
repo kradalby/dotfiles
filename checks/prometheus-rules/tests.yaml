@@ -15,7 +15,7 @@ tests:
         values: "0x10 67108864x140 67108864+131072x150"
       - series: 'node_disk_written_bytes_total{job="nodes",host="rpisc",device="mmcblk0p2"}'
         values: "0+131072x310"
-      - series: 'node_disk_written_bytes_total{job="nodes",host="rpi5-ldn",device="mmcblk0"}'
+      - series: 'node_disk_written_bytes_total{job="nodes",host="unmonitored",device="mmcblk0"}'
         values: "0+131072x310"
     alert_rule_test:
       - eval_time: 12m

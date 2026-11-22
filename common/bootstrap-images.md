@@ -55,4 +55,4 @@ Substitute one of these outputs in the same build command:
 | `packages.aarch64-linux.rpi4`   | Raspberry Pi 4 SD |
 | `packages.aarch64-linux.rpi5`   | Raspberry Pi 5 SD |
 
-Flash the image and power on. The node generates its own SSH host keys and joins Tailscale. Both Pi SD images include the [low-write profile](../profiles/sd-card.nix). Import it in the permanent host configuration to keep those settings.
+Flash the image and power on. The node generates its own SSH host keys and joins Tailscale. Both Pi SD images include the [low-write profile](../profiles/sd-card.nix). Import it in the permanent host configuration to keep those settings. Fleet Prometheus then monitors writes to `mmcblk0` for scraped hosts. Override `monitoring.sdCardDevice` if the SD card has a different device name.
