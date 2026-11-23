@@ -1,12 +1,19 @@
 { config, lib, ... }:
 let
-  databases = config.my.litestream.databases;
+  freshRSSState = config.containers.freshrss.config.services.freshrss.dataDir;
+  databases = config.my.litestream.databases ++ [
+    {
+      name = "freshrss";
+      path = "${freshRSSState}/users/${config.containers.freshrss.config.services.freshrss.defaultUser}/db.sqlite";
+    }
+  ];
   backupDirectory = "/var/backup/sqlite";
   snapshotUnits = map (db: "sqlite-backup-${db.name}.service") databases;
   liveDatabaseFiles = lib.concatMap (db: [
     db.path
     "${db.path}-wal"
     "${db.path}-shm"
+    "${db.path}-journal"
   ]) databases;
   paths = [
     "/etc/nixos"
@@ -21,6 +28,7 @@ let
     config.services.grafana.dataDir
     # Built image sizes included on purpose: a restore needs no rebuild.
     config.services.asparges.dataDir
+    freshRSSState
     backupDirectory
   ];
 

@@ -757,6 +757,7 @@ in
             "http://pdf.dalby.ts.net"
             "http://go.dalby.ts.net"
             "http://localhost:63463/healthz"
+            "http://127.0.0.1:63468/api/"
           ];
         }
         {

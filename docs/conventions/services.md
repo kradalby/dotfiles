@@ -6,6 +6,8 @@ alive** (always Prometheus). Each has a ladder — take the highest tier that fi
 
 Legacy services predate this; bring one up to it when you next touch it.
 
+PHP applications always run inside a container.
+
 ## Reachability — always Tailscale
 
 1. **Tailscale service (VIP)** — _preferred._ `services.tailscale.services.<name>.endpoints = { "tcp:443" = "http://localhost:<port>"; }`. A named VIP on the home tailnet, HA-capable, no per-host firewall rule. Declare the matching `tailscale_service` in `infrastructure/tailscale` (`services.tf`); `tag:svc` auto-approves the advertisement. (core.tjoda/rest-server.nix, common/garage.nix, monitoring.nix: prom/alertmanager/pushgateway)

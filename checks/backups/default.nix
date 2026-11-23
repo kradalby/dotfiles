@@ -37,7 +37,13 @@ let
     builtins.replaceStrings [ "/var/lib/uptime-kuma" ] [ "fresh-kuma-state" ]
       kumaConfig.systemd.services.uptime-kuma.preStart
   );
-  units = map (db: "sqlite-backup-${db.name}.service") coreConfig.my.litestream.databases;
+  databases = coreConfig.my.litestream.databases ++ [
+    {
+      name = "freshrss";
+      path = "/var/lib/freshrss/users/kradalby/db.sqlite";
+    }
+  ];
+  units = map (db: "sqlite-backup-${db.name}.service") databases;
   jobs = [
     "tjoda"
     "ldn"
@@ -52,6 +58,12 @@ let
   );
 in
 assert lib.elem "/storage" storageConfig.services.restic.jobs.jotta.paths;
+assert
+  coreConfig.services.sqlite-backup.freshrss.databasePath
+  == "/var/lib/freshrss/users/kradalby/db.sqlite";
+assert lib.all (
+  job: lib.elem "/var/lib/freshrss" coreConfig.services.restic.jobs.${job}.paths
+) jobs;
 assert kuma.StateDirectory == "uptime-kuma";
 assert kuma.StateDirectoryMode == "2770";
 assert coreConfig.users.users.uptime-kuma.homeMode == "2770";
@@ -83,7 +95,7 @@ assert lib.all (
       "${db.path}-wal"
       "${db.path}-shm"
     ]
-  ) coreConfig.my.litestream.databases
+  ) databases
 ) jobs;
 pkgs.runCommand "backup-regressions"
   {
