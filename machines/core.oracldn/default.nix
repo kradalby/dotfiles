@@ -24,6 +24,7 @@
     ./grafana-mcp.nix
     ./postgres.nix
     ./stirling-pdf.nix
+    ./freshrss.nix
     ./litestream.nix
 
     ./headscale.nix
