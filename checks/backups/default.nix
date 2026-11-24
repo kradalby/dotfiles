@@ -62,7 +62,9 @@ assert
   coreConfig.services.sqlite-backup.freshrss.databasePath
   == "/var/lib/freshrss/users/kradalby/db.sqlite";
 assert lib.all (
-  job: lib.elem "/var/lib/freshrss" coreConfig.services.restic.jobs.${job}.paths
+  job:
+  lib.elem "/var/lib/freshrss" coreConfig.services.restic.jobs.${job}.paths
+  && lib.elem "/var/lib/freshrss/cache" coreConfig.services.restic.backups.${job}.exclude
 ) jobs;
 assert kuma.StateDirectory == "uptime-kuma";
 assert kuma.StateDirectoryMode == "2770";
@@ -94,6 +96,7 @@ assert lib.all (
       db.path
       "${db.path}-wal"
       "${db.path}-shm"
+      "${db.path}-journal"
     ]
   ) databases
 ) jobs;
