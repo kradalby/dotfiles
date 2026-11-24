@@ -271,6 +271,7 @@ in
     default_permissions = ":workspace";
     approval_policy = "on-request";
     approvals_reviewer = "auto_review";
+    daybreak = true;
     features.hooks = true;
     shell_environment_policy.set.BASH_ENV = "$HOME/.codex/hooks/session-env.sh";
     mcp_servers =
