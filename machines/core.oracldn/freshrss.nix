@@ -1,11 +1,11 @@
 { lib, ... }:
 let
-  hostname = "freshrss.dalby.ts.net";
+  hostname = "rss.dalby.ts.net";
   port = 63468;
   state = "/var/lib/freshrss";
 in
 {
-  services.tailscale.services.freshrss.endpoints."tcp:443" =
+  services.tailscale.services.rss.endpoints."tcp:443" =
     "tls-terminated-tcp://127.0.0.1:${toString port}";
 
   systemd.tmpfiles.rules = [ "d ${state} 0700 44880 44880 -" ];
