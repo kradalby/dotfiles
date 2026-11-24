@@ -136,7 +136,7 @@ let
     "alertmanager" = "scraped locally on core-oracldn (localhost:9093), not by VIP name";
     "pushgateway" = "scraped locally on core-oracldn (localhost:9091), not by VIP name";
     "atuin" = "scraped by backing host dev-oracfurt:8889, not by VIP name";
-    "freshrss" = "probed over loopback on core-oracldn to keep passwordless account access owner-only";
+    "rss" = "probed over loopback on core-oracldn to keep passwordless account access owner-only";
     "proton-bridge" =
       "login probe writes proton_bridge_* to proton-ldn's textfile collector; no direct scrape (see monitoring.nix)";
     # TODO: give these a blackbox probe and drop the exemption.
