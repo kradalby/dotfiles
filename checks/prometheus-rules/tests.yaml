@@ -1780,3 +1780,28 @@ tests:
             exp_annotations:
               summary: "Computed energy cost has drifted from NextEnergy's"
               description: "Computed electricity differs from NextEnergy's figures by 20% over the last week."
+  - name: HypervisorLowMem ignores a steady tight host, fires when exhausted
+    interval: 1m
+    input_series:
+      - series: 'node_memory_MemTotal_bytes{role="incus",instance="steady"}'
+        values: "10000x60"
+      - series: 'node_memory_MemAvailable_bytes{role="incus",instance="steady"}'
+        values: "400x60"
+      - series: 'node_memory_MemTotal_bytes{role="incus",instance="exhausted"}'
+        values: "10000x60"
+      - series: 'node_memory_MemAvailable_bytes{role="incus",instance="exhausted"}'
+        values: "100x60"
+    alert_rule_test:
+      - eval_time: 25m
+        alertname: HypervisorLowMem
+        exp_alerts: []
+      - eval_time: 31m
+        alertname: HypervisorLowMem
+        exp_alerts:
+          - exp_labels:
+              role: incus
+              instance: exhausted
+              severity: critical
+            exp_annotations:
+              summary: "Hypervisor exhausted: 1% memory available"
+              description: "The Incus hypervisor has under 2% memory available. All VMs on this host may be affected."
