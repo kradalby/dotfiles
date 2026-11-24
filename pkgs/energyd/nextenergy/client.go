@@ -91,9 +91,9 @@ var (
 	actionLogin = action{"Mobile_EnergyNext/EntryFlow/Login_New/ActionDoLogin", "6RXNTWQg6FlgienWK8L57A", "EntryFlow.Login_New"}
 	actionSync  = action{"Mobile_LocalStorage_BL/ActionGetContractAndAccountDataToSync", "qUSD+Sc+GuaGYdDHGUX1aQ", "MainFlow.Usage"}
 
-	actionUsageScreen = action{"Mobile_EnergyNext_CW/WidgetFlow/Usage_QuarterlyPrices_v2/ActionUsage_GetData", "IkZvZs2aMH7OvfTv2DIswQ", "MainFlow.Usage"}
+	actionUsageScreen = action{"Mobile_EnergyNext_CW/WidgetFlow/Usage_QuarterlyPrices_v2/ActionUsage_GetData", "b_486TokmTdWT_1x7gXFcg", "MainFlow.Usage"}
 	actionUsageData   = action{"Mobile_EnergyNext_CW/WidgetFlow/Usage_QuarterlyPrices_v2/DataActionGetUsageData", "fRPUGOfMLbxgQk2uUb+xeg", "MainFlow.Usage"}
-	actionFees        = action{"Mobile_EnergyNext_CW/WidgetFlow/MarketPrices_Quarterly_v2/DataActionGetPropositionData", "k+qSvCjIpJRLmow43VyNmA", "MainFlow.MarketPrices"}
+	actionFees        = action{"Mobile_EnergyNext_CW/WidgetFlow/MarketPrices_Quarterly_v2/DataActionGetPropositionData", "jwGfLFM2V1+W_I1iNQ_HCw", "MainFlow.MarketPrices"}
 	actionInvoices    = action{"Mobile_Profile_CW/Invoices/WB_InvoicesOverview_List/DataActionGetInvoicesByUserId_API", "6Rksw2e_sAJC_zk81erdGQ", "MainFlow.InvoiceOverview"}
 )
 
