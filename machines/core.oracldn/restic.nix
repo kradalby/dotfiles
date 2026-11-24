@@ -37,6 +37,7 @@ let
     inherit site paths;
     secret = "restic-core-oracldn-token";
     extraConfig.exclude = liveDatabaseFiles ++ [
+      "${freshRSSState}/cache"
       "${backupDirectory}/.sqlite-backup.*"
       # Work files, and litestream's shadow WAL beside the db.
       "${config.services.asparges.dataDir}/tmp"

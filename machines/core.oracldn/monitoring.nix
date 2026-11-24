@@ -119,6 +119,13 @@ let
         timeout: 10s
         icmp:
           preferred_ip_protocol: ip4
+      http_greader:
+        prober: http
+        http:
+          valid_status_codes: [200]
+          headers:
+            Authorization: "GoogleLogin auth=test/1"
+          fail_if_body_not_matches_regexp: ["^PASS$"]
       # Tailnet-only services: tsnet/Serve certs, and 401/403 count as alive
       # (auth-gated endpoints like garnix /api/whoami).
       http_tailnet:
@@ -751,13 +758,17 @@ in
       (probeJobT "tailnet-probes" "http_tailnet" [
         {
           target = "core-oracldn";
+          labels.__param_module = "http_greader";
+          targets = [ "http://freshrss.containers:63468/api/greader.php/check/compatibility" ];
+        }
+        {
+          target = "core-oracldn";
           targets = [
             "http://grafana.dalby.ts.net"
             "http://grafana-mcp.dalby.ts.net/healthz"
             "http://pdf.dalby.ts.net"
             "http://go.dalby.ts.net"
             "http://localhost:63463/healthz"
-            "http://127.0.0.1:63468/api/"
           ];
         }
         {
