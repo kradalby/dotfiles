@@ -164,6 +164,14 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
+    # Go links changed since the last look. Follows nixpkgs-unstable so its go
+    # build tracks our toolchain.
+    golinkdiff = {
+      url = "github:kradalby/golinkdiff/main";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+      inputs."flake-utils".follows = "flake-utils";
+    };
+
     tsidp = {
       url = "github:tailscale/tsidp";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
@@ -330,6 +338,7 @@
         headscale.overlays.default
         golink.overlays.default
         krapage.overlays.default
+        golinkdiff.overlays.default
         hvor.overlays.default
         tasmota-exporter.overlays.default
         homewizard-p1-exporter.overlays.default

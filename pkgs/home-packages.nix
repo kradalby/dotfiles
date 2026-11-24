@@ -207,6 +207,7 @@ in
           (docker_29.override { clientOnly = true; })
           dive
           act
+          golinkdiff
         ])
         ++ (with pkgs.unstable; [
           tailscale-tools

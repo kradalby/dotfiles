@@ -191,6 +191,8 @@ in
     pkgs.master.pi-coding-agent
     pkgs.neovim
     pkgs.tmux
+    # infra.enable is off here; this box sits on the tailnet that serves go/.
+    pkgs.golinkdiff
 
     # no setec here; stub keeps direnv's secret_env quiet
     (pkgs.writeShellScriptBin "secret-env" "")
