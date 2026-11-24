@@ -37,7 +37,6 @@ let
       "HttpsProbeSlow"
       "HypervisorHighCPU"
       "HypervisorLowDisk"
-      "HypervisorLowMem"
       "IncusDaemonDown"
       "IncusDaemonRestarted"
       "IncusInstanceMemoryPressure"

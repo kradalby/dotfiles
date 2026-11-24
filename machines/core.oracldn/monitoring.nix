@@ -2480,12 +2480,15 @@ in
               # is an accepted blind spot here.
               {
                 alert = "HypervisorLowMem";
-                expr = ''(node_memory_MemAvailable_bytes{role="incus"} / node_memory_MemTotal_bytes{role="incus"}) * 100 < 5'';
-                for = "15m";
+                # Hypervisors run tight by design and idle near 5% available
+                # with no memory stall; only near-exhaustion is worth a page.
+                # Real harm is MemoryPressure's job (PSI).
+                expr = ''(node_memory_MemAvailable_bytes{role="incus"} / node_memory_MemTotal_bytes{role="incus"}) * 100 < 2'';
+                for = "30m";
                 labels.severity = "critical";
                 annotations = {
                   summary = "Hypervisor {{ $labels.instance }}: {{ $value }}% memory available";
-                  description = "The Incus hypervisor has less than 5% memory available. All VMs on this host may be affected.";
+                  description = "The Incus hypervisor has under 2% memory available. All VMs on this host may be affected.";
                 };
               }
               {
