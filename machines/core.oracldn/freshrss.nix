@@ -57,7 +57,11 @@ in
               }
             '
           '';
-          nginx.serviceConfig.ReadWritePaths = [ "/run/rss-backend" ];
+          nginx = {
+            # A hard stop can leave the socket inode behind on the host bind mount.
+            preStart = lib.mkBefore "rm -f /run/rss-backend/http.sock";
+            serviceConfig.ReadWritePaths = [ "/run/rss-backend" ];
+          };
         }
       ];
 
