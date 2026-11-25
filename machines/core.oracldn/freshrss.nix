@@ -11,6 +11,15 @@ in
 {
   services.tailscale.services.rss.endpoints."tcp:443" = "tls-terminated-tcp://unix:${socket}";
   networking.nat.internalInterfaces = [ "ve-freshrss" ];
+  # The container module configures this peer; networkd's 80-container-ve adds competing addresses.
+  systemd.network.networks."10-ve-freshrss" = {
+    matchConfig.Name = "ve-freshrss";
+    linkConfig.Unmanaged = true;
+  };
+
+  # First activation can run the backup before FreshRSS creates its database.
+  systemd.services.sqlite-backup-freshrss.unitConfig.ConditionPathExists =
+    config.services.sqlite-backup.freshrss.databasePath;
 
   systemd.tmpfiles.rules = [
     "d ${state} 0700 44880 44880 -"
