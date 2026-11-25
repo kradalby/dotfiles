@@ -9,6 +9,7 @@
     ./vhost.nix
     ./restic-jobs.nix
     ./restic-jobs-linux.nix
+    ./setec-secrets.nix
     ./sqlite-backup
 
     ./cook-server.nix

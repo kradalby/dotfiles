@@ -547,7 +547,9 @@ tests:
               summary: "Codex remote control is unavailable on dev-ldn"
               description: "The Codex app-server probe is disconnected, stale, or missing. Check codex-remote-control.service, its health timer, and the user's Codex login."
   - interval: 1m
-    input_series: []
+    input_series:
+      - series: 'up{job="nodes", instance="dev-ldn:9100", host="dev-ldn"}'
+        values: "1x20"
     alert_rule_test:
       - eval_time: 10m
         alertname: CodexRemoteControlUnavailable
@@ -555,9 +557,55 @@ tests:
           - exp_labels:
               severity: warning
               host: dev-ldn
+              instance: dev-ldn:9100
+              job: nodes
             exp_annotations:
               summary: "Codex remote control is unavailable on dev-ldn"
               description: "The Codex app-server probe is disconnected, stale, or missing. Check codex-remote-control.service, its health timer, and the user's Codex login."
+
+  # A failed fetch keeps the old timestamp, so staleness is the only signal.
+  - interval: 1m
+    input_series:
+      - series: 'setec_secrets_last_success_timestamp_seconds{host="dev-ldn", instance="dev-ldn:9100", job="nodes"}'
+        values: "0+60x300"
+      - series: 'up{host="dev-ldn", instance="dev-ldn:9100", job="nodes"}'
+        values: "1x300"
+    alert_rule_test:
+      - eval_time: 4h
+        alertname: SetecSecretsStale
+        exp_alerts: []
+  - interval: 1m
+    input_series:
+      - series: 'setec_secrets_last_success_timestamp_seconds{host="dev-ldn", instance="dev-ldn:9100", job="nodes"}'
+        values: "0x300"
+    alert_rule_test:
+      - eval_time: 4h
+        alertname: SetecSecretsStale
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              host: dev-ldn
+              instance: dev-ldn:9100
+              job: nodes
+            exp_annotations:
+              summary: "setec secrets are stale on dev-ldn"
+              description: "No full fetch from setec for three hours, or none ever. The host runs on its last copies. Check setec-secrets.service, the setec server, and the host's grant in the tailnet policy."
+  - interval: 1m
+    input_series:
+      - series: 'up{host="dev-ldn", instance="dev-ldn:9100", job="nodes"}'
+        values: "1x60"
+    alert_rule_test:
+      - eval_time: 30m
+        alertname: SetecSecretsStale
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              host: dev-ldn
+              instance: dev-ldn:9100
+              job: nodes
+            exp_annotations:
+              summary: "setec secrets are stale on dev-ldn"
+              description: "No full fetch from setec for three hours, or none ever. The host runs on its last copies. Check setec-secrets.service, the setec server, and the host's grant in the tailnet policy."
 
   # The probe must keep passing and keep updating its timestamp.
   - interval: 1m

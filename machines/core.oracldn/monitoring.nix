@@ -17,6 +17,18 @@ let
     ) allHosts
   );
 
+  # Hosts on profiles/dev, which is the only importer of the Codex service.
+  devHostList = lib.filter (
+    host: inputs.self.nixosConfigurations.${host}.config.systemd.services ? codex-remote-control
+  ) allHosts;
+  devHosts = lib.concatStringsSep "|" devHostList;
+
+  setecHosts = lib.concatStringsSep "|" (
+    lib.filter (
+      host: inputs.self.nixosConfigurations.${host}.config.services.setec-secrets != { }
+    ) allHosts
+  );
+
   sdCardWriteRules = lib.concatMap (
     host:
     let
@@ -748,44 +760,48 @@ in
       # TODO(kradalby): revert grafana/cook/pdf/owntone to https
       # once resolved. idp + setec stay https — they are tsnet apps that
       # terminate TLS themselves, not services.tailscale.services passthrough.
-      (probeJobT "tailnet-probes" "http_tailnet" [
-        {
-          target = "core-oracldn";
-          targets = [
-            "http://grafana.dalby.ts.net"
-            "http://grafana-mcp.dalby.ts.net/healthz"
-            "http://pdf.dalby.ts.net"
-            "http://go.dalby.ts.net"
-            "http://localhost:63463/healthz"
-          ];
-        }
-        {
-          target = "dev-oracfurt";
-          targets = [
-            "https://idp.dalby.ts.net/.well-known/openid-configuration"
-            "http://cook.dalby.ts.net"
-          ];
-        }
-        {
-          target = "ts1p-ldn";
-          targets = [ "https://setec.dalby.ts.net/healthz" ];
-        }
-        {
-          target = "dev-ldn";
-          targets = [ "http://dev-ldn:8846" ];
-        }
-        {
-          target = "home-ldn";
-          targets = [
-            "http://owntone.dalby.ts.net"
-            "http://picnic-mcp.dalby.ts.net/health"
-          ];
-        }
-        {
-          target = "core-tjoda";
-          targets = [ "http://s3-tjoda:3903/health" ];
-        }
-      ])
+      (probeJobT "tailnet-probes" "http_tailnet" (
+        [
+          {
+            target = "core-oracldn";
+            targets = [
+              "http://grafana.dalby.ts.net"
+              "http://grafana-mcp.dalby.ts.net/healthz"
+              "http://pdf.dalby.ts.net"
+              "http://go.dalby.ts.net"
+              "http://localhost:63463/healthz"
+            ];
+          }
+          {
+            target = "dev-oracfurt";
+            targets = [
+              "https://idp.dalby.ts.net/.well-known/openid-configuration"
+              "http://cook.dalby.ts.net"
+            ];
+          }
+          {
+            target = "ts1p-ldn";
+            targets = [ "https://setec.dalby.ts.net/healthz" ];
+          }
+        ]
+        ++ map (host: {
+          target = host;
+          targets = [ "http://${host}:8846" ]; # ac-web
+        }) devHostList
+        ++ [
+          {
+            target = "home-ldn";
+            targets = [
+              "http://owntone.dalby.ts.net"
+              "http://picnic-mcp.dalby.ts.net/health"
+            ];
+          }
+          {
+            target = "core-tjoda";
+            targets = [ "http://s3-tjoda:3903/health" ];
+          }
+        ]
+      ))
 
       (probeJobT "inference-probes" "http_inference" [
         {
@@ -1051,16 +1067,29 @@ in
               {
                 alert = "CodexRemoteControlUnavailable";
                 expr = ''
-                  codex_remote_control_probe_success{host="dev-ldn"} == 0
-                  or time() - codex_remote_control_probe_timestamp_seconds{host="dev-ldn"} > 180
-                  or absent(codex_remote_control_probe_success{host="dev-ldn"})
-                  or absent(codex_remote_control_probe_timestamp_seconds{host="dev-ldn"})
+                  codex_remote_control_probe_success{host=~"${devHosts}"} == 0
+                  or time() - codex_remote_control_probe_timestamp_seconds{host=~"${devHosts}"} > 180
+                  or (up{job="nodes",host=~"${devHosts}"} == 1 unless on(host) codex_remote_control_probe_success)
+                  or (up{job="nodes",host=~"${devHosts}"} == 1 unless on(host) codex_remote_control_probe_timestamp_seconds)
                 '';
                 for = "5m";
                 labels.severity = "warning";
                 annotations = {
-                  summary = "Codex remote control is unavailable on dev-ldn";
+                  summary = "Codex remote control is unavailable on {{ $labels.host }}";
                   description = "The Codex app-server probe is disconnected, stale, or missing. Check codex-remote-control.service, its health timer, and the user's Codex login.";
+                };
+              }
+              {
+                alert = "SetecSecretsStale";
+                expr = ''
+                  time() - setec_secrets_last_success_timestamp_seconds{host=~"${setecHosts}"} > 3 * 3600
+                  or (up{job="nodes",host=~"${setecHosts}"} == 1 unless on(host) setec_secrets_last_success_timestamp_seconds)
+                '';
+                for = "15m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "setec secrets are stale on {{ $labels.host }}";
+                  description = "No full fetch from setec for three hours, or none ever. The host runs on its last copies. Check setec-secrets.service, the setec server, and the host's grant in the tailnet policy.";
                 };
               }
               {
