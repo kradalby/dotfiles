@@ -69,7 +69,6 @@ with builtins;
   # headscale
   "headscale-private-key.age".publicKeys = u ++ [ hosts.core-oracldn ];
   "headscale-noise-private-key.age".publicKeys = u ++ [ hosts.core-oracldn ];
-  "headscale-envfile.age".publicKeys = u ++ [ hosts.core-oracldn ];
 
   # Grafana
   "grafana-admin.age".publicKeys = u ++ [ hosts.core-oracldn ];
