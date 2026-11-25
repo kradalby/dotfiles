@@ -37,6 +37,7 @@ in
     ./ai-commands.nix
     ./ai-plugin-install.nix
     ./cooklang.nix
+    ./mail.nix
 
     ../modules/claude-code
 

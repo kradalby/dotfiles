@@ -119,6 +119,7 @@ in
 
     my.packages.ai.enable = false;
     my.mcp.work = true;
+    my.mail.triage.enable = true;
 
     programs.git.settings.user = {
       email = lib.mkForce "kristoffer@tailscale.com";

@@ -6,12 +6,14 @@ let
     config.my.packages.ai.enable = false;
     config.my.mcp.work = false;
     config.my.cooklang.recipes = null;
+    config.my.mail.triage.enable = false;
   };
   workAi = import ../../home/ai.nix {
     lib = pkgs.lib;
     config.my.packages.ai.enable = false;
     config.my.mcp.work = true;
     config.my.cooklang.recipes = null;
+    config.my.mail.triage.enable = false;
   };
   cookAi = import ../../home/ai.nix {
     lib = pkgs.lib;
@@ -19,6 +21,7 @@ let
     config.my.packages.ai.enable = false;
     config.my.mcp.work = false;
     config.my.cooklang.recipes = "/recipes";
+    config.my.mail.triage.enable = true;
   };
   # Exercise Desktop registration on the Linux CI builder too.
   registration =
@@ -40,6 +43,7 @@ let
         my.packages.ai.codex = false;
         my.mcp.work = false;
         my.cooklang.recipes = "/recipes";
+        my.mail.triage.enable = true;
         my.mutableJson.pi-mcp.value.mcpServers.superlogical = disabledAi.claudeMcpServers.superlogical;
         my.claudeMcpServers = { };
       };
@@ -51,6 +55,8 @@ assert !(disabledAi.codex.mcp_servers ? nixos);
 assert !(disabledAi.claudeMcpServers ? cook);
 assert !(disabledAi.opencode.mcp.servers ? cook);
 assert !(disabledAi.codex.mcp_servers ? cook);
+assert !(disabledAi.opencode.mcp.servers ? mail);
+assert cookAi.opencode.mcp.servers.mail.command == [ "${home}/.nix-profile/bin/apple-mailbox-mcp" ];
 assert cookAi.claudeMcpServers.cook.command == "${home}/.nix-profile/bin/cook-mcp";
 assert cookAi.opencode.mcp.servers.cook.command == [ "${home}/.nix-profile/bin/cook-mcp" ];
 assert cookAi.codex.mcp_servers.cook.command == "${home}/.nix-profile/bin/cook-mcp";
@@ -107,6 +113,7 @@ pkgs.runCommand "mcp-server-registration-tests" { nativeBuildInputs = [ pkgs.jq 
       '.mcpServers[$server].args | index($url) != null' \
       "${home}/Library/Application Support/Claude/claude_desktop_config.json"
   done
+  jq -e '.mcp.servers.mail.type == "local" and .permissions == [{action:"mail_*",resource:"*",effect:"deny"}]' ${home}/.config/opencode/opencode.json
   jq -e '.mcp.servers.grafana.url == "http://grafana-mcp.dalby.ts.net/mcp" and (.mcp.servers | has("picnic") | not)' \
     ${home}/.config/opencode/opencode.json
   touch $out

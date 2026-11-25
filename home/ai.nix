@@ -23,6 +23,14 @@ let
   # Wrapper from home/cooklang.nix, which bakes in the recipe root.
   cookMcp = "${config.home.profileDirectory}/bin/cook-mcp";
   cook = config.my.cooklang.recipes != null;
+  mailMcp = "${config.home.profileDirectory}/bin/apple-mailbox-mcp";
+  # Hides the mail tools from every agent; the mail-triage agent's own rules
+  # come later and re-allow them.
+  mailDeny = {
+    action = "mail_*";
+    resource = "*";
+    effect = "deny";
+  };
 in
 {
   # Claude Code ignores mcpServers in settings.json; it reads user-scope
@@ -226,6 +234,14 @@ in
           command = [ cookMcp ];
         };
       }
+      // lib.optionalAttrs config.my.mail.triage.enable {
+        mail = {
+          type = "local";
+          command = [ mailMcp ];
+          # Upstream sends to anyone by default; this limits it to the owner.
+          environment.EMAIL_MCP_SEND_ALLOW_ALL = "0";
+        };
+      }
       // {
         superlogical = {
           type = "remote";
@@ -248,7 +264,8 @@ in
           "~/git/*"
           "~/worktrees/*"
           "/nix/*"
-        ];
+        ]
+      ++ lib.optional config.my.mail.triage.enable mailDeny;
   };
 
   # Codex has no model/provider block here on purpose: signed-in codex picks
@@ -287,6 +304,8 @@ in
   #
   # Capture the dev env once per thread, including phone-initiated resumes.
   # Bash reads it through BASH_ENV without changing the displayed command.
+  inherit mailDeny;
+
   codexHooks = {
     hooks.SessionStart = [
       {
