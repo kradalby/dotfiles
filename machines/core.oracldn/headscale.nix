@@ -59,10 +59,6 @@ in
       owner = "headscale";
       file = ../../secrets/headscale-noise-private-key.age;
     };
-    headscale-envfile = {
-      owner = "headscale";
-      file = ../../secrets/headscale-envfile.age;
-    };
   };
 
   environment.systemPackages = [
@@ -124,9 +120,6 @@ in
   networking.firewall.allowedUDPPorts = [ 3478 ];
 
   systemd.services.headscale = {
-    serviceConfig = {
-      EnvironmentFile = config.age.secrets.headscale-envfile.path;
-    };
     # Restart the service when the config file content changes.
     restartTriggers = [ configFile ];
     environment = {
