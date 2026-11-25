@@ -62,6 +62,8 @@
       pmCli = "0.2.7";
       # https://github.com/herald-email/herald-mail-app/releases
       herald = "0.10.0-beta.1";
+      # https://github.com/parasxos/apple-mail-mcp/releases
+      appleMailboxMcp = "1.8.3";
     };
   };
 }
