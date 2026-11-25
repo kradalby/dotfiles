@@ -1,6 +1,7 @@
 { config, lib, ... }:
 let
   cfg = import ../../metadata/syncthing.nix;
+  hostname = builtins.replaceStrings [ ".fap.no" "." ] [ "" "-" ] config.networking.fqdn;
 in
 {
   services.syncthings = {
@@ -30,18 +31,12 @@ in
             );
             type = "sendreceive";
           };
-          "cooklang-recipes" = {
-            id = "cooklang-recipes";
-            path = "/home/kradalby/cooklang";
-            devices = [ "dev.oracfurt-cooklang" ];
-            type = "sendreceive";
-          };
         };
       };
     };
   };
 
-  services.tailscale.services.syncthing-dev-ldn = {
+  services.tailscale.services."syncthing-${hostname}" = {
     endpoints = {
       "tcp:80" = "http://127.0.0.1:8384";
       # tcp:443 has no TLS termination — Tailscale VIP bug (tailscale/tailscale#19724, #18381); consumers use http. TODO(kradalby): revert when fixed.

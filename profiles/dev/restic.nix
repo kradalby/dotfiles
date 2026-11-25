@@ -1,5 +1,6 @@
 { config, ... }:
 let
+  hostname = builtins.replaceStrings [ ".fap.no" "." ] [ "" "-" ] config.networking.fqdn;
   paths = [
     "/home/kradalby"
     "/root"
@@ -8,7 +9,7 @@ let
   mkJob = site: {
     enable = true;
     inherit site paths;
-    secret = "restic-dev-ldn-token";
+    secret = "restic-${hostname}-token";
     # A whole live homedir: skip the churn that made every run slow and
     # vanished-file-noisy (exit 3 is also accepted module-wide now).
     extraBackupArgs = [
@@ -24,10 +25,9 @@ in
     tjoda = mkJob "tjoda";
     ldn = mkJob "ldn";
     # Offsite via the Jotta proxy on core.tjoda (no Jotta credentials here).
-    # targetHost is the opaque repo name on Jotta — house convention, nothing
-    # host-identifying on the provider side.
+    # Each host sets targetHost to an opaque repo name, so nothing on the
+    # provider side identifies the host.
     jotta = mkJob "jotta" // {
-      targetHost = "24265df668ee1063b968320aa77677cf";
       # Jotta egress is paid/slow: verify metadata only, monthly. The REST
       # repos get the read-data checks.
       check = {
