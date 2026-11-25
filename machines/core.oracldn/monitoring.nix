@@ -17,6 +17,12 @@ let
     ) allHosts
   );
 
+  setecHosts = lib.concatStringsSep "|" (
+    lib.filter (
+      host: inputs.self.nixosConfigurations.${host}.config.services.setec-secrets != { }
+    ) allHosts
+  );
+
   sdCardWriteRules = lib.concatMap (
     host:
     let
@@ -1061,6 +1067,19 @@ in
                 annotations = {
                   summary = "Codex remote control is unavailable on dev-ldn";
                   description = "The Codex app-server probe is disconnected, stale, or missing. Check codex-remote-control.service, its health timer, and the user's Codex login.";
+                };
+              }
+              {
+                alert = "SetecSecretsStale";
+                expr = ''
+                  time() - setec_secrets_last_success_timestamp_seconds{host=~"${setecHosts}"} > 3 * 3600
+                  or (up{job="nodes",host=~"${setecHosts}"} == 1 unless on(host) setec_secrets_last_success_timestamp_seconds)
+                '';
+                for = "15m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "setec secrets are stale on {{ $labels.host }}";
+                  description = "No full fetch from setec for three hours, or none ever. The host runs on its last copies. Check setec-secrets.service, the setec server, and the host's grant in the tailnet policy.";
                 };
               }
               {

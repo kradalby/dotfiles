@@ -108,6 +108,11 @@ in
     ];
   };
 
+  services.setec-secrets.github-token = {
+    secret = "github/kradalby/dev-token";
+    owner = "kradalby";
+  };
+
   # Eternal Terminal — testing alongside mosh. Unlike mosh it forwards the raw
   # byte stream (TCP), so native scrollback + mouse survive the link, which boo
   # sessions need. Exposed on the tailnet only.
