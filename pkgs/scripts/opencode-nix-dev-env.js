@@ -12,7 +12,7 @@
 // computes the full env for the target cwd.
 //
 // Plain .js, node builtins only, so opencode loads it without a package.json /
-// bun install. Auto-discovered from ~/.config/opencode/plugin/.
+// bun install. Auto-discovered from ~/.config/opencode/plugins/.
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 

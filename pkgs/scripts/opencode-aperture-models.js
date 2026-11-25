@@ -3,7 +3,7 @@
 // Completions models into one provider at startup.
 //
 // Plain .js, node builtins only, so opencode loads it without a package.json /
-// bun install. Auto-discovered from ~/.config/opencode/plugin/.
+// bun install. Auto-discovered from ~/.config/opencode/plugins/.
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";

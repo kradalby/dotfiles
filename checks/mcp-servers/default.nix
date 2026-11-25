@@ -46,13 +46,13 @@ let
     };
 in
 assert !(disabledAi.claudeMcpServers ? nixos);
-assert !(disabledAi.opencode.mcp ? nixos);
+assert !(disabledAi.opencode.mcp.servers ? nixos);
 assert !(disabledAi.codex.mcp_servers ? nixos);
 assert !(disabledAi.claudeMcpServers ? cook);
-assert !(disabledAi.opencode.mcp ? cook);
+assert !(disabledAi.opencode.mcp.servers ? cook);
 assert !(disabledAi.codex.mcp_servers ? cook);
 assert cookAi.claudeMcpServers.cook.command == "${home}/.nix-profile/bin/cook-mcp";
-assert cookAi.opencode.mcp.cook.command == [ "${home}/.nix-profile/bin/cook-mcp" ];
+assert cookAi.opencode.mcp.servers.cook.command == [ "${home}/.nix-profile/bin/cook-mcp" ];
 assert cookAi.codex.mcp_servers.cook.command == "${home}/.nix-profile/bin/cook-mcp";
 assert
   workAi.claudeMcpServers == {
@@ -62,7 +62,7 @@ assert
     };
   };
 assert
-  workAi.opencode.mcp == {
+  workAi.opencode.mcp.servers == {
     superlogical = {
       type = "remote";
       url = "https://www.superlogical.com/rex/community-mcp";
@@ -78,23 +78,23 @@ pkgs.runCommand "mcp-server-registration-tests" { nativeBuildInputs = [ pkgs.jq 
   mkdir -p ${home}/.pi/agent
   echo '{"mcpServers":{"existing":{"command":"keep"}},"other":42}' >${home}/.pi/agent/mcp.json
   echo '{"mcpServers":{"existing":{"command":"keep"}},"other":42}' >${home}/.claude.json
-  echo '{"mcp":{"existing":{"command":"keep"}},"other":42}' >${home}/.config/opencode/opencode.json
+  echo '{"mcp":{"servers":{"existing":{"command":"keep"}}},"other":42}' >${home}/.config/opencode/opencode.json
   run() { "$@"; }
   ${(registration false).config.home.activation.mcpServers.data}
   ${(registration true).config.home.activation.mcpServers.data}
   ${(registration true).config.home.activation.mcpServers.data}
 
   jq -e '.other == 42 and .mcpServers.existing.command == "keep"' ${home}/.claude.json
-  jq -e '.other == 42 and .mcp.existing.command == "keep"' ${home}/.config/opencode/opencode.json
+  jq -e '.other == 42 and .mcp.servers.existing.command == "keep"' ${home}/.config/opencode/opencode.json
   jq -e '.mcpServers.superlogical == {type:"http",url:"https://www.superlogical.com/rex/community-mcp"}' ${home}/.claude.json
-  jq -e '.mcp.superlogical == {type:"remote",url:"https://www.superlogical.com/rex/community-mcp"}' ${home}/.config/opencode/opencode.json
+  jq -e '.mcp.servers.superlogical == {type:"remote",url:"https://www.superlogical.com/rex/community-mcp"}' ${home}/.config/opencode/opencode.json
   jq -e '.other == 42 and .mcpServers.existing.command == "keep" and .mcpServers.superlogical == {type:"http",url:"https://www.superlogical.com/rex/community-mcp"}' ${home}/.pi/agent/mcp.json
   jq -e '.mcpServers.superlogical.args | index("https://www.superlogical.com/rex/community-mcp") != null' \
     "${home}/Library/Application Support/Claude/claude_desktop_config.json"
   jq -e --arg command "${home}/.nix-profile/bin/mcp-nixos" \
     '.mcpServers.nixos.type == "stdio" and .mcpServers.nixos.command == $command' ${home}/.claude.json
   jq -e --arg command "${home}/.nix-profile/bin/mcp-nixos" \
-    '.mcp.nixos.type == "local" and .mcp.nixos.command == [$command]' ${home}/.config/opencode/opencode.json
+    '.mcp.servers.nixos.type == "local" and .mcp.servers.nixos.command == [$command]' ${home}/.config/opencode/opencode.json
   jq -e --arg command "${home}/.nix-profile/bin/mcp-nixos" \
     '.mcpServers.nixos.command == $command and .mcpServers.nixos.args == []' \
     "${home}/Library/Application Support/Claude/claude_desktop_config.json"
@@ -107,7 +107,7 @@ pkgs.runCommand "mcp-server-registration-tests" { nativeBuildInputs = [ pkgs.jq 
       '.mcpServers[$server].args | index($url) != null' \
       "${home}/Library/Application Support/Claude/claude_desktop_config.json"
   done
-  jq -e '.mcp.grafana.url == "http://grafana-mcp.dalby.ts.net/mcp" and (.mcp | has("picnic") | not)' \
+  jq -e '.mcp.servers.grafana.url == "http://grafana-mcp.dalby.ts.net/mcp" and (.mcp.servers | has("picnic") | not)' \
     ${home}/.config/opencode/opencode.json
   touch $out
 ''
