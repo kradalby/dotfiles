@@ -138,9 +138,10 @@
     headscale = {
       url = "github:juanfont/headscale/main";
       inputs."flake-utils".follows = "flake-utils";
-      # Follows unstable: headscale go.mod now needs go >= 1.27.0, and only
-      # unstable ships a final 1.27 (stable has 1.26.6 and a 1.27 rc).
+      # Upstream builds on unstable but takes its Go from stable; share both
+      # fleet pins.
       inputs.nixpkgs.follows = "nixpkgs-unstable";
+      inputs.nixpkgs-stable.follows = "nixpkgs-stable";
     };
 
     golink = {

@@ -1228,14 +1228,17 @@
         ],
         "nixpkgs": [
           "nixpkgs-unstable"
+        ],
+        "nixpkgs-stable": [
+          "nixpkgs-stable"
         ]
       },
       "locked": {
-        "lastModified": 1794861559,
-        "narHash": "sha256-n36BZqh74yrqIII9/2jPSk9+AwBOK7J2n+Y+tdLNH64=",
+        "lastModified": 1795611224,
+        "narHash": "sha256-Cq3i+cZj9LJ8PeNN83DoMCGXe1Zgn+SE4gpfTnovqUs=",
         "owner": "juanfont",
         "repo": "headscale",
-        "rev": "a491228b7f43036eeaf46c781a5a64d5a412e9ed",
+        "rev": "adfc6d08aabceb5bdda222ee10e10e7ef6e79ff3",
         "type": "github"
       },
       "original": {
