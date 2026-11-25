@@ -547,7 +547,9 @@ tests:
               summary: "Codex remote control is unavailable on dev-ldn"
               description: "The Codex app-server probe is disconnected, stale, or missing. Check codex-remote-control.service, its health timer, and the user's Codex login."
   - interval: 1m
-    input_series: []
+    input_series:
+      - series: 'up{job="nodes", instance="dev-ldn:9100", host="dev-ldn"}'
+        values: "1x20"
     alert_rule_test:
       - eval_time: 10m
         alertname: CodexRemoteControlUnavailable
@@ -555,6 +557,8 @@ tests:
           - exp_labels:
               severity: warning
               host: dev-ldn
+              instance: dev-ldn:9100
+              job: nodes
             exp_annotations:
               summary: "Codex remote control is unavailable on dev-ldn"
               description: "The Codex app-server probe is disconnected, stale, or missing. Check codex-remote-control.service, its health timer, and the user's Codex login."
