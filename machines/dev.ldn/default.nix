@@ -44,10 +44,8 @@
     tags = [ "tag:deployer" ];
   };
 
-  services.setec-secrets.github-token = {
-    secret = "github/kradalby/dev-token";
-    owner = "kradalby";
-  };
+  # Keeps Remote Control and the claude.ai connectors.
+  my.dev.claudeLogin = true;
 
   # Offsite repo name on Jotta — house convention, nothing host-identifying
   # on the provider side.
