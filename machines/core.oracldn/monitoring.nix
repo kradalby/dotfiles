@@ -257,6 +257,8 @@ let
     "krapage" = "core-oracldn";
     "asparges-beta" = "core-oracldn";
     "localhost" = "core-oracldn"; # prometheus/alertmanager/grafana/oci-usage on this box
+    # github-star-feed binds the freshrss container link's host side
+    ${config.containers.freshrss.hostAddress} = "core-oracldn";
     "nefit-homekit" = "home-ldn";
     "tasmota-homekit" = "home-ldn";
     "z2m-homekit" = "home-ldn";
@@ -646,6 +648,7 @@ in
       # OCI usage exporter binds localhost on this host, no ACL needed
       (scrapeJob "oci-usage" [ "localhost:63461" ])
       (scrapeJob "energyd" [ "localhost:63463" ])
+      (scrapeJob "github-star-feed" [ config.services.github-star-feed.listenAddr ])
       (scrapeJob "litestream" [
         "core-oracldn:54909"
         "dev-oracfurt:54909"
@@ -769,6 +772,8 @@ in
             "http://pdf.dalby.ts.net"
             "http://go.dalby.ts.net"
             "http://localhost:63463/healthz"
+            # 503 until the first upstream poll succeeds
+            "http://${config.services.github-star-feed.listenAddr}/feed"
           ];
         }
         {
@@ -1850,6 +1855,21 @@ in
                 annotations = {
                   summary = "OCI usage metrics missing{{ if $labels.account }} for {{ $labels.account }}{{ end }} on {{ $labels.instance }}";
                   description = "oci_usage_month_total is absent for this account or scrape while the exporter is up; the Oracle cost and staleness alerts are blind.";
+                };
+              }
+              {
+                alert = "GithubStarFeedStale";
+                # GitHub's feed holds only hours of activity, so a long outage
+                # loses stars for good. The gauge is 0 until the first success.
+                expr = ''
+                  time() - github_star_feed_last_success_timestamp_seconds > 3600
+                  or absent(github_star_feed_last_success_timestamp_seconds)
+                '';
+                for = "15m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "github-star-feed cannot read the GitHub feed";
+                  description = "No successful poll of the GitHub private feed for over an hour; stars older than the feed's window are lost. A 401 means the token is revoked: replace the URL in secrets/github-star-feed.age. journalctl -u github-star-feed says why.";
                 };
               }
               {

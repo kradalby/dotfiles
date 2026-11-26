@@ -1582,6 +1582,41 @@ tests:
               summary: "core.tjoda is up but link_watchdog_carrier is absent"
               description: "The link watchdog timer is not running or its textfile is gone. core.tjoda no longer recovers itself from a dead NIC, and Tjodalyng has no hands."
 
+  # github-star-feed: an hour of failed polls pages; the absent() arm catches
+  # a renamed or never-exported gauge.
+  - interval: 5m
+    input_series:
+      - series: 'github_star_feed_last_success_timestamp_seconds{job="github-star-feed", instance="192.168.253.1:63469"}'
+        values: "0x30"
+    alert_rule_test:
+      - eval_time: 50m
+        alertname: GithubStarFeedStale
+        exp_alerts: []
+      - eval_time: 90m
+        alertname: GithubStarFeedStale
+        exp_alerts:
+          - exp_labels:
+              job: github-star-feed
+              instance: 192.168.253.1:63469
+              severity: warning
+            exp_annotations:
+              summary: "github-star-feed cannot read the GitHub feed"
+              description: "No successful poll of the GitHub private feed for over an hour; stars older than the feed's window are lost. A 401 means the token is revoked: replace the URL in secrets/github-star-feed.age. journalctl -u github-star-feed says why."
+
+  - interval: 5m
+    input_series:
+      - series: 'up{job="github-star-feed", instance="192.168.253.1:63469"}'
+        values: "1x10"
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: GithubStarFeedStale
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+            exp_annotations:
+              summary: "github-star-feed cannot read the GitHub feed"
+              description: "No successful poll of the GitHub private feed for over an hour; stars older than the feed's window are lost. A 401 means the token is revoked: replace the URL in secrets/github-star-feed.age. journalctl -u github-star-feed says why."
+
   # energyd: a stale supplier day must not fire during normal delivery lag.
   - interval: 5m
     input_series:
