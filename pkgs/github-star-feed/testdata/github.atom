@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/" xml:lang="en-US">
+  <id>tag:github.com,2008:/example</id>
+  <link type="text/html" rel="alternate" href="https://github.com/example"/>
+  <link type="application/atom+xml" rel="self" href="https://github.com/example.private.atom?token=SECRETTOKEN"/>
+  <title>Private Feed for example</title>
+  <updated>2026-11-25T12:21:38-08:00</updated>
+  <entry>
+    <id>tag:github.com,2008:pr_merged/1001</id>
+    <published>2026-11-25 12:21:38 -0800</published>
+    <updated>2026-11-25 12:21:38 -0800</updated>
+    <link type="text/html" rel="alternate" href="https://github.com/acme/widget/pull/1"/>
+    <title type="html">alice contributed to acme/widget</title>
+    <author>
+      <name>alice</name>
+      <email>alice@example.com</email>
+      <uri>https://github.com/alice</uri>
+    </author>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/1?s=30&amp;v=4"/>
+    <content type="html">&lt;div&gt;merged&lt;/div&gt;</content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:star/1002</id>
+    <published>2026-11-25 11:37:30 -0800</published>
+    <updated>2026-11-25 11:37:30 -0800</updated>
+    <link type="text/html" rel="alternate" href="https://github.com/acme/gadget"/>
+    <title type="html">bob starred acme/gadget</title>
+    <author>
+      <name>bob</name>
+      <uri>https://github.com/bob</uri>
+    </author>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/2?s=30&amp;v=4"/>
+    <content type="html">&lt;div class=&quot;body&quot;&gt;A gadget &amp;amp; more&lt;/div&gt;</content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:publish_release/1003</id>
+    <published>2026-11-25 10:00:00 -0800</published>
+    <updated>2026-11-25 10:00:00 -0800</updated>
+    <link type="text/html" rel="alternate" href="https://github.com/acme/widget/releases/tag/v1.0.0"/>
+    <title type="html">acme released v1.0.0 at acme/widget</title>
+    <author>
+      <name>acme</name>
+      <uri>https://github.com/acme</uri>
+    </author>
+    <content type="html">&lt;div&gt;release&lt;/div&gt;</content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:ForkEvent/1004</id>
+    <published>2026-11-25 09:00:00 -0800</published>
+    <updated>2026-11-25 09:00:00 -0800</updated>
+    <link type="text/html" rel="alternate" href="https://github.com/carol/widget"/>
+    <title type="html">carol forked carol/widget from acme/widget</title>
+    <author>
+      <name>carol</name>
+      <uri>https://github.com/carol</uri>
+    </author>
+    <content type="html">&lt;div&gt;fork&lt;/div&gt;</content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:visibility_repo/1005</id>
+    <published>2026-11-25 08:30:00 -0800</published>
+    <updated>2026-11-25 08:30:00 -0800</updated>
+    <link type="text/html" rel="alternate" href="https://github.com/dave/thing"/>
+    <title type="html">dave made this repository public</title>
+    <author>
+      <name>dave</name>
+      <uri>https://github.com/dave</uri>
+    </author>
+    <content type="html">&lt;div&gt;public&lt;/div&gt;</content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:star/1006</id>
+    <published>2026-11-25 08:18:51 -0800</published>
+    <updated>2026-11-25 08:18:51 -0800</updated>
+    <link type="text/html" rel="alternate" href="https://github.com/acme/widget"/>
+    <title type="html">erin starred acme/widget</title>
+    <author>
+      <name>erin</name>
+      <email>erin@example.com</email>
+      <uri>https://github.com/erin</uri>
+    </author>
+    <content type="html">&lt;div&gt;widget&lt;/div&gt;</content>
+  </entry>
+</feed>
