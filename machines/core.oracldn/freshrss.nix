@@ -7,10 +7,28 @@ let
   hostAddress = "192.168.253.1";
   localAddress = "192.168.253.2";
   healthPort = 63468;
+  starFeedPort = 63469;
 in
 {
   services.tailscale.services.rss.endpoints."tcp:443" = "tls-terminated-tcp://unix:${socket}";
   networking.nat.internalInterfaces = [ "ve-freshrss" ];
+
+  # Subscribe FreshRSS to http://192.168.253.1:63469/feed. Bound to the
+  # container link only, so the token-backed feed is reachable from nowhere else.
+  age.secrets.github-star-feed.file = ../../secrets/github-star-feed.age;
+  services.github-star-feed = {
+    enable = true;
+    listenAddr = "${hostAddress}:${toString starFeedPort}";
+    environmentFile = config.age.secrets.github-star-feed.path;
+  };
+  systemd.services.github-star-feed = {
+    # The listen address exists only while the container's link is up.
+    after = [ "container@freshrss.service" ];
+    requires = [ "container@freshrss.service" ];
+    # The environment file's path never changes, so a new secret would not restart it.
+    restartTriggers = [ config.age.secrets.github-star-feed.file ];
+  };
+  networking.firewall.interfaces."ve-freshrss".allowedTCPPorts = [ starFeedPort ];
 
   systemd.tmpfiles.rules = [
     "d ${state} 0700 44880 44880 -"
