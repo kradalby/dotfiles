@@ -64,6 +64,21 @@ in
     };
   };
 
+  # The host caps user-1000.slice at 24 GiB, shared with ssh sessions and the
+  # user manager. Agent workloads hitting that cap stall everything in the
+  # slice. A lower cap here keeps the OOM kills and reclaim inside Rex.
+  systemd.user.services.rex.Service = {
+    MemoryHigh = "19G";
+    MemoryMax = "21G";
+    # Reclaim at Rex's limit would otherwise take pages from the server too,
+    # freezing every session and its tailnet node. Rex owns server/ through
+    # Delegate, so systemd cannot set this; "-" keeps Rex up if the write fails.
+    ExecStartPost = "-${pkgs.writeShellScript "rex-protect-server" ''
+      cg=/sys/fs/cgroup$(${pkgs.systemd}/bin/systemctl --user show -p ControlGroup --value rex.service)
+      echo 1G >"$cg/server/memory.min"
+    ''}";
+  };
+
   home.username = "ubuntu";
   home.homeDirectory = "/home/ubuntu";
 
