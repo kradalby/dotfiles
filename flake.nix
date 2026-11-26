@@ -688,6 +688,7 @@
           go-p3-controller = pkgs.p3-controller;
           owntone-restart = pkgs.p3-controller.tests.owntone-restart;
           go-oci-usage-exporter = pkgs.oci-usage-exporter;
+          go-github-star-feed = pkgs.github-star-feed;
           go-energyd = pkgs.energyd;
           go-dashboards = pkgs.dashboards;
           go-authkey = pkgs.authkey;

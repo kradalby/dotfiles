@@ -30,6 +30,8 @@ final: prev: {
 
   oci-usage-exporter = prev.callPackage ../oci-usage-exporter { };
 
+  github-star-feed = prev.callPackage ../github-star-feed { };
+
   energyd = prev.callPackage ../energyd { };
 
   dashboards = prev.callPackage ../dashboards { };
