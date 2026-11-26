@@ -53,14 +53,18 @@ if called docker || called nix-collect-garbage; then exit 1; fi
 echo 'ok   full /tmp only runs tmp-cleanup, without touching overflow'
 
 old="$HOME/.cache/go-build/old" new="$HOME/.cache/go-build/new"
-touch "$new"
-touch -d '1 day ago' "$old"
+private="$HOME/.cache/tmp/job/gocache" plain="$HOME/.cache/tmp/job/notes"
+mkdir -p "$private" "$plain"
+touch "$new" "$private/trim.txt" "$private/new"
+touch -d '1 day ago' "$old" "$private/old" "$plain/old"
 RELIEF_docker=80 run 90 50 -y
 [[ $rc == 0 && ! -e "$old" && -e "$new" ]]
+[[ ! -e "$private/old" && -e "$private/new" && -e "$plain/old" ]]
 called 'tmp-cleanup -f 101 -y -o 7$'
 called 'docker system prune -af$'
 if called nix-collect-garbage; then exit 1; fi
 echo 'ok   full / stops as soon as a step brings it under, keeps fresh go cache'
+echo 'ok   private go cache in overflow scratch is trimmed, other scratch is not'
 
 RELIEF_tmp=80 run 90 50 -y
 if called docker; then exit 1; fi
