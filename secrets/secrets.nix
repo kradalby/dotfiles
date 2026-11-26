@@ -79,6 +79,8 @@ with builtins;
   "alertmanager-env.age".publicKeys = u ++ [ hosts.core-oracldn ];
 
   "oci-usage-exporter.age".publicKeys = u ++ [ hosts.core-oracldn ];
+  # GITHUB_STAR_FEED_URL: the private feed URL, token included
+  "github-star-feed.age".publicKeys = u ++ [ hosts.core-oracldn ];
 
   # ghdl: GHDL_GITHUB_TOKEN + TS_AUTHKEY
   "ghdl.age".publicKeys = u ++ [ hosts.core-oracldn ];
