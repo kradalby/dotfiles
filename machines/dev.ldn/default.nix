@@ -207,6 +207,33 @@ in
       };
       Install.WantedBy = [ "timers.target" ];
     };
+
+    # Agents only clean at the edge, after a build already failed on a full
+    # disk. Clean ahead of them. The limit sits above the script default so
+    # the docker and nix steps stay rare: they can break a running build.
+    systemd.user.services.disk-cleanup = {
+      Unit.Description = "Free disk before agents run out";
+      Service = {
+        Type = "oneshot";
+        ExecStart = "${
+          import ../../pkgs/scripts/disk-cleanup.nix { inherit pkgs; }
+        }/bin/disk-cleanup -y -f 90";
+        # docker and nix-collect-garbage are the host's own.
+        Environment = [ "PATH=/run/wrappers/bin:/run/current-system/sw/bin" ];
+        # Exit 3 means "still full", which the disk alert already reports.
+        SuccessExitStatus = 3;
+        Nice = 19;
+        IOSchedulingClass = "idle";
+      };
+    };
+    systemd.user.timers.disk-cleanup = {
+      Unit.Description = "Free disk before agents run out";
+      Timer = {
+        OnCalendar = "*:0/15";
+        Persistent = true;
+      };
+      Install.WantedBy = [ "timers.target" ];
+    };
   };
 
   security.sudo.extraRules = [
