@@ -42,11 +42,6 @@ url = "nix:nixpkgs-unstable"
 [inputs.nixpkgs-master]
 url = "nix:master"
 
-# TODO: remove once nixos-26.05 ships nginx >= 1.30.7 (HTTP/2 RCE fix);
-# -small gets it first. Only used by common/nginx.nix.
-[inputs.nixpkgs-stable-small]
-url = "nix:nixos-26.05-small"
-
 ## system
 
 [inputs.flake-utils]

@@ -9,10 +9,6 @@
     services = {
       nginx = {
         enable = true;
-        # TODO: back to pkgs.nginx once nixos-26.05 ships >= 1.30.7, then drop
-        # the nixpkgs-stable-small input. HTTP/2 RCE: CVE-2026-123633, CVE-2026-123007.
-        package = pkgs.stable-small.nginx;
-
         # defaultListenAddresses = [ "127.0.0.1" "[::1]" ];
 
         statusPage = true;
