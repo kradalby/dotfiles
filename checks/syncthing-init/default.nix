@@ -1,6 +1,6 @@
-{ pkgs, self }:
+{ pkgs, inputs }:
 let
-  linux = self.inputs.nixpkgs-stable.lib.nixosSystem {
+  linux = inputs.nixpkgs-stable.lib.nixosSystem {
     system = pkgs.stdenv.hostPlatform.system;
     modules = [
       ../../modules/syncthing-nixos.nix

@@ -1,7 +1,11 @@
-{ pkgs, self }:
+{
+  pkgs,
+  self,
+  inputs,
+}:
 let
   lib = pkgs.lib;
-  dag = import (self.inputs.home-manager + "/modules/lib/dag.nix") { inherit lib; };
+  dag = import (inputs.home-manager + "/modules/lib/dag.nix") { inherit lib; };
   configs = [
     self.homeConfigurations."ubuntu@kradalby-llm".config
     self.darwinConfigurations.krair.config.home-manager.users.kradalby
@@ -21,14 +25,14 @@ let
     home.homeDirectory = "/fixture";
     home.stateVersion = "26.05";
   };
-  old = self.inputs.home-manager.lib.homeManagerConfiguration {
+  old = inputs.home-manager.lib.homeManagerConfiguration {
     inherit pkgs;
     modules = [
       base
       { home.file.".config/tool/config.json".text = ''{"old":true}''; }
     ];
   };
-  new = self.inputs.home-manager.lib.homeManagerConfiguration {
+  new = inputs.home-manager.lib.homeManagerConfiguration {
     inherit pkgs;
     modules = [
       ../../home/mutable-json.nix

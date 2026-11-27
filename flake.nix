@@ -5,253 +5,19 @@
   # we keep off (see common/nix.nix). Caches belong in nix.settings on the
   # hosts that need them.
 
-  inputs = {
-    image-config = {
-      url = "path:./images/default";
-      flake = false;
-    };
-
-    flake-utils.url = "github:numtide/flake-utils";
-
-    # "stable" tracks the latest NixOS release (26.05) and is the box default.
-    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-26.05";
-    nixpkgs-darwin.url = "github:NixOS/nixpkgs/nixpkgs-26.05-darwin";
-    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    nixpkgs-master.url = "github:NixOS/nixpkgs/master";
-    # TODO: remove once nixos-26.05 ships nginx >= 1.30.7 (HTTP/2 RCE fix);
-    # -small gets it first. Only used by common/nginx.nix.
-    nixpkgs-stable-small.url = "github:NixOS/nixpkgs/nixos-26.05-small";
-    darwin.url = "github:nix-darwin/nix-darwin/nix-darwin-26.05";
-    darwin.inputs.nixpkgs.follows = "nixpkgs-darwin";
-
-    home-manager.url = "github:nix-community/home-manager/release-26.05";
-    home-manager.inputs.nixpkgs.follows = "nixpkgs-stable";
-    # Plugin sources share inputs by repository and carry no flake dependencies.
-    claude-plugins-official = {
-      url = "github:anthropics/claude-plugins-official";
-      flake = false;
-    };
-    claude-superpowers = {
-      url = "github:obra/superpowers";
-      flake = false;
-    };
-    claude-ponytail = {
-      url = "github:DietrichGebert/ponytail";
-      flake = false;
-    };
-    claude-caveman = {
-      url = "github:JuliusBrussee/caveman";
-      flake = false;
-    };
-    claude-ui-ux-pro-max = {
-      url = "github:nextlevelbuilder/ui-ux-pro-max-skill";
-      flake = false;
-    };
-    codex-plugin-cc = {
-      url = "github:openai/codex-plugin-cc";
-      flake = false;
-    };
-    claude-floorplan = {
-      url = "github:haydenschmitty/floorplan";
-      flake = false;
-    };
-    nix-index-database.url = "github:nix-community/nix-index-database";
-    nix-index-database.inputs.nixpkgs.follows = "nixpkgs-stable";
-
-    treefmt-nix = {
-      url = "github:numtide/treefmt-nix";
-      inputs.nixpkgs.follows = "nixpkgs-stable";
-    };
-
-    nix-rosetta-builder = {
-      url = "github:cpick/nix-rosetta-builder";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-    };
-
-    ragenix = {
-      url = "github:yaxitech/ragenix";
-      inputs."flake-utils".follows = "flake-utils";
-      inputs.nixpkgs.follows = "nixpkgs-stable";
-    };
-
-    # Go based
-    krapage = {
-      url = "github:kradalby/kra";
-      inputs."flake-utils".follows = "flake-utils";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-    };
-
-    hvor = {
-      url = "github:kradalby/hvor";
-      inputs."flake-utils".follows = "flake-utils";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-    };
-
-    tasmota-exporter = {
-      url = "github:kradalby/tasmota-exporter";
-      inputs."flake-utils".follows = "flake-utils";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-    };
-
-    homewizard-p1-exporter = {
-      url = "github:kradalby/homewizard-p1-exporter";
-      inputs."flake-utils".follows = "flake-utils";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-    };
-
-    ghdl = {
-      url = "github:kradalby/ghdl";
-      inputs."flake-utils".follows = "flake-utils";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-    };
-
-    # aspargesgaarden.no; branch asparges until it replaces the Pages site on
-    # main. headscale is only its VM-test control server.
-    asparges = {
-      url = "github:kradalby/aspargesgaarden-elm/asparges";
-      inputs."flake-utils".follows = "flake-utils";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-      inputs.headscale.follows = "headscale";
-    };
-
-    # garnix CI build logs as plain text; runs on the garnix VM as its own
-    # tsnet node. Follows unstable: its go.mod needs go >= 1.27.0.
-    garnixlogs = {
-      url = "github:kradalby/garnixlogs";
-      inputs."flake-utils".follows = "flake-utils";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-    };
-
-    # Nix binary cache served over tailscale.
-    tsnixcache = {
-      url = "github:kradalby/tsnixcache/main";
-      # Follows unstable: its go.mod needs go >= 1.27.0.
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-    };
-
-    # Self-hosted garnix CI, pinned to the reviewed GC and eval fixes so routine
-    # flake updates cannot revert them to integration. Do NOT `follows` nixpkgs: garnix pins
-    # nixpkgs-25.11-small + its own nixpkgsUnstable + libkrun for krun; overriding
-    # them risks breaking the action-runner.
-    garnix-ci.url = "github:kradalby/garnix/f0794f824292f7f6aa7bf36c7e2e74112c290aa3";
-
-    headscale = {
-      url = "github:juanfont/headscale/main";
-      inputs."flake-utils".follows = "flake-utils";
-      # Upstream builds on unstable but takes its Go from stable; share both
-      # fleet pins.
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-      inputs.nixpkgs-stable.follows = "nixpkgs-stable";
-    };
-
-    golink = {
-      # Follows unstable for the fleet-wide go_latest (1.27); its go.mod floor
-      # of 1.26.6 is satisfied there too.
-      url = "github:tailscale/golink";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-      inputs.systems.follows = "flake-utils/systems";
-    };
-
-    hugin = {
-      url = "github:kradalby/hugin";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-      inputs."flake-utils".follows = "flake-utils";
-    };
-
-    # setec-compatible secrets server. Follows nixpkgs-unstable so its go build
-    # tracks our toolchain.
-    ts1p = {
-      url = "github:kradalby/ts1p/main";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-    };
-
-    # Go links changed since the last look. Follows nixpkgs-unstable so its go
-    # build tracks our toolchain.
-    golinkdiff = {
-      url = "github:kradalby/golinkdiff/main";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-      inputs."flake-utils".follows = "flake-utils";
-    };
-
-    tsidp = {
-      url = "github:tailscale/tsidp";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-      inputs.systems.follows = "flake-utils/systems";
-    };
-
-    tailscale = {
-      url = "github:tailscale/tailscale/kradalby/nixos-module";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-      inputs.systems.follows = "flake-utils/systems";
-      inputs.flake-compat.follows = "";
-    };
-
-    munin.url = "github:kradalby/munin";
-
-    neovim-kradalby = {
-      url = "github:kradalby/neovim";
-      inputs."flake-utils".follows = "flake-utils";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-    };
-
-    nefit-homekit = {
-      url = "github:kradalby/nefit-homekit";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-      inputs."flake-utils".follows = "flake-utils";
-    };
-
-    tasmota-homekit = {
-      url = "github:kradalby/tasmota-homekit";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-      inputs."flake-utils".follows = "flake-utils";
-    };
-
-    z2m-homekit = {
-      url = "github:kradalby/z2m-homekit";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-      inputs."flake-utils".follows = "flake-utils";
-    };
-
-    # Hermes patches patchelf for its Linux binaries against its own nixpkgs pin.
-    hermes-agent = {
-      url = "github:NousResearch/hermes-agent";
-      inputs.home-manager.follows = "home-manager";
-    };
-
-    # Pi extension that registers Aperture's /v1/models catalog as providers.
-    pi-aperture-models = {
-      url = "github:raggi/aperture-models";
-      flake = false;
-    };
-
-    # Prebuilt Rex. Follow the fleet nixpkgs: the login server dlopens the
-    # host's PAM modules, so keep one pam and glibc in the process.
-    rex = {
-      url = "https://pkgs.superlogical.com/rex/nix/snapshot.tar.gz";
-      inputs.nixpkgs.follows = "nixpkgs-stable";
-    };
-
-    # Stock nixpkgs sd-image-aarch64 has no Pi5 support (no bcm2712 DTB,
-    # u-boot, or [pi5] config.txt). nixos-raspberrypi ships proper Pi5
-    # firmware + sd-image generator.
-    nixos-raspberrypi.url = "github:nvmd/nixos-raspberrypi/main";
-    # Follow the fleet nixpkgs (26.05) so the Pi build matches home-manager
-    # and the rest of the fleet — its own pin (25.11) lacks lib/services,
-    # which home-manager 26.05 needs.
-    nixos-raspberrypi.inputs.nixpkgs.follows = "nixpkgs-stable";
-  };
-
+  # Inputs are tack pins (.tack/pins.toml); `tack update` moves them.
   outputs =
-    {
-      self,
-      nixpkgs-stable,
-      nixpkgs-darwin,
-      darwin,
-      home-manager,
-      flake-utils,
-      ...
-    }@inputs:
+    { self, ... }@args:
     let
+      inputs = (import ./.tack) { overrides = args.tackOverrides or { }; } // {
+        inherit self;
+      };
+      inherit (inputs)
+        nixpkgs-stable
+        darwin
+        home-manager
+        flake-utils
+        ;
       # Single Go for the whole fleet: `go_latest` from nixpkgs-unstable, the
       # only channel whose default Go tracks the newest release — stable holds
       # its `go_latest` back a major, below what headscale, tsnixcache and hugin
@@ -652,10 +418,10 @@
           claude-plugins = import ./checks/claude-plugins { inherit pkgs; };
           codex-session-env = import ./checks/codex-session-env { inherit pkgs; };
           mcp-servers = import ./checks/mcp-servers { inherit pkgs; };
-          claude-mcp = import ./checks/claude-mcp { inherit pkgs self; };
-          claude-path = import ./checks/claude-path { inherit pkgs self; };
-          mutable-json = import ./checks/mutable-json { inherit pkgs self; };
-          syncthing-init = import ./checks/syncthing-init { inherit pkgs self; };
+          claude-mcp = import ./checks/claude-mcp { inherit pkgs self inputs; };
+          claude-path = import ./checks/claude-path { inherit pkgs inputs; };
+          mutable-json = import ./checks/mutable-json { inherit pkgs self inputs; };
+          syncthing-init = import ./checks/syncthing-init { inherit pkgs inputs; };
           tmp-cleanup = import ./checks/tmp-cleanup { inherit pkgs; };
           wt = import ./checks/wt { inherit pkgs; };
           disk-cleanup = import ./checks/disk-cleanup { inherit pkgs; };
@@ -678,7 +444,7 @@
           umami = import ./checks/umami.nix { inherit pkgs self; };
           # Fail if any host exposes an exporter/service that nothing scrapes.
           monitoring-coverage = import ./checks/monitoring-coverage { inherit pkgs self; };
-          inference = import ./checks/inference.nix { inherit pkgs self; };
+          inference = import ./checks/inference.nix { inherit pkgs self inputs; };
           # core.tjoda's NIC recovery ladder: it only runs unattended, so its
           # thresholds are exercised here rather than discovered during an outage.
           link-watchdog = import ./checks/link-watchdog { inherit pkgs self; };

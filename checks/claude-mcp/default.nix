@@ -1,7 +1,11 @@
-{ pkgs, self }:
+{
+  pkgs,
+  self,
+  inputs,
+}:
 let
   work = self.homeConfigurations."ubuntu@kradalby-llm".config;
-  fixture = self.inputs.home-manager.lib.homeManagerConfiguration {
+  fixture = inputs.home-manager.lib.homeManagerConfiguration {
     inherit pkgs;
     modules = [
       ../../home/mcp.nix

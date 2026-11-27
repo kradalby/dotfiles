@@ -13,7 +13,7 @@ Build each new SD image:
 
 ```sh
 authkey kradalby > ~/cabin-pi/join.key
-nix build .#packages.aarch64-linux.rpi4 --override-input image-config "path:$HOME/cabin-pi"
+IMAGE_CONFIG=$HOME/cabin-pi nix build --impure .#packages.aarch64-linux.rpi4
 ```
 
 Flash `result/sd-image/*.img.zst`. Credentials enter the Nix store, the image and any cache that receives them.
@@ -26,7 +26,7 @@ From the repo root, start with [wired DHCP](../images/examples/wired/default.nix
 cp -r images/examples/wired ~/edge-01
 vim ~/edge-01/default.nix
 authkey kradalby > ~/edge-01/join.key
-nix build .#installer-iso --override-input image-config "path:$HOME/edge-01"
+IMAGE_CONFIG=$HOME/edge-01 nix build --impure .#installer-iso
 ```
 
 1. Boot the ISO from `result/iso/` in UEFI mode. It joins Tailscale automatically.

@@ -1,6 +1,11 @@
 { inputs }:
 let
-  inherit (inputs) nixpkgs-stable nixos-raspberrypi image-config;
+  inherit (inputs) nixpkgs-stable nixos-raspberrypi;
+  # Profile: tests pass inputs.image-config; people set IMAGE_CONFIG and build
+  # with --impure (pure eval reads "" and keeps the default).
+  imageConfigEnv = builtins.getEnv "IMAGE_CONFIG";
+  image-config =
+    inputs.image-config or (if imageConfigEnv != "" then /. + imageConfigEnv else ./default);
   hostModules = [
     inputs.tailscale.nixosModules.default
     ../common/bootstrap-common.nix

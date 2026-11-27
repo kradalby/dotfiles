@@ -1,13 +1,17 @@
-{ pkgs, self }:
+{
+  pkgs,
+  self,
+  inputs,
+}:
 let
   inherit (pkgs) lib;
   models = [
     "qwen3.5:2b-q4_K_M"
     "gemma4:e2b-it-q4_K_M"
   ];
-  base = self.inputs.nixpkgs-stable.lib.nixosSystem {
+  base = inputs.nixpkgs-stable.lib.nixosSystem {
     modules = [
-      self.inputs.tailscale.nixosModules.default
+      inputs.tailscale.nixosModules.default
       ../modules/inference
       ../modules/inference/linux.nix
       {
