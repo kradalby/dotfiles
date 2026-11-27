@@ -129,12 +129,12 @@ in
       target = ".config/opencode/opencode.json";
       value = {
         "$schema" = "https://opencode.ai/config.json";
-        inherit (aiConfig.opencode) permission;
+        inherit (aiConfig.opencode) permissions;
         # aperture-models.js adds the Aperture provider and its models.
         enabled_providers = [ "aperture-openai-compatible" ];
         model = "aperture-openai-compatible/${defaultModel}";
         # home/mcp.nix merges the shared servers on every activation.
-        mcp.aperture = {
+        mcp.servers.aperture = {
           type = "remote";
           url = "http://ai.corp.ts.net/v1/mcp";
         };
@@ -216,7 +216,7 @@ in
   # No NixOS module here to write /etc/tmux.conf, so use the XDG path.
   xdg.configFile."tmux/tmux.conf".text = import ../../common/tmux-conf.nix { inherit pkgs lib; };
 
-  xdg.configFile."opencode/plugin/aperture-models.js".source =
+  xdg.configFile."opencode/plugins/aperture-models.js".source =
     ../../pkgs/scripts/opencode-aperture-models.js;
   # Pi loads the directory through its package.json `pi.extensions` entry.
   home.file.".pi/agent/extensions/aperture-models".source = inputs.pi-aperture-models;

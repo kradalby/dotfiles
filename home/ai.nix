@@ -23,6 +23,14 @@ let
   # Wrapper from home/cooklang.nix, which bakes in the recipe root.
   cookMcp = "${config.home.profileDirectory}/bin/cook-mcp";
   cook = config.my.cooklang.recipes != null;
+  mailMcp = "${config.home.profileDirectory}/bin/apple-mailbox-mcp";
+  # Hides the mail tools from every agent; the mail-triage agent's own rules
+  # come later and re-allow them.
+  mailDeny = {
+    action = "mail_*";
+    resource = "*";
+    effect = "deny";
+  };
 in
 {
   # Claude Code ignores mcpServers in settings.json; it reads user-scope
@@ -161,12 +169,13 @@ in
     "$schema" = "https://opencode.ai/config.json";
 
     # Remote ollama on kratail2, served over the kradalby.no tailnet
-    # (svc:ollama -> tailscale serve -> caddy -> 127.0.0.1:11434). Speaks the
-    # OpenAI-compatible API at /v1. Models + context sizes come from the shared
+    # (svc:ollama -> tailscale serve -> caddy -> 127.0.0.1:11434). `ollama` is
+    # a built-in provider, so only the endpoint is set; opencode also discovers
+    # the served tags itself. Models + context sizes come from the shared
     # registry; the matching num_ctx-pinned tags are created on kratail2 (see
     # the ollama-models agent there). Verify the live set:
     #   curl -s http://ollama.dalby.ts.net/v1/models | jq -r '.data[].id'
-    provider.ollama =
+    providers.ollama =
       let
         # Shared with machines/kratail2 so the model list and the served
         # num_ctx tags can never drift.
@@ -177,9 +186,9 @@ in
         # variant's num_ctx, so the two match by construction. local => zero cost.
         mkModel = v: {
           name = "${v.label} @ ${toString (v.context / 1024)}k";
-          tool_call = v.tools;
-          # OpenCode 2 drops `attachment` and assumes image input unless told.
-          modalities = {
+          # Unset, opencode assumes image input.
+          capabilities = {
+            inherit (v) tools;
             input = [ "text" ] ++ lib.optional v.vision "image";
             output = [ "text" ];
           };
@@ -193,12 +202,8 @@ in
         };
       in
       {
-        npm = "@ai-sdk/openai-compatible@3.0.30"; # pinned, not floating; bump deliberately
         name = "Ollama (kratail2)";
-        options = {
-          baseURL = "http://ollama.dalby.ts.net/v1";
-          apiKey = "ollama"; # ignored by ollama; the OpenAI SDK requires one
-        };
+        settings.baseURL = "http://ollama.dalby.ts.net/v1";
         # One entry per (model, context); keys are the ollama variant tags.
         models = builtins.listToAttrs (
           map (v: {
@@ -208,7 +213,7 @@ in
         );
       };
 
-    mcp =
+    mcp.servers =
       # No picnic: opencode serve opens one MCP session per directory and
       # retries 429s, which drains picnic-mcp's single shared rate limit.
       lib.optionalAttrs personal {
@@ -229,6 +234,14 @@ in
           command = [ cookMcp ];
         };
       }
+      // lib.optionalAttrs config.my.mail.triage.enable {
+        mail = {
+          type = "local";
+          command = [ mailMcp ];
+          # Upstream sends to anyone by default; this limits it to the owner.
+          environment.EMAIL_MCP_SEND_ALLOW_ALL = "0";
+        };
+      }
       // {
         superlogical = {
           type = "remote";
@@ -236,28 +249,23 @@ in
         };
       };
 
-    permission = {
-      # Allow reading from common project/build directories.
-      external_directory = {
-        "~/go/**" = "allow";
-        "~/git/**" = "allow";
-        "~/worktrees/**" = "allow";
-        "/nix/**" = "allow";
-        "/tmp/**" = "allow";
-        # macOS maps /tmp to /private/tmp.
-        "/private/tmp/**" = "allow";
-        # Claude Code stores session data, CLAUDE.md, etc.
-        "~/.claude/**" = "allow";
-      };
-      # Deny edits outside the working tree — these directories
-      # are read-only reference material, not targets for changes.
-      edit = {
-        "~/go/**" = "deny";
-        "~/git/**" = "deny";
-        "~/worktrees/**" = "deny";
-        "/nix/**" = "deny";
-      };
-    };
+    # Deny edits outside the working tree — these directories are read-only
+    # reference material, not targets for changes. Reads need no rule: paths
+    # outside the project are allowed by default.
+    permissions =
+      map
+        (resource: {
+          action = "edit";
+          inherit resource;
+          effect = "deny";
+        })
+        [
+          "~/go/*"
+          "~/git/*"
+          "~/worktrees/*"
+          "/nix/*"
+        ]
+      ++ lib.optional config.my.mail.triage.enable mailDeny;
   };
 
   # Codex has no model/provider block here on purpose: signed-in codex picks
@@ -296,6 +304,8 @@ in
   #
   # Capture the dev env once per thread, including phone-initiated resumes.
   # Bash reads it through BASH_ENV without changing the displayed command.
+  inherit mailDeny;
+
   codexHooks = {
     hooks.SessionStart = [
       {

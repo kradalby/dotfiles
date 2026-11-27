@@ -16,6 +16,11 @@ final: prev: {
 
   mcp-picnic = prev.callPackage ./mcp-picnic.nix { };
 
+  # Stable's python mcp SDK predates the 2.x API upstream requires.
+  apple-mailbox-mcp = prev.callPackage ./apple-mailbox-mcp.nix {
+    inherit (final.unstable) python3Packages;
+  };
+
   webrepl_cli = prev.callPackage ./webrepl_cli.nix { };
 
   authkey = prev.callPackage ./authkey { };

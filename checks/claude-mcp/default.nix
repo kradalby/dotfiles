@@ -19,6 +19,7 @@ let
           type = lib.types.nullOr lib.types.str;
           default = null;
         };
+        options.my.mail.triage.enable = lib.mkEnableOption "mail triage";
       })
       {
         home.username = "fixture";

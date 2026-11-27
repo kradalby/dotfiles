@@ -81,9 +81,19 @@ in
     )
     + lib.concatStrings (
       lib.mapAttrsToList (
-        name: server: merge "${home}/.config/opencode/opencode.json" ".mcp[${builtins.toJSON name}]" server
-      ) ai.opencode.mcp
+        name: server:
+        merge "${home}/.config/opencode/opencode.json" ".mcp.servers[${builtins.toJSON name}]" server
+      ) ai.opencode.mcp.servers
     )
+    # Rules are an ordered list, so append rather than set a key.
+    + lib.optionalString config.my.mail.triage.enable ''
+      f=${lib.escapeShellArg "${home}/.config/opencode/opencode.json"}
+      v=${lib.escapeShellArg (builtins.toJSON ai.mailDeny)}
+      if [ -f "$f" ] && ! ${jq} -e --argjson v "$v" '.permissions // [] | index($v)' "$f" >/dev/null; then
+        tmp="$(mktemp "$f.XXXXXX")"
+        ${jq} --argjson v "$v" '.permissions += [$v]' "$f" >"$tmp" && run mv "$tmp" "$f" || rm -f "$tmp"
+      fi
+    ''
     + lib.optionalString (config.my.mutableJson ? pi-mcp) (
       lib.concatStrings (
         lib.mapAttrsToList (

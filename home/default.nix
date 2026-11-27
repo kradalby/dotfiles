@@ -37,6 +37,7 @@ in
     ./ai-commands.nix
     ./ai-plugin-install.nix
     ./cooklang.nix
+    ./mail.nix
 
     ../modules/claude-code
 
@@ -109,8 +110,8 @@ in
     "opencode/AGENTS.md".text = agentsContent;
     # opencode equivalent of the Claude dev-env hook: a shell.env plugin that
     # injects the per-directory Nix dev env into every shell command. Auto-
-    # discovered from the plugin dir; no opencode.json entry needed.
-    "opencode/plugin/nix-dev-env.js".source = ../pkgs/scripts/opencode-nix-dev-env.js;
+    # discovered from the plugins dir; no opencode.json entry needed.
+    "opencode/plugins/nix-dev-env.js".source = ../pkgs/scripts/opencode-nix-dev-env.js;
 
     "nix/nix.conf".text = ''
       experimental-features = nix-command flakes
