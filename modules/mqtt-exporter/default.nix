@@ -1,5 +1,6 @@
 {
   config,
+  inputs,
   pkgs,
   lib,
   ...
@@ -102,12 +103,7 @@ in
 
   config = mkIf cfg.enable (
     let
-      mqttExporterSrc = pkgs.fetchFromGitHub {
-        owner = "kpetremann";
-        repo = "mqtt-exporter";
-        rev = (import ../../metadata/versions.nix).mqttExporter;
-        hash = "sha256-cCVbvO1+69zIxbGGW7p3YTbDQgSU41uVR7M3jOHaqO8=";
-      };
+      mqttExporterSrc = inputs.mqtt-exporter;
     in
     {
       networking.firewall.allowedTCPPorts = mkIf cfg.openFirewall [ cfg.prometheus.port ];

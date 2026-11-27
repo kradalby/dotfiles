@@ -1,30 +1,19 @@
 {
+  src,
+  version,
   lib,
-  fetchFromGitHub,
-  fetchNpmDeps,
-  npmHooks,
+  importNpmLock,
   rustPlatform,
   pkg-config,
   openssl,
   nodejs,
 }:
-let
-  versions = import ../../metadata/versions.nix;
-in
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "cook-cli";
-  # NOTE: manual update required
-  # https://github.com/cooklang/cookcli/releases
-  version = versions.pkgs.overlays.cook;
+  inherit src version;
 
-  src = fetchFromGitHub {
-    owner = "cooklang";
-    repo = "cookcli";
-    rev = "v${finalAttrs.version}";
-    hash = "sha256-sTr6YBgxxgl7tFKQEUM40Ov7/dehBVQPGxZhNZDu63I=";
-  };
-
-  cargoHash = "sha256-irIwfPFDklss9t45/CV9SrDbxhIxj1x9sFyiPmdBWkg=";
+  # Deps from the pinned Cargo.lock: a version bump needs no hash.
+  cargoLock.lockFile = "${src}/Cargo.lock";
 
   # Build without the self-updating feature. Dropping the defaults wholesale
   # also drops `server`, which upstream feature-gated after 0.22.0 — that
@@ -38,17 +27,14 @@ rustPlatform.buildRustPackage (finalAttrs: {
     pkg-config
     openssl
     nodejs
-    npmHooks.npmConfigHook
+    importNpmLock.npmConfigHook
   ];
 
   buildInputs = [ openssl ];
 
   env.OPENSSL_NO_VENDOR = 1;
 
-  npmDeps = fetchNpmDeps {
-    inherit (finalAttrs) src;
-    hash = "sha256-epKELLGq4bq1+hWXWksR+G79WbvvMi4ylnjrrakVrYI=";
-  };
+  npmDeps = importNpmLock { npmRoot = src; };
 
   # Neither generated asset is checked in, and the crate's build script fails
   # without both.

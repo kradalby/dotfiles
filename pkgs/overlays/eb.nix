@@ -1,26 +1,17 @@
 {
+  src,
+  version,
   lib,
   stdenv,
-  fetchFromGitHub,
   rustPlatform,
 }:
-let
-  versions = import ../../metadata/versions.nix;
-in
 rustPlatform.buildRustPackage rec {
-  # NOTE: manual update required
   # https://github.com/rye/eb
   pname = "eb";
-  version = versions.pkgs.overlays.eb;
+  inherit src version;
 
-  src = fetchFromGitHub {
-    owner = "rye";
-    repo = pname;
-    rev = version;
-    hash = "sha256-kHN9W4oKlSIiJlbu3Jd9HAIQjk1jTk/2sHr1eLlydD8=";
-  };
-
-  cargoHash = "sha256-ybbayOxV2zXPK4A/92HbOT3i+8dG3u6/9vqZLxNCEJ8=";
+  # Deps from the pinned Cargo.lock: a version bump needs no hash.
+  cargoLock.lockFile = "${src}/Cargo.lock";
 
   meta = with lib; {
     description = "♻️ Run commands with exponential backoff 📈";

@@ -83,7 +83,7 @@
           };
           overlays = [
             goOverlay
-            (import ./pkgs/overlays { })
+            (import ./pkgs/overlays { inherit inputs; })
           ];
         };
         master = import inputs.nixpkgs-master {
@@ -111,7 +111,7 @@
         munin.overlays.default
         # After the input overlays: it replaces packages they define.
         goFixupsOverlay
-        (import ./pkgs/overlays { })
+        (import ./pkgs/overlays { inherit inputs; })
         (
           final: prev:
           let

@@ -1,5 +1,6 @@
 {
   config,
+  inputs,
   pkgs,
   lib,
   ...
@@ -29,7 +30,7 @@ lib.mkMerge [
     users.groups.stirling = { };
 
     virtualisation.oci-containers.containers.stirling = {
-      image = (import ../../metadata/versions.nix).stirling;
+      image = "frooodle/s-pdf:${inputs._meta.stirling-pdf.version}";
       user = config.users.users.stirling.uid;
       autoStart = true;
       # Bind loopback only: reached via the `pdf` tailscale VIP -> localhost. A

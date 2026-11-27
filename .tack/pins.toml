@@ -33,6 +33,16 @@ follows = { nixpkgs = "nixpkgs-stable" }
 [groups.ai-plugins]
 type = "fetch"
 
+# Package sources built by pkgs/overlays and modules. Go packages keep a
+# vendorHash: a bump fails with the new hash.
+[groups.src]
+type = "fetch"
+
+# grafana.com dashboards. The revisions API is JSON full of numbers, so no tag
+# template: bump the revision in the url, then `tack update --accept <pin>`.
+[groups.dashboards]
+type = "fixed"
+
 ## channels
 
 # "stable" tracks the latest NixOS release and is the box default.
@@ -59,6 +69,11 @@ follows = { nixpkgs = "nixpkgs-darwin" }
 
 [inputs.system.nix-rosetta-builder]
 url = "gh:cpick/nix-rosetta-builder"
+
+# The pin manager itself; nixpkgs lags its releases.
+[inputs.system.tack]
+url = "gh:manic-systems/tack"
+tag = "v{version}"
 
 [inputs.stable.home-manager]
 url = "gh:nix-community/home-manager/release-26.05"
@@ -197,3 +212,84 @@ url = "gh:haydenschmitty/floorplan"
 # Pi extension that registers Aperture's /v1/models catalog as providers.
 [inputs.ai-plugins.pi-aperture-models]
 url = "gh:raggi/aperture-models"
+
+## package sources
+
+[inputs.src.eb]
+url = "gh:rye/eb"
+tag = "v{version}"
+
+[inputs.src.cook-cli]
+url = "gh:cooklang/cookcli"
+tag = "v{version}"
+
+[inputs.src.cook-mcp]
+url = "gh:cook-md/cook-mcp"
+tag = "v{version}"
+
+[inputs.src.mcp-picnic]
+url = "gh:ivo-toby/mcp-picnic"
+tag = "v{version}"
+
+[inputs.src.pm-cli]
+url = "gh:bscott/pm-cli"
+tag = "v{version}"
+
+# x/tools must keep up with the fleet Go; nixpkgs' copy lags.
+[inputs.src.gotools]
+url = "gh:golang/tools"
+tag = "v{version}"
+
+# proxy-to-grafana, nginx-auth, nardump from releases (the tailscale pin is a
+# fork branch).
+[inputs.src.tailscale-tools]
+url = "ts:tailscale"
+tag = "v{version}"
+
+[inputs.src.mqtt-exporter]
+url = "gh:kpetremann/mqtt-exporter"
+tag = "v{version}"
+
+[inputs.src.setec]
+url = "ts:setec"
+
+[inputs.src.squibble]
+url = "ts:squibble"
+
+[inputs.src.fish-nix-env]
+url = "gh:lilyball/nix-env.fish"
+
+[inputs.src.fish-abbr-tips]
+url = "gh:gazorby/fish-abbreviation-tips"
+
+# Prebuilt, x86_64-linux only. Upstream ships betas; `*` admits them.
+[inputs.src.herald]
+url = "https://github.com/herald-email/herald-mail-app/releases/download/{tag}/herald-{tag}-linux-amd64.tar.gz"
+type = "fixed"
+unpack = "tarball"
+tag = "v{version}*"
+
+## dashboards
+
+[inputs.dashboards.grafana-incus]
+url = "https://grafana.com/api/dashboards/19727/revisions/2/download"
+
+[inputs.dashboards.grafana-node-exporter-full]
+url = "https://grafana.com/api/dashboards/1860/revisions/46/download"
+
+[inputs.dashboards.grafana-sloth]
+url = "https://grafana.com/api/dashboards/14348/revisions/5/download"
+
+## container images: the upstream repo's release tag names the image tag.
+## Only the lock entry is read, so the repo is never downloaded.
+
+[groups.images]
+type = "fetch"
+
+[inputs.images.isponsorblocktv]
+url = "gh:dmunozv04/iSponsorBlockTV"
+tag = "v{version}"
+
+[inputs.images.stirling-pdf]
+url = "gh:Stirling-Tools/Stirling-PDF"
+tag = "v{version}"

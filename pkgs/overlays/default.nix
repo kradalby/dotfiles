@@ -1,20 +1,48 @@
-{ ... }:
+{ inputs }:
 let
+  # A tack pin's source and version: tag pins carry their tag, branch pins the
+  # short rev.
+  pin =
+    name:
+    let
+      m = inputs._meta.${name};
+    in
+    {
+      src = inputs.${name};
+      version =
+        if m.tag or null != null then
+          builtins.head (builtins.match "v?(.*)" m.tag)
+        else
+          builtins.substring 0 7 m.rev;
+    };
 in
 final: prev: {
-  tailscale-tools = prev.callPackage ./tailscale-tools.nix { };
+  # Releases track the newest Go release; take master's when it is ahead of
+  # the fleet's.
+  tailscale-tools = prev.callPackage ./tailscale-tools.nix (
+    pin "tailscale-tools"
+    // {
+      buildGoModule = prev.buildGoModule.override {
+        go =
+          let
+            masterGo = inputs.nixpkgs-master.legacyPackages.${prev.stdenv.hostPlatform.system}.go_latest;
+          in
+          if prev.lib.versionOlder prev.go.version masterGo.version then masterGo else prev.go;
+      };
+    }
+  );
 
-  setec = prev.callPackage ./setec.nix { };
+  setec = prev.callPackage ./setec.nix (pin "setec");
 
-  squibble = prev.callPackage ./squibble.nix { };
+  squibble = prev.callPackage ./squibble.nix (pin "squibble");
 
-  eb = prev.callPackage ./eb.nix { };
+  eb = prev.callPackage ./eb.nix (pin "eb");
 
-  cook-cli = prev.callPackage ./cook.nix { };
+  cook-cli = prev.callPackage ./cook.nix (pin "cook-cli");
 
-  cook-mcp = prev.callPackage ./cook-mcp.nix { };
+  cook-mcp = prev.callPackage ./cook-mcp.nix (pin "cook-mcp");
 
-  mcp-picnic = prev.callPackage ./mcp-picnic.nix { };
+  mcp-picnic = prev.callPackage ./mcp-picnic.nix (pin "mcp-picnic");
 
   authkey = prev.callPackage ./authkey { };
 
@@ -34,11 +62,17 @@ final: prev: {
 
   dashboards = prev.callPackage ../dashboards { };
 
-  pm-cli = prev.callPackage ./pm-cli.nix { };
+  pm-cli = prev.callPackage ./pm-cli.nix (pin "pm-cli");
 
-  herald = prev.callPackage ./herald.nix { };
+  herald = prev.callPackage ./herald.nix (pin "herald");
 
-  gotools = prev.callPackage ./gotools.nix { inherit (prev) gotools; };
+  # home/fish.nix plugins; home-manager modules see pkgs, not inputs.
+  fish-plugin-srcs = {
+    nix-env = inputs.fish-nix-env;
+    abbr-tips = inputs.fish-abbr-tips;
+  };
+
+  gotools = prev.callPackage ./gotools.nix ({ inherit (prev) gotools; } // pin "gotools");
 
   # Stable still has rich 14.x's aarch64 broken-pipe test failure; unstable's
   # rich 15.x no longer needs the workaround.

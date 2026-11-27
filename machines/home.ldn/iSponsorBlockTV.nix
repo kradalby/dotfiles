@@ -1,9 +1,9 @@
-{ ... }:
+{ inputs, ... }:
 # Config:
 #  docker run --rm -v '/var/lib/isponsorblocktv:/app/data' -it ghcr.io/dmunozv04/isponsorblocktv:latest --setup-cli
 {
   virtualisation.oci-containers.containers.isponsorblocktv = {
-    image = (import ../../metadata/versions.nix).isponsor;
+    image = "ghcr.io/dmunozv04/isponsorblocktv:${inputs._meta.isponsorblocktv.tag}";
     autoStart = true;
     environment = { };
     volumes = [
