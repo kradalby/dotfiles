@@ -23,7 +23,6 @@ let
 
   # skhd runs commands via /bin/sh with a bare launchd PATH, so reference the
   # script derivations by store path rather than relying on PATH lookup.
-  ghostty-new-mosh-tab = import ../../pkgs/scripts/ghostty-new-mosh-tab.nix { inherit pkgs; };
   tailscale-switch-toggle = import ../../pkgs/scripts/tailscale-switch-toggle.nix { inherit pkgs; };
 in
 {
@@ -44,21 +43,11 @@ in
   # still comes from home-manager (home/fish.nix).
   programs.fish.enable = true;
 
-  # TODO(ghostty): Workaround for Ghostty lacking an exec/command keybind
-  # action. skhd provides a global hotkey that runs an external command,
-  # scoped to Ghostty via proc_map. The script uses ghostty-tab to open a
-  # new Ghostty tab with mosh completely out-of-band via AppleScript.
-  # Ref: https://github.com/ghostty-org/ghostty/issues/9961
-  # Remove when Ghostty supports an exec keybind action.
   # NOTE: skhd requires Accessibility permissions in
   # System Settings > Privacy & Security > Accessibility.
   services.skhd = {
     enable = true;
     skhdConfig = ''
-      cmd + shift - t [
-          "Ghostty" : ${ghostty-new-mosh-tab}/bin/ghostty-new-mosh-tab
-          *         ~
-      ]
       cmd + shift - b : ${tailscale-switch-toggle}/bin/tailscale-switch-toggle
     '';
   };

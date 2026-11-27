@@ -502,7 +502,6 @@
             pkgs.unstable.prek
             (import ./pkgs/scripts/nh-gate.nix { inherit pkgs; })
             (import ./pkgs/scripts/git-ready.nix { inherit pkgs; })
-            pkgs.webrepl_cli
           ];
         };
 

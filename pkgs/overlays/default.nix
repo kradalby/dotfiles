@@ -16,8 +16,6 @@ final: prev: {
 
   mcp-picnic = prev.callPackage ./mcp-picnic.nix { };
 
-  webrepl_cli = prev.callPackage ./webrepl_cli.nix { };
-
   authkey = prev.callPackage ./authkey { };
 
   rnb = prev.callPackage ./rnb { };
@@ -35,8 +33,6 @@ final: prev: {
   energyd = prev.callPackage ../energyd { };
 
   dashboards = prev.callPackage ../dashboards { };
-
-  ghostty-tab = prev.callPackage ./ghostty-tab.nix { };
 
   pm-cli = prev.callPackage ./pm-cli.nix { };
 
