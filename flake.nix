@@ -141,9 +141,6 @@
             nefit-homekit = inputs.nefit-homekit.packages."${system}".default;
             tasmota-homekit = inputs.tasmota-homekit.packages."${system}".default;
             z2m-homekit = inputs.z2m-homekit.packages."${system}".default;
-            # fish 4.2.1 in darwin-25.11 hangs on startup (aarch64).
-            # Use the unstable version until the fix lands in stable.
-            inherit (prev.unstable) fish;
 
             # direnv 2.37.1's bash test suite hangs on darwin because some
             # test scenarios contain literal backspace/CR characters in
