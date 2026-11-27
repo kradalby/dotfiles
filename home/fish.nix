@@ -133,10 +133,16 @@
         ${pkgs.ragenix}/bin/ragenix --rekey
       '';
 
-      flakepush = ''
-        nix flake update
-        git add flake.lock
-        git commit -m "nix: flake update"
+      depspush = ''
+        if test -d .tack
+          GITHUB_TOKEN=(${pkgs.gh}/bin/gh auth token) tack update; or return
+          git add .tack
+          git commit -m "tack: update"
+        else
+          nix flake update
+          git add flake.lock
+          git commit -m "nix: flake update"
+        end
         git push
       '';
 

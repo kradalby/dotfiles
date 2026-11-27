@@ -50,6 +50,7 @@ grep -qF "$SNAP" "$CLAUDE_ENV_FILE" 2>/dev/null ||
       stale=0
       [ flake.nix -nt "$cf" ] && stale=1
       [ -f flake.lock ] && [ flake.lock -nt "$cf" ] && stale=1
+      [ -f .tack/pins.lock.json ] && [ .tack/pins.lock.json -nt "$cf" ] && stale=1
     fi
     # Emit a single POSIX `export PATH` line, not raw `nix print-dev-env`
     # bash. The raw dump assigns readonly specials (e.g. LINENO) that abort

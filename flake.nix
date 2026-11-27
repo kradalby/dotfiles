@@ -120,6 +120,7 @@
           {
             neovim = neovim-kradalby.packages."${system}".neovim-kradalby;
             tailscale = tailscale.packages."${system}".tailscale;
+            tack = inputs.tack.packages."${system}".tack;
             # Named apart from nixpkgs' rex, an unrelated automation tool.
             rex-cli = inputs.rex.packages."${system}".rex;
             # The stub `rex skill setup` writes, so `rex skill status` reads current.
@@ -492,6 +493,7 @@
         devShells.default = pkgs.mkShell {
           buildInputs = [
             treefmtEval.config.build.wrapper
+            pkgs.tack
             pkgs.unstable.prek
             (import ./pkgs/scripts/nh-gate.nix { inherit pkgs; })
             (import ./pkgs/scripts/git-ready.nix { inherit pkgs; })

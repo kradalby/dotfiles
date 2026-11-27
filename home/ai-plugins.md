@@ -1,8 +1,8 @@
 # AI plugins
 
-The six source-only flake inputs in `flake.nix` supply every managed client.
-`nix flake update` updates their revisions and generated lockfile hashes together;
-no separate version or hash pins are maintained.
+The `ai-plugins` tack group (`.tack/pins.toml`) supplies every managed client.
+`tack update ai-plugins` moves their revisions; no separate version or hash pins
+are maintained.
 
 | Client   | Managed components                                                                                         |
 | -------- | ---------------------------------------------------------------------------------------------------------- |

@@ -131,6 +131,7 @@ in
         statix
         nix-init
         nurl
+        tack
         ragenix
       ];
     })

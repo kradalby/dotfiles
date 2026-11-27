@@ -53,8 +53,8 @@ runs:
         version: v3.0.1
         upstream-cache-filter: "true"
 
-    # Resolved from this repo's flake lock, so CI and the fleet run one build and
-    # a `nix flake update` moves both together. Private session dir: the watcher
+    # Resolved from this repo's tack lock, so CI and the fleet run one build and
+    # a `tack update` moves both together. Private session dir: the watcher
     # refuses a pid file whose directory is group- or world-readable.
     #
     # Streams paths as they land, so a build that dies late still leaves its
@@ -70,7 +70,7 @@ runs:
         set -euo pipefail
         session=$(mktemp -d "${RUNNER_TEMP:-/tmp}/tsnixcache.XXXXXX")
         chmod 700 "$session"
-        cache=$(nix build --no-link --print-out-paths --inputs-from . 'tsnixcache#default')/bin/tsnixcache
+        cache=$(nix build --no-link --print-out-paths --impure --expr '(import ./.tack { }).tsnixcache.packages.${builtins.currentSystem}.default')/bin/tsnixcache
         echo "TSNIXCACHE_SESSION_DIR=$session" >> "$GITHUB_ENV"
         echo "TSNIXCACHE_BIN=$cache" >> "$GITHUB_ENV"
         "$cache" watch --to "$TSNIXCACHE_URL" \
