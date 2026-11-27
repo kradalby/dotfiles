@@ -17,6 +17,15 @@ let
     };
 in
 final: prev: {
+  # Built on plain nixpkgs-unstable, as the standalone flake was.
+  neovim-kradalby =
+    inputs.nixpkgs-unstable.legacyPackages.${prev.stdenv.hostPlatform.system}.callPackage ../neovim
+      {
+        plugins = builtins.mapAttrs (name: _: pin name) (
+          prev.lib.filterAttrs (_: m: m.group or null == "nvim-plugins") inputs._meta
+        );
+      };
+
   # Releases track the newest Go release; take master's when it is ahead of
   # the fleet's.
   tailscale-tools = prev.callPackage ./tailscale-tools.nix (

@@ -38,6 +38,10 @@ type = "fetch"
 [groups.src]
 type = "fetch"
 
+# Neovim plugins missing from vimPlugins; pin name = plugin pname.
+[groups.nvim-plugins]
+type = "fetch"
+
 # grafana.com dashboards. The revisions API is JSON full of numbers, so no tag
 # template: bump the revision in the url, then `tack update --accept <pin>`.
 [groups.dashboards]
@@ -175,9 +179,6 @@ url = "kra:tsnixcache/main"
 
 ## apps
 
-[inputs.apps.neovim-kradalby]
-url = "kra:neovim"
-
 [inputs.apps.tailscale]
 url = "ts:tailscale/kradalby/nixos-module"
 
@@ -268,6 +269,14 @@ url = "https://github.com/herald-email/herald-mail-app/releases/download/{tag}/h
 type = "fixed"
 unpack = "tarball"
 tag = "v{version}*"
+
+## neovim plugins (pkgs/neovim)
+
+[inputs.nvim-plugins.vim-plist]
+url = "gh:darfink/vim-plist"
+
+[inputs.nvim-plugins."github-coauthors.nvim"]
+url = "gh:cwebster2/github-coauthors.nvim"
 
 ## dashboards
 
