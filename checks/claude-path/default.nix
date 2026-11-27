@@ -1,10 +1,10 @@
-{ pkgs, self }:
+{ pkgs, inputs }:
 let
   ai = import ../../home/ai.nix {
     lib = pkgs.lib;
     config = fixture.config;
   };
-  fixture = self.inputs.home-manager.lib.homeManagerConfiguration {
+  fixture = inputs.home-manager.lib.homeManagerConfiguration {
     inherit pkgs;
     modules = [
       ../../home/mcp.nix

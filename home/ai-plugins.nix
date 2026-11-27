@@ -5,7 +5,7 @@ let
   caveman = inputs.claude-caveman;
   superpowers = inputs.claude-superpowers;
   uiUx = inputs.claude-ui-ux-pro-max;
-  floorplan = inputs.claude-floorplan.outPath;
+  floorplan = inputs.claude-floorplan;
   # Codex does not load Caveman's inline Claude hooks or its repo-local config.
   cavemanCodex =
     let
@@ -46,11 +46,11 @@ let
       frontend-design = "${official}/plugins/frontend-design";
       github = "${official}/external_plugins/github";
       playwright = "${official}/external_plugins/playwright";
-      superpowers = superpowers.outPath;
+      superpowers = superpowers;
     };
-    ponytail.ponytail = ponytail.outPath;
+    ponytail.ponytail = ponytail;
     caveman.caveman = cavemanCodex;
-    ui-ux-pro-max-skill.ui-ux-pro-max = uiUx.outPath;
+    ui-ux-pro-max-skill.ui-ux-pro-max = uiUx;
     floorplan.floorplan = floorplan;
   };
   marketplace = builtins.fromJSON (builtins.readFile "${official}/.claude-plugin/marketplace.json");
@@ -80,11 +80,11 @@ in
     "${inputs.claude-plugins-official}/plugins/code-review"
     "${inputs.claude-plugins-official}/external_plugins/github"
     "${inputs.claude-plugins-official}/external_plugins/playwright"
-    superpowers.outPath
-    ponytail.outPath
+    superpowers
+    ponytail
     # shortcut: Cavecrew model rewrites need writable agents; package overrides if used.
-    caveman.outPath
-    uiUx.outPath
+    caveman
+    uiUx
     floorplan
     "${inputs.codex-plugin-cc}/plugins/codex"
   ];
