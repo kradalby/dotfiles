@@ -1,6 +1,26 @@
 [tack]
 type = "flake"
 
+# Every input at any depth with these names shares our pin. Pin and group
+# follows win.
+[all_follow]
+nixpkgs = "nixpkgs-unstable"
+nixpkgs-stable = "nixpkgs-stable"
+nix-darwin = "darwin"
+home-manager = "home-manager"
+headscale = "headscale"
+flake-utils = "flake-utils"
+systems = "flake-utils/systems"
+treefmt-nix = "treefmt-nix"
+# No top-level pin: tack locks the newest copy found among our pins.
+crane = "crane"
+
+[omit_inputs]
+names = ["flake-compat"]
+
+[groups.stable]
+follows = { nixpkgs = "nixpkgs-stable" }
+
 [shorturls]
 gh = "github:{path}"
 kra = "gh:kradalby/{path}"
@@ -38,23 +58,22 @@ follows = { nixpkgs = "nixpkgs-darwin" }
 
 [inputs.home-manager]
 url = "gh:nix-community/home-manager/release-26.05"
-follows = { nixpkgs = "nixpkgs-stable" }
+group = "stable"
 
 [inputs.nix-index-database]
 url = "gh:nix-community/nix-index-database"
-follows = { nixpkgs = "nixpkgs-stable" }
+group = "stable"
 
 [inputs.treefmt-nix]
 url = "gh:numtide/treefmt-nix"
-follows = { nixpkgs = "nixpkgs-stable" }
+group = "stable"
 
 [inputs.nix-rosetta-builder]
 url = "gh:cpick/nix-rosetta-builder"
-follows = { nixpkgs = "nixpkgs-unstable" }
 
 [inputs.ragenix]
 url = "gh:yaxitech/ragenix"
-follows = { flake-utils = "flake-utils", nixpkgs = "nixpkgs-stable" }
+group = "stable"
 
 # Stock nixpkgs sd-image-aarch64 has no Pi5 support (no bcm2712 DTB, u-boot,
 # or [pi5] config.txt). nixos-raspberrypi ships proper Pi5 firmware + sd-image
@@ -62,7 +81,7 @@ follows = { flake-utils = "flake-utils", nixpkgs = "nixpkgs-stable" }
 # its own pin lacks lib/services, which home-manager 26.05 needs.
 [inputs.nixos-raspberrypi]
 url = "gh:nvmd/nixos-raspberrypi/main"
-follows = { nixpkgs = "nixpkgs-stable" }
+group = "stable"
 
 ## AI plugin sources: shared by repository, no flake dependencies
 
@@ -98,41 +117,33 @@ url = "gh:raggi/aperture-models"
 
 [inputs.krapage]
 url = "kra:kra"
-follows = { flake-utils = "flake-utils", nixpkgs = "nixpkgs-unstable" }
 
 [inputs.hvor]
 url = "kra:hvor"
-follows = { flake-utils = "flake-utils", nixpkgs = "nixpkgs-unstable" }
 
 [inputs.tasmota-exporter]
 url = "kra:tasmota-exporter"
-follows = { flake-utils = "flake-utils", nixpkgs = "nixpkgs-unstable" }
 
 [inputs.homewizard-p1-exporter]
 url = "kra:homewizard-p1-exporter"
-follows = { flake-utils = "flake-utils", nixpkgs = "nixpkgs-unstable" }
 
 [inputs.ghdl]
 url = "kra:ghdl"
-follows = { flake-utils = "flake-utils", nixpkgs = "nixpkgs-unstable" }
 
 # aspargesgaarden.no; branch asparges until it replaces the Pages site on main.
 # headscale is only its VM-test control server.
 [inputs.asparges]
 url = "kra:aspargesgaarden-elm/asparges"
-follows = { flake-utils = "flake-utils", headscale = "headscale", nixpkgs = "nixpkgs-unstable" }
 
 # garnix CI build logs as plain text; runs on the garnix VM as its own tsnet
 # node. Follows unstable: its go.mod needs go >= 1.27.0.
 [inputs.garnixlogs]
 url = "kra:garnixlogs"
-follows = { flake-utils = "flake-utils", nixpkgs = "nixpkgs-unstable" }
 
 # Nix binary cache served over tailscale. Follows unstable: its go.mod needs
 # go >= 1.27.0.
 [inputs.tsnixcache]
 url = "kra:tsnixcache/main"
-follows = { nixpkgs = "nixpkgs-unstable" }
 
 # Self-hosted garnix CI, held at the reviewed GC and eval fixes so routine
 # updates cannot revert them to integration; move it with `tack update
@@ -144,61 +155,49 @@ url = "kra:garnix"
 frozen = "f0794f824292f7f6aa7bf36c7e2e74112c290aa3"
 exclude_follow = ["*"]
 
-# Upstream builds on unstable but takes its Go from stable; share both fleet
-# pins.
+# Upstream builds on unstable but takes its Go from stable; all_follow shares
+# both fleet pins.
 [inputs.headscale]
 url = "gh:juanfont/headscale/main"
-follows = { flake-utils = "flake-utils", nixpkgs = "nixpkgs-unstable", nixpkgs-stable = "nixpkgs-stable" }
 
 # Follows unstable for the fleet-wide go_latest; its go.mod floor is
 # satisfied there too.
 [inputs.golink]
 url = "ts:golink"
-follows = { nixpkgs = "nixpkgs-unstable", systems = "flake-utils/systems" }
 
 [inputs.hugin]
 url = "kra:hugin"
-follows = { flake-utils = "flake-utils", nixpkgs = "nixpkgs-unstable" }
 
 # setec-compatible secrets server. Follows unstable so its go build tracks our
 # toolchain.
 [inputs.ts1p]
 url = "kra:ts1p/main"
-follows = { nixpkgs = "nixpkgs-unstable" }
 
 # Go links changed since the last look. Follows unstable so its go build tracks
 # our toolchain.
 [inputs.golinkdiff]
 url = "kra:golinkdiff/main"
-follows = { flake-utils = "flake-utils", nixpkgs = "nixpkgs-unstable" }
 
 [inputs.tsidp]
 url = "ts:tsidp"
-follows = { nixpkgs = "nixpkgs-unstable", systems = "flake-utils/systems" }
 
 [inputs.tailscale]
 url = "ts:tailscale/kradalby/nixos-module"
-follows = { nixpkgs = "nixpkgs-unstable", systems = "flake-utils/systems" }
-omit_inputs = ["flake-compat"]
 
 [inputs.munin]
 url = "kra:munin"
 
 [inputs.neovim-kradalby]
 url = "kra:neovim"
-follows = { flake-utils = "flake-utils", nixpkgs = "nixpkgs-unstable" }
 
 [inputs.nefit-homekit]
 url = "kra:nefit-homekit"
-follows = { flake-utils = "flake-utils", nixpkgs = "nixpkgs-unstable" }
 
 [inputs.tasmota-homekit]
 url = "kra:tasmota-homekit"
-follows = { flake-utils = "flake-utils", nixpkgs = "nixpkgs-unstable" }
 
 [inputs.z2m-homekit]
 url = "kra:z2m-homekit"
-follows = { flake-utils = "flake-utils", nixpkgs = "nixpkgs-unstable" }
 
 ## agents
 
@@ -206,9 +205,10 @@ follows = { flake-utils = "flake-utils", nixpkgs = "nixpkgs-unstable" }
 [inputs.hermes-agent]
 url = "gh:NousResearch/hermes-agent"
 follows = { home-manager = "home-manager" }
+exclude_follow = ["nixpkgs"]
 
 # Prebuilt Rex. Follows the fleet nixpkgs: the login server dlopens the host's
 # PAM modules, so keep one pam and glibc in the process.
 [inputs.rex]
 url = "https://pkgs.superlogical.com/rex/nix/snapshot.tar.gz"
-follows = { nixpkgs = "nixpkgs-stable" }
+group = "stable"
