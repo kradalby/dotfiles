@@ -1,26 +1,17 @@
 {
+  src,
+  version,
   lib,
-  fetchFromGitHub,
   rustPlatform,
 }:
-let
-  versions = import ../../metadata/versions.nix;
-in
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "cook-mcp";
-  # NOTE: manual update required
-  # https://github.com/cook-md/cook-mcp/releases
-  version = versions.pkgs.overlays.cookMcp;
+  inherit src version;
 
   # Plain upstream source: consumers link skills/ from src.
-  src = fetchFromGitHub {
-    owner = "cook-md";
-    repo = "cook-mcp";
-    rev = "v${finalAttrs.version}";
-    hash = "sha256-nNPx5u1sgrwe3C/6crTGSRUGi9LnnlFY+NfCwXaY47k=";
-  };
 
-  cargoHash = "sha256-pnh2P0VmvZc45xjVuQz5mJLy/SL/0PRFmkqCy903zFg=";
+  # Deps from the pinned Cargo.lock: a version bump needs no hash.
+  cargoLock.lockFile = "${src}/Cargo.lock";
 
   # rmcp handles each notification and request in its own task, so a request
   # right after roots/list_changed can still see the old root (flaky on darwin).

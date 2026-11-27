@@ -7,52 +7,16 @@
 }:
 let
   domain = "grafana.${config.networking.domain}";
-  versions = import ../../metadata/versions.nix;
-
-  fetchDashboard =
-    {
-      id,
-      rev,
-      hash,
-      name,
-    }:
-    pkgs.fetchurl {
-      url = "https://grafana.com/api/dashboards/${toString id}/revisions/${rev}/download";
-      inherit hash;
-      inherit name;
-    };
-
   # File provisioning does not resolve import inputs. Use the dashboard's
   # existing datasource variable, whose value is the selected datasource uid.
   slothDashboard = pkgs.runCommand "sloth.json" { } ''
-    sed 's|''${DS_PROMETHEUS}|''${Datasource}|g' ${
-      fetchDashboard {
-        id = 14348;
-        rev = versions.grafanaDashboards.sloth.rev;
-        hash = versions.grafanaDashboards.sloth.hash;
-        name = "sloth.json";
-      }
-    } > $out
+    sed 's|''${DS_PROMETHEUS}|''${Datasource}|g' ${inputs.grafana-sloth} > $out
   '';
 
   dashboardDir = pkgs.runCommand "grafana-dashboards" { passthru = { inherit slothDashboard; }; } ''
     mkdir -p $out
-    cp ${
-      fetchDashboard {
-        id = 1860;
-        rev = versions.grafanaDashboards.nodeExporterFull.rev;
-        hash = versions.grafanaDashboards.nodeExporterFull.hash;
-        name = "node-exporter-full.json";
-      }
-    } $out/node-exporter-full.json
-    cp ${
-      fetchDashboard {
-        id = 19727;
-        rev = versions.grafanaDashboards.incus.rev;
-        hash = versions.grafanaDashboards.incus.hash;
-        name = "incus.json";
-      }
-    } $out/incus.json
+    cp ${inputs.grafana-node-exporter-full} $out/node-exporter-full.json
+    cp ${inputs.grafana-incus} $out/incus.json
 
     cp ${slothDashboard} $out/sloth.json
 

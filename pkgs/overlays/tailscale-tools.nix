@@ -1,25 +1,15 @@
 {
+  src,
+  version,
   buildGoModule,
-  fetchFromGitHub,
   lib,
   installShellFiles,
 }:
-let
-  versions = import ../../metadata/versions.nix;
-in
 buildGoModule rec {
   pname = "tailscale-tools";
-  # NOTE: manual update required
-  # https://github.com/tailscale/tailscale/releases
-  version = versions.pkgs.overlays.tailscaleTools;
+  inherit src version;
 
-  src = fetchFromGitHub {
-    owner = "tailscale";
-    repo = "tailscale";
-    rev = "${version}";
-    hash = "sha256-aq4pBe75wNRFDEa3kSDa/pBLsZws5mOUOjHDUycpmXM=";
-  };
-  vendorHash = "sha256-RvaouD88naVNOPJBVcqMaAn+ovjXI4g83ShCdRiR5/Q=";
+  vendorHash = "sha256-CEZxW9kZUIjI3frTZOEKssYJz3Uo58+YdLm8iEjTeMo=";
   subPackages = [
     "cmd/proxy-to-grafana"
     "cmd/nginx-auth"

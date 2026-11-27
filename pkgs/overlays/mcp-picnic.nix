@@ -1,23 +1,17 @@
 {
+  src,
+  version,
   lib,
   buildNpmPackage,
-  fetchFromGitHub,
+  importNpmLock,
 }:
-let
-  versions = import ../../metadata/versions.nix;
-in
 buildNpmPackage (finalAttrs: {
   pname = "mcp-picnic";
-  version = versions.pkgs.overlays.mcpPicnic;
+  inherit src version;
 
-  src = fetchFromGitHub {
-    owner = "ivo-toby";
-    repo = "mcp-picnic";
-    rev = "v${finalAttrs.version}";
-    hash = "sha256-mOOIOoF5hALdV93DoSnmawzvDwCo2EZEo9aQrFbUQX0=";
-  };
-
-  npmDepsHash = "sha256-b+M+o7sPyWj+NDB3V9V9T11LypTbthdTJ0VKoDdfyGY=";
+  # Deps from the pinned package-lock.json: a version bump needs no hash.
+  npmDeps = importNpmLock { npmRoot = src; };
+  npmConfigHook = importNpmLock.npmConfigHook;
 
   # Upstream reads HTTP_HOST but never passes it to listen(), so the server
   # binds every interface — on home.ldn that is the trusted LAN, unauthenticated.

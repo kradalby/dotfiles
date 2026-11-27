@@ -4,9 +4,6 @@
   config,
   ...
 }:
-let
-  versions = import ../metadata/versions.nix;
-in
 {
   imports = [ ../common/var.nix ];
 
@@ -24,23 +21,11 @@ in
       # up ~/.nix-profile/bin
       {
         name = "nix-env";
-        src = pkgs.fetchFromGitHub {
-          owner = "lilyball";
-          repo = "nix-env.fish";
-          # NOTE: manual update required
-          rev = versions.fishPlugins.nixEnv;
-          sha256 = "sha256-RG/0rfhgq6aEKNZ0XwIqOaZ6K5S4+/Y5EEMnIdtfPhk=";
-        };
+        src = pkgs.fish-plugin-srcs.nix-env;
       }
       {
         name = "abbr-tips";
-        src = pkgs.fetchFromGitHub {
-          owner = "gazorby";
-          repo = "fish-abbreviation-tips";
-          # NOTE: manual update required
-          rev = versions.fishPlugins.abbrTips;
-          sha256 = "sha256-F1t81VliD+v6WEWqj1c1ehFBXzqLyumx5vV46s/FZRU=";
-        };
+        src = pkgs.fish-plugin-srcs.abbr-tips;
       }
     ];
 
