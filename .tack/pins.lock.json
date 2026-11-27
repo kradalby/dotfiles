@@ -35,7 +35,7 @@
     "nixpkgs-unstable": "github:NixOS/nixpkgs/nixpkgs-unstable",
     "pi-aperture-models": "github:raggi/aperture-models",
     "ragenix": "github:yaxitech/ragenix",
-    "rex": "https://pkgs.superlogical.com/rex/nix/snapshot/0.0.1795019727-gde27ab.tar.gz",
+    "rex": "https://pkgs.superlogical.com/rex/nix/snapshot.tar.gz",
     "tailscale": "github:tailscale/tailscale/kradalby/nixos-module",
     "tasmota-exporter": "github:kradalby/tasmota-exporter",
     "tasmota-homekit": "github:kradalby/tasmota-homekit",
@@ -144,6 +144,14 @@
       "outHash": "sha256-QUfTYSlBtKpLe0PpTliVFXhHjvmK05YLnoCIfmh1Rn4="
     },
     "public": true
+  },
+  "crane": {
+    "type": "github",
+    "owner": "ipetkov",
+    "repo": "crane",
+    "rev": "73b980519cefc727a5f6cc8e5c0947a2f9be6edd",
+    "narHash": "sha256-jtT4yxZpR8seYnlCMMWSSPlFN92zO6ICuZ8pJrmi86k=",
+    "lastModified": 1789760033
   },
   "darwin": {
     "type": "github",
