@@ -267,17 +267,14 @@ in
           rsync-photos-backup = import ./scripts/rsync-photos-backup.nix { inherit pkgs; };
           exportphotos = import ./scripts/exportphotos.nix { inherit pkgs; };
           tailscale-switch-toggle = import ./scripts/tailscale-switch-toggle.nix { inherit pkgs; };
-          ghostty-new-mosh-tab = import ./scripts/ghostty-new-mosh-tab.nix { inherit pkgs; };
         in
         [
           pamtouchfix
           rsync-photos-backup
           exportphotos
           tailscale-switch-toggle
-          ghostty-new-mosh-tab
         ]
         ++ (with pkgs; [
-          ghostty-tab
           syncthing
           silicon
           nix-forecast
