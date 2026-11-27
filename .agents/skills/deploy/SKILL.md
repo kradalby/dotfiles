@@ -174,7 +174,7 @@ option.
   `/run/wrappers/bin` first, so it finds the setuid sudo rather than the plain
   one in `sw/bin`. If activation ever dies on `must be owned by uid 0`, the
   devShell is serving a stale nh — `rm -rf .direnv`, because nix-direnv
-  watches `flake.nix`/`flake.lock` and not the files they import.
+  watches `flake.nix` and `.tack/pins.*` (see `.envrc`), not the files they import.
 - **gigabuilder** builds on itself: add `--build-host root@gigabuilder`.
 - **gigabuilder + garnix** are one deploy, in a CI-idle window. garnix is
   gigabuilder's Incus guest, so a gigabuilder reboot bounces CI too. Wait

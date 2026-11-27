@@ -19,7 +19,8 @@ with a requested change, flag it to kradalby without modifying the conventions.
 - Apply to a host with nh, never bare `nixos-rebuild`/`darwin-rebuild`/`colmena`: follow `.agents/skills/deploy`. For service changes or new hosts, deploy and note the outcome in the PR.
 - `nix build .#packages.${system}.<name>` builds one package.
 - `statix` and `deadnix` before large refactors.
-- Fetching/deploying: `nurl <url>` or `nix-prefetch-git` for pins, `nix-init` for new derivations, `nh os switch . --target-host root@<host>` to deploy (see `.agents/skills/deploy`).
+- Pins: every external source is a tack pin in `.tack/pins.toml` (flakes, package sources, container images); `flake.nix` has no inputs. `tack add <name> <url>` adds one, `tack look -v` shows drift, `tack update [pin|group]` moves pins, `tack undo` reverts. tack needs `GITHUB_TOKEN=$(gh auth token)` for GitHub API limits.
+- Fetching/deploying: `nix-init` for new derivations, `nh os switch . --target-host root@<host>` to deploy (see `.agents/skills/deploy`).
 
 ## Layout rules
 
@@ -46,7 +47,7 @@ Only if garnixlogs itself is down, go to the API directly — and note that `$GA
 
 ## Commits & PRs
 
-Log style: `component: imperative summary` (`meta: move versions into one file`, `nix: flake update`). Squash fixups locally; body only when context is needed. PRs list the validation commands run and call out changed secrets or keys.
+Log style: `component: imperative summary` (`meta: move versions into one file`, `tack: update`). Squash fixups locally; body only when context is needed. PRs list the validation commands run and call out changed secrets or keys.
 
 ## Secrets
 

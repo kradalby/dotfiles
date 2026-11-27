@@ -124,11 +124,13 @@ upstream backoff, worth reporting).
 
 ### Source
 
-The `garnix-ci` flake input tracks the fork **`github:kradalby/garnix/integration`**
+The `garnix-ci` tack pin tracks the fork **`github:kradalby/garnix/integration`**
 — it carries our deploy tweaks (env-configurable eval/FOD pools,
 `GARNIX_DEFAULT_CONFIG`, the owner allowlist below). `znaniye/garnix-ci` is the
-upstream-of-record to rebase onto and report bugs to. Pull updates with
-`nix flake update garnix-ci` (a rev bump forces a backend recompile).
+upstream-of-record to rebase onto and report bugs to. The pin is frozen at a
+reviewed rev that sits on no branch, ahead of `integration`: `tack update
+garnix-ci` would move it to the `integration` head and drop those fixes. Rebase
+the fork onto `selfhost` first (a rev bump forces a backend recompile).
 
 ### Access control (allowlist)
 
