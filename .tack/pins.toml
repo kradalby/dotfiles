@@ -1,0 +1,214 @@
+[tack]
+type = "flake"
+
+[shorturls]
+gh = "github:{path}"
+kra = "gh:kradalby/{path}"
+ts = "gh:tailscale/{path}"
+nix = "gh:NixOS/nixpkgs/{path}"
+
+## nixpkgs
+
+# "stable" tracks the latest NixOS release and is the box default.
+[inputs.nixpkgs-stable]
+url = "nix:nixos-26.05"
+
+[inputs.nixpkgs-darwin]
+url = "nix:nixpkgs-26.05-darwin"
+
+[inputs.nixpkgs-unstable]
+url = "nix:nixpkgs-unstable"
+
+[inputs.nixpkgs-master]
+url = "nix:master"
+
+# TODO: remove once nixos-26.05 ships nginx >= 1.30.7 (HTTP/2 RCE fix);
+# -small gets it first. Only used by common/nginx.nix.
+[inputs.nixpkgs-stable-small]
+url = "nix:nixos-26.05-small"
+
+## system
+
+[inputs.flake-utils]
+url = "gh:numtide/flake-utils"
+
+[inputs.darwin]
+url = "gh:nix-darwin/nix-darwin/nix-darwin-26.05"
+follows = { nixpkgs = "nixpkgs-darwin" }
+
+[inputs.home-manager]
+url = "gh:nix-community/home-manager/release-26.05"
+follows = { nixpkgs = "nixpkgs-stable" }
+
+[inputs.nix-index-database]
+url = "gh:nix-community/nix-index-database"
+follows = { nixpkgs = "nixpkgs-stable" }
+
+[inputs.treefmt-nix]
+url = "gh:numtide/treefmt-nix"
+follows = { nixpkgs = "nixpkgs-stable" }
+
+[inputs.nix-rosetta-builder]
+url = "gh:cpick/nix-rosetta-builder"
+follows = { nixpkgs = "nixpkgs-unstable" }
+
+[inputs.ragenix]
+url = "gh:yaxitech/ragenix"
+follows = { flake-utils = "flake-utils", nixpkgs = "nixpkgs-stable" }
+
+# Stock nixpkgs sd-image-aarch64 has no Pi5 support (no bcm2712 DTB, u-boot,
+# or [pi5] config.txt). nixos-raspberrypi ships proper Pi5 firmware + sd-image
+# generator. Follows the fleet nixpkgs so the Pi build matches home-manager;
+# its own pin lacks lib/services, which home-manager 26.05 needs.
+[inputs.nixos-raspberrypi]
+url = "gh:nvmd/nixos-raspberrypi/main"
+follows = { nixpkgs = "nixpkgs-stable" }
+
+## AI plugin sources: shared by repository, no flake dependencies
+
+[groups.plugins]
+type = "fetch"
+
+[inputs.plugins.claude-plugins-official]
+url = "gh:anthropics/claude-plugins-official"
+
+[inputs.plugins.claude-superpowers]
+url = "gh:obra/superpowers"
+
+[inputs.plugins.claude-ponytail]
+url = "gh:DietrichGebert/ponytail"
+
+[inputs.plugins.claude-caveman]
+url = "gh:JuliusBrussee/caveman"
+
+[inputs.plugins.claude-ui-ux-pro-max]
+url = "gh:nextlevelbuilder/ui-ux-pro-max-skill"
+
+[inputs.plugins.codex-plugin-cc]
+url = "gh:openai/codex-plugin-cc"
+
+[inputs.plugins.claude-floorplan]
+url = "gh:haydenschmitty/floorplan"
+
+# Pi extension that registers Aperture's /v1/models catalog as providers.
+[inputs.plugins.pi-aperture-models]
+url = "gh:raggi/aperture-models"
+
+## Go services
+
+[inputs.krapage]
+url = "kra:kra"
+follows = { flake-utils = "flake-utils", nixpkgs = "nixpkgs-unstable" }
+
+[inputs.hvor]
+url = "kra:hvor"
+follows = { flake-utils = "flake-utils", nixpkgs = "nixpkgs-unstable" }
+
+[inputs.tasmota-exporter]
+url = "kra:tasmota-exporter"
+follows = { flake-utils = "flake-utils", nixpkgs = "nixpkgs-unstable" }
+
+[inputs.homewizard-p1-exporter]
+url = "kra:homewizard-p1-exporter"
+follows = { flake-utils = "flake-utils", nixpkgs = "nixpkgs-unstable" }
+
+[inputs.ghdl]
+url = "kra:ghdl"
+follows = { flake-utils = "flake-utils", nixpkgs = "nixpkgs-unstable" }
+
+# aspargesgaarden.no; branch asparges until it replaces the Pages site on main.
+# headscale is only its VM-test control server.
+[inputs.asparges]
+url = "kra:aspargesgaarden-elm/asparges"
+follows = { flake-utils = "flake-utils", headscale = "headscale", nixpkgs = "nixpkgs-unstable" }
+
+# garnix CI build logs as plain text; runs on the garnix VM as its own tsnet
+# node. Follows unstable: its go.mod needs go >= 1.27.0.
+[inputs.garnixlogs]
+url = "kra:garnixlogs"
+follows = { flake-utils = "flake-utils", nixpkgs = "nixpkgs-unstable" }
+
+# Nix binary cache served over tailscale. Follows unstable: its go.mod needs
+# go >= 1.27.0.
+[inputs.tsnixcache]
+url = "kra:tsnixcache/main"
+follows = { nixpkgs = "nixpkgs-unstable" }
+
+# Self-hosted garnix CI, held at the reviewed GC and eval fixes so routine
+# updates cannot revert them to integration; move it with `tack update
+# garnix-ci`. Follows nothing: garnix pins nixpkgs-25.11-small + its own
+# nixpkgsUnstable + libkrun for krun; overriding them risks breaking the
+# action-runner.
+[inputs.garnix-ci]
+url = "kra:garnix"
+frozen = "f0794f824292f7f6aa7bf36c7e2e74112c290aa3"
+exclude_follow = ["*"]
+
+# Upstream builds on unstable but takes its Go from stable; share both fleet
+# pins.
+[inputs.headscale]
+url = "gh:juanfont/headscale/main"
+follows = { flake-utils = "flake-utils", nixpkgs = "nixpkgs-unstable", nixpkgs-stable = "nixpkgs-stable" }
+
+# Follows unstable for the fleet-wide go_latest; its go.mod floor is
+# satisfied there too.
+[inputs.golink]
+url = "ts:golink"
+follows = { nixpkgs = "nixpkgs-unstable", systems = "flake-utils/systems" }
+
+[inputs.hugin]
+url = "kra:hugin"
+follows = { flake-utils = "flake-utils", nixpkgs = "nixpkgs-unstable" }
+
+# setec-compatible secrets server. Follows unstable so its go build tracks our
+# toolchain.
+[inputs.ts1p]
+url = "kra:ts1p/main"
+follows = { nixpkgs = "nixpkgs-unstable" }
+
+# Go links changed since the last look. Follows unstable so its go build tracks
+# our toolchain.
+[inputs.golinkdiff]
+url = "kra:golinkdiff/main"
+follows = { flake-utils = "flake-utils", nixpkgs = "nixpkgs-unstable" }
+
+[inputs.tsidp]
+url = "ts:tsidp"
+follows = { nixpkgs = "nixpkgs-unstable", systems = "flake-utils/systems" }
+
+[inputs.tailscale]
+url = "ts:tailscale/kradalby/nixos-module"
+follows = { nixpkgs = "nixpkgs-unstable", systems = "flake-utils/systems" }
+omit_inputs = ["flake-compat"]
+
+[inputs.munin]
+url = "kra:munin"
+
+[inputs.neovim-kradalby]
+url = "kra:neovim"
+follows = { flake-utils = "flake-utils", nixpkgs = "nixpkgs-unstable" }
+
+[inputs.nefit-homekit]
+url = "kra:nefit-homekit"
+follows = { flake-utils = "flake-utils", nixpkgs = "nixpkgs-unstable" }
+
+[inputs.tasmota-homekit]
+url = "kra:tasmota-homekit"
+follows = { flake-utils = "flake-utils", nixpkgs = "nixpkgs-unstable" }
+
+[inputs.z2m-homekit]
+url = "kra:z2m-homekit"
+follows = { flake-utils = "flake-utils", nixpkgs = "nixpkgs-unstable" }
+
+## agents
+
+# Hermes patches patchelf for its Linux binaries against its own nixpkgs pin.
+[inputs.hermes-agent]
+url = "gh:NousResearch/hermes-agent"
+follows = { home-manager = "home-manager" }
+
+# Prebuilt Rex. Follows the fleet nixpkgs: the login server dlopens the host's
+# PAM modules, so keep one pam and glibc in the process.
+[inputs.rex]
+url = "https://pkgs.superlogical.com/rex/nix/snapshot.tar.gz"
+follows = { nixpkgs = "nixpkgs-stable" }
