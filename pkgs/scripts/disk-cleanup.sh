@@ -27,7 +27,8 @@ STEPS
   /tmp is a separate tmpfs, so only tmp-cleanup frees it.
   / runs these in order and stops once it is below -f, cheapest loss first:
     1. tmp-cleanup -o DAYS          overflow scratch nobody uses
-    2. trim ~/.cache/go-build       entries unused for two hours
+    2. trim Go build caches         entries unused for two hours, in
+                                    ~/.cache/go-build and under ~/.cache/tmp
     3. docker system prune -af      images rebuild or pull again
     4. nix-collect-garbage          a build running now can fail
 
@@ -107,9 +108,17 @@ if root_full || tmp_full; then
   tmp-cleanup "${tmp_args[@]}"
 fi
 
-if root_full && [ -d "$HOME/.cache/go-build" ]; then
-  # Two hours, not less: Go refreshes an entry's mtime at most hourly on use.
-  run find "$HOME/.cache/go-build" -type f -mmin +120 -delete
+if root_full; then
+  # Agents point GOCACHE at overflow scratch, where Go's own trim is the only
+  # limit. trim.txt marks a Go-style cache, golangci-lint's included.
+  mapfile -t caches < <(
+    find "$HOME/.cache/tmp" -maxdepth 3 -name trim.txt -printf '%h\n' 2>/dev/null
+  )
+  for cache in "$HOME/.cache/go-build" "${caches[@]}"; do
+    [ -d "$cache" ] || continue
+    # Two hours, not less: Go refreshes an entry's mtime at most hourly on use.
+    run find "$cache" -type f -mmin +120 -delete
+  done
 fi
 if root_full && command -v docker >/dev/null; then
   run docker system prune -af
