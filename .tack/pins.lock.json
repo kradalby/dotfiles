@@ -19,6 +19,7 @@
     "garnixlogs": "github:kradalby/garnixlogs",
     "ghdl": "github:kradalby/ghdl",
     "github-coauthors.nvim": "github:cwebster2/github-coauthors.nvim",
+    "go": "https://go.dev/dl/go{version}.src.tar.gz",
     "golink": "github:tailscale/golink",
     "golinkdiff": "github:kradalby/golinkdiff/main",
     "gotools": "github:golang/tools",
@@ -300,6 +301,14 @@
       "outHash": "sha256-gVpfFeljwm2F8ZU1BQTjSuXamiGUH06oNi+DCnUr49c="
     },
     "public": true
+  },
+  "go": {
+    "type": "fixed",
+    "url": "https://go.dev/dl/go1.27.4.src.tar.gz",
+    "sha256": "sha256-c8+4VxrsDAEXdofbhxY9Rqog6XeWcncokaoXZU2aYJk=",
+    "unpack": "tarball",
+    "tag": "go1.27.4",
+    "version": "1.27.4"
   },
   "golink": {
     "type": "github",
