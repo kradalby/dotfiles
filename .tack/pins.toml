@@ -9,7 +9,9 @@ nix = "gh:NixOS/nixpkgs/{path}"
 
 # Every input at any depth with these names shares our pin; group and pin
 # follows win. Fleet default is unstable: Go services need its go_latest.
+# Go projects that pin their own toolchain as `go` share ours: one build.
 [all_follow]
+go = "go"
 nixpkgs = "nixpkgs-unstable"
 nixpkgs-stable = "nixpkgs-stable"
 nix-darwin = "darwin"
@@ -61,6 +63,15 @@ url = "nix:nixpkgs-unstable"
 
 [inputs.channels.nixpkgs-master]
 url = "nix:master"
+
+# Fleet Go toolchain for our own packages (pkgs.fleetGo). nixpkgs lags Go
+# releases; this follows go.dev's newest stable tag.
+[inputs.channels.go]
+url = "https://go.dev/dl/go{version}.src.tar.gz"
+type = "fixed"
+unpack = "tarball"
+tag = "go{version}"
+tags_from = "gh:golang/go"
 
 ## system
 
