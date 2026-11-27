@@ -18,6 +18,7 @@
     "garnix-ci": "github:kradalby/garnix/integration",
     "garnixlogs": "github:kradalby/garnixlogs",
     "ghdl": "github:kradalby/ghdl",
+    "github-coauthors.nvim": "github:cwebster2/github-coauthors.nvim",
     "golink": "github:tailscale/golink",
     "golinkdiff": "github:kradalby/golinkdiff/main",
     "gotools": "github:golang/tools",
@@ -37,7 +38,6 @@
     "mqtt-exporter": "github:kpetremann/mqtt-exporter",
     "munin": "github:kradalby/munin",
     "nefit-homekit": "github:kradalby/nefit-homekit",
-    "neovim-kradalby": "github:kradalby/neovim",
     "nix-index-database": "github:nix-community/nix-index-database",
     "nix-rosetta-builder": "github:cpick/nix-rosetta-builder",
     "nixos-raspberrypi": "github:nvmd/nixos-raspberrypi/main",
@@ -61,6 +61,7 @@
     "ts1p": "github:kradalby/ts1p/main",
     "tsidp": "github:tailscale/tsidp",
     "tsnixcache": "github:kradalby/tsnixcache/main",
+    "vim-plist": "github:darfink/vim-plist",
     "z2m-homekit": "github:kradalby/z2m-homekit"
   },
   "asparges": {
@@ -287,6 +288,19 @@
     "lastModified": 1791575304,
     "public": true
   },
+  "github-coauthors.nvim": {
+    "type": "github",
+    "owner": "cwebster2",
+    "repo": "github-coauthors.nvim",
+    "rev": "3cf0bf406fcbb9b442589c05b306bfe11e1d27b0",
+    "narHash": "sha256-dZ2VCyRZXXLbtK2I9hk2ZM8qqbMgv1Va1mbiJSc/4Cw=",
+    "lastModified": 1670948652,
+    "archive": {
+      "hash": "sha256-dfWDiKZvD47nOq6zbRhS4LGyNKFcaExT4SK9LOsEVNM=",
+      "outHash": "sha256-gVpfFeljwm2F8ZU1BQTjSuXamiGUH06oNi+DCnUr49c="
+    },
+    "public": true
+  },
   "golink": {
     "type": "github",
     "owner": "tailscale",
@@ -470,15 +484,6 @@
     "rev": "bc875b7b187d702b387daf69199604c03546a7c5",
     "narHash": "sha256-4Z+ojK7O5Seah5igsDIr1XuYM58H57XO4ZbUXlXYUBA=",
     "lastModified": 1793431950,
-    "public": true
-  },
-  "neovim-kradalby": {
-    "type": "github",
-    "owner": "kradalby",
-    "repo": "neovim",
-    "rev": "9440a9965e981a8f8ae0d3a97f0f971b0c7af9d4",
-    "narHash": "sha256-wKdI3OaHymPAzvQMWVsUScvuKlp6NFAwWdyFx24IOj0=",
-    "lastModified": 1790341754,
     "public": true
   },
   "nix-index-database": {
@@ -715,6 +720,19 @@
     "rev": "7feda8703be90bb8d7defb9630c69b290e384c6d",
     "narHash": "sha256-JBSKRXYj9cWKtrubTgxlsf7dOp+Py3BdrloS/6sBrwk=",
     "lastModified": 1794086757,
+    "public": true
+  },
+  "vim-plist": {
+    "type": "github",
+    "owner": "darfink",
+    "repo": "vim-plist",
+    "rev": "aa781a387c70a9ea30cbce8da988e19693f5aaec",
+    "narHash": "sha256-auX4yO6pC5wHVDrWGQL/S87ySOcA2/44algtGwjLLVE=",
+    "lastModified": 1734516023,
+    "archive": {
+      "hash": "sha256-WM7A2bhc4RKZv0ygskOJYEUkX+DE2dTlKMW7lAoROn8=",
+      "outHash": "sha256-a5+3S9A6per14Uc+VDLcnkov8yIHyquGiv7gDsZ+Xwo="
+    },
     "public": true
   },
   "z2m-homekit": {
