@@ -118,7 +118,7 @@
             system = prev.stdenv.hostPlatform.system;
           in
           {
-            neovim = neovim-kradalby.packages."${system}".neovim-kradalby;
+            neovim = final.neovim-kradalby;
             tailscale = tailscale.packages."${system}".tailscale;
             tack = inputs.tack.packages."${system}".tack;
             # Named apart from nixpkgs' rex, an unrelated automation tool.
