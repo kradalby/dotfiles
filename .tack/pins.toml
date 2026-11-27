@@ -1,8 +1,14 @@
 [tack]
 type = "flake"
 
-# Every input at any depth with these names shares our pin. Pin and group
-# follows win.
+[shorturls]
+gh = "github:{path}"
+kra = "gh:kradalby/{path}"
+ts = "gh:tailscale/{path}"
+nix = "gh:NixOS/nixpkgs/{path}"
+
+# Every input at any depth with these names shares our pin; group and pin
+# follows win. Fleet default is unstable: Go services need its go_latest.
 [all_follow]
 nixpkgs = "nixpkgs-unstable"
 nixpkgs-stable = "nixpkgs-stable"
@@ -18,192 +24,176 @@ crane = "crane"
 [omit_inputs]
 names = ["flake-compat"]
 
+# Group names select pins too: `tack look src`, `tack update ai-plugins`.
+
+# Built against the box release (home-manager and the NixOS modules must agree).
 [groups.stable]
 follows = { nixpkgs = "nixpkgs-stable" }
 
-[shorturls]
-gh = "github:{path}"
-kra = "gh:kradalby/{path}"
-ts = "gh:tailscale/{path}"
-nix = "gh:NixOS/nixpkgs/{path}"
+[groups.ai-plugins]
+type = "fetch"
 
-## nixpkgs
+## channels
 
 # "stable" tracks the latest NixOS release and is the box default.
-[inputs.nixpkgs-stable]
+[inputs.channels.nixpkgs-stable]
 url = "nix:nixos-26.05"
 
-[inputs.nixpkgs-darwin]
+[inputs.channels.nixpkgs-darwin]
 url = "nix:nixpkgs-26.05-darwin"
 
-[inputs.nixpkgs-unstable]
+[inputs.channels.nixpkgs-unstable]
 url = "nix:nixpkgs-unstable"
 
-[inputs.nixpkgs-master]
+[inputs.channels.nixpkgs-master]
 url = "nix:master"
 
 ## system
 
-[inputs.flake-utils]
+[inputs.system.flake-utils]
 url = "gh:numtide/flake-utils"
 
-[inputs.darwin]
+[inputs.system.darwin]
 url = "gh:nix-darwin/nix-darwin/nix-darwin-26.05"
 follows = { nixpkgs = "nixpkgs-darwin" }
 
-[inputs.home-manager]
-url = "gh:nix-community/home-manager/release-26.05"
-group = "stable"
-
-[inputs.nix-index-database]
-url = "gh:nix-community/nix-index-database"
-group = "stable"
-
-[inputs.treefmt-nix]
-url = "gh:numtide/treefmt-nix"
-group = "stable"
-
-[inputs.nix-rosetta-builder]
+[inputs.system.nix-rosetta-builder]
 url = "gh:cpick/nix-rosetta-builder"
 
-[inputs.ragenix]
+[inputs.stable.home-manager]
+url = "gh:nix-community/home-manager/release-26.05"
+
+[inputs.stable.nix-index-database]
+url = "gh:nix-community/nix-index-database"
+
+[inputs.stable.treefmt-nix]
+url = "gh:numtide/treefmt-nix"
+
+[inputs.stable.ragenix]
 url = "gh:yaxitech/ragenix"
-group = "stable"
 
 # Stock nixpkgs sd-image-aarch64 has no Pi5 support (no bcm2712 DTB, u-boot,
-# or [pi5] config.txt). nixos-raspberrypi ships proper Pi5 firmware + sd-image
-# generator. Follows the fleet nixpkgs so the Pi build matches home-manager;
-# its own pin lacks lib/services, which home-manager 26.05 needs.
-[inputs.nixos-raspberrypi]
+# or [pi5] config.txt). Its own nixpkgs lacks lib/services, which
+# home-manager 26.05 needs.
+[inputs.stable.nixos-raspberrypi]
 url = "gh:nvmd/nixos-raspberrypi/main"
-group = "stable"
 
-## AI plugin sources: shared by repository, no flake dependencies
+# Prebuilt Rex. The login server dlopens the host's PAM modules, so keep one
+# pam and glibc in the process.
+[inputs.stable.rex]
+url = "https://pkgs.superlogical.com/rex/nix/snapshot.tar.gz"
 
-[groups.plugins]
-type = "fetch"
+## services
 
-[inputs.plugins.claude-plugins-official]
-url = "gh:anthropics/claude-plugins-official"
-
-[inputs.plugins.claude-superpowers]
-url = "gh:obra/superpowers"
-
-[inputs.plugins.claude-ponytail]
-url = "gh:DietrichGebert/ponytail"
-
-[inputs.plugins.claude-caveman]
-url = "gh:JuliusBrussee/caveman"
-
-[inputs.plugins.claude-ui-ux-pro-max]
-url = "gh:nextlevelbuilder/ui-ux-pro-max-skill"
-
-[inputs.plugins.codex-plugin-cc]
-url = "gh:openai/codex-plugin-cc"
-
-[inputs.plugins.claude-floorplan]
-url = "gh:haydenschmitty/floorplan"
-
-# Pi extension that registers Aperture's /v1/models catalog as providers.
-[inputs.plugins.pi-aperture-models]
-url = "gh:raggi/aperture-models"
-
-## Go services
-
-[inputs.krapage]
+[inputs.services.krapage]
 url = "kra:kra"
 
-[inputs.hvor]
+[inputs.services.hvor]
 url = "kra:hvor"
 
-[inputs.tasmota-exporter]
+[inputs.services.tasmota-exporter]
 url = "kra:tasmota-exporter"
 
-[inputs.homewizard-p1-exporter]
+[inputs.services.homewizard-p1-exporter]
 url = "kra:homewizard-p1-exporter"
 
-[inputs.ghdl]
+[inputs.services.ghdl]
 url = "kra:ghdl"
 
 # aspargesgaarden.no; branch asparges until it replaces the Pages site on main.
 # headscale is only its VM-test control server.
-[inputs.asparges]
+[inputs.services.asparges]
 url = "kra:aspargesgaarden-elm/asparges"
 
-# garnix CI build logs as plain text; runs on the garnix VM as its own tsnet
-# node. Follows unstable: its go.mod needs go >= 1.27.0.
-[inputs.garnixlogs]
-url = "kra:garnixlogs"
+# Upstream builds on unstable but takes its Go from stable.
+[inputs.services.headscale]
+url = "gh:juanfont/headscale/main"
 
-# Nix binary cache served over tailscale. Follows unstable: its go.mod needs
-# go >= 1.27.0.
-[inputs.tsnixcache]
-url = "kra:tsnixcache/main"
+[inputs.services.golink]
+url = "ts:golink"
 
-# Self-hosted garnix CI, held at the reviewed GC and eval fixes so routine
-# updates cannot revert them to integration; move it with `tack update
-# garnix-ci`. Follows nothing: garnix pins nixpkgs-25.11-small + its own
-# nixpkgsUnstable + libkrun for krun; overriding them risks breaking the
-# action-runner.
-[inputs.garnix-ci]
-url = "kra:garnix"
+[inputs.services.tsidp]
+url = "ts:tsidp"
+
+[inputs.services.hugin]
+url = "kra:hugin"
+
+# setec-compatible secrets server.
+[inputs.services.ts1p]
+url = "kra:ts1p/main"
+
+# Go links changed since the last look.
+[inputs.services.golinkdiff]
+url = "kra:golinkdiff/main"
+
+[inputs.services.munin]
+url = "kra:munin"
+
+[inputs.services.nefit-homekit]
+url = "kra:nefit-homekit"
+
+[inputs.services.tasmota-homekit]
+url = "kra:tasmota-homekit"
+
+[inputs.services.z2m-homekit]
+url = "kra:z2m-homekit"
+
+## ci
+
+# Self-hosted garnix CI: our fork of znaniye/garnix-ci (selfhost), held at the
+# reviewed GC and eval fixes. The held rev sits on no branch (ahead of
+# integration), so `tack update garnix-ci` would drop them; rebase the fork onto
+# selfhost first. Follows nothing: garnix pins its own nixpkgs and libkrun for
+# krun; overriding them risks breaking the action-runner.
+[inputs.ci.garnix-ci]
+url = "kra:garnix/integration"
 frozen = "f0794f824292f7f6aa7bf36c7e2e74112c290aa3"
 exclude_follow = ["*"]
 
-# Upstream builds on unstable but takes its Go from stable; all_follow shares
-# both fleet pins.
-[inputs.headscale]
-url = "gh:juanfont/headscale/main"
+# garnix CI build logs as plain text, on the garnix VM.
+[inputs.ci.garnixlogs]
+url = "kra:garnixlogs"
 
-# Follows unstable for the fleet-wide go_latest; its go.mod floor is
-# satisfied there too.
-[inputs.golink]
-url = "ts:golink"
+# Nix binary cache served over tailscale.
+[inputs.ci.tsnixcache]
+url = "kra:tsnixcache/main"
 
-[inputs.hugin]
-url = "kra:hugin"
+## apps
 
-# setec-compatible secrets server. Follows unstable so its go build tracks our
-# toolchain.
-[inputs.ts1p]
-url = "kra:ts1p/main"
-
-# Go links changed since the last look. Follows unstable so its go build tracks
-# our toolchain.
-[inputs.golinkdiff]
-url = "kra:golinkdiff/main"
-
-[inputs.tsidp]
-url = "ts:tsidp"
-
-[inputs.tailscale]
-url = "ts:tailscale/kradalby/nixos-module"
-
-[inputs.munin]
-url = "kra:munin"
-
-[inputs.neovim-kradalby]
+[inputs.apps.neovim-kradalby]
 url = "kra:neovim"
 
-[inputs.nefit-homekit]
-url = "kra:nefit-homekit"
+[inputs.apps.tailscale]
+url = "ts:tailscale/kradalby/nixos-module"
 
-[inputs.tasmota-homekit]
-url = "kra:tasmota-homekit"
-
-[inputs.z2m-homekit]
-url = "kra:z2m-homekit"
-
-## agents
-
-# Hermes patches patchelf for its Linux binaries against its own nixpkgs pin.
-[inputs.hermes-agent]
+# Patches patchelf for its Linux binaries against its own nixpkgs.
+[inputs.apps.hermes-agent]
 url = "gh:NousResearch/hermes-agent"
-follows = { home-manager = "home-manager" }
 exclude_follow = ["nixpkgs"]
 
-# Prebuilt Rex. Follows the fleet nixpkgs: the login server dlopens the host's
-# PAM modules, so keep one pam and glibc in the process.
-[inputs.rex]
-url = "https://pkgs.superlogical.com/rex/nix/snapshot.tar.gz"
-group = "stable"
+## AI plugin sources: shared by repository, no flake dependencies
+
+[inputs.ai-plugins.claude-plugins-official]
+url = "gh:anthropics/claude-plugins-official"
+
+[inputs.ai-plugins.claude-superpowers]
+url = "gh:obra/superpowers"
+
+[inputs.ai-plugins.claude-ponytail]
+url = "gh:DietrichGebert/ponytail"
+
+[inputs.ai-plugins.claude-caveman]
+url = "gh:JuliusBrussee/caveman"
+
+[inputs.ai-plugins.claude-ui-ux-pro-max]
+url = "gh:nextlevelbuilder/ui-ux-pro-max-skill"
+
+[inputs.ai-plugins.codex-plugin-cc]
+url = "gh:openai/codex-plugin-cc"
+
+[inputs.ai-plugins.claude-floorplan]
+url = "gh:haydenschmitty/floorplan"
+
+# Pi extension that registers Aperture's /v1/models catalog as providers.
+[inputs.ai-plugins.pi-aperture-models]
+url = "gh:raggi/aperture-models"
