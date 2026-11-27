@@ -8,20 +8,33 @@
     "claude-superpowers": "github:obra/superpowers",
     "claude-ui-ux-pro-max": "github:nextlevelbuilder/ui-ux-pro-max-skill",
     "codex-plugin-cc": "github:openai/codex-plugin-cc",
+    "cook-cli": "github:cooklang/cookcli",
+    "cook-mcp": "github:cook-md/cook-mcp",
     "darwin": "github:nix-darwin/nix-darwin/nix-darwin-26.05",
+    "eb": "github:rye/eb",
+    "fish-abbr-tips": "github:gazorby/fish-abbreviation-tips",
+    "fish-nix-env": "github:lilyball/nix-env.fish",
     "flake-utils": "github:numtide/flake-utils",
-    "garnix-ci": "github:kradalby/garnix",
+    "garnix-ci": "github:kradalby/garnix/integration",
     "garnixlogs": "github:kradalby/garnixlogs",
     "ghdl": "github:kradalby/ghdl",
     "golink": "github:tailscale/golink",
     "golinkdiff": "github:kradalby/golinkdiff/main",
+    "gotools": "github:golang/tools",
+    "grafana-incus": "https://grafana.com/api/dashboards/19727/revisions/2/download",
+    "grafana-node-exporter-full": "https://grafana.com/api/dashboards/1860/revisions/46/download",
+    "grafana-sloth": "https://grafana.com/api/dashboards/14348/revisions/5/download",
     "headscale": "github:juanfont/headscale/main",
+    "herald": "https://github.com/herald-email/herald-mail-app/releases/download/{tag}/herald-{tag}-linux-amd64.tar.gz",
     "hermes-agent": "github:NousResearch/hermes-agent",
     "home-manager": "github:nix-community/home-manager/release-26.05",
     "homewizard-p1-exporter": "github:kradalby/homewizard-p1-exporter",
     "hugin": "github:kradalby/hugin",
     "hvor": "github:kradalby/hvor",
+    "isponsorblocktv": "github:dmunozv04/iSponsorBlockTV",
     "krapage": "github:kradalby/kra",
+    "mcp-picnic": "github:ivo-toby/mcp-picnic",
+    "mqtt-exporter": "github:kpetremann/mqtt-exporter",
     "munin": "github:kradalby/munin",
     "nefit-homekit": "github:kradalby/nefit-homekit",
     "neovim-kradalby": "github:kradalby/neovim",
@@ -31,12 +44,17 @@
     "nixpkgs-darwin": "github:NixOS/nixpkgs/nixpkgs-26.05-darwin",
     "nixpkgs-master": "github:NixOS/nixpkgs/master",
     "nixpkgs-stable": "github:NixOS/nixpkgs/nixos-26.05",
-    "nixpkgs-stable-small": "github:NixOS/nixpkgs/nixos-26.05-small",
     "nixpkgs-unstable": "github:NixOS/nixpkgs/nixpkgs-unstable",
     "pi-aperture-models": "github:raggi/aperture-models",
+    "pm-cli": "github:bscott/pm-cli",
     "ragenix": "github:yaxitech/ragenix",
     "rex": "https://pkgs.superlogical.com/rex/nix/snapshot.tar.gz",
+    "setec": "github:tailscale/setec",
+    "squibble": "github:tailscale/squibble",
+    "stirling-pdf": "github:Stirling-Tools/Stirling-PDF",
+    "tack": "github:manic-systems/tack",
     "tailscale": "github:tailscale/tailscale/kradalby/nixos-module",
+    "tailscale-tools": "github:tailscale/tailscale",
     "tasmota-exporter": "github:kradalby/tasmota-exporter",
     "tasmota-homekit": "github:kradalby/tasmota-homekit",
     "treefmt-nix": "github:numtide/treefmt-nix",
@@ -360,15 +378,6 @@
     "lastModified": 1794872590,
     "public": true
   },
-  "nixpkgs-stable-small": {
-    "type": "github",
-    "owner": "NixOS",
-    "repo": "nixpkgs",
-    "rev": "1e6cf0d7cf5f5354d1bfd7105813dddb527851d4",
-    "narHash": "sha256-zAW6zDvAWMptz3WwRl0jX9khtVsgKTDbm7POQqIgYc4=",
-    "lastModified": 1795017444,
-    "public": true
-  },
   "nixpkgs-unstable": {
     "type": "github",
     "owner": "NixOS",
@@ -477,5 +486,244 @@
     "narHash": "sha256-NVcTbRD5nxfQy9ZUleTH/95nepr49GdxxmuLYVgSqcs=",
     "lastModified": 1790801413,
     "public": true
+  },
+  "cook-cli": {
+    "type": "github",
+    "owner": "cooklang",
+    "repo": "cookcli",
+    "rev": "bd50854bf16bb2fd9bcf10d78478a40334222f0f",
+    "narHash": "sha256-sTr6YBgxxgl7tFKQEUM40Ov7/dehBVQPGxZhNZDu63I=",
+    "lastModified": 1794257318,
+    "archive": {
+      "hash": "sha256-2MQ1zPKvPQ+hNUFa804zTdRk/eK/PLikKrM6czBdH1Q=",
+      "outHash": "sha256-DjOMnw/+Z62UdzVw3BYE0IJcR2huFd5TFtfQQyT1AyM="
+    },
+    "public": true,
+    "tag": "v0.41.1",
+    "version": "0.41.1"
+  },
+  "cook-mcp": {
+    "type": "github",
+    "owner": "cook-md",
+    "repo": "cook-mcp",
+    "rev": "ba708fd4612e4489333c1b4a946b7acfd5958ef3",
+    "narHash": "sha256-nNPx5u1sgrwe3C/6crTGSRUGi9LnnlFY+NfCwXaY47k=",
+    "lastModified": 1791293593,
+    "archive": {
+      "hash": "sha256-200GeDYB7j8bBocak6+vzLkl/5CjST+clX+piMOKqIM=",
+      "outHash": "sha256-1mgvJd2wiNU980WtNsdWLKa6Oj+irElYkO5o48KefAw="
+    },
+    "public": true,
+    "tag": "v0.2.3",
+    "version": "0.2.3"
+  },
+  "eb": {
+    "type": "github",
+    "owner": "rye",
+    "repo": "eb",
+    "rev": "3d3e1e15ac13e6656e594e78e0dbd859d72517ae",
+    "narHash": "sha256-kHN9W4oKlSIiJlbu3Jd9HAIQjk1jTk/2sHr1eLlydD8=",
+    "lastModified": 1633346196,
+    "archive": {
+      "hash": "sha256-jH9XW1px7m7iX6p+bJ+dJcUvnKZYwVNE7JltVNUkSFk=",
+      "outHash": "sha256-4zGHJW7KoGvPOjyY/EHhhR5AgellGpk5JRY56cNLyoo="
+    },
+    "public": true,
+    "tag": "v0.5.0",
+    "version": "0.5.0"
+  },
+  "fish-abbr-tips": {
+    "type": "github",
+    "owner": "gazorby",
+    "repo": "fish-abbreviation-tips",
+    "rev": "8ed76a62bb044ba4ad8e3e6832640178880df485",
+    "narHash": "sha256-F1t81VliD+v6WEWqj1c1ehFBXzqLyumx5vV46s/FZRU=",
+    "lastModified": 1674487577,
+    "archive": {
+      "hash": "sha256-ZAMvltZiYul8tcH900rD+z1ksRMkU2YllKiElJckCKs=",
+      "outHash": "sha256-gizsxO4e7XVY5O9R/Y9lXFiRZsICUxbNQoE1LijFSxA="
+    },
+    "public": true
+  },
+  "fish-nix-env": {
+    "type": "github",
+    "owner": "lilyball",
+    "repo": "nix-env.fish",
+    "rev": "7b65bd228429e852c8fdfa07601159130a818cfa",
+    "narHash": "sha256-RG/0rfhgq6aEKNZ0XwIqOaZ6K5S4+/Y5EEMnIdtfPhk=",
+    "lastModified": 1638213644,
+    "archive": {
+      "hash": "sha256-3Fjhteyb0VZ8EGvW4enS+Vb8g2pEB6mQoIbi7tEMZOc=",
+      "outHash": "sha256-oYZQ2MgiXB3iHhcZ7bTmQ3dIBsJErIF2nsWCIsRaUrA="
+    },
+    "public": true
+  },
+  "gotools": {
+    "type": "github",
+    "owner": "golang",
+    "repo": "tools",
+    "rev": "611c7a41af35fc968bbb59e3b70933d90a04624c",
+    "narHash": "sha256-Iyx5KuCqePmn2gbSEcoiTWiFQu4iT5rWvV0jnMbR9Y4=",
+    "lastModified": 1794942299,
+    "archive": {
+      "hash": "sha256-MhoF0mbqPGetB52SYGJ9iFIvTI/IHD5vjQcSx67obvw=",
+      "outHash": "sha256-YyFT7k//AppOBvv4s0ZzKfEYYtMbAW7pSy54tkXF0Ng="
+    },
+    "public": true,
+    "tag": "v0.53.0",
+    "version": "0.53.0"
+  },
+  "grafana-incus": {
+    "type": "fixed",
+    "url": "https://grafana.com/api/dashboards/19727/revisions/2/download",
+    "sha256": "sha256-3+f11v3qfTmM6poCwjUAlQmyZNs9X0TwcCdxFTreyuQ=",
+    "unpack": "file"
+  },
+  "grafana-node-exporter-full": {
+    "type": "fixed",
+    "url": "https://grafana.com/api/dashboards/1860/revisions/46/download",
+    "sha256": "sha256-5Y3cXcU11MkB+U2pZIvD49Wue2946Y4YW86LKJlhzqM=",
+    "unpack": "file"
+  },
+  "grafana-sloth": {
+    "type": "fixed",
+    "url": "https://grafana.com/api/dashboards/14348/revisions/5/download",
+    "sha256": "sha256-kmJoFy8ZmSKN0WsoBUQEepOpfNfmTjGciKFzhcFgeCU=",
+    "unpack": "file"
+  },
+  "herald": {
+    "type": "fixed",
+    "url": "https://github.com/herald-email/herald-mail-app/releases/download/v0.12.0-beta.1/herald-v0.12.0-beta.1-linux-amd64.tar.gz",
+    "sha256": "sha256-bhQ05L+ZJpgqkKpQKWqaIkr4dSm1aZ2zl+8NzCILfsQ=",
+    "unpack": "file",
+    "tag": "v0.12.0-beta.1",
+    "version": "0.12.0"
+  },
+  "isponsorblocktv": {
+    "type": "github",
+    "owner": "dmunozv04",
+    "repo": "iSponsorBlockTV",
+    "rev": "005d248d20dd529bd3e8dca4d17a65ab05135ce8",
+    "narHash": "sha256-VbhkSrF18JluKAKqUsFKkjC0jdYsvjFotYr0aJ4BTKs=",
+    "lastModified": 1787309739,
+    "archive": {
+      "hash": "sha256-arq9OhdsLe+Xg4jm1t+d7M5cqPwlle6syT1+E/s3azk=",
+      "outHash": "sha256-Y72/arawYFxWV582mEdSYhOfHXzQiyy8EZR0sN0mO6s="
+    },
+    "public": true,
+    "tag": "v2.11.0",
+    "version": "2.11.0"
+  },
+  "mcp-picnic": {
+    "type": "github",
+    "owner": "ivo-toby",
+    "repo": "mcp-picnic",
+    "rev": "b7a7f3131efc1cfd32d35129733cfe7bcf6e7b78",
+    "narHash": "sha256-mOOIOoF5hALdV93DoSnmawzvDwCo2EZEo9aQrFbUQX0=",
+    "lastModified": 1794431343,
+    "archive": {
+      "hash": "sha256-C43qC70UGIAq8xN1oTD+1B1VzHbtFMf90uTMZ7NL6+E=",
+      "outHash": "sha256-EIlEd+NAwntF0I5tdchgxj7MU3c5Kiqpt3XEVZ1LlaU="
+    },
+    "public": true,
+    "tag": "v1.16.3",
+    "version": "1.16.3"
+  },
+  "mqtt-exporter": {
+    "type": "github",
+    "owner": "kpetremann",
+    "repo": "mqtt-exporter",
+    "rev": "4af2f5dad4980263de3b9ec09276428ec5bcaecc",
+    "narHash": "sha256-cCVbvO1+69zIxbGGW7p3YTbDQgSU41uVR7M3jOHaqO8=",
+    "lastModified": 1778526339,
+    "archive": {
+      "hash": "sha256-0WjthnGyRbHZzEvuJpVcgnbo7Zqtpt9CRT35ZvynO8o=",
+      "outHash": "sha256-TVl2mZMsX/HGSNWhqNo5GqN3+5AA6Y9zui1S736epXc="
+    },
+    "public": true,
+    "tag": "v1.12.1",
+    "version": "1.12.1"
+  },
+  "pm-cli": {
+    "type": "github",
+    "owner": "bscott",
+    "repo": "pm-cli",
+    "rev": "1941db453304d55009d3c7fdd12bf19a13ca245b",
+    "narHash": "sha256-Fy/Gpcl7tzVr52toDI6xTxm9K7fSl5i4zrncFf0tzZQ=",
+    "lastModified": 1788057182,
+    "archive": {
+      "hash": "sha256-7H85cgYsYzH1A+MJ4LFrq3WqzBMpXnLEE8WNe+o/ZVg=",
+      "outHash": "sha256-TaULDL7Bvd+f5W20H4kKgnfijf3R8lAJCDiow4Bczlw="
+    },
+    "public": true,
+    "tag": "v0.2.7",
+    "version": "0.2.7"
+  },
+  "setec": {
+    "type": "github",
+    "owner": "tailscale",
+    "repo": "setec",
+    "rev": "bc168fdb236279b5c5a43d14685df674d7fefb35",
+    "narHash": "sha256-KxMYxRGFXvgQwaJiUb28J9nBDvplpTG/ZCbCr3Upq2E=",
+    "lastModified": 1790951689,
+    "archive": {
+      "hash": "sha256-/TkXP1jKJIkfgot6xxmnCQrNNj8dbhneJhj7x8sRJqo=",
+      "outHash": "sha256-VvzlNHkNTpEZFx+reu1QpTeftjxVDKsJwzuTwjAjnF8="
+    },
+    "public": true
+  },
+  "squibble": {
+    "type": "github",
+    "owner": "tailscale",
+    "repo": "squibble",
+    "rev": "9a4c8961e6f5a4ec322b06129567b086c24540e6",
+    "narHash": "sha256-jUD1aN4kFhM39HAkdKJPUZusOkZtYNWJfU9c43zmzv0=",
+    "lastModified": 1788219196,
+    "archive": {
+      "hash": "sha256-K0UVWfwKniqQKvHwPW/ERKYMvP7fzWzWHOc84bg3QQA=",
+      "outHash": "sha256-+qngO9A5Y9rghVV6tFjYqjAR2j3RuF0vy/FmWZETHD4="
+    },
+    "public": true
+  },
+  "stirling-pdf": {
+    "type": "github",
+    "owner": "Stirling-Tools",
+    "repo": "Stirling-PDF",
+    "rev": "588b7992061b52f88c4c0b9ab3509f72b9c43111",
+    "narHash": "sha256-PgOiNWeoMKFXFC8jSkRrxx0POW0A46lC3EIL50RzoLw=",
+    "lastModified": 1795307958,
+    "archive": {
+      "hash": "sha256-5tCOF9YE5jqTrdI31nVHQv07UWSyt1YgN8T+daEZC0c=",
+      "outHash": "sha256-AwNlQ/nvIojPi1qMoO8yuJL1h/nwXZg9kysjKm/3aVU="
+    },
+    "public": true,
+    "tag": "v3.5.0",
+    "version": "3.5.0"
+  },
+  "tack": {
+    "type": "github",
+    "owner": "manic-systems",
+    "repo": "tack",
+    "rev": "393ed432b3321a44a87e8a588552b51d5dad8f6e",
+    "narHash": "sha256-CUECELH3ty3Imlmbt88IC+ZkUxHPyd3FHuN9WWG4P+c=",
+    "lastModified": 1795730888,
+    "public": true,
+    "tag": "v2.0.0",
+    "version": "2.0.0"
+  },
+  "tailscale-tools": {
+    "type": "github",
+    "owner": "tailscale",
+    "repo": "tailscale",
+    "rev": "ca97d565daae99bf53b1f45f28c36ee081a14f04",
+    "narHash": "sha256-8foZfH4jeJR0z/bLIdufsADIUnt+DSyXL9tjjyg8L9Q=",
+    "lastModified": 1795545810,
+    "archive": {
+      "hash": "sha256-hc87+kT4h635HZUxbnfK80dC9BpaaxN4lpFOOuLGckM=",
+      "outHash": "sha256-XMyLH11l2j39r3SPn8KT1POs5tPHNj2rFVVpXohCww8="
+    },
+    "public": true,
+    "tag": "v1.106.1",
+    "version": "1.106.1"
   }
 }
