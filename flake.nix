@@ -93,10 +93,6 @@
           };
           overlays = [ goOverlay ];
         };
-        # TODO: remove with the nixpkgs-stable-small input.
-        stable-small = import inputs.nixpkgs-stable-small {
-          system = final.stdenv.hostPlatform.system;
-        };
       };
 
       overlays = with inputs; [
