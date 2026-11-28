@@ -18,38 +18,30 @@
         home-manager
         flake-utils
         ;
-      # Single Go for the whole fleet: `go_latest` from nixpkgs-unstable, the
-      # only channel whose default Go tracks the newest release — stable holds
-      # its `go_latest` back a major, below what headscale, tsnixcache and hugin
-      # require in go.mod. Bump by moving nixpkgs-unstable.
-      goLatest =
-        system:
-        (import inputs.nixpkgs-unstable {
-          inherit system;
-          config.allowUnfree = true;
-        }).go_latest;
-
-      goOverlay = _final: prev: {
-        go = goLatest prev.stdenv.hostPlatform.system;
-        buildGoModule = prev.buildGoModule.override {
-          go = goLatest prev.stdenv.hostPlatform.system;
+      # The fleet's own Go: the `go` tack pin (go.dev's newest release), built
+      # with unstable's go_latest recipe so its patches and bootstrap carry over.
+      # nixpkgs' packages keep the channel Go and stay on Hydra's cache.
+      # shortcut: a new Go major reuses the old major's patches; if that fails
+      # to build, `tack freeze go` until unstable ships the new go_1_NN.
+      goOverlay = final: prev: {
+        buildFleetGoModule = final.callPackage "${prev.path}/pkgs/build-support/go/module.nix" {
+          go = final.fleetGo;
         };
-        # libcap builds only its captree tool with Go, yet sits under bubblewrap
-        # and pulseaudio (codex, ffmpeg, ...). Our Go would rebuild all of them,
-        # so keep the channel's and stay on Hydra's cache.
-        libcap = (prev.libcap.override { inherit (prev) go; }).overrideAttrs {
-          disallowedReferences = [ prev.go ];
-        };
+        fleetGo =
+          (import inputs.nixpkgs-unstable {
+            inherit (prev.stdenv.hostPlatform) system;
+            config.allowUnfree = true;
+          }).go_latest.overrideAttrs
+            {
+              inherit (inputs._meta.go) version;
+              src = inputs.go;
+            };
       };
 
-      # Fallout from building all of nixpkgs' Go with our toolchain rather than
-      # the one each package pinned. Must sit after goOverlay so `prev` is
-      # already the fleet toolchain.
-      goFixupsOverlay = _final: prev: {
-        # golink's own flake pins an older buildGoNNNModule and imports nixpkgs
-        # without overlays, so goOverlay cannot reach it. Rebuild it here to keep
-        # it on the fleet toolchain.
-        golink = prev.buildGoModule {
+      fixupsOverlay = final: prev: {
+        # golink's own flake imports nixpkgs without overlays, so it cannot see
+        # the fleet Go. Rebuild it here.
+        golink = final.buildFleetGoModule {
           pname = "golink";
           version = inputs.golink.shortRev or "dev";
           src = inputs.golink;
@@ -91,7 +83,6 @@
           config = {
             allowUnfree = true;
           };
-          overlays = [ goOverlay ];
         };
       };
 
@@ -110,7 +101,7 @@
         # Adds `munin-gallery` (binary `munin`), x86_64-linux only.
         munin.overlays.default
         # After the input overlays: it replaces packages they define.
-        goFixupsOverlay
+        fixupsOverlay
         (import ./pkgs/overlays { inherit inputs; })
         (
           final: prev:

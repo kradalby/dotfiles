@@ -14,8 +14,19 @@ need a service-grade lint battery).
 
 ## Version & syntax
 
-- Pin the **latest** Go in `go.mod` and the flake (`go 1.26`, `pkgs.go_1_26`). Match across build/lint/test.
+- Pin the **latest** Go release in `go.mod` and the flake. Match across build/lint/test.
 - Use current-Go features: generics, range-over-func / iterators (`iter.Seq`), `slices`/`maps`/`cmp` stdlib, `min`/`max`. Don't hand-roll what the stdlib gives you.
+
+## Toolchain (Nix)
+
+nixpkgs lags Go releases, so every Go project owns its toolchain, the way tailscale does. (dotfiles `goOverlay`)
+
+- **Input named `go`**: go.dev's source tarball, following the newest stable tag. tack: `url = "https://go.dev/dl/go{version}.src.tar.gz"`, `type = "fixed"`, `unpack = "tarball"`, `tag = "go{version}"`, `tags_from = "gh:golang/go"`. Never `pkgs.go`/`go_latest`/`go_1_NN`.
+- **Exact name `go`**: dotfiles' `[all_follow] go = "go"` swaps it for the fleet pin, so the fleet compiles Go once.
+- **Build with nixpkgs' recipe**, not a hand-rolled one: `go = pkgs.go_latest.overrideAttrs { inherit version; src = inputs.go; }` and `buildGoModule = pkgs.callPackage "${pkgs.path}/pkgs/build-support/go/module.nix" { inherit go; }` (not `.override`: nixpkgs aliases it and it recurses).
+- **Dev tools use the same Go**: gopls, gotools, golangci-lint, gofumpt, delve, go-tools, golines, gotestsum via `.override` swapping `go`/`buildGoModule`/`buildGoLatestModule`/`buildGo1NNModule` (same major only).
+- **`overlays.default` builds with the consumer's `final`**: never `nixpkgs.legacyPackages`/`import nixpkgs` inside it, never `self.packages`, and never export `go`, `go_latest` or `buildGoModule` into the consumer. `packages` = `self.overlays.default` applied to the flake's own nixpkgs.
+- **Scope**: only our packages and dev tools. nixpkgs' own Go packages keep the channel Go and stay on Hydra's cache.
 
 ## Layout
 

@@ -105,7 +105,7 @@ in
     (lib.mkIf cfg.go.enable {
       programs.go = {
         enable = true;
-        package = pkgs.go;
+        package = pkgs.fleetGo;
         # Absolute: go rejects a relative GOPATH outright, and ~/.config/go/env
         # is read by every invocation, including ones with no session vars.
         env.GOPATH = "${config.home.homeDirectory}/go";

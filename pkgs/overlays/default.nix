@@ -16,7 +16,37 @@ let
           builtins.substring 0 7 m.rev;
     };
 in
-final: prev: {
+final: prev:
+let
+  # Our own Go packages build with the fleet Go; nixpkgs' keep the channel's.
+  callGo =
+    path: args:
+    prev.lib.callPackageWith (
+      final
+      // {
+        go = final.fleetGo;
+        buildGoModule = final.buildFleetGoModule;
+      }
+    ) path args;
+  # Dev tools must match the compiler they work on, so rebuild nixpkgs' with
+  # the fleet Go. Only the Go args each package takes are replaced; a builder
+  # pinned to an older major (lint support lag) stays.
+  withFleetGo =
+    pkg:
+    let
+      major = builtins.replaceStrings [ "." ] [ "" ] (prev.lib.versions.majorMinor final.fleetGo.version);
+    in
+    pkg.override (
+      args:
+      builtins.intersectAttrs args {
+        go = final.fleetGo;
+        buildGoModule = final.buildFleetGoModule;
+        buildGoLatestModule = final.buildFleetGoModule;
+        "buildGo${major}Module" = final.buildFleetGoModule;
+      }
+    );
+in
+{
   # Built on plain nixpkgs-unstable, as the standalone flake was.
   neovim-kradalby =
     inputs.nixpkgs-unstable.legacyPackages.${prev.stdenv.hostPlatform.system}.callPackage ../neovim
@@ -26,24 +56,11 @@ final: prev: {
         );
       };
 
-  # Releases track the newest Go release; take master's when it is ahead of
-  # the fleet's.
-  tailscale-tools = prev.callPackage ./tailscale-tools.nix (
-    pin "tailscale-tools"
-    // {
-      buildGoModule = prev.buildGoModule.override {
-        go =
-          let
-            masterGo = inputs.nixpkgs-master.legacyPackages.${prev.stdenv.hostPlatform.system}.go_latest;
-          in
-          if prev.lib.versionOlder prev.go.version masterGo.version then masterGo else prev.go;
-      };
-    }
-  );
+  tailscale-tools = callGo ./tailscale-tools.nix (pin "tailscale-tools");
 
-  setec = prev.callPackage ./setec.nix (pin "setec");
+  setec = callGo ./setec.nix (pin "setec");
 
-  squibble = prev.callPackage ./squibble.nix (pin "squibble");
+  squibble = callGo ./squibble.nix (pin "squibble");
 
   eb = prev.callPackage ./eb.nix (pin "eb");
 
@@ -53,25 +70,25 @@ final: prev: {
 
   mcp-picnic = prev.callPackage ./mcp-picnic.nix (pin "mcp-picnic");
 
-  authkey = prev.callPackage ./authkey { };
+  authkey = callGo ./authkey { };
 
-  rnb = prev.callPackage ./rnb { };
+  rnb = callGo ./rnb { };
 
-  rustic-wrapper = prev.callPackage ../rustic-wrapper { };
+  rustic-wrapper = callGo ../rustic-wrapper { };
 
-  p3-controller = prev.callPackage ../p3-controller { };
+  p3-controller = callGo ../p3-controller { };
 
-  ac-web = prev.callPackage ../ac-web { };
+  ac-web = callGo ../ac-web { };
 
-  oci-usage-exporter = prev.callPackage ../oci-usage-exporter { };
+  oci-usage-exporter = callGo ../oci-usage-exporter { };
 
-  github-star-feed = prev.callPackage ../github-star-feed { };
+  github-star-feed = callGo ../github-star-feed { };
 
-  energyd = prev.callPackage ../energyd { };
+  energyd = callGo ../energyd { };
 
-  dashboards = prev.callPackage ../dashboards { };
+  dashboards = callGo ../dashboards { };
 
-  pm-cli = prev.callPackage ./pm-cli.nix (pin "pm-cli");
+  pm-cli = callGo ./pm-cli.nix (pin "pm-cli");
 
   herald = prev.callPackage ./herald.nix (pin "herald");
 
@@ -81,7 +98,14 @@ final: prev: {
     abbr-tips = inputs.fish-abbr-tips;
   };
 
-  gotools = prev.callPackage ./gotools.nix ({ inherit (prev) gotools; } // pin "gotools");
+  gotools = prev.callPackage ./gotools.nix ({ gotools = withFleetGo prev.gotools; } // pin "gotools");
+  gopls = withFleetGo prev.gopls;
+  delve = withFleetGo prev.delve;
+  golangci-lint = withFleetGo prev.golangci-lint;
+  go-tools = withFleetGo prev.go-tools;
+  gofumpt = withFleetGo prev.gofumpt;
+  golines = withFleetGo prev.golines;
+  gotestsum = withFleetGo prev.gotestsum;
 
   # Stable still has rich 14.x's aarch64 broken-pipe test failure; unstable's
   # rich 15.x no longer needs the workaround.
