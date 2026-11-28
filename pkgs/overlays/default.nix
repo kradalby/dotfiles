@@ -28,6 +28,23 @@ let
         buildGoModule = final.buildFleetGoModule;
       }
     ) path args;
+  # Dev tools must match the compiler they work on, so rebuild nixpkgs' with
+  # the fleet Go. Only the Go args each package takes are replaced; a builder
+  # pinned to an older major (lint support lag) stays.
+  withFleetGo =
+    pkg:
+    let
+      major = builtins.replaceStrings [ "." ] [ "" ] (prev.lib.versions.majorMinor final.fleetGo.version);
+    in
+    pkg.override (
+      args:
+      builtins.intersectAttrs args {
+        go = final.fleetGo;
+        buildGoModule = final.buildFleetGoModule;
+        buildGoLatestModule = final.buildFleetGoModule;
+        "buildGo${major}Module" = final.buildFleetGoModule;
+      }
+    );
 in
 {
   # Built on plain nixpkgs-unstable, as the standalone flake was.
@@ -81,7 +98,14 @@ in
     abbr-tips = inputs.fish-abbr-tips;
   };
 
-  gotools = prev.callPackage ./gotools.nix ({ inherit (prev) gotools; } // pin "gotools");
+  gotools = prev.callPackage ./gotools.nix ({ gotools = withFleetGo prev.gotools; } // pin "gotools");
+  gopls = withFleetGo prev.gopls;
+  delve = withFleetGo prev.delve;
+  golangci-lint = withFleetGo prev.golangci-lint;
+  go-tools = withFleetGo prev.go-tools;
+  gofumpt = withFleetGo prev.gofumpt;
+  golines = withFleetGo prev.golines;
+  gotestsum = withFleetGo prev.gotestsum;
 
   # Stable still has rich 14.x's aarch64 broken-pipe test failure; unstable's
   # rich 15.x no longer needs the workaround.
